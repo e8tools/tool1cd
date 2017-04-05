@@ -1,0 +1,436 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{2EA7314E-A8AA-478F-BEC4-4D1B7B100254}</ProjectGuid>
+        <ProjectType>CppVCLApplication</ProjectType>
+        <MainSource>Tool_1CD.cpp</MainSource>
+        <Config Condition="'$(Config)'==''">Debug Build</Config>
+        <ProjectVersion>14.4</ProjectVersion>
+        <FrameworkType>VCL</FrameworkType>
+        <Base>True</Base>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <TargetedPlatforms>1</TargetedPlatforms>
+        <AppType>Application</AppType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+        <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug Build' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
+        <Cfg_1_Win32>true</Cfg_1_Win32>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
+        <Cfg_1_Win64>true</Cfg_1_Win64>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release Build' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
+        <Cfg_2_Win64>true</Cfg_2_Win64>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <_TCHARMapping>wchar_t</_TCHARMapping>
+        <Defines>No_PublicRelease;$(Defines)</Defines>
+        <BCC_PCHName>.\$(Platform)\$(Config)\Tool_1CD.pch</BCC_PCHName>
+        <BCC_PCHUsage>None</BCC_PCHUsage>
+        <IntermediateOutputDir>.\$(Platform)\$(Config)</IntermediateOutputDir>
+        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_MinorVer>4</VerInfo_MinorVer>
+        <VerInfo_Locale>1049</VerInfo_Locale>
+        <Manifest_File>None</Manifest_File>
+        <VerInfo_MajorVer>0</VerInfo_MajorVer>
+        <Icon_MainIcon>Tool_1CD_Icon1.ico</Icon_MainIcon>
+        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;FMX.Pickers;Winapi;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Build>134</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=awa;FileDescription=Tool_1CD;FileVersion=0.4.0.134;InternalName=Tool_1CD.exe;LegalCopyright=© 2009-2016 awa;LegalTrademarks=;OriginalFilename=Tool_1CD.exe;ProductName=Tool_1CD;ProductVersion=0.4.0.0;Comments=http://infostart.ru/public/19633/</VerInfo_Keys>
+        <BCC_StopBatchAfterErrors>255</BCC_StopBatchAfterErrors>
+        <BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
+        <BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
+        <BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
+        <BCC_MonitorThis>true</BCC_MonitorThis>
+        <BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
+        <BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
+        <BCC_InstructionSet>6</BCC_InstructionSet>
+        <LinkPackageStatics>vcl.lib;rtl.lib;vclx.lib;vclie.lib;ATViewerXE2.lib;vclactnband.lib;bcbie.lib;bdertl.lib;dbrtl.lib;vcldb.lib;VclSmp.lib;xmlrtl.lib;webdsnap.lib;inetdb.lib;inet.lib;dsnapcon.lib;dsnap.lib;tmsdXE3.lib;adortl.lib;vclimg.lib;tmsexdXE3.lib</LinkPackageStatics>
+        <IncludePath>Abbrevia\;..\ATViewer\Resources;..\ATViewer\Source;C:\awa32\XE3\awaPackage;$(BDSCOMMONDIR)\hpp;.\Abbrevia;$(BDSLIB)\win32\release;$(IncludePath)</IncludePath>
+        <BCC_wpar>false</BCC_wpar>
+        <PackageImports>vcl.bpi;rtl.bpi;vclx.bpi;B305vr61.bpi;B305_r61.bpi;dbrtl.bpi;vcldb.bpi;bdertl.bpi;vcldbx.bpi;dsnap.bpi;dsnap.bpi;dsnapcon.bpi;vclie.bpi;xmlrtl.bpi;inet.bpi;inetdbbde.bpi;inetdbxpress.bpi;inetdb.bpi;webdsnap.bpi;bcbie.bpi;websnap.bpi;soaprtl.bpi;dbexpress.bpi;dbxcds.bpi;dclusr.bpi;adortl.bpi;ibxpress.bpi;teeui.bpi;teedb.bpi;tee.bpi;dss.bpi;dsnapcon.bpi;bcbsmp.bpi;indycore.bpi;indysystem.bpi;bcboffice2k.bpi;$(PackageImports)</PackageImports>
+        <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
+        <DCC_UnitSearchPath>.\;.\Abbrevia\;$(BDSLIB)\$(Platform)\$(Config);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <ILINK_AppType>Windows</ILINK_AppType>
+        <BRCC_UserSuppliedOptions> -I$(BDS)\include;$(BDS)\include\vcl;$(BDS)\include\dinkumware</BRCC_UserSuppliedOptions>
+        <BRCC_IncludePath>$(BDS)\include;$(BDS)\include\vcl;$(BRCC_IncludePath)</BRCC_IncludePath>
+        <BCC_IncludePath>$(BDS)\include;$(BCC_IncludePath)</BCC_IncludePath>
+        <DCC_IncludePath>.\;$(BDS)\lib;$(BDS)\lib\obj;$(DCC_IncludePath)</DCC_IncludePath>
+        <TASM_IncludePath>.;$(BDS)\include;$(BDS)\include\vcl;$(TASM_IncludePath)</TASM_IncludePath>
+        <FinalOutputDir>.\$(Platform)\$(Config)</FinalOutputDir>
+        <BCC_GenerateWindowsApp>true</BCC_GenerateWindowsApp>
+        <OutputExt>exe</OutputExt>
+        <TASM_AdditionalSwitches> /w2</TASM_AdditionalSwitches>
+        <AllPackageLibs>vcl.lib;rtl.lib;vclx.lib;vclie.lib;ATViewerXE2.lib;vclactnband.lib;bcbie.lib;bdertl.lib;dbrtl.lib;vcldb.lib;VclSmp.lib;xmlrtl.lib;webdsnap.lib;inetdb.lib;inet.lib;dsnapcon.lib;dsnap.lib;tmsdXE3.lib;adortl.lib;vclimg.lib;tmsexdXE3.lib;tmsdxe3.lib;tmsexdxe3.lib;ATViewerXE2.lib;IndySystem.lib;IndyProtocols.lib;IndyCore.lib;awaPackage.lib</AllPackageLibs>
+        <BCC_GenerateMultithreaded>true</BCC_GenerateMultithreaded>
+        <ILINK_LibraryPath>Abbrevia\;ICU\46\bin\;ICU\40\bin\;ICU\34\bin\;..\ATViewer\Resources;..\ATViewer\Source;.\Abbrevia\;$(BDSLIB)\win32\release;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <Multithreaded>true</Multithreaded>
+        <DCC_AdditionalSwitches> -M</DCC_AdditionalSwitches>
+        <BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <VerInfo_Release>5</VerInfo_Release>
+        <VerInfo_Keys>CompanyName=awa;FileDescription=Tool_1CD;FileVersion=0.2.5.134;InternalName=Tool_1CD.exe;LegalCopyright=© 2009-2013 awa;LegalTrademarks=;OriginalFilename=Tool_1CD.exe;ProductName=Tool_1CD;ProductVersion=0.3.1.0;Comments=http://infostart.ru/public/19633/</VerInfo_Keys>
+        <BCC_Defines>NO_STRICT;$(BCC_Defines)</BCC_Defines>
+        <TASM_Defines>_DEBUG;$(TASM_Defines)</TASM_Defines>
+        <BCC_UserSuppliedOptions> -Vx -r- -k -Ve</BCC_UserSuppliedOptions>
+        <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <TASM_Defines>_DEBUG;$(TASM_Defines)</TASM_Defines>
+        <IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
+        <Icon_MainIcon>Tool_1CD_Icon.ico</Icon_MainIcon>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
+        <BCC_AllCodeguardOptions>false</BCC_AllCodeguardOptions>
+        <ILINK_LibraryPath>$(BDS)\lib\debug;$(ILINK_LibraryPath);$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <DCC_Define>DEBUG;$(DCC_Define);$(DCC_Define)</DCC_Define>
+        <ILINK_DisableIncrementalLinking>true</ILINK_DisableIncrementalLinking>
+        <TASM_Debugging>Full</TASM_Debugging>
+        <DCC_AdditionalSwitches> -M -V</DCC_AdditionalSwitches>
+        <TASM_DisplaySourceLines>true</TASM_DisplaySourceLines>
+        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <VerInfo_Build>146</VerInfo_Build>
+        <Debugger_DebugSourcePath>C:\awa32\XE3\1CD util\Abbrevia\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
+        <VerInfo_MinorVer>3</VerInfo_MinorVer>
+        <VerInfo_Release>3</VerInfo_Release>
+        <VerInfo_Keys>CompanyName=awa;FileDescription=Tool_1CD;FileVersion=0.3.3.146;InternalName=Tool_1CD.exe;LegalCopyright=© 2013 awa;LegalTrademarks=;OriginalFilename=Tool_1CD.exe;ProductName=Tool_1CD;ProductVersion=0.2.2.0;Comments=http://infostart.ru/public/19633/;SpecialBuild=Infostart Event Evolution 2013;PrivateBuild=Тестовая версия для artbear и pumbaE</VerInfo_Keys>
+        <LinkPackageStatics>vcl.lib;rtl.lib;vclx.lib;vclie.lib;ATViewerXE2.lib;vclactnband.lib;bcbie.lib;bdertl.lib;dbrtl.lib;vcldb.lib;VclSmp.lib;xmlrtl.lib;webdsnap.lib;inetdb.lib;inet.lib;dsnapcon.lib;dsnap.lib;tmsdXE3.lib;adortl.lib;vclimg.lib;tmsexdXE3.lib;IndySystem.lib;IndyProtocols.lib;IndyCore.lib;awaPackage.lib</LinkPackageStatics>
+        <BCC_Defines>_DEBUG;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
+        <BRCC_Defines>_DEBUG;$(BRCC_Defines)</BRCC_Defines>
+        <BCC_UserSuppliedOptions> -Vx -r- -k -Ve -k</BCC_UserSuppliedOptions>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <BCC_Defines>_DEBUG;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
+        <BRCC_Defines>_DEBUG;$(BRCC_Defines)</BRCC_Defines>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <VerInfo_MinorVer>2</VerInfo_MinorVer>
+        <VerInfo_Keys>CompanyName=awa;FileDescription=Tool_1CD;FileVersion=0.2.7.134;InternalName=Tool_1CD.exe;LegalCopyright=© 2009-2013 awa;LegalTrademarks=;OriginalFilename=Tool_1CD.exe;ProductName=Tool_1CD;ProductVersion=0.2.7.0;Comments=http://infostart.ru/public/19633/</VerInfo_Keys>
+        <VerInfo_Release>7</VerInfo_Release>
+        <BCC_AllCodeguardOptions>false</BCC_AllCodeguardOptions>
+        <ILINK_ImageChecksum>true</ILINK_ImageChecksum>
+        <BCC_EliminateDuplicateExpressions>true</BCC_EliminateDuplicateExpressions>
+        <DCC_DebugInformation>false</DCC_DebugInformation>
+        <BCC_DebugLineNumbers>false</BCC_DebugLineNumbers>
+        <BCC_OptimizeJumps>true</BCC_OptimizeJumps>
+        <BCC_SourceDebuggingOn>false</BCC_SourceDebuggingOn>
+        <BCC_ExpandIntrinsics>true</BCC_ExpandIntrinsics>
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <ILINK_FullDebugInfo>false</ILINK_FullDebugInfo>
+        <BCC_OptimizeVariables>true</BCC_OptimizeVariables>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
+        <BCC_EliminateDeadStore>true</BCC_EliminateDeadStore>
+        <BCC_PentiumInstructionScheduling>true</BCC_PentiumInstructionScheduling>
+        <DynamicRTL>false</DynamicRTL>
+        <BCC_LoopInductionReduction>true</BCC_LoopInductionReduction>
+        <DCC_AdditionalSwitches> -M -$O+</DCC_AdditionalSwitches>
+        <TASM_Debugging>None</TASM_Debugging>
+        <BCC_InlineFunctionExpansion>true</BCC_InlineFunctionExpansion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <VerInfo_MinorVer>4</VerInfo_MinorVer>
+        <VerInfo_Release>0</VerInfo_Release>
+        <VerInfo_Build>173</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=awa;FileDescription=Tool_1CD;FileVersion=0.4.0.173;InternalName=Tool_1CD.exe;LegalCopyright=© 2009-2015 awa;LegalTrademarks=;OriginalFilename=Tool_1CD.exe;ProductName=Tool_1CD;ProductVersion=0.4.0.0;Comments=http://infostart.ru/public/19633/</VerInfo_Keys>
+        <BCC_Defines>NDEBUG;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
+        <LinkPackageStatics>vcl.lib;rtl.lib;vclx.lib;vclie.lib;ATViewerXE2.lib;vclactnband.lib;bcbie.lib;bdertl.lib;dbrtl.lib;vcldb.lib;VclSmp.lib;xmlrtl.lib;webdsnap.lib;inetdb.lib;inet.lib;dsnapcon.lib;dsnap.lib;tmsdXE3.lib;adortl.lib;vclimg.lib;tmsexdXE3.lib;IndySystem.lib;IndyProtocols.lib;IndyCore.lib;awaPackage.lib</LinkPackageStatics>
+        <BCC_UserSuppliedOptions> -Vx -r- -k -Ve -r</BCC_UserSuppliedOptions>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+        <LinkPackageStatics>vcl.lib;rtl.lib;vclx.lib;vclie.lib;ATViewerXE2.lib;vclactnband.lib;bcbie.lib;bdertl.lib;dbrtl.lib;vcldb.lib;VclSmp.lib;xmlrtl.lib;webdsnap.lib;inetdb.lib;inet.lib;dsnapcon.lib;dsnap.lib;tmsdXE3.lib;adortl.lib;vclimg.lib;tmsexdXE3.lib;IndySystem.lib;IndyProtocols.lib;IndyCore.lib;awaPackage.lib</LinkPackageStatics>
+        <BCC_Defines>NDEBUG;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
+    </PropertyGroup>
+    <ItemGroup>
+        <DelphiCompile Include="Abbrevia\AbUnzPrc.pas">
+            <BuildOrder>27</BuildOrder>
+        </DelphiCompile>
+        <DelphiCompile Include="Abbrevia\AbZipPrc.pas">
+            <BuildOrder>26</BuildOrder>
+        </DelphiCompile>
+        <CppCompile Include="About.cpp">
+            <Form>AboutBox</Form>
+            <DependentOn>About.h</DependentOn>
+            <BuildOrder>10</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="APIcfBase.cpp">
+            <DependentOn>APIcfBase.h</DependentOn>
+            <BuildOrder>6</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Base64.cpp">
+            <DependentOn>Base64.h</DependentOn>
+            <BuildOrder>11</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Class_1CD.cpp">
+            <BuildOrder>8</BuildOrder>
+            <DependentOn>Class_1CD.h</DependentOn>
+            <BuildOrder>7</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="CommandLineDescriptionForm.cpp">
+            <Form>FormCommandLineDescription</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>CommandLineDescriptionForm.h</DependentOn>
+            <BuildOrder>25</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Common.cpp">
+            <DependentOn>Common.h</DependentOn>
+            <BuildOrder>26</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="ConfigStorage.cpp">
+            <DependentOn>ConfigStorage.h</DependentOn>
+            <BuildOrder>28</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="CRC32.cpp">
+            <DependentOn>CRC32.h</DependentOn>
+            <BuildOrder>24</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="FileFormat.cpp">
+            <DependentOn>FileFormat.h</DependentOn>
+            <BuildOrder>3</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="ICU.cpp">
+            <DependentOn>ICU.h</DependentOn>
+            <BuildOrder>0</BuildOrder>
+        </CppCompile>
+        <LibFiles Include="ICU\34\bin\icuin34.lib">
+            <BuildOrder>22</BuildOrder>
+            <IgnorePath>true</IgnorePath>
+        </LibFiles>
+        <LibFiles Include="ICU\40\bin\icuin40.lib">
+            <BuildOrder>23</BuildOrder>
+            <IgnorePath>true</IgnorePath>
+        </LibFiles>
+        <LibFiles Include="ICU\46\bin\icuin46.lib">
+            <BuildOrder>24</BuildOrder>
+            <IgnorePath>true</IgnorePath>
+        </LibFiles>
+        <CppCompile Include="Main_1CD.cpp">
+            <BuildOrder>8</BuildOrder>
+            <Form>FormMain</Form>
+            <DependentOn>Main_1CD.h</DependentOn>
+            <BuildOrder>1</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="MessageRegistration.cpp">
+            <DependentOn>MessageRegistration.h</DependentOn>
+            <BuildOrder>5</BuildOrder>
+        </CppCompile>
+        <None Include="ModelSupport_Tool_1CD\default.txaPackage"/>
+        <None Include="ModelSupport_Tool_1CD\default.txvpck"/>
+        <CppCompile Include="NodeTypes.cpp">
+            <DependentOn>NodeTypes.h</DependentOn>
+            <BuildOrder>13</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="OpenBlobDialog.cpp">
+            <Form>FormOpenBLOB</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>OpenBlobDialog.h</DependentOn>
+            <BuildOrder>23</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="ParseCommandLine.cpp">
+            <DependentOn>ParseCommandLine.h</DependentOn>
+            <BuildOrder>14</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Parse_tree.cpp">
+            <DependentOn>Parse_tree.h</DependentOn>
+            <BuildOrder>8</BuildOrder>
+        </CppCompile>
+        <None Include="PrecompiledHeaders.h">
+            <BuildOrder>13</BuildOrder>
+        </None>
+        <CppCompile Include="TableReadThread.cpp">
+            <DependentOn>TableReadThread.h</DependentOn>
+            <BuildOrder>2</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="TempStream.cpp">
+            <DependentOn>TempStream.h</DependentOn>
+            <BuildOrder>29</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Tool_1CD.cpp">
+            <BuildOrder>9</BuildOrder>
+        </CppCompile>
+        <ResFiles Include="Tool_1CD.res">
+            <BuildOrder>26</BuildOrder>
+        </ResFiles>
+        <None Include="Tool_1CD.todo"/>
+        <CppCompile Include="Zip.cpp">
+            <DependentOn>Zip.h</DependentOn>
+            <BuildOrder>4</BuildOrder>
+        </CppCompile>
+        <FormResources Include="OpenBlobDialog.dfm"/>
+        <FormResources Include="Main_1CD.dfm"/>
+        <FormResources Include="CommandLineDescriptionForm.dfm"/>
+        <FormResources Include="About.dfm"/>
+        <BuildConfiguration Include="Release Build">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Debug Build">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <Import Project="$(BDS)\Bin\CodeGear.Cpp.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Cpp.Targets')"/>
+    <ProjectExtensions>
+        <Borland.Personality>CPlusPlusBuilder.Personality.12</Borland.Personality>
+        <Borland.ProjectType>CppVCLApplication</Borland.ProjectType>
+        <BorlandProject>
+            <CPlusPlusBuilder.Personality>
+                <VersionInfo>
+                    <VersionInfo Name="IncludeVerInfo">True</VersionInfo>
+                    <VersionInfo Name="AutoIncBuild">True</VersionInfo>
+                    <VersionInfo Name="MajorVer">0</VersionInfo>
+                    <VersionInfo Name="MinorVer">2</VersionInfo>
+                    <VersionInfo Name="Release">2</VersionInfo>
+                    <VersionInfo Name="Build">231</VersionInfo>
+                    <VersionInfo Name="Debug">False</VersionInfo>
+                    <VersionInfo Name="PreRelease">False</VersionInfo>
+                    <VersionInfo Name="Special">False</VersionInfo>
+                    <VersionInfo Name="Private">False</VersionInfo>
+                    <VersionInfo Name="DLL">False</VersionInfo>
+                    <VersionInfo Name="Locale">1049</VersionInfo>
+                    <VersionInfo Name="CodePage">1251</VersionInfo>
+                </VersionInfo>
+                <VersionInfoKeys>
+                    <VersionInfoKeys Name="CompanyName">awa</VersionInfoKeys>
+                    <VersionInfoKeys Name="FileDescription">Tool_1CD</VersionInfoKeys>
+                    <VersionInfoKeys Name="FileVersion">0.2.2.231</VersionInfoKeys>
+                    <VersionInfoKeys Name="InternalName">Tool_1CD.exe</VersionInfoKeys>
+                    <VersionInfoKeys Name="LegalCopyright">© 2012 awa</VersionInfoKeys>
+                    <VersionInfoKeys Name="LegalTrademarks"/>
+                    <VersionInfoKeys Name="OriginalFilename">Tool_1CD.exe</VersionInfoKeys>
+                    <VersionInfoKeys Name="ProductName">Tool_1CD</VersionInfoKeys>
+                    <VersionInfoKeys Name="ProductVersion">0.2.2.0</VersionInfoKeys>
+                    <VersionInfoKeys Name="Comments">http://infostart.ru/public/19633/</VersionInfoKeys>
+                    <VersionInfoKeys Name="PrivateBuild">awa</VersionInfoKeys>
+                    <VersionInfoKeys Name="CFBundleName"/>
+                    <VersionInfoKeys Name="CFBundleDisplayName"/>
+                    <VersionInfoKeys Name="CFBundleIdentifier"/>
+                    <VersionInfoKeys Name="CFBundleVersion"/>
+                    <VersionInfoKeys Name="CFBundlePackageType"/>
+                    <VersionInfoKeys Name="CFBundleSignature"/>
+                    <VersionInfoKeys Name="CFBundleAllowMixedLocalizations"/>
+                    <VersionInfoKeys Name="CFBundleExecutable"/>
+                </VersionInfoKeys>
+                <HistoryLists_hlIncludePath>
+                    <HistoryLists_hlIncludePath Name="Count">1</HistoryLists_hlIncludePath>
+                    <HistoryLists_hlIncludePath Name="Item0">$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath>
+                </HistoryLists_hlIncludePath>
+                <HistoryLists_hlLibraryPath>
+                    <HistoryLists_hlLibraryPath Name="Count">1</HistoryLists_hlLibraryPath>
+                    <HistoryLists_hlLibraryPath Name="Item0">$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath>
+                </HistoryLists_hlLibraryPath>
+                <HistoryLists_hlDebugSourcePath>
+                    <HistoryLists_hlDebugSourcePath Name="Count">1</HistoryLists_hlDebugSourcePath>
+                    <HistoryLists_hlDebugSourcePath Name="Item0">$(BCB)\source\vcl</HistoryLists_hlDebugSourcePath>
+                </HistoryLists_hlDebugSourcePath>
+                <HistoryLists_hlConditionals>
+                    <HistoryLists_hlConditionals Name="Count">1</HistoryLists_hlConditionals>
+                    <HistoryLists_hlConditionals Name="Item0">_DEBUG</HistoryLists_hlConditionals>
+                </HistoryLists_hlConditionals>
+                <Debugging>
+                    <Debugging Name="DebugSourceDirs">$(BCB)\source\vcl;C:\awa32\RAD2009\1CD util\Abbrevia\</Debugging>
+                </Debugging>
+                <Parameters>
+                    <Parameters Name="RunParams"/>
+                    <Parameters Name="Launcher"/>
+                    <Parameters Name="UseLauncher">False</Parameters>
+                    <Parameters Name="DebugCWD"/>
+                    <Parameters Name="HostApplication"/>
+                    <Parameters Name="RemoteHost"/>
+                    <Parameters Name="RemotePath"/>
+                    <Parameters Name="RemoteLauncher"/>
+                    <Parameters Name="RemoteCWD"/>
+                    <Parameters Name="RemoteDebug">False</Parameters>
+                    <Parameters Name="RemoteParams"/>
+                    <Parameters Name="UseRemoteLauncher">False</Parameters>
+                    <Parameters Name="Debug Symbols Search Path"/>
+                    <Parameters Name="LoadAllSymbols">True</Parameters>
+                    <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+                </Parameters>
+                <Compiler>
+                    <Compiler Name="ShowInfoMsgs">0</Compiler>
+                    <Compiler Name="LinkDebugVcl">0</Compiler>
+                    <Compiler Name="LinkCGLIB">0</Compiler>
+                </Compiler>
+                <CORBA>
+                    <CORBA Name="AddServerUnit">1</CORBA>
+                    <CORBA Name="AddClientUnit">1</CORBA>
+                    <CORBA Name="PrecompiledHeaders">1</CORBA>
+                </CORBA>
+                <ProjectProperties>
+                    <ProjectProperties Name="AutoShowDeps">True</ProjectProperties>
+                    <ProjectProperties Name="ManagePaths">True</ProjectProperties>
+                    <ProjectProperties Name="VerifyPackages">False</ProjectProperties>
+                </ProjectProperties>
+                <Source>
+                    <Source Name="MainSource">Tool_1CD.cpp</Source>
+                </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k170.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp170.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k170.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp170.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
+            </CPlusPlusBuilder.Personality>
+            <ModelSupport>False</ModelSupport>
+            <Platforms>
+                <Platform value="Win32">True</Platform>
+                <Platform value="Win64">False</Platform>
+            </Platforms>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+</Project>

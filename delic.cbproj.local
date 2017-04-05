@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.316,C:\awa32\XE3\1CD util\ICU\34\bin\icuin34.lib=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.117,=C:\awa32\XE3\1CD util\ICU\40\bin\icuin40.lib</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.544,=C:\awa32\XE3\1CD util\TempStream.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.939,=C:\awa32\XE3\1CD util\ICU\34\bin\icuin34.lib</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.823,=C:\awa32\XE3\1CD util\ICU\46\bin\icuin46.lib</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.601,=C:\awa32\XE3\1CD util\delic_main.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.207,C:\awa32\XE3\1CD util\ICU\40\bin\icuin40.lib=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.456,=C:\awa32\XE3\1CD util\Abbrevia\AbUnzPrc.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.461,=C:\awa32\XE3\1CD util\Abbrevia\AbZipPrc.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.533,=C:\awa32\XE3\1CD util\ICU.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.408,=C:\awa32\XE3\1CD util\ConfigStorage.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.260,=C:\awa32\XE3\1CD util\Common.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.931,C:\awa32\XE3\1CD util\getcfname_main.cpp=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.830,C:\awa32\XE3\1CD util\main.cpp=C:\awa32\XE3\1CD util\delic_main.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.830,C:\awa32\XE3\1CD util\main.h=C:\awa32\XE3\1CD util\delic_main.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.558,C:\awa32\XE3\1CD util\ConfigStorage.cpp=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.755,=C:\awa32\XE3\1CD util\ConfigStorage.cpp</Transaction>
+  </Transactions>
+	<ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="Abbrevia"/>
+    <File Path="Abbrevia\AbUnzPrc.pas"/>
+    <File Path="Abbrevia\AbZipPrc.pas"/>
+    <File Path="APIcfBase.cpp"/>
+    <File Path="APIcfBase.cpp"/>
+    <File Path="APIcfBase.h"/>
+    <File Path="Base64.cpp"/>
+    <File Path="Base64.cpp"/>
+    <File Path="Base64.h"/>
+    <File Path="Class_1CD.cpp"/>
+    <File Path="Class_1CD.cpp"/>
+    <File Path="Class_1CD.h"/>
+    <File Path="Common.cpp"/>
+    <File Path="Common.cpp"/>
+    <File Path="Common.h"/>
+    <File Path="ConfigStorage.cpp"/>
+    <File Path="ConfigStorage.cpp"/>
+    <File Path="ConfigStorage.h"/>
+    <File Path="delic_main.cpp"/>
+    <File Path="delic_main.cpp"/>
+    <File Path="delic_main.h"/>
+    <File Path="ICU.cpp"/>
+    <File Path="ICU.cpp"/>
+    <File Path="ICU.h"/>
+    <File Path="ICU\46\bin\icuin46.lib"/>
+    <File Path="MessageRegistration.cpp"/>
+    <File Path="MessageRegistration.cpp"/>
+    <File Path="MessageRegistration.h"/>
+    <File Path="NodeTypes.cpp"/>
+    <File Path="NodeTypes.cpp"/>
+    <File Path="NodeTypes.h"/>
+    <File Path="Parse_tree.cpp"/>
+    <File Path="Parse_tree.cpp"/>
+    <File Path="Parse_tree.h"/>
+    <File Path="TempStream.cpp"/>
+    <File Path="TempStream.cpp"/>
+    <File Path="TempStream.h"/>
+    <File Path="Zip.cpp"/>
+    <File Path="Zip.cpp"/>
+    <File Path="Zip.h"/>
+  </ProjectSortOrder>
+</BorlandProject>

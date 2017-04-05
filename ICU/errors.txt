@@ -1,0 +1,6 @@
+Checking project dependencies...
+Compiling Tool_1CD.cbproj (Debug Build configuration)
+[BCC32 Error] uiter.h(676): E2015 Ambiguity between 'CharacterIterator' and 'icu_4_0::CharacterIterator'
+[BCC32 Error] uiter.h(701): E2015 Ambiguity between 'Replaceable' and 'icu_4_0::Replaceable'
+Failed
+Elapsed time: 00:00:04.0

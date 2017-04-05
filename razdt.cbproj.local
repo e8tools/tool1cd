@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.669,C:\Users\awa\Documents\RAD Studio\Projects\Unit1.cpp=C:\Users\awa\Documents\RAD Studio\Projects\razdt_form.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.526,=C:\Users\awa\Documents\RAD Studio\Projects\Unit1.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.048,=C:\awa32\XE3\razdt\Abbrevia\AbZipPrc.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.512,=C:\Users\awa\Documents\RAD Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.871,=C:\Users\awa\Documents\RAD Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.883,=C:\Users\awa\Documents\RAD Studio\Projects\Unit1.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.885,=C:\Users\awa\Documents\RAD Studio\Projects\Unit1.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.592,=C:\Users\awa\Documents\RAD Studio\Projects\Unit1.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.822,=C:\Users\awa\Documents\RAD Studio\Projects\Unit1.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.113,=C:\Users\awa\Documents\RAD Studio\Projects\Unit1.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.797,=C:\Users\awa\Documents\RAD Studio\Projects\Unit1.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.808,=C:\Users\awa\Documents\RAD Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.447,=C:\awa32\XE3\razdt\Abbrevia\AbUnzPrc.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.317,=C:\awa32\XE3\razdt\Zip.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.623,C:\Users\awa\Documents\RAD Studio\Projects\Project1.cbproj=C:\Users\awa\Documents\RAD Studio\Projects\razdt.cbproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.669,C:\Users\awa\Documents\RAD Studio\Projects\Unit1.dfm=C:\Users\awa\Documents\RAD Studio\Projects\razdt_form.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.534,=C:\awa32\XE3\razdt\TempStream.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.669,C:\Users\awa\Documents\RAD Studio\Projects\Unit1.h=C:\Users\awa\Documents\RAD Studio\Projects\razdt_form.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.784,=C:\Users\awa\Documents\RAD Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.099,=C:\Users\awa\Documents\RAD Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.997,C:\Users\awa\Documents\RAD Studio\Projects\Project1PCH1.h=C:\Users\awa\Documents\RAD Studio\Projects\razdtPCH1.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.867,=C:\Users\awa\Documents\RAD Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.473,=C:\Users\awa\Documents\RAD Studio\Projects\Project1PCH1.h</Transaction>
+  </Transactions>
+</BorlandProject>

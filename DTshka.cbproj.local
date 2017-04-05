@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.321,C:\awa32\XE3\1CD util\DTctorPCH1.h=C:\Users\awa\Documents\RAD Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.945,=C:\awa32\XE3\1CD util\MessageRegistration.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.751,C:\awa32\XE3\1CD util\DTctorPCH1.h=C:\awa32\XE3\1CD util\DTshkaPCH1.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.722,=C:\Users\awa\Documents\RAD Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.681,=C:\awa32\XE3\1CD util\Base64.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.969,C:\awa32\XE3\1CD util\Unit1.h=C:\awa32\XE3\1CD util\FileStorage.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.870,C:\awa32\XE3\1CD util\DTctor_Main.h=C:\Users\awa\Documents\RAD Studio\Projects\Unit2.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.099,C:\awa32\XE3\1CD util\DTctor_Main.h=C:\awa32\XE3\1CD util\DTshka_Main.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.740,=C:\Users\awa\Documents\RAD Studio\Projects\Unit2.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.061,=C:\awa32\XE3\1CD util\APIcfBase.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.009,=C:\awa32\XE3\1CD util\Class_1CD.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.969,C:\awa32\XE3\1CD util\Unit1.cpp=C:\awa32\XE3\1CD util\FileStorage.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.003,=C:\awa32\XE3\1CD util\Unit1.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.032,=C:\awa32\XE3\1CD util\Common.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.217,C:\awa32\XE3\1CD util\DTctor.cbproj=C:\Users\awa\Documents\RAD Studio\Projects\Project1.cbproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.768,C:\awa32\XE3\1CD util\DTctor.cbproj=C:\awa32\XE3\1CD util\DTshka.cbproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.099,C:\awa32\XE3\1CD util\DTctor_Main.dfm=C:\awa32\XE3\1CD util\DTshka_Main.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.870,C:\awa32\XE3\1CD util\DTctor_Main.cpp=C:\Users\awa\Documents\RAD Studio\Projects\Unit2.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.099,C:\awa32\XE3\1CD util\DTctor_Main.cpp=C:\awa32\XE3\1CD util\DTshka_Main.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.158,=C:\awa32\XE3\1CD util\TempStream.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.870,C:\awa32\XE3\1CD util\DTctor_Main.dfm=C:\Users\awa\Documents\RAD Studio\Projects\Unit2.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.429,=C:\awa32\XE3\1CD util\ConfigStorage.cpp</Transaction>
+  </Transactions>
+</BorlandProject>
