@@ -47,7 +47,7 @@ String CommandParse::helpstring =
 #ifdef console
 L"c"
 #endif
-L"Tool_1CD (с) 2009-2016 awa\r\n"
+L"Tool_1CD (с) 2009-2017 awa\r\n"
 L"\r\n\
 Запуск:\r\n"
 #ifdef console

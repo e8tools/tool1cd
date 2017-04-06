@@ -62,7 +62,7 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <VerInfo_Release>1</VerInfo_Release>
+        <VerInfo_Release>2</VerInfo_Release>
         <BCC_ExpandIntrinsics>true</BCC_ExpandIntrinsics>
         <BCC_MergeDuplicateStrings>true</BCC_MergeDuplicateStrings>
         <BCC_LoopInductionReduction>true</BCC_LoopInductionReduction>
@@ -77,7 +77,7 @@
         <VerInfo_Build>2</VerInfo_Build>
         <VerInfo_Locale>1049</VerInfo_Locale>
         <Manifest_File>None</Manifest_File>
-        <VerInfo_Keys>CompanyName=awa;FileDescription=консольная версия Tool_1CD;FileVersion=0.1.1.2;InternalName=cTool_1CD.exe;LegalCopyright=(c) awa 2015;LegalTrademarks=;OriginalFilename=;ProductName=cTool_1CD;ProductVersion=0.1.1.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=awa;FileDescription=консольная версия Tool_1CD;FileVersion=0.1.2.2;InternalName=cTool_1CD.exe;LegalCopyright=(c) awa 2015 - 2017;LegalTrademarks=;OriginalFilename=;ProductName=cTool_1CD;ProductVersion=0.1.1.0;Comments=</VerInfo_Keys>
         <VerInfo_MajorVer>0</VerInfo_MajorVer>
         <VerInfo_MinorVer>1</VerInfo_MinorVer>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -159,9 +159,13 @@
         <Icns_MainIcns>$(BDS)\bin\cbuilder_PROJECTICNS.icns</Icns_MainIcns>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <VerInfo_Build>3</VerInfo_Build>
+        <VerInfo_Release>2</VerInfo_Release>
+        <VerInfo_MinorVer>0</VerInfo_MinorVer>
+        <VerInfo_MajorVer>1</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <LinkPackageStatics>vcl.lib;rtl.lib</LinkPackageStatics>
-        <VerInfo_Keys>CompanyName=awa;FileDescription=Консольная версия Tool_1CD;FileVersion=0.1.1.2;InternalName=cTool_1CD;LegalCopyright=(c) awa 2009 - 2015;LegalTrademarks=;OriginalFilename=cTool_1CD.exe;ProductName=Tool_1CD;ProductVersion=0.1.1.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=awa;FileDescription=Консольная версия Tool_1CD;FileVersion=1.0.2.3;InternalName=cTool_1CD;LegalCopyright=(c) awa 2009 - 2017;LegalTrademarks=;OriginalFilename=cTool_1CD.exe;ProductName=Tool_1CD;ProductVersion=1.0.2.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <VerInfo_Keys>CompanyName=awa;FileDescription=консольная 64-битная версия Tool_1CD;FileVersion=0.1.1.2;InternalName=cTool_1CD64;LegalCopyright=(c) awa 2009-2015;LegalTrademarks=;OriginalFilename=cTool_1CD64.exe;ProductName=Tool_1CD;ProductVersion=0.1.1.0;Comments=</VerInfo_Keys>
@@ -212,6 +216,10 @@
         <CppCompile Include="Parse_tree.cpp">
             <DependentOn>Parse_tree.h</DependentOn>
             <BuildOrder>10</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="TempStream.cpp">
+            <DependentOn>TempStream.h</DependentOn>
+            <BuildOrder>12</BuildOrder>
         </CppCompile>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>

@@ -136,11 +136,11 @@
         <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <VerInfo_Build>146</VerInfo_Build>
+        <VerInfo_Build>148</VerInfo_Build>
         <Debugger_DebugSourcePath>C:\awa32\XE3\1CD util\Abbrevia\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
         <VerInfo_MinorVer>3</VerInfo_MinorVer>
         <VerInfo_Release>3</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=awa;FileDescription=Tool_1CD;FileVersion=0.3.3.146;InternalName=Tool_1CD.exe;LegalCopyright=© 2013 awa;LegalTrademarks=;OriginalFilename=Tool_1CD.exe;ProductName=Tool_1CD;ProductVersion=0.2.2.0;Comments=http://infostart.ru/public/19633/;SpecialBuild=Infostart Event Evolution 2013;PrivateBuild=Тестовая версия для artbear и pumbaE</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=awa;FileDescription=Tool_1CD;FileVersion=0.3.3.148;InternalName=Tool_1CD.exe;LegalCopyright=© 2013 awa;LegalTrademarks=;OriginalFilename=Tool_1CD.exe;ProductName=Tool_1CD;ProductVersion=0.2.2.0;Comments=http://infostart.ru/public/19633/;SpecialBuild=Infostart Event Evolution 2013;PrivateBuild=Тестовая версия для artbear и pumbaE</VerInfo_Keys>
         <LinkPackageStatics>vcl.lib;rtl.lib;vclx.lib;vclie.lib;ATViewerXE2.lib;vclactnband.lib;bcbie.lib;bdertl.lib;dbrtl.lib;vcldb.lib;VclSmp.lib;xmlrtl.lib;webdsnap.lib;inetdb.lib;inet.lib;dsnapcon.lib;dsnap.lib;tmsdXE3.lib;adortl.lib;vclimg.lib;tmsexdXE3.lib;IndySystem.lib;IndyProtocols.lib;IndyCore.lib;awaPackage.lib</LinkPackageStatics>
         <BCC_Defines>_DEBUG;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
         <BRCC_Defines>_DEBUG;$(BRCC_Defines)</BRCC_Defines>
@@ -333,7 +333,7 @@
                     <VersionInfo Name="MajorVer">0</VersionInfo>
                     <VersionInfo Name="MinorVer">2</VersionInfo>
                     <VersionInfo Name="Release">2</VersionInfo>
-                    <VersionInfo Name="Build">231</VersionInfo>
+                    <VersionInfo Name="Build">233</VersionInfo>
                     <VersionInfo Name="Debug">False</VersionInfo>
                     <VersionInfo Name="PreRelease">False</VersionInfo>
                     <VersionInfo Name="Special">False</VersionInfo>
@@ -345,7 +345,7 @@
                 <VersionInfoKeys>
                     <VersionInfoKeys Name="CompanyName">awa</VersionInfoKeys>
                     <VersionInfoKeys Name="FileDescription">Tool_1CD</VersionInfoKeys>
-                    <VersionInfoKeys Name="FileVersion">0.2.2.231</VersionInfoKeys>
+                    <VersionInfoKeys Name="FileVersion">0.2.2.233</VersionInfoKeys>
                     <VersionInfoKeys Name="InternalName">Tool_1CD.exe</VersionInfoKeys>
                     <VersionInfoKeys Name="LegalCopyright">© 2012 awa</VersionInfoKeys>
                     <VersionInfoKeys Name="LegalTrademarks"/>

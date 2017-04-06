@@ -1,23 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>1899.12.30 00:00:00.000.316,C:\awa32\XE3\1CD util\ICU\34\bin\icuin34.lib=</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.117,=C:\awa32\XE3\1CD util\ICU\40\bin\icuin40.lib</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.544,=C:\awa32\XE3\1CD util\TempStream.cpp</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.939,=C:\awa32\XE3\1CD util\ICU\34\bin\icuin34.lib</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.823,=C:\awa32\XE3\1CD util\ICU\46\bin\icuin46.lib</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.601,=C:\awa32\XE3\1CD util\delic_main.cpp</Transaction>
     <Transaction>1899.12.30 00:00:00.000.207,C:\awa32\XE3\1CD util\ICU\40\bin\icuin40.lib=</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.456,=C:\awa32\XE3\1CD util\Abbrevia\AbUnzPrc.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.830,C:\awa32\XE3\1CD util\delic_main.h=C:\awa32\XE3\1CD util\main.h</Transaction>
     <Transaction>1899.12.30 00:00:00.000.461,=C:\awa32\XE3\1CD util\Abbrevia\AbZipPrc.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.533,=C:\awa32\XE3\1CD util\ICU.cpp</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.408,=C:\awa32\XE3\1CD util\ConfigStorage.cpp</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.260,=C:\awa32\XE3\1CD util\Common.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.117,=C:\awa32\XE3\1CD util\ICU\40\bin\icuin40.lib</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.601,=C:\awa32\XE3\1CD util\delic_main.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.830,C:\awa32\XE3\1CD util\delic_main.cpp=C:\awa32\XE3\1CD util\main.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.456,=C:\awa32\XE3\1CD util\Abbrevia\AbUnzPrc.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.823,=C:\awa32\XE3\1CD util\ICU\46\bin\icuin46.lib</Transaction>
     <Transaction>1899.12.30 00:00:00.000.931,C:\awa32\XE3\1CD util\getcfname_main.cpp=</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.830,C:\awa32\XE3\1CD util\main.cpp=C:\awa32\XE3\1CD util\delic_main.cpp</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.830,C:\awa32\XE3\1CD util\main.h=C:\awa32\XE3\1CD util\delic_main.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.939,=C:\awa32\XE3\1CD util\ICU\34\bin\icuin34.lib</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.533,=C:\awa32\XE3\1CD util\ICU.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.260,=C:\awa32\XE3\1CD util\Common.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.316,C:\awa32\XE3\1CD util\ICU\34\bin\icuin34.lib=</Transaction>
     <Transaction>1899.12.30 00:00:00.000.558,C:\awa32\XE3\1CD util\ConfigStorage.cpp=</Transaction>
     <Transaction>1899.12.30 00:00:00.000.755,=C:\awa32\XE3\1CD util\ConfigStorage.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.544,=C:\awa32\XE3\1CD util\TempStream.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.408,=C:\awa32\XE3\1CD util\ConfigStorage.cpp</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="Abbrevia"/>

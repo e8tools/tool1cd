@@ -175,6 +175,14 @@ extern TMultiReadExclusiveWriteSynchronizer* tr_syn;
 #endif
 
 //********************************************************
+// Перегрузка операторов
+
+//bool __fastcall operator<(const String& l, const String& r)
+//{
+//	return l.Compare(r) < 0;
+//}
+
+//********************************************************
 // Функции
 
 
@@ -648,7 +656,7 @@ __fastcall v8object::v8object(T_1CD* _base)
 	blockNum = _base->get_free_block();
 	b = _base->getblock_for_write(blockNum, false);
 	memset(b, 0, _base->pagesize);
-	if(_base->ver < ver8_3_8_0)	memcpy(((v8ob*)b)->sig, SIG_OBJ, 8);
+	if(_base->version < ver8_3_8_0)	memcpy(((v8ob*)b)->sig, SIG_OBJ, 8);
 	else
 	{
 		b[0] = 0x1c;
@@ -10399,6 +10407,9 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	delete out;
 
 	// root, versions
+
+	std::map<String,String> vermap; // контейнер для сортировки versions
+
 	tv = new tree(L"", nd_list, NULL); // корень дерева файла versions
 	tvc = new tree(L"", nd_list, tv); // тек. элемент дерева файла versions
 	tr = new tree(L"", nd_list, NULL); // корень дерева файла root
@@ -10408,19 +10419,22 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	tcountv = tvc->add_child(L"0", nd_number); // узел, содержащий счетчик в файле versions
 	countv = 0;
 
-	tvc->add_child(L"", nd_string);
+	//tvc->add_child(L"", nd_string);
 	CreateGUID(guid);
-	tvc->add_child(GUIDasMS(uid), nd_guid);
+	//tvc->add_child(GUIDasMS(uid), nd_guid);
+	vermap[L""] = GUIDasMS(uid);
 	countv++;
 
-	tvc->add_child(L"version", nd_string);
+	//tvc->add_child(L"version", nd_string);
 	CreateGUID(guid);
-	tvc->add_child(GUIDasMS(uid), nd_guid);
+	//tvc->add_child(GUIDasMS(uid), nd_guid);
+	vermap[L"version"] = GUIDasMS(uid);
 	countv++;
 
-	tvc->add_child(L"versions", nd_string);
+	//tvc->add_child(L"versions", nd_string);
 	CreateGUID(guid);
-	tvc->add_child(GUIDasMS(uid), nd_guid);
+	//tvc->add_child(GUIDasMS(uid), nd_guid);
+	vermap[L"versions"] = GUIDasMS(uid);
 	countv++;
 
 	if(configVerMajor < 100)
@@ -10440,9 +10454,10 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 		tcountr = NULL;
 		cath = cat;
 		unziph = false;
-		tvc->add_child(L"root", nd_string);
+		//tvc->add_child(L"root", nd_string);
 		CreateGUID(guid);
-		tvc->add_child(GUIDasMS(uid), nd_guid);
+		//tvc->add_child(GUIDasMS(uid), nd_guid);
+		vermap[L"root"] = GUIDasMS(uid);
 		countv++;
 	}
 	countr = 0;
@@ -10544,9 +10559,18 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 					if(packlen) f->WriteAndClose(sobj, packlen);
 					else f->WriteAndClose(sobj);
 					if(deletesobj) delete sobj;
-					th->add_child(s, nd_string);
-					th->add_child(GUIDasMS((unsigned char*)rech1 + fldh_objverid->offset), nd_guid);
-					countr++;
+					if(configVerMajor < 100)
+					{
+						th->add_child(s, nd_string);
+						th->add_child(GUIDasMS((unsigned char*)rech1 + fldh_objverid->offset), nd_guid);
+						countr++;
+					}
+					else
+					{
+						vermap[s] = GUIDasMS((unsigned char*)rech1 + fldh_objverid->offset);
+						countv++;
+					}
+
 
 					// Вот тут идем по EXTERNALS
 					while(true)
@@ -10666,8 +10690,9 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 							if(packlen) f->WriteAndClose(sobj, packlen);
 							else f->WriteAndClose(sobj);
 							if(deletesobj) delete sobj;
-							tvc->add_child(sn, nd_string);
-							tvc->add_child(GUIDasMS((unsigned char*)rec + flde_extverid->offset), nd_guid);
+							//tvc->add_child(sn, nd_string);
+							//tvc->add_child(GUIDasMS((unsigned char*)rec + flde_extverid->offset), nd_guid);
+							vermap[sn] = GUIDasMS((unsigned char*)rec + flde_extverid->offset);
 							countv++;
 						}
 
@@ -10741,6 +10766,15 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	}
 
 	// Запись versions
+
+	std::map<String,String>::iterator pvermap; // контейнер для сортировки versions
+
+	for(pvermap = vermap.begin(); pvermap != vermap.end(); ++pvermap)
+	{
+		tvc->add_child(pvermap->first, nd_string);
+		tvc->add_child(pvermap->second, nd_guid);
+	}
+
 	s = outtext(tv);
 	delete tv;
 	in->Size = 0;
