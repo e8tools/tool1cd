@@ -139,7 +139,7 @@
         <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <Debugger_RunParams>&quot;C:\1Cv8 Bases\Тест хранилище 833 artbear\1cv8ddb.1CD&quot; -drc 13 &quot;C:\1Cv8 Bases\Тест хранилище 833 artbear\&quot; -nv</Debugger_RunParams>
+        <Debugger_RunParams>&quot;C:\1Cv8 Bases\Тест хранилище 833 artbear\1cv8ddb.1CD&quot; -drc 13 &quot;C:\1Cv8 Bases\Тест хранилище 833 artbear&quot; -nv</Debugger_RunParams>
         <Icon_MainIcon>cTool_1CD_Icon.ico</Icon_MainIcon>
         <LinkPackageStatics>vcl.lib;rtl.lib</LinkPackageStatics>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>

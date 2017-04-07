@@ -10000,7 +10000,6 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	char rootobj[16];
 	char curobj[16];
 	unsigned int ih, nh;
-	int countr;
 
 	field* flde_objid;
 	field* flde_vernum;
@@ -10015,7 +10014,6 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	DynamicArray<String> extnames;
 	int nreces;
 	unsigned int ie, ne;
-	int countv;
 
 	bool ok;
 	bool lastremoved;
@@ -10031,7 +10029,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	//char VerDate[7];
 	TStream* in;
 	TStream* out;
-	TStream* sobj;
+	TStream* st;
 	TStreamWriter* sw;
 	std::vector<_packdata> packdates;
 	TSearchRec srec;
@@ -10040,7 +10038,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	__int64 packlen;
 	v8catalog* cat;
 	v8catalog* cath;
-	bool unziph;
+	bool oldformat;
 	v8file* f;
 	tree* t;
 	tree* tc;
@@ -10048,7 +10046,6 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	tree* tvc; // тек. элемент дерева файла versions
 	tree* tr; // корень дерева файла root
 	tree* trc; // тек. элемент дерева файла root
-	tree* th; // тек. элемент дерева файла для добавления версий объектов из таблицы HISTORY (root или versions в зависимости от версии конфигурации)
 	tree* tcountv; // узел, содержащий счетчик в файле versions
 	tree* tcountr; // узел, содержащий счетчик в файле root
 	String __filename;
@@ -10382,6 +10379,24 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	if(FileExists(__filename)) DeleteFile(__filename);
 	cat = new v8catalog(__filename, false);
 
+	// root, versions
+
+	std::map<String,String> vermap; // контейнер для сортировки versions
+	std::map<String,String> rootmap; // контейнер для сортировки root
+	std::map<String,TStream*> extmap; // контейнер для сортировки файлов в корне
+	std::map<String,TStream*> metamap; // контейнер для сортировки файлов в metadata
+
+	tv = new tree(L"", nd_list, NULL); // корень дерева файла versions
+	tvc = new tree(L"", nd_list, tv); // тек. элемент дерева файла versions
+	tr = new tree(L"", nd_list, NULL); // корень дерева файла root
+	trc = new tree(L"", nd_list, tr); // тек. элемент дерева файла root
+
+	tvc->add_child(L"1", nd_number);
+	tcountv = tvc->add_child(L"0", nd_number); // узел, содержащий счетчик в файле versions
+
+	CreateGUID(guid);
+	vermap[L""] = GUIDasMS(uid);
+
 	// Создаем и записываем файл version
 	t = new tree(L"", nd_list, NULL);
 	tc = new tree(L"", nd_list, t);
@@ -10401,73 +10416,32 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	out = new TMemoryStream;
 	in->Seek(0, soFromBeginning);
 	DeflateStream(in, out);
-	f = cat->createFile(L"version");
-	f->WriteAndClose(out);
 	delete in;
-	delete out;
-
-	// root, versions
-
-	std::map<String,String> vermap; // контейнер для сортировки versions
-
-	tv = new tree(L"", nd_list, NULL); // корень дерева файла versions
-	tvc = new tree(L"", nd_list, tv); // тек. элемент дерева файла versions
-	tr = new tree(L"", nd_list, NULL); // корень дерева файла root
-	trc = new tree(L"", nd_list, tr); // тек. элемент дерева файла root
-
-	tvc->add_child(L"1", nd_number);
-	tcountv = tvc->add_child(L"0", nd_number); // узел, содержащий счетчик в файле versions
-	countv = 0;
-
-	//tvc->add_child(L"", nd_string);
+	extmap[L"version"] = out;
 	CreateGUID(guid);
-	//tvc->add_child(GUIDasMS(uid), nd_guid);
-	vermap[L""] = GUIDasMS(uid);
-	countv++;
-
-	//tvc->add_child(L"version", nd_string);
-	CreateGUID(guid);
-	//tvc->add_child(GUIDasMS(uid), nd_guid);
 	vermap[L"version"] = GUIDasMS(uid);
-	countv++;
-
-	//tvc->add_child(L"versions", nd_string);
-	CreateGUID(guid);
-	//tvc->add_child(GUIDasMS(uid), nd_guid);
-	vermap[L"versions"] = GUIDasMS(uid);
-	countv++;
 
 	if(configVerMajor < 100)
 	{
 		trc->add_child(L"1", nd_number);
 		trc->add_child(GUIDasMS((unsigned char*)rootobj), nd_guid);
 		tcountr = trc->add_child(L"0", nd_number); // узел, содержащий счетчик в файле root
-		th = trc;
-		cath = cat->CreateCatalog(L"metadata", true);
-		unziph = true;
+		oldformat = true;
 	}
 	else
 	{
 		trc->add_child(L"2", nd_number);
 		trc->add_child(GUIDasMS((unsigned char*)rootobj), nd_guid);
-		th = tvc;
 		tcountr = NULL;
-		cath = cat;
-		unziph = false;
-		//tvc->add_child(L"root", nd_string);
-		CreateGUID(guid);
-		//tvc->add_child(GUIDasMS(uid), nd_guid);
-		vermap[L"root"] = GUIDasMS(uid);
-		countv++;
+		oldformat = false;
 	}
-	countr = 0;
 
 	lastver = -1;
 	lastremoved = true;
 	memset(emptyimage, 0, 8);
 
 	in = new TMemoryStream;
-	out = new TMemoryStream;
+	//out = new TMemoryStream;
 	for(ih = 0, ie = 0; ih <= nh; ih++)
 	{
 		if(ih < nh)
@@ -10486,15 +10460,14 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 				rec = rech1 + fldh_objdata->offset + 1;
 				if(*(rech1 + fldh_objdata->offset) && memcmp(emptyimage, rec, 8))
 				{
-					table_history->readBlob(in, *(unsigned int*)rec, *(unsigned int*)(rec + 4));
-					if(unziph)
+					out = new TTempStream;
+					if(oldformat)
 					{
-						out->Size = 0;
+						table_history->readBlob(in, *(unsigned int*)rec, *(unsigned int*)(rec + 4));
 						in->Seek(0, soFromBeginning);
 						InflateStream(in, out);
-						sobj = out;
 					}
-					else sobj = in;
+					else table_history->readBlob(out, *(unsigned int*)rec, *(unsigned int*)(rec + 4));
 					ok = true;
 				}
 				else if(depotVer >= depotVer6)
@@ -10505,9 +10478,11 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 						pdr = &packdates[i];
 						for(k = 0; k < pdr->count; k++) if(memcmp(rec, pdr->datahashes[k].datahash, 20) == 0)
 						{
-							sobj = pdr->pack;
-							sobj->Seek(pdr->datahashes[k].offset, soBeginning);
-							sobj->Read(&packlen, 8);
+							st = pdr->pack;
+							st->Seek(pdr->datahashes[k].offset, soBeginning);
+							st->Read(&packlen, 8);
+							out = new TTempStream;
+							out->CopyFrom(st, packlen);
 							ok = true;
 							break;
 						}
@@ -10522,8 +10497,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 						{
 							try
 							{
-								sobj = new TFileStream(s, fmOpenRead | fmShareDenyNone);
-								deletesobj = true;
+								out = new TFileStream(s, fmOpenRead | fmShareDenyNone);
 								ok = true;
 							}
 							catch(...)
@@ -10555,20 +10529,15 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 				}
 				else
 				{
-					f = cath->createFile(s);
-					if(packlen) f->WriteAndClose(sobj, packlen);
-					else f->WriteAndClose(sobj);
-					if(deletesobj) delete sobj;
-					if(configVerMajor < 100)
+					if(oldformat)
 					{
-						th->add_child(s, nd_string);
-						th->add_child(GUIDasMS((unsigned char*)rech1 + fldh_objverid->offset), nd_guid);
-						countr++;
+						rootmap[s] = GUIDasMS((unsigned char*)rech1 + fldh_objverid->offset);
+						metamap[s] = out;
 					}
 					else
 					{
 						vermap[s] = GUIDasMS((unsigned char*)rech1 + fldh_objverid->offset);
-						countv++;
+						extmap[s] = out;
 					}
 
 
@@ -10625,8 +10594,8 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 						frec = rec + flde_extdata->offset;
 						if(memcmp(emptyimage, frec, 8))
 						{
-							table_externals->readBlob(in, *(unsigned int*)frec, *(unsigned int*)(frec + 4));
-							sobj = in;
+							out = new TTempStream;
+							table_externals->readBlob(out, *(unsigned int*)frec, *(unsigned int*)(frec + 4));
 							ok = true;
 						}
 						else if(depotVer >= depotVer6)
@@ -10637,9 +10606,11 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 								pdr = &packdates[i];
 								for(k = 0; k < pdr->count; k++) if(memcmp(frec, pdr->datahashes[k].datahash, 20) == 0)
 								{
-									sobj = pdr->pack;
-									sobj->Seek(pdr->datahashes[k].offset, soBeginning);
-									sobj->Read(&packlen, 8);
+									out = new TTempStream;
+									st = pdr->pack;
+									st->Seek(pdr->datahashes[k].offset, soBeginning);
+									st->Read(&packlen, 8);
+									out->CopyFrom(st, packlen);
 									ok = true;
 									break;
 								}
@@ -10654,8 +10625,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 								{
 									try
 									{
-										sobj = new TFileStream(s, fmOpenRead | fmShareDenyNone);
-										deletesobj = true;
+										out = new TFileStream(s, fmOpenRead | fmShareDenyNone);
 										ok = true;
 									}
 									catch(...)
@@ -10686,14 +10656,8 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 						}
 						else
 						{
-							f = cath->createFile(sn);
-							if(packlen) f->WriteAndClose(sobj, packlen);
-							else f->WriteAndClose(sobj);
-							if(deletesobj) delete sobj;
-							//tvc->add_child(sn, nd_string);
-							//tvc->add_child(GUIDasMS((unsigned char*)rec + flde_extverid->offset), nd_guid);
 							vermap[sn] = GUIDasMS((unsigned char*)rec + flde_extverid->offset);
-							countv++;
+							extmap[sn] = out;
 						}
 
 					}
@@ -10737,14 +10701,30 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	delete[] rece;
 	for(j = 0; j < nreces; j++) delete[] reces[j];
 
-	if(unziph)
+
+	// Завершаем формирование списков версий
+	std::map<String,String>::iterator pmap;
+
+	CreateGUID(guid);
+	vermap[L"versions"] = GUIDasMS(uid);
+	if(oldformat)
 	{
-		tcountv->set_value(countv, nd_number);
-		tcountr->set_value(countr, nd_number);
+		tcountv->set_value(vermap.size(), nd_number);
+		tcountr->set_value(rootmap.size(), nd_number);
 	}
-	else tcountv->set_value(countv + countr, nd_number);
+	else
+	{
+		CreateGUID(guid);
+		vermap[L"root"] = GUIDasMS(uid);
+		tcountv->set_value(vermap.size(), nd_number);
+	}
 
 	// Запись root
+	for(pmap = rootmap.begin(); pmap != rootmap.end(); ++pmap)
+	{
+		trc->add_child(pmap->first, nd_string);
+		trc->add_child(pmap->second, nd_guid);
+	}
 	s = outtext(tr);
 	delete tr;
 	in->Size = 0;
@@ -10753,26 +10733,24 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	sw->Write(s);
 	delete sw;
 	in->Seek(0, soFromBeginning);
-	f = cath->createFile(L"root");
-	if(unziph)
+	out = new TTempStream;
+	if(oldformat)
 	{
-		f->WriteAndClose(in);
+		out->CopyFrom(in, 0);
+		metamap[L"root"] = out;
 	}
 	else
 	{
-		out->Size = 0;
 		DeflateStream(in, out);
-		f->WriteAndClose(out);
+		extmap[L"root"] = out;
 	}
 
 	// Запись versions
 
-	std::map<String,String>::iterator pvermap; // контейнер для сортировки versions
-
-	for(pvermap = vermap.begin(); pvermap != vermap.end(); ++pvermap)
+	for(pmap = vermap.begin(); pmap != vermap.end(); ++pmap)
 	{
-		tvc->add_child(pvermap->first, nd_string);
-		tvc->add_child(pvermap->second, nd_guid);
+		tvc->add_child(pmap->first, nd_string);
+		tvc->add_child(pmap->second, nd_guid);
 	}
 
 	s = outtext(tv);
@@ -10782,14 +10760,31 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	sw = new TStreamWriter(in, TEncoding::UTF8, 1024);
 	sw->Write(s);
 	delete sw;
-	out->Size = 0;
+	out = new TTempStream;
 	in->Seek(0, soFromBeginning);
 	DeflateStream(in, out);
-	f = cat->createFile(L"versions");
-	f->WriteAndClose(out);
+	extmap[L"versions"] = out;
+
+	std::map<String,TStream*>::iterator psmap;
+	if(oldformat)
+	{
+		cath = cat->CreateCatalog(L"metadata", true);
+		for(psmap = metamap.begin(); psmap != metamap.end(); ++psmap)
+		{
+			f = cath->createFile(psmap->first);
+			f->WriteAndClose(psmap->second);
+			delete psmap->second;
+		}
+	}
+	for(psmap = extmap.begin(); psmap != extmap.end(); ++psmap)
+	{
+		f = cat->createFile(psmap->first);
+		f->WriteAndClose(psmap->second);
+		delete psmap->second;
+	}
 
 	delete in;
-	delete out;
+	//delete out;
 
 	for(i = 0; i < packdates.size(); i++)
 	{
