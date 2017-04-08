@@ -5,6 +5,8 @@ namespace System {
 	namespace Ioutils {
 		
 	}
+
+	struct FILETIME {};
 }
 
 #endif
