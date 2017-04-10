@@ -13,6 +13,9 @@ namespace System {
 typedef uint16_t Word;
 typedef uint8_t Byte;
 
+
+struct FILETIME {};
+
 }
 
 #endif

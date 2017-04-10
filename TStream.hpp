@@ -20,6 +20,8 @@ const TSeekOrigin soBeginning = std::ios_base::beg;
 const TSeekOrigin soCurrent = std::ios_base::cur;
 const TSeekOrigin soEnd = std::ios_base::end;
 const TSeekOrigin soFromBeginning = soBeginning;
+const TSeekOrigin soFromCurrent = std::ios_base::cur;
+const TSeekOrigin soFromEnd = std::ios_base::end;
 
 class TStream
 {
@@ -51,6 +53,11 @@ public:
 	virtual int64_t Write(const void *Buffer, const int64_t Count)
 	{
 		return 0;
+	}
+
+	virtual int64_t ReadBuffer(void *Buffer, int64_t Count)
+	{
+		return Read(Buffer, Count);
 	}
 
 	virtual int64_t Read(System::DynamicArray<System::Byte> &Buffer, int64_t Count)

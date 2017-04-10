@@ -26,6 +26,11 @@ public:
 	{
 	}
 
+	String(const wchar_t *w_src)
+	{
+		// TODO: Do magic!
+	}
+
 	String UpperCase() const
 	{
 		std::string copy (*this);
@@ -48,6 +53,16 @@ public:
 	int Length() const
 	{
 		return size();
+	}
+
+	int CompareIC(const String &b) const
+	{
+		return LowerCase().compare(b.LowerCase());
+	}
+
+	String SubString(int StartIndex, int Count) const
+	{
+		return String(substr(StartIndex - 1, Count));
 	}
 };
 
