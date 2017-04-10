@@ -17,12 +17,12 @@ public:
 	String() {}
 
 	String(const std::string &src)
-		: std::string(src)
+		 : std::string(src)
 	{
 	}
 
 	String(const char *src)
-		: std::string(src)
+		 : std::string(src)
 	{
 	}
 
@@ -64,14 +64,51 @@ public:
 	{
 		return String(substr(StartIndex - 1, Count));
 	}
+
+	String& operator += (const wchar_t b)
+	{
+		// TODO: String +=
+		return *this;
+	}
+
+	String& operator += (const wchar_t *b)
+	{
+		// TODO: String +=
+		return *this;
+	}
+
+	String& operator += (const char *b)
+	{
+		// TODO: String +=
+		return *this;
+	}
+
+	String& operator += (const String &b)
+	{
+		// TODO: String +=
+		return *this;
+	}
+
+	String operator + (const int value) const
+	{
+		// TODO: String +
+		return *this;
+	}
 };
 
 class TStringList : public std::vector<String>
 {
+public:
 
+	void Add(const String &item)
+	{
+		push_back(item);
+	}
 };
 
 
 } // System
+
+using namespace System;
 
 #endif

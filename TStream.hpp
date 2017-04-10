@@ -157,4 +157,6 @@ private:
 
 } // System
 
+using namespace System::Classes;
+
 #endif
