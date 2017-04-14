@@ -13,6 +13,12 @@
 #include "Common.h"
 #include "TempStream.h"
 #include "ConfigStorage.h"
+
+#include "UZlib.h"
+#pragma comment (lib, "zlibstatic.lib")
+
+#define CHUNK 65536
+
 //---------------------------------------------------------------------------
 //#pragma package(smart_init)
 //---------------------------------------------------------------------------
@@ -4156,7 +4162,7 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 			{
 				blob_stream->Seek(0, soFromBeginning);
 				//_s->Size = 0;
-				InflateStream(blob_stream, _s);
+				ZInflateStream(blob_stream, _s);
 				zipped = true;
 				if(maybezipped2) _sx = _s;
 				else _sx2 = _s;
@@ -4185,7 +4191,7 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 				{
 					_sx->Seek(0, soFromBeginning);
 					//_s->Size = 0;
-					InflateStream(_sx, _s2);
+					ZInflateStream(_sx, _s2);
 					zippedContainer = true;
 					_sx2 = _s2;
 					_s2 = NULL;
@@ -4239,7 +4245,7 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 					{
 						try
 						{
-							InflateStream(blob_stream, _s2);
+							ZInflateStream(blob_stream, _s2);
 						}
 						catch(...)
 						{
@@ -8044,7 +8050,7 @@ void __fastcall T_1CD::add_supplier_config(table_file* tf)
 	{
 		try
 		{
-			InflateStream(f->stream, s);
+			ZInflateStream(f->stream, s);
 		}
 		catch(...)
 		{
@@ -8259,7 +8265,7 @@ bool __fastcall T_1CD::save_supplier_configs(unsigned int numcon, const String& 
 
 	try
 	{
-		InflateStream(f->stream, _fs);
+		ZInflateStream(f->stream, _fs);
 	}
 	catch(...)
 	{
@@ -8841,7 +8847,7 @@ bool __fastcall T_1CD::recursive_test_stream_format(TStream* str, String path, b
 	{
 		_s2->Seek(0, soFromBeginning);
 		_s->Size = 0;
-		InflateStream(_s2, _s);
+		ZInflateStream(_s2, _s);
 		zipped1 = true;
 	}
 	catch (...)
@@ -8858,7 +8864,7 @@ bool __fastcall T_1CD::recursive_test_stream_format(TStream* str, String path, b
 		{
 			_s2->Seek(0, soFromBeginning);
 			_s->Size = 0;
-			InflateStream(_s2, _s);
+			ZInflateStream(_s2, _s);
 			zipped2 = true;
 		}
 		catch (...)
@@ -9410,7 +9416,7 @@ bool __fastcall T_1CD::test_list_of_tables()
 		{
 			try
 			{
-				InflateStream(str, _sb);
+				ZInflateStream(str, _sb);
 			}
 			catch (...)
 			{
@@ -10415,7 +10421,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	delete sw;
 	out = new TMemoryStream;
 	in->Seek(0, soFromBeginning);
-	DeflateStream(in, out);
+	ZDeflateStream(in, out);
 	delete in;
 	extmap[L"version"] = out;
 	CreateGUID(guid);
@@ -10465,7 +10471,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 					{
 						table_history->readBlob(in, *(unsigned int*)rec, *(unsigned int*)(rec + 4));
 						in->Seek(0, soFromBeginning);
-						InflateStream(in, out);
+						ZInflateStream(in, out);
 					}
 					else table_history->readBlob(out, *(unsigned int*)rec, *(unsigned int*)(rec + 4));
 					ok = true;
@@ -10741,7 +10747,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	}
 	else
 	{
-		DeflateStream(in, out);
+		ZDeflateStream(in, out);
 		extmap[L"root"] = out;
 	}
 
@@ -10762,7 +10768,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	delete sw;
 	out = new TTempStream;
 	in->Seek(0, soFromBeginning);
-	DeflateStream(in, out);
+	ZDeflateStream(in, out);
 	extmap[L"versions"] = out;
 
 	std::map<String,TStream*>::iterator psmap;
@@ -11289,7 +11295,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 							{
 								f = new TFileStream(cath + sn, fmCreate);
 								sobj->Seek(0, soFromBeginning);
-								InflateStream(sobj, f);
+								ZInflateStream(sobj, f);
 								delete f;
 								if(deletesobj) delete sobj;
 
@@ -11420,7 +11426,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 									{
 										out->Size = 0;
 										sobj->Seek(0, soFromBeginning);
-										InflateStream(sobj, out);
+										ZInflateStream(sobj, out);
 										iscatalog = false;
 										if(out->Size > 0)
 										{

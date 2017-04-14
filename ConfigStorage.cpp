@@ -10,6 +10,11 @@
 
 //#pragma package(smart_init)
 
+#include "UZlib.h"
+#pragma comment (lib, "zlibstatic.lib")
+
+#define CHUNK 65536
+
 //---------------------------------------------------------------------------
 #define error if(msreg) msreg->AddError
 #define status if(msreg) msreg->Status
@@ -269,7 +274,7 @@ bool container_file::open()
 	if(packed == tfp_yes)
 	{
 		ts->Seek(0l, soBeginning);
-		InflateStream(ts, stream);
+		ZInflateStream(ts, stream);
 		if(!rstream)
 		{
 			delete ts;

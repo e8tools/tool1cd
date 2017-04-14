@@ -1,5 +1,10 @@
 #include "APIcfBase.h"
 
+#include "UZlib.h"
+#pragma comment (lib, "zlibstatic.lib")
+
+#define CHUNK 65536
+
 // массив для преобразования числа в шестнадцатиричную строку
 const char _bufhex[] = "0123456789abcdef";
 
@@ -843,7 +848,7 @@ __fastcall v8catalog::v8catalog(String name) // создать каталог из физического ф
 		else
 		{
 			cfu = new TFileStream(name, fmOpenReadWrite);
-			InflateStream(cfu, data);
+			ZInflateStream(cfu, data);
 		}
 	}
 	else
@@ -1135,7 +1140,7 @@ TStream* __fastcall v8catalog::read_datablock(int start)
 	{
 		stream2 = new TMemoryStream;
 		stream->Seek(0, soFromBeginning);
-		InflateStream(stream, stream2);
+		ZInflateStream(stream, stream2);
 		delete stream;
 	}
 	else stream2 = stream;
@@ -1188,7 +1193,7 @@ int __fastcall v8catalog::write_datablock(TStream* block, int start, bool _zippe
 		{
 			stream2 = new TMemoryStream;
 			block->Seek(0, soFromBeginning);
-			DeflateStream(block, stream2);
+			ZDeflateStream(block, stream2);
 			Lock->Acquire();
 			start = write_block(stream2, start, false);
 			ret = start;
@@ -1201,7 +1206,7 @@ int __fastcall v8catalog::write_datablock(TStream* block, int start, bool _zippe
 			stream->CopyFrom(block, len);
 			stream2 = new TMemoryStream;
 			stream->Seek(0, soFromBeginning);
-			DeflateStream(stream, stream2);
+			ZDeflateStream(stream, stream2);
 			delete stream;
 			Lock->Acquire();
 			start = write_block(stream2, start, false);
@@ -1397,7 +1402,7 @@ __fastcall v8catalog::~v8catalog()
 			{
 				data->Seek(0, soFromBeginning);
 				cfu->Seek(0, soFromBeginning);
-				DeflateStream(data, cfu);
+				ZDeflateStream(data, cfu);
 			}
 			delete data;
 			data = NULL;
@@ -1534,7 +1539,7 @@ void __fastcall v8catalog::Flush()
 			{
 				data->Seek(0, soFromBeginning);
 				cfu->Seek(0, soFromBeginning);
-				DeflateStream(data, cfu);
+				ZDeflateStream(data, cfu);
 			}
 		}
 	}
