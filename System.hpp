@@ -7,13 +7,18 @@
 
 #include <cstdint>
 #include <vector>
+#include <climits>
 
 namespace System {
 
 typedef uint32_t LongWord;
 typedef uint16_t Word;
 typedef uint8_t Byte;
+typedef uint64_t __int64;
+typedef wchar_t *LPWSTR;
+typedef char *LPSTR;
 
+const unsigned int MAXUINT = UINT_MAX;
 
 struct FILETIME {};
 

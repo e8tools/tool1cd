@@ -12,6 +12,8 @@
 #include "TMemoryStream.hpp"
 #include "TFileStream.hpp"
 #include "System.SysUtils.hpp"
+#include "Exception.hpp"
+#include "TStreamWriter.hpp"
 
 namespace System {
 

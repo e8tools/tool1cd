@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <System.hpp>
+#include <DynamicArray.hpp>
 
 #define _DELPHI_STRING_UNICODE
 
@@ -27,6 +28,11 @@ public:
 	}
 
 	String(const wchar_t *w_src)
+	{
+		// TODO: Do magic!
+	}
+
+	String(const int value)
 	{
 		// TODO: Do magic!
 	}
@@ -58,6 +64,11 @@ public:
 	int CompareIC(const String &b) const
 	{
 		return LowerCase().compare(b.LowerCase());
+	}
+
+	int Compare(const String &b) const
+	{
+		return compare(b);
 	}
 
 	String SubString(int StartIndex, int Count) const
@@ -94,7 +105,26 @@ public:
 		// TODO: String +
 		return *this;
 	}
+
+	int ToIntDef(int default_value) const
+	{
+		return default_value;
+	}
+
+	int Pos(const String &substr)
+	{
+		auto index = find(substr);
+		if (index == npos) {
+			return -1;
+		}
+		return index;
+	}
 };
+
+std::string operator + (const std::string &text, const int value)
+{
+	return text;
+}
 
 class TStringList : public std::vector<String>
 {
@@ -104,6 +134,23 @@ public:
 	{
 		push_back(item);
 	}
+
+	void SetText(const String &text)
+	{
+		// TODO: Magic
+	}
+
+	int Count() const
+	{
+		return size();
+	}
+
+	void Delete(int index)
+	{
+		erase(begin() + index);
+	}
+
+	DynamicArray<String> Strings;
 };
 
 

@@ -11,6 +11,7 @@ namespace System {
 namespace Classes {
 
 const uint16_t fmOpenReadWrite = 0x0002;
+const uint16_t fmShareDenyNone = 0x0040;
 const uint16_t fmCreate = 0xFFFF;
 typedef uint16_t HANDLE;
 

@@ -8,6 +8,13 @@ namespace System {
 template <typename T>
 class DynamicArray : public std::vector<T> {
 
+public:
+
+	int get_length() const
+	{
+		return size();
+	}
+
 };
 
 }
