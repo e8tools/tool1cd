@@ -121,7 +121,8 @@ public:
 	}
 };
 
-std::string operator + (const std::string &text, const int value)
+template <typename char_type>
+std::basic_string<char_type> operator + (const std::basic_string<char_type> &text, const int value)
 {
 	return text;
 }

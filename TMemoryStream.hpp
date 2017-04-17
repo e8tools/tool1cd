@@ -67,6 +67,11 @@ private:
 	int _pos;
 };
 
+class TBytesStream : public TMemoryStream
+{
+
+};
+
 } // Classes
 
 } // System

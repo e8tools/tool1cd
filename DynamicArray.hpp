@@ -12,7 +12,12 @@ public:
 
 	int get_length() const
 	{
-		return size();
+		return this->size();
+	}
+
+	void set_length(int new_length)
+	{
+		this->resize(new_length);
 	}
 
 };

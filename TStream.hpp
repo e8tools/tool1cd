@@ -97,6 +97,11 @@ public:
 	virtual ~TStream() {}
 };
 
+class THandleStream : public TStream
+{
+
+};
+
 class TWrapperStream : public TStream {
 protected:
 	

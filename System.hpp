@@ -34,7 +34,13 @@ enum TReplaceFlags {
 	rfIgnoreCase = 2
 };
 
+template<typename T>
+void LocalFree(T *anyvalue)
+{
+	// Do nothing
 }
+
+} // System
 
 #endif
 

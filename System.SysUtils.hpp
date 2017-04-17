@@ -30,6 +30,11 @@ public:
 	}
 };
 
+class TMultiReadExclusiveWriteSynchronizer 
+{
+
+};
+
 } // SysUtils
 
 namespace Sysutils = SysUtils;
