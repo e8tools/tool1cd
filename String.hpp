@@ -27,7 +27,7 @@ public:
 	{
 	}
 
-	String(const wchar_t *w_src)
+	String(const wchar_t *w_src, int limit_size = -1)
 	{
 		// TODO: Do magic!
 	}
@@ -69,6 +69,11 @@ public:
 	int Compare(const String &b) const
 	{
 		return compare(b);
+	}
+
+	String Replace(const String &sub, const String &replace) const
+	{
+		return *this;
 	}
 
 	String SubString(int StartIndex, int Count) const
@@ -118,6 +123,11 @@ public:
 			return -1;
 		}
 		return index;
+	}
+
+	int GetLength() const
+	{
+		return this->size();
 	}
 };
 

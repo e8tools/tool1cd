@@ -3,6 +3,17 @@
 
 
 namespace System {
+
+namespace Classes {
+
+unsigned GetTickCount()
+{
+	// TODO: GetTickCount()
+	return 0;
+}
+
+} // Classes
+
 namespace Ioutils {
 
 
@@ -47,7 +58,20 @@ String GetFullPath(const String &filename)
 
 } // TPath
 
-
 } // Ioutils
+
+namespace SysUtils {
+
+static int GetBufferEncoding(const System::DynamicArray<Byte> &Buffer, TEncoding* &AEncoding)
+{
+	return 0;
+}
+
+static DynamicArray<Byte> Convert(TEncoding * const Source, TEncoding * const Destination, const DynamicArra<Byte> &Bytes, int StartIndex, int Count)
+{
+	return Bytes;
+}
+
+} // SysUtils
 
 } // System

@@ -54,6 +54,11 @@ public:
 		return Count;
 	}
 
+	const DynamicArray<Byte> &GetBytes() const
+	{
+		return _data;
+	}
+
 private:
 
 	void EnsureSize(int size)
@@ -69,7 +74,8 @@ private:
 
 class TBytesStream : public TMemoryStream
 {
-
+public:
+	TBytesStream(const DynamicArray<Byte> &initial) {}
 };
 
 } // Classes

@@ -20,6 +20,16 @@ public:
 		this->resize(new_length);
 	}
 
+	int GetLength() const
+	{
+		return this->size();
+	}
+
+	int SetLength(int NewSize)
+	{
+		this->resize(NewSize);
+	}
+
 };
 
 }

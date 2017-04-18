@@ -14,26 +14,42 @@ class TStringBuilder
 {
 public:
 	explicit TStringBuilder(const String &initial)
+		: value(initial)
 	{
-		// TODO: Magic
 	}
 
-	void Replace(const String &substring, const String &replace)
+	TStringBuilder *Replace(const String &substring, const String &replace)
 	{
-		// TODO: Magic
+		value = value.Replace(substring, replace);
+		return this;
 	}
 
 	String ToString() const
 	{
-		// TODO: Magic
-		return String("");
+		return value;
 	}
+
+	String value;
 };
 
 class TMultiReadExclusiveWriteSynchronizer 
 {
 
 };
+
+class TEncoding
+{
+
+public:
+
+static int GetBufferEncoding(const System::DynamicArray<Byte> &Buffer, TEncoding* &AEncoding);
+static DynamicArray<Byte> Convert(TEncoding * const Source, TEncoding * const Destination, const DynamicArray<Byte> &Bytes, int StartIndex, int Count);
+
+static TEncoding *Unicode = nullptr;
+
+};
+
+typedef System::DynamicArray<System::Byte> TBytes;
 
 } // SysUtils
 

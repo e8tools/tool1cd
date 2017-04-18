@@ -29,6 +29,8 @@ public:
 	virtual void Release() {}
 };
 
+unsigned GetTickCount();
+
 } // Classes
 
 

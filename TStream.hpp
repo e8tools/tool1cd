@@ -38,6 +38,16 @@ public:
 
 	}
 
+	virtual int64_t GetPosition() const
+	{
+		return 0;
+	}
+
+	virtual void SetPosition(uint64_t NewPosition)
+	{
+		
+	}
+
 public:
 
 	virtual int64_t Read(void *Buffer, int64_t Count)
