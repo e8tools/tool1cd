@@ -2,7 +2,7 @@
 
 #include <vcl.h>
 #include <vector>
-#include <IOUtils.hpp>
+#include <System.IOUtils.hpp>
 #pragma hdrstop
 
 #include "Class_1CD.h"
@@ -14,7 +14,7 @@
 #include "TempStream.h"
 #include "ConfigStorage.h"
 
-#include "UZlib.h"
+#include "UZLib.h"
 #pragma comment (lib, "zlibstatic.lib")
 
 #define CHUNK 65536
@@ -23,7 +23,7 @@
 //#pragma package(smart_init)
 //---------------------------------------------------------------------------
 
-#define live_cash 5 // время жизни кешированных данных в минутах
+#define live_cash 5 // РІСЂРµРјСЏ Р¶РёР·РЅРё РєРµС€РёСЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С… РІ РјРёРЅСѓС‚Р°С…
 extern MessageRegistrator* msreg;
 #define error if(msreg) msreg->AddError
 
@@ -166,8 +166,8 @@ memblock* memblock::first = NULL;
 memblock* memblock::last = NULL;
 unsigned int memblock::count = 0;
 unsigned int memblock::maxcount;
-//unsigned int memblock::maxcount = 0x10000; // 256 мегабайт ()
-//unsigned int memblock::maxcount = 0x8000; // 128 мегабайт ()
+//unsigned int memblock::maxcount = 0x10000; // 256 РјРµРіР°Р±Р°Р№С‚ ()
+//unsigned int memblock::maxcount = 0x8000; // 128 РјРµРіР°Р±Р°Р№С‚ ()
 memblock** memblock::memblocks = NULL;
 unsigned int memblock::numblocks = 0;
 unsigned int memblock::array_numblocks = 0;
@@ -181,7 +181,7 @@ extern TMultiReadExclusiveWriteSynchronizer* tr_syn;
 #endif
 
 //********************************************************
-// Перегрузка операторов
+// РџРµСЂРµРіСЂСѓР·РєР° РѕРїРµСЂР°С‚РѕСЂРѕРІ
 
 //bool __fastcall operator<(const String& l, const String& r)
 //{
@@ -189,7 +189,7 @@ extern TMultiReadExclusiveWriteSynchronizer* tr_syn;
 //}
 
 //********************************************************
-// Функции
+// Р¤СѓРЅРєС†РёРё
 
 
 //---------------------------------------------------------------------------
@@ -205,17 +205,17 @@ tree* __fastcall get_treeFromV8file(v8file* f)
 	f->SaveToStream(sb);
 
 	enc = NULL;
-	offset = TEncoding::GetBufferEncoding(sb->Bytes, enc);
+	offset = TEncoding::GetBufferEncoding(sb->GetBytes(), enc);
 	if(offset == 0)
 	{
-		error("Ошибка определения кодировки файла контейнера",
-			"Файл", f->GetFullName());
+		error("РћС€РёР±РєР° РѕРїСЂРµРґРµР»РµРЅРёСЏ РєРѕРґРёСЂРѕРІРєРё С„Р°Р№Р»Р° РєРѕРЅС‚РµР№РЅРµСЂР°",
+			"Р¤Р°Р№Р»", f->GetFullName());
 		delete sb;
 		return NULL;
 	}
-	bytes = TEncoding::Convert(enc, TEncoding::Unicode, sb->Bytes, offset, sb->Size-offset);
+	bytes = TEncoding::Convert(enc, TEncoding::Unicode, sb->GetBytes(), offset, sb->GetSize() - offset);
 
-	rt = parse_1Ctext(String((wchar_t*)&bytes[0], bytes.Length / 2), f->GetFullName());
+	rt = parse_1Ctext(String((wchar_t*)&bytes[0], bytes.GetLength() / 2), f->GetFullName());
 	delete sb;
 	return rt;
 }
@@ -223,7 +223,7 @@ tree* __fastcall get_treeFromV8file(v8file* f)
 //---------------------------------------------------------------------------
 String __fastcall toXML(String in)
 {
-	return TStringBuilder(in).Replace(L"&", L"&amp;")->Replace(L"<", L"&lt;")->Replace(L">", L"&gt;")->Replace(L"'", L"&apos;")->Replace(L"\"", "&quot;")->ToString();
+	return TStringBuilder(in).Replace("&", "&amp;")->Replace("<", "&lt;")->Replace(">", "&gt;")->Replace("'", "&apos;")->Replace("\"", "&quot;")->ToString();
 }
 
 //---------------------------------------------------------------------------
@@ -237,13 +237,13 @@ unsigned char __fastcall from_hex_digit(wchar_t digit)
 
 
 //********************************************************
-// Класс memblock
+// РљР»Р°СЃСЃ memblock
 
 //---------------------------------------------------------------------------
 __fastcall memblock::memblock(TFileStream* fs, unsigned int _numblock, bool for_write, bool read)
 {
 	numblock = _numblock;
-	if(count >= maxcount) delete first; // если количество кешированных блоков превышает максимальное, удаляем последний, к которому было обращение
+	if(count >= maxcount) delete first; // РµСЃР»Рё РєРѕР»РёС‡РµСЃС‚РІРѕ РєРµС€РёСЂРѕРІР°РЅРЅС‹С… Р±Р»РѕРєРѕРІ РїСЂРµРІС‹С€Р°РµС‚ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ, СѓРґР°Р»СЏРµРј РїРѕСЃР»РµРґРЅРёР№, Рє РєРѕС‚РѕСЂРѕРјСѓ Р±С‹Р»Рѕ РѕР±СЂР°С‰РµРЅРёРµ
 	count++;
 	prev = last;
 	next = NULL;
@@ -254,20 +254,20 @@ __fastcall memblock::memblock(TFileStream* fs, unsigned int _numblock, bool for_
 	buf = new char[pagesize];
 	if(for_write)
 	{
-		unsigned int fnumblocks = fs->Size / pagesize;
+		unsigned int fnumblocks = fs->GetSize() / pagesize;
 		if(fnumblocks <= numblock)
 		{
 			memset(buf, 0, pagesize);
-			fs->Seek((__int64)numblock * pagesize, (TSeekOrigin)soFromBeginning);
+			fs->Seek((int64_t)numblock * pagesize, (TSeekOrigin)soFromBeginning);
 			fs->WriteBuffer(buf, pagesize);
-			fs->Seek(12i64, (TSeekOrigin)soFromBeginning);
+			fs->Seek(12, (TSeekOrigin)soFromBeginning);
 			fs->WriteBuffer(&numblock, 4);
 		}
 		else
 		{
 			if(read)
 			{
-				fs->Seek((__int64)numblock * pagesize, (TSeekOrigin)soFromBeginning);
+				fs->Seek((int64_t)numblock * pagesize, (TSeekOrigin)soFromBeginning);
 				fs->ReadBuffer(buf, pagesize);
 			}
 			else memset(buf, 0, pagesize);
@@ -275,14 +275,14 @@ __fastcall memblock::memblock(TFileStream* fs, unsigned int _numblock, bool for_
 	}
 	else
 	{
-		fs->Seek((__int64)numblock * pagesize, (TSeekOrigin)soFromBeginning);
+		fs->Seek((int64_t)numblock * pagesize, (TSeekOrigin)soFromBeginning);
 		fs->ReadBuffer(buf, pagesize);
 	}
 
 	is_changed = for_write;
 	file = fs;
 
-	// регистрируем себя в в массиве блоков
+	// СЂРµРіРёСЃС‚СЂРёСЂСѓРµРј СЃРµР±СЏ РІ РІ РјР°СЃСЃРёРІРµ Р±Р»РѕРєРѕРІ
 	memblocks[numblock] = this;
 }
 
@@ -291,13 +291,13 @@ __fastcall memblock::~memblock()
 {
 	if(is_changed) write();
 
-	// удаляем себя из цепочки...
+	// СѓРґР°Р»СЏРµРј СЃРµР±СЏ РёР· С†РµРїРѕС‡РєРё...
 	if(prev) prev->next = next;
 	else first = next;
 	if(next) next->prev = prev;
 	else last = prev;
 
-	// удаляем себя из массива блоков
+	// СѓРґР°Р»СЏРµРј СЃРµР±СЏ РёР· РјР°СЃСЃРёРІР° Р±Р»РѕРєРѕРІ
 	memblocks[numblock] = NULL;
 
 	count--;
@@ -308,12 +308,12 @@ __fastcall memblock::~memblock()
 char* __fastcall memblock::getblock(bool for_write)
 {
 	lastdataget = GetTickCount();
-	// удаляем себя из текущего положения цепочки...
+	// СѓРґР°Р»СЏРµРј СЃРµР±СЏ РёР· С‚РµРєСѓС‰РµРіРѕ РїРѕР»РѕР¶РµРЅРёСЏ С†РµРїРѕС‡РєРё...
 	if(prev) prev->next = next;
 	else first = next;
 	if(next) next->prev = prev;
 	else last = prev;
-	// ... и записываем себя в конец цепочки
+	// ... Рё Р·Р°РїРёСЃС‹РІР°РµРј СЃРµР±СЏ РІ РєРѕРЅРµС† С†РµРїРѕС‡РєРё
 	prev = last;
 	next = NULL;
 	if(last) last->next = this;
@@ -407,7 +407,7 @@ void __fastcall memblock::flush()
 void __fastcall memblock::write()
 {
 	if(!is_changed) return;
-	file->Seek((__int64)numblock * pagesize, (TSeekOrigin)soFromBeginning);
+	file->Seek((int64_t)numblock * pagesize, (TSeekOrigin)soFromBeginning);
 	file->WriteBuffer(buf, pagesize);
 	is_changed = false;
 }
@@ -415,7 +415,7 @@ void __fastcall memblock::write()
 //---------------------------------------------------------------------------
 
 //***************************************************************************
-// Класс v8object
+// РљР»Р°СЃСЃ v8object
 
 //---------------------------------------------------------------------------
 void __fastcall v8object::garbage()
@@ -493,8 +493,8 @@ void __fastcall v8object::init(T_1CD* _base, int blockNum)
 		{
 			delete t;
 			init();
-			error("Ошибка получения объекта из блока. Блок не является объектом.",
-				"Блок", tohex(blockNum));
+			error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РѕР±СЉРµРєС‚Р° РёР· Р±Р»РѕРєР°. Р‘Р»РѕРє РЅРµ СЏРІР»СЏРµС‚СЃСЏ РѕР±СЉРµРєС‚РѕРј.",
+				"Р‘Р»РѕРє", tohex(blockNum));
 			return;
 		}
 
@@ -514,9 +514,9 @@ void __fastcall v8object::init(T_1CD* _base, int blockNum)
 			if(len) numblocks = (len - 1) / 0x400 + 1;
 			else numblocks = 0;
 
-			// в таблице свободных блоков в разделе blocks может быть больше блоков, чем numblocks
-			// numblocks - кол-во блоков с реальными данными
-			// оставшиеся real_numblocks - numblocks блоки принадлежат объекту, но не содержат данных
+			// РІ С‚Р°Р±Р»РёС†Рµ СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ РІ СЂР°Р·РґРµР»Рµ blocks РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ Р±Р»РѕРєРѕРІ, С‡РµРј numblocks
+			// numblocks - РєРѕР»-РІРѕ Р±Р»РѕРєРѕРІ СЃ СЂРµР°Р»СЊРЅС‹РјРё РґР°РЅРЅС‹РјРё
+			// РѕСЃС‚Р°РІС€РёРµСЃСЏ real_numblocks - numblocks Р±Р»РѕРєРё РїСЂРёРЅР°РґР»РµР¶Р°С‚ РѕР±СЉРµРєС‚Сѓ, РЅРѕ РЅРµ СЃРѕРґРµСЂР¶Р°С‚ РґР°РЅРЅС‹С…
 			while(t->blocks[real_numblocks]) real_numblocks++;
 			if(real_numblocks)
 			{
@@ -550,8 +550,8 @@ void __fastcall v8object::init(T_1CD* _base, int blockNum)
 		{
 			delete[] b;
 			init();
-			error("Ошибка получения файла из страницы. Страница не является заголовочной страницей файла данных.",
-				"Блок", tohex(blockNum));
+			error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ С„Р°Р№Р»Р° РёР· СЃС‚СЂР°РЅРёС†С‹. РЎС‚СЂР°РЅРёС†Р° РЅРµ СЏРІР»СЏРµС‚СЃСЏ Р·Р°РіРѕР»РѕРІРѕС‡РЅРѕР№ СЃС‚СЂР°РЅРёС†РµР№ С„Р°Р№Р»Р° РґР°РЅРЅС‹С….",
+				"Р‘Р»РѕРє", tohex(blockNum));
 			return;
 		}
 
@@ -561,9 +561,9 @@ void __fastcall v8object::init(T_1CD* _base, int blockNum)
 		{
 			delete[] b;
 			init();
-			error("Ошибка получения файла из страницы. Длина файла больше допустимой при одноуровневой таблице размещения.",
-				"Блок", tohex(blockNum),
-				"Длина файла", len);
+			error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ С„Р°Р№Р»Р° РёР· СЃС‚СЂР°РЅРёС†С‹. Р”Р»РёРЅР° С„Р°Р№Р»Р° Р±РѕР»СЊС€Рµ РґРѕРїСѓСЃС‚РёРјРѕР№ РїСЂРё РѕРґРЅРѕСѓСЂРѕРІРЅРµРІРѕР№ С‚Р°Р±Р»РёС†Рµ СЂР°Р·РјРµС‰РµРЅРёСЏ.",
+				"Р‘Р»РѕРє", tohex(blockNum),
+				"Р”Р»РёРЅР° С„Р°Р№Р»Р°", len);
 			return;
 		}
 		version.version_1 = t->version.version_1;
@@ -604,13 +604,13 @@ void __fastcall v8object::init(T_1CD* _base, int blockNum)
 		{
 			delete[] b;
 			init();
-			error("Ошибка получения файла из страницы. Страница не является заголовочной страницей файла свободных блоков.",
-				"Блок", tohex(blockNum));
+			error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ С„Р°Р№Р»Р° РёР· СЃС‚СЂР°РЅРёС†С‹. РЎС‚СЂР°РЅРёС†Р° РЅРµ СЏРІР»СЏРµС‚СЃСЏ Р·Р°РіРѕР»РѕРІРѕС‡РЅРѕР№ СЃС‚СЂР°РЅРёС†РµР№ С„Р°Р№Р»Р° СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ.",
+				"Р‘Р»РѕРє", tohex(blockNum));
 			return;
 		}
 
 		//len = t->len;
-		len = 0; // ВРЕМЕННО! Пока не понятна структура файла свободных страниц
+		len = 0; // Р’Р Р•РњР•РќРќРћ! РџРѕРєР° РЅРµ РїРѕРЅСЏС‚РЅР° СЃС‚СЂСѓРєС‚СѓСЂР° С„Р°Р№Р»Р° СЃРІРѕР±РѕРґРЅС‹С… СЃС‚СЂР°РЅРёС†
 
 		version.version_1 = t->version;
 		version_rec.version_1 = version.version_1 + 1;
@@ -623,9 +623,9 @@ void __fastcall v8object::init(T_1CD* _base, int blockNum)
 		if(len) numblocks = (len - 1) / 0x400 + 1;
 		else numblocks = 0;
 
-		// в таблице свободных блоков в разделе blocks может быть больше блоков, чем numblocks
-		// numblocks - кол-во блоков с реальными данными
-		// оставшиеся real_numblocks - numblocks блоки принадлежат объекту, но не содержат данных
+		// РІ С‚Р°Р±Р»РёС†Рµ СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ РІ СЂР°Р·РґРµР»Рµ blocks РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ Р±Р»РѕРєРѕРІ, С‡РµРј numblocks
+		// numblocks - РєРѕР»-РІРѕ Р±Р»РѕРєРѕРІ СЃ СЂРµР°Р»СЊРЅС‹РјРё РґР°РЅРЅС‹РјРё
+		// РѕСЃС‚Р°РІС€РёРµСЃСЏ real_numblocks - numblocks Р±Р»РѕРєРё РїСЂРёРЅР°РґР»РµР¶Р°С‚ РѕР±СЉРµРєС‚Сѓ, РЅРѕ РЅРµ СЃРѕРґРµСЂР¶Р°С‚ РґР°РЅРЅС‹С…
 		while(t->blocks[real_numblocks]) real_numblocks++;
 		if(real_numblocks)
 		{
@@ -639,11 +639,11 @@ void __fastcall v8object::init(T_1CD* _base, int blockNum)
 
 
 	#ifdef _DEBUG
-	if(msreg) msreg->AddDebugMessage("Создан объект", msInfo,
-		"Номер блока", tohex(blockNum),
-		"Длина", len,
-		"Версия данных", String(version.version_1) + ":" + version.version_2/*,
-		"Версия блока", type*/);
+	if(msreg) msreg->AddDebugMessage("РЎРѕР·РґР°РЅ РѕР±СЉРµРєС‚", msInfo,
+		"РќРѕРјРµСЂ Р±Р»РѕРєР°", tohex(blockNum),
+		"Р”Р»РёРЅР°", len,
+		"Р’РµСЂСЃРёСЏ РґР°РЅРЅС‹С…", String(version.version_1) + ":" + version.version_2/*,
+		"Р’РµСЂСЃРёСЏ Р±Р»РѕРєР°", type*/);
 	#endif
 
 }
@@ -692,7 +692,7 @@ char* __fastcall v8object::getdata()
 	objtab838* bb;
 	unsigned int i, l;
 	int j, pagesize, blocksperpage;
-	unsigned __int64 ll;
+	uint64_t ll;
 	unsigned int curlen;
 
 	lastdataget = GetTickCount();
@@ -776,7 +776,7 @@ char* __fastcall v8object::getdata()
 }
 
 //---------------------------------------------------------------------------
-char* __fastcall v8object::getdata(void* buf, unsigned __int64 _start, unsigned __int64 _length)
+char* __fastcall v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 {
 	unsigned int curblock;
 	unsigned int curoffblock;
@@ -799,11 +799,11 @@ char* __fastcall v8object::getdata(void* buf, unsigned __int64 _start, unsigned 
 		{
 			if(_start + _length > len * 4)
 			{
-				error("Попытка чтения данных за пределами объекта",
-					"Номер блока объекта", tohex(block),
-					"Длина объекта", len * 4,
-					"Начало читаемых данных", _start,
-					"Длина читаемых данных", _length);
+				error("РџРѕРїС‹С‚РєР° С‡С‚РµРЅРёСЏ РґР°РЅРЅС‹С… Р·Р° РїСЂРµРґРµР»Р°РјРё РѕР±СЉРµРєС‚Р°",
+					"РќРѕРјРµСЂ Р±Р»РѕРєР° РѕР±СЉРµРєС‚Р°", tohex(block),
+					"Р”Р»РёРЅР° РѕР±СЉРµРєС‚Р°", len * 4,
+					"РќР°С‡Р°Р»Рѕ С‡РёС‚Р°РµРјС‹С… РґР°РЅРЅС‹С…", _start,
+					"Р”Р»РёРЅР° С‡РёС‚Р°РµРјС‹С… РґР°РЅРЅС‹С…", _length);
 				return NULL;
 			}
 
@@ -828,11 +828,11 @@ char* __fastcall v8object::getdata(void* buf, unsigned __int64 _start, unsigned 
 		{
 			if(_start + _length > len)
 			{
-				error("Попытка чтения данных за пределами объекта",
-					"Номер блока объекта", tohex(block),
-					"Длина объекта", len,
-					"Начало читаемых данных", _start,
-					"Длина читаемых данных", _length);
+				error("РџРѕРїС‹С‚РєР° С‡С‚РµРЅРёСЏ РґР°РЅРЅС‹С… Р·Р° РїСЂРµРґРµР»Р°РјРё РѕР±СЉРµРєС‚Р°",
+					"РќРѕРјРµСЂ Р±Р»РѕРєР° РѕР±СЉРµРєС‚Р°", tohex(block),
+					"Р”Р»РёРЅР° РѕР±СЉРµРєС‚Р°", len,
+					"РќР°С‡Р°Р»Рѕ С‡РёС‚Р°РµРјС‹С… РґР°РЅРЅС‹С…", _start,
+					"Р”Р»РёРЅР° С‡РёС‚Р°РµРјС‹С… РґР°РЅРЅС‹С…", _length);
 				return NULL;
 			}
 
@@ -866,11 +866,11 @@ char* __fastcall v8object::getdata(void* buf, unsigned __int64 _start, unsigned 
 		{
 			if(_start + _length > len)
 			{
-				error("Попытка чтения данных за пределами объекта",
-					"Номер блока объекта", tohex(block),
-					"Длина объекта", len,
-					"Начало читаемых данных", _start,
-					"Длина читаемых данных", _length);
+				error("РџРѕРїС‹С‚РєР° С‡С‚РµРЅРёСЏ РґР°РЅРЅС‹С… Р·Р° РїСЂРµРґРµР»Р°РјРё РѕР±СЉРµРєС‚Р°",
+					"РќРѕРјРµСЂ Р±Р»РѕРєР° РѕР±СЉРµРєС‚Р°", tohex(block),
+					"Р”Р»РёРЅР° РѕР±СЉРµРєС‚Р°", len,
+					"РќР°С‡Р°Р»Рѕ С‡РёС‚Р°РµРјС‹С… РґР°РЅРЅС‹С…", _start,
+					"Р”Р»РёРЅР° С‡РёС‚Р°РµРјС‹С… РґР°РЅРЅС‹С…", _length);
 				return NULL;
 			}
 
@@ -928,7 +928,7 @@ char* __fastcall v8object::getdata(void* buf, unsigned __int64 _start, unsigned 
 }
 
 //---------------------------------------------------------------------------
-unsigned __int64 __fastcall v8object::getlen()
+uint64_t __fastcall v8object::getlen()
 {
 	//if(type == 0) return len * 4;
 	//if(block == 1) return len * 4;
@@ -940,7 +940,7 @@ unsigned __int64 __fastcall v8object::getlen()
 void __fastcall v8object::savetofile(String _filename)
 {
 	unsigned int j, pagesize;
-	unsigned __int64 i, k, l;
+	uint64_t i, k, l;
 	TFileStream* fs;
 	char* buf;
 
@@ -961,7 +961,7 @@ void __fastcall v8object::savetofile(String _filename)
 }
 
 //---------------------------------------------------------------------------
-unsigned __int64 __fastcall v8object::get_fileoffset(unsigned __int64 offset)
+uint64_t __fastcall v8object::get_fileoffset(uint64_t offset)
 {
 	unsigned int _start = offset;
 	objtab* b;
@@ -976,7 +976,7 @@ unsigned __int64 __fastcall v8object::get_fileoffset(unsigned __int64 offset)
 	{
 		curblock = _start >> 12;
 		curoffblock = _start - (curblock << 12);
-		return (((unsigned __int64)(blocks[curblock])) << 12) + curoffblock;
+		return (((uint64_t)(blocks[curblock])) << 12) + curoffblock;
 	}
 	else if(type == v8ot_data80)
 	{
@@ -988,7 +988,7 @@ unsigned __int64 __fastcall v8object::get_fileoffset(unsigned __int64 offset)
 
 		b = (objtab*) base->getblock(blocks[curobjblock]);
 
-		return (((unsigned __int64)(b->blocks[curoffobjblock])) << 12) + curoffblock;
+		return (((uint64_t)(b->blocks[curoffobjblock])) << 12) + curoffblock;
 	}
 	else if(type == v8ot_data838)
 	{
@@ -1000,11 +1000,11 @@ unsigned __int64 __fastcall v8object::get_fileoffset(unsigned __int64 offset)
 			curobjblock = curblock / offsperpage;
 			curoffobjblock = curblock - curobjblock * offsperpage;
 			bb = (objtab838*)base->getblock(blocks[curobjblock]);
-			return (((unsigned __int64)(bb->blocks[curoffobjblock])) * base->pagesize) + curoffblock;
+			return (((uint64_t)(bb->blocks[curoffobjblock])) * base->pagesize) + curoffblock;
 		}
 		else
 		{
-			return (((unsigned __int64)(blocks[curblock])) * base->pagesize) + curoffblock;
+			return (((uint64_t)(blocks[curblock])) * base->pagesize) + curoffblock;
 		}
 	}
 
@@ -1019,7 +1019,7 @@ unsigned __int64 __fastcall v8object::get_fileoffset(unsigned __int64 offset)
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall v8object::setdata(void* buf, unsigned __int64 _start, unsigned __int64 _length)
+bool __fastcall v8object::setdata(void* buf, uint64_t _start, uint64_t _length)
 {
 	unsigned int curblock;
 	unsigned int curoffblock;
@@ -1034,15 +1034,15 @@ bool __fastcall v8object::setdata(void* buf, unsigned __int64 _start, unsigned _
 
 	if(base->get_readonly())
 	{
-		error(L"Попытка записи в файл в режиме \"Только чтение\"",
-			L"Номер страницы файла", tohex(block));
+		error("РџРѕРїС‹С‚РєР° Р·Р°РїРёСЃРё РІ С„Р°Р№Р» РІ СЂРµР¶РёРјРµ \"РўРѕР»СЊРєРѕ С‡С‚РµРЅРёРµ\"",
+			"РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р°", tohex(block));
 		return false;
 	}
 
 	if(type == v8ot_free80 || type == v8ot_free838)
 	{
-		error(L"Попытка прямой записи в файл свободных страниц",
-			L"Номер страницы файла", tohex(block));
+		error("РџРѕРїС‹С‚РєР° РїСЂСЏРјРѕР№ Р·Р°РїРёСЃРё РІ С„Р°Р№Р» СЃРІРѕР±РѕРґРЅС‹С… СЃС‚СЂР°РЅРёС†",
+			"РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р°", tohex(block));
 		return false;
 	}
 
@@ -1128,7 +1128,7 @@ bool __fastcall v8object::setdata(void* buf, unsigned __int64 _start, unsigned _
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall v8object::setdata(void* _buf, unsigned __int64 _length)
+bool __fastcall v8object::setdata(void* _buf, uint64_t _length)
 {
 	char* tt;
 	objtab* b;
@@ -1143,15 +1143,15 @@ bool __fastcall v8object::setdata(void* _buf, unsigned __int64 _length)
 
 	if(base->get_readonly())
 	{
-		error(L"Попытка записи в файл в режиме \"Только чтение\"",
-			L"Номер страницы файла", tohex(block));
+		error("РџРѕРїС‹С‚РєР° Р·Р°РїРёСЃРё РІ С„Р°Р№Р» РІ СЂРµР¶РёРјРµ \"РўРѕР»СЊРєРѕ С‡С‚РµРЅРёРµ\"",
+			"РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р°", tohex(block));
 		return false;
 	}
 
 	if(type == v8ot_free80 || type == v8ot_free838)
 	{
-		error(L"Попытка прямой записи в файл свободных страниц",
-			L"Номер страницы файла", tohex(block));
+		error("РџРѕРїС‹С‚РєР° РїСЂСЏРјРѕР№ Р·Р°РїРёСЃРё РІ С„Р°Р№Р» СЃРІРѕР±РѕРґРЅС‹С… СЃС‚СЂР°РЅРёС†",
+			"РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р°", tohex(block));
 		return false;
 	}
 
@@ -1232,7 +1232,7 @@ bool __fastcall v8object::setdata(TStream* stream)
 	objtab838* bb;
 	unsigned int i;
 	unsigned int curlen;
-	unsigned __int64 _length;
+	uint64_t _length;
 	unsigned int offsperpage;
 	unsigned int curblock;
 	unsigned int curobjblock;
@@ -1240,21 +1240,21 @@ bool __fastcall v8object::setdata(TStream* stream)
 
 	if(base->get_readonly())
 	{
-		error(L"Попытка записи в файл в режиме \"Только чтение\"",
-			L"Номер страницы файла", tohex(block));
+		error("РџРѕРїС‹С‚РєР° Р·Р°РїРёСЃРё РІ С„Р°Р№Р» РІ СЂРµР¶РёРјРµ \"РўРѕР»СЊРєРѕ С‡С‚РµРЅРёРµ\"",
+			"РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р°", tohex(block));
 		return false;
 	}
 
 	if(type == v8ot_free80 || type == v8ot_free838)
 	{
-		error(L"Попытка прямой записи в файл свободных страниц",
-			L"Номер страницы файла", tohex(block));
+		error("РџРѕРїС‹С‚РєР° РїСЂСЏРјРѕР№ Р·Р°РїРёСЃРё РІ С„Р°Р№Р» СЃРІРѕР±РѕРґРЅС‹С… СЃС‚СЂР°РЅРёС†",
+			"РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р°", tohex(block));
 		return false;
 	}
 
 	delete[] data;
 	data = NULL;
-	_length = stream->Size;
+	_length = stream->GetSize();
 	set_len(_length);
 
 	stream->Seek(0, soFromBeginning);
@@ -1321,7 +1321,7 @@ bool __fastcall v8object::setdata(TStream* stream)
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall v8object::setdata(TStream* stream, unsigned __int64 _start, unsigned __int64 _length)
+bool __fastcall v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 {
 	unsigned int curblock;
 	unsigned int curoffblock;
@@ -1335,15 +1335,15 @@ bool __fastcall v8object::setdata(TStream* stream, unsigned __int64 _start, unsi
 
 	if(base->get_readonly())
 	{
-		error(L"Попытка записи в файл в режиме \"Только чтение\"",
-			L"Номер страницы файла", tohex(block));
+		error("РџРѕРїС‹С‚РєР° Р·Р°РїРёСЃРё РІ С„Р°Р№Р» РІ СЂРµР¶РёРјРµ \"РўРѕР»СЊРєРѕ С‡С‚РµРЅРёРµ\"",
+			"РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р°", tohex(block));
 		return false;
 	}
 
 	if(type == v8ot_free80 || type == v8ot_free838)
 	{
-		error(L"Попытка прямой записи в файл свободных страниц",
-			L"Номер страницы файла", tohex(block));
+		error("РџРѕРїС‹С‚РєР° РїСЂСЏРјРѕР№ Р·Р°РїРёСЃРё РІ С„Р°Р№Р» СЃРІРѕР±РѕРґРЅС‹С… СЃС‚СЂР°РЅРёС†",
+			"РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р°", tohex(block));
 		return false;
 	}
 
@@ -1425,7 +1425,7 @@ bool __fastcall v8object::setdata(TStream* stream, unsigned __int64 _start, unsi
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8object::set_len(unsigned __int64 _len)
+void __fastcall v8object::set_len(uint64_t _len)
 {
 
 	unsigned int num_data_blocks;
@@ -1439,15 +1439,15 @@ void __fastcall v8object::set_len(unsigned __int64 _len)
 	v838ob_data* bd;
 	objtab838* bb;
 	unsigned int offsperpage;
-	unsigned __int64 maxlen;
+	uint64_t maxlen;
 	int newfatlevel;
 
 	if(len == _len) return;
 
 	if(type == v8ot_free80 || type == v8ot_free838)
 	{
-		// Таблица свободных блоков
-		error(L"Попытка установки длины в файле свободных страниц");
+		// РўР°Р±Р»РёС†Р° СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ
+		error("РџРѕРїС‹С‚РєР° СѓСЃС‚Р°РЅРѕРІРєРё РґР»РёРЅС‹ РІ С„Р°Р№Р»Рµ СЃРІРѕР±РѕРґРЅС‹С… СЃС‚СЂР°РЅРёС†");
 		return;
 	}
 
@@ -1472,7 +1472,7 @@ void __fastcall v8object::set_len(unsigned __int64 _len)
 
 		if(num_data_blocks > cur_data_blocks)
 		{
-			// Увеличение длины объекта
+			// РЈРІРµР»РёС‡РµРЅРёРµ РґР»РёРЅС‹ РѕР±СЉРµРєС‚Р°
 			if(numblocks) ot = (objtab*)base->getblock_for_write(b->blocks[numblocks - 1], true);
 			for(; cur_data_blocks < num_data_blocks; cur_data_blocks++)
 			{
@@ -1485,14 +1485,14 @@ void __fastcall v8object::set_len(unsigned __int64 _len)
 					ot->numblocks = 0;
 				}
 				bl = base->get_free_block();
-				base->getblock_for_write(bl, false); // получаем блок без чтения, на случай, если блок вдруг в конце файла
+				base->getblock_for_write(bl, false); // РїРѕР»СѓС‡Р°РµРј Р±Р»РѕРє Р±РµР· С‡С‚РµРЅРёСЏ, РЅР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё Р±Р»РѕРє РІРґСЂСѓРі РІ РєРѕРЅС†Рµ С„Р°Р№Р»Р°
 				ot->blocks[i] = bl;
 				ot->numblocks = i + 1;
 			}
 		}
 		else if(num_data_blocks < cur_data_blocks)
 		{
-			// Уменьшение длины объекта
+			// РЈРјРµРЅСЊС€РµРЅРёРµ РґР»РёРЅС‹ РѕР±СЉРµРєС‚Р°
 			ot = (objtab*)base->getblock_for_write(b->blocks[numblocks - 1], true);
 			for(cur_data_blocks--; cur_data_blocks >= num_data_blocks; cur_data_blocks--)
 			{
@@ -1521,10 +1521,10 @@ void __fastcall v8object::set_len(unsigned __int64 _len)
 		maxlen = base->pagesize * offsperpage * (offsperpage - 6);
 		if(_len > maxlen)
 		{
-			error(L"Попытка установки длины файла больше максимальной",
-				L"Номер страницы файла", tohex(block),
-				L"Максимальная длина файла", maxlen,
-				L"Запрошенная длина файла", tohex(_len));
+			error("РџРѕРїС‹С‚РєР° СѓСЃС‚Р°РЅРѕРІРєРё РґР»РёРЅС‹ С„Р°Р№Р»Р° Р±РѕР»СЊС€Рµ РјР°РєСЃРёРјР°Р»СЊРЅРѕР№",
+				"РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р°", tohex(block),
+				"РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ РґР»РёРЅР° С„Р°Р№Р»Р°", maxlen,
+				"Р—Р°РїСЂРѕС€РµРЅРЅР°СЏ РґР»РёРЅР° С„Р°Р№Р»Р°", tohex(_len));
 			_len = maxlen;
 		}
 
@@ -1553,7 +1553,7 @@ void __fastcall v8object::set_len(unsigned __int64 _len)
 
 		if(num_data_blocks > cur_data_blocks)
 		{
-			// Увеличение длины объекта
+			// РЈРІРµР»РёС‡РµРЅРёРµ РґР»РёРЅС‹ РѕР±СЉРµРєС‚Р°
 			if(fatlevel == 0 && newfatlevel)
 			{
 				bl = base->get_free_block();
@@ -1578,7 +1578,7 @@ void __fastcall v8object::set_len(unsigned __int64 _len)
 						bb = (objtab838*)base->getblock_for_write(bl, false);
 					}
 					bl = base->get_free_block();
-					base->getblock_for_write(bl, false); // получаем блок без чтения, на случай, если блок вдруг в конце файла
+					base->getblock_for_write(bl, false); // РїРѕР»СѓС‡Р°РµРј Р±Р»РѕРє Р±РµР· С‡С‚РµРЅРёСЏ, РЅР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё Р±Р»РѕРє РІРґСЂСѓРі РІ РєРѕРЅС†Рµ С„Р°Р№Р»Р°
 					bb->blocks[i] = bl;
 				}
 			}
@@ -1587,14 +1587,14 @@ void __fastcall v8object::set_len(unsigned __int64 _len)
 				for(; cur_data_blocks < num_data_blocks; cur_data_blocks++)
 				{
 					bl = base->get_free_block();
-					base->getblock_for_write(bl, false); // получаем блок без чтения, на случай, если блок вдруг в конце файла
+					base->getblock_for_write(bl, false); // РїРѕР»СѓС‡Р°РµРј Р±Р»РѕРє Р±РµР· С‡С‚РµРЅРёСЏ, РЅР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё Р±Р»РѕРє РІРґСЂСѓРі РІ РєРѕРЅС†Рµ С„Р°Р№Р»Р°
 					bd->blocks[cur_data_blocks] = bl;
 				}
 			}
 		}
 		else if(num_data_blocks < cur_data_blocks)
 		{
-			// Уменьшение длины объекта
+			// РЈРјРµРЅСЊС€РµРЅРёРµ РґР»РёРЅС‹ РѕР±СЉРµРєС‚Р°
 			if(fatlevel)
 			{
 				bb = (objtab838*)base->getblock_for_write(b->blocks[numblocks - 1], true);
@@ -1652,9 +1652,9 @@ void __fastcall v8object::set_block_as_free(unsigned int block_number)
 	//if(type)
 	if(block != 1)
 	{
-		// Таблица свободных блоков
-		error(L"Попытка установки свободного блока в объекте, не являющимся таблицей свободных блоков",
-			L"Блок объекта", block);
+		// РўР°Р±Р»РёС†Р° СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ
+		error("РџРѕРїС‹С‚РєР° СѓСЃС‚Р°РЅРѕРІРєРё СЃРІРѕР±РѕРґРЅРѕРіРѕ Р±Р»РѕРєР° РІ РѕР±СЉРµРєС‚Рµ, РЅРµ СЏРІР»СЏСЋС‰РёРјСЃСЏ С‚Р°Р±Р»РёС†РµР№ СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ",
+			"Р‘Р»РѕРє РѕР±СЉРµРєС‚Р°", block);
 		return;
 	}
 
@@ -1692,9 +1692,9 @@ unsigned int __fastcall v8object::get_free_block()
 	//if(type)
 	if(block != 1)
 	{
-		// Таблица свободных блоков
-		error(L"Попытка получения свободного блока в объекте, не являющимся таблицей свободных блоков",
-			L"Блок объекта", block);
+		// РўР°Р±Р»РёС†Р° СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ
+		error("РџРѕРїС‹С‚РєР° РїРѕР»СѓС‡РµРЅРёСЏ СЃРІРѕР±РѕРґРЅРѕРіРѕ Р±Р»РѕРєР° РІ РѕР±СЉРµРєС‚Рµ, РЅРµ СЏРІР»СЏСЋС‰РёРјСЃСЏ С‚Р°Р±Р»РёС†РµР№ СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ",
+			"Р‘Р»РѕРє РѕР±СЉРµРєС‚Р°", block);
 		return 0;
 	}
 
@@ -1773,7 +1773,7 @@ unsigned int __fastcall v8object::get_block_number()
 }
 
 //---------------------------------------------------------------------------
-// rewrite - перезаписывать поток _str. Истина - перезаписывать (по умолчанию), Ложь - дописывать
+// rewrite - РїРµСЂРµР·Р°РїРёСЃС‹РІР°С‚СЊ РїРѕС‚РѕРє _str. РСЃС‚РёРЅР° - РїРµСЂРµР·Р°РїРёСЃС‹РІР°С‚СЊ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ), Р›РѕР¶СЊ - РґРѕРїРёСЃС‹РІР°С‚СЊ
 TStream* v8object::readBlob(TStream* _str, unsigned int _startblock, unsigned int _length, bool rewrite)
 {
 //	char* _b;
@@ -1783,22 +1783,22 @@ TStream* v8object::readBlob(TStream* _str, unsigned int _startblock, unsigned in
 	unsigned int _filelen, _numblock;
 	unsigned int startlen;
 
-	if(rewrite) _str->Size = 0;
-	startlen = _str->Position;
+	if(rewrite) _str->SetSize(0);
+	startlen = _str->GetPosition();
 
 	if(!_startblock && _length)
 	{
-		error(L"Попытка чтения нулевого блока файла Blob",
-			L"Номер страницы файла", tohex(block));
+		error("РџРѕРїС‹С‚РєР° С‡С‚РµРЅРёСЏ РЅСѓР»РµРІРѕРіРѕ Р±Р»РѕРєР° С„Р°Р№Р»Р° Blob",
+			"РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р°", tohex(block));
 		return _str;
 	}
 
 	_numblock = len >> 8;
 	if(_numblock << 8 != len)
 	{
-		error(L"Длина файла Blob не кратна 0x100",
-			L"Номер страницы файла", tohex(block),
-			L"Длина файла", tohex(_filelen));
+		error("Р”Р»РёРЅР° С„Р°Р№Р»Р° Blob РЅРµ РєСЂР°С‚РЅР° 0x100",
+			"РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р°", tohex(block),
+			"Р”Р»РёРЅР° С„Р°Р№Р»Р°", tohex(_filelen));
 	}
 
 	_curb = new char[0x100];
@@ -1807,10 +1807,10 @@ TStream* v8object::readBlob(TStream* _str, unsigned int _startblock, unsigned in
 	{
 		if(_curblock >= _numblock)
 		{
-			error(L"Попытка чтения блока файла Blob за пределами файла",
-				L"Номер страницы файла", tohex(block),
-				L"Всего блоков", _numblock,
-				L"Читаемый блок", _curblock);
+			error("РџРѕРїС‹С‚РєР° С‡С‚РµРЅРёСЏ Р±Р»РѕРєР° С„Р°Р№Р»Р° Blob Р·Р° РїСЂРµРґРµР»Р°РјРё С„Р°Р№Р»Р°",
+				"РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р°", tohex(block),
+				"Р’СЃРµРіРѕ Р±Р»РѕРєРѕРІ", _numblock,
+				"Р§РёС‚Р°РµРјС‹Р№ Р±Р»РѕРє", _curblock);
 			return _str;
 		}
 		getdata(_curb, _curblock << 8, 0x100);
@@ -1818,24 +1818,24 @@ TStream* v8object::readBlob(TStream* _str, unsigned int _startblock, unsigned in
 		_curlen = *(unsigned short int*)(_curb + 4);
 		if(_curlen > 0xfa)
 		{
-			error(L"Попытка чтения из блока файла Blob более 0xfa байт",
-				L"Номер страницы файла", tohex(block),
-				L"Индекс блока", _curblock,
-				L"Читаемых байт", _curlen);
+			error("РџРѕРїС‹С‚РєР° С‡С‚РµРЅРёСЏ РёР· Р±Р»РѕРєР° С„Р°Р№Р»Р° Blob Р±РѕР»РµРµ 0xfa Р±Р°Р№С‚",
+				"РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р°", tohex(block),
+				"РРЅРґРµРєСЃ Р±Р»РѕРєР°", _curblock,
+				"Р§РёС‚Р°РµРјС‹С… Р±Р°Р№С‚", _curlen);
 			return _str;
 		}
 		_str->Write(_curb + 6, _curlen);
 
-		if(_str->Size - startlen > _length) break; // аварийный выход из возможного ошибочного зацикливания
+		if(_str->GetSize() - startlen > _length) break; // Р°РІР°СЂРёР№РЅС‹Р№ РІС‹С…РѕРґ РёР· РІРѕР·РјРѕР¶РЅРѕРіРѕ РѕС€РёР±РѕС‡РЅРѕРіРѕ Р·Р°С†РёРєР»РёРІР°РЅРёСЏ
 	}
 	delete[] _curb;
 
-	if(_length != MAXUINT) if(_str->Size - startlen != _length)
+	if(_length != MAXUINT) if(_str->GetSize() - startlen != _length)
 	{
-		error(L"Несовпадение длины Blob-поля, указанного в записи, с длиной практически прочитанных данных",
-			L"Номер страницы файла", tohex(block),
-			L"Длина поля", _length,
-			L"Прочитано", _str->Size - startlen);
+		error("РќРµСЃРѕРІРїР°РґРµРЅРёРµ РґР»РёРЅС‹ Blob-РїРѕР»СЏ, СѓРєР°Р·Р°РЅРЅРѕРіРѕ РІ Р·Р°РїРёСЃРё, СЃ РґР»РёРЅРѕР№ РїСЂР°РєС‚РёС‡РµСЃРєРё РїСЂРѕС‡РёС‚Р°РЅРЅС‹С… РґР°РЅРЅС‹С…",
+			"РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р°", tohex(block),
+			"Р”Р»РёРЅР° РїРѕР»СЏ", _length,
+			"РџСЂРѕС‡РёС‚Р°РЅРѕ", _str->GetSize() - startlen);
 	}
 
 	return _str;
@@ -1844,7 +1844,7 @@ TStream* v8object::readBlob(TStream* _str, unsigned int _startblock, unsigned in
 //---------------------------------------------------------------------------
 
 //********************************************************
-// Класс index
+// РљР»Р°СЃСЃ index
 
 //---------------------------------------------------------------------------
 __fastcall index::index(table* _base)
@@ -1897,7 +1897,7 @@ unsigned int __fastcall index::get_numrecords()
 {
 	if(!start) return 0;
 	if(!recordsindex_complete) create_recordsindex();
-	return recordsindex.Length;
+	return recordsindex.GetLength();
 }
 
 //---------------------------------------------------------------------------
@@ -1915,17 +1915,17 @@ void __fastcall index::create_recordsindex()
 	char* rbuf;
 	int curlen;
 	bool is_leaf;
-	unsigned __int64 curblock;
+	uint64_t curblock;
 	unsigned int curindex;
 	unsigned int mask;
 	int rlen;
 	int i;
 	v8object* file_index;
 
-	//return; // Временно!!!
+	//return; // Р’СЂРµРјРµРЅРЅРѕ!!!
 	if(!start) return;
 
-	String readindex(L"Чтение индекса ");
+	String readindex("Р§С‚РµРЅРёРµ РёРЅРґРµРєСЃР° ");
 	msreg->Status(readindex);
 
 	buf = new char[pagesize];
@@ -1943,7 +1943,7 @@ void __fastcall index::create_recordsindex()
 	curlen = *(short int*)(buf + 2);
 	if(curlen)
 	{
-		recordsindex.Length = tbase->file_data->getlen() / tbase->recordlen;
+		recordsindex.SetLength(tbase->file_data->getlen() / tbase->recordlen);
 		is_leaf = buf[0] & 0x2;
 		while(!is_leaf)
 		{
@@ -1972,18 +1972,18 @@ void __fastcall index::create_recordsindex()
 			if(version >= ver8_3_8_0) curblock *= pagesize;
 			file_index->getdata(buf, curblock, pagesize);
 		}
-		recordsindex.Length = curindex;
+		recordsindex.SetLength(curindex);
 	}
 
 	recordsindex_complete = true;
 	delete[] buf;
-	tbase->log_numrecords = recordsindex.Length;
-	msreg->Status(L"");
+	tbase->log_numrecords = recordsindex.GetLength();
+	msreg->Status("");
 }
 
 //---------------------------------------------------------------------------
 #ifndef PublicRelease
-void __fastcall index::dump_recursive(v8object* file_index, TFileStream* f, int level, unsigned __int64 curblock)
+void __fastcall index::dump_recursive(v8object* file_index, TFileStream* f, int level, uint64_t curblock)
 {
 	unsigned char bf[3];
 	unsigned char b;
@@ -1994,9 +1994,9 @@ void __fastcall index::dump_recursive(v8object* file_index, TFileStream* f, int 
 	unsigned int curlen;
 	unsigned int i, j;
 	unsigned int lastnumrec;
-	AnsiString s;
+	String s;
 
-	unsigned __int64 blockx;
+	uint64_t blockx;
 	unsigned int numrecx;
 
 	unsigned int numrecmask;
@@ -2006,7 +2006,7 @@ void __fastcall index::dump_recursive(v8object* file_index, TFileStream* f, int 
 	unsigned int leftbits;
 	//unsigned int rightbits;
 	unsigned int recbytes;
-	__int64 indrec;
+	int64_t indrec;
 	char* curindex;
 	unsigned int numrec;
 	unsigned int left;
@@ -2058,11 +2058,11 @@ void __fastcall index::dump_recursive(v8object* file_index, TFileStream* f, int 
 			s += ", bytes ";
 			s += recbytes;
 			s += "\r\n";
-			f->Write(s.c_str(), s.Length());
+			f->Write(s.c_str(), s.GetLength());
 
 			for(i = 0; i < curlen; i++)
 			{
-				indrec = *(__int64*)rbuf;
+				indrec = *(int64_t*)rbuf;
 				numrec = indrec & numrecmask;
 				indrec >>= numrecbits;
 				left =  indrec & leftmask;
@@ -2079,7 +2079,7 @@ void __fastcall index::dump_recursive(v8object* file_index, TFileStream* f, int 
 				s = "  -";
 				s += level;
 				s += ": ";
-				f->Write(s.c_str(), s.Length());
+				f->Write(s.c_str(), s.GetLength());
 				for(j = 0; j < length; j++)
 				{
 					b = curindex[j];
@@ -2097,7 +2097,7 @@ void __fastcall index::dump_recursive(v8object* file_index, TFileStream* f, int 
 				s = ": ";
 				s += numrec;
 				s += "\r\n";
-				f->Write(s.c_str(), s.Length());
+				f->Write(s.c_str(), s.GetLength());
 			}
 			delete[] curindex;
 
@@ -2111,7 +2111,7 @@ void __fastcall index::dump_recursive(v8object* file_index, TFileStream* f, int 
 			s += ", count ";
 			s += curlen;
 			s += "\r\n";
-			f->Write(s.c_str(), s.Length());
+			f->Write(s.c_str(), s.GetLength());
 
 			rbuf = buf + 12;
 			for(i = 0; i < curlen; i++)
@@ -2129,7 +2129,7 @@ void __fastcall index::dump_recursive(v8object* file_index, TFileStream* f, int 
 				s = "  +";
 				s += level;
 				s += ": ";
-				f->Write(s.c_str(), s.Length());
+				f->Write(s.c_str(), s.GetLength());
 				for(j = 0; j < length; j++)
 				{
 					b = curindex[j];
@@ -2147,7 +2147,7 @@ void __fastcall index::dump_recursive(v8object* file_index, TFileStream* f, int 
 				s = ": ";
 				s += numrecx;
 				s += "\r\n";
-				f->Write(s.c_str(), s.Length());
+				f->Write(s.c_str(), s.GetLength());
 
 			}
 
@@ -2199,7 +2199,7 @@ void __fastcall index::dump(String _filename)
 	TFileStream* f;
 	v8object* file_index;
 	char buf[8];
-	AnsiString s;
+	String s;
 
 	f = new TFileStream(_filename, fmCreate);
 
@@ -2221,7 +2221,7 @@ void __fastcall index::dump(String _filename)
 	s = "Index length ";
 	s += length;
 	s += "\r\n";
-	f->Write(s.c_str(), s.Length());
+	f->Write(s.c_str(), s.GetLength());
 
 	dump_recursive(file_index, f, 0, rootblock);
 
@@ -2230,7 +2230,7 @@ void __fastcall index::dump(String _filename)
 #endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
-char* __fastcall index::unpack_leafpage(unsigned __int64 page_offset, unsigned int& number_indexes)
+char* __fastcall index::unpack_leafpage(uint64_t page_offset, unsigned int& number_indexes)
 {
 	char* buf;
 	char* ret;
@@ -2260,7 +2260,7 @@ char* __fastcall index::unpack_leafpage(char* page, unsigned int& number_indexes
 	unsigned int leftbits;
 //	unsigned int rightbits;
 	unsigned int recbytes;
-	__int64 indrec;
+	int64_t indrec;
 
 	unsigned int i, j, step;
 	unsigned int numrec;
@@ -2277,9 +2277,9 @@ char* __fastcall index::unpack_leafpage(char* page, unsigned int& number_indexes
 
 	if(!(header->flags & indexpage_is_leaf))
 	{
-		error(L"Попытка распаковки страницы индекса не являющейся листом.",
-			L"Таблица", tbase->name,
-			L"Индекс", name);
+		error("РџРѕРїС‹С‚РєР° СЂР°СЃРїР°РєРѕРІРєРё СЃС‚СЂР°РЅРёС†С‹ РёРЅРґРµРєСЃР° РЅРµ СЏРІР»СЏСЋС‰РµР№СЃСЏ Р»РёСЃС‚РѕРј.",
+			"РўР°Р±Р»РёС†Р°", tbase->name,
+			"РРЅРґРµРєСЃ", name);
 		number_indexes = 0;
 		return NULL;
 	}
@@ -2287,9 +2287,9 @@ char* __fastcall index::unpack_leafpage(char* page, unsigned int& number_indexes
 	number_indexes = header->number_indexes;
 	if(!number_indexes)
 	{
-//		error(L"Попытка распаковки страницы-листа индекса с нулевым количеством индексов.",
-//			L"Таблица", tbase->name,
-//			L"Индекс", name);
+//		error("РџРѕРїС‹С‚РєР° СЂР°СЃРїР°РєРѕРІРєРё СЃС‚СЂР°РЅРёС†С‹-Р»РёСЃС‚Р° РёРЅРґРµРєСЃР° СЃ РЅСѓР»РµРІС‹Рј РєРѕР»РёС‡РµСЃС‚РІРѕРј РёРЅРґРµРєСЃРѕРІ.",
+//			"РўР°Р±Р»РёС†Р°", tbase->name,
+//			"РРЅРґРµРєСЃ", name);
 		return NULL;
 	}
 
@@ -2310,7 +2310,7 @@ char* __fastcall index::unpack_leafpage(char* page, unsigned int& number_indexes
 
 	for(i = 0; i < number_indexes; i++)
 	{
-		indrec = *(__int64*)rbuf;
+		indrec = *(int64_t*)rbuf;
 		numrec = indrec & numrecmask;
 		indrec >>= numrecbits;
 		left = indrec & leftmask;
@@ -2357,7 +2357,7 @@ bool __fastcall index::pack_leafpage(char* unpack_index, unsigned int number_ind
 	unsigned int numrec;
 	char* cur;
 	char* curp;
-	__int64 indrec;
+	int64_t indrec;
 	unsigned int datasize;
 
 	datasize = pagesize - 30;
@@ -2395,9 +2395,9 @@ bool __fastcall index::pack_leafpage(char* unpack_index, unsigned int number_ind
 		{
 			if(left < length || is_primary)
 			{
-				error(L"Ошибка упаковки индексов на странице-листе. Индекс не уникальный либо неверно отсортирован.",
-					L"Таблица", tbase->name,
-					L"Индекс", name);
+				error("РћС€РёР±РєР° СѓРїР°РєРѕРІРєРё РёРЅРґРµРєСЃРѕРІ РЅР° СЃС‚СЂР°РЅРёС†Рµ-Р»РёСЃС‚Рµ. РРЅРґРµРєСЃ РЅРµ СѓРЅРёРєР°Р»СЊРЅС‹Р№ Р»РёР±Рѕ РЅРµРІРµСЂРЅРѕ РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅ.",
+					"РўР°Р±Р»РёС†Р°", tbase->name,
+					"РРЅРґРµРєСЃ", name);
 
 				//delete[] _pack_index_record_array;
 				//return false;
@@ -2426,7 +2426,7 @@ bool __fastcall index::pack_leafpage(char* unpack_index, unsigned int number_ind
 	}
 	for(min_numrec_bits = 0, i = max_numrec; i; i >>= 1, min_numrec_bits++);
 
-	//if(min_numrec_bits < 11) min_numrec_bits = 11; // 11 - эмпиричиски вычислено как 4066 / 2 = 2033 - максимальное кол-во записей на странице. 2033 укладывается в 11 бит
+	//if(min_numrec_bits < 11) min_numrec_bits = 11; // 11 - СЌРјРїРёСЂРёС‡РёСЃРєРё РІС‹С‡РёСЃР»РµРЅРѕ РєР°Рє 4066 / 2 = 2033 - РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»-РІРѕ Р·Р°РїРёСЃРµР№ РЅР° СЃС‚СЂР°РЅРёС†Рµ. 2033 СѓРєР»Р°РґС‹РІР°РµС‚СЃСЏ РІ 11 Р±РёС‚
 	min_bits = min_numrec_bits + leftbits + rightbits;
 	recbytes = (min_bits + 7) >> 3;
 
@@ -2499,15 +2499,15 @@ void __fastcall index::delete_index(const char* rec, const unsigned int phys_num
 //---------------------------------------------------------------------------
 void __fastcall index::delete_index_record(const char* index_buf, const unsigned int phys_numrec)
 {
-	bool is_last_record, page_is_empty; // заглушки для вызова рекурсивной функции
-	unsigned int new_last_phys_num; // заглушки для вызова рекурсивной функции
-	char* new_last_index_buf = new char[length]; // заглушки для вызова рекурсивной функции
+	bool is_last_record, page_is_empty; // Р·Р°РіР»СѓС€РєРё РґР»СЏ РІС‹Р·РѕРІР° СЂРµРєСѓСЂСЃРёРІРЅРѕР№ С„СѓРЅРєС†РёРё
+	unsigned int new_last_phys_num; // Р·Р°РіР»СѓС€РєРё РґР»СЏ РІС‹Р·РѕРІР° СЂРµРєСѓСЂСЃРёРІРЅРѕР№ С„СѓРЅРєС†РёРё
+	char* new_last_index_buf = new char[length]; // Р·Р°РіР»СѓС€РєРё РґР»СЏ РІС‹Р·РѕРІР° СЂРµРєСѓСЂСЃРёРІРЅРѕР№ С„СѓРЅРєС†РёРё
 	delete_index_record(index_buf, phys_numrec, rootblock, is_last_record, page_is_empty, new_last_index_buf, new_last_phys_num);
 	delete[] new_last_index_buf;
 }
 
 //---------------------------------------------------------------------------
-void __fastcall index::delete_index_record(const char* index_buf, const unsigned int phys_numrec, unsigned __int64 block, bool& is_last_record, bool& page_is_empty, char* new_last_index_buf, unsigned int& new_last_phys_num)
+void __fastcall index::delete_index_record(const char* index_buf, const unsigned int phys_numrec, uint64_t block, bool& is_last_record, bool& page_is_empty, char* new_last_index_buf, unsigned int& new_last_phys_num)
 {
 	char* page;
 	branch_page_header* bph;
@@ -2518,7 +2518,7 @@ void __fastcall index::delete_index_record(const char* index_buf, const unsigned
 	unsigned int number_indexes;
 	char* unpack_indexes_buf;
 	short int flags;
-	unsigned __int64 _block_;
+	uint64_t _block_;
 
 	char* cur_index;
 	int i, j, k, delta;
@@ -2531,7 +2531,7 @@ void __fastcall index::delete_index_record(const char* index_buf, const unsigned
 
 	if(*page & indexpage_is_leaf)
 	{
-		// страница-лист
+		// СЃС‚СЂР°РЅРёС†Р°-Р»РёСЃС‚
 		lph = (leaf_page_header*)page;
 		flags = lph->flags;
 		unpack_indexes_buf = unpack_leafpage(page, number_indexes);
@@ -2558,7 +2558,7 @@ void __fastcall index::delete_index_record(const char* index_buf, const unsigned
 					{
 						tbase->file_index->setdata(&(lph->prev_page), (version < ver8_3_8_0 ? lph->next_page : lph->next_page * pagesize) + 4, 4);
 					}
-					// TODO проверить, надо ли номера свободных страниц преобразовывать в смещения для версий от 8.0 до 8.2.14
+					// TODO РїСЂРѕРІРµСЂРёС‚СЊ, РЅР°РґРѕ Р»Рё РЅРѕРјРµСЂР° СЃРІРѕР±РѕРґРЅС‹С… СЃС‚СЂР°РЅРёС† РїСЂРµРѕР±СЂР°Р·РѕРІС‹РІР°С‚СЊ РІ СЃРјРµС‰РµРЅРёСЏ РґР»СЏ РІРµСЂСЃРёР№ РѕС‚ 8.0 РґРѕ 8.2.14
 					tbase->file_index->getdata(&k, 0, 4);
 					memset(page, 0, pagesize);
 					*(unsigned int*)page = k;
@@ -2586,7 +2586,7 @@ void __fastcall index::delete_index_record(const char* index_buf, const unsigned
 	}
 	else
 	{
-		// страница-ветка
+		// СЃС‚СЂР°РЅРёС†Р°-РІРµС‚РєР°
 		bph = (branch_page_header*)page;
 
 		cur_index = page + 12; // 12 = size_of(branch_page_header)
@@ -2670,11 +2670,11 @@ void __fastcall index::write_index_record(const unsigned int phys_numrecord, con
 	unsigned int new_last_phys_num;
 	char* new_last_index_buf2 = new char[length];
 	unsigned int new_last_phys_num2;
-	unsigned __int64 new_last_block2;
+	uint64_t new_last_block2;
 
 	char* page;
 	branch_page_header* bph;
-	unsigned __int64 block;
+	uint64_t block;
 	unsigned int k;
 	char* cur_index;
 
@@ -2728,12 +2728,12 @@ void __fastcall index::write_index_record(const unsigned int phys_numrecord, con
 }
 
 //---------------------------------------------------------------------------
-void __fastcall index::write_index_record(const unsigned int phys_numrecord, const char* index_buf, unsigned __int64 block, int& result, char* new_last_index_buf, unsigned int& new_last_phys_num, char* new_last_index_buf2, unsigned int& new_last_phys_num2, unsigned __int64& new_last_block2)
+void __fastcall index::write_index_record(const unsigned int phys_numrecord, const char* index_buf, uint64_t block, int& result, char* new_last_index_buf, unsigned int& new_last_phys_num, char* new_last_index_buf2, unsigned int& new_last_phys_num2, uint64_t& new_last_block2)
 {
-	// result - результат добавления.
-	// 0 - ничего делать не надо.
-	// 1 - надо заменить запись на new_last_index_buf.
-	// 2 - произошло разбиение на 2 страницы, надо заменить на 2 записи
+	// result - СЂРµР·СѓР»СЊС‚Р°С‚ РґРѕР±Р°РІР»РµРЅРёСЏ.
+	// 0 - РЅРёС‡РµРіРѕ РґРµР»Р°С‚СЊ РЅРµ РЅР°РґРѕ.
+	// 1 - РЅР°РґРѕ Р·Р°РјРµРЅРёС‚СЊ Р·Р°РїРёСЃСЊ РЅР° new_last_index_buf.
+	// 2 - РїСЂРѕРёР·РѕС€Р»Рѕ СЂР°Р·Р±РёРµРЅРёРµ РЅР° 2 СЃС‚СЂР°РЅРёС†С‹, РЅР°РґРѕ Р·Р°РјРµРЅРёС‚СЊ РЅР° 2 Р·Р°РїРёСЃРё
 
 	char* page;
 	branch_page_header* bph;
@@ -2742,22 +2742,22 @@ void __fastcall index::write_index_record(const unsigned int phys_numrecord, con
 	int _result;
 	unsigned int _new_last_phys_num;
 	unsigned int _new_last_phys_num2;
-	unsigned __int64 _new_last_block2;
+	uint64_t _new_last_block2;
 
 	char* unpack_indexes_buf;
 	char* unpack_indexes_buf_new;
 
 	short int flags;
 	unsigned int number_indexes;
-	unsigned __int64 prev_page;
-	unsigned __int64 next_page;
+	uint64_t prev_page;
+	uint64_t next_page;
 
 	char* page2;
 	branch_page_header* bph2;
 	leaf_page_header* lph2;
 	unsigned int number_indexes1;
 	unsigned int number_indexes2;
-	unsigned __int64 block1;
+	uint64_t block1;
 	unsigned int max_num_indexes;
 
 	char* cur_index;
@@ -2778,7 +2778,7 @@ void __fastcall index::write_index_record(const unsigned int phys_numrecord, con
 
 	if(flags & indexpage_is_leaf)
 	{
-		// страница-лист
+		// СЃС‚СЂР°РЅРёС†Р°-Р»РёСЃС‚
 		lph = (leaf_page_header*)page;
 		unpack_indexes_buf = unpack_leafpage(page, number_indexes);
 		cur_index = unpack_indexes_buf;
@@ -2793,11 +2793,11 @@ void __fastcall index::write_index_record(const unsigned int phys_numrecord, con
 			{
 				if(is_primary || *(unsigned int*)cur_index == phys_numrecord)
 				{
-					error(L"Ошибка записи индекса. Индекс уже существует.",
-						L"Таблица", tbase->name,
-						L"Индекс", name,
-						L"Физический номер существующий", *(unsigned int*)cur_index,
-						L"Физический номер записываемый", phys_numrecord);
+					error("РћС€РёР±РєР° Р·Р°РїРёСЃРё РёРЅРґРµРєСЃР°. РРЅРґРµРєСЃ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.",
+						"РўР°Р±Р»РёС†Р°", tbase->name,
+						"РРЅРґРµРєСЃ", name,
+						"Р¤РёР·РёС‡РµСЃРєРёР№ РЅРѕРјРµСЂ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№", *(unsigned int*)cur_index,
+						"Р¤РёР·РёС‡РµСЃРєРёР№ РЅРѕРјРµСЂ Р·Р°РїРёСЃС‹РІР°РµРјС‹Р№", phys_numrecord);
 					ok = false;
 				}
 				break;
@@ -2876,7 +2876,7 @@ void __fastcall index::write_index_record(const unsigned int phys_numrecord, con
 	}
 	else
 	{
-		// страница-ветка
+		// СЃС‚СЂР°РЅРёС†Р°-РІРµС‚РєР°
 
 		cur_index = page + 12; // 12 = size_of(branch_page_header)
 		delta = length + 8;
@@ -2890,11 +2890,11 @@ void __fastcall index::write_index_record(const unsigned int phys_numrecord, con
 			{
 				if(is_primary)
 				{
-					error(L"Ошибка записи индекса. Индекс уже существует.",
-						L"Таблица", tbase->name,
-						L"Индекс", name,
-						L"Физический номер существующий", reverse_byte_order(*(unsigned int*)(cur_index + length)),
-						L"Физический номер записываемый", phys_numrecord);
+					error("РћС€РёР±РєР° Р·Р°РїРёСЃРё РёРЅРґРµРєСЃР°. РРЅРґРµРєСЃ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.",
+						"РўР°Р±Р»РёС†Р°", tbase->name,
+						"РРЅРґРµРєСЃ", name,
+						"Р¤РёР·РёС‡РµСЃРєРёР№ РЅРѕРјРµСЂ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№", reverse_byte_order(*(unsigned int*)(cur_index + length)),
+						"Р¤РёР·РёС‡РµСЃРєРёР№ РЅРѕРјРµСЂ Р·Р°РїРёСЃС‹РІР°РµРјС‹Р№", phys_numrecord);
 					ok = false;
 				}
 				break;
@@ -2922,7 +2922,7 @@ void __fastcall index::write_index_record(const unsigned int phys_numrecord, con
 				{
 					result = 1;
 					new_last_phys_num = _new_last_phys_num;
-					// new_last_index_buf остаётся!
+					// new_last_index_buf РѕСЃС‚Р°С‘С‚СЃСЏ!
 				}
 			}
 			else if(_result == 2)
@@ -3053,7 +3053,7 @@ void __fastcall index::write_index_record(const unsigned int phys_numrecord, con
 //---------------------------------------------------------------------------
 
 //********************************************************
-// Класс field
+// РљР»Р°СЃСЃ field
 
 //---------------------------------------------------------------------------
 __fastcall field::field(table* _parent)
@@ -3081,7 +3081,7 @@ String __fastcall field::getname()
 }
 
 //---------------------------------------------------------------------------
-int __fastcall field::getlen() // возвращает длину поля в байтах
+int __fastcall field::getlen() // РІРѕР·РІСЂР°С‰Р°РµС‚ РґР»РёРЅСѓ РїРѕР»СЏ РІ Р±Р°Р№С‚Р°С…
 {
 	if(len) return len;
 
@@ -3105,7 +3105,7 @@ int __fastcall field::getlen() // возвращает длину поля в байтах
 }
 
 //---------------------------------------------------------------------------
-// При ignore_showGUID binary16 всегда преобразуется в GUID
+// РџСЂРё ignore_showGUID binary16 РІСЃРµРіРґР° РїСЂРµРѕР±СЂР°Р·СѓРµС‚СЃСЏ РІ GUID
 String __fastcall field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed)
 {
 	char sym;
@@ -3116,7 +3116,7 @@ String __fastcall field::get_presentation(const char* rec, bool EmptyNull, wchar
 
 	if(null_exists)
 	{
-		if(fr[0] == 0) return EmptyNull ? L"" : L"{NULL}";
+		if(fr[0] == 0) return EmptyNull ? "" : "{NULL}";
 		fr++;
 	}
 	switch(type)
@@ -3142,12 +3142,12 @@ String __fastcall field::get_presentation(const char* rec, bool EmptyNull, wchar
 			}
 			return buf;
 		case tf_bool:
-			if(fr[0]) return L"true";
-			return L"false";
+			if(fr[0]) return "true";
+			return "false";
 		case tf_numeric:
-			i = 0; // текущий индекс в buf
-			k = true; // признак, что значащие цифры еще не начались
-			m = length - precision; // позиция десятичной точки слева
+			i = 0; // С‚РµРєСѓС‰РёР№ РёРЅРґРµРєСЃ РІ buf
+			k = true; // РїСЂРёР·РЅР°Рє, С‡С‚Рѕ Р·РЅР°С‡Р°С‰РёРµ С†РёС„СЂС‹ РµС‰Рµ РЅРµ РЅР°С‡Р°Р»РёСЃСЊ
+			m = length - precision; // РїРѕР·РёС†РёСЏ РґРµСЃСЏС‚РёС‡РЅРѕР№ С‚РѕС‡РєРё СЃР»РµРІР°
 			if(fr[0] >> 4 == 0) buf[i++] = '-';
 			for(j = 0; j < length; j++)
 			{
@@ -3179,17 +3179,17 @@ String __fastcall field::get_presentation(const char* rec, bool EmptyNull, wchar
 		case tf_version8:
 			return String(*(int*)fr) + ":" + *(int*)(fr + 4);
 		case tf_string:
-			//return L"{MEMO}";
-			return detailed ? String(L"{MEMO} [") + tohex(*(int*)fr) + L"][" + tohex(*(int*)(fr + 4)) + L"]" : String(L"{MEMO}");
+			//return "{MEMO}";
+			return detailed ? String("{MEMO} [") + tohex(*(int*)fr) + "][" + tohex(*(int*)(fr + 4)) + "]" : String("{MEMO}");
 		case tf_text:
-			//return L"{TEXT}";
-			return detailed ? String(L"{TEXT} [") + tohex(*(int*)fr) + L"][" + tohex(*(int*)(fr + 4)) + L"]" : String(L"{TEXT}");
+			//return "{TEXT}";
+			return detailed ? String("{TEXT} [") + tohex(*(int*)fr) + "][" + tohex(*(int*)(fr + 4)) + "]" : String("{TEXT}");
 		case tf_image:
-			return detailed ? String(L"{IMAGE} [") + tohex(*(int*)fr) + L"][" + tohex(*(int*)(fr + 4)) + L"]" : String(L"{IMAGE}");
+			return detailed ? String("{IMAGE} [") + tohex(*(int*)fr) + "][" + tohex(*(int*)(fr + 4)) + "]" : String("{IMAGE}");
 		case tf_datetime:
 			return date_to_string(fr);
 		case tf_varbinary:
-			m = *(short int*)fr; // длина + смещение
+			m = *(short int*)fr; // РґР»РёРЅР° + СЃРјРµС‰РµРЅРёРµ
 			for(i = 0; i < m; i++)
 			{
 				sym = '0' + (fr[i + 2] >> 4);
@@ -3203,7 +3203,7 @@ String __fastcall field::get_presentation(const char* rec, bool EmptyNull, wchar
 			return buf;
 	}
 
-	return L"{?}";
+	return "{?}";
 }
 
 //---------------------------------------------------------------------------
@@ -3229,11 +3229,11 @@ bool __fastcall field::get_bynary_value(char* binary_value, bool null, String& v
 	switch(type)
 	{
 		case tf_binary:
-			if(value.Length() == 0) break;
+			if(value.GetLength() == 0) break;
 			j = 1;
-			if(length == 16 && showGUID) // Надо доделать для showGUIDasMS
+			if(length == 16 && showGUID) // РќР°РґРѕ РґРѕРґРµР»Р°С‚СЊ РґР»СЏ showGUIDasMS
 			{
-				if(value.Length() < 36) break;
+				if(value.GetLength() < 36) break;
 				for(i = 12; i < 16; i++) fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
 				j++;
 				for(i = 10; i < 12; i++) fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
@@ -3245,22 +3245,22 @@ bool __fastcall field::get_bynary_value(char* binary_value, bool null, String& v
 				for(i = 2; i < 8; i++) fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
 			}
 			else{
-				if(value.Length() < length * 2) break;
+				if(value.GetLength() < length * 2) break;
 				for(i = 0; i < length; i++) fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
 			}
 			break;
 		case tf_bool:
-			if(value == L"true") *fr = 1;
+			if(value == "true") *fr = 1;
 			else *fr = 0;
 			break;
 		case tf_numeric:
-			l = value.Length();
+			l = value.GetLength();
 			if(!l) break;
 
 			b = new unsigned char[l];
-			k = false; // знак минус
-			m = -1; // позиция точки
-			n = false; // признак наличия значащих цифр в начале
+			k = false; // Р·РЅР°Рє РјРёРЅСѓСЃ
+			m = -1; // РїРѕР·РёС†РёСЏ С‚РѕС‡РєРё
+			n = false; // РїСЂРёР·РЅР°Рє РЅР°Р»РёС‡РёСЏ Р·РЅР°С‡Р°С‰РёС… С†РёС„СЂ РІ РЅР°С‡Р°Р»Рµ
 
 			for(i = 0, j = 0; i < l; i++)
 			{
@@ -3288,22 +3288,22 @@ bool __fastcall field::get_bynary_value(char* binary_value, bool null, String& v
 			}
 			if(m == -1) m = j;
 
-			// тут имеем:
-			// в b значащие цифры
-			// k - признак минуса
-			// j - всего значащих цифр
-			// m - позиция точки (количество цифр до запятой, что одно и то же)
+			// С‚СѓС‚ РёРјРµРµРј:
+			// РІ b Р·РЅР°С‡Р°С‰РёРµ С†РёС„СЂС‹
+			// k - РїСЂРёР·РЅР°Рє РјРёРЅСѓСЃР°
+			// j - РІСЃРµРіРѕ Р·РЅР°С‡Р°С‰РёС… С†РёС„СЂ
+			// m - РїРѕР·РёС†РёСЏ С‚РѕС‡РєРё (РєРѕР»РёС‡РµСЃС‚РІРѕ С†РёС„СЂ РґРѕ Р·Р°РїСЏС‚РѕР№, С‡С‚Рѕ РѕРґРЅРѕ Рё С‚Рѕ Р¶Рµ)
 
 			//     0     1     2     3
 			//+-----+-----+-----+-----+
 			//I  .  I  .  I  .  I  .  I
 			//+-----+-----+-----+-----+
-			//  S  0  1  2  3  4  5  6  (номер цифры (полубайта), ниже равен i)
+			//  S  0  1  2  3  4  5  6  (РЅРѕРјРµСЂ С†РёС„СЂС‹ (РїРѕР»СѓР±Р°Р№С‚Р°), РЅРёР¶Рµ СЂР°РІРµРЅ i)
 
-			l = length - precision; // макс. количество цифр до запятой
+			l = length - precision; // РјР°РєСЃ. РєРѕР»РёС‡РµСЃС‚РІРѕ С†РёС„СЂ РґРѕ Р·Р°РїСЏС‚РѕР№
 			if(m > l)
 			{
-				// значение превышает максимально допустимое, заменяем на все 9ки
+				// Р·РЅР°С‡РµРЅРёРµ РїСЂРµРІС‹С€Р°РµС‚ РјР°РєСЃРёРјР°Р»СЊРЅРѕ РґРѕРїСѓСЃС‚РёРјРѕРµ, Р·Р°РјРµРЅСЏРµРј РЅР° РІСЃРµ 9РєРё
 				for(i = 0; i < length; i++)
 				{
 					if(i & 1) fr[(i + 1) >> 1] |= 0x90;
@@ -3317,7 +3317,7 @@ bool __fastcall field::get_bynary_value(char* binary_value, bool null, String& v
 					if(i & 1) fr[(i + 1) >> 1] |= b[p] << 4;
 					else fr[(i + 1) >> 1] |= b[p];
 				}
-				q = min(j - m, precision); // количество цифр после запятой
+				q = min(j - m, precision); // РєРѕР»РёС‡РµСЃС‚РІРѕ С†РёС„СЂ РїРѕСЃР»Рµ Р·Р°РїСЏС‚РѕР№
 				for(i = l, p = m; p < m + q; i++, p++)
 				{
 					if(i & 1) fr[(i + 1) >> 1] |= b[p] << 4;
@@ -3325,19 +3325,19 @@ bool __fastcall field::get_bynary_value(char* binary_value, bool null, String& v
 				}
 			}
 
-			if(!k) *fr |= 0x10; // Знак
+			if(!k) *fr |= 0x10; // Р—РЅР°Рє
 
 			delete[] b;
 
 			break;
 		case tf_char:
-			l = value.Length();
+			l = value.GetLength();
 			i = min(l, length);
 			memcpy(fr, value.c_str(), i << 1);
 			while(i < length) ((wchar_t*)fr)[i++] = L' ';
 			break;
 		case tf_varchar:
-			l = value.Length();
+			l = value.GetLength();
 			i = min(l, length);
 			*(short int*)fr = i;
 			memcpy(fr + 2, value.c_str(), i * 2);
@@ -3351,15 +3351,15 @@ bool __fastcall field::get_bynary_value(char* binary_value, bool null, String& v
 //			return String(*(int*)fr) + ":" + *(int*)(fr + 4);
 		case tf_string:
 			return false;
-//			return L"{MEMO}";
+//			return "{MEMO}";
 		case tf_text:
 			return false;
-//			return L"{TEXT}";
+//			return "{TEXT}";
 		case tf_image:
 			return false;
-//			return L"{IMAGE}";
+//			return "{IMAGE}";
 		case tf_datetime:
-			if(value.Length() < 19)
+			if(value.GetLength() < 19)
 			{
 				//memset(fr, 0, 7);
 				fr[1] = 1;
@@ -3377,14 +3377,14 @@ bool __fastcall field::get_bynary_value(char* binary_value, bool null, String& v
 				}\
 				if(value[A] == L' ') value[A] = L'0';
 
-				correct_spaces(1,2) // корректируем день
-				correct_spaces(4,5) // корректируем месяц
-				correct_spaces(12,13) // корректируем часы
-				correct_spaces(15,16) // корректируем минуты
-				correct_spaces(18,19) // корректируем секунды
+				correct_spaces(1,2) // РєРѕСЂСЂРµРєС‚РёСЂСѓРµРј РґРµРЅСЊ
+				correct_spaces(4,5) // РєРѕСЂСЂРµРєС‚РёСЂСѓРµРј РјРµСЃСЏС†
+				correct_spaces(12,13) // РєРѕСЂСЂРµРєС‚РёСЂСѓРµРј С‡Р°СЃС‹
+				correct_spaces(15,16) // РєРѕСЂСЂРµРєС‚РёСЂСѓРµРј РјРёРЅСѓС‚С‹
+				correct_spaces(18,19) // РєРѕСЂСЂРµРєС‚РёСЂСѓРµРј СЃРµРєСѓРЅРґС‹
 
 				i = 0;
-				// корректируем год
+				// РєРѕСЂСЂРµРєС‚РёСЂСѓРµРј РіРѕРґ
 				while(value[10] == L' ')
 				{
 					value[10] = value[9];
@@ -3408,7 +3408,7 @@ bool __fastcall field::get_bynary_value(char* binary_value, bool null, String& v
 				}
 				if(value[7] == L' ') value[7] = L'0';
 
-				// дополняем год при необходимости
+				// РґРѕРїРѕР»РЅСЏРµРј РіРѕРґ РїСЂРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё
 				switch(i)
 				{
 					case 1:
@@ -3425,10 +3425,10 @@ bool __fastcall field::get_bynary_value(char* binary_value, bool null, String& v
 						break;
 				}
 
-				// исправляем день, месяц, год
-				i = (value[1] - L'0') * 10 + (value[2] - L'0'); // день
-				m = (value[4] - L'0') * 10 + (value[5] - L'0'); // месяц
-				j = (value[7] - L'0') * 1000 + (value[8] - L'0') * 100 + (value[9] - L'0') * 10 + (value[10] - L'0'); // год
+				// РёСЃРїСЂР°РІР»СЏРµРј РґРµРЅСЊ, РјРµСЃСЏС†, РіРѕРґ
+				i = (value[1] - L'0') * 10 + (value[2] - L'0'); // РґРµРЅСЊ
+				m = (value[4] - L'0') * 10 + (value[5] - L'0'); // РјРµСЃСЏС†
+				j = (value[7] - L'0') * 1000 + (value[8] - L'0') * 100 + (value[9] - L'0') * 10 + (value[10] - L'0'); // РіРѕРґ
 
 				if(m > 12)
 				{
@@ -3502,22 +3502,22 @@ bool __fastcall field::get_bynary_value(char* binary_value, bool null, String& v
 						break;
 				}
 
-				// исправляем часы, минуты, секунды
-				i = (value[12] - L'0') * 10 + (value[13] - L'0'); // часы
+				// РёСЃРїСЂР°РІР»СЏРµРј С‡Р°СЃС‹, РјРёРЅСѓС‚С‹, СЃРµРєСѓРЅРґС‹
+				i = (value[12] - L'0') * 10 + (value[13] - L'0'); // С‡Р°СЃС‹
 				if(i > 23)
 				{
 					value[12] = L'2';
 					value[13] = L'3';
 				}
 
-				i = (value[15] - L'0') * 10 + (value[16] - L'0'); // минуты
+				i = (value[15] - L'0') * 10 + (value[16] - L'0'); // РјРёРЅСѓС‚С‹
 				if(i > 59)
 				{
 					value[15] = L'5';
 					value[16] = L'9';
 				}
 
-				i = (value[18] - L'0') * 10 + (value[19] - L'0'); // секунды
+				i = (value[18] - L'0') * 10 + (value[19] - L'0'); // СЃРµРєСѓРЅРґС‹
 				if(i > 59)
 				{
 					value[18] = L'5';
@@ -3536,7 +3536,7 @@ bool __fastcall field::get_bynary_value(char* binary_value, bool null, String& v
 			break;
 		case tf_varbinary:
 			return false;
-//			m = *(short int*)fr; // длина + смещение
+//			m = *(short int*)fr; // РґР»РёРЅР° + СЃРјРµС‰РµРЅРёРµ
 //			for(i = 0; i < m; i++)
 //			{
 //				sym = '0' + (fr[i + 2] >> 4);
@@ -3568,7 +3568,7 @@ String __fastcall field::get_XML_presentation(char* rec, bool ignore_showGUID)
 
 	if(null_exists)
 	{
-		if(fr[0] == 0) return L"";
+		if(fr[0] == 0) return "";
 		fr++;
 	}
 	switch(type)
@@ -3594,12 +3594,12 @@ String __fastcall field::get_XML_presentation(char* rec, bool ignore_showGUID)
 			}
 			return buf;
 		case tf_bool:
-			if(fr[0]) return L"true";
-			return L"false";
+			if(fr[0]) return "true";
+			return "false";
 		case tf_numeric:
-			i = 0; // текущий индекс в buf
-			k = true; // признак, что значащие цифры еще не начались
-			m = length - precision; // позиция десятичной точки слева
+			i = 0; // С‚РµРєСѓС‰РёР№ РёРЅРґРµРєСЃ РІ buf
+			k = true; // РїСЂРёР·РЅР°Рє, С‡С‚Рѕ Р·РЅР°С‡Р°С‰РёРµ С†РёС„СЂС‹ РµС‰Рµ РЅРµ РЅР°С‡Р°Р»РёСЃСЊ
+			m = length - precision; // РїРѕР·РёС†РёСЏ РґРµСЃСЏС‚РёС‡РЅРѕР№ С‚РѕС‡РєРё СЃР»РµРІР°
 			if(fr[0] >> 4 == 0) buf[i++] = '-';
 			for(j = 0; j < length; j++)
 			{
@@ -3629,13 +3629,13 @@ String __fastcall field::get_XML_presentation(char* rec, bool ignore_showGUID)
 		case tf_string:
 			out = new TMemoryStream();
 			parent->readBlob(out, *(unsigned int*)fr, *(unsigned int*)(fr + 4));
-			s = toXML(String((wchar_t*)(out->Memory), out->Size / 2));
+			s = toXML(String((wchar_t*)(out->Memory), out->GetSize() / 2));
 			delete out;
 			return s;
 		case tf_text:
 			out = new TMemoryStream();
 			parent->readBlob(out, *(unsigned int*)fr, *(unsigned int*)(fr + 4));
-			s = toXML(String((char*)(out->Memory), out->Size));
+			s = toXML(String((char*)(out->Memory), out->GetSize()));
 			delete out;
 			return s;
 		case tf_image:
@@ -3643,7 +3643,7 @@ String __fastcall field::get_XML_presentation(char* rec, bool ignore_showGUID)
 			out = new TMemoryStream();
 			parent->readBlob(in, *(unsigned int*)fr, *(unsigned int*)(fr + 4));
 			base64_encode(in, out, 72);
-			s = String((wchar_t*)(out->Memory), out->Size / 2);
+			s = String((wchar_t*)(out->Memory), out->GetSize() / 2);
 			delete in;
 			delete out;
 			return s;
@@ -3670,7 +3670,7 @@ String __fastcall field::get_XML_presentation(char* rec, bool ignore_showGUID)
 			buf[19] = 0;
 			return buf;
 		case tf_varbinary:
-			m = *(short int*)fr; // длина + смещение
+			m = *(short int*)fr; // РґР»РёРЅР° + СЃРјРµС‰РµРЅРёРµ
 			for(i = 0; i < m; i++)
 			{
 				sym = '0' + (fr[i + 2] >> 4);
@@ -3684,7 +3684,7 @@ String __fastcall field::get_XML_presentation(char* rec, bool ignore_showGUID)
 			return buf;
 	}
 
-	return L"{?}";
+	return "{?}";
 }
 
 //---------------------------------------------------------------------------
@@ -3734,17 +3734,17 @@ String __fastcall field::get_presentation_type()
 {
 	switch(type)
 	{
-//		case tf_binary: return "Двоичные данные"; break;
-//		case tf_bool: return "Булево"; break;
-//		case tf_numeric: return "Число"; break;
-//		case tf_char: return "Строка фиксированной длины"; break;
-//		case tf_varchar: return "Строка переменной длины"; break;
-//		case tf_version: return "Версия"; break;
-//		case tf_string: return "Unicode-cтрока неограниченной длины"; break;
-//		case tf_text: return "Ascii-cтрока неограниченной длины"; break;
-//		case tf_image: return "Двоичные данные неограниченной длины"; break;
-//		case tf_datetime: return "Дата-время"; break;
-//		case tf_version8: return "Скрытая версия"; break;
+//		case tf_binary: return "Р”РІРѕРёС‡РЅС‹Рµ РґР°РЅРЅС‹Рµ"; break;
+//		case tf_bool: return "Р‘СѓР»РµРІРѕ"; break;
+//		case tf_numeric: return "Р§РёСЃР»Рѕ"; break;
+//		case tf_char: return "РЎС‚СЂРѕРєР° С„РёРєСЃРёСЂРѕРІР°РЅРЅРѕР№ РґР»РёРЅС‹"; break;
+//		case tf_varchar: return "РЎС‚СЂРѕРєР° РїРµСЂРµРјРµРЅРЅРѕР№ РґР»РёРЅС‹"; break;
+//		case tf_version: return "Р’РµСЂСЃРёСЏ"; break;
+//		case tf_string: return "Unicode-cС‚СЂРѕРєР° РЅРµРѕРіСЂР°РЅРёС‡РµРЅРЅРѕР№ РґР»РёРЅС‹"; break;
+//		case tf_text: return "Ascii-cС‚СЂРѕРєР° РЅРµРѕРіСЂР°РЅРёС‡РµРЅРЅРѕР№ РґР»РёРЅС‹"; break;
+//		case tf_image: return "Р”РІРѕРёС‡РЅС‹Рµ РґР°РЅРЅС‹Рµ РЅРµРѕРіСЂР°РЅРёС‡РµРЅРЅРѕР№ РґР»РёРЅС‹"; break;
+//		case tf_datetime: return "Р”Р°С‚Р°-РІСЂРµРјСЏ"; break;
+//		case tf_version8: return "РЎРєСЂС‹С‚Р°СЏ РІРµСЂСЃРёСЏ"; break;
 		case tf_binary: return "binary";
 		case tf_bool: return "bool";
 		case tf_numeric: return "number";
@@ -3764,7 +3764,7 @@ String __fastcall field::get_presentation_type()
 //---------------------------------------------------------------------------
 String __fastcall TrimSpacesRight(String s)
 {
-	while(s.SubString(s.Length(), 1) == L" ") s.SetLength(s.Length() - 1);
+	while(s.SubString(s.GetLength(), 1) == " ") s.SetLength(s.GetLength() - 1);
 	return s;
 }
 
@@ -3788,10 +3788,10 @@ unsigned int __fastcall field::getSortKey(const char* rec, unsigned char* SortKe
 
 	if(!maxlen)
 	{
-		error(L"Ошибка получения ключа сортировки поля. Нулевая длина буфера.",
-			L"Таблица", parent->name,
-			L"Поле", name,
-			L"Значение поля", get_presentation(rec));
+		error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕР»СЏ. РќСѓР»РµРІР°СЏ РґР»РёРЅР° Р±СѓС„РµСЂР°.",
+			"РўР°Р±Р»РёС†Р°", parent->name,
+			"РџРѕР»Рµ", name,
+			"Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ", get_presentation(rec));
 
 		return 0;
 	}
@@ -3817,12 +3817,12 @@ unsigned int __fastcall field::getSortKey(const char* rec, unsigned char* SortKe
 		case tf_bool:
 			if(len > maxlen)
 			{
-				error(L"Ошибка получения ключа сортировки поля. Длина буфера меньше необходимой.",
-					L"Таблица", parent->name,
-					L"Поле", name,
-					L"Значение поля", get_presentation(rec),
-					L"Длина буфера", maxlen,
-					L"Необходимая длина буфера", len);
+				error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕР»СЏ. Р”Р»РёРЅР° Р±СѓС„РµСЂР° РјРµРЅСЊС€Рµ РЅРµРѕР±С…РѕРґРёРјРѕР№.",
+					"РўР°Р±Р»РёС†Р°", parent->name,
+					"РџРѕР»Рµ", name,
+					"Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ", get_presentation(rec),
+					"Р”Р»РёРЅР° Р±СѓС„РµСЂР°", maxlen,
+					"РќРµРѕР±С…РѕРґРёРјР°СЏ РґР»РёРЅР° Р±СѓС„РµСЂР°", len);
 
 				memcpy(SortKey, isnull ? null_index : fr, maxl);
 				return maxlen;
@@ -3836,12 +3836,12 @@ unsigned int __fastcall field::getSortKey(const char* rec, unsigned char* SortKe
 			{
 				if(len > maxlen)
 				{
-					error(L"Ошибка получения ключа сортировки поля. Длина буфера меньше необходимой.",
-						L"Таблица", parent->name,
-						L"Поле", name,
-						L"Значение поля", get_presentation(rec),
-						L"Длина буфера", maxlen,
-						L"Необходимая длина буфера", len);
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕР»СЏ. Р”Р»РёРЅР° Р±СѓС„РµСЂР° РјРµРЅСЊС€Рµ РЅРµРѕР±С…РѕРґРёРјРѕР№.",
+						"РўР°Р±Р»РёС†Р°", parent->name,
+						"РџРѕР»Рµ", name,
+						"Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ", get_presentation(rec),
+						"Р”Р»РёРЅР° Р±СѓС„РµСЂР°", maxlen,
+						"РќРµРѕР±С…РѕРґРёРјР°СЏ РґР»РёРЅР° Р±СѓС„РµСЂР°", len);
 
 					memcpy(SortKey, null_index, maxl);
 					return maxlen;
@@ -3852,9 +3852,9 @@ unsigned int __fastcall field::getSortKey(const char* rec, unsigned char* SortKe
 			}
 
 			memcpy(nbuf, fr, len - addlen);
-			if((*nbuf & 0xf0) == 0) //Отрицательное!
+			if((*nbuf & 0xf0) == 0) //РћС‚СЂРёС†Р°С‚РµР»СЊРЅРѕРµ!
 			{
-				k = false; // перенос
+				k = false; // РїРµСЂРµРЅРѕСЃ
 				for(i = length; i > 0; i--)
 				{
 					j = i >> 1;
@@ -3887,17 +3887,17 @@ unsigned int __fastcall field::getSortKey(const char* rec, unsigned char* SortKe
 						nbuf[j] = (nbuf[j] & 0x0f) | (c << 4);
 					}
 				}
-				if(!k) *nbuf = 0x10; // если значение оказалось -0 (минус ноль), то должно получиться +0.
+				if(!k) *nbuf = 0x10; // РµСЃР»Рё Р·РЅР°С‡РµРЅРёРµ РѕРєР°Р·Р°Р»РѕСЃСЊ -0 (РјРёРЅСѓСЃ РЅРѕР»СЊ), С‚Рѕ РґРѕР»Р¶РЅРѕ РїРѕР»СѓС‡РёС‚СЊСЃСЏ +0.
 			}
 
 			if(len > maxlen)
 			{
-				error(L"Ошибка получения ключа сортировки поля. Длина буфера меньше необходимой.",
-					L"Таблица", parent->name,
-					L"Поле", name,
-					L"Значение поля", get_presentation(rec),
-					L"Длина буфера", maxlen,
-					L"Необходимая длина буфера", len);
+				error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕР»СЏ. Р”Р»РёРЅР° Р±СѓС„РµСЂР° РјРµРЅСЊС€Рµ РЅРµРѕР±С…РѕРґРёРјРѕР№.",
+					"РўР°Р±Р»РёС†Р°", parent->name,
+					"РџРѕР»Рµ", name,
+					"Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ", get_presentation(rec),
+					"Р”Р»РёРЅР° Р±СѓС„РµСЂР°", maxlen,
+					"РќРµРѕР±С…РѕРґРёРјР°СЏ РґР»РёРЅР° Р±СѓС„РµСЂР°", len);
 
 				memcpy(SortKey, nbuf, maxl);
 				return maxlen;
@@ -3909,16 +3909,16 @@ unsigned int __fastcall field::getSortKey(const char* rec, unsigned char* SortKe
 			base = parent->base;
 			if(!isnull) s = TrimSpacesRight(String((wchar_t*)fr, length));
 
-			if(isnull || s.Length() == 0)
+			if(isnull || s.GetLength() == 0)
 			{
 				if(maxl < 2)
 				{
-					error(L"Ошибка получения ключа сортировки поля. Длина буфера меньше необходимой.",
-						L"Таблица", parent->name,
-						L"Поле", name,
-						L"Значение поля", get_presentation(rec),
-						L"Длина буфера", maxlen,
-						L"Необходимая длина буфера", 2 + addlen);
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕР»СЏ. Р”Р»РёРЅР° Р±СѓС„РµСЂР° РјРµРЅСЊС€Рµ РЅРµРѕР±С…РѕРґРёРјРѕР№.",
+						"РўР°Р±Р»РёС†Р°", parent->name,
+						"РџРѕР»Рµ", name,
+						"Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ", get_presentation(rec),
+						"Р”Р»РёРЅР° Р±СѓС„РµСЂР°", maxlen,
+						"РќРµРѕР±С…РѕРґРёРјР°СЏ РґР»РёРЅР° Р±СѓС„РµСЂР°", 2 + addlen);
 					memcpy(SortKey, null_index, maxl);
 					return maxlen;
 				}
@@ -3934,37 +3934,37 @@ unsigned int __fastcall field::getSortKey(const char* rec, unsigned char* SortKe
 				case r_OK:
 					return j + addlen;
 				case r_badLocale:
-					error(L"Ошибка получения ключа сортировки поля. Недопустимый Locale.",
-						L"Таблица", parent->name,
-						L"Поле", name,
-						L"Значение поля", get_presentation(rec),
-						L"Locale", base->locale);
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕР»СЏ. РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ Locale.",
+						"РўР°Р±Р»РёС†Р°", parent->name,
+						"РџРѕР»Рµ", name,
+						"Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ", get_presentation(rec),
+						"Locale", base->locale);
 					return addlen;
 				case r_keyTooSmall:
-					error(L"Ошибка получения ключа сортировки поля. Длина буфера меньше необходимой.",
-						L"Таблица", parent->name,
-						L"Поле", name,
-						L"Значение поля", get_presentation(rec),
-						L"Длина буфера", maxlen,
-						L"Необходимая длина буфера", j + addlen);
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕР»СЏ. Р”Р»РёРЅР° Р±СѓС„РµСЂР° РјРµРЅСЊС€Рµ РЅРµРѕР±С…РѕРґРёРјРѕР№.",
+						"РўР°Р±Р»РёС†Р°", parent->name,
+						"РџРѕР»Рµ", name,
+						"Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ", get_presentation(rec),
+						"Р”Р»РёРЅР° Р±СѓС„РµСЂР°", maxlen,
+						"РќРµРѕР±С…РѕРґРёРјР°СЏ РґР»РёРЅР° Р±СѓС„РµСЂР°", j + addlen);
 					return maxlen;
 				case r_LocaleNotSet:
-					error(L"Ошибка получения ключа сортировки поля. Locale не установлен.",
-						L"Таблица", parent->name,
-						L"Поле", name,
-						L"Значение поля", get_presentation(rec));
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕР»СЏ. Locale РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ.",
+						"РўР°Р±Р»РёС†Р°", parent->name,
+						"РџРѕР»Рµ", name,
+						"Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ", get_presentation(rec));
 					return addlen;
 				case r_notInit:
-					error(L"Ошибка получения ключа сортировки поля. Компонент ICU не инициализирован.",
-						L"Таблица", parent->name,
-						L"Поле", name,
-						L"Значение поля", get_presentation(rec));
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕР»СЏ. РљРѕРјРїРѕРЅРµРЅС‚ ICU РЅРµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅ.",
+						"РўР°Р±Р»РёС†Р°", parent->name,
+						"РџРѕР»Рµ", name,
+						"Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ", get_presentation(rec));
 					return addlen;
 				default:
-					error(L"Ошибка получения ключа сортировки поля. Неизвестный код возврата.",
-						L"Таблица", parent->name,
-						L"Поле", name,
-						L"Значение поля", get_presentation(rec));
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕР»СЏ. РќРµРёР·РІРµСЃС‚РЅС‹Р№ РєРѕРґ РІРѕР·РІСЂР°С‚Р°.",
+						"РўР°Р±Р»РёС†Р°", parent->name,
+						"РџРѕР»Рµ", name,
+						"Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ", get_presentation(rec));
 					return addlen;
 			}
 
@@ -3973,16 +3973,16 @@ unsigned int __fastcall field::getSortKey(const char* rec, unsigned char* SortKe
 			base = parent->base;
 			if(!isnull) s = TrimSpacesRight(String((wchar_t*)(fr + 2), i));
 
-			if(isnull || s.Length() == 0)
+			if(isnull || s.GetLength() == 0)
 			{
 				if(maxl < 2)
 				{
-					error(L"Ошибка получения ключа сортировки поля. Длина буфера меньше необходимой.",
-						L"Таблица", parent->name,
-						L"Поле", name,
-						L"Значение поля", get_presentation(rec),
-						L"Длина буфера", maxlen,
-						L"Необходимая длина буфера", 2 + addlen);
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕР»СЏ. Р”Р»РёРЅР° Р±СѓС„РµСЂР° РјРµРЅСЊС€Рµ РЅРµРѕР±С…РѕРґРёРјРѕР№.",
+						"РўР°Р±Р»РёС†Р°", parent->name,
+						"РџРѕР»Рµ", name,
+						"Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ", get_presentation(rec),
+						"Р”Р»РёРЅР° Р±СѓС„РµСЂР°", maxlen,
+						"РќРµРѕР±С…РѕРґРёРјР°СЏ РґР»РёРЅР° Р±СѓС„РµСЂР°", 2 + addlen);
 					memcpy(SortKey, null_index, maxl);
 					return maxlen;
 				}
@@ -3998,37 +3998,37 @@ unsigned int __fastcall field::getSortKey(const char* rec, unsigned char* SortKe
 				case r_OK:
 					return j + addlen;
 				case r_badLocale:
-					error(L"Ошибка получения ключа сортировки поля. Недопустимый Locale.",
-						L"Таблица", parent->name,
-						L"Поле", name,
-						L"Значение поля", get_presentation(rec),
-						L"Locale", base->locale);
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕР»СЏ. РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ Locale.",
+						"РўР°Р±Р»РёС†Р°", parent->name,
+						"РџРѕР»Рµ", name,
+						"Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ", get_presentation(rec),
+						"Locale", base->locale);
 					return addlen;
 				case r_keyTooSmall:
-					error(L"Ошибка получения ключа сортировки поля. Длина буфера меньше необходимой.",
-						L"Таблица", parent->name,
-						L"Поле", name,
-						L"Значение поля", get_presentation(rec),
-						L"Длина буфера", maxlen,
-						L"Необходимая длина буфера", j + addlen);
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕР»СЏ. Р”Р»РёРЅР° Р±СѓС„РµСЂР° РјРµРЅСЊС€Рµ РЅРµРѕР±С…РѕРґРёРјРѕР№.",
+						"РўР°Р±Р»РёС†Р°", parent->name,
+						"РџРѕР»Рµ", name,
+						"Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ", get_presentation(rec),
+						"Р”Р»РёРЅР° Р±СѓС„РµСЂР°", maxlen,
+						"РќРµРѕР±С…РѕРґРёРјР°СЏ РґР»РёРЅР° Р±СѓС„РµСЂР°", j + addlen);
 					return maxlen;
 				case r_LocaleNotSet:
-					error(L"Ошибка получения ключа сортировки поля. Locale не установлен.",
-						L"Таблица", parent->name,
-						L"Поле", name,
-						L"Значение поля", get_presentation(rec));
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕР»СЏ. Locale РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ.",
+						"РўР°Р±Р»РёС†Р°", parent->name,
+						"РџРѕР»Рµ", name,
+						"Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ", get_presentation(rec));
 					return addlen;
 				case r_notInit:
-					error(L"Ошибка получения ключа сортировки поля. Компонент ICU не инициализирован.",
-						L"Таблица", parent->name,
-						L"Поле", name,
-						L"Значение поля", get_presentation(rec));
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕР»СЏ. РљРѕРјРїРѕРЅРµРЅС‚ ICU РЅРµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅ.",
+						"РўР°Р±Р»РёС†Р°", parent->name,
+						"РџРѕР»Рµ", name,
+						"Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ", get_presentation(rec));
 					return addlen;
 				default:
-					error(L"Ошибка получения ключа сортировки поля. Неизвестный код возврата.",
-						L"Таблица", parent->name,
-						L"Поле", name,
-						L"Значение поля", get_presentation(rec));
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕР»СЏ. РќРµРёР·РІРµСЃС‚РЅС‹Р№ РєРѕРґ РІРѕР·РІСЂР°С‚Р°.",
+						"РўР°Р±Р»РёС†Р°", parent->name,
+						"РџРѕР»Рµ", name,
+						"Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ", get_presentation(rec));
 					return addlen;
 			}
 
@@ -4038,10 +4038,10 @@ unsigned int __fastcall field::getSortKey(const char* rec, unsigned char* SortKe
 		case tf_text:
 		case tf_image:
 		case tf_varbinary:
-			error(L"Попытка получения ключа сортировки неподдерживаемого типа поля.",
-				L"Таблица", parent->name,
-				L"Поле", name,
-				L"Тип поля", get_presentation_type());
+			error("РџРѕРїС‹С‚РєР° РїРѕР»СѓС‡РµРЅРёСЏ РєР»СЋС‡Р° СЃРѕСЂС‚РёСЂРѕРІРєРё РЅРµРїРѕРґРґРµСЂР¶РёРІР°РµРјРѕРіРѕ С‚РёРїР° РїРѕР»СЏ.",
+				"РўР°Р±Р»РёС†Р°", parent->name,
+				"РџРѕР»Рµ", name,
+				"РўРёРї РїРѕР»СЏ", get_presentation_type());
 			return 0;
 	}
 
@@ -4060,7 +4060,7 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 	TStream* _s2;
 	TStream* _sx;
 	TStream* _sx2;
-	__int64 len1C;
+	int64_t len1C;
 	bool is_users_usr;
 	unsigned int i, j, k, l;
 	char* _xor_mask;
@@ -4102,7 +4102,7 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 	if(usetemporaryfiles) blob_stream = new TTempStream;
 	else blob_stream = new TMemoryStream;
 	parent->readBlob(blob_stream, *(unsigned int*)rec, *(unsigned int*)(rec + 4));
-	if(blob_stream->Size == 0)
+	if(blob_stream->GetSize() == 0)
 	{
 		delete blob_stream;
 		return false;
@@ -4115,27 +4115,27 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 	if(tab->get_issystem())
 	{
 
-		// спецобработка для users.usr
+		// СЃРїРµС†РѕР±СЂР°Р±РѕС‚РєР° РґР»СЏ users.usr
 		String tabname = tab->getname();
 		is_users_usr = false;
-		if(tabname.CompareIC(L"PARAMS") == 0)
+		if(tabname.CompareIC("PARAMS") == 0)
 		{
 			_f = tab->getfield(0);
-			if(_f->get_presentation(orec).CompareIC(L"users.usr") == 0) is_users_usr = true;
+			if(_f->get_presentation(orec).CompareIC("users.usr") == 0) is_users_usr = true;
 		}
-		else if(tabname.CompareIC(L"V8USERS") == 0) is_users_usr = true;
+		else if(tabname.CompareIC("V8USERS") == 0) is_users_usr = true;
 
 		maybezipped2 = true;
-		if(tabname.CompareIC(L"CONFIG") == 0 || tabname.CompareIC(L"CONFIGSAVE") == 0)
+		if(tabname.CompareIC("CONFIG") == 0 || tabname.CompareIC("CONFIGSAVE") == 0)
 		{
 			_f = tab->getfield(0);
-			maybezipped2 = _f->get_presentation(orec).Length() > 72;
+			maybezipped2 = _f->get_presentation(orec).GetLength() > 72;
 		}
 
 		if(is_users_usr)
 		{
 
-			i = blob_stream->Size;
+			i = blob_stream->GetSize();
 			_bb = new char[i];
 			blob_stream->Seek(0, soFromBeginning);
 			blob_stream->Read(_bb, i);
@@ -4150,7 +4150,7 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 				_xor_buf[i] ^= _xor_mask[k];
 			}
 			temp_stream = new TFileStream(_filename, fmCreate);
-			temp_stream->Size = 0;
+			temp_stream->GetSize() = 0;
 			temp_stream->WriteBuffer(_xor_buf, l);
 			delete temp_stream;
 			delete[] _bb;
@@ -4161,7 +4161,7 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 			try
 			{
 				blob_stream->Seek(0, soFromBeginning);
-				//_s->Size = 0;
+				//_s->SetSize(0);
 				ZInflateStream(blob_stream, _s);
 				zipped = true;
 				if(maybezipped2) _sx = _s;
@@ -4172,7 +4172,7 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 			}
 			catch (...)
 			{
-				//_s->Size = 0;
+				//_s->SetSize(0);
 				//_s->CopyFrom(blob_stream, 0);
 				_sx2 = blob_stream;
 				delete _s;
@@ -4183,14 +4183,14 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 
 			if(zipped && maybezipped2)
 			{
-				//_s2->Size = 0;
+				//_s2->SetSize(0);
 				//_s2->CopyFrom(_s, 0);
 				if(usetemporaryfiles) _s2 = new TTempStream;
 				else _s2 = new TMemoryStream;
 				try
 				{
 					_sx->Seek(0, soFromBeginning);
-					//_s->Size = 0;
+					//_s->SetSize(0);
 					ZInflateStream(_sx, _s2);
 					zippedContainer = true;
 					_sx2 = _s2;
@@ -4200,7 +4200,7 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 				}
 				catch (...)
 				{
-					//_s->Size = 0;
+					//_s->SetSize(0);
 					//_s->CopyFrom(_s2, 0);
 					_sx2 = _sx;
 					_sx = NULL;
@@ -4231,9 +4231,9 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 			if(usetemporaryfiles) _s2 = new TTempStream;
 			else _s2 = new TMemoryStream;
 			bool isOK = true;
-			if(_buf[0] == 1) // неупакованное хранилище
+			if(_buf[0] == 1) // РЅРµСѓРїР°РєРѕРІР°РЅРЅРѕРµ С…СЂР°РЅРёР»РёС‰Рµ
 			{
-				_s2->CopyFrom(blob_stream, blob_stream->Size - 2);
+				_s2->CopyFrom(blob_stream, blob_stream->GetSize() - 2);
 			}
 			else
 			{
@@ -4260,27 +4260,27 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 				if(_s2->Read(_buf, 8) < 8) isOK = false;
 				else
 				{
-					_s->Size = 0;
-					_s->CopyFrom(_s2, _s2->Size - 8);
+					_s->SetSize(0);
+					_s->CopyFrom(_s2, _s2->GetSize() - 8);
 				}
 
 			}
 
 			if(isOK)
 			{
-				len1C = *(__int64*)_buf;
-				if(_s->Size > len1C)
+				len1C = *(int64_t*)_buf;
+				if(_s->GetSize() > len1C)
 				{
 					_s->Seek(len1C, (TSeekOrigin)soFromBeginning);
-					_s2->Size = 0;
-					_s2->CopyFrom(_s, _s->Size - len1C);
+					_s2->SetSize(0);
+					_s2->CopyFrom(_s, _s->GetSize() - len1C);
 					_s2->Seek(0, soFromBeginning);
 					if(_s2->Read(_buf, 12) >= 12)
 					{
-						len1C = *(__int64*)&_buf[4];
-						if(len1C <= _s2->Size - 12)
+						len1C = *(int64_t*)&_buf[4];
+						if(len1C <= _s2->GetSize() - 12)
 						{
-							_s->Size = 0;
+							_s->SetSize(0);
 							_s->CopyFrom(_s2, len1C);
 						}
 					}
@@ -4302,7 +4302,7 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 
 
 //********************************************************
-// Класс changed_rec
+// РљР»Р°СЃСЃ changed_rec
 
 //---------------------------------------------------------------------------
 __fastcall changed_rec::changed_rec(table* _parent, changed_rec_type crt, unsigned int phys_numrecord)
@@ -4357,7 +4357,7 @@ void __fastcall changed_rec::clear()
 
 
 //********************************************************
-// Класс table
+// РљР»Р°СЃСЃ table
 
 //---------------------------------------------------------------------------
 bool __fastcall table::get_issystem()
@@ -4375,7 +4375,7 @@ void __fastcall table::init(int block_descr)
 	tree* rt;
 	int i, j, k;
 	unsigned int m;
-	unsigned __int64 s;
+	uint64_t s;
 	String ws;
 	index* ind;
 	int numrec;
@@ -4410,21 +4410,21 @@ void __fastcall table::init(int block_descr)
 
 	if(description.IsEmpty()) return;
 
-	tree* root = parse_1Ctext(description, String("Блок ") + block_descr);
+	tree* root = parse_1Ctext(description, String("Р‘Р»РѕРє ") + block_descr);
 
 	if(!root)
 	{
-		error(L"Ошибка разбора текста описания таблицы.",
-			L"Блок", tohex(block_descr));
+		error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С‚РµРєСЃС‚Р° РѕРїРёСЃР°РЅРёСЏ С‚Р°Р±Р»РёС†С‹.",
+			"Р‘Р»РѕРє", tohex(block_descr));
 		init();
 		return;
 	}
 
 	if(root->get_num_subnode() != 1)
 	{
-		error(L"Ошибка разбора текста описания таблицы. Количество узлов не равно 1.",
-			L"Блок", tohex(block_descr),
-			L"Узлов", root->get_num_subnode());
+		error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С‚РµРєСЃС‚Р° РѕРїРёСЃР°РЅРёСЏ С‚Р°Р±Р»РёС†С‹. РљРѕР»РёС‡РµСЃС‚РІРѕ СѓР·Р»РѕРІ РЅРµ СЂР°РІРЅРѕ 1.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РЈР·Р»РѕРІ", root->get_num_subnode());
 		init();
 		delete root;
 		return;
@@ -4433,9 +4433,9 @@ void __fastcall table::init(int block_descr)
 
 	if(rt->get_num_subnode() != 6)
 	{
-		error(L"Ошибка разбора текста описания таблицы. Количество узлов не равно 6.",
-			L"Блок", tohex(block_descr),
-			L"Узлов", rt->get_num_subnode());
+		error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С‚РµРєСЃС‚Р° РѕРїРёСЃР°РЅРёСЏ С‚Р°Р±Р»РёС†С‹. РљРѕР»РёС‡РµСЃС‚РІРѕ СѓР·Р»РѕРІ РЅРµ СЂР°РІРЅРѕ 6.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РЈР·Р»РѕРІ", rt->get_num_subnode());
 		init();
 		delete root;
 		return;
@@ -4444,24 +4444,24 @@ void __fastcall table::init(int block_descr)
 	t = rt->get_first();
 	if(t->get_type() != nd_string)
 	{
-		error(L"Ошибка получения имени таблицы. Узел не является строкой.",
-			L"Блок", tohex(block_descr));
+		error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РёРјРµРЅРё С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃС‚СЂРѕРєРѕР№.",
+			"Р‘Р»РѕРє", tohex(block_descr));
 		init();
 		delete root;
 		return;
 	}
 	name = t->get_value();
 	issystem = name[1] != L'_'
-		|| name.SubString(name.Length() - 6, 7).CompareIC(L"STORAGE") == 0
-		|| name.CompareIC(L"_SYSTEMSETTINGS") == 0
-		|| name.CompareIC(L"_COMMONSETTINGS") == 0
-		|| name.CompareIC(L"_REPSETTINGS") == 0
-		|| name.CompareIC(L"_REPVARSETTINGS") == 0
-		|| name.CompareIC(L"_FRMDTSETTINGS") == 0
-		|| name.CompareIC(L"_SCHEDULEDJOBS") == 0;
+		|| name.SubString(name.GetLength() - 6, 7).CompareIC("STORAGE") == 0
+		|| name.CompareIC("_SYSTEMSETTINGS") == 0
+		|| name.CompareIC("_COMMONSETTINGS") == 0
+		|| name.CompareIC("_REPSETTINGS") == 0
+		|| name.CompareIC("_REPVARSETTINGS") == 0
+		|| name.CompareIC("_FRMDTSETTINGS") == 0
+		|| name.CompareIC("_SCHEDULEDJOBS") == 0;
 
 #ifdef getcfname
-	if(name.CompareIC(L"CONFIG"))
+	if(name.CompareIC("CONFIG"))
 	{
 		delete root;
 		return;
@@ -4469,13 +4469,13 @@ void __fastcall table::init(int block_descr)
 #endif
 #ifdef delic
 #ifdef delicfiles
-	if(name.CompareIC(L"PARAMS") && name.CompareIC(L"FILES") && name.CompareIC(L"CONFIG"))
+	if(name.CompareIC("PARAMS") && name.CompareIC("FILES") && name.CompareIC("CONFIG"))
 	{
 		delete root;
 		return;
 	}
 #else
-	if(name.CompareIC(L"PARAMS"))
+	if(name.CompareIC("PARAMS"))
 	{
 		delete root;
 		return;
@@ -4484,51 +4484,51 @@ void __fastcall table::init(int block_descr)
 #endif
 
 	t = t->get_next();
-	// пропускаем узел, так как там всегда содержится "0", и что это такое, неизвестно (версия формата описания таблиц?)
+	// РїСЂРѕРїСѓСЃРєР°РµРј СѓР·РµР», С‚Р°Рє РєР°Рє С‚Р°Рј РІСЃРµРіРґР° СЃРѕРґРµСЂР¶РёС‚СЃСЏ "0", Рё С‡С‚Рѕ СЌС‚Рѕ С‚Р°РєРѕРµ, РЅРµРёР·РІРµСЃС‚РЅРѕ (РІРµСЂСЃРёСЏ С„РѕСЂРјР°С‚Р° РѕРїРёСЃР°РЅРёСЏ С‚Р°Р±Р»РёС†?)
 	t = t->get_next();
 	//if(t->get_type() != nd_empty)
 	if(t->get_type() != nd_list)
 	{
-		error(L"Ошибка получения полей таблицы. Узел не является деревом.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name);
+		error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РїРѕР»РµР№ С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ СЏРІР»СЏРµС‚СЃСЏ РґРµСЂРµРІРѕРј.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name);
 		init();
 		delete root;
 		return;
 	}
 	if(t->get_num_subnode() < 2)
 	{
-		error(L"Ошибка получения полей таблицы. Нет узлов описаня полей.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name);
+		error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РїРѕР»РµР№ С‚Р°Р±Р»РёС†С‹. РќРµС‚ СѓР·Р»РѕРІ РѕРїРёСЃР°РЅСЏ РїРѕР»РµР№.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name);
 		init();
 		delete root;
 		return;
 	}
 
 	num_fields = t->get_num_subnode() - 1;
-	num_fields2 = num_fields + 1; // добавляем лишнее поле на случай наличия скрытого поля версии
+	num_fields2 = num_fields + 1; // РґРѕР±Р°РІР»СЏРµРј Р»РёС€РЅРµРµ РїРѕР»Рµ РЅР° СЃР»СѓС‡Р°Р№ РЅР°Р»РёС‡РёСЏ СЃРєСЂС‹С‚РѕРіРѕ РїРѕР»СЏ РІРµСЂСЃРёРё
 	fields = new field*[num_fields2];
-	bool has_version = false; // признак наличия поля версии
+	bool has_version = false; // РїСЂРёР·РЅР°Рє РЅР°Р»РёС‡РёСЏ РїРѕР»СЏ РІРµСЂСЃРёРё
 	for(i = 0; i < num_fields2; i++) fields[i] = new field(this);
 
 	f = t->get_first();
 	if(f->get_type() != nd_string)
 	{
-		error(L"Ошибка получения полей таблицы. Ожидаемый узел Fields не является строкой.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name);
+		error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РїРѕР»РµР№ С‚Р°Р±Р»РёС†С‹. РћР¶РёРґР°РµРјС‹Р№ СѓР·РµР» Fields РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃС‚СЂРѕРєРѕР№.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name);
 		deletefields();
 		init();
 		delete root;
 		return;
 	}
-	if(f->get_value() != L"Fields")
+	if(f->get_value() != "Fields")
 	{
-		error(L"Ошибка получения полей таблицы. Узел не Fields.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name,
-			L"Узел", f->get_value());
+		error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РїРѕР»РµР№ С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ Fields.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name,
+			"РЈР·РµР»", f->get_value());
 		deletefields();
 		init();
 		delete root;
@@ -4540,11 +4540,11 @@ void __fastcall table::init(int block_descr)
 		f = f->get_next();
 		if(f->get_num_subnode() != 6)
 		{
-			error(L"Ошибка получения узла очередного поля таблицы. Количество узлов поля не равно 6.",
-				L"Блок", tohex(block_descr),
-				L"Таблица", name,
-				L"Номер поля", i + 1,
-				L"Узлов", f->get_num_subnode());
+			error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ СѓР·Р»Р° РѕС‡РµСЂРµРґРЅРѕРіРѕ РїРѕР»СЏ С‚Р°Р±Р»РёС†С‹. РљРѕР»РёС‡РµСЃС‚РІРѕ СѓР·Р»РѕРІ РїРѕР»СЏ РЅРµ СЂР°РІРЅРѕ 6.",
+				"Р‘Р»РѕРє", tohex(block_descr),
+				"РўР°Р±Р»РёС†Р°", name,
+				"РќРѕРјРµСЂ РїРѕР»СЏ", i + 1,
+				"РЈР·Р»РѕРІ", f->get_num_subnode());
 			deletefields();
 			init();
 			delete root;
@@ -4554,10 +4554,10 @@ void __fastcall table::init(int block_descr)
 		ff = f->get_first();
 		if(ff->get_type() != nd_string)
 		{
-			error(L"Ошибка получения имени поля таблицы. Узел не является строкой.",
-				L"Блок", tohex(block_descr),
-				L"Таблица", name,
-				L"Номер поля", i + 1);
+			error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РёРјРµРЅРё РїРѕР»СЏ С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃС‚СЂРѕРєРѕР№.",
+				"Р‘Р»РѕРє", tohex(block_descr),
+				"РўР°Р±Р»РёС†Р°", name,
+				"РќРѕРјРµСЂ РїРѕР»СЏ", i + 1);
 			deletefields();
 			init();
 			delete root;
@@ -4569,38 +4569,38 @@ void __fastcall table::init(int block_descr)
 		ff = ff->get_next();
 		if(ff->get_type() != nd_string)
 		{
-			error(L"Ошибка получения типа поля таблицы. Узел не является строкой.",
-				L"Блок", tohex(block_descr),
-				L"Таблица", name,
-				L"Поле", fld->name);
+			error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ С‚РёРїР° РїРѕР»СЏ С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃС‚СЂРѕРєРѕР№.",
+				"Р‘Р»РѕРє", tohex(block_descr),
+				"РўР°Р±Р»РёС†Р°", name,
+				"РџРѕР»Рµ", fld->name);
 			deletefields();
 			init();
 			delete root;
 			return;
 		}
 		ws = ff->get_value();
-		if(ws == L"B") fld->type = tf_binary;
-		else if(ws == L"L") fld->type = tf_bool;
-		else if(ws == L"N") fld->type = tf_numeric;
-		else if(ws == L"NC") fld->type = tf_char;
-		else if(ws == L"NVC") fld->type = tf_varchar;
-		else if(ws == L"RV")
+		if(ws == "B") fld->type = tf_binary;
+		else if(ws == "") fld->type = tf_bool;
+		else if(ws == "N") fld->type = tf_numeric;
+		else if(ws == "NC") fld->type = tf_char;
+		else if(ws == "NVC") fld->type = tf_varchar;
+		else if(ws == "RV")
 		{
 			fld->type = tf_version;
 			has_version = true;
 		}
-		else if(ws == L"NT") fld->type = tf_string;
-		else if(ws == L"T") fld->type = tf_text;
-		else if(ws == L"I") fld->type = tf_image;
-		else if(ws == L"DT") fld->type = tf_datetime;
-		else if(ws == L"VB") fld->type = tf_varbinary;
+		else if(ws == "NT") fld->type = tf_string;
+		else if(ws == "T") fld->type = tf_text;
+		else if(ws == "I") fld->type = tf_image;
+		else if(ws == "DT") fld->type = tf_datetime;
+		else if(ws == "VB") fld->type = tf_varbinary;
 		else
 		{
-			error(L"Неизвестный тип поля таблицы.",
-				L"Блок", tohex(block_descr),
-				L"Таблица", name,
-				L"Поле", fld->name,
-				L"Тип поля", ws);
+			error("РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї РїРѕР»СЏ С‚Р°Р±Р»РёС†С‹.",
+				"Р‘Р»РѕРє", tohex(block_descr),
+				"РўР°Р±Р»РёС†Р°", name,
+				"РџРѕР»Рµ", fld->name,
+				"РўРёРї РїРѕР»СЏ", ws);
 			deletefields();
 			init();
 			delete root;
@@ -4610,26 +4610,26 @@ void __fastcall table::init(int block_descr)
 		ff = ff->get_next();
 		if(ff->get_type() != nd_number)
 		{
-			error(L"Ошибка получения признака NULL поля таблицы. Узел не является числом.",
-				L"Блок", tohex(block_descr),
-				L"Таблица", name,
-				L"Поле", fld->name,
-				L"Тип поля", ws);
+			error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РїСЂРёР·РЅР°РєР° NULL РїРѕР»СЏ С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ СЏРІР»СЏРµС‚СЃСЏ С‡РёСЃР»РѕРј.",
+				"Р‘Р»РѕРє", tohex(block_descr),
+				"РўР°Р±Р»РёС†Р°", name,
+				"РџРѕР»Рµ", fld->name,
+				"РўРёРї РїРѕР»СЏ", ws);
 			deletefields();
 			init();
 			delete root;
 			return;
 		}
 		ws = ff->get_value();
-		if(ws == L"0") fld->null_exists = false;
-		else if(ws == L"1") fld->null_exists = true;
+		if(ws == "0") fld->null_exists = false;
+		else if(ws == "1") fld->null_exists = true;
 		else
 		{
-			error(L"Неизвестное значение признака NULL поля таблицы.",
-				L"Блок", tohex(block_descr),
-				L"Таблица", name,
-				L"Поле", fld->name,
-				L"Признак NULL", ws);
+			error("РќРµРёР·РІРµСЃС‚РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РїСЂРёР·РЅР°РєР° NULL РїРѕР»СЏ С‚Р°Р±Р»РёС†С‹.",
+				"Р‘Р»РѕРє", tohex(block_descr),
+				"РўР°Р±Р»РёС†Р°", name,
+				"РџРѕР»Рµ", fld->name,
+				"РџСЂРёР·РЅР°Рє NUL", ws);
 			deletefields();
 			init();
 			delete root;
@@ -4639,10 +4639,10 @@ void __fastcall table::init(int block_descr)
 		ff = ff->get_next();
 		if(ff->get_type() != nd_number)
 		{
-			error(L"Ошибка получения длины поля таблицы. Узел не является числом.",
-				L"Блок", tohex(block_descr),
-				L"Таблица", name,
-				L"Поле", fld->name);
+			error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РґР»РёРЅС‹ РїРѕР»СЏ С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ СЏРІР»СЏРµС‚СЃСЏ С‡РёСЃР»РѕРј.",
+				"Р‘Р»РѕРє", tohex(block_descr),
+				"РўР°Р±Р»РёС†Р°", name,
+				"РџРѕР»Рµ", fld->name);
 			deletefields();
 			init();
 			delete root;
@@ -4653,10 +4653,10 @@ void __fastcall table::init(int block_descr)
 		ff = ff->get_next();
 		if(ff->get_type() != nd_number)
 		{
-			error(L"Ошибка получения точности поля таблицы. Узел не является числом.",
-				L"Блок", tohex(block_descr),
-				L"Таблица", name,
-				L"Поле", fld->name);
+			error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ С‚РѕС‡РЅРѕСЃС‚Рё РїРѕР»СЏ С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ СЏРІР»СЏРµС‚СЃСЏ С‡РёСЃР»РѕРј.",
+				"Р‘Р»РѕРє", tohex(block_descr),
+				"РўР°Р±Р»РёС†Р°", name,
+				"РџРѕР»Рµ", fld->name);
 			deletefields();
 			init();
 			delete root;
@@ -4667,25 +4667,25 @@ void __fastcall table::init(int block_descr)
 		ff = ff->get_next();
 		if(ff->get_type() != nd_string)
 		{
-			error(L"Ошибка получения регистрочувствительности поля таблицы. Узел не является строкой.",
-				L"Блок", tohex(block_descr),
-				L"Таблица", name,
-				L"Поле", fld->name);
+			error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ СЂРµРіРёСЃС‚СЂРѕС‡СѓРІСЃС‚РІРёС‚РµР»СЊРЅРѕСЃС‚Рё РїРѕР»СЏ С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃС‚СЂРѕРєРѕР№.",
+				"Р‘Р»РѕРє", tohex(block_descr),
+				"РўР°Р±Р»РёС†Р°", name,
+				"РџРѕР»Рµ", fld->name);
 			deletefields();
 			init();
 			delete root;
 			return;
 		}
 		ws = ff->get_value();
-		if(ws == L"CS") fld->case_sensitive = true;
-		else if(ws == L"CI") fld->case_sensitive = false;
+		if(ws == "CS") fld->case_sensitive = true;
+		else if(ws == "CI") fld->case_sensitive = false;
 		else
 		{
-			error(L"Неизвестное значение регистрочувствительности поля таблицы.",
-				L"Блок", tohex(block_descr),
-				L"Таблица", name,
-				L"Поле", fld->name,
-				L"Регистрочувствительность", ws);
+			error("РќРµРёР·РІРµСЃС‚РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ СЂРµРіРёСЃС‚СЂРѕС‡СѓРІСЃС‚РІРёС‚РµР»СЊРЅРѕСЃС‚Рё РїРѕР»СЏ С‚Р°Р±Р»РёС†С‹.",
+				"Р‘Р»РѕРє", tohex(block_descr),
+				"РўР°Р±Р»РёС†Р°", name,
+				"РџРѕР»Рµ", fld->name,
+				"Р РµРіРёСЃС‚СЂРѕС‡СѓРІСЃС‚РІРёС‚РµР»СЊРЅРѕСЃС‚СЊ", ws);
 			deletefields();
 			init();
 			delete root;
@@ -4696,9 +4696,9 @@ void __fastcall table::init(int block_descr)
 	t = t->get_next();
 	if(t->get_type() != nd_list)
 	{
-		error(L"Ошибка получения индексов таблицы. Узел не является деревом.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name);
+		error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РёРЅРґРµРєСЃРѕРІ С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ СЏРІР»СЏРµС‚СЃСЏ РґРµСЂРµРІРѕРј.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name);
 		deletefields();
 		init();
 		delete root;
@@ -4706,9 +4706,9 @@ void __fastcall table::init(int block_descr)
 	}
 	if(t->get_num_subnode() < 1)
 	{
-		error(L"Ошибка получения индексов таблицы. Нет узлов описаня индексов.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name);
+		error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РёРЅРґРµРєСЃРѕРІ С‚Р°Р±Р»РёС†С‹. РќРµС‚ СѓР·Р»РѕРІ РѕРїРёСЃР°РЅСЏ РёРЅРґРµРєСЃРѕРІ.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name);
 		deletefields();
 		init();
 		delete root;
@@ -4724,21 +4724,21 @@ void __fastcall table::init(int block_descr)
 		f = t->get_first();
 		if(f->get_type() != nd_string)
 		{
-			error(L"Ошибка получения индексов таблицы. Ожидаемый узел Indexes не является строкой.",
-				L"Блок", tohex(block_descr),
-				L"Таблица", name);
+			error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РёРЅРґРµРєСЃРѕРІ С‚Р°Р±Р»РёС†С‹. РћР¶РёРґР°РµРјС‹Р№ СѓР·РµР» Indexes РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃС‚СЂРѕРєРѕР№.",
+				"Р‘Р»РѕРє", tohex(block_descr),
+				"РўР°Р±Р»РёС†Р°", name);
 			deletefields();
 			deleteindexes();
 			init();
 			delete root;
 			return;
 		}
-		if(f->get_value() != L"Indexes")
+		if(f->get_value() != "Indexes")
 		{
-			error(L"Ошибка получения индексов таблицы. Узел не Indexes.",
-				L"Блок", tohex(block_descr),
-				L"Таблица", name,
-				L"Узел", f->get_value());
+			error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РёРЅРґРµРєСЃРѕРІ С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ Indexes.",
+				"Р‘Р»РѕРє", tohex(block_descr),
+				"РўР°Р±Р»РёС†Р°", name,
+				"РЈР·РµР»", f->get_value());
 			deletefields();
 			deleteindexes();
 			init();
@@ -4752,10 +4752,10 @@ void __fastcall table::init(int block_descr)
 			numrec = f->get_num_subnode() - 2;
 			if(numrec < 1)
 			{
-				error(L"Ошибка получения очередного индекса таблицы. Нет узлов описаня полей индекса.",
-					L"Блок", tohex(block_descr),
-					L"Таблица", name,
-					L"Номер индекса", i + 1);
+				error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РѕС‡РµСЂРµРґРЅРѕРіРѕ РёРЅРґРµРєСЃР° С‚Р°Р±Р»РёС†С‹. РќРµС‚ СѓР·Р»РѕРІ РѕРїРёСЃР°РЅСЏ РїРѕР»РµР№ РёРЅРґРµРєСЃР°.",
+					"Р‘Р»РѕРє", tohex(block_descr),
+					"РўР°Р±Р»РёС†Р°", name,
+					"РќРѕРјРµСЂ РёРЅРґРµРєСЃР°", i + 1);
 				deletefields();
 				deleteindexes();
 				init();
@@ -4767,10 +4767,10 @@ void __fastcall table::init(int block_descr)
 
 			if(f->get_type() != nd_list)
 			{
-				error(L"Ошибка получения очередного индекса таблицы. Узел не является деревом.",
-					L"Блок", tohex(block_descr),
-					L"Таблица", name,
-					L"Номер индекса", i + 1);
+				error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РѕС‡РµСЂРµРґРЅРѕРіРѕ РёРЅРґРµРєСЃР° С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ СЏРІР»СЏРµС‚СЃСЏ РґРµСЂРµРІРѕРј.",
+					"Р‘Р»РѕРє", tohex(block_descr),
+					"РўР°Р±Р»РёС†Р°", name,
+					"РќРѕРјРµСЂ РёРЅРґРµРєСЃР°", i + 1);
 				deletefields();
 				deleteindexes();
 				init();
@@ -4781,10 +4781,10 @@ void __fastcall table::init(int block_descr)
 			ff = f->get_first();
 			if(ff->get_type() != nd_string)
 			{
-				error(L"Ошибка получения имени индекса таблицы. Узел не является строкой.",
-					L"Блок", tohex(block_descr),
-					L"Таблица", name,
-					L"Номер индекса", i + 1);
+				error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РёРјРµРЅРё РёРЅРґРµРєСЃР° С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃС‚СЂРѕРєРѕР№.",
+					"Р‘Р»РѕРє", tohex(block_descr),
+					"РўР°Р±Р»РёС†Р°", name,
+					"РќРѕРјРµСЂ РёРЅРґРµРєСЃР°", i + 1);
 				deletefields();
 				deleteindexes();
 				init();
@@ -4796,10 +4796,10 @@ void __fastcall table::init(int block_descr)
 			ff = ff->get_next();
 			if(ff->get_type() != nd_number)
 			{
-				error(L"Ошибка получения типа индекса таблицы. Узел не является числом.",
-					L"Блок", tohex(block_descr),
-					L"Таблица", name,
-					L"Индекс", ind->name);
+				error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ С‚РёРїР° РёРЅРґРµРєСЃР° С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ СЏРІР»СЏРµС‚СЃСЏ С‡РёСЃР»РѕРј.",
+					"Р‘Р»РѕРє", tohex(block_descr),
+					"РўР°Р±Р»РёС†Р°", name,
+					"РРЅРґРµРєСЃ", ind->name);
 				deletefields();
 				deleteindexes();
 				init();
@@ -4807,15 +4807,15 @@ void __fastcall table::init(int block_descr)
 				return;
 			}
 			ws = ff->get_value();
-			if(ws == L"0") ind->is_primary = false;
-			else if(ws == L"1") ind->is_primary = true;
+			if(ws == "0") ind->is_primary = false;
+			else if(ws == "1") ind->is_primary = true;
 			else
 			{
-				error(L"Неизвестный тип индекса таблицы.",
-					L"Блок", tohex(block_descr),
-					L"Таблица", name,
-					L"Индекс", ind->name,
-					L"Тип индекса", ws);
+				error("РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї РёРЅРґРµРєСЃР° С‚Р°Р±Р»РёС†С‹.",
+					"Р‘Р»РѕРє", tohex(block_descr),
+					"РўР°Р±Р»РёС†Р°", name,
+					"РРЅРґРµРєСЃ", ind->name,
+					"РўРёРї РёРЅРґРµРєСЃР°", ws);
 				deletefields();
 				deleteindexes();
 				init();
@@ -4829,12 +4829,12 @@ void __fastcall table::init(int block_descr)
 				ff = ff->get_next();
 				if(ff->get_num_subnode() != 2)
 				{
-					error(L"Ошибка получения очередного поля индекса таблицы. Количество узлов поля не равно 2.",
-						L"Блок", tohex(block_descr),
-						L"Таблица", name,
-						L"Индекс", ind->name,
-						L"Номер поля индекса", j + 1,
-						L"Узлов", ff->get_num_subnode());
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РѕС‡РµСЂРµРґРЅРѕРіРѕ РїРѕР»СЏ РёРЅРґРµРєСЃР° С‚Р°Р±Р»РёС†С‹. РљРѕР»РёС‡РµСЃС‚РІРѕ СѓР·Р»РѕРІ РїРѕР»СЏ РЅРµ СЂР°РІРЅРѕ 2.",
+						"Р‘Р»РѕРє", tohex(block_descr),
+						"РўР°Р±Р»РёС†Р°", name,
+						"РРЅРґРµРєСЃ", ind->name,
+						"РќРѕРјРµСЂ РїРѕР»СЏ РёРЅРґРµРєСЃР°", j + 1,
+						"РЈР·Р»РѕРІ", ff->get_num_subnode());
 					deletefields();
 					deleteindexes();
 					init();
@@ -4845,11 +4845,11 @@ void __fastcall table::init(int block_descr)
 				in = ff->get_first();
 				if(in->get_type() != nd_string)
 				{
-					error(L"Ошибка получения имени поля индекса таблицы. Узел не является строкой.",
-						L"Блок", tohex(block_descr),
-						L"Таблица", name,
-						L"Индекс", ind->name,
-						L"Номер поля индекса", j + 1);
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РёРјРµРЅРё РїРѕР»СЏ РёРЅРґРµРєСЃР° С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃС‚СЂРѕРєРѕР№.",
+						"Р‘Р»РѕРє", tohex(block_descr),
+						"РўР°Р±Р»РёС†Р°", name,
+						"РРЅРґРµРєСЃ", ind->name,
+						"РќРѕРјРµСЂ РїРѕР»СЏ РёРЅРґРµРєСЃР°", j + 1);
 					deletefields();
 					deleteindexes();
 					init();
@@ -4868,11 +4868,11 @@ void __fastcall table::init(int block_descr)
 				}
 				if(k >= num_fields)
 				{
-					error(L"Ошибка получения индекса таблицы. Не найдено поле таблицы по имени поля индекса.",
-						L"Блок", tohex(block_descr),
-						L"Таблица", name,
-						L"Индекс", ind->name,
-						L"Поле индекса", ws);
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РёРЅРґРµРєСЃР° С‚Р°Р±Р»РёС†С‹. РќРµ РЅР°Р№РґРµРЅРѕ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ РїРѕ РёРјРµРЅРё РїРѕР»СЏ РёРЅРґРµРєСЃР°.",
+						"Р‘Р»РѕРє", tohex(block_descr),
+						"РўР°Р±Р»РёС†Р°", name,
+						"РРЅРґРµРєСЃ", ind->name,
+						"РџРѕР»Рµ РёРЅРґРµРєСЃР°", ws);
 					deletefields();
 					deleteindexes();
 					init();
@@ -4883,11 +4883,11 @@ void __fastcall table::init(int block_descr)
 				in = in->get_next();
 				if(in->get_type() != nd_number)
 				{
-					error(L"Ошибка получения длины поля индекса таблицы. Узел не является числом.",
-						L"Блок", tohex(block_descr),
-						L"Таблица", name,
-						L"Индекс", ind->name,
-						L"Поле индекса", ws);
+					error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РґР»РёРЅС‹ РїРѕР»СЏ РёРЅРґРµРєСЃР° С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ СЏРІР»СЏРµС‚СЃСЏ С‡РёСЃР»РѕРј.",
+						"Р‘Р»РѕРє", tohex(block_descr),
+						"РўР°Р±Р»РёС†Р°", name,
+						"РРЅРґРµРєСЃ", ind->name,
+						"РџРѕР»Рµ РёРЅРґРµРєСЃР°", ws);
 					deletefields();
 					deleteindexes();
 					init();
@@ -4903,9 +4903,9 @@ void __fastcall table::init(int block_descr)
 	t = t->get_next();
 	if(t->get_num_subnode() != 2)
 	{
-		error(L"Ошибка получения типа блокировки таблицы. Количество узлов не равно 2.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name);
+		error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ С‚РёРїР° Р±Р»РѕРєРёСЂРѕРІРєРё С‚Р°Р±Р»РёС†С‹. РљРѕР»РёС‡РµСЃС‚РІРѕ СѓР·Р»РѕРІ РЅРµ СЂР°РІРЅРѕ 2.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name);
 		deletefields();
 		deleteindexes();
 		init();
@@ -4916,21 +4916,21 @@ void __fastcall table::init(int block_descr)
 	f = t->get_first();
 	if(f->get_type() != nd_string)
 	{
-		error(L"Ошибка получения типа блокировки таблицы. Ожидаемый узел Recordlock не является строкой.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name);
+		error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ С‚РёРїР° Р±Р»РѕРєРёСЂРѕРІРєРё С‚Р°Р±Р»РёС†С‹. РћР¶РёРґР°РµРјС‹Р№ СѓР·РµР» Recordlock РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃС‚СЂРѕРєРѕР№.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name);
 		deletefields();
 		deleteindexes();
 		init();
 		delete root;
 		return;
 	}
-	if(f->get_value() != L"Recordlock")
+	if(f->get_value() != "Recordlock")
 	{
-		error(L"Ошибка получения типа блокировки таблицы. Узел не Recordlock.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name,
-			L"Узел", f->get_value());
+		error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ С‚РёРїР° Р±Р»РѕРєРёСЂРѕРІРєРё С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ Recordlock.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name,
+			"РЈР·РµР»", f->get_value());
 		deletefields();
 		deleteindexes();
 		init();
@@ -4941,9 +4941,9 @@ void __fastcall table::init(int block_descr)
 	f = f->get_next();
 	if(f->get_type() != nd_string)
 	{
-		error(L"Ошибка получения типа блокировки таблицы. Узел не является строкой.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name);
+		error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ С‚РёРїР° Р±Р»РѕРєРёСЂРѕРІРєРё С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃС‚СЂРѕРєРѕР№.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name);
 		deletefields();
 		deleteindexes();
 		init();
@@ -4951,14 +4951,14 @@ void __fastcall table::init(int block_descr)
 		return;
 	}
 	ws = f->get_value();
-	if(ws == L"0") recordlock = false;
-	else if(ws == L"1") recordlock = true;
+	if(ws == "0") recordlock = false;
+	else if(ws == "1") recordlock = true;
 	else
 	{
-		error(L"Неизвестное значение типа блокировки таблицы.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name,
-			L"Тип блокировки", ws);
+		error("РќРµРёР·РІРµСЃС‚РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ С‚РёРїР° Р±Р»РѕРєРёСЂРѕРІРєРё С‚Р°Р±Р»РёС†С‹.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name,
+			"РўРёРї Р±Р»РѕРєРёСЂРѕРІРєРё", ws);
 		deletefields();
 		deleteindexes();
 		init();
@@ -4967,18 +4967,18 @@ void __fastcall table::init(int block_descr)
 	}
 
 	if(recordlock && !has_version)
-	{// добавляем скрытое поле версии
+	{// РґРѕР±Р°РІР»СЏРµРј СЃРєСЂС‹С‚РѕРµ РїРѕР»Рµ РІРµСЂСЃРёРё
 		fld = fields[num_fields++];
-		fld->name = L"VERSION";
+		fld->name = "VERSION";
 		fld->type = tf_version8;
 	}
 
 	t = t->get_next();
 	if(t->get_num_subnode() != 4)
 	{
-		error(L"Ошибка получения файлов таблицы. Количество узлов не равно 4.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name);
+		error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ С„Р°Р№Р»РѕРІ С‚Р°Р±Р»РёС†С‹. РљРѕР»РёС‡РµСЃС‚РІРѕ СѓР·Р»РѕРІ РЅРµ СЂР°РІРЅРѕ 4.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name);
 		deletefields();
 		deleteindexes();
 		init();
@@ -4989,21 +4989,21 @@ void __fastcall table::init(int block_descr)
 	f = t->get_first();
 	if(f->get_type() != nd_string)
 	{
-		error(L"Ошибка получения файлов таблицы. Ожидаемый узел Files не является строкой.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name);
+		error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ С„Р°Р№Р»РѕРІ С‚Р°Р±Р»РёС†С‹. РћР¶РёРґР°РµРјС‹Р№ СѓР·РµР» Files РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃС‚СЂРѕРєРѕР№.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name);
 		deletefields();
 		deleteindexes();
 		init();
 		delete root;
 		return;
 	}
-	if(f->get_value() != L"Files")
+	if(f->get_value() != "Files")
 	{
-		error(L"Ошибка получения файлов таблицы. Узел не Files.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name,
-			L"Узел", f->get_value());
+		error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ С„Р°Р№Р»РѕРІ С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ Files.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name,
+			"РЈР·РµР»", f->get_value());
 		deletefields();
 		deleteindexes();
 		init();
@@ -5016,10 +5016,10 @@ void __fastcall table::init(int block_descr)
 		f = f->get_next();
 		if(f->get_type() != nd_number)
 		{
-			error(L"Ошибка получения файла таблицы. Узел не является числом.",
-				L"Блок", tohex(block_descr),
-				L"Таблица", name,
-				L"Номер файла", i + 1);
+			error("РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ С„Р°Р№Р»Р° С‚Р°Р±Р»РёС†С‹. РЈР·РµР» РЅРµ СЏРІР»СЏРµС‚СЃСЏ С‡РёСЃР»РѕРј.",
+				"Р‘Р»РѕРє", tohex(block_descr),
+				"РўР°Р±Р»РёС†Р°", name,
+				"РќРѕРјРµСЂ С„Р°Р№Р»Р°", i + 1);
 			deletefields();
 			deleteindexes();
 			init();
@@ -5037,26 +5037,26 @@ void __fastcall table::init(int block_descr)
 
 	if(num_indexes && !file_index)
 	{
-		error(L"В таблице есть индексы, однако файл индексов отсутствует.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name,
-			L"Количество индексов", num_indexes);
+		error("Р’ С‚Р°Р±Р»РёС†Рµ РµСЃС‚СЊ РёРЅРґРµРєСЃС‹, РѕРґРЅР°РєРѕ С„Р°Р№Р» РёРЅРґРµРєСЃРѕРІ РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name,
+			"РљРѕР»РёС‡РµСЃС‚РІРѕ РёРЅРґРµРєСЃРѕРІ", num_indexes);
 	}
 	else if(!num_indexes && file_index)
 	{
-		error(L"В таблице нет индексов, однако присутствует файл индексов.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name,
-			L"Блок индексов", tohex(blockfile[2]));
+		error("Р’ С‚Р°Р±Р»РёС†Рµ РЅРµС‚ РёРЅРґРµРєСЃРѕРІ, РѕРґРЅР°РєРѕ РїСЂРёСЃСѓС‚СЃС‚РІСѓРµС‚ С„Р°Р№Р» РёРЅРґРµРєСЃРѕРІ.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name,
+			"Р‘Р»РѕРє РёРЅРґРµРєСЃРѕРІ", tohex(blockfile[2]));
 	}
 	else if(file_index)
 	{
 		m = file_index->getlen() / base->pagesize;
 		if(file_index->getlen() != m * base->pagesize)
 		{
-			error(L"Ошибка чтения индексов. Длина файла индексов не кратна размеру страницы",
-				L"Таблица", name,
-				L"Длина файла индексов", tohex(file_index->getlen()));
+			error("РћС€РёР±РєР° С‡С‚РµРЅРёСЏ РёРЅРґРµРєСЃРѕРІ. Р”Р»РёРЅР° С„Р°Р№Р»Р° РёРЅРґРµРєСЃРѕРІ РЅРµ РєСЂР°С‚РЅР° СЂР°Р·РјРµСЂСѓ СЃС‚СЂР°РЅРёС†С‹",
+				"РўР°Р±Р»РёС†Р°", name,
+				"Р”Р»РёРЅР° С„Р°Р№Р»Р° РёРЅРґРµРєСЃРѕРІ", tohex(file_index->getlen()));
 		}
 		else
 		{
@@ -5065,18 +5065,18 @@ void __fastcall table::init(int block_descr)
 			buf = new unsigned int[num_indexes + 1];
 			file_index->getdata(buf, 0, buflen);
 
-//			// Временно, для отладки >>
-//			if(buf[0]) if(msreg) msreg->AddMessage_(L"Существуют свободные страницы в файле индексов", msHint,
-//					L"Таблица", name,
-//					L"Индекс свободной страницы", tohex(buf[0]));
-//			// Временно, для олтладки <<
+//			// Р’СЂРµРјРµРЅРЅРѕ, РґР»СЏ РѕС‚Р»Р°РґРєРё >>
+//			if(buf[0]) if(msreg) msreg->AddMessage_("РЎСѓС‰РµСЃС‚РІСѓСЋС‚ СЃРІРѕР±РѕРґРЅС‹Рµ СЃС‚СЂР°РЅРёС†С‹ РІ С„Р°Р№Р»Рµ РёРЅРґРµРєСЃРѕРІ", msHint,
+//					"РўР°Р±Р»РёС†Р°", name,
+//					"РРЅРґРµРєСЃ СЃРІРѕР±РѕРґРЅРѕР№ СЃС‚СЂР°РЅРёС†С‹", tohex(buf[0]));
+//			// Р’СЂРµРјРµРЅРЅРѕ, РґР»СЏ РѕР»С‚Р»Р°РґРєРё <<
 
 			if(buf[0] * base->pagesize >= file_index->getlen())
 			{
-				error(L"Ошибка чтения индексов. Индекс первого свободного блока за пределами файла индексов",
-					L"Таблица", name,
-					L"Длина файла индексов", tohex(file_index->getlen()),
-					L"Индекс свободной страницы", tohex(buf[0]));
+				error("РћС€РёР±РєР° С‡С‚РµРЅРёСЏ РёРЅРґРµРєСЃРѕРІ. РРЅРґРµРєСЃ РїРµСЂРІРѕРіРѕ СЃРІРѕР±РѕРґРЅРѕРіРѕ Р±Р»РѕРєР° Р·Р° РїСЂРµРґРµР»Р°РјРё С„Р°Р№Р»Р° РёРЅРґРµРєСЃРѕРІ",
+					"РўР°Р±Р»РёС†Р°", name,
+					"Р”Р»РёРЅР° С„Р°Р№Р»Р° РёРЅРґРµРєСЃРѕРІ", tohex(file_index->getlen()),
+					"РРЅРґРµРєСЃ СЃРІРѕР±РѕРґРЅРѕР№ СЃС‚СЂР°РЅРёС†С‹", tohex(buf[0]));
 			}
 			else
 			{
@@ -5086,19 +5086,19 @@ void __fastcall table::init(int block_descr)
 					{
 						if(buf[i] >= file_index->getlen())
 						{
-							error(L"Ошибка чтения индексов. Указанное смещение индекса за пределами файла индексов",
-								L"Таблица", name,
-								L"Длина файла индексов", tohex(file_index->getlen()),
-								L"Номер индекса", i,
-								L"Смещение индекса", tohex(buf[i]));
+							error("РћС€РёР±РєР° С‡С‚РµРЅРёСЏ РёРЅРґРµРєСЃРѕРІ. РЈРєР°Р·Р°РЅРЅРѕРµ СЃРјРµС‰РµРЅРёРµ РёРЅРґРµРєСЃР° Р·Р° РїСЂРµРґРµР»Р°РјРё С„Р°Р№Р»Р° РёРЅРґРµРєСЃРѕРІ",
+								"РўР°Р±Р»РёС†Р°", name,
+								"Р”Р»РёРЅР° С„Р°Р№Р»Р° РёРЅРґРµРєСЃРѕРІ", tohex(file_index->getlen()),
+								"РќРѕРјРµСЂ РёРЅРґРµРєСЃР°", i,
+								"РЎРјРµС‰РµРЅРёРµ РёРЅРґРµРєСЃР°", tohex(buf[i]));
 						}
 						else if(buf[i] & 0xfff)
 						{
-							error(L"Ошибка чтения индексов. Указанное смещение индекса не кратно 0x1000",
-								L"Таблица", name,
-								L"Длина файла индексов", tohex(file_index->getlen()),
-								L"Номер индекса", i,
-								L"Смещение индекса", tohex(buf[i]));
+							error("РћС€РёР±РєР° С‡С‚РµРЅРёСЏ РёРЅРґРµРєСЃРѕРІ. РЈРєР°Р·Р°РЅРЅРѕРµ СЃРјРµС‰РµРЅРёРµ РёРЅРґРµРєСЃР° РЅРµ РєСЂР°С‚РЅРѕ 0x1000",
+								"РўР°Р±Р»РёС†Р°", name,
+								"Р”Р»РёРЅР° С„Р°Р№Р»Р° РёРЅРґРµРєСЃРѕРІ", tohex(file_index->getlen()),
+								"РќРѕРјРµСЂ РёРЅРґРµРєСЃР°", i,
+								"РЎРјРµС‰РµРЅРёРµ РёРЅРґРµРєСЃР°", tohex(buf[i]));
 						}
 						else indexes[i - 1]->start = buf[i];
 					}
@@ -5108,11 +5108,11 @@ void __fastcall table::init(int block_descr)
 						s *= base->pagesize;
 						if(s >= file_index->getlen())
 						{
-							error(L"Ошибка чтения индексов. Указанное смещение индекса за пределами файла индексов",
-								L"Таблица", name,
-								L"Длина файла индексов", file_index->getlen(),
-								L"Номер индекса", i,
-								L"Смещение индекса", s);
+							error("РћС€РёР±РєР° С‡С‚РµРЅРёСЏ РёРЅРґРµРєСЃРѕРІ. РЈРєР°Р·Р°РЅРЅРѕРµ СЃРјРµС‰РµРЅРёРµ РёРЅРґРµРєСЃР° Р·Р° РїСЂРµРґРµР»Р°РјРё С„Р°Р№Р»Р° РёРЅРґРµРєСЃРѕРІ",
+								"РўР°Р±Р»РёС†Р°", name,
+								"Р”Р»РёРЅР° С„Р°Р№Р»Р° РёРЅРґРµРєСЃРѕРІ", file_index->getlen(),
+								"РќРѕРјРµСЂ РёРЅРґРµРєСЃР°", i,
+								"РЎРјРµС‰РµРЅРёРµ РёРЅРґРµРєСЃР°", s);
 						}
 						else indexes[i - 1]->start = s;
 					}
@@ -5125,21 +5125,21 @@ void __fastcall table::init(int block_descr)
 
 	}
 
-	// вычисляем длину записи таблицы как сумму длинн полей и проставим смещения полей в записи
-	recordlen = 1; // первый байт записи - признак удаленности
-	// сначала идут поля (поле) с типом "версия"
+	// РІС‹С‡РёСЃР»СЏРµРј РґР»РёРЅСѓ Р·Р°РїРёСЃРё С‚Р°Р±Р»РёС†С‹ РєР°Рє СЃСѓРјРјСѓ РґР»РёРЅРЅ РїРѕР»РµР№ Рё РїСЂРѕСЃС‚Р°РІРёРј СЃРјРµС‰РµРЅРёСЏ РїРѕР»РµР№ РІ Р·Р°РїРёСЃРё
+	recordlen = 1; // РїРµСЂРІС‹Р№ Р±Р°Р№С‚ Р·Р°РїРёСЃРё - РїСЂРёР·РЅР°Рє СѓРґР°Р»РµРЅРЅРѕСЃС‚Рё
+	// СЃРЅР°С‡Р°Р»Р° РёРґСѓС‚ РїРѕР»СЏ (РїРѕР»Рµ) СЃ С‚РёРїРѕРј "РІРµСЂСЃРёСЏ"
 	for(i = 0; i < num_fields; i++) if(fields[i]->type == tf_version || fields[i]->type == tf_version8)
 	{
 		fields[i]->offset = recordlen;
 		recordlen += fields[i]->getlen();
 	}
-	// затем идут все остальные поля
+	// Р·Р°С‚РµРј РёРґСѓС‚ РІСЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїРѕР»СЏ
 	for(i = 0; i < num_fields; i++) if(fields[i]->type != tf_version && fields[i]->type != tf_version8)
 	{
 		fields[i]->offset = recordlen;
 		recordlen += fields[i]->getlen();
 	}
-	if(recordlen < 5) recordlen = 5; // Длина одной записи не может быть меньше 5 байт (1 байт признак, что запись свободна, 4 байт - индекс следующей следующей свободной записи)
+	if(recordlen < 5) recordlen = 5; // Р”Р»РёРЅР° РѕРґРЅРѕР№ Р·Р°РїРёСЃРё РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ 5 Р±Р°Р№С‚ (1 Р±Р°Р№С‚ РїСЂРёР·РЅР°Рє, С‡С‚Рѕ Р·Р°РїРёСЃСЊ СЃРІРѕР±РѕРґРЅР°, 4 Р±Р°Р№С‚ - РёРЅРґРµРєСЃ СЃР»РµРґСѓСЋС‰РµР№ СЃР»РµРґСѓСЋС‰РµР№ СЃРІРѕР±РѕРґРЅРѕР№ Р·Р°РїРёСЃРё)
 
 	if(!recordlen || !file_data) phys_numrecords = 0;
 	else phys_numrecords = file_data->getlen() / recordlen;;
@@ -5148,29 +5148,29 @@ void __fastcall table::init(int block_descr)
 	{
 		if(phys_numrecords * recordlen != file_data->getlen())
 		{
-			error(L"Длина таблицы не кратна длине записи.",
-				L"Блок", tohex(block_descr),
-				L"Таблица", name,
-				L"Длина таблицы", file_data->getlen(),
-				L"Длина записи", recordlen);
+			error("Р”Р»РёРЅР° С‚Р°Р±Р»РёС†С‹ РЅРµ РєСЂР°С‚РЅР° РґР»РёРЅРµ Р·Р°РїРёСЃРё.",
+				"Р‘Р»РѕРє", tohex(block_descr),
+				"РўР°Р±Р»РёС†Р°", name,
+				"Р”Р»РёРЅР° С‚Р°Р±Р»РёС†С‹", file_data->getlen(),
+				"Р”Р»РёРЅР° Р·Р°РїРёСЃРё", recordlen);
 		}
 	}
 	else
 	{
-		error(L"Отсутствует файл данных таблицы.",
-			L"Блок", tohex(block_descr),
-			L"Таблица", name);
+		error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С„Р°Р№Р» РґР°РЅРЅС‹С… С‚Р°Р±Р»РёС†С‹.",
+			"Р‘Р»РѕРє", tohex(block_descr),
+			"РўР°Р±Р»РёС†Р°", name);
 			return;
 	}
 
-	// Инициализация данных индекса
+	// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РґР°РЅРЅС‹С… РёРЅРґРµРєСЃР°
 	for(i = 0; i < num_indexes; i++) indexes[i]->get_length();
 
 	#ifdef _DEBUG
-	if(msreg) msreg->AddDebugMessage(L"Создана таблица.", msInfo,
-		L"Таблица", name,
-		L"Длина таблицы", file_data->getlen(),
-		L"Длина записи", recordlen);
+	if(msreg) msreg->AddDebugMessage("РЎРѕР·РґР°РЅР° С‚Р°Р±Р»РёС†Р°.", msInfo,
+		"РўР°Р±Р»РёС†Р°", name,
+		"Р”Р»РёРЅР° С‚Р°Р±Р»РёС†С‹", file_data->getlen(),
+		"Р”Р»РёРЅР° Р·Р°РїРёСЃРё", recordlen);
 	#endif
 
 	bad = false;
@@ -5298,10 +5298,10 @@ field* __fastcall table::getfield(int numfield)
 {
 	if(numfield >= num_fields)
 	{
-		error(L"Попытка получения поля таблицы по номеру, превышающему количество полей",
-			L"Таблица", name,
-			L"Количество полей", num_fields,
-			L"Номер поля", numfield + 1);
+		error("РџРѕРїС‹С‚РєР° РїРѕР»СѓС‡РµРЅРёСЏ РїРѕР»СЏ С‚Р°Р±Р»РёС†С‹ РїРѕ РЅРѕРјРµСЂСѓ, РїСЂРµРІС‹С€Р°СЋС‰РµРјСѓ РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕР»РµР№",
+			"РўР°Р±Р»РёС†Р°", name,
+			"РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕР»РµР№", num_fields,
+			"РќРѕРјРµСЂ РїРѕР»СЏ", numfield + 1);
 		return NULL;
 	}
 	return fields[numfield];
@@ -5312,10 +5312,10 @@ index* __fastcall table::getindex(int numindex)
 {
 	if(numindex >= num_indexes)
 	{
-		error(L"Попытка получения индекса таблицы по номеру, превышающему количество индексов",
-			L"Таблица", name,
-			L"Количество индексов", num_indexes,
-			L"Номер индекса", numindex + 1);
+		error("РџРѕРїС‹С‚РєР° РїРѕР»СѓС‡РµРЅРёСЏ РёРЅРґРµРєСЃР° С‚Р°Р±Р»РёС†С‹ РїРѕ РЅРѕРјРµСЂСѓ, РїСЂРµРІС‹С€Р°СЋС‰РµРјСѓ РєРѕР»РёС‡РµСЃС‚РІРѕ РёРЅРґРµРєСЃРѕРІ",
+			"РўР°Р±Р»РёС†Р°", name,
+			"РљРѕР»РёС‡РµСЃС‚РІРѕ РёРЅРґРµРєСЃРѕРІ", num_indexes,
+			"РќРѕРјРµСЂ РёРЅРґРµРєСЃР°", numindex + 1);
 		return NULL;
 	}
 	return indexes[numindex];
@@ -5417,7 +5417,7 @@ void __fastcall table::set_lockinmemory(bool _lock)
 }
 
 //---------------------------------------------------------------------------
-// rewrite - перезаписывать поток _str. Истина - перезаписывать (по умолчанию), Ложь - дописывать
+// rewrite - РїРµСЂРµР·Р°РїРёСЃС‹РІР°С‚СЊ РїРѕС‚РѕРє _str. РСЃС‚РёРЅР° - РїРµСЂРµР·Р°РїРёСЃС‹РІР°С‚СЊ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ), Р›РѕР¶СЊ - РґРѕРїРёСЃС‹РІР°С‚СЊ
 TStream* table::readBlob(TStream* _str, unsigned int _startblock, unsigned int _length, bool rewrite)
 {
 //	char* _b;
@@ -5427,13 +5427,13 @@ TStream* table::readBlob(TStream* _str, unsigned int _startblock, unsigned int _
 	unsigned int _filelen, _numblock;
 	unsigned int startlen;
 
-	if(rewrite) _str->Size = 0;
-	startlen = _str->Position;
+	if(rewrite) _str->SetSize(0);
+	startlen = _str->GetPosition();
 
 	if(!_startblock && _length)
 	{
-		error(L"Попытка чтения нулевого блока файла Blob",
-			L"Таблица", name);
+		error("РџРѕРїС‹С‚РєР° С‡С‚РµРЅРёСЏ РЅСѓР»РµРІРѕРіРѕ Р±Р»РѕРєР° С„Р°Р№Р»Р° Blob",
+			"РўР°Р±Р»РёС†Р°", name);
 		return _str;
 	}
 
@@ -5442,9 +5442,9 @@ TStream* table::readBlob(TStream* _str, unsigned int _startblock, unsigned int _
 		_filelen = file_blob->getlen();
 		_numblock = _filelen >> 8;
 		if(_numblock << 8 != _filelen)
-			error(L"Длина файла Blob не кратна 0x100",
-				L"Таблица", name,
-				L"Длина файла", tohex(_filelen));
+			error("Р”Р»РёРЅР° С„Р°Р№Р»Р° Blob РЅРµ РєСЂР°С‚РЅР° 0x100",
+				"РўР°Р±Р»РёС†Р°", name,
+				"Р”Р»РёРЅР° С„Р°Р№Р»Р°", tohex(_filelen));
 
 //		_b = file_blob->getdata();
 		_curb = new char[0x100];
@@ -5453,10 +5453,10 @@ TStream* table::readBlob(TStream* _str, unsigned int _startblock, unsigned int _
 		{
 			if(_curblock >= _numblock)
 			{
-				error(L"Попытка чтения блока файла Blob за пределами файла",
-					L"Таблица", name,
-					L"Всего блоков", _numblock,
-					L"Читаемый блок", _curblock);
+				error("РџРѕРїС‹С‚РєР° С‡С‚РµРЅРёСЏ Р±Р»РѕРєР° С„Р°Р№Р»Р° Blob Р·Р° РїСЂРµРґРµР»Р°РјРё С„Р°Р№Р»Р°",
+					"РўР°Р±Р»РёС†Р°", name,
+					"Р’СЃРµРіРѕ Р±Р»РѕРєРѕРІ", _numblock,
+					"Р§РёС‚Р°РµРјС‹Р№ Р±Р»РѕРє", _curblock);
 				return _str;
 			}
 //			_curb = _b + (_curblock << 8);
@@ -5465,31 +5465,31 @@ TStream* table::readBlob(TStream* _str, unsigned int _startblock, unsigned int _
 			_curlen = *(unsigned short int*)(_curb + 4);
 			if(_curlen > 0xfa)
 			{
-				error(L"Попытка чтения из блока файла Blob более 0xfa байт",
-					L"Таблица", name,
-					L"Индекс блока", _curblock,
-					L"Читаемых байт", _curlen);
+				error("РџРѕРїС‹С‚РєР° С‡С‚РµРЅРёСЏ РёР· Р±Р»РѕРєР° С„Р°Р№Р»Р° Blob Р±РѕР»РµРµ 0xfa Р±Р°Р№С‚",
+					"РўР°Р±Р»РёС†Р°", name,
+					"РРЅРґРµРєСЃ Р±Р»РѕРєР°", _curblock,
+					"Р§РёС‚Р°РµРјС‹С… Р±Р°Р№С‚", _curlen);
 				return _str;
 			}
 			_str->Write(_curb + 6, _curlen);
 
-			if(_str->Size - startlen > _length) break; // аварийный выход из возможного ошибочного зацикливания
+			if(_str->GetSize() - startlen > _length) break; // Р°РІР°СЂРёР№РЅС‹Р№ РІС‹С…РѕРґ РёР· РІРѕР·РјРѕР¶РЅРѕРіРѕ РѕС€РёР±РѕС‡РЅРѕРіРѕ Р·Р°С†РёРєР»РёРІР°РЅРёСЏ
 		}
 		delete[] _curb;
 
-		if(_str->Size - startlen != _length)
+		if(_str->GetSize() - startlen != _length)
 		{
-			error(L"Несовпадение длины Blob-поля, указанного в записи, с длиной практически прочитанных данных",
-				L"Таблица", name,
-				L"Длина поля", _length,
-				L"Прочитано", _str->Size - startlen);
+			error("РќРµСЃРѕРІРїР°РґРµРЅРёРµ РґР»РёРЅС‹ Blob-РїРѕР»СЏ, СѓРєР°Р·Р°РЅРЅРѕРіРѕ РІ Р·Р°РїРёСЃРё, СЃ РґР»РёРЅРѕР№ РїСЂР°РєС‚РёС‡РµСЃРєРё РїСЂРѕС‡РёС‚Р°РЅРЅС‹С… РґР°РЅРЅС‹С…",
+				"РўР°Р±Р»РёС†Р°", name,
+				"Р”Р»РёРЅР° РїРѕР»СЏ", _length,
+				"РџСЂРѕС‡РёС‚Р°РЅРѕ", _str->GetSize() - startlen);
 		}
 	}
 	else
 	{
-		error(L"Попытка чтения Blob-поля при отстутствующем файле Blob",
-			L"Таблица", name,
-			L"Длина поля", _length);
+		error("РџРѕРїС‹С‚РєР° С‡С‚РµРЅРёСЏ Blob-РїРѕР»СЏ РїСЂРё РѕС‚СЃС‚СѓС‚СЃС‚РІСѓСЋС‰РµРј С„Р°Р№Р»Рµ Blob",
+			"РўР°Р±Р»РёС†Р°", name,
+			"Р”Р»РёРЅР° РїРѕР»СЏ", _length);
 	}
 
 	return _str;
@@ -5507,8 +5507,8 @@ unsigned int table::readBlob(void* buf, unsigned int _startblock, unsigned int _
 
 	if(!_startblock && _length)
 	{
-		error(L"Попытка чтения нулевого блока файла Blob",
-			L"Таблица", name);
+		error("РџРѕРїС‹С‚РєР° С‡С‚РµРЅРёСЏ РЅСѓР»РµРІРѕРіРѕ Р±Р»РѕРєР° С„Р°Р№Р»Р° Blob",
+			"РўР°Р±Р»РёС†Р°", name);
 		return 0;
 	}
 
@@ -5519,9 +5519,9 @@ unsigned int table::readBlob(void* buf, unsigned int _startblock, unsigned int _
 		_filelen = file_blob->getlen();
 		_numblock = _filelen >> 8;
 		if(_numblock << 8 != _filelen)
-			error(L"Длина файла Blob не кратна 0x100",
-				L"Таблица", name,
-				L"Длина файла", tohex(_filelen));
+			error("Р”Р»РёРЅР° С„Р°Р№Р»Р° Blob РЅРµ РєСЂР°С‚РЅР° 0x100",
+				"РўР°Р±Р»РёС†Р°", name,
+				"Р”Р»РёРЅР° С„Р°Р№Р»Р°", tohex(_filelen));
 
 //		_b = file_blob->getdata();
 		_curb = new char[0x100];
@@ -5530,10 +5530,10 @@ unsigned int table::readBlob(void* buf, unsigned int _startblock, unsigned int _
 		{
 			if(_curblock >= _numblock)
 			{
-				error(L"Попытка чтения блока файла Blob за пределами файла",
-					L"Таблица", name,
-					L"Всего блоков", _numblock,
-					L"Читаемый блок", _curblock);
+				error("РџРѕРїС‹С‚РєР° С‡С‚РµРЅРёСЏ Р±Р»РѕРєР° С„Р°Р№Р»Р° Blob Р·Р° РїСЂРµРґРµР»Р°РјРё С„Р°Р№Р»Р°",
+					"РўР°Р±Р»РёС†Р°", name,
+					"Р’СЃРµРіРѕ Р±Р»РѕРєРѕРІ", _numblock,
+					"Р§РёС‚Р°РµРјС‹Р№ Р±Р»РѕРє", _curblock);
 				return readed;
 			}
 //			_curb = _b + (_curblock << 8);
@@ -5542,33 +5542,33 @@ unsigned int table::readBlob(void* buf, unsigned int _startblock, unsigned int _
 			_curlen = *(unsigned short int*)(_curb + 4);
 			if(_curlen > 0xfa)
 			{
-				error(L"Попытка чтения из блока файла Blob более 250 байт",
-					L"Таблица", name,
-					L"Индекс блока", _curblock,
-					L"Читаемых байт", _curlen);
+				error("РџРѕРїС‹С‚РєР° С‡С‚РµРЅРёСЏ РёР· Р±Р»РѕРєР° С„Р°Р№Р»Р° Blob Р±РѕР»РµРµ 250 Р±Р°Р№С‚",
+					"РўР°Р±Р»РёС†Р°", name,
+					"РРЅРґРµРєСЃ Р±Р»РѕРєР°", _curblock,
+					"Р§РёС‚Р°РµРјС‹С… Р±Р°Р№С‚", _curlen);
 				return readed;
 			}
 			memcpy(_buf, _curb + 6, _curlen);
 			_buf += _curlen;
 			readed += _curlen;
 
-			if(readed > _length) break; // аварийный выход из возможного ошибочного зацикливания
+			if(readed > _length) break; // Р°РІР°СЂРёР№РЅС‹Р№ РІС‹С…РѕРґ РёР· РІРѕР·РјРѕР¶РЅРѕРіРѕ РѕС€РёР±РѕС‡РЅРѕРіРѕ Р·Р°С†РёРєР»РёРІР°РЅРёСЏ
 		}
 		delete[] _curb;
 
 		if(readed != _length)
 		{
-			error(L"Несовпадение длины Blob-поля, указанного в записи, с длиной практически прочитанных данных",
-				L"Таблица", name,
-				L"Длина поля", _length,
-				L"Прочитано", readed);
+			error("РќРµСЃРѕРІРїР°РґРµРЅРёРµ РґР»РёРЅС‹ Blob-РїРѕР»СЏ, СѓРєР°Р·Р°РЅРЅРѕРіРѕ РІ Р·Р°РїРёСЃРё, СЃ РґР»РёРЅРѕР№ РїСЂР°РєС‚РёС‡РµСЃРєРё РїСЂРѕС‡РёС‚Р°РЅРЅС‹С… РґР°РЅРЅС‹С…",
+				"РўР°Р±Р»РёС†Р°", name,
+				"Р”Р»РёРЅР° РїРѕР»СЏ", _length,
+				"РџСЂРѕС‡РёС‚Р°РЅРѕ", readed);
 		}
 	}
 	else
 	{
-		error(L"Попытка чтения Blob-поля при отстутствующем файле Blob",
-			L"Таблица", name,
-			L"Длина поля", _length);
+		error("РџРѕРїС‹С‚РєР° С‡С‚РµРЅРёСЏ Blob-РїРѕР»СЏ РїСЂРё РѕС‚СЃС‚СѓС‚СЃС‚РІСѓСЋС‰РµРј С„Р°Р№Р»Рµ Blob",
+			"РўР°Р±Р»РёС†Р°", name,
+			"Р”Р»РёРЅР° РїРѕР»СЏ", _length);
 	}
 
 	return readed;
@@ -5589,34 +5589,34 @@ bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool u
 	bool canwriteblob = false;
 	String dir;
 	index* curindex;
-	int ic; // image count, количество полей с типом image
-	int rc; // repeat count, количество повторов имени записи подряд (для случая, если индекс не уникальный)
+	int ic; // image count, РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕР»РµР№ СЃ С‚РёРїРѕРј image
+	int rc; // repeat count, РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕРІС‚РѕСЂРѕРІ РёРјРµРЅРё Р·Р°РїРёСЃРё РїРѕРґСЂСЏРґ (РґР»СЏ СЃР»СѓС‡Р°СЏ, РµСЃР»Рё РёРЅРґРµРєСЃ РЅРµ СѓРЅРёРєР°Р»СЊРЅС‹Р№)
 
 	char UnicodeHeader[2] = {0xff, 0xfe};
-	String part1 = L"<?xml version=\"1.0\" encoding=\"UTF-16\"?>\r\n<!--Файл сформирован программой Tool_1CD-->\r\n<Table Name=\"";
-	String part2 = L"\">\r\n\t<Fields>\r\n";
-	String part3 = L"\t</Fields>\r\n\t<Records>\r\n";
-	String part4 = L"\t</Records>\r\n</Table>\r\n";
+	String part1 = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\r\n<!--Р¤Р°Р№Р» СЃС„РѕСЂРјРёСЂРѕРІР°РЅ РїСЂРѕРіСЂР°РјРјРѕР№ Tool_1CD-->\r\n<Table Name=\"";
+	String part2 = "\">\r\n\t<Fields>\r\n";
+	String part3 = "\t</Fields>\r\n\t<Records>\r\n";
+	String part4 = "\t</Records>\r\n</Table>\r\n";
 
-	String fpart1 = L"\t\t<Field Name=\"";
-	String fpart2 = L"\" Type=\"";
-	String fpart3 = L"\" Length=\"";
-	String fpart4 = L"\" Precision=\"";
-	String fpart5 = L"\"/>\r\n";
+	String fpart1 = "\t\t<Field Name=\"";
+	String fpart2 = "\" Type=\"";
+	String fpart3 = "\" Length=\"";
+	String fpart4 = "\" Precision=\"";
+	String fpart5 = "\"/>\r\n";
 
-	String rpart1 = L"\t\t<Record>\r\n";
-	String rpart2 = L"\t\t</Record>\r\n";
-	String rpart3 = L"\t\t\t<";
-	String status = L"Экспорт таблицы ";
+	String rpart1 = "\t\t<Record>\r\n";
+	String rpart2 = "\t\t</Record>\r\n";
+	String rpart3 = "\t\t\t<";
+	String status = "Р­РєСЃРїРѕСЂС‚ С‚Р°Р±Р»РёС†С‹ ";
 	status += name;
-	status += L" ";
+	status += " ";
 
 	TFileStream* f = new TFileStream(_filename, fmCreate);
 
 	f->Write(UnicodeHeader, 2);
-	f->Write(part1.c_str(), part1.Length() * 2);
-	f->Write(name.c_str(), name.Length() * 2);
-	f->Write(part2.c_str(), part2.Length() * 2);
+	f->Write(part1.c_str(), part1.GetLength() * 2);
+	f->Write(name.c_str(), name.GetLength() * 2);
+	f->Write(part2.c_str(), part2.GetLength() * 2);
 
 	if(num_indexes)
 	{
@@ -5632,23 +5632,23 @@ bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool u
 	ic = 0;
 	for(i = 0; i < num_fields; i++)
 	{
-		f->Write(fpart1.c_str(), fpart1.Length() * 2);
+		f->Write(fpart1.c_str(), fpart1.GetLength() * 2);
 		us = &(fields[i]->name);
 		f->Write(us->c_str(), us->Length() * 2);
-		f->Write(fpart2.c_str(), fpart2.Length() * 2);
+		f->Write(fpart2.c_str(), fpart2.GetLength() * 2);
 		s = fields[i]->get_presentation_type();
-		f->Write(s.c_str(), s.Length() * 2);
-		f->Write(fpart3.c_str(), fpart3.Length() * 2);
+		f->Write(s.c_str(), s.GetLength() * 2);
+		f->Write(fpart3.c_str(), fpart3.GetLength() * 2);
 		s = fields[i]->getlength();
-		f->Write(s.c_str(), s.Length() * 2);
-		f->Write(fpart4.c_str(), fpart4.Length() * 2);
+		f->Write(s.c_str(), s.GetLength() * 2);
+		f->Write(fpart4.c_str(), fpart4.GetLength() * 2);
 		s = fields[i]->getprecision();
-		f->Write(s.c_str(), s.Length() * 2);
-		f->Write(fpart5.c_str(), fpart5.Length() * 2);
+		f->Write(s.c_str(), s.GetLength() * 2);
+		f->Write(fpart5.c_str(), fpart5.GetLength() * 2);
 		if(fields[i]->type == tf_image) ic++;
 	}
 
-	f->Write(part3.c_str(), part3.Length() * 2);
+	f->Write(part3.c_str(), part3.GetLength() * 2);
 
 	if(curindex) numr = curindex->get_numrecords();
 	else numr = numrecords_found;
@@ -5657,13 +5657,13 @@ bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool u
 
 	if(msreg) msreg->Status(status);
 
-	recname = L"";
+	recname = "";
 	rc = 0;
 	for(j = 0; j < numr; j++)
 	{
 		if(j % 100 == 0 && j) if(msreg) msreg->Status(status + j);
 
-		f->Write(rpart1.c_str(), rpart1.Length() * 2);
+		f->Write(rpart1.c_str(), rpart1.GetLength() * 2);
 		if(curindex) nr = curindex->get_numrec(j);
 		else nr = recordsindex[j];
 		getrecord(nr, rec);
@@ -5678,10 +5678,10 @@ bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool u
 		}
 		for(i = 0; i < num_fields; i++)
 		{
-			f->Write(rpart3.c_str(), rpart3.Length() * 2);
+			f->Write(rpart3.c_str(), rpart3.GetLength() * 2);
 			us = &(fields[i]->name);
 			f->Write(us->c_str(), us->Length() * 2);
-			f->Write(L">", 2);
+			f->Write(">", 2);
 
 			if(blob_to_file && fields[i]->type == tf_image)
 			{
@@ -5694,19 +5694,19 @@ bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool u
 						try
 						{
 							CreateDir(dir);
-							dir += L"\\";
+							dir += "\\";
 							canwriteblob = true;
 						}
 						catch(...)
 						{
-							if(msreg) msreg->AddMessage_(L"Не удалось создать каталог blob", msWarning,
-								L"Таблица", name,
-								L"Путь", dir);
+							if(msreg) msreg->AddMessage_("РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ РєР°С‚Р°Р»РѕРі blob", msWarning,
+								"РўР°Р±Р»РёС†Р°", name,
+								"РџСѓС‚СЊ", dir);
 						}
 					}
 					else
 					{
-						dir += L"\\";
+						dir += "\\";
 						canwriteblob = true;
 					}
 				}
@@ -5716,38 +5716,38 @@ bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool u
 					s = recname;
 					if(ic > 1)
 					{
-						if(s.Length()) s += L"_";
+						if(s.GetLength()) s += "_";
 						s += fields[i]->name;
                     }
 					if(rc)
 					{
-						s += L"_";
+						s += "_";
 						s += rc + 1;
 					}
-					if(!fields[i]->save_blob_to_file(rec, dir + s, unpack)) s = L"{NULL}";
+					if(!fields[i]->save_blob_to_file(rec, dir + s, unpack)) s = "{NULL}";
 				}
-				else s = L"{ERROR}";
+				else s = "{ERROR}";
 			}
 			else s = fields[i]->get_XML_presentation(rec);
 
-			f->Write(s.c_str(), s.Length() * 2);
-			f->Write(L"</", 4);
+			f->Write(s.c_str(), s.GetLength() * 2);
+			f->Write("</", 4);
 			f->Write(us->c_str(), us->Length() * 2);
-			f->Write(L">\r\n", 6);
+			f->Write(">\r\n", 6);
 		}
-		f->Write(rpart2.c_str(), rpart2.Length() * 2);
+		f->Write(rpart2.c_str(), rpart2.GetLength() * 2);
 
 	}
-	f->Write(part4.c_str(), part4.Length() * 2);
+	f->Write(part4.c_str(), part4.GetLength() * 2);
 
 	delete[] rec;
 	delete f;
-	if(msreg) msreg->Status(L"");
+	if(msreg) msreg->Status("");
 	return true;
 }
 
 //---------------------------------------------------------------------------
-__int64 __fastcall table::get_fileoffset(unsigned int phys_numrecord)
+int64_t __fastcall table::get_fileoffset(unsigned int phys_numrecord)
 {
 	unsigned int _offset = phys_numrecord * recordlen;
 	return file_data->get_fileoffset(_offset);
@@ -5770,8 +5770,8 @@ void __fastcall table::begin_edit()
 	if(edit) return;
 	if(base->readonly)
 	{
-		if(msreg) msreg->AddMessage_(L"Попытка входа в режим редактирования в режиме \"Только чтение\"", msWarning,
-			L"Таблица", name);
+		if(msreg) msreg->AddMessage_("РџРѕРїС‹С‚РєР° РІС…РѕРґР° РІ СЂРµР¶РёРј СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РІ СЂРµР¶РёРјРµ \"РўРѕР»СЊРєРѕ С‡С‚РµРЅРёРµ\"", msWarning,
+			"РўР°Р±Р»РёС†Р°", name);
 		return;
 	}
 	edit = true;
@@ -5816,9 +5816,9 @@ void __fastcall table::export_table(String path)
 	String dir;
 	export_import_table_root* root;
 
-	dir = path + L"\\" + name;
+	dir = path + "\\" + name;
 	CreateDir(dir);
-	dir += L"\\";
+	dir += "\\";
 
 	root = new export_import_table_root;
 
@@ -5857,7 +5857,7 @@ void __fastcall table::export_table(String path)
 	f = NULL;
 	try
 	{
-		f = new TFileStream(dir + L"root", fmCreate|fmShareDenyNone);
+		f = new TFileStream(dir + "root", fmCreate|fmShareDenyNone);
 		f->Write(root, sizeof(export_import_table_root));
 	}
 	catch(...)
@@ -5867,10 +5867,10 @@ void __fastcall table::export_table(String path)
 	delete f;
 	delete root;
 
-	if(file_data) file_data->savetofile(dir + L"data");
-	if(file_blob) file_blob->savetofile(dir + L"blob");
-	if(file_index) file_index->savetofile(dir + L"index");
-	if(descr_table) descr_table->savetofile(dir + L"descr");
+	if(file_data) file_data->savetofile(dir + "data");
+	if(file_blob) file_blob->savetofile(dir + "blob");
+	if(file_index) file_index->savetofile(dir + "index");
+	if(descr_table) descr_table->savetofile(dir + "descr");
 
 }
 
@@ -5879,12 +5879,12 @@ void __fastcall table::import_table(String path)
 {
 	String dir;
 
-	dir = path + L"\\" + name;
+	dir = path + "\\" + name;
 	if(!DirectoryExists(dir))
 	{
-//		if(msreg) msreg->AddMessage_(L"Директория импорта таблицы не найдена", msWarning,
-//			L"Таблица", name,
-//			L"Директория", dir);
+//		if(msreg) msreg->AddMessage_("Р”РёСЂРµРєС‚РѕСЂРёСЏ РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†С‹ РЅРµ РЅР°Р№РґРµРЅР°", msWarning,
+//			"РўР°Р±Р»РёС†Р°", name,
+//			"Р”РёСЂРµРєС‚РѕСЂРёСЏ", dir);
 		return;
 	}
 	import_table2(dir);
@@ -5907,22 +5907,22 @@ void __fastcall table::import_table2(String path)
 
 	if(!DirectoryExists(path))
 	{
-//		if(msreg) msreg->AddMessage_(L"Директория импорта таблицы не найдена", msWarning,
-//			L"Таблица", name,
-//			L"Директория", dir);
+//		if(msreg) msreg->AddMessage_("Р”РёСЂРµРєС‚РѕСЂРёСЏ РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†С‹ РЅРµ РЅР°Р№РґРµРЅР°", msWarning,
+//			"РўР°Р±Р»РёС†Р°", name,
+//			"Р”РёСЂРµРєС‚РѕСЂРёСЏ", dir);
 		return;
 	}
-	dir = path + L"\\";
+	dir = path + "\\";
 
 	try
 	{
-		f = new TFileStream(dir + L"root", fmOpenRead);
+		f = new TFileStream(dir + "root", fmOpenRead);
 	}
 	catch(...)
 	{
-		if(msreg) msreg->AddMessage_(L"Ошибка открытия файла импорта таблицы root", msWarning,
-			L"Таблица", name,
-			L"Файл", dir + L"root");
+		if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р° РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†С‹ root", msWarning,
+			"РўР°Р±Р»РёС†Р°", name,
+			"Р¤Р°Р№Р»", dir + "root");
 		return;
 	}
 	root = new export_import_table_root;
@@ -5934,14 +5934,14 @@ void __fastcall table::import_table2(String path)
 		fopen = false;
 		try
 		{
-			f = new TFileStream(dir + L"data", fmOpenRead);
+			f = new TFileStream(dir + "data", fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
 		{
-			if(msreg) msreg->AddMessage_(L"Ошибка открытия файла импорта таблицы data", msWarning,
-				L"Таблица", name,
-				L"Файл", dir + L"data");
+			if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р° РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†С‹ data", msWarning,
+				"РўР°Р±Р»РёС†Р°", name,
+				"Р¤Р°Р№Р»", dir + "data");
 		}
 		if(fopen)
 		{
@@ -5962,14 +5962,14 @@ void __fastcall table::import_table2(String path)
 		fopen = false;
 		try
 		{
-			f = new TFileStream(dir + L"blob", fmOpenRead);
+			f = new TFileStream(dir + "blob", fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
 		{
-			if(msreg) msreg->AddMessage_(L"Ошибка открытия файла импорта таблицы blob", msWarning,
-				L"Таблица", name,
-				L"Файл", dir + L"blob");
+			if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р° РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†С‹ blob", msWarning,
+				"РўР°Р±Р»РёС†Р°", name,
+				"Р¤Р°Р№Р»", dir + "blob");
 		}
 		if(fopen)
 		{
@@ -5990,14 +5990,14 @@ void __fastcall table::import_table2(String path)
 		fopen = false;
 		try
 		{
-			f = new TFileStream(dir + L"index", fmOpenRead);
+			f = new TFileStream(dir + "index", fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
 		{
-			if(msreg) msreg->AddMessage_(L"Ошибка открытия файла импорта таблицы index", msWarning,
-				L"Таблица", name,
-				L"Файл", dir + L"index");
+			if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р° РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†С‹ index", msWarning,
+				"РўР°Р±Р»РёС†Р°", name,
+				"Р¤Р°Р№Р»", dir + "index");
 		}
 		if(fopen)
 		{
@@ -6018,22 +6018,22 @@ void __fastcall table::import_table2(String path)
 		fopen = false;
 		try
 		{
-			f = new TFileStream(dir + L"descr", fmOpenRead);
+			f = new TFileStream(dir + "descr", fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
 		{
-			if(msreg) msreg->AddMessage_(L"Ошибка открытия файла импорта таблицы descr", msWarning,
-				L"Файл", dir + L"descr");
+			if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р° РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†С‹ descr", msWarning,
+				"Р¤Р°Р№Р»", dir + "descr");
 		}
 		if(fopen)
 		{
-			if(!descr_table) descr_table = new v8object(base); // вообще, если descr_table == NULL, то это огромная ошибка!
+			if(!descr_table) descr_table = new v8object(base); // РІРѕРѕР±С‰Рµ, РµСЃР»Рё descr_table == NULL, С‚Рѕ СЌС‚Рѕ РѕРіСЂРѕРјРЅР°СЏ РѕС€РёР±РєР°!
 			ob = (v8ob*)base->getblock_for_write(descr_table->get_block_number(), true);
 			ob->version.version_1 = root->descr_version_1;
 			ob->version.version_2 = root->descr_version_2;
 
-			i = f->Size;
+			i = f->GetSize();
 			buf = new char[i + 2];
 			f->Read(buf, i);
 			buf[i] =0;
@@ -6042,23 +6042,23 @@ void __fastcall table::import_table2(String path)
 			delete[] buf;
 			delete f;
 
-			i = str.Pos(L"{\"Files\",");
+			i = str.Pos("{\"Files\",");
 			if(i == 0)
 			{
-				if(msreg) msreg->AddMessage_(L"Ошибка поиска раздела Files в файле импорта таблицы descr", msWarning,
-					L"Файл", dir + L"descr");
+				if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РїРѕРёСЃРєР° СЂР°Р·РґРµР»Р° Files РІ С„Р°Р№Р»Рµ РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†С‹ descr", msWarning,
+					"Р¤Р°Р№Р»", dir + "descr");
 				delete root;
 				return;
 			}
 			str.SetLength(i - 1);
-			str += L"{\"Files\",";
-			str += file_data ? String(file_data->get_block_number()) : String(L"0");
-			str += L",";
-			str += file_blob ? String(file_blob->get_block_number()) : String(L"0");
-			str += L",";
-			str += file_index ? String(file_index->get_block_number()) : String(L"0");
-			str += L"}\n}";
-			descr_table->setdata(str.c_str(), str.Length() * 2);
+			str += "{\"Files\",";
+			str += file_data ? String(file_data->get_block_number()) : String("0");
+			str += ",";
+			str += file_blob ? String(file_blob->get_block_number()) : String("0");
+			str += ",";
+			str += file_index ? String(file_index->get_block_number()) : String("0");
+			str += "}\n}";
+			descr_table->setdata(str.c_str(), str.GetLength() * 2);
 
 		}
 
@@ -6122,7 +6122,7 @@ void __fastcall table::set_edit_value(unsigned int phys_numrecord, int numfield,
 		{
 			delete[] rec;
 			delete[] fldvalue;
-			return; // значение не изменилось, ничего не делаем
+			return; // Р·РЅР°С‡РµРЅРёРµ РЅРµ РёР·РјРµРЅРёР»РѕСЃСЊ, РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°РµРј
 		}
 		cr = new changed_rec(this, phys_numrecord >= phys_numrecords ? crt_insert : crt_changed, phys_numrecord);
 		if(phys_numrecord <= phys_numrecords) memcpy(cr->rec, rec, recordlen);
@@ -6152,7 +6152,7 @@ void __fastcall table::set_edit_value(unsigned int phys_numrecord, int numfield,
 		for(i = 0; i < num_fields; i++) j += cr->fields[i];
 		if(j == 0)
 		{
-			// измененных полей больше нет, надо удалить запись из измененных
+			// РёР·РјРµРЅРµРЅРЅС‹С… РїРѕР»РµР№ Р±РѕР»СЊС€Рµ РЅРµС‚, РЅР°РґРѕ СѓРґР°Р»РёС‚СЊ Р·Р°РїРёСЃСЊ РёР· РёР·РјРµРЅРµРЅРЅС‹С…
 			if(ch_rec == cr) ch_rec = cr->next;
 			else for(cr2 = ch_rec; cr2; cr2 = cr2->next) if(cr2->next == cr)
 			{
@@ -6202,7 +6202,7 @@ void __fastcall table::restore_edit_value(unsigned int phys_numrecord, int numfi
 	for(i = 0; i < num_fields; i++) j += cr->fields[i];
 	if(j == 0)
 	{
-		// измененных полей больше нет, надо удалить запись из измененных
+		// РёР·РјРµРЅРµРЅРЅС‹С… РїРѕР»РµР№ Р±РѕР»СЊС€Рµ РЅРµС‚, РЅР°РґРѕ СѓРґР°Р»РёС‚СЊ Р·Р°РїРёСЃСЊ РёР· РёР·РјРµРЅРµРЅРЅС‹С…
 		if(ch_rec == cr) ch_rec = cr->next;
 		else for(cr2 = ch_rec; cr2; cr2 = cr2->next) if(cr2->next == cr)
 		{
@@ -6233,14 +6233,14 @@ void __fastcall table::set_rec_type(unsigned int phys_numrecord, changed_rec_typ
 		switch(crt)
 		{
 			case crt_changed:
-				error(L"Попытка прямой установки признака \"Изменена\" существующей записи таблицы",
-					L"Таблица", name,
-					L"Физический номер записи", phys_numrecord);
+				error("РџРѕРїС‹С‚РєР° РїСЂСЏРјРѕР№ СѓСЃС‚Р°РЅРѕРІРєРё РїСЂРёР·РЅР°РєР° \"РР·РјРµРЅРµРЅР°\" СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµР№ Р·Р°РїРёСЃРё С‚Р°Р±Р»РёС†С‹",
+					"РўР°Р±Р»РёС†Р°", name,
+					"Р¤РёР·РёС‡РµСЃРєРёР№ РЅРѕРјРµСЂ Р·Р°РїРёСЃРё", phys_numrecord);
 				break;
 			case crt_insert:
-				error(L"Попытка прямой установки признака \"Добавлена\" существующей записи таблицы",
-					L"Таблица", name,
-					L"Физический номер записи", phys_numrecord);
+				error("РџРѕРїС‹С‚РєР° РїСЂСЏРјРѕР№ СѓСЃС‚Р°РЅРѕРІРєРё РїСЂРёР·РЅР°РєР° \"Р”РѕР±Р°РІР»РµРЅР°\" СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµР№ Р·Р°РїРёСЃРё С‚Р°Р±Р»РёС†С‹",
+					"РўР°Р±Р»РёС†Р°", name,
+					"Р¤РёР·РёС‡РµСЃРєРёР№ РЅРѕРјРµСЂ Р·Р°РїРёСЃРё", phys_numrecord);
 			case crt_delete:
 				if(cr)
 				{
@@ -6270,9 +6270,9 @@ void __fastcall table::set_rec_type(unsigned int phys_numrecord, changed_rec_typ
 		switch(crt)
 		{
 			case crt_changed:
-				error(L"Попытка прямой установки признака \"Изменена\" добавленной записи таблицы",
-					L"Таблица", name,
-					L"Физический номер записи", phys_numrecord);
+				error("РџРѕРїС‹С‚РєР° РїСЂСЏРјРѕР№ СѓСЃС‚Р°РЅРѕРІРєРё РїСЂРёР·РЅР°РєР° \"РР·РјРµРЅРµРЅР°\" РґРѕР±Р°РІР»РµРЅРЅРѕР№ Р·Р°РїРёСЃРё С‚Р°Р±Р»РёС†С‹",
+					"РўР°Р±Р»РёС†Р°", name,
+					"Р¤РёР·РёС‡РµСЃРєРёР№ РЅРѕРјРµСЂ Р·Р°РїРёСЃРё", phys_numrecord);
 				break;
 			case crt_insert:
 				if(cr) cr->changed_type = crt;
@@ -6280,10 +6280,10 @@ void __fastcall table::set_rec_type(unsigned int phys_numrecord, changed_rec_typ
 				{
 					if(phys_numrecord > phys_numrecords + added_numrecords)
 					{
-						error(L"Попытка добавленния записи таблицы, с номером больше максимального",
-							L"Таблица", name,
-							L"Максимальный номер записи", phys_numrecords + added_numrecords,
-							L"Физический номер записи", phys_numrecord);
+						error("РџРѕРїС‹С‚РєР° РґРѕР±Р°РІР»РµРЅРЅРёСЏ Р·Р°РїРёСЃРё С‚Р°Р±Р»РёС†С‹, СЃ РЅРѕРјРµСЂРѕРј Р±РѕР»СЊС€Рµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ",
+							"РўР°Р±Р»РёС†Р°", name,
+							"РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ Р·Р°РїРёСЃРё", phys_numrecords + added_numrecords,
+							"Р¤РёР·РёС‡РµСЃРєРёР№ РЅРѕРјРµСЂ Р·Р°РїРёСЃРё", phys_numrecord);
 					}
 					else
 					{
@@ -6307,9 +6307,9 @@ void __fastcall table::set_rec_type(unsigned int phys_numrecord, changed_rec_typ
 				for(cr = ch_rec; cr; cr = cr->next) if(cr->numrec > phys_numrecord) cr->numrec--;
 				break;
 			case crt_not_changed:
-				error(L"Попытка прямой установки признака \"Не изменена\" добавленной записи таблицы",
-					L"Таблица", name,
-					L"Физический номер записи", phys_numrecord);
+				error("РџРѕРїС‹С‚РєР° РїСЂСЏРјРѕР№ СѓСЃС‚Р°РЅРѕРІРєРё РїСЂРёР·РЅР°РєР° \"РќРµ РёР·РјРµРЅРµРЅР°\" РґРѕР±Р°РІР»РµРЅРЅРѕР№ Р·Р°РїРёСЃРё С‚Р°Р±Р»РёС†С‹",
+					"РўР°Р±Р»РёС†Р°", name,
+					"Р¤РёР·РёС‡РµСЃРєРёР№ РЅРѕРјРµСЂ Р·Р°РїРёСЃРё", phys_numrecord);
 				break;
 		}
 	}
@@ -6340,8 +6340,8 @@ unsigned int __fastcall table::get_phys_numrec(int ARow, index* cur_index)
 
 	if(ARow == 0)
 	{
-		error(L"Попытка получения номера физической записи по нулевому номеру строки.",
-			L"Таблица", name);
+		error("РџРѕРїС‹С‚РєР° РїРѕР»СѓС‡РµРЅРёСЏ РЅРѕРјРµСЂР° С„РёР·РёС‡РµСЃРєРѕР№ Р·Р°РїРёСЃРё РїРѕ РЅСѓР»РµРІРѕРјСѓ РЅРѕРјРµСЂСѓ СЃС‚СЂРѕРєРё.",
+			"РўР°Р±Р»РёС†Р°", name);
 		return 0;
 	}
 
@@ -6353,11 +6353,11 @@ unsigned int __fastcall table::get_phys_numrec(int ARow, index* cur_index)
 	{
 		if((unsigned int)ARow > log_numrecords + added_numrecords)
 		{
-			error(L"Попытка получения номера физической записи по номеру строки, превышающему количество записей",
-				L"Таблица", name,
-				L"Количество логических записей", log_numrecords,
-				L"Количество добавленных записей", added_numrecords,
-				L"Номер строки", ARow);
+			error("РџРѕРїС‹С‚РєР° РїРѕР»СѓС‡РµРЅРёСЏ РЅРѕРјРµСЂР° С„РёР·РёС‡РµСЃРєРѕР№ Р·Р°РїРёСЃРё РїРѕ РЅРѕРјРµСЂСѓ СЃС‚СЂРѕРєРё, РїСЂРµРІС‹С€Р°СЋС‰РµРјСѓ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РїРёСЃРµР№",
+				"РўР°Р±Р»РёС†Р°", name,
+				"РљРѕР»РёС‡РµСЃС‚РІРѕ Р»РѕРіРёС‡РµСЃРєРёС… Р·Р°РїРёСЃРµР№", log_numrecords,
+				"РљРѕР»РёС‡РµСЃС‚РІРѕ РґРѕР±Р°РІР»РµРЅРЅС‹С… Р·Р°РїРёСЃРµР№", added_numrecords,
+				"РќРѕРјРµСЂ СЃС‚СЂРѕРєРё", ARow);
 			return 0;
 		}
 		if((unsigned int)ARow > log_numrecords) return ARow - 1 - log_numrecords + phys_numrecords;
@@ -6366,10 +6366,10 @@ unsigned int __fastcall table::get_phys_numrec(int ARow, index* cur_index)
 
 	if((unsigned int)ARow > log_numrecords)
 	{
-		error(L"Попытка получения номера физической записи по номеру строки, превышающему количество записей",
-			L"Таблица", name,
-			L"Количество логических записей", log_numrecords,
-			L"Номер строки", ARow);
+		error("РџРѕРїС‹С‚РєР° РїРѕР»СѓС‡РµРЅРёСЏ РЅРѕРјРµСЂР° С„РёР·РёС‡РµСЃРєРѕР№ Р·Р°РїРёСЃРё РїРѕ РЅРѕРјРµСЂСѓ СЃС‚СЂРѕРєРё, РїСЂРµРІС‹С€Р°СЋС‰РµРјСѓ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РїРёСЃРµР№",
+			"РўР°Р±Р»РёС†Р°", name,
+			"РљРѕР»РёС‡РµСЃС‚РІРѕ Р»РѕРіРёС‡РµСЃРєРёС… Р·Р°РїРёСЃРµР№", log_numrecords,
+			"РќРѕРјРµСЂ СЃС‚СЂРѕРєРё", ARow);
 		return 0;
 	}
 	if(cur_index) numrec = cur_index->get_numrec(ARow - 1);
@@ -6422,8 +6422,8 @@ void __fastcall table::create_file_index()
 //---------------------------------------------------------------------------
 void __fastcall table::refresh_descr_table()
 {
-	error(L"Попытка обновления файла описания таблицы.",
-		L"Таблица", name);
+	error("РџРѕРїС‹С‚РєР° РѕР±РЅРѕРІР»РµРЅРёСЏ С„Р°Р№Р»Р° РѕРїРёСЃР°РЅРёСЏ С‚Р°Р±Р»РёС†С‹.",
+		"РўР°Р±Р»РёС†Р°", name);
 	return;
 
 }
@@ -6437,34 +6437,34 @@ void __fastcall table::delete_data_record(unsigned int phys_numrecord)
 
 	if(!edit)
 	{
-		error(L"Попытка удаления записи из файла file_data не в режиме редактирования.",
-			L"Таблица", name,
-			L"Индекс удаляемой записи", phys_numrecord);
+		error("РџРѕРїС‹С‚РєР° СѓРґР°Р»РµРЅРёСЏ Р·Р°РїРёСЃРё РёР· С„Р°Р№Р»Р° file_data РЅРµ РІ СЂРµР¶РёРјРµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ.",
+			"РўР°Р±Р»РёС†Р°", name,
+			"РРЅРґРµРєСЃ СѓРґР°Р»СЏРµРјРѕР№ Р·Р°РїРёСЃРё", phys_numrecord);
 		return;
 	}
 
 	if(!file_data)
 	{
-		error(L"Попытка удаления записи из несуществующего файла file_data.",
-			L"Таблица", name,
-			L"Индекс удаляемой записи", phys_numrecord);
+		error("РџРѕРїС‹С‚РєР° СѓРґР°Р»РµРЅРёСЏ Р·Р°РїРёСЃРё РёР· РЅРµСЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ С„Р°Р№Р»Р° file_data.",
+			"РўР°Р±Р»РёС†Р°", name,
+			"РРЅРґРµРєСЃ СѓРґР°Р»СЏРµРјРѕР№ Р·Р°РїРёСЃРё", phys_numrecord);
 		return;
 	}
 
 	if(phys_numrecord >= phys_numrecords)
 	{
-		error(L"Попытка удаления записи в файле file_data за пределами файла.",
-			L"Таблица", name,
-			L"Всего записей", phys_numrecords,
-			L"Индекс удаляемой записи", phys_numrecord);
+		error("РџРѕРїС‹С‚РєР° СѓРґР°Р»РµРЅРёСЏ Р·Р°РїРёСЃРё РІ С„Р°Р№Р»Рµ file_data Р·Р° РїСЂРµРґРµР»Р°РјРё С„Р°Р№Р»Р°.",
+			"РўР°Р±Р»РёС†Р°", name,
+			"Р’СЃРµРіРѕ Р·Р°РїРёСЃРµР№", phys_numrecords,
+			"РРЅРґРµРєСЃ СѓРґР°Р»СЏРµРјРѕР№ Р·Р°РїРёСЃРё", phys_numrecord);
 		return;
 	}
 
 	if(!phys_numrecord)
 	{
-		error(L"Попытка удаления нулевой записи в файле file_data.",
-			L"Таблица", name,
-			L"Всего записей", phys_numrecords);
+		error("РџРѕРїС‹С‚РєР° СѓРґР°Р»РµРЅРёСЏ РЅСѓР»РµРІРѕР№ Р·Р°РїРёСЃРё РІ С„Р°Р№Р»Рµ file_data.",
+			"РўР°Р±Р»РёС†Р°", name,
+			"Р’СЃРµРіРѕ Р·Р°РїРёСЃРµР№", phys_numrecords);
 		return;
 	}
 
@@ -6494,41 +6494,41 @@ void __fastcall table::delete_blob_record(unsigned int blob_numrecord)
 
 	if(!edit)
 	{
-		error(L"Попытка удаления записи из файла file_blob не в режиме редактирования.",
-			L"Таблица", name,
-			L"Смещение удаляемой записи", blob_numrecord << 8);
+		error("РџРѕРїС‹С‚РєР° СѓРґР°Р»РµРЅРёСЏ Р·Р°РїРёСЃРё РёР· С„Р°Р№Р»Р° file_blob РЅРµ РІ СЂРµР¶РёРјРµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ.",
+			"РўР°Р±Р»РёС†Р°", name,
+			"РЎРјРµС‰РµРЅРёРµ СѓРґР°Р»СЏРµРјРѕР№ Р·Р°РїРёСЃРё", blob_numrecord << 8);
 		return;
 	}
 
 	if(!file_blob)
 	{
-		error(L"Попытка удаления записи из несуществующего файла file_blob.",
-			L"Таблица", name,
-			L"Смещение удаляемой записи", blob_numrecord << 8);
+		error("РџРѕРїС‹С‚РєР° СѓРґР°Р»РµРЅРёСЏ Р·Р°РїРёСЃРё РёР· РЅРµСЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ С„Р°Р№Р»Р° file_blob.",
+			"РўР°Р±Р»РёС†Р°", name,
+			"РЎРјРµС‰РµРЅРёРµ СѓРґР°Р»СЏРµРјРѕР№ Р·Р°РїРёСЃРё", blob_numrecord << 8);
 		return;
 	}
 
 	if(blob_numrecord << 8 >= file_blob->getlen())
 	{
-		error(L"Попытка удаления записи в файле file_blob за пределами файла.",
-			L"Таблица", name,
-			L"Смещение удаляемой записи", blob_numrecord << 8,
-			L"Длина файла", file_blob->getlen());
+		error("РџРѕРїС‹С‚РєР° СѓРґР°Р»РµРЅРёСЏ Р·Р°РїРёСЃРё РІ С„Р°Р№Р»Рµ file_blob Р·Р° РїСЂРµРґРµР»Р°РјРё С„Р°Р№Р»Р°.",
+			"РўР°Р±Р»РёС†Р°", name,
+			"РЎРјРµС‰РµРЅРёРµ СѓРґР°Р»СЏРµРјРѕР№ Р·Р°РїРёСЃРё", blob_numrecord << 8,
+			"Р”Р»РёРЅР° С„Р°Р№Р»Р°", file_blob->getlen());
 		return;
 	}
 
 	if(blob_numrecord == 0)
 	{
-		error(L"Попытка удаления нулевой записи в файле file_blob.",
-			L"Таблица", name,
-			L"Длина файла", file_blob->getlen());
+		error("РџРѕРїС‹С‚РєР° СѓРґР°Р»РµРЅРёСЏ РЅСѓР»РµРІРѕР№ Р·Р°РїРёСЃРё РІ С„Р°Р№Р»Рµ file_blob.",
+			"РўР°Р±Р»РёС†Р°", name,
+			"Р”Р»РёРЅР° С„Р°Р№Р»Р°", file_blob->getlen());
 		return;
 	}
 
-	file_blob->getdata(&prev_free_first, 0, 4); // читаем предыдущее начало свободных блоков
-	for(i = blob_numrecord; i; file_blob->getdata(&i, i << 8, 4)) j = i; // ищем последний блок в цепочке удаляемых
-	file_blob->setdata(&prev_free_first, j << 8, 4); // устанавливаем в конец цепочки удаляемых блоков старое начало цепочки свободных блоков
-	file_blob->setdata(&blob_numrecord, 0, 4); // устанавливаем новое начало цепочки свободных блоков на начало удаляемых блоков
+	file_blob->getdata(&prev_free_first, 0, 4); // С‡РёС‚Р°РµРј РїСЂРµРґС‹РґСѓС‰РµРµ РЅР°С‡Р°Р»Рѕ СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ
+	for(i = blob_numrecord; i; file_blob->getdata(&i, i << 8, 4)) j = i; // РёС‰РµРј РїРѕСЃР»РµРґРЅРёР№ Р±Р»РѕРє РІ С†РµРїРѕС‡РєРµ СѓРґР°Р»СЏРµРјС‹С…
+	file_blob->setdata(&prev_free_first, j << 8, 4); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РІ РєРѕРЅРµС† С†РµРїРѕС‡РєРё СѓРґР°Р»СЏРµРјС‹С… Р±Р»РѕРєРѕРІ СЃС‚Р°СЂРѕРµ РЅР°С‡Р°Р»Рѕ С†РµРїРѕС‡РєРё СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ
+	file_blob->setdata(&blob_numrecord, 0, 4); // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅРѕРІРѕРµ РЅР°С‡Р°Р»Рѕ С†РµРїРѕС‡РєРё СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ РЅР° РЅР°С‡Р°Р»Рѕ СѓРґР°Р»СЏРµРјС‹С… Р±Р»РѕРєРѕРІ
 }
 
 //---------------------------------------------------------------------------
@@ -6550,9 +6550,9 @@ void __fastcall table::delete_index_record(unsigned int phys_numrecord, char* re
 
 	if(*rec)
 	{
-		error(L"Попытка удаления индекса удаленной записи.",
-			L"Таблица", name,
-			L"Физический номер записи", phys_numrecord);
+		error("РџРѕРїС‹С‚РєР° СѓРґР°Р»РµРЅРёСЏ РёРЅРґРµРєСЃР° СѓРґР°Р»РµРЅРЅРѕР№ Р·Р°РїРёСЃРё.",
+			"РўР°Р±Р»РёС†Р°", name,
+			"Р¤РёР·РёС‡РµСЃРєРёР№ РЅРѕРјРµСЂ Р·Р°РїРёСЃРё", phys_numrecord);
 		return;
 	}
 
@@ -6566,9 +6566,9 @@ void __fastcall table::write_data_record(unsigned int phys_numrecord, char* rec)
 
 	if(!edit)
 	{
-		error(L"Попытка записи в файл file_data не в режиме редактирования.",
-			L"Таблица", name,
-			L"Индекс записываемой записи", phys_numrecord);
+		error("РџРѕРїС‹С‚РєР° Р·Р°РїРёСЃРё РІ С„Р°Р№Р» file_data РЅРµ РІ СЂРµР¶РёРјРµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ.",
+			"РўР°Р±Р»РёС†Р°", name,
+			"РРЅРґРµРєСЃ Р·Р°РїРёСЃС‹РІР°РµРјРѕР№ Р·Р°РїРёСЃРё", phys_numrecord);
 		return;
 	}
 
@@ -6576,18 +6576,18 @@ void __fastcall table::write_data_record(unsigned int phys_numrecord, char* rec)
 
 	if(phys_numrecord > phys_numrecords && !(phys_numrecord == 1 && phys_numrecords == 0))
 	{
-		error(L"Попытка записи в файл file_data за пределами файла.",
-			L"Таблица", name,
-			L"Всего записей", phys_numrecords,
-			L"Индекс записываемой записи", phys_numrecord);
+		error("РџРѕРїС‹С‚РєР° Р·Р°РїРёСЃРё РІ С„Р°Р№Р» file_data Р·Р° РїСЂРµРґРµР»Р°РјРё С„Р°Р№Р»Р°.",
+			"РўР°Р±Р»РёС†Р°", name,
+			"Р’СЃРµРіРѕ Р·Р°РїРёСЃРµР№", phys_numrecords,
+			"РРЅРґРµРєСЃ Р·Р°РїРёСЃС‹РІР°РµРјРѕР№ Р·Р°РїРёСЃРё", phys_numrecord);
 		return;
 	}
 
 	if(!phys_numrecord)
 	{
-		error(L"Попытка записи нулевой записи в файл file_data.",
-			L"Таблица", name,
-			L"Всего записей", phys_numrecords);
+		error("РџРѕРїС‹С‚РєР° Р·Р°РїРёСЃРё РЅСѓР»РµРІРѕР№ Р·Р°РїРёСЃРё РІ С„Р°Р№Р» file_data.",
+			"РўР°Р±Р»РёС†Р°", name,
+			"Р’СЃРµРіРѕ Р·Р°РїРёСЃРµР№", phys_numrecords);
 		return;
 	}
 
@@ -6611,8 +6611,8 @@ unsigned int __fastcall table::write_blob_record(char* blob_record, unsigned int
 
 	if(!edit)
 	{
-		error(L"Попытка записи в файл file_blob не в режиме редактирования.",
-			L"Таблица", name);
+		error("РџРѕРїС‹С‚РєР° Р·Р°РїРёСЃРё РІ С„Р°Р№Р» file_blob РЅРµ РІ СЂРµР¶РёРјРµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ.",
+			"РўР°Р±Р»РёС†Р°", name);
 		return 0;
 	}
 
@@ -6666,12 +6666,12 @@ unsigned int __fastcall table::write_blob_record(TStream* bstr)
 
 	if(!edit)
 	{
-		error(L"Попытка записи в файл file_blob не в режиме редактирования.",
-			L"Таблица", name);
+		error("РџРѕРїС‹С‚РєР° Р·Р°РїРёСЃРё РІ С„Р°Р№Р» file_blob РЅРµ РІ СЂРµР¶РёРјРµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ.",
+			"РўР°Р±Р»РёС†Р°", name);
 		return 0;
 	}
 
-	blob_len = bstr->Size;
+	blob_len = bstr->GetSize();
 	if(!blob_len) return 0;
 	bstr->Seek(0, soFromBeginning);
 	zero = 0;
@@ -6722,8 +6722,8 @@ void __fastcall table::write_index_record(const unsigned int phys_numrecord, con
 
 	if(*rec)
 	{
-		error(L"Попытка записи индексов помеченной на удаление записи.",
-			L"Таблица", name);
+		error("РџРѕРїС‹С‚РєР° Р·Р°РїРёСЃРё РёРЅРґРµРєСЃРѕРІ РїРѕРјРµС‡РµРЅРЅРѕР№ РЅР° СѓРґР°Р»РµРЅРёРµ Р·Р°РїРёСЃРё.",
+			"РўР°Р±Р»РёС†Р°", name);
 		return;
 	}
 
@@ -6753,13 +6753,13 @@ void __fastcall table::end_edit()
 {
 	changed_rec* cr;
 
-	// удаляем удаленные записи
+	// СѓРґР°Р»СЏРµРј СѓРґР°Р»РµРЅРЅС‹Рµ Р·Р°РїРёСЃРё
 	for(cr = ch_rec; cr; cr = cr->next) if(cr->changed_type == crt_delete) delete_record(cr->numrec);
 
-	// записываем измененные записи
+	// Р·Р°РїРёСЃС‹РІР°РµРј РёР·РјРµРЅРµРЅРЅС‹Рµ Р·Р°РїРёСЃРё
 	for(cr = ch_rec; cr; cr = cr->next) if(cr->changed_type == crt_changed) update_record(cr->numrec, cr->rec, cr->fields);
 
-	// добавляем новые записи
+	// РґРѕР±Р°РІР»СЏРµРј РЅРѕРІС‹Рµ Р·Р°РїРёСЃРё
 	for(cr = ch_rec; cr; cr = cr->next) if(cr->changed_type == crt_insert) insert_record(cr->rec);
 
 	cancel_edit();
@@ -6823,7 +6823,7 @@ void __fastcall table::insert_record(char* rec)
 				st = (TStream**)(rec + offset);
 				if(*st)
 				{
-					l = (*st)->Size;
+					l = (*st)->GetSize();
 					k = write_blob_record(*st);
 					delete *st;
 					*st = NULL;
@@ -6907,7 +6907,7 @@ void __fastcall table::update_record(unsigned int phys_numrecord, char* rec, cha
 						st = (TStream**)(rec + offset);
 						if(*st)
 						{
-							l = (*st)->Size;
+							l = (*st)->GetSize();
 							k = write_blob_record(*st);
 							delete *st;
 							*st = NULL;
@@ -6933,7 +6933,7 @@ void __fastcall table::update_record(unsigned int phys_numrecord, char* rec, cha
 					st = (TStream**)(rec + offset);
 					if(*st)
 					{
-						l = (*st)->Size;
+						l = (*st)->GetSize();
 						k = write_blob_record(*st);
 						delete *st;
 						*st = NULL;
@@ -6971,7 +6971,7 @@ void __fastcall table::update_record(unsigned int phys_numrecord, char* rec, cha
 }
 
 //---------------------------------------------------------------------------
-// получить шаблон проверки записи (массив, содержащий для каждого байта массив из 256 байт, содержащий 0, если значение не допусимо и 1, если допустимо)
+// РїРѕР»СѓС‡РёС‚СЊ С€Р°Р±Р»РѕРЅ РїСЂРѕРІРµСЂРєРё Р·Р°РїРёСЃРё (РјР°СЃСЃРёРІ, СЃРѕРґРµСЂР¶Р°С‰РёР№ РґР»СЏ РєР°Р¶РґРѕРіРѕ Р±Р°Р№С‚Р° РјР°СЃСЃРёРІ РёР· 256 Р±Р°Р№С‚, СЃРѕРґРµСЂР¶Р°С‰РёР№ 0, РµСЃР»Рё Р·РЅР°С‡РµРЅРёРµ РЅРµ РґРѕРїСѓСЃРёРјРѕ Рё 1, РµСЃР»Рё РґРѕРїСѓСЃС‚РёРјРѕ)
 char* __fastcall table::get_record_template_test()
 {
 	int len;
@@ -7001,14 +7001,14 @@ char* __fastcall table::get_record_template_test()
 		l = f->getlength();
 		switch(f->gettype())
 		{
-			case tf_binary: // B // длина = length
+			case tf_binary: // B // РґР»РёРЅР° = length
 				memset(curp, 1, 256 * l);
 				break;
-			case tf_bool: // L // длина = 1
+			case tf_bool: // L // РґР»РёРЅР° = 1
 				curp[0] = 1;
 				curp[1] = 1;
 				break;
-			case tf_numeric: // N // длина = (length + 2) / 2
+			case tf_numeric: // N // РґР»РёРЅР° = (length + 2) / 2
 				j = (l + 2) / 2;
 				for(; j > 0; --j)
 				{
@@ -7016,10 +7016,10 @@ char* __fastcall table::get_record_template_test()
 					curp += 256;
 				}
 				break;
-			case tf_char: // NC // длина = length * 2
+			case tf_char: // NC // РґР»РёРЅР° = length * 2
 				memset(curp, 1, 256 * 2 * l);
 				break;
-			case tf_varchar: // NVC // длина = length * 2 + 2
+			case tf_varchar: // NVC // РґР»РёРЅР° = length * 2 + 2
 				if(l > 255) j = 256;
 				else j = l + 1;
 				memset(curp, 1, j);
@@ -7030,7 +7030,7 @@ char* __fastcall table::get_record_template_test()
 				curp += 256;
 				memset(curp, 1, 256 * 2 * l);
 				break;
-			case tf_version: // RV // 16, 8 версия создания и 8 версия модификации ? каждая версия int(изменения) + int(реструктуризация)
+			case tf_version: // RV // 16, 8 РІРµСЂСЃРёСЏ СЃРѕР·РґР°РЅРёСЏ Рё 8 РІРµСЂСЃРёСЏ РјРѕРґРёС„РёРєР°С†РёРё ? РєР°Р¶РґР°СЏ РІРµСЂСЃРёСЏ int(РёР·РјРµРЅРµРЅРёСЏ) + int(СЂРµСЃС‚СЂСѓРєС‚СѓСЂРёР·Р°С†РёСЏ)
 				memset(curp, 1, 256 * 16);
 				break;
 			case tf_string: // NT // 8 (unicode text)
@@ -7043,8 +7043,8 @@ char* __fastcall table::get_record_template_test()
 				memset(curp, 1, 256 * 8);
 				break;
 			case tf_datetime: // DT //7
-				if(f->getname().CompareIC(L"_DATE_TIME") == 0) required = true;
-				else if(f->getname().CompareIC(L"_NUMBERPREFIX") == 0) required = true;
+				if(f->getname().CompareIC("_DATE_TIME") == 0) required = true;
+				else if(f->getname().CompareIC("_NUMBERPREFIX") == 0) required = true;
 
 				memcpy(curp, DATE1_TEST_TEMPLATE, 256);
 				curp += 256;
@@ -7062,10 +7062,10 @@ char* __fastcall table::get_record_template_test()
 				curp += 256;
 				memcpy(curp, DATE67_TEST_TEMPLATE, 256);
 				break;
-			case tf_version8: // 8, скрытое поле при recordlock == false и отсутствии поля типа tf_version
+			case tf_version8: // 8, СЃРєСЂС‹С‚РѕРµ РїРѕР»Рµ РїСЂРё recordlock == false Рё РѕС‚СЃСѓС‚СЃС‚РІРёРё РїРѕР»СЏ С‚РёРїР° tf_version
 				memset(curp, 1, 256 * 8);
 				break;
-			case tf_varbinary: // VB // длина = length + 2
+			case tf_varbinary: // VB // РґР»РёРЅР° = length + 2
 				if(l > 255) j = 256;
 				else j = l + 1;
 				memset(curp, 1, j);
@@ -7088,7 +7088,7 @@ char* __fastcall table::get_record_template_test()
 #endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
-// заполнить recordsindex не динамически
+// Р·Р°РїРѕР»РЅРёС‚СЊ recordsindex РЅРµ РґРёРЅР°РјРёС‡РµСЃРєРё
 void __fastcall table::fillrecordsindex()
 {
 	unsigned int i;
@@ -7116,7 +7116,7 @@ void __fastcall table::fillrecordsindex()
 
 String __fastcall table::get_file_name_for_field(int num_field, char* rec, unsigned int numrec)
 {
-	String s(L"");
+	String s("");
 	int i;
 	index* ind;
 
@@ -7130,7 +7130,7 @@ String __fastcall table::get_file_name_for_field(int num_field, char* rec, unsig
 		}
 		for(i = 0; i < ind->num_records; i++)
 		{
-			if(s.Length()) s += "_";
+			if(s.GetLength()) s += "_";
 			s += ind->records[i].field->get_XML_presentation(rec);
 		}
 		if(!ind->is_primary && numrec){
@@ -7138,9 +7138,9 @@ String __fastcall table::get_file_name_for_field(int num_field, char* rec, unsig
 			s += numrec;
 		}
 	}
-	if(!issystem || !(name.CompareIC(L"CONFIG") == 0 || name.CompareIC(L"CONFIGSAVE") == 0 || name.CompareIC(L"FILES") == 0 || name.CompareIC(L"PARAMS") == 0))
+	if(!issystem || !(name.CompareIC("CONFIG") == 0 || name.CompareIC("CONFIGSAVE") == 0 || name.CompareIC("FILES") == 0 || name.CompareIC("PARAMS") == 0))
 	{
-		if(s.Length()) s += "_";
+		if(s.GetLength()) s += "_";
 		s += fields[num_field]->getname();
 	}
 
@@ -7149,7 +7149,7 @@ String __fastcall table::get_file_name_for_field(int num_field, char* rec, unsig
 
 String __fastcall table::get_file_name_for_record(char* rec)
 {
-	String s(L"");
+	String s("");
 	int i;
 	index* ind;
 
@@ -7163,7 +7163,7 @@ String __fastcall table::get_file_name_for_record(char* rec)
 		}
 		for(i = 0; i < ind->num_records; i++)
 		{
-			if(s.Length()) s += "_";
+			if(s.GetLength()) s += "_";
 			s += ind->records[i].field->get_XML_presentation(rec);
 		}
 	}
@@ -7174,7 +7174,7 @@ String __fastcall table::get_file_name_for_record(char* rec)
 //---------------------------------------------------------------------------
 
 //********************************************************
-// Класс table_file
+// РљР»Р°СЃСЃ table_file
 
 //---------------------------------------------------------------------------
 __fastcall table_file::table_file(table* _t, const String& _name, unsigned int _maxpartno)
@@ -7203,7 +7203,7 @@ __fastcall table_file::~table_file()
 //---------------------------------------------------------------------------
 
 //********************************************************
-// Класс TableFiles
+// РљР»Р°СЃСЃ TableFiles
 
 //---------------------------------------------------------------------------
 __fastcall TableFiles::TableFiles(table* t)
@@ -7306,75 +7306,75 @@ bool __fastcall TableFiles::test_table()
 	if(!tab) return false;
 	if(tab->get_numfields() < 6)
 	{
-		error(L"Ошибка проверки таблицы контейнера файлов. В таблице меньше 6 полей"
-			,L"Таблица", tab->getname()
-			,L"Кол-во полей", tab->get_numfields());
+		error("РћС€РёР±РєР° РїСЂРѕРІРµСЂРєРё С‚Р°Р±Р»РёС†С‹ РєРѕРЅС‚РµР№РЅРµСЂР° С„Р°Р№Р»РѕРІ. Р’ С‚Р°Р±Р»РёС†Рµ РјРµРЅСЊС€Рµ 6 РїРѕР»РµР№"
+			,"РўР°Р±Р»РёС†Р°", tab->getname()
+			,"РљРѕР»-РІРѕ РїРѕР»РµР№", tab->get_numfields());
 		return false;
 	}
 
 	if(tab->get_numfields() > 7)
 	{
-		error(L"Ошибка проверки таблицы контейнера файлов. В таблице больше 7 полей"
-			,L"Таблица", tab->getname()
-			,L"Кол-во полей", tab->get_numfields());
+		error("РћС€РёР±РєР° РїСЂРѕРІРµСЂРєРё С‚Р°Р±Р»РёС†С‹ РєРѕРЅС‚РµР№РЅРµСЂР° С„Р°Р№Р»РѕРІ. Р’ С‚Р°Р±Р»РёС†Рµ Р±РѕР»СЊС€Рµ 7 РїРѕР»РµР№"
+			,"РўР°Р±Р»РёС†Р°", tab->getname()
+			,"РљРѕР»-РІРѕ РїРѕР»РµР№", tab->get_numfields());
 		return false;
 	}
 
-	if(tab->getfield(0)->getname().CompareIC(L"FILENAME"))
+	if(tab->getfield(0)->getname().CompareIC("FILENAME"))
 	{
-		error(L"Ошибка проверки таблицы контейнера файлов. Первое поле таблицы не FILENAME"
-			,L"Таблица", tab->getname()
-			,L"Поле", tab->getfield(0)->getname());
+		error("РћС€РёР±РєР° РїСЂРѕРІРµСЂРєРё С‚Р°Р±Р»РёС†С‹ РєРѕРЅС‚РµР№РЅРµСЂР° С„Р°Р№Р»РѕРІ. РџРµСЂРІРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ РЅРµ FILENAME"
+			,"РўР°Р±Р»РёС†Р°", tab->getname()
+			,"РџРѕР»Рµ", tab->getfield(0)->getname());
 		return false;
 	}
 
-	if(tab->getfield(1)->getname().CompareIC(L"CREATION"))
+	if(tab->getfield(1)->getname().CompareIC("CREATION"))
 	{
-		error(L"Ошибка проверки таблицы контейнера файлов. Второе поле таблицы не CREATION"
-			,L"Таблица", tab->getname()
-			,L"Поле", tab->getfield(1)->getname());
+		error("РћС€РёР±РєР° РїСЂРѕРІРµСЂРєРё С‚Р°Р±Р»РёС†С‹ РєРѕРЅС‚РµР№РЅРµСЂР° С„Р°Р№Р»РѕРІ. Р’С‚РѕСЂРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ РЅРµ CREATION"
+			,"РўР°Р±Р»РёС†Р°", tab->getname()
+			,"РџРѕР»Рµ", tab->getfield(1)->getname());
 		return false;
 	}
 
-	if(tab->getfield(2)->getname().CompareIC(L"MODIFIED"))
+	if(tab->getfield(2)->getname().CompareIC("MODIFIED"))
 	{
-		error(L"Ошибка проверки таблицы контейнера файлов. Третье поле таблицы не MODIFIED"
-			,L"Таблица", tab->getname()
-			,L"Поле", tab->getfield(2)->getname());
+		error("РћС€РёР±РєР° РїСЂРѕРІРµСЂРєРё С‚Р°Р±Р»РёС†С‹ РєРѕРЅС‚РµР№РЅРµСЂР° С„Р°Р№Р»РѕРІ. РўСЂРµС‚СЊРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ РЅРµ MODIFIED"
+			,"РўР°Р±Р»РёС†Р°", tab->getname()
+			,"РџРѕР»Рµ", tab->getfield(2)->getname());
 		return false;
 	}
 
-	if(tab->getfield(3)->getname().CompareIC(L"ATTRIBUTES"))
+	if(tab->getfield(3)->getname().CompareIC("ATTRIBUTES"))
 	{
-		error(L"Ошибка проверки таблицы контейнера файлов. Четвертое поле таблицы не ATTRIBUTES"
-			,L"Таблица", tab->getname()
-			,L"Поле", tab->getfield(3)->getname());
+		error("РћС€РёР±РєР° РїСЂРѕРІРµСЂРєРё С‚Р°Р±Р»РёС†С‹ РєРѕРЅС‚РµР№РЅРµСЂР° С„Р°Р№Р»РѕРІ. Р§РµС‚РІРµСЂС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ РЅРµ ATTRIBUTES"
+			,"РўР°Р±Р»РёС†Р°", tab->getname()
+			,"РџРѕР»Рµ", tab->getfield(3)->getname());
 		return false;
 	}
 
-	if(tab->getfield(4)->getname().CompareIC(L"DATASIZE"))
+	if(tab->getfield(4)->getname().CompareIC("DATASIZE"))
 	{
-		error(L"Ошибка проверки таблицы контейнера файлов. Пятое поле таблицы не DATASIZE"
-			,L"Таблица", tab->getname()
-			,L"Поле", tab->getfield(4)->getname());
+		error("РћС€РёР±РєР° РїСЂРѕРІРµСЂРєРё С‚Р°Р±Р»РёС†С‹ РєРѕРЅС‚РµР№РЅРµСЂР° С„Р°Р№Р»РѕРІ. РџСЏС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ РЅРµ DATASIZE"
+			,"РўР°Р±Р»РёС†Р°", tab->getname()
+			,"РџРѕР»Рµ", tab->getfield(4)->getname());
 		return false;
 	}
 
-	if(tab->getfield(5)->getname().CompareIC(L"BINARYDATA"))
+	if(tab->getfield(5)->getname().CompareIC("BINARYDATA"))
 	{
-		error(L"Ошибка проверки таблицы контейнера файлов. Шестое поле таблицы не BINARYDATA"
-			,L"Таблица", tab->getname()
-			,L"Поле", tab->getfield(5)->getname());
+		error("РћС€РёР±РєР° РїСЂРѕРІРµСЂРєРё С‚Р°Р±Р»РёС†С‹ РєРѕРЅС‚РµР№РЅРµСЂР° С„Р°Р№Р»РѕРІ. РЁРµСЃС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ РЅРµ BINARYDATA"
+			,"РўР°Р±Р»РёС†Р°", tab->getname()
+			,"РџРѕР»Рµ", tab->getfield(5)->getname());
 		return false;
 	}
 
 	if(tab->get_numfields() > 6)
 	{
-		if(tab->getfield(6)->getname().CompareIC(L"PARTNO"))
+		if(tab->getfield(6)->getname().CompareIC("PARTNO"))
 		{
-			error(L"Ошибка проверки таблицы контейнера файлов. Седьмое поле таблицы не PARTNO"
-				,L"Таблица", tab->getname()
-				,L"Поле", tab->getfield(6)->getname());
+			error("РћС€РёР±РєР° РїСЂРѕРІРµСЂРєРё С‚Р°Р±Р»РёС†С‹ РєРѕРЅС‚РµР№РЅРµСЂР° С„Р°Р№Р»РѕРІ. РЎРµРґСЊРјРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ РЅРµ PARTNO"
+				,"РўР°Р±Р»РёС†Р°", tab->getname()
+				,"РџРѕР»Рµ", tab->getfield(6)->getname());
 			return false;
 		}
 	}
@@ -7394,7 +7394,7 @@ table_file* __fastcall TableFiles::getfile(const String& name)
 //---------------------------------------------------------------------------
 
 //********************************************************
-// Класс TableFileStream
+// РљР»Р°СЃСЃ TableFileStream
 
 //---------------------------------------------------------------------------
 __fastcall TableFileStream::TableFileStream(table_file* tf)
@@ -7415,8 +7415,8 @@ __fastcall TableFileStream::~TableFileStream()
 //---------------------------------------------------------------------------
 int __fastcall TableFileStream::Read(void *Buffer, int Count)
 {
-	unsigned int nbf; // индекс текущего table_blob_file в tablefile->addr
-	unsigned int ibf; // индекс внутри table_blob_file
+	unsigned int nbf; // РёРЅРґРµРєСЃ С‚РµРєСѓС‰РµРіРѕ table_blob_file РІ tablefile->addr
+	unsigned int ibf; // РёРЅРґРµРєСЃ РІРЅСѓС‚СЂРё table_blob_file
 	unsigned int curoff; // curoffset
 	table_blob_file* addr;
 	TStream* str;
@@ -7480,7 +7480,7 @@ int __fastcall TableFileStream::Seek(int Offset, System::Word Origin)
 }
 
 //---------------------------------------------------------------------------
-__int64 __fastcall TableFileStream::Seek(const __int64 Offset, TSeekOrigin Origin)
+int64_t __fastcall TableFileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
 {
 	// TODO
 	return 0;
@@ -7489,7 +7489,7 @@ __int64 __fastcall TableFileStream::Seek(const __int64 Offset, TSeekOrigin Origi
 //---------------------------------------------------------------------------
 
 //********************************************************
-// Класс T_1CD
+// РљР»Р°СЃСЃ T_1CD
 
 //---------------------------------------------------------------------------
 bool __fastcall T_1CD::getblock(void* buf, unsigned int block_number, int blocklen)
@@ -7498,9 +7498,9 @@ bool __fastcall T_1CD::getblock(void* buf, unsigned int block_number, int blockl
 	if(blocklen < 0) blocklen = pagesize;
 	if(block_number >= length)
 	{
-		error(L"Попытка чтения блока за пределами файла.",
-			L"Индекс блока", tohex(block_number),
-			L"Всего блоков", tohex(length));
+		error("РџРѕРїС‹С‚РєР° С‡С‚РµРЅРёСЏ Р±Р»РѕРєР° Р·Р° РїСЂРµРґРµР»Р°РјРё С„Р°Р№Р»Р°.",
+			"РРЅРґРµРєСЃ Р±Р»РѕРєР°", tohex(block_number),
+			"Р’СЃРµРіРѕ Р±Р»РѕРєРѕРІ", tohex(length));
 		return false;
 	}
 
@@ -7514,9 +7514,9 @@ char*  __fastcall T_1CD::getblock(unsigned int block_number)
 	if(!fs) return NULL;
 	if(block_number >= length)
 	{
-		error(L"Попытка чтения блока за пределами файла.",
-			L"Индекс блока", tohex(block_number),
-			L"Всего блоков", tohex(length));
+		error("РџРѕРїС‹С‚РєР° С‡С‚РµРЅРёСЏ Р±Р»РѕРєР° Р·Р° РїСЂРµРґРµР»Р°РјРё С„Р°Р№Р»Р°.",
+			"РРЅРґРµРєСЃ Р±Р»РѕРєР°", tohex(block_number),
+			"Р’СЃРµРіРѕ Р±Р»РѕРєРѕРІ", tohex(length));
 		return NULL;
 	}
 
@@ -7532,16 +7532,16 @@ char*  __fastcall T_1CD::getblock_for_write(unsigned int block_number, bool read
 	if(!fs) return NULL;
 	if(block_number > length)
 	{
-		error(L"Попытка получения блока за пределами файла базы.",
-			L"Индекс блока", tohex(block_number),
-			L"Всего блоков", tohex(length));
+		error("РџРѕРїС‹С‚РєР° РїРѕР»СѓС‡РµРЅРёСЏ Р±Р»РѕРєР° Р·Р° РїСЂРµРґРµР»Р°РјРё С„Р°Р№Р»Р° Р±Р°Р·С‹.",
+			"РРЅРґРµРєСЃ Р±Р»РѕРєР°", tohex(block_number),
+			"Р’СЃРµРіРѕ Р±Р»РѕРєРѕРІ", tohex(length));
 		return NULL;
 	}
 
 	if(block_number == length)
 	{
 		length++;
-		fs->Size += pagesize;
+		fs->SetSize(fs->GetSize() + pagesize);
 		bc = (v8con*)getblock_for_write(0, true);
 		bc->length = length;
 	}
@@ -7560,9 +7560,9 @@ table* __fastcall T_1CD::gettable(int numtable)
 {
 	if(numtable >= num_tables)
 	{
-		error(L"Попытка получения таблицы по номеру, превышающему количество таблиц",
-			L"Количество таблиц", num_tables,
-			L"Номер таблицы", numtable + 1);
+		error("РџРѕРїС‹С‚РєР° РїРѕР»СѓС‡РµРЅРёСЏ С‚Р°Р±Р»РёС†С‹ РїРѕ РЅРѕРјРµСЂСѓ, РїСЂРµРІС‹С€Р°СЋС‰РµРјСѓ РєРѕР»РёС‡РµСЃС‚РІРѕ С‚Р°Р±Р»РёС†",
+			"РљРѕР»РёС‡РµСЃС‚РІРѕ С‚Р°Р±Р»РёС†", num_tables,
+			"РќРѕРјРµСЂ С‚Р°Р±Р»РёС†С‹", numtable + 1);
 		return NULL;
 	}
 	return tables[numtable];
@@ -7658,10 +7658,10 @@ __fastcall T_1CD::~T_1CD()
 	}
 	num_tables = 0;
 
-	// сначала закрываем кэшированные блоки (измененные блоки записывают себя в файл) ...
+	// СЃРЅР°С‡Р°Р»Р° Р·Р°РєСЂС‹РІР°РµРј РєСЌС€РёСЂРѕРІР°РЅРЅС‹Рµ Р±Р»РѕРєРё (РёР·РјРµРЅРµРЅРЅС‹Рµ Р±Р»РѕРєРё Р·Р°РїРёСЃС‹РІР°СЋС‚ СЃРµР±СЏ РІ С„Р°Р№Р») ...
 	memblock::delete_memblocks();
 
-	// ... и только затем закрываем файл базы.
+	// ... Рё С‚РѕР»СЊРєРѕ Р·Р°С‚РµРј Р·Р°РєСЂС‹РІР°РµРј С„Р°Р№Р» Р±Р°Р·С‹.
 	if(fs)
 	{
 		delete fs;
@@ -7697,7 +7697,7 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 	}
 	catch(...)
 	{
-		error(L"Ошибка открытия файла базы (файл открыт другой программой?)");
+		error("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р° Р±Р°Р·С‹ (С„Р°Р№Р» РѕС‚РєСЂС‹С‚ РґСЂСѓРіРѕР№ РїСЂРѕРіСЂР°РјРјРѕР№?)");
 		fs = NULL;
 		return;
 	}
@@ -7707,7 +7707,7 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 
 	if(memcmp(&(cont->sig), SIG_CON, 8) != 0)
 	{
-		error(L"Файл не является базой 1С (сигнатура не равна \"1CDBMSV8\")");
+		error("Р¤Р°Р№Р» РЅРµ СЏРІР»СЏРµС‚СЃСЏ Р±Р°Р·РѕР№ 1РЎ (СЃРёРіРЅР°С‚СѓСЂР° РЅРµ СЂР°РІРЅР° \"1CDBMSV8\")");
 		delete fs;
 		fs = NULL;
 		delete cont;
@@ -7717,15 +7717,15 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 	pagesize = 0x1000;
 	ver = cont->getver();
 #ifndef delic
-	if(ver == L"8.0.3.0"){
+	if(ver == "8.0.3.0"){
 		version = ver8_0_3_0;
 		readonly = true;
 	}
-	else if(ver == L"8.0.5.0"){
+	else if(ver == "8.0.5.0"){
 		version = ver8_0_5_0;
 		readonly = true;
 	}
-	else if(ver == L"8.1.0.0")
+	else if(ver == "8.1.0.0")
 	{
 		version = ver8_1_0_0;
 		#ifdef PublicRelease
@@ -7734,7 +7734,7 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 		readonly = !_monopoly;
 		#endif
 	}
-	else if(ver == L"8.2.0.0")
+	else if(ver == "8.2.0.0")
 	{
 		version = ver8_2_0_0;
 		#ifdef PublicRelease
@@ -7745,7 +7745,7 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 	}
 	else
 #endif
-		 if(ver == L"8.2.14.0")
+		 if(ver == "8.2.14.0")
 	{
 		version = ver8_2_14_0;
 		#ifdef PublicRelease
@@ -7754,7 +7754,7 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 		readonly = !_monopoly;
 		#endif
 	}
-	else if(ver == L"8.3.8.0")
+	else if(ver == "8.3.8.0")
 	{
 		version = ver8_3_8_0;
 		#ifdef PublicRelease
@@ -7766,33 +7766,33 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 	}
 	else
 	{
-		error(L"Неподдерживаемая версия базы 1С",
-			L"Версия базы", ver);
+		error("РќРµРїРѕРґРґРµСЂР¶РёРІР°РµРјР°СЏ РІРµСЂСЃРёСЏ Р±Р°Р·С‹ 1РЎ",
+			"Р’РµСЂСЃРёСЏ Р±Р°Р·С‹", ver);
 		delete fs;
 		fs = NULL;
 		delete cont;
 		return;
 	}
 
-	length = fs->Size / pagesize;
-	if((__int64)length * pagesize != fs->Size)
+	length = fs->GetSize() / pagesize;
+	if((int64_t)length * pagesize != fs->GetSize())
 	{
-		error(String(L"Длина файла базы не кратна длине страницы (" + tohex(pagesize) + L")"),
-			L"Длина файла", tohex(fs->Size));
+		error(String("Р”Р»РёРЅР° С„Р°Р№Р»Р° Р±Р°Р·С‹ РЅРµ РєСЂР°С‚РЅР° РґР»РёРЅРµ СЃС‚СЂР°РЅРёС†С‹ (" + tohex(pagesize) + ")"),
+			"Р”Р»РёРЅР° С„Р°Р№Р»Р°", tohex(fs->GetSize()));
 		delete fs;
 		fs = NULL;
 		return;
 	}
 
 	memblock::pagesize = pagesize;
-	memblock::maxcount = 0x40000000 / pagesize; // гигабайт
+	memblock::maxcount = 0x40000000 / pagesize; // РіРёРіР°Р±Р°Р№С‚
 	memblock::create_memblocks(length);
 
 	if(length != cont->length)
 	{
-		error(L"Длина файла в блоках и количество блоков в заголовке не равны",
-			L"Длина файла в блоках", length,
-			L"Блоков в заголовке", cont->length);
+		error("Р”Р»РёРЅР° С„Р°Р№Р»Р° РІ Р±Р»РѕРєР°С… Рё РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р»РѕРєРѕРІ РІ Р·Р°РіРѕР»РѕРІРєРµ РЅРµ СЂР°РІРЅС‹",
+			"Р”Р»РёРЅР° С„Р°Р№Р»Р° РІ Р±Р»РѕРєР°С…", length,
+			"Р‘Р»РѕРєРѕРІ РІ Р·Р°РіРѕР»РѕРІРєРµ", cont->length);
 		/*
 		delete fs;
 		fs = NULL;
@@ -7822,8 +7822,8 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 		{
 			tstr = new TMemoryStream;
 			root_object->readBlob(tstr, 1);
-			b = new char[tstr->Size];
-			memcpy(b, tstr->Memory, tstr->Size);
+			b = new char[tstr->GetSize()];
+			memcpy(b, tstr->Memory, tstr->GetSize());
 			root81 = (root_81*)b;
 		}
 		else //if(version < ver8_3_8_0)
@@ -7847,21 +7847,21 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 			switch(icu_res)
 			{
 				case r_badLocale:
-					error(L"Некорректный Locale",
-						L"Locale", locale);
+					error("РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ Locale",
+						"Locale", locale);
 					readonly = true;
 					break;
 
 				case r_LocaleNotSet:
-					error(L"Ошибка при установке Locale",
-						L"Locale", locale);
+					error("РћС€РёР±РєР° РїСЂРё СѓСЃС‚Р°РЅРѕРІРєРµ Locale",
+						"Locale", locale);
 					readonly = true;
 					break;
 
 				case r_badVersion:
-					error(L"Неподдерживаемая версия Locale",
-						L"Версия базы", ver,
-						L"Locale", locale);
+					error("РќРµРїРѕРґРґРµСЂР¶РёРІР°РµРјР°СЏ РІРµСЂСЃРёСЏ Locale",
+						"Р’РµСЂСЃРёСЏ Р±Р°Р·С‹", ver,
+						"Locale", locale);
 					readonly = true;
 					break;
 
@@ -7869,9 +7869,9 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 					break;
 
 				default:
-					error(L"Неизвестный код возврата библиотеки ICU при установке Locale",
-						L"Код возврата", icu_res,
-						L"Locale", locale);
+					error("РќРµРёР·РІРµСЃС‚РЅС‹Р№ РєРѕРґ РІРѕР·РІСЂР°С‚Р° Р±РёР±Р»РёРѕС‚РµРєРё ICU РїСЂРё СѓСЃС‚Р°РЅРѕРІРєРµ Locale",
+						"РљРѕРґ РІРѕР·РІСЂР°С‚Р°", icu_res,
+						"Locale", locale);
 					readonly = true;
 					break;
 			}
@@ -7889,37 +7889,37 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 		else
 		{
 			root_object->readBlob(tstr, table_blocks[i]);
-			tables[j] = new table(this, String((char*)(tstr->Memory), tstr->Size), table_blocks[i]);
+			tables[j] = new table(this, String((char*)(tstr->Memory), tstr->GetSize()), table_blocks[i]);
 		}
 		if(tables[j]->bad)
 		{
 			delete tables[j];
 			continue;
 		}
-		if(!tables[j]->getname().CompareIC(L"CONFIG")) table_config = tables[j];
-		if(!tables[j]->getname().CompareIC(L"CONFIGSAVE")) table_configsave = tables[j];
-		if(!tables[j]->getname().CompareIC(L"PARAMS")) table_params = tables[j];
-		if(!tables[j]->getname().CompareIC(L"FILES")) table_files = tables[j];
-		if(!tables[j]->getname().CompareIC(L"DBSCHEMA")) table_dbschema = tables[j];
-		if(!tables[j]->getname().CompareIC(L"CONFIGCAS")) table_configcas = tables[j];
-		if(!tables[j]->getname().CompareIC(L"CONFIGCASSAVE")) table_configcassave = tables[j];
-		if(!tables[j]->getname().CompareIC(L"_EXTENSIONSINFO")) table__extensionsinfo = tables[j];
+		if(!tables[j]->getname().CompareIC("CONFIG")) table_config = tables[j];
+		if(!tables[j]->getname().CompareIC("CONFIGSAVE")) table_configsave = tables[j];
+		if(!tables[j]->getname().CompareIC("PARAMS")) table_params = tables[j];
+		if(!tables[j]->getname().CompareIC("FILES")) table_files = tables[j];
+		if(!tables[j]->getname().CompareIC("DBSCHEMA")) table_dbschema = tables[j];
+		if(!tables[j]->getname().CompareIC("CONFIGCAS")) table_configcas = tables[j];
+		if(!tables[j]->getname().CompareIC("CONFIGCASSAVE")) table_configcassave = tables[j];
+		if(!tables[j]->getname().CompareIC("_EXTENSIONSINFO")) table__extensionsinfo = tables[j];
 
-		if(!tables[j]->getname().CompareIC(L"DEPOT")) table_depot = tables[j];
-		if(!tables[j]->getname().CompareIC(L"USERS")) table_users = tables[j];
-		if(!tables[j]->getname().CompareIC(L"OBJECTS")) table_objects = tables[j];
-		if(!tables[j]->getname().CompareIC(L"VERSIONS")) table_versions = tables[j];
-		if(!tables[j]->getname().CompareIC(L"LABELS")) table_labels = tables[j];
-		if(!tables[j]->getname().CompareIC(L"HISTORY")) table_history = tables[j];
-		if(!tables[j]->getname().CompareIC(L"LASTESTVERSIONS")) table_lastestversions = tables[j];
-		if(!tables[j]->getname().CompareIC(L"EXTERNALS")) table_externals = tables[j];
-		if(!tables[j]->getname().CompareIC(L"SELFREFS")) table_selfrefs = tables[j];
-		if(!tables[j]->getname().CompareIC(L"OUTREFS")) table_outrefs = tables[j];
+		if(!tables[j]->getname().CompareIC("DEPOT")) table_depot = tables[j];
+		if(!tables[j]->getname().CompareIC("USERS")) table_users = tables[j];
+		if(!tables[j]->getname().CompareIC("OBJECTS")) table_objects = tables[j];
+		if(!tables[j]->getname().CompareIC("VERSIONS")) table_versions = tables[j];
+		if(!tables[j]->getname().CompareIC("LABELS")) table_labels = tables[j];
+		if(!tables[j]->getname().CompareIC("HISTORY")) table_history = tables[j];
+		if(!tables[j]->getname().CompareIC("LASTESTVERSIONS")) table_lastestversions = tables[j];
+		if(!tables[j]->getname().CompareIC("EXTERNALS")) table_externals = tables[j];
+		if(!tables[j]->getname().CompareIC("SELFREFS")) table_selfrefs = tables[j];
+		if(!tables[j]->getname().CompareIC("OUTREFS")) table_outrefs = tables[j];
 
-		if(j % 10 == 0) if(msreg) msreg->Status(String(L"Чтение таблиц ") + j);
+		if(j % 10 == 0) if(msreg) msreg->Status(String("Р§С‚РµРЅРёРµ С‚Р°Р±Р»РёС† ") + j);
 		j++;
 	}
-	if(msreg) msreg->Status(String(L"Чтение таблиц ") + j);
+	if(msreg) msreg->Status(String("Р§С‚РµРЅРёРµ С‚Р°Р±Р»РёС† ") + j);
 	num_tables = j;
 
 	if(version >= ver8_3_8_0)
@@ -7929,45 +7929,45 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 	}
 
 #ifdef getcfname
-	if(!table_config) error(L"Отсутствует таблица CONFIG");
+	if(!table_config) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° CONFIG");
 #else
 #ifdef delic
-	if(!table_params) error(L"Отсутствует таблица PARAMS");
+	if(!table_params) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° PARAMS");
 #ifdef delicfiles
-	if(!table_config) error(L"Отсутствует таблица FILES");
-	if(!table_config) error(L"Отсутствует таблица CONFIG");
+	if(!table_config) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° FILES");
+	if(!table_config) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° CONFIG");
 #endif
 #else
 	if(!table_config && !table_configsave && !table_params && !table_files && !table_dbschema)
 	{
 		if(!table_depot && !table_users && !table_objects && !table_versions && !table_labels && !table_history && !table_lastestversions && !table_externals && !table_selfrefs && !table_outrefs)
 		{
-			if(msreg) msreg->AddMessage(L"База не является информационной базой 1С", msInfo);
+			if(msreg) msreg->AddMessage("Р‘Р°Р·Р° РЅРµ СЏРІР»СЏРµС‚СЃСЏ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅРѕР№ Р±Р°Р·РѕР№ 1РЎ", msInfo);
 		}
 		else
 		{
 			is_depot = true;
-			if(!table_depot) error(L"Отсутствует таблица DEPOT");
-			if(!table_users) error(L"Отсутствует таблица USERS");
-			if(!table_objects) error(L"Отсутствует таблица OBJECTS");
-			if(!table_versions) error(L"Отсутствует таблица VERSIONS");
-			if(!table_labels) error(L"Отсутствует таблица LABELS");
-			if(!table_history) error(L"Отсутствует таблица HISTORY");
-			if(!table_lastestversions) error(L"Отсутствует таблица LASTESTVERSIONS");
-			if(!table_externals) error(L"Отсутствует таблица EXTERNALS");
-			if(!table_selfrefs) error(L"Отсутствует таблица SELFREFS");
-			if(!table_outrefs) error(L"Отсутствует таблица OUTREFS");
+			if(!table_depot) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° DEPOT");
+			if(!table_users) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° USERS");
+			if(!table_objects) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° OBJECTS");
+			if(!table_versions) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° VERSIONS");
+			if(!table_labels) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° LABELS");
+			if(!table_history) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° HISTORY");
+			if(!table_lastestversions) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° LASTESTVERSIONS");
+			if(!table_externals) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° EXTERNALS");
+			if(!table_selfrefs) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° SELFREFS");
+			if(!table_outrefs) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° OUTREFS");
 			field::showGUIDasMS = true;
 		}
 	}
 	else
 	{
 		is_infobase = true;
-		if(!table_config) error(L"Отсутствует таблица CONFIG");
-		if(!table_configsave) error(L"Отсутствует таблица CONFIGSAVE");
-		if(!table_params) error(L"Отсутствует таблица PARAMS");
-		if(!table_files) error(L"Отсутствует таблица FILES");
-		if(!table_dbschema) error(L"Отсутствует таблица DBSCHEMA");
+		if(!table_config) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° CONFIG");
+		if(!table_configsave) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° CONFIGSAVE");
+		if(!table_params) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° PARAMS");
+		if(!table_files) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° FILES");
+		if(!table_dbschema) error("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° DBSCHEMA");
 	}
 #endif //#ifdef delic
 #endif //#ifdef getcfname
@@ -8010,11 +8010,11 @@ void __fastcall T_1CD::find_supplier_configs()
 
 	for(p = files_configsave->files.begin(); p != files_configsave->files.end(); ++p)
 	{
-		if(p->first.Length() == 73) add_supplier_config(p->second);
+		if(p->first.GetLength() == 73) add_supplier_config(p->second);
 	}
 	for(p = files_config->files.begin(); p != files_config->files.end(); ++p)
 	{
-		if(p->first.Length() == 73) add_supplier_config(p->second);
+		if(p->first.GetLength() == 73) add_supplier_config(p->second);
 	}
 	supplier_configs_defined = true;
 }
@@ -8032,9 +8032,9 @@ void __fastcall T_1CD::add_supplier_config(table_file* tf)
 	tree* tr = NULL;
 	String filenamemeta;
 	String nodetype;
-	String _name; // имя конфигурация поставщика
-	String _supplier; // синоним конфигурация поставщика
-	String _version; // версия конфигурация поставщика
+	String _name; // РёРјСЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕСЃС‚Р°РІС‰РёРєР°
+	String _supplier; // СЃРёРЅРѕРЅРёРј РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕСЃС‚Р°РІС‰РёРєР°
+	String _version; // РІРµСЂСЃРёСЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕСЃС‚Р°РІС‰РёРєР°
 	SupplierConfig sc;
 
 	f = new container_file(tf, tf->name);
@@ -8054,9 +8054,9 @@ void __fastcall T_1CD::add_supplier_config(table_file* tf)
 		}
 		catch(...)
 		{
-			error(L"Ошибка распаковки конфигурации поставщика",
-				L"Таблица", tf->t->getname(),
-				L"Имя", tf->name);
+			error("РћС€РёР±РєР° СЂР°СЃРїР°РєРѕРІРєРё РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕСЃС‚Р°РІС‰РёРєР°",
+				"РўР°Р±Р»РёС†Р°", tf->t->getname(),
+				"РРјСЏ", tf->name);
 			delete s;
 			return;
 		}
@@ -8066,12 +8066,12 @@ void __fastcall T_1CD::add_supplier_config(table_file* tf)
 
 		cat = new v8catalog(s, true);
 		s = NULL;
-		file = cat->GetFile(L"version");
+		file = cat->GetFile("version");
 		if(!file)
 		{
-			error(L"Не найден файл version в конфигурации поставщика",
-				L"Таблица", tf->t->getname(),
-				L"Имя файла", tf->name);
+			error("РќРµ РЅР°Р№РґРµРЅ С„Р°Р№Р» version РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕСЃС‚Р°РІС‰РёРєР°",
+				"РўР°Р±Р»РёС†Р°", tf->t->getname(),
+				"РРјСЏ С„Р°Р№Р»Р°", tf->name);
 			delete cat;
 			return;
 		}
@@ -8082,42 +8082,42 @@ void __fastcall T_1CD::add_supplier_config(table_file* tf)
 		tr = NULL;
 
 		#ifdef _DEBUG
-		if(msreg) msreg->AddDebugMessage(L"Найдена версия контейнера конфигурации поставщика", msInfo,
-			L"Таблица", tf->t->getname(),
-			L"Имя файла", tf->name,
-			L"Версия", i);
+		if(msreg) msreg->AddDebugMessage("РќР°Р№РґРµРЅР° РІРµСЂСЃРёСЏ РєРѕРЅС‚РµР№РЅРµСЂР° РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕСЃС‚Р°РІС‰РёРєР°", msInfo,
+			"РўР°Р±Р»РёС†Р°", tf->t->getname(),
+			"РРјСЏ С„Р°Р№Р»Р°", tf->name,
+			"Р’РµСЂСЃРёСЏ", i);
 		#endif
 
 		if(i < 100) // 8.0
 		{
-			file = cat->GetFile(L"metadata");
+			file = cat->GetFile("metadata");
 			if(!file)
 			{
-				error(L"Не найден каталог metadata в конфигурации поставщика",
-					L"Таблица", tf->t->getname(),
-					L"Имя файла", tf->name);
+				error("РќРµ РЅР°Р№РґРµРЅ РєР°С‚Р°Р»РѕРі metadata РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕСЃС‚Р°РІС‰РёРєР°",
+					"РўР°Р±Р»РёС†Р°", tf->t->getname(),
+					"РРјСЏ С„Р°Р№Р»Р°", tf->name);
 				delete cat;
 				return;
 			}
 			cat2 = file->GetCatalog();
 			if(!cat2)
 			{
-				error(L"Файл metadata неявляется каталогом в конфигурации поставщика",
-					L"Таблица", tf->t->getname(),
-					L"Имя файла", tf->name);
+				error("Р¤Р°Р№Р» metadata РЅРµСЏРІР»СЏРµС‚СЃСЏ РєР°С‚Р°Р»РѕРіРѕРј РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕСЃС‚Р°РІС‰РёРєР°",
+					"РўР°Р±Р»РёС†Р°", tf->t->getname(),
+					"РРјСЏ С„Р°Р№Р»Р°", tf->name);
 				delete cat;
 				return;
 			}
 
 		}
-		else cat2 = cat; // else 8.1 или 8.2
+		else cat2 = cat; // else 8.1 РёР»Рё 8.2
 
-		file = cat2->GetFile(L"root");
+		file = cat2->GetFile("root");
 		if(!file)
 		{
-			error(L"Не найден файл root в конфигурации поставщика",
-				L"Таблица", tf->t->getname(),
-				L"Имя файла", tf->name);
+			error("РќРµ РЅР°Р№РґРµРЅ С„Р°Р№Р» root РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕСЃС‚Р°РІС‰РёРєР°",
+				"РўР°Р±Р»РёС†Р°", tf->t->getname(),
+				"РРјСЏ С„Р°Р№Р»Р°", tf->name);
 			delete cat;
 			return;
 		}
@@ -8130,19 +8130,19 @@ void __fastcall T_1CD::add_supplier_config(table_file* tf)
 		file = cat2->GetFile(filenamemeta);
 		if(!file)
 		{
-			error(L"Не найден файл метаданных в конфигурации поставщика",
-				L"Таблица", tf->t->getname(),
-				L"Имя файла", tf->name,
-				L"Имя мета", filenamemeta);
+			error("РќРµ РЅР°Р№РґРµРЅ С„Р°Р№Р» РјРµС‚Р°РґР°РЅРЅС‹С… РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕСЃС‚Р°РІС‰РёРєР°",
+				"РўР°Р±Р»РёС†Р°", tf->t->getname(),
+				"РРјСЏ С„Р°Р№Р»Р°", tf->name,
+				"РРјСЏ РјРµС‚Р°", filenamemeta);
 			delete cat;
 			return;
 		}
 
 		#ifdef _DEBUG
-		if(msreg) msreg->AddDebugMessage(L"Найден файл метаданных в конфигурации поставщика", msInfo,
-			L"Таблица", tf->t->getname(),
-			L"Имя файла", tf->name,
-			L"Имя мета", filenamemeta);
+		if(msreg) msreg->AddDebugMessage("РќР°Р№РґРµРЅ С„Р°Р№Р» РјРµС‚Р°РґР°РЅРЅС‹С… РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕСЃС‚Р°РІС‰РёРєР°", msInfo,
+			"РўР°Р±Р»РёС†Р°", tf->t->getname(),
+			"РРјСЏ С„Р°Р№Р»Р°", tf->name,
+			"РРјСЏ РјРµС‚Р°", filenamemeta);
 		#endif
 
 		tr = get_treeFromV8file(file);
@@ -8151,7 +8151,7 @@ void __fastcall T_1CD::add_supplier_config(table_file* tf)
 		{
 			tree& node = (*tr)[0][3 + i];
 			nodetype = node[0].get_value();
-			if(nodetype.CompareIC(L"9cd510cd-abfc-11d4-9434-004095e12fc7") == 0) // узел "Общие"
+			if(nodetype.CompareIC("9cd510cd-abfc-11d4-9434-004095e12fc7") == 0) // СѓР·РµР» "РћР±С‰РёРµ"
 			{
 				tree& confinfo = node[1][1];
 				int verconfinfo = confinfo[0].get_value().ToInt();
@@ -8178,11 +8178,11 @@ void __fastcall T_1CD::add_supplier_config(table_file* tf)
 //						_supplier = "";
 //						_version = "";
 						#ifdef _DEBUG
-						if(msreg) msreg->AddDebugMessage(L"Неизвестная версия свойств конфигурации поставщика", msInfo,
-							L"Таблица", tf->t->getname(),
-							L"Имя файла", tf->name,
-							L"Имя мета", filenamemeta,
-							L"Версия свойств", verconfinfo);
+						if(msreg) msreg->AddDebugMessage("РќРµРёР·РІРµСЃС‚РЅР°СЏ РІРµСЂСЃРёСЏ СЃРІРѕР№СЃС‚РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕСЃС‚Р°РІС‰РёРєР°", msInfo,
+							"РўР°Р±Р»РёС†Р°", tf->t->getname(),
+							"РРјСЏ С„Р°Р№Р»Р°", tf->name,
+							"РРјСЏ РјРµС‚Р°", filenamemeta,
+							"Р’РµСЂСЃРёСЏ СЃРІРѕР№СЃС‚РІ", verconfinfo);
 						#endif
 						break;
 				}
@@ -8194,22 +8194,22 @@ void __fastcall T_1CD::add_supplier_config(table_file* tf)
 
 		if(i >= numnode)
 		{
-			error(L"Не найден узел Общие в метаданных конфигурации поставщика",
-				L"Таблица", tf->t->getname(),
-				L"Имя файла", tf->name,
-				L"Имя мета", filenamemeta);
+			error("РќРµ РЅР°Р№РґРµРЅ СѓР·РµР» РћР±С‰РёРµ РІ РјРµС‚Р°РґР°РЅРЅС‹С… РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕСЃС‚Р°РІС‰РёРєР°",
+				"РўР°Р±Р»РёС†Р°", tf->t->getname(),
+				"РРјСЏ С„Р°Р№Р»Р°", tf->name,
+				"РРјСЏ РјРµС‚Р°", filenamemeta);
 			_supplier = "";
 			_version = "";
 		}
 		#ifdef _DEBUG
 		else
 		{
-			if(msreg) msreg->AddDebugMessage(L"Найдена конфигурация поставщика", msInfo,
-				L"Таблица", tf->t->getname(),
-				L"Имя файла", tf->name,
-				L"Имя", _name,
-				L"Версия", _version,
-				L"Поставщик", _supplier);
+			if(msreg) msreg->AddDebugMessage("РќР°Р№РґРµРЅР° РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕСЃС‚Р°РІС‰РёРєР°", msInfo,
+				"РўР°Р±Р»РёС†Р°", tf->t->getname(),
+				"РРјСЏ С„Р°Р№Р»Р°", tf->name,
+				"РРјСЏ", _name,
+				"Р’РµСЂСЃРёСЏ", _version,
+				"РџРѕСЃС‚Р°РІС‰РёРє", _supplier);
 		}
 		#endif
 
@@ -8225,9 +8225,9 @@ void __fastcall T_1CD::add_supplier_config(table_file* tf)
 	}
 	catch(...)
 	{
-		error(L"Произошла ошибка при разборе конфигурации поставщика",
-			L"Таблица", tf->t->getname(),
-			L"Имя файла", tf->name);
+		error("РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° РїСЂРё СЂР°Р·Р±РѕСЂРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕСЃС‚Р°РІС‰РёРєР°",
+			"РўР°Р±Р»РёС†Р°", tf->t->getname(),
+			"РРјСЏ С„Р°Р№Р»Р°", tf->name);
 		delete cat;
 		delete s;
 		delete tr;
@@ -8257,8 +8257,8 @@ bool __fastcall T_1CD::save_supplier_configs(unsigned int numcon, const String& 
 	}
 	catch(...)
 	{
-		error(L"Ошибка открытия файла конфигурации поставщика",
-			L"Имя файла", _filename);
+		error("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р° РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕСЃС‚Р°РІС‰РёРєР°",
+			"РРјСЏ С„Р°Р№Р»Р°", _filename);
 		delete f;
 		return false;
 	}
@@ -8269,8 +8269,8 @@ bool __fastcall T_1CD::save_supplier_configs(unsigned int numcon, const String& 
 	}
 	catch(...)
 	{
-		error(L"Ошибка распаковки файла конфигурации поставщика",
-			L"Имя файла", _filename);
+		error("РћС€РёР±РєР° СЂР°СЃРїР°РєРѕРІРєРё С„Р°Р№Р»Р° РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕСЃС‚Р°РІС‰РёРєР°",
+			"РРјСЏ С„Р°Р№Р»Р°", _filename);
 		delete f;
 		delete _fs;
 		return false;
@@ -8329,10 +8329,10 @@ void __fastcall T_1CD::find_lost_objects()
 					break;
 				}
 			}
-			if(!block_is_find) msreg->AddMessage_(L"Найден потерянный объект", msInfo, L"Номер блока", tohex(i));
+			if(!block_is_find) msreg->AddMessage_("РќР°Р№РґРµРЅ РїРѕС‚РµСЂСЏРЅРЅС‹Р№ РѕР±СЉРµРєС‚", msInfo, "РќРѕРјРµСЂ Р±Р»РѕРєР°", tohex(i));
 		}
 	}
-	msreg->AddMessage(L"Поиск потерянных объектов завершен", msSuccesfull);
+	msreg->AddMessage("РџРѕРёСЃРє РїРѕС‚РµСЂСЏРЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ Р·Р°РІРµСЂС€РµРЅ", msSuccesfull);
 }
 #endif //#ifdef PublicRelease
 
@@ -8346,72 +8346,72 @@ bool __fastcall T_1CD::test_stream_format()
 	// CONFIGSAVE
 	if(!table_config)
 	{
-		error(L"Ошибка тестирования. В базе нет таблицы CONFIG");
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ Р±Р°Р·Рµ РЅРµС‚ С‚Р°Р±Р»РёС†С‹ CONFIG");
 		return false;
 	}
 
 	if(table_config->get_numfields() < 6)
 	{
-		error(L"Ошибка тестирования. В таблице CONFIG меньше 6 полей",
-			L"Кол-во полей", table_config->get_numfields());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ С‚Р°Р±Р»РёС†Рµ CONFIG РјРµРЅСЊС€Рµ 6 РїРѕР»РµР№",
+			"РљРѕР»-РІРѕ РїРѕР»РµР№", table_config->get_numfields());
 		return false;
 	}
 
 	if(table_config->get_numfields() > 7)
 	{
-		error(L"Ошибка тестирования. В таблице CONFIG больше 7 полей",
-			L"Кол-во полей", table_config->get_numfields());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ С‚Р°Р±Р»РёС†Рµ CONFIG Р±РѕР»СЊС€Рµ 7 РїРѕР»РµР№",
+			"РљРѕР»-РІРѕ РїРѕР»РµР№", table_config->get_numfields());
 		return false;
 	}
 
-	if(table_config->getfield(0)->getname().CompareIC(L"FILENAME"))
+	if(table_config->getfield(0)->getname().CompareIC("FILENAME"))
 	{
-		error(L"Ошибка тестирования. Первое поле таблицы CONFIG не FILENAME",
-			L"Поле", table_config->getfield(0)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РџРµСЂРІРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ CONFIG РЅРµ FILENAME",
+			"РџРѕР»Рµ", table_config->getfield(0)->getname());
 		return false;
 	}
 
-	if(table_config->getfield(1)->getname().CompareIC(L"CREATION"))
+	if(table_config->getfield(1)->getname().CompareIC("CREATION"))
 	{
-		error(L"Ошибка тестирования. Второе поле таблицы CONFIG не CREATION",
-			L"Поле", table_config->getfield(1)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’С‚РѕСЂРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ CONFIG РЅРµ CREATION",
+			"РџРѕР»Рµ", table_config->getfield(1)->getname());
 		return false;
 	}
 
-	if(table_config->getfield(2)->getname().CompareIC(L"MODIFIED"))
+	if(table_config->getfield(2)->getname().CompareIC("MODIFIED"))
 	{
-		error(L"Ошибка тестирования. Третье поле таблицы CONFIG не MODIFIED",
-			L"Поле", table_config->getfield(2)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РўСЂРµС‚СЊРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ CONFIG РЅРµ MODIFIED",
+			"РџРѕР»Рµ", table_config->getfield(2)->getname());
 		return false;
 	}
 
-	if(table_config->getfield(3)->getname().CompareIC(L"ATTRIBUTES"))
+	if(table_config->getfield(3)->getname().CompareIC("ATTRIBUTES"))
 	{
-		error(L"Ошибка тестирования. Четвертое поле таблицы CONFIG не ATTRIBUTES",
-			L"Поле", table_config->getfield(3)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р§РµС‚РІРµСЂС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ CONFIG РЅРµ ATTRIBUTES",
+			"РџРѕР»Рµ", table_config->getfield(3)->getname());
 		return false;
 	}
 
-	if(table_config->getfield(4)->getname().CompareIC(L"DATASIZE"))
+	if(table_config->getfield(4)->getname().CompareIC("DATASIZE"))
 	{
-		error(L"Ошибка тестирования. Пятое поле таблицы CONFIG не DATASIZE",
-			L"Поле", table_config->getfield(4)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РџСЏС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ CONFIG РЅРµ DATASIZE",
+			"РџРѕР»Рµ", table_config->getfield(4)->getname());
 		return false;
 	}
 
-	if(table_config->getfield(5)->getname().CompareIC(L"BINARYDATA"))
+	if(table_config->getfield(5)->getname().CompareIC("BINARYDATA"))
 	{
-		error(L"Ошибка тестирования. Шестое поле таблицы CONFIG не BINARYDATA",
-			L"Поле", table_config->getfield(5)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РЁРµСЃС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ CONFIG РЅРµ BINARYDATA",
+			"РџРѕР»Рµ", table_config->getfield(5)->getname());
 		return false;
 	}
 
 	if(table_config->get_numfields() > 6)
 	{
-		if(table_config->getfield(6)->getname().CompareIC(L"PARTNO"))
+		if(table_config->getfield(6)->getname().CompareIC("PARTNO"))
 		{
-			error(L"Ошибка тестирования. Седьмое поле таблицы CONFIG не PARTNO",
-				L"Поле", table_config->getfield(6)->getname());
+			error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РЎРµРґСЊРјРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ CONFIG РЅРµ PARTNO",
+				"РџРѕР»Рµ", table_config->getfield(6)->getname());
 			return false;
 		}
 	}
@@ -8419,72 +8419,72 @@ bool __fastcall T_1CD::test_stream_format()
 	// CONFIGSAVE
 	if(!table_configsave)
 	{
-		error(L"Ошибка тестирования. В базе нет таблицы CONFIGSAVE");
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ Р±Р°Р·Рµ РЅРµС‚ С‚Р°Р±Р»РёС†С‹ CONFIGSAVE");
 		return false;
 	}
 
 	if(table_configsave->get_numfields() < 6)
 	{
-		error(L"Ошибка тестирования. В таблице CONFIGSAVE меньше 6 полей",
-			L"Кол-во полей", table_configsave->get_numfields());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ С‚Р°Р±Р»РёС†Рµ CONFIGSAVE РјРµРЅСЊС€Рµ 6 РїРѕР»РµР№",
+			"РљРѕР»-РІРѕ РїРѕР»РµР№", table_configsave->get_numfields());
 		return false;
 	}
 
 	if(table_configsave->get_numfields() > 7)
 	{
-		error(L"Ошибка тестирования. В таблице CONFIGSAVE больше 7 полей",
-			L"Кол-во полей", table_configsave->get_numfields());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ С‚Р°Р±Р»РёС†Рµ CONFIGSAVE Р±РѕР»СЊС€Рµ 7 РїРѕР»РµР№",
+			"РљРѕР»-РІРѕ РїРѕР»РµР№", table_configsave->get_numfields());
 		return false;
 	}
 
-	if(table_configsave->getfield(0)->getname().CompareIC(L"FILENAME"))
+	if(table_configsave->getfield(0)->getname().CompareIC("FILENAME"))
 	{
-		error(L"Ошибка тестирования. Первое поле таблицы CONFIGSAVE не FILENAME",
-			L"Поле", table_configsave->getfield(0)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РџРµСЂРІРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ CONFIGSAVE РЅРµ FILENAME",
+			"РџРѕР»Рµ", table_configsave->getfield(0)->getname());
 		return false;
 	}
 
-	if(table_configsave->getfield(1)->getname().CompareIC(L"CREATION"))
+	if(table_configsave->getfield(1)->getname().CompareIC("CREATION"))
 	{
-		error(L"Ошибка тестирования. Второе поле таблицы CONFIGSAVE не CREATION",
-			L"Поле", table_configsave->getfield(1)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’С‚РѕСЂРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ CONFIGSAVE РЅРµ CREATION",
+			"РџРѕР»Рµ", table_configsave->getfield(1)->getname());
 		return false;
 	}
 
-	if(table_configsave->getfield(2)->getname().CompareIC(L"MODIFIED"))
+	if(table_configsave->getfield(2)->getname().CompareIC("MODIFIED"))
 	{
-		error(L"Ошибка тестирования. Третье поле таблицы CONFIGSAVE не MODIFIED",
-			L"Поле", table_configsave->getfield(2)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РўСЂРµС‚СЊРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ CONFIGSAVE РЅРµ MODIFIED",
+			"РџРѕР»Рµ", table_configsave->getfield(2)->getname());
 		return false;
 	}
 
-	if(table_configsave->getfield(3)->getname().CompareIC(L"ATTRIBUTES"))
+	if(table_configsave->getfield(3)->getname().CompareIC("ATTRIBUTES"))
 	{
-		error(L"Ошибка тестирования. Четвертое поле таблицы CONFIGSAVE не ATTRIBUTES",
-			L"Поле", table_configsave->getfield(3)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р§РµС‚РІРµСЂС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ CONFIGSAVE РЅРµ ATTRIBUTES",
+			"РџРѕР»Рµ", table_configsave->getfield(3)->getname());
 		return false;
 	}
 
-	if(table_configsave->getfield(4)->getname().CompareIC(L"DATASIZE"))
+	if(table_configsave->getfield(4)->getname().CompareIC("DATASIZE"))
 	{
-		error(L"Ошибка тестирования. Пятое поле таблицы CONFIGSAVE не DATASIZE",
-			L"Поле", table_configsave->getfield(4)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РџСЏС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ CONFIGSAVE РЅРµ DATASIZE",
+			"РџРѕР»Рµ", table_configsave->getfield(4)->getname());
 		return false;
 	}
 
-	if(table_configsave->getfield(5)->getname().CompareIC(L"BINARYDATA"))
+	if(table_configsave->getfield(5)->getname().CompareIC("BINARYDATA"))
 	{
-		error(L"Ошибка тестирования. Шестое поле таблицы CONFIGSAVE не BINARYDATA",
-			L"Поле", table_configsave->getfield(5)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РЁРµСЃС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ CONFIGSAVE РЅРµ BINARYDATA",
+			"РџРѕР»Рµ", table_configsave->getfield(5)->getname());
 		return false;
 	}
 
 	if(table_configsave->get_numfields() > 6)
 	{
-		if(table_configsave->getfield(6)->getname().CompareIC(L"PARTNO"))
+		if(table_configsave->getfield(6)->getname().CompareIC("PARTNO"))
 		{
-			error(L"Ошибка тестирования. Седьмое поле таблицы CONFIGSAVE не PARTNO",
-				L"Поле", table_configsave->getfield(6)->getname());
+			error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РЎРµРґСЊРјРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ CONFIGSAVE РЅРµ PARTNO",
+				"РџРѕР»Рµ", table_configsave->getfield(6)->getname());
 			return false;
 		}
 	}
@@ -8492,72 +8492,72 @@ bool __fastcall T_1CD::test_stream_format()
 	// PARAMS
 	if(!table_params)
 	{
-		error(L"Ошибка тестирования. В базе нет таблицы PARAMS");
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ Р±Р°Р·Рµ РЅРµС‚ С‚Р°Р±Р»РёС†С‹ PARAMS");
 		return false;
 	}
 
 	if(table_params->get_numfields() < 6)
 	{
-		error(L"Ошибка тестирования. В таблице PARAMS меньше 6 полей",
-			L"Кол-во полей", table_params->get_numfields());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ С‚Р°Р±Р»РёС†Рµ PARAMS РјРµРЅСЊС€Рµ 6 РїРѕР»РµР№",
+			"РљРѕР»-РІРѕ РїРѕР»РµР№", table_params->get_numfields());
 		return false;
 	}
 
 	if(table_params->get_numfields() > 7)
 	{
-		error(L"Ошибка тестирования. В таблице PARAMS больше 7 полей",
-			L"Кол-во полей", table_params->get_numfields());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ С‚Р°Р±Р»РёС†Рµ PARAMS Р±РѕР»СЊС€Рµ 7 РїРѕР»РµР№",
+			"РљРѕР»-РІРѕ РїРѕР»РµР№", table_params->get_numfields());
 		return false;
 	}
 
-	if(table_params->getfield(0)->getname().CompareIC(L"FILENAME"))
+	if(table_params->getfield(0)->getname().CompareIC("FILENAME"))
 	{
-		error(L"Ошибка тестирования. Первое поле таблицы PARAMS не FILENAME",
-			L"Поле", table_params->getfield(0)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РџРµСЂРІРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ PARAMS РЅРµ FILENAME",
+			"РџРѕР»Рµ", table_params->getfield(0)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(1)->getname().CompareIC(L"CREATION"))
+	if(table_params->getfield(1)->getname().CompareIC("CREATION"))
 	{
-		error(L"Ошибка тестирования. Второе поле таблицы PARAMS не CREATION",
-			L"Поле", table_params->getfield(1)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’С‚РѕСЂРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ PARAMS РЅРµ CREATION",
+			"РџРѕР»Рµ", table_params->getfield(1)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(2)->getname().CompareIC(L"MODIFIED"))
+	if(table_params->getfield(2)->getname().CompareIC("MODIFIED"))
 	{
-		error(L"Ошибка тестирования. Третье поле таблицы PARAMS не MODIFIED",
-			L"Поле", table_params->getfield(2)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РўСЂРµС‚СЊРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ PARAMS РЅРµ MODIFIED",
+			"РџРѕР»Рµ", table_params->getfield(2)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(3)->getname().CompareIC(L"ATTRIBUTES"))
+	if(table_params->getfield(3)->getname().CompareIC("ATTRIBUTES"))
 	{
-		error(L"Ошибка тестирования. Четвертое поле таблицы PARAMS не ATTRIBUTES",
-			L"Поле", table_params->getfield(3)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р§РµС‚РІРµСЂС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ PARAMS РЅРµ ATTRIBUTES",
+			"РџРѕР»Рµ", table_params->getfield(3)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(4)->getname().CompareIC(L"DATASIZE"))
+	if(table_params->getfield(4)->getname().CompareIC("DATASIZE"))
 	{
-		error(L"Ошибка тестирования. Пятое поле таблицы PARAMS не DATASIZE",
-			L"Поле", table_params->getfield(4)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РџСЏС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ PARAMS РЅРµ DATASIZE",
+			"РџРѕР»Рµ", table_params->getfield(4)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(5)->getname().CompareIC(L"BINARYDATA"))
+	if(table_params->getfield(5)->getname().CompareIC("BINARYDATA"))
 	{
-		error(L"Ошибка тестирования. Шестое поле таблицы PARAMS не BINARYDATA",
-			L"Поле", table_params->getfield(5)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РЁРµСЃС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ PARAMS РЅРµ BINARYDATA",
+			"РџРѕР»Рµ", table_params->getfield(5)->getname());
 		return false;
 	}
 
 	if(table_params->get_numfields() > 6)
 	{
-		if(table_params->getfield(6)->getname().CompareIC(L"PARTNO"))
+		if(table_params->getfield(6)->getname().CompareIC("PARTNO"))
 		{
-			error(L"Ошибка тестирования. Седьмое поле таблицы PARAMS не PARTNO",
-				L"Поле", table_params->getfield(6)->getname());
+			error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РЎРµРґСЊРјРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ PARAMS РЅРµ PARTNO",
+				"РџРѕР»Рµ", table_params->getfield(6)->getname());
 			return false;
 		}
 	}
@@ -8565,72 +8565,72 @@ bool __fastcall T_1CD::test_stream_format()
 	// FILES
 	if(!table_files)
 	{
-		error(L"Ошибка тестирования. В базе нет таблицы FILES");
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ Р±Р°Р·Рµ РЅРµС‚ С‚Р°Р±Р»РёС†С‹ FILES");
 		return false;
 	}
 
 	if(table_files->get_numfields() < 6)
 	{
-		error(L"Ошибка тестирования. В таблице FILES меньше 6 полей",
-			L"Кол-во полей", table_files->get_numfields());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ С‚Р°Р±Р»РёС†Рµ FILES РјРµРЅСЊС€Рµ 6 РїРѕР»РµР№",
+			"РљРѕР»-РІРѕ РїРѕР»РµР№", table_files->get_numfields());
 		return false;
 	}
 
 	if(table_files->get_numfields() > 7)
 	{
-		error(L"Ошибка тестирования. В таблице FILES больше 7 полей",
-			L"Кол-во полей", table_files->get_numfields());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ С‚Р°Р±Р»РёС†Рµ FILES Р±РѕР»СЊС€Рµ 7 РїРѕР»РµР№",
+			"РљРѕР»-РІРѕ РїРѕР»РµР№", table_files->get_numfields());
 		return false;
 	}
 
-	if(table_files->getfield(0)->getname().CompareIC(L"FILENAME"))
+	if(table_files->getfield(0)->getname().CompareIC("FILENAME"))
 	{
-		error(L"Ошибка тестирования. Первое поле таблицы FILES не FILENAME",
-			L"Поле", table_files->getfield(0)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РџРµСЂРІРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ FILES РЅРµ FILENAME",
+			"РџРѕР»Рµ", table_files->getfield(0)->getname());
 		return false;
 	}
 
-	if(table_files->getfield(1)->getname().CompareIC(L"CREATION"))
+	if(table_files->getfield(1)->getname().CompareIC("CREATION"))
 	{
-		error(L"Ошибка тестирования. Второе поле таблицы FILES не CREATION",
-			L"Поле", table_files->getfield(1)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’С‚РѕСЂРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ FILES РЅРµ CREATION",
+			"РџРѕР»Рµ", table_files->getfield(1)->getname());
 		return false;
 	}
 
-	if(table_files->getfield(2)->getname().CompareIC(L"MODIFIED"))
+	if(table_files->getfield(2)->getname().CompareIC("MODIFIED"))
 	{
-		error(L"Ошибка тестирования. Третье поле таблицы FILES не MODIFIED",
-			L"Поле", table_files->getfield(2)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РўСЂРµС‚СЊРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ FILES РЅРµ MODIFIED",
+			"РџРѕР»Рµ", table_files->getfield(2)->getname());
 		return false;
 	}
 
-	if(table_files->getfield(3)->getname().CompareIC(L"ATTRIBUTES"))
+	if(table_files->getfield(3)->getname().CompareIC("ATTRIBUTES"))
 	{
-		error(L"Ошибка тестирования. Четвертое поле таблицы FILES не ATTRIBUTES",
-			L"Поле", table_files->getfield(3)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р§РµС‚РІРµСЂС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ FILES РЅРµ ATTRIBUTES",
+			"РџРѕР»Рµ", table_files->getfield(3)->getname());
 		return false;
 	}
 
-	if(table_files->getfield(4)->getname().CompareIC(L"DATASIZE"))
+	if(table_files->getfield(4)->getname().CompareIC("DATASIZE"))
 	{
-		error(L"Ошибка тестирования. Пятое поле таблицы FILES не DATASIZE",
-			L"Поле", table_files->getfield(4)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РџСЏС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ FILES РЅРµ DATASIZE",
+			"РџРѕР»Рµ", table_files->getfield(4)->getname());
 		return false;
 	}
 
-	if(table_files->getfield(5)->getname().CompareIC(L"BINARYDATA"))
+	if(table_files->getfield(5)->getname().CompareIC("BINARYDATA"))
 	{
-		error(L"Ошибка тестирования. Шестое поле таблицы FILES не BINARYDATA",
-			L"Поле", table_files->getfield(5)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РЁРµСЃС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ FILES РЅРµ BINARYDATA",
+			"РџРѕР»Рµ", table_files->getfield(5)->getname());
 		return false;
 	}
 
 	if(table_files->get_numfields() > 6)
 	{
-		if(table_files->getfield(6)->getname().CompareIC(L"PARTNO"))
+		if(table_files->getfield(6)->getname().CompareIC("PARTNO"))
 		{
-			error(L"Ошибка тестирования. Седьмое поле таблицы FILES не PARTNO",
-				L"Поле", table_files->getfield(6)->getname());
+			error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РЎРµРґСЊРјРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ FILES РЅРµ PARTNO",
+				"РџРѕР»Рµ", table_files->getfield(6)->getname());
 			return false;
 		}
 	}
@@ -8638,21 +8638,21 @@ bool __fastcall T_1CD::test_stream_format()
 	// DBSCHEMA
 	if(!table_dbschema)
 	{
-		error(L"Ошибка тестирования. В базе нет таблицы DBSCHEMA");
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ Р±Р°Р·Рµ РЅРµС‚ С‚Р°Р±Р»РёС†С‹ DBSCHEMA");
 		return false;
 	}
 
 	if(table_dbschema->get_numfields() != 1)
 	{
-		error(L"Ошибка тестирования. В таблице DBSCHEMA не 1 поле",
-			L"Кол-во полей", table_dbschema->get_numfields());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ С‚Р°Р±Р»РёС†Рµ DBSCHEMA РЅРµ 1 РїРѕР»Рµ",
+			"РљРѕР»-РІРѕ РїРѕР»РµР№", table_dbschema->get_numfields());
 		return false;
 	}
 
-	if(table_dbschema->getfield(0)->getname().CompareIC(L"SERIALIZEDDATA"))
+	if(table_dbschema->getfield(0)->getname().CompareIC("SERIALIZEDDATA"))
 	{
-		error(L"Ошибка тестирования. Первое поле таблицы DBSCHEMA не SERIALIZEDDATA",
-			L"Поле", table_dbschema->getfield(0)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РџРµСЂРІРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ DBSCHEMA РЅРµ SERIALIZEDDATA",
+			"РџРѕР»Рµ", table_dbschema->getfield(0)->getname());
 		return false;
 	}
 
@@ -8686,7 +8686,7 @@ bool __fastcall T_1CD::test_stream_format()
 	//table_dbschema->set_lockinmemory(true);
 	if(table_dbschema->get_phys_numrecords() < 2)
 	{
-		error(L"Ошибка тестирования. В таблице DBSCHEMA нет записей");
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ С‚Р°Р±Р»РёС†Рµ DBSCHEMA РЅРµС‚ Р·Р°РїРёСЃРµР№");
 		result = false;
 	}
 	for(i = 0; i < table_dbschema->get_phys_numrecords(); i++)
@@ -8696,7 +8696,7 @@ bool __fastcall T_1CD::test_stream_format()
 	}
 	//table_dbschema->set_lockinmemory(false);
 
-	msreg->Status(L"");
+	msreg->Status("");
 	return result;
 }
 
@@ -8729,7 +8729,7 @@ bool __fastcall T_1CD::recursive_test_stream_format(table* t, unsigned int nrec)
 	f_data_size = t->getfield(4);
 	f_binary_data = t->getfield(5);
 
-	path = t->getname() + L"/" + f_name->get_presentation(rec);
+	path = t->getname() + "/" + f_name->get_presentation(rec);
 
 	orec = rec + f_binary_data->getoffset();
 	if(*(unsigned int*)(orec + 4) > 10 * 1024 * 1024) str = new TTempStream;
@@ -8744,21 +8744,21 @@ bool __fastcall T_1CD::recursive_test_stream_format(table* t, unsigned int nrec)
 	}
 	catch(...)
 	{
-		if(msreg) msreg->AddMessage_(L"Ошибка чтения длины файла", msWarning,
-			L"Путь", path,
-			L"Длина файла", slen);
+		if(msreg) msreg->AddMessage_("РћС€РёР±РєР° С‡С‚РµРЅРёСЏ РґР»РёРЅС‹ С„Р°Р№Р»Р°", msWarning,
+			"РџСѓС‚СЊ", path,
+			"Р”Р»РёРЅР° С„Р°Р№Р»Р°", slen);
 		result = false;
 	}
-	if(result) if((__int64)j != str->Size)
+	if(result) if((int64_t)j != str->GetSize())
 	{
-		if(msreg) msreg->AddMessage_(L"Фактическая длина файла отличается от указанной в таблице", msWarning,
-			L"Путь", path,
-			L"Фактическая длина файла", str->Size,
-			L"Указанная длина файла", slen);
+		if(msreg) msreg->AddMessage_("Р¤Р°РєС‚РёС‡РµСЃРєР°СЏ РґР»РёРЅР° С„Р°Р№Р»Р° РѕС‚Р»РёС‡Р°РµС‚СЃСЏ РѕС‚ СѓРєР°Р·Р°РЅРЅРѕР№ РІ С‚Р°Р±Р»РёС†Рµ", msWarning,
+			"РџСѓС‚СЊ", path,
+			"Р¤Р°РєС‚РёС‡РµСЃРєР°СЏ РґР»РёРЅР° С„Р°Р№Р»Р°", str->GetSize(),
+			"РЈРєР°Р·Р°РЅРЅР°СЏ РґР»РёРЅР° С„Р°Р№Р»Р°", slen);
 		result = false;
 	}
 
-	res = recursive_test_stream_format(str, path, f_name->get_presentation(rec).Length() > 72); // вторично упакованы могут быть только конфигурации поставщика (файлы с длиной имени более 72 символов)
+	res = recursive_test_stream_format(str, path, f_name->get_presentation(rec).GetLength() > 72); // РІС‚РѕСЂРёС‡РЅРѕ СѓРїР°РєРѕРІР°РЅС‹ РјРѕРіСѓС‚ Р±С‹С‚СЊ С‚РѕР»СЊРєРѕ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕСЃС‚Р°РІС‰РёРєР° (С„Р°Р№Р»С‹ СЃ РґР»РёРЅРѕР№ РёРјРµРЅРё Р±РѕР»РµРµ 72 СЃРёРјРІРѕР»РѕРІ)
 	result = result && res;
 
 	delete[] rec;
@@ -8829,10 +8829,10 @@ bool __fastcall T_1CD::recursive_test_stream_format(TStream* str, String path, b
 
 	msreg->Status(path);
 
-	if(path == L"PARAMS/users.usr") return true;
+	if(path == "PARAMS/users.usr") return true;
 
-	if(str->Size == 0) return true;
-	usetempfile = str->Size > 10 * 1024 * 1024;
+	if(str->GetSize() == 0) return true;
+	usetempfile = str->GetSize() > 10 * 1024 * 1024;
 
 	if(usetempfile) _s = new TTempStream;
 	else _s = new TMemoryStream();
@@ -8846,30 +8846,30 @@ bool __fastcall T_1CD::recursive_test_stream_format(TStream* str, String path, b
 	try
 	{
 		_s2->Seek(0, soFromBeginning);
-		_s->Size = 0;
+		_s->SetSize(0);
 		ZInflateStream(_s2, _s);
 		zipped1 = true;
 	}
 	catch (...)
 	{
-		_s->Size = 0;
+		_s->SetSize(0);
 		_s->CopyFrom(str, 0);
 	}
 
 	if(zipped1 && maybezipped2)
 	{
-		_s2->Size = 0;
+		_s2->SetSize(0);
 		_s2->CopyFrom(_s, 0);
 		try
 		{
 			_s2->Seek(0, soFromBeginning);
-			_s->Size = 0;
+			_s->SetSize(0);
 			ZInflateStream(_s2, _s);
 			zipped2 = true;
 		}
 		catch (...)
 		{
-			_s->Size = 0;
+			_s->SetSize(0);
 			_s->CopyFrom(_s2, 0);
 		}
 	}
@@ -8881,8 +8881,8 @@ bool __fastcall T_1CD::recursive_test_stream_format(TStream* str, String path, b
 	}
 	catch (...)
 	{
-		error(L"Ошибка тестирования. Ошибка чтения формата.",
-			L"Путь", path);
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РћС€РёР±РєР° С‡С‚РµРЅРёСЏ С„РѕСЂРјР°С‚Р°.",
+			"РџСѓС‚СЊ", path);
 		cat = NULL;
 
 	}
@@ -8892,24 +8892,24 @@ bool __fastcall T_1CD::recursive_test_stream_format(TStream* str, String path, b
 //		cat = NULL;
 
 
-		if(_s->Size >= 16)
+		if(_s->GetSize() >= 16)
 		{
 			_s->Seek(0, soFromBeginning);
 			_s->ReadBuffer(_buf, 8);
 			if(memcmp(_buf, SIG_MOXCEL, 7) == 0)
 			{
 				_s->Seek(13, soFromBeginning);
-				_s2->Size = 0;
-				_s2->CopyFrom(_s, _s->Size - 13);
-				_s->Size = 0;
+				_s2->SetSize(0);
+				_s2->CopyFrom(_s, _s->GetSize() - 13);
+				_s->SetSize(0);
 				_s->CopyFrom(_s2, 0);
 			}
 			else if(memcmp(_buf, SIG_SKD, 8) == 0)
 			{
 				_s->Seek(24, soFromBeginning);
-				_s2->Size = 0;
-				_s2->CopyFrom(_s, _s->Size - 24);
-				_s->Size = 0;
+				_s2->SetSize(0);
+				_s2->CopyFrom(_s, _s->GetSize() - 24);
+				_s->SetSize(0);
 				_s->CopyFrom(_s2, 0);
 			}
 		}
@@ -8919,33 +8919,33 @@ bool __fastcall T_1CD::recursive_test_stream_format(TStream* str, String path, b
 		_sb->CopyFrom(_s, 0);
 
 		enc = NULL;
-		offset = TEncoding::GetBufferEncoding(_sb->Bytes, enc);
+		offset = TEncoding::GetBufferEncoding(_sb->GetBytes(), enc);
 		if(offset == 0)
 		{
-			error(L"Ошибка тестирования. Ошибка определения кодировки файла",
-				L"Путь", path);
+			error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РћС€РёР±РєР° РѕРїСЂРµРґРµР»РµРЅРёСЏ РєРѕРґРёСЂРѕРІРєРё С„Р°Р№Р»Р°",
+				"РџСѓС‚СЊ", path);
 			result = false;
 		}
 		else
 		{
-			if(_sb->Size-offset > 0)
+			if(_sb->GetSize()-offset > 0)
 			{
-				bytes2 = TEncoding::Convert(enc, TEncoding::Unicode, _sb->Bytes, offset, _sb->Size-offset);
-				if(bytes2.Length == 0)
+				bytes2 = TEncoding::Convert(enc, TEncoding::Unicode, _sb->GetBytes(), offset, _sb->GetSize()-offset);
+				if(bytes2.GetLength() == 0)
 				{
-					error(L"Ошибка тестирования. Ошибка конвертации",
-						L"Путь", path);
+					error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РћС€РёР±РєР° РєРѕРЅРІРµСЂС‚Р°С†РёРё",
+						"РџСѓС‚СЊ", path);
 					result = false;
 				}
 				else
 				{
-					sf = String((wchar_t*)&bytes2[0], bytes2.Length / 2);
-					for(i = 1; i <= sf.Length(); i++)
+					sf = String((wchar_t*)&bytes2[0], bytes2.GetLength() / 2);
+					for(i = 1; i <= sf.GetLength(); i++)
 					{
 						first_symbol = sf[i];
 						if(first_symbol != L'\r' && first_symbol != L'\n' && first_symbol != L'\t' && first_symbol != L' ') break;
 					}
-					if(first_symbol == L'{' && sf.SubString(i, 15).CompareIC(L"{ХАРАКТЕРИСТИКИ"))
+					if(first_symbol == L'{' && sf.SubString(i, 15).CompareIC("{РҐРђР РђРљРўР•Р РРЎРўРРљР"))
 					{
 						tree* rt = parse_1Ctext(sf, path);
 						if(rt)
@@ -8997,20 +8997,20 @@ bool __fastcall T_1CD::recursive_test_stream_format(v8catalog* cat, String path)
 		}
 		catch(...)
 		{
-			error(L"Ошибка тестирования. Ошибка чтения формата.",
-				L"Путь", path);
+			error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РћС€РёР±РєР° С‡С‚РµРЅРёСЏ С„РѕСЂРјР°С‚Р°.",
+				"РџСѓС‚СЊ", path);
 			c = NULL;
 		}
 		if(result)
 		{
-			if(c) result = recursive_test_stream_format(c, path + L"/" + v8f->GetFileName());
+			if(c) result = recursive_test_stream_format(c, path + "/" + v8f->GetFileName());
 			else
 			{
 				fname = v8f->GetFileName();
-				if(fname != L"module" && fname != L"text")
+				if(fname != "module" && fname != "text")
 				{
-					//result = recursive_test_stream_format(v8f->get_data(), path + L"/" + v8f->GetFileName());
-					result = recursive_test_stream_format(v8f->get_stream(), path + L"/" + v8f->GetFileName());
+					//result = recursive_test_stream_format(v8f->get_data(), path + "/" + v8f->GetFileName());
+					result = recursive_test_stream_format(v8f->get_stream(), path + "/" + v8f->GetFileName());
 				}
 			}
 		}
@@ -9042,20 +9042,20 @@ bool __fastcall T_1CD::create_table(String path)
 
 	if(!DirectoryExists(path))
 	{
-		if(msreg) msreg->AddMessage_(L"Директория импорта таблицы не найдена", msWarning,
-			L"Директория", path);
+		if(msreg) msreg->AddMessage_("Р”РёСЂРµРєС‚РѕСЂРёСЏ РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†С‹ РЅРµ РЅР°Р№РґРµРЅР°", msWarning,
+			"Р”РёСЂРµРєС‚РѕСЂРёСЏ", path);
 		return false;
 	}
-	dir = path + L"\\";
+	dir = path + "\\";
 
 	try
 	{
-		f = new TFileStream(dir + L"root", fmOpenRead);
+		f = new TFileStream(dir + "root", fmOpenRead);
 	}
 	catch(...)
 	{
-		if(msreg) msreg->AddMessage_(L"Ошибка открытия файла импорта таблицы root", msWarning,
-			L"Файл", dir + L"root");
+		if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р° РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†С‹ root", msWarning,
+			"Р¤Р°Р№Р»", dir + "root");
 		return false;
 	}
 	root = new export_import_table_root;
@@ -9065,16 +9065,16 @@ bool __fastcall T_1CD::create_table(String path)
 
 	try
 	{
-		f = new TFileStream(dir + L"descr", fmOpenRead);
+		f = new TFileStream(dir + "descr", fmOpenRead);
 	}
 	catch(...)
 	{
-		if(msreg) msreg->AddMessage_(L"Ошибка открытия файла импорта таблицы descr", msWarning,
-			L"Файл", dir + L"descr");
+		if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р° РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†С‹ descr", msWarning,
+			"Р¤Р°Р№Р»", dir + "descr");
 		return false;
 	}
 
-	i = f->Size;
+	i = f->GetSize();
 	buf = new char[i + 2];
 	f->Read(buf, i);
 	buf[i] = 0;
@@ -9083,7 +9083,7 @@ bool __fastcall T_1CD::create_table(String path)
 	delete[] buf;
 	delete f;
 
-	t = parse_1Ctext(str, dir + L"descr");
+	t = parse_1Ctext(str, dir + "descr");
 	str = (*t)[0][0].get_value();
 
 	for(j = 0; j < num_tables; j++) if(tables[j]->getname().CompareIC(str) == 0)
@@ -9103,13 +9103,13 @@ bool __fastcall T_1CD::create_table(String path)
 		fopen = false;
 		try
 		{
-			f = new TFileStream(dir + L"data", fmOpenRead);
+			f = new TFileStream(dir + "data", fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
 		{
-			if(msreg) msreg->AddMessage_(L"Ошибка открытия файла импорта таблицы data", msWarning,
-				L"Файл", dir + L"data");
+			if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р° РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†С‹ data", msWarning,
+				"Р¤Р°Р№Р»", dir + "data");
 		}
 		if(fopen)
 		{
@@ -9127,13 +9127,13 @@ bool __fastcall T_1CD::create_table(String path)
 		fopen = false;
 		try
 		{
-			f = new TFileStream(dir + L"blob", fmOpenRead);
+			f = new TFileStream(dir + "blob", fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
 		{
-			if(msreg) msreg->AddMessage_(L"Ошибка открытия файла импорта таблицы blob", msWarning,
-				L"Файл", dir + L"blob");
+			if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р° РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†С‹ blob", msWarning,
+				"Р¤Р°Р№Р»", dir + "blob");
 		}
 		if(fopen)
 		{
@@ -9151,13 +9151,13 @@ bool __fastcall T_1CD::create_table(String path)
 		fopen = false;
 		try
 		{
-			f = new TFileStream(dir + L"index", fmOpenRead);
+			f = new TFileStream(dir + "index", fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
 		{
-			if(msreg) msreg->AddMessage_(L"Ошибка открытия файла импорта таблицы index", msWarning,
-				L"Файл", dir + L"index");
+			if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р° РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†С‹ index", msWarning,
+				"Р¤Р°Р№Р»", dir + "index");
 		}
 		if(fopen)
 		{
@@ -9175,13 +9175,13 @@ bool __fastcall T_1CD::create_table(String path)
 		fopen = false;
 		try
 		{
-			f = new TFileStream(dir + L"descr", fmOpenRead);
+			f = new TFileStream(dir + "descr", fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
 		{
-			if(msreg) msreg->AddMessage_(L"Ошибка открытия файла импорта таблицы descr", msWarning,
-				L"Файл", dir + L"descr");
+			if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р° РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†С‹ descr", msWarning,
+				"Р¤Р°Р№Р»", dir + "descr");
 		}
 		if(fopen)
 		{
@@ -9190,7 +9190,7 @@ bool __fastcall T_1CD::create_table(String path)
 			ob->version.version_1 = root->descr_version_1;
 			ob->version.version_2 = root->descr_version_2;
 
-			i = f->Size;
+			i = f->GetSize();
 			buf = new char[i + 2];
 			f->Read(buf, i);
 			buf[i] =0;
@@ -9199,23 +9199,23 @@ bool __fastcall T_1CD::create_table(String path)
 			delete[] buf;
 			delete f;
 
-			i = str.Pos(L"{\"Files\",");
+			i = str.Pos("{\"Files\",");
 			if(i == 0)
 			{
-				if(msreg) msreg->AddMessage_(L"Ошибка поиска раздела Files в файле импорта таблицы descr", msWarning,
-					L"Файл", dir + L"descr");
+				if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РїРѕРёСЃРєР° СЂР°Р·РґРµР»Р° Files РІ С„Р°Р№Р»Рµ РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†С‹ descr", msWarning,
+					"Р¤Р°Р№Р»", dir + "descr");
 				delete root;
 				return false;
 			}
 			str.SetLength(i - 1);
-			str += L"{\"Files\",";
-			str += file_data ? String(file_data->get_block_number()) : String(L"0");
-			str += L",";
-			str += file_blob ? String(file_blob->get_block_number()) : String(L"0");
-			str += L",";
-			str += file_index ? String(file_index->get_block_number()) : String(L"0");
-			str += L"}\n}";
-			descr_table->setdata(str.c_str(), str.Length() * 2);
+			str += "{\"Files\",";
+			str += file_data ? String(file_data->get_block_number()) : String("0");
+			str += ",";
+			str += file_blob ? String(file_blob->get_block_number()) : String("0");
+			str += ",";
+			str += file_index ? String(file_index->get_block_number()) : String("0");
+			str += "}\n}";
+			descr_table->setdata(str.c_str(), str.GetLength() * 2);
 
 			i = root_object->getlen();
 			buf = new char[i + 4];
@@ -9244,8 +9244,8 @@ bool __fastcall T_1CD::create_table(String path)
 
 	flush();
 
-	if(msreg) msreg->AddMessage_(L"Таблица создана и импортирована", msSuccesfull,
-		L"Путь", dir);
+	if(msreg) msreg->AddMessage_("РўР°Р±Р»РёС†Р° СЃРѕР·РґР°РЅР° Рё РёРјРїРѕСЂС‚РёСЂРѕРІР°РЅР°", msSuccesfull,
+		"РџСѓС‚СЊ", dir);
 
 	delete root;
 	return true;
@@ -9290,72 +9290,72 @@ bool __fastcall T_1CD::test_list_of_tables()
 
 	if(!table_params)
 	{
-		error(L"Ошибка тестирования. В базе нет таблицы PARAMS");
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ Р±Р°Р·Рµ РЅРµС‚ С‚Р°Р±Р»РёС†С‹ PARAMS");
 		return false;
 	}
 
 	if(table_params->get_numfields() < 6)
 	{
-		error(L"Ошибка тестирования. В таблице PARAMS меньше 6 полей",
-			L"Кол-во полей", table_params->get_numfields());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ С‚Р°Р±Р»РёС†Рµ PARAMS РјРµРЅСЊС€Рµ 6 РїРѕР»РµР№",
+			"РљРѕР»-РІРѕ РїРѕР»РµР№", table_params->get_numfields());
 		return false;
 	}
 
 	if(table_params->get_numfields() > 7)
 	{
-		error(L"Ошибка тестирования. В таблице PARAMS больше 7 полей",
-			L"Кол-во полей", table_params->get_numfields());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ С‚Р°Р±Р»РёС†Рµ PARAMS Р±РѕР»СЊС€Рµ 7 РїРѕР»РµР№",
+			"РљРѕР»-РІРѕ РїРѕР»РµР№", table_params->get_numfields());
 		return false;
 	}
 
-	if(table_params->getfield(0)->getname().CompareIC(L"FILENAME"))
+	if(table_params->getfield(0)->getname().CompareIC("FILENAME"))
 	{
-		error(L"Ошибка тестирования. Первое поле таблицы PARAMS не FILENAME",
-			L"Поле", table_params->getfield(0)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РџРµСЂРІРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ PARAMS РЅРµ FILENAME",
+			"РџРѕР»Рµ", table_params->getfield(0)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(1)->getname().CompareIC(L"CREATION"))
+	if(table_params->getfield(1)->getname().CompareIC("CREATION"))
 	{
-		error(L"Ошибка тестирования. Второе поле таблицы PARAMS не CREATION",
-			L"Поле", table_params->getfield(1)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’С‚РѕСЂРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ PARAMS РЅРµ CREATION",
+			"РџРѕР»Рµ", table_params->getfield(1)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(2)->getname().CompareIC(L"MODIFIED"))
+	if(table_params->getfield(2)->getname().CompareIC("MODIFIED"))
 	{
-		error(L"Ошибка тестирования. Третье поле таблицы PARAMS не MODIFIED",
-			L"Поле", table_params->getfield(2)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РўСЂРµС‚СЊРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ PARAMS РЅРµ MODIFIED",
+			"РџРѕР»Рµ", table_params->getfield(2)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(3)->getname().CompareIC(L"ATTRIBUTES"))
+	if(table_params->getfield(3)->getname().CompareIC("ATTRIBUTES"))
 	{
-		error(L"Ошибка тестирования. Четвертое поле таблицы PARAMS не ATTRIBUTES",
-			L"Поле", table_params->getfield(3)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р§РµС‚РІРµСЂС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ PARAMS РЅРµ ATTRIBUTES",
+			"РџРѕР»Рµ", table_params->getfield(3)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(4)->getname().CompareIC(L"DATASIZE"))
+	if(table_params->getfield(4)->getname().CompareIC("DATASIZE"))
 	{
-		error(L"Ошибка тестирования. Пятое поле таблицы PARAMS не DATASIZE",
-			L"Поле", table_params->getfield(4)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РџСЏС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ PARAMS РЅРµ DATASIZE",
+			"РџРѕР»Рµ", table_params->getfield(4)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(5)->getname().CompareIC(L"BINARYDATA"))
+	if(table_params->getfield(5)->getname().CompareIC("BINARYDATA"))
 	{
-		error(L"Ошибка тестирования. Шестое поле таблицы PARAMS не BINARYDATA",
-			L"Поле", table_params->getfield(5)->getname());
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РЁРµСЃС‚РѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ PARAMS РЅРµ BINARYDATA",
+			"РџРѕР»Рµ", table_params->getfield(5)->getname());
 		return false;
 	}
 
 	if(table_params->get_numfields() > 6)
 	{
-		if(table_params->getfield(6)->getname().CompareIC(L"PARTNO"))
+		if(table_params->getfield(6)->getname().CompareIC("PARTNO"))
 		{
-			error(L"Ошибка тестирования. Седьмое поле таблицы PARAMS не PARTNO",
-				L"Поле", table_params->getfield(6)->getname());
+			error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РЎРµРґСЊРјРѕРµ РїРѕР»Рµ С‚Р°Р±Р»РёС†С‹ PARAMS РЅРµ PARTNO",
+				"РџРѕР»Рµ", table_params->getfield(6)->getname());
 			return false;
 		}
 	}
@@ -9374,7 +9374,7 @@ bool __fastcall T_1CD::test_list_of_tables()
 		table_params->getrecord(k, rec);
 		if(*rec) continue;
 
-		if(f_name->get_presentation(rec).CompareIC(L"DBNames") != 0) continue;
+		if(f_name->get_presentation(rec).CompareIC("DBNames") != 0) continue;
 
 		hasDBNames = true;
 
@@ -9389,18 +9389,18 @@ bool __fastcall T_1CD::test_list_of_tables()
 		}
 		catch(...)
 		{
-			if(msreg) msreg->AddMessage_(L"Ошибка чтения длины файла", msWarning,
-				L"Путь", L"PARAMS/DBNames",
-				L"Длина файла", slen);
+			if(msreg) msreg->AddMessage_("РћС€РёР±РєР° С‡С‚РµРЅРёСЏ РґР»РёРЅС‹ С„Р°Р№Р»Р°", msWarning,
+				"РџСѓС‚СЊ", "PARAMS/DBNames",
+				"Р”Р»РёРЅР° С„Р°Р№Р»Р°", slen);
 			result = false;
 			break;
 		}
-		if((__int64)j != str->Size)
+		if((int64_t)j != str->GetSize())
 		{
-			if(msreg) msreg->AddMessage_(L"Фактическая длина файла отличается от указанной в таблице", msWarning,
-				L"Путь", L"PARAMS/DBNames",
-				L"Фактическая длина файла", str->Size,
-				L"Указанная длина файла", slen);
+			if(msreg) msreg->AddMessage_("Р¤Р°РєС‚РёС‡РµСЃРєР°СЏ РґР»РёРЅР° С„Р°Р№Р»Р° РѕС‚Р»РёС‡Р°РµС‚СЃСЏ РѕС‚ СѓРєР°Р·Р°РЅРЅРѕР№ РІ С‚Р°Р±Р»РёС†Рµ", msWarning,
+				"РџСѓС‚СЊ", "PARAMS/DBNames",
+				"Р¤Р°РєС‚РёС‡РµСЃРєР°СЏ РґР»РёРЅР° С„Р°Р№Р»Р°", str->GetSize(),
+				"РЈРєР°Р·Р°РЅРЅР°СЏ РґР»РёРЅР° С„Р°Р№Р»Р°", slen);
 			result = false;
 			break;
 		}
@@ -9420,7 +9420,7 @@ bool __fastcall T_1CD::test_list_of_tables()
 			}
 			catch (...)
 			{
-				if(msreg) msreg->AddMessage(L"Ошибка распаковки данных файла PARAMS/DBNames", msError);
+				if(msreg) msreg->AddMessage("РћС€РёР±РєР° СЂР°СЃРїР°РєРѕРІРєРё РґР°РЅРЅС‹С… С„Р°Р№Р»Р° PARAMS/DBNames", msError);
 				result = false;
 				break;
 			}
@@ -9428,33 +9428,33 @@ bool __fastcall T_1CD::test_list_of_tables()
 		delete str;
 
 		enc = NULL;
-		offset = TEncoding::GetBufferEncoding(_sb->Bytes, enc);
+		offset = TEncoding::GetBufferEncoding(_sb->GetBytes(), enc);
 		if(offset == 0)
 		{
-			error(L"Ошибка тестирования. Ошибка определения кодировки файла PARAMS/DBNames");
+			error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РћС€РёР±РєР° РѕРїСЂРµРґРµР»РµРЅРёСЏ РєРѕРґРёСЂРѕРІРєРё С„Р°Р№Р»Р° PARAMS/DBNames");
 			result = false;
 		}
 		else
 		{
-			if(_sb->Size-offset > 0)
+			if(_sb->GetSize()-offset > 0)
 			{
-				bytes2 = TEncoding::Convert(enc, TEncoding::Unicode, _sb->Bytes, offset, _sb->Size-offset);
-				if(bytes2.Length == 0)
+				bytes2 = TEncoding::Convert(enc, TEncoding::Unicode, _sb->GetBytes(), offset, _sb->GetSize()-offset);
+				if(bytes2.GetLength() == 0)
 				{
-					error(L"Ошибка тестирования. Ошибка конвертации файла PARAMS/DBNames");
+					error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РћС€РёР±РєР° РєРѕРЅРІРµСЂС‚Р°С†РёРё С„Р°Р№Р»Р° PARAMS/DBNames");
 					result = false;
 				}
 				else
 				{
-					sf = String((wchar_t*)&bytes2[0], bytes2.Length / 2);
-					for(i = 1; i <= sf.Length(); i++)
+					sf = String((wchar_t*)&bytes2[0], bytes2.GetLength() / 2);
+					for(i = 1; i <= sf.GetLength(); i++)
 					{
 						first_symbol = sf[i];
 						if(first_symbol != L'\r' && first_symbol != L'\n' && first_symbol != L'\t' && first_symbol != L' ') break;
 					}
 					if(first_symbol == L'{')
 					{
-						tree* rt = parse_1Ctext(sf, L"PARAMS/DBNames");
+						tree* rt = parse_1Ctext(sf, "PARAMS/DBNames");
 						if(rt)
 						{
 							firstt = &((*rt)[0][1][1]);
@@ -9463,43 +9463,43 @@ bool __fastcall T_1CD::test_list_of_tables()
 							{
 								is_slave = false;
 								_name = t->get_subnode(1)->get_value();
-								if(_name.CompareIC(L"Fld") == 0) continue;
-								if(_name.CompareIC(L"LineNo") == 0) continue;
-								if(_name.CompareIC(L"Turnover") == 0) continue;
-								if(_name.CompareIC(L"TurnoverDt") == 0) continue;
-								if(_name.CompareIC(L"TurnoverCt") == 0) continue;
-								if(_name.CompareIC(L"ByField") == 0) continue;
-								if(_name.CompareIC(L"ByOwnerField") == 0) continue;
-								if(_name.CompareIC(L"ByParentField") == 0) continue;
-								if(_name.CompareIC(L"ByProperty") == 0) continue;
-								if(_name.CompareIC(L"ByPropRecorder") == 0) continue;
-								if(_name.CompareIC(L"ByResource") == 0) continue;
-								if(_name.CompareIC(L"ByDim") == 0) continue;
-								if(_name.CompareIC(L"ByDims") == 0) continue;
-								if(_name.CompareIC(L"ByDimension") == 0) continue;
-								if(_name.CompareIC(L"ByDimensions") == 0) continue;
-								if(_name.CompareIC(L"ByDimRecorder") == 0) continue;
-								if(_name.CompareIC(L"VT") == 0) is_slave = true;
-								if(_name.CompareIC(L"ExtDim") == 0) is_slave = true;
+								if(_name.CompareIC("Fld") == 0) continue;
+								if(_name.CompareIC("LineNo") == 0) continue;
+								if(_name.CompareIC("Turnover") == 0) continue;
+								if(_name.CompareIC("TurnoverDt") == 0) continue;
+								if(_name.CompareIC("TurnoverCt") == 0) continue;
+								if(_name.CompareIC("ByField") == 0) continue;
+								if(_name.CompareIC("ByOwnerField") == 0) continue;
+								if(_name.CompareIC("ByParentField") == 0) continue;
+								if(_name.CompareIC("ByProperty") == 0) continue;
+								if(_name.CompareIC("ByPropRecorder") == 0) continue;
+								if(_name.CompareIC("ByResource") == 0) continue;
+								if(_name.CompareIC("ByDim") == 0) continue;
+								if(_name.CompareIC("ByDims") == 0) continue;
+								if(_name.CompareIC("ByDimension") == 0) continue;
+								if(_name.CompareIC("ByDimensions") == 0) continue;
+								if(_name.CompareIC("ByDimRecorder") == 0) continue;
+								if(_name.CompareIC("VT") == 0) is_slave = true;
+								if(_name.CompareIC("ExtDim") == 0) is_slave = true;
 
 								_guid = t->get_subnode(0)->get_value();
 								_num = t->get_subnode(2)->get_value();
 
-								if(_guid == L"00000000-0000-0000-0000-000000000000") continue;
+								if(_guid == "00000000-0000-0000-0000-000000000000") continue;
 
-								_tabname = L"_";
+								_tabname = "_";
 								_tabname += _name;
-//								if(_guid != L"00000000-0000-0000-0000-000000000000") _tabname += _num;
+//								if(_guid != "00000000-0000-0000-0000-000000000000") _tabname += _num;
 								_tabname += _num;
-								l = _tabname.Length();
+								l = _tabname.GetLength();
 
 								//msreg->Status(_tabname);
-//								if(_tabname.CompareIC(L"_Consts") == 0) continue;
-//								if(_tabname.CompareIC(L"_ExtDataSrcPrms") == 0) continue;
-//								if(_tabname.CompareIC(L"_AccRgOpt") == 0) continue;
-//								if(_tabname.CompareIC(L"_ConstsChngR") == 0) continue;
-//								if(_tabname.CompareIC(L"_AccumRgOpt") == 0) continue;
-//								if(_tabname.CompareIC(L"_ScheduledJobs") == 0) continue;
+//								if(_tabname.CompareIC("_Consts") == 0) continue;
+//								if(_tabname.CompareIC("_ExtDataSrcPrms") == 0) continue;
+//								if(_tabname.CompareIC("_AccRgOpt") == 0) continue;
+//								if(_tabname.CompareIC("_ConstsChngR") == 0) continue;
+//								if(_tabname.CompareIC("_AccumRgOpt") == 0) continue;
+//								if(_tabname.CompareIC("_ScheduledJobs") == 0) continue;
 
 								bool table_found = false;
 								for(i = 0; i < get_numtables(); i++)
@@ -9507,7 +9507,7 @@ bool __fastcall T_1CD::test_list_of_tables()
 									if(is_slave)
 									{
 										sf = gettable(i)->getname();
-										l2 = sf.Length();
+										l2 = sf.GetLength();
 										if(l2 > l) if(sf.SubString(l2 - l + 1, l).CompareIC(_tabname) == 0)
 										{
 											table_found = true;
@@ -9524,8 +9524,8 @@ bool __fastcall T_1CD::test_list_of_tables()
 
 								if(!table_found)
 								{
-									if(msreg) msreg->AddMessage_(L"Отсутствует таблица", msWarning,
-										L"Имя таблицы", _tabname);
+									if(msreg) msreg->AddMessage_("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р°", msWarning,
+										"РРјСЏ С‚Р°Р±Р»РёС†С‹", _tabname);
 									result = false;
 								}
 							}
@@ -9537,14 +9537,14 @@ bool __fastcall T_1CD::test_list_of_tables()
 					}
 					else
 					{
-						error(L"Ошибка тестирования. Ошибка разбора файла PARAMS/DBNames. Первый символ не \"{\".");
+						error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° PARAMS/DBNames. РџРµСЂРІС‹Р№ СЃРёРјРІРѕР» РЅРµ \"{\".");
 						result = false;
 					}
 				}
 			}
 			else
 			{
-				error(L"Ошибка тестирования. Ошибка определения кодировки файла PARAMS/DBNames");
+				error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. РћС€РёР±РєР° РѕРїСЂРµРґРµР»РµРЅРёСЏ РєРѕРґРёСЂРѕРІРєРё С„Р°Р№Р»Р° PARAMS/DBNames");
 				result = false;
 			}
 		}
@@ -9558,13 +9558,13 @@ bool __fastcall T_1CD::test_list_of_tables()
 
 	if(!hasDBNames)
 	{
-		error(L"Ошибка тестирования. В таблице PARAMS не найдена запись DBNames.");
+		error("РћС€РёР±РєР° С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ. Р’ С‚Р°Р±Р»РёС†Рµ PARAMS РЅРµ РЅР°Р№РґРµРЅР° Р·Р°РїРёСЃСЊ DBNames.");
 		result = false;
 	}
 
 	delete[] rec;
 
-	//msreg->Status(L"");
+	//msreg->Status("");
 	return result;
 }
 
@@ -9572,7 +9572,7 @@ bool __fastcall T_1CD::test_list_of_tables()
 //---------------------------------------------------------------------------
 bool __fastcall T_1CD::replaceTREF(String mapfile)
 {
-	DynamicArray<int> map; // динамический массив соответствия номеров
+	DynamicArray<int> map; // РґРёРЅР°РјРёС‡РµСЃРєРёР№ РјР°СЃСЃРёРІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ РЅРѕРјРµСЂРѕРІ
 	int i,j,m;
 	int k, l;
 	unsigned int ii, jj, kk;
@@ -9590,9 +9590,9 @@ bool __fastcall T_1CD::replaceTREF(String mapfile)
 	for(k = 0; k < list->Count; k++)
 	{
 		str = (*list)[k];
-		l = str.Pos(L"\t");
+		l = str.Pos("\t");
 		if(!l) continue;
-		j = str.SubString(l + 1, str.Length() - l).ToInt();
+		j = str.SubString(l + 1, str.GetLength() - l).ToInt();
 		if(m < j) m = j;
 	}
 
@@ -9601,10 +9601,10 @@ bool __fastcall T_1CD::replaceTREF(String mapfile)
 	for(k = 0; k < list->Count; k++)
 	{
 		str = (*list)[k];
-		l = str.Pos(L"\t");
+		l = str.Pos("\t");
 		if(!l) continue;
 		i = str.SubString(1, l - 1).ToInt();
-		j = str.SubString(l + 1, str.Length() - l).ToInt();
+		j = str.SubString(l + 1, str.GetLength() - l).ToInt();
 		map[j] = i;
 	}
 
@@ -9617,12 +9617,12 @@ bool __fastcall T_1CD::replaceTREF(String mapfile)
 		{
 			f = t->getfield(j);
 			str = f->getname();
-			if(str.Length() > 3)
-			if(str.SubString(str.Length() - 3, 4).CompareIC(L"TREF") == 0)
+			if(str.GetLength() > 3)
+			if(str.SubString(str.GetLength() - 3, 4).CompareIC("TREF") == 0)
 			if(f->gettype() == tf_binary)
 			if(f->getlength() == 4)
 			{
-				if(msreg) msreg->Status(t->getname() + L" : " + f->getname());
+				if(msreg) msreg->Status(t->getname() + " : " + f->getname());
 				k = f->getoffset();
 				if(f->getnull_exists()) k++;
 				rec = new char[t->get_recordlen()];
@@ -9644,7 +9644,7 @@ bool __fastcall T_1CD::replaceTREF(String mapfile)
 			}
 		}
 	}
-	if(msreg) msreg->Status(L"");
+	if(msreg) msreg->Status("");
 
 	flush();
 
@@ -9717,15 +9717,15 @@ bool __fastcall T_1CD::delete_object(v8object* ob)
 
 	if(ob->block == 1)
 	{
-		msreg->AddMessage_(L"Попытка удаления объекта таблицы свободных блоков", msWarning,
-			L"Номер блока объекта", ob->block);
+		msreg->AddMessage_("РџРѕРїС‹С‚РєР° СѓРґР°Р»РµРЅРёСЏ РѕР±СЉРµРєС‚Р° С‚Р°Р±Р»РёС†С‹ СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ", msWarning,
+			"РќРѕРјРµСЂ Р±Р»РѕРєР° РѕР±СЉРµРєС‚Р°", ob->block);
 			return false;
 	}
 
 	if(ob->block == 2)
 	{
-		msreg->AddMessage_(L"Попытка удаления корневого объекта", msWarning,
-			L"Номер блока объекта", ob->block);
+		msreg->AddMessage_("РџРѕРїС‹С‚РєР° СѓРґР°Р»РµРЅРёСЏ РєРѕСЂРЅРµРІРѕРіРѕ РѕР±СЉРµРєС‚Р°", msWarning,
+			"РќРѕРјРµСЂ Р±Р»РѕРєР° РѕР±СЉРµРєС‚Р°", ob->block);
 			return false;
 	}
 
@@ -9816,8 +9816,8 @@ void __fastcall T_1CD::find_and_create_lost_tables()
 
 	}
 
-	msreg->AddMessage_(L"Поиск и восстановление потерянных таблиц завершены", msSuccesfull,
-	L"Количество восстановленных таблиц", numlosttables);
+	msreg->AddMessage_("РџРѕРёСЃРє Рё РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РїРѕС‚РµСЂСЏРЅРЅС‹С… С‚Р°Р±Р»РёС† Р·Р°РІРµСЂС€РµРЅС‹", msSuccesfull,
+	"РљРѕР»РёС‡РµСЃС‚РІРѕ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹С… С‚Р°Р±Р»РёС†", numlosttables);
 
 }
 
@@ -9832,8 +9832,8 @@ void __fastcall T_1CD::find_and_save_lost_objects()
 	String path;
 
 	dir_created = false;
-	path = filename.SubString(1, filename.LastDelimiter(L"\\"));
-	path += L"LostObjects\\";
+	path = filename.SubString(1, filename.LastDelimiter("\\"));
+	path += "LostObjects\\";
 
 	for(i = 1; i < length; i++)
 	{
@@ -9857,21 +9857,21 @@ void __fastcall T_1CD::find_and_save_lost_objects()
 					dir_created = true;
 				}
 				v8obj = new v8object(this, i);
-				v8obj->savetofile(path + L"block" + i);
+				v8obj->savetofile(path + "block" + i);
 				delete v8obj;
-				//msreg->AddMessage_(L"Найден и сохранен потерянный объект", msInfo, L"Номер блока", tohex(i));
+				//msreg->AddMessage_("РќР°Р№РґРµРЅ Рё СЃРѕС…СЂР°РЅРµРЅ РїРѕС‚РµСЂСЏРЅРЅС‹Р№ РѕР±СЉРµРєС‚", msInfo, "РќРѕРјРµСЂ Р±Р»РѕРєР°", tohex(i));
 			}
 		}
 	}
-	msreg->AddMessage(L"Поиск и сохранение потерянных объектов завершен", msSuccesfull);
+	msreg->AddMessage("РџРѕРёСЃРє Рё СЃРѕС…СЂР°РЅРµРЅРёРµ РїРѕС‚РµСЂСЏРЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ Р·Р°РІРµСЂС€РµРЅ", msSuccesfull);
 
 }
 
 #endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
-// Если не удалось получить версию, возвращается 0, иначе возвращается положительное число
-int __fastcall T_1CD::get_ver_depot_config(int ver) // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
+// Р•СЃР»Рё РЅРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ РІРµСЂСЃРёСЋ, РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ 0, РёРЅР°С‡Рµ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РїРѕР»РѕР¶РёС‚РµР»СЊРЅРѕРµ С‡РёСЃР»Рѕ
+int __fastcall T_1CD::get_ver_depot_config(int ver) // РџРѕР»СѓС‡РµРЅРёРµ РЅРѕРјРµСЂР° РІРµСЂСЃРёРё РєРѕРЅС„РёРіСѓСЂР°С†РёРё (0 - РїРѕСЃР»РµРґРЅСЏСЏ, -1 - РїСЂРµРґРїРѕСЃР»РµРґРЅСЏСЏ Рё С‚.Рґ.)
 {
 	char* rec;
 	index* ind;
@@ -9884,31 +9884,31 @@ int __fastcall T_1CD::get_ver_depot_config(int ver) // Получение номера версии к
 
 	if(!is_depot)
 	{
-		error(L"База не является хранилищем конфигурации.");
+		error("Р‘Р°Р·Р° РЅРµ СЏРІР»СЏРµС‚СЃСЏ С…СЂР°РЅРёР»РёС‰РµРј РєРѕРЅС„РёРіСѓСЂР°С†РёРё.");
 		return 0;
 	}
 
 	if(ver > 0) return ver;
 
-	// Определяем номер последней версии конфигурации
+	// РћРїСЂРµРґРµР»СЏРµРј РЅРѕРјРµСЂ РїРѕСЃР»РµРґРЅРµР№ РІРµСЂСЃРёРё РєРѕРЅС„РёРіСѓСЂР°С†РёРё
 	if(!table_versions)
 	{
-		error(L"В базе хранилища отсутствует таблица VERSIONS.");
+		error("Р’ Р±Р°Р·Рµ С…СЂР°РЅРёР»РёС‰Р° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° VERSIONS.");
 		return 0;
 	}
 
-	fld = get_field(table_versions, L"VERNUM");
+	fld = get_field(table_versions, "VERNUM");
 	if(!fld) return 0;
 
-	ind = get_index(table_versions, L"PK");
+	ind = get_index(table_versions, "PK");
 	if(!ind) return 0;
 
 	i = ind->get_numrecords();
 	if(i <= (unsigned int)(-ver))
 	{
-		msreg->AddMessage_(L"Запрошенной версии конфигурации не существует", msError,
-			L"Всего версий в хранилище", i,
-			L"Запрошенный номер версии", ver);
+		msreg->AddMessage_("Р—Р°РїСЂРѕС€РµРЅРЅРѕР№ РІРµСЂСЃРёРё РєРѕРЅС„РёРіСѓСЂР°С†РёРё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚", msError,
+			"Р’СЃРµРіРѕ РІРµСЂСЃРёР№ РІ С…СЂР°РЅРёР»РёС‰Рµ", i,
+			"Р—Р°РїСЂРѕС€РµРЅРЅС‹Р№ РЅРѕРјРµСЂ РІРµСЂСЃРёРё", ver);
 		return 0;
 	}
 	i = ind->get_numrec(i + ver - 1);
@@ -9920,8 +9920,8 @@ int __fastcall T_1CD::get_ver_depot_config(int ver) // Получение номера версии к
 	v = s.ToIntDef(0);
 	if(!v)
 	{
-		if(msreg) msreg->AddMessage_(L"Не удалось получить реальный номер версии запрошенной конфигурации.", msError,
-			L"Запрошенный номер версии", ver);
+		if(msreg) msreg->AddMessage_("РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ СЂРµР°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ РІРµСЂСЃРёРё Р·Р°РїСЂРѕС€РµРЅРЅРѕР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё.", msError,
+			"Р—Р°РїСЂРѕС€РµРЅРЅС‹Р№ РЅРѕРјРµСЂ РІРµСЂСЃРёРё", ver);
 		return 0;
 	}
 
@@ -9941,11 +9941,11 @@ field* T_1CD::get_field(table* tab, String fieldname)
 	}
 	if(msreg)
 	{
-		s =L"В таблице ";
+		s ="Р’ С‚Р°Р±Р»РёС†Рµ ";
 		s += tab->name;
-		s += L" не найдено поле ";
+		s += " РЅРµ РЅР°Р№РґРµРЅРѕ РїРѕР»Рµ ";
 		s += fieldname;
-		s += L".";
+		s += ".";
 		error(s);
 	}
 	return NULL;
@@ -9964,21 +9964,21 @@ index* T_1CD::get_index(table* tab, String indexname)
 	}
 	if(msreg)
 	{
-		s =L"В таблице ";
+		s ="Р’ С‚Р°Р±Р»РёС†Рµ ";
 		s += tab->name;
-		s += L" не найден индекс ";
+		s += " РЅРµ РЅР°Р№РґРµРЅ РёРЅРґРµРєСЃ ";
 		s += indexname;
-		s += L".";
+		s += ".";
 		error(s);
 	}
 	return NULL;
 }
 
 //---------------------------------------------------------------------------
-// Сохранение конфигурации в файл из хранилища конфигураций
-// ver - номер версии сохраняемой конфигурации
-// ver > 0 - используется переданный номер версии
-// ver <= 0 - номер версии от последней конфигурации. 0 - последняя конфигурация, -1 - предпоследняя и т.д., т.е. Номер версии определяется как номер последней + ver
+// РЎРѕС…СЂР°РЅРµРЅРёРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РІ С„Р°Р№Р» РёР· С…СЂР°РЅРёР»РёС‰Р° РєРѕРЅС„РёРіСѓСЂР°С†РёР№
+// ver - РЅРѕРјРµСЂ РІРµСЂСЃРёРё СЃРѕС…СЂР°РЅСЏРµРјРѕР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё
+// ver > 0 - РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РїРµСЂРµРґР°РЅРЅС‹Р№ РЅРѕРјРµСЂ РІРµСЂСЃРёРё
+// ver <= 0 - РЅРѕРјРµСЂ РІРµСЂСЃРёРё РѕС‚ РїРѕСЃР»РµРґРЅРµР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё. 0 - РїРѕСЃР»РµРґРЅСЏСЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ, -1 - РїСЂРµРґРїРѕСЃР»РµРґРЅСЏСЏ Рё С‚.Рґ., С‚.Рµ. РќРѕРјРµСЂ РІРµСЂСЃРёРё РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РєР°Рє РЅРѕРјРµСЂ РїРѕСЃР»РµРґРЅРµР№ + ver
 bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 {
 	char* rec;
@@ -10041,19 +10041,19 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	TSearchRec srec;
 	_packdata pd;
 	_packdata* pdr;
-	__int64 packlen;
+	int64_t packlen;
 	v8catalog* cat;
 	v8catalog* cath;
 	bool oldformat;
 	v8file* f;
 	tree* t;
 	tree* tc;
-	tree* tv; // корень дерева файла versions
-	tree* tvc; // тек. элемент дерева файла versions
-	tree* tr; // корень дерева файла root
-	tree* trc; // тек. элемент дерева файла root
-	tree* tcountv; // узел, содержащий счетчик в файле versions
-	tree* tcountr; // узел, содержащий счетчик в файле root
+	tree* tv; // РєРѕСЂРµРЅСЊ РґРµСЂРµРІР° С„Р°Р№Р»Р° versions
+	tree* tvc; // С‚РµРє. СЌР»РµРјРµРЅС‚ РґРµСЂРµРІР° С„Р°Р№Р»Р° versions
+	tree* tr; // РєРѕСЂРµРЅСЊ РґРµСЂРµРІР° С„Р°Р№Р»Р° root
+	tree* trc; // С‚РµРє. СЌР»РµРјРµРЅС‚ РґРµСЂРµРІР° С„Р°Р№Р»Р° root
+	tree* tcountv; // СѓР·РµР», СЃРѕРґРµСЂР¶Р°С‰РёР№ СЃС‡РµС‚С‡РёРє РІ С„Р°Р№Р»Рµ versions
+	tree* tcountr; // СѓР·РµР», СЃРѕРґРµСЂР¶Р°С‰РёР№ СЃС‡РµС‚С‡РёРє РІ С„Р°Р№Р»Рµ root
 	String __filename;
 
 	union
@@ -10073,20 +10073,20 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 
 	if(!is_depot)
 	{
-		error(L"База не является хранилищем конфигурации.");
+		error("Р‘Р°Р·Р° РЅРµ СЏРІР»СЏРµС‚СЃСЏ С…СЂР°РЅРёР»РёС‰РµРј РєРѕРЅС„РёРіСѓСЂР°С†РёРё.");
 		return false;
 	}
 
-	// Получаем версию хранилища
+	// РџРѕР»СѓС‡Р°РµРј РІРµСЂСЃРёСЋ С…СЂР°РЅРёР»РёС‰Р°
 	if(!table_depot)
 	{
-		error(L"В базе хранилища отсутствует таблица DEPOT.");
+		error("Р’ Р±Р°Р·Рµ С…СЂР°РЅРёР»РёС‰Р° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° DEPOT.");
 		return false;
 	}
 
-	fldd_depotver = get_field(table_depot, L"DEPOTVER");
+	fldd_depotver = get_field(table_depot, "DEPOTVER");
 	if(!fldd_depotver) return false;
-	fldd_rootobjid = get_field(table_depot, L"ROOTOBJID");
+	fldd_rootobjid = get_field(table_depot, "ROOTOBJID");
 	if(!fldd_rootobjid) return false;
 
 	rec = new char[table_depot->get_recordlen()];
@@ -10102,21 +10102,21 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	}
 	if(!ok)
 	{
-		error(L"Не удалось прочитать запись в таблице DEPOT.");
+		error("РќРµ СѓРґР°Р»РѕСЃСЊ РїСЂРѕС‡РёС‚Р°С‚СЊ Р·Р°РїРёСЃСЊ РІ С‚Р°Р±Р»РёС†Рµ DEPOT.");
 		delete[] rec;
 		return false;
 	}
 
 	s = fldd_depotver->get_presentation(rec, true);
 
-	if(s.CompareIC(L"0300000000000000") == 0) depotVer = depotVer3;
-	else if(s.CompareIC(L"0500000000000000") == 0) depotVer = depotVer5;
-	else if(s.CompareIC(L"0600000000000000") == 0) depotVer = depotVer6;
-	else if(s.CompareIC(L"0700000000000000") == 0) depotVer = depotVer7;
+	if(s.CompareIC("0300000000000000") == 0) depotVer = depotVer3;
+	else if(s.CompareIC("0500000000000000") == 0) depotVer = depotVer5;
+	else if(s.CompareIC("0600000000000000") == 0) depotVer = depotVer6;
+	else if(s.CompareIC("0700000000000000") == 0) depotVer = depotVer7;
 	else
 	{
-		msreg->AddMessage_(L"Неизвестная версия хранилища", msError,
-			L"Версия хранилища", s);
+		msreg->AddMessage_("РќРµРёР·РІРµСЃС‚РЅР°СЏ РІРµСЂСЃРёСЏ С…СЂР°РЅРёР»РёС‰Р°", msError,
+			"Р’РµСЂСЃРёСЏ С…СЂР°РЅРёР»РёС‰Р°", s);
 		delete[] rec;
 		return false;
 	}
@@ -10124,26 +10124,26 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	memcpy(rootobj, rec + fldd_rootobjid->offset, 16);
 	delete[] rec;
 
-	// "Нормализуем" версию конфигурации
+	// "РќРѕСЂРјР°Р»РёР·СѓРµРј" РІРµСЂСЃРёСЋ РєРѕРЅС„РёРіСѓСЂР°С†РёРё
 	ver = get_ver_depot_config(ver);
 
-	// Ищем строку с номером версии конфигурации
+	// РС‰РµРј СЃС‚СЂРѕРєСѓ СЃ РЅРѕРјРµСЂРѕРј РІРµСЂСЃРёРё РєРѕРЅС„РёРіСѓСЂР°С†РёРё
 	if(!table_versions)
 	{
-		error(L"В базе хранилища отсутствует таблица VERSIONS.");
+		error("Р’ Р±Р°Р·Рµ С…СЂР°РЅРёР»РёС‰Р° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° VERSIONS.");
 		return false;
 	}
 
-	fldv_vernum = get_field(table_versions, L"VERNUM");
+	fldv_vernum = get_field(table_versions, "VERNUM");
 	if(!fldv_vernum) return false;
 	if(depotVer >= depotVer5)
 	{
-		fldv_cversion = get_field(table_versions, L"CVERSION");
+		fldv_cversion = get_field(table_versions, "CVERSION");
 		if(!fldv_cversion) return false;
 	}
-	fldv_snapshotcrc = get_field(table_versions, L"SNAPSHOTCRC");
+	fldv_snapshotcrc = get_field(table_versions, "SNAPSHOTCRC");
 	if(!fldv_snapshotcrc) return false;
-	fldv_snapshotmaker = get_field(table_versions, L"SNAPSHOTMAKER");
+	fldv_snapshotmaker = get_field(table_versions, "SNAPSHOTMAKER");
 	if(!fldv_snapshotmaker) return false;
 
 	rec = new char[table_versions->get_recordlen()];
@@ -10163,26 +10163,26 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 
 	if(!ok)
 	{
-		if(msreg) msreg->AddMessage_(L"В хранилище не найдена версия конфигурации", msError,
-			L"Требуемая версия", ver);
+		if(msreg) msreg->AddMessage_("Р’ С…СЂР°РЅРёР»РёС‰Рµ РЅРµ РЅР°Р№РґРµРЅР° РІРµСЂСЃРёСЏ РєРѕРЅС„РёРіСѓСЂР°С†РёРё", msError,
+			"РўСЂРµР±СѓРµРјР°СЏ РІРµСЂСЃРёСЏ", ver);
 		delete[] rec;
 		return false;
 	}
 
 	__filename = System::Ioutils::TPath::GetFullPath(_filename);
 /*
-	// Проверяем, нет ли снэпшота нужной версии конфигурации
+	// РџСЂРѕРІРµСЂСЏРµРј, РЅРµС‚ Р»Рё СЃРЅСЌРїС€РѕС‚Р° РЅСѓР¶РЅРѕР№ РІРµСЂСЃРёРё РєРѕРЅС„РёРіСѓСЂР°С†РёРё
 	if(*(rec + fldv_snapshotcrc->offset)) if(*(rec + fldv_snapshotmaker->offset)) if(memcmp(rootobj, rec + fldv_snapshotmaker->offset + 1, 16) == 0)
 	{
 		_crc = *(unsigned int*)(rec + fldv_snapshotcrc->offset + 1);
 
 		//s = System.IOUtils.TPath::GetDirectoryName(filename);
-		s = filename.SubString(1, filename.LastDelimiter(L"\\"));
-		s += L"cache\\ddb";
-		ss = L"00000";
+		s = filename.SubString(1, filename.LastDelimiter("\\"));
+		s += "cache\\ddb";
+		ss = "00000";
 		ss += ver;
-		s += ss.SubString(ss.Length() - 4, 5);
-		s += L".snp";
+		s += ss.SubString(ss.GetLength() - 4, 5);
+		s += ".snp";
 		if(FileExists(s))
 		{
 			try
@@ -10191,9 +10191,9 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 			}
 			catch(...)
 			{
-				if(msreg) msreg->AddMessage_(L"Не удалось открыть файл снэпшота", msWarning,
-					L"Имя файла", s,
-					L"Требуемая версия", ver);
+				if(msreg) msreg->AddMessage_("РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» СЃРЅСЌРїС€РѕС‚Р°", msWarning,
+					"РРјСЏ С„Р°Р№Р»Р°", s,
+					"РўСЂРµР±СѓРµРјР°СЏ РІРµСЂСЃРёСЏ", ver);
 				in = NULL;
 			}
 			try
@@ -10203,8 +10203,8 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 			}
 			catch(...)
 			{
-				if(msreg) msreg->AddMessage_(L"Не удалось создать файл конфигурации", msWarning,
-					L"Имя файла", __filename);
+				if(msreg) msreg->AddMessage_("РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ С„Р°Р№Р» РєРѕРЅС„РёРіСѓСЂР°С†РёРё", msWarning,
+					"РРјСЏ С„Р°Р№Р»Р°", __filename);
 				delete[] rec;
 				return false;
 			}
@@ -10216,9 +10216,9 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 				}
 				catch(...)
 				{
-					if(msreg) msreg->AddMessage_(L"Не удалось распаковать файл снэпшота", msWarning,
-						L"Имя файла", s,
-						L"Требуемая версия", ver);
+					if(msreg) msreg->AddMessage_("РќРµ СѓРґР°Р»РѕСЃСЊ СЂР°СЃРїР°РєРѕРІР°С‚СЊ С„Р°Р№Р» СЃРЅСЌРїС€РѕС‚Р°", msWarning,
+						"РРјСЏ С„Р°Р№Р»Р°", s,
+						"РўСЂРµР±СѓРµРјР°СЏ РІРµСЂСЃРёСЏ", ver);
 					delete out;
 					out = NULL;
 				}
@@ -10233,24 +10233,24 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 						delete[] rec;
 						return true;
 					}
-					if(msreg) msreg->AddMessage_(L"Файл снэпшота испорчен (не совпала контрольная сумма)", msWarning,
-						L"Имя файла", s,
-						L"Требуемая версия", ver,
-						L"Должен быть CRC32", tohex(_crc),
-						L"Получился CRC32", tohex(k));
+					if(msreg) msreg->AddMessage_("Р¤Р°Р№Р» СЃРЅСЌРїС€РѕС‚Р° РёСЃРїРѕСЂС‡РµРЅ (РЅРµ СЃРѕРІРїР°Р»Р° РєРѕРЅС‚СЂРѕР»СЊРЅР°СЏ СЃСѓРјРјР°)", msWarning,
+						"РРјСЏ С„Р°Р№Р»Р°", s,
+						"РўСЂРµР±СѓРµРјР°СЏ РІРµСЂСЃРёСЏ", ver,
+						"Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ CRC32", tohex(_crc),
+						"РџРѕР»СѓС‡РёР»СЃСЏ CRC32", tohex(k));
 					delete out;
 				}
 			}
 		}
 		else
 		{
-			if(msreg) msreg->AddMessage_(L"Не найден файл снэпшота", msWarning,
-				L"Имя файла", s,
-				L"Требуемая версия", ver);
+			if(msreg) msreg->AddMessage_("РќРµ РЅР°Р№РґРµРЅ С„Р°Р№Р» СЃРЅСЌРїС€РѕС‚Р°", msWarning,
+				"РРјСЏ С„Р°Р№Р»Р°", s,
+				"РўСЂРµР±СѓРµРјР°СЏ РІРµСЂСЃРёСЏ", ver);
 		}
 	}
 */
-	// Определяем версию структуры конфигурации (для файла version)
+	// РћРїСЂРµРґРµР»СЏРµРј РІРµСЂСЃРёСЋ СЃС‚СЂСѓРєС‚СѓСЂС‹ РєРѕРЅС„РёРіСѓСЂР°С†РёРё (РґР»СЏ С„Р°Р№Р»Р° version)
 	if(depotVer >= depotVer5)
 	{
 		frec = rec + fldv_cversion->offset;
@@ -10272,54 +10272,54 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 
 	delete[] rec;
 
-	// Инициализируем таблицы HISTORY и EXTERNALS
+	// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј С‚Р°Р±Р»РёС†С‹ HISTORY Рё EXTERNALS
 	if(!table_history)
 	{
-		error(L"В базе хранилища отсутствует таблица HISTORY.");
+		error("Р’ Р±Р°Р·Рµ С…СЂР°РЅРёР»РёС‰Р° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° HISTORY.");
 		return false;
 	}
 
 	if(!table_externals)
 	{
-		error(L"В базе хранилища отсутствует таблица EXTERNALS.");
+		error("Р’ Р±Р°Р·Рµ С…СЂР°РЅРёР»РёС‰Р° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° EXTERNALS.");
 		return false;
 	}
 
-	fldh_objid = get_field(table_history, L"OBJID");
+	fldh_objid = get_field(table_history, "OBJID");
 	if(!fldh_objid) return false;
-	fldh_vernum = get_field(table_history, L"VERNUM");
+	fldh_vernum = get_field(table_history, "VERNUM");
 	if(!fldh_vernum) return false;
-	fldh_objverid = get_field(table_history, L"OBJVERID");
+	fldh_objverid = get_field(table_history, "OBJVERID");
 	if(!fldh_objverid) return false;
-	fldh_removed = get_field(table_history, L"REMOVED");
+	fldh_removed = get_field(table_history, "REMOVED");
 	if(!fldh_removed) return false;
-	fldh_datapacked = get_field(table_history, L"DATAPACKED");
+	fldh_datapacked = get_field(table_history, "DATAPACKED");
 	if(!fldh_datapacked) return false;
-	fldh_objdata = get_field(table_history, L"OBJDATA");
+	fldh_objdata = get_field(table_history, "OBJDATA");
 	if(!fldh_objdata) return false;
 
-	flde_objid = get_field(table_externals, L"OBJID");
+	flde_objid = get_field(table_externals, "OBJID");
 	if(!flde_objid) return false;
-	flde_vernum = get_field(table_externals, L"VERNUM");
+	flde_vernum = get_field(table_externals, "VERNUM");
 	if(!flde_vernum) return false;
-	flde_extname = get_field(table_externals, L"EXTNAME");
+	flde_extname = get_field(table_externals, "EXTNAME");
 	if(!flde_extname) return false;
-	flde_extverid = get_field(table_externals, L"EXTVERID");
+	flde_extverid = get_field(table_externals, "EXTVERID");
 	if(!flde_extverid) return false;
-	flde_datapacked = get_field(table_externals, L"DATAPACKED");
+	flde_datapacked = get_field(table_externals, "DATAPACKED");
 	if(!flde_datapacked) return false;
-	flde_extdata = get_field(table_externals, L"EXTDATA");
+	flde_extdata = get_field(table_externals, "EXTDATA");
 	if(!flde_extdata) return false;
 
 	if(depotVer >= depotVer6)
 	{
-		fldh_datahash = get_field(table_history, L"DATAHASH");
+		fldh_datahash = get_field(table_history, "DATAHASH");
 		if(!fldh_datahash) return false;
-		flde_datahash = get_field(table_externals, L"DATAHASH");
+		flde_datahash = get_field(table_externals, "DATAHASH");
 		if(!flde_datahash) return false;
 
-		sp = filename.SubString(1, filename.LastDelimiter(L"\\")) + L"data\\pack\\";
-		s = sp + L"pack-*.ind";
+		sp = filename.SubString(1, filename.LastDelimiter("\\")) + "data\\pack\\";
+		s = sp + "pack-*.ind";
 		if(FindFirst(s, 0, srec) == 0)
 		{
 			do
@@ -10330,8 +10330,8 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 				}
 				catch(...)
 				{
-					if(msreg) msreg->AddMessage_(L"Ошибка открытия файла", msError,
-						L"Файл", srec.Name);
+					if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°", msError,
+						"Р¤Р°Р№Р»", srec.Name);
 					FindClose(srec);
 					return false;
 				}
@@ -10343,13 +10343,13 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 				pd.count = i;
 				try
 				{
-					s = sp + srec.Name.SubString(1, srec.Name.Length() - 3) + L"pck";
+					s = sp + srec.Name.SubString(1, srec.Name.GetLength() - 3) + "pck";
 					pd.pack = new TFileStream(s, fmOpenRead | fmShareDenyNone);
 				}
 				catch(...)
 				{
-					if(msreg) msreg->AddMessage_(L"Ошибка открытия файла", msError,
-						L"Файл", s);
+					if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°", msError,
+						"Р¤Р°Р№Р»", s);
 					FindClose(srec);
 					return false;
 				}
@@ -10358,7 +10358,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 			FindClose(srec);
 		}
 
-		sp = filename.SubString(1, filename.LastDelimiter(L"\\")) + L"data\\objects\\";
+		sp = filename.SubString(1, filename.LastDelimiter("\\")) + "data\\objects\\";
 	}
 	else
 	{
@@ -10366,9 +10366,9 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 		flde_datahash = NULL;
 	}
 
-	indh = get_index(table_history, L"PK");
+	indh = get_index(table_history, "PK");
 	if(!indh) return 0;
-	inde = get_index(table_externals, L"PK");
+	inde = get_index(table_externals, "PK");
 	if(!inde) return 0;
 
 	rech1 = new char[table_history->get_recordlen()];
@@ -10376,7 +10376,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	rece = new char[table_externals->get_recordlen()];
 	memset(rece, 0, table_externals->get_recordlen());
 	nreces = 0;
-	reces.Length = 0;
+	reces.SetLength(0);
 
 	nh = indh->get_numrecords();
 	ne = inde->get_numrecords();
@@ -10387,26 +10387,26 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 
 	// root, versions
 
-	std::map<String,String> vermap; // контейнер для сортировки versions
-	std::map<String,String> rootmap; // контейнер для сортировки root
-	std::map<String,TStream*> extmap; // контейнер для сортировки файлов в корне
-	std::map<String,TStream*> metamap; // контейнер для сортировки файлов в metadata
+	std::map<String,String> vermap; // РєРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ СЃРѕСЂС‚РёСЂРѕРІРєРё versions
+	std::map<String,String> rootmap; // РєРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ СЃРѕСЂС‚РёСЂРѕРІРєРё root
+	std::map<String,TStream*> extmap; // РєРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ СЃРѕСЂС‚РёСЂРѕРІРєРё С„Р°Р№Р»РѕРІ РІ РєРѕСЂРЅРµ
+	std::map<String,TStream*> metamap; // РєРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ СЃРѕСЂС‚РёСЂРѕРІРєРё С„Р°Р№Р»РѕРІ РІ metadata
 
-	tv = new tree(L"", nd_list, NULL); // корень дерева файла versions
-	tvc = new tree(L"", nd_list, tv); // тек. элемент дерева файла versions
-	tr = new tree(L"", nd_list, NULL); // корень дерева файла root
-	trc = new tree(L"", nd_list, tr); // тек. элемент дерева файла root
+	tv = new tree("", nd_list, NULL); // РєРѕСЂРµРЅСЊ РґРµСЂРµРІР° С„Р°Р№Р»Р° versions
+	tvc = new tree("", nd_list, tv); // С‚РµРє. СЌР»РµРјРµРЅС‚ РґРµСЂРµРІР° С„Р°Р№Р»Р° versions
+	tr = new tree("", nd_list, NULL); // РєРѕСЂРµРЅСЊ РґРµСЂРµРІР° С„Р°Р№Р»Р° root
+	trc = new tree("", nd_list, tr); // С‚РµРє. СЌР»РµРјРµРЅС‚ РґРµСЂРµРІР° С„Р°Р№Р»Р° root
 
-	tvc->add_child(L"1", nd_number);
-	tcountv = tvc->add_child(L"0", nd_number); // узел, содержащий счетчик в файле versions
+	tvc->add_child("1", nd_number);
+	tcountv = tvc->add_child("0", nd_number); // СѓР·РµР», СЃРѕРґРµСЂР¶Р°С‰РёР№ СЃС‡РµС‚С‡РёРє РІ С„Р°Р№Р»Рµ versions
 
 	CreateGUID(guid);
-	vermap[L""] = GUIDasMS(uid);
+	vermap[""] = GUIDasMS(uid);
 
-	// Создаем и записываем файл version
-	t = new tree(L"", nd_list, NULL);
-	tc = new tree(L"", nd_list, t);
-	tc = new tree(L"", nd_list, tc);
+	// РЎРѕР·РґР°РµРј Рё Р·Р°РїРёСЃС‹РІР°РµРј С„Р°Р№Р» version
+	t = new tree("", nd_list, NULL);
+	tc = new tree("", nd_list, t);
+	tc = new tree("", nd_list, tc);
 	s = configVerMajor;
 	tc->add_child(s, nd_number);
 	s = configVerMinor;
@@ -10415,7 +10415,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	delete t;
 
 	in = new TMemoryStream;
-	in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().Length);
+	in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().GetLength());
 	sw = new TStreamWriter(in, TEncoding::UTF8, 1024);
 	sw->Write(s);
 	delete sw;
@@ -10423,20 +10423,20 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	in->Seek(0, soFromBeginning);
 	ZDeflateStream(in, out);
 	delete in;
-	extmap[L"version"] = out;
+	extmap["version"] = out;
 	CreateGUID(guid);
-	vermap[L"version"] = GUIDasMS(uid);
+	vermap["version"] = GUIDasMS(uid);
 
 	if(configVerMajor < 100)
 	{
-		trc->add_child(L"1", nd_number);
+		trc->add_child("1", nd_number);
 		trc->add_child(GUIDasMS((unsigned char*)rootobj), nd_guid);
-		tcountr = trc->add_child(L"0", nd_number); // узел, содержащий счетчик в файле root
+		tcountr = trc->add_child("0", nd_number); // СѓР·РµР», СЃРѕРґРµСЂР¶Р°С‰РёР№ СЃС‡РµС‚С‡РёРє РІ С„Р°Р№Р»Рµ root
 		oldformat = true;
 	}
 	else
 	{
-		trc->add_child(L"2", nd_number);
+		trc->add_child("2", nd_number);
 		trc->add_child(GUIDasMS((unsigned char*)rootobj), nd_guid);
 		tcountr = NULL;
 		oldformat = false;
@@ -10457,7 +10457,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 		}
 
 		if(memcmp(curobj, rech2 + fldh_objid->offset, 16) != 0 || ih == nh)
-		{ // это новый объект или конец таблицы
+		{ // СЌС‚Рѕ РЅРѕРІС‹Р№ РѕР±СЉРµРєС‚ РёР»Рё РєРѕРЅРµС† С‚Р°Р±Р»РёС†С‹
 			if(!lastremoved)
 			{
 				ok = false;
@@ -10498,7 +10498,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 					if(!ok)
 					{
 						ss = fldh_datahash->get_presentation(rech1, true);
-						s = sp + ss.SubString(1, 2) + L'\\' + ss.SubString(3, ss.Length() - 2);
+						s = sp + ss.SubString(1, 2) + L'\\' + ss.SubString(3, ss.GetLength() - 2);
 						if(FileExists(s))
 						{
 							try
@@ -10508,30 +10508,30 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 							}
 							catch(...)
 							{
-								if(msreg) msreg->AddMessage_(L"Ошибка открытия файла", msError,
-									L"Файл", s,
-									L"Таблица", L"HISTORY",
-									L"Объект", fldh_objid->get_presentation(rech1, false, L'.', true),
-									L"Версия", fldh_vernum->get_presentation(rech1, false));
+								if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°", msError,
+									"Р¤Р°Р№Р»", s,
+									"РўР°Р±Р»РёС†Р°", "HISTORY",
+									"РћР±СЉРµРєС‚", fldh_objid->get_presentation(rech1, false, L'.', true),
+									"Р’РµСЂСЃРёСЏ", fldh_vernum->get_presentation(rech1, false));
 							}
 						}
 						else
 						{
-							if(msreg) msreg->AddMessage_(L"Не найден файл", msError,
-								L"Файл", s,
-								L"Таблица", L"HISTORY",
-								L"Объект", fldh_objid->get_presentation(rech1, false, L'.', true),
-								L"Версия", fldh_vernum->get_presentation(rech1, false));
+							if(msreg) msreg->AddMessage_("РќРµ РЅР°Р№РґРµРЅ С„Р°Р№Р»", msError,
+								"Р¤Р°Р№Р»", s,
+								"РўР°Р±Р»РёС†Р°", "HISTORY",
+								"РћР±СЉРµРєС‚", fldh_objid->get_presentation(rech1, false, L'.', true),
+								"Р’РµСЂСЃРёСЏ", fldh_vernum->get_presentation(rech1, false));
 						}
 					}
 				}
 				s = fldh_objid->get_presentation(rech1, false, L'.', true);
 				if(!ok)
 				{
-					if(msreg) msreg->AddMessage_(L"Ошибка чтения объекта конфигурации", msError,
-						L"Таблица", L"HISTORY",
-						L"Объект", s,
-						L"Версия", fldh_vernum->get_presentation(rech1, false));
+					if(msreg) msreg->AddMessage_("РћС€РёР±РєР° С‡С‚РµРЅРёСЏ РѕР±СЉРµРєС‚Р° РєРѕРЅС„РёРіСѓСЂР°С†РёРё", msError,
+						"РўР°Р±Р»РёС†Р°", "HISTORY",
+						"РћР±СЉРµРєС‚", s,
+						"Р’РµСЂСЃРёСЏ", fldh_vernum->get_presentation(rech1, false));
 				}
 				else
 				{
@@ -10547,7 +10547,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 					}
 
 
-					// Вот тут идем по EXTERNALS
+					// Р’РѕС‚ С‚СѓС‚ РёРґРµРј РїРѕ EXTERNALS
 					while(true)
 					{
 						if(ie > ne) break;
@@ -10561,8 +10561,8 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 							if(v <= ver) if(*(rece + flde_datapacked->offset))
 							{
 								for(j = 0; j < nreces; j++) if(s.CompareIC(flde_extname->get_presentation(reces[j])) == 0) break;
-								if(j == reces.Length){
-									reces.Length++;
+								if(j == reces.GetLength()){
+									reces.GetLength()++;
 									reces[j] = new char[table_externals->get_recordlen()];
 								}
 								if(j == nreces) nreces++;
@@ -10570,8 +10570,8 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 							}
 							if(v == lastver)
 							{
-								extnames.Length++;
-								extnames[extnames.Length - 1] = s;
+								extnames.GetLength()++;
+								extnames[extnames.GetLength() - 1] = s;
 							}
 						}
 						if(ie == ne)
@@ -10587,7 +10587,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 						rec = reces[j];
 						sn = flde_extname->get_presentation(rec);
 						ok = false;
-						for(n = 0; n < extnames.Length; n++ ) if(sn.CompareIC(extnames[n]) == 0)
+						for(n = 0; n < extnames.GetLength(); n++ ) if(sn.CompareIC(extnames[n]) == 0)
 						{
 							ok = true;
 							break;
@@ -10626,7 +10626,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 							if(!ok)
 							{
 								ss = flde_datahash->get_presentation(rec, true);
-								s = sp + ss.SubString(1, 2) + L'\\' + ss.SubString(3, ss.Length() - 2);
+								s = sp + ss.SubString(1, 2) + L'\\' + ss.SubString(3, ss.GetLength() - 2);
 								if(FileExists(s))
 								{
 									try
@@ -10636,29 +10636,29 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 									}
 									catch(...)
 									{
-										if(msreg) msreg->AddMessage_(L"Ошибка открытия файла", msError,
-											L"Файл", s,
-											L"Таблица", L"EXTERNALS",
-											L"Объект", flde_extname->get_presentation(rec),
-											L"Версия", flde_vernum->get_presentation(rec));
+										if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°", msError,
+											"Р¤Р°Р№Р»", s,
+											"РўР°Р±Р»РёС†Р°", "EXTERNALS",
+											"РћР±СЉРµРєС‚", flde_extname->get_presentation(rec),
+											"Р’РµСЂСЃРёСЏ", flde_vernum->get_presentation(rec));
 									}
 								}
 								else
 								{
-									if(msreg) msreg->AddMessage_(L"Не найден файл", msError,
-										L"Файл", s,
-										L"Таблица", L"EXTERNALS",
-										L"Объект", flde_extname->get_presentation(rec),
-										L"Версия", flde_vernum->get_presentation(rec));
+									if(msreg) msreg->AddMessage_("РќРµ РЅР°Р№РґРµРЅ С„Р°Р№Р»", msError,
+										"Р¤Р°Р№Р»", s,
+										"РўР°Р±Р»РёС†Р°", "EXTERNALS",
+										"РћР±СЉРµРєС‚", flde_extname->get_presentation(rec),
+										"Р’РµСЂСЃРёСЏ", flde_vernum->get_presentation(rec));
 								}
 							}
 						}
 						if(!ok)
 						{
-							if(msreg) msreg->AddMessage_(L"Ошибка чтения объекта конфигурации", msError,
-								L"Таблица", L"EXTERNALS",
-								L"Объект", sn,
-								L"Версия", flde_vernum->get_presentation(rec));
+							if(msreg) msreg->AddMessage_("РћС€РёР±РєР° С‡С‚РµРЅРёСЏ РѕР±СЉРµРєС‚Р° РєРѕРЅС„РёРіСѓСЂР°С†РёРё", msError,
+								"РўР°Р±Р»РёС†Р°", "EXTERNALS",
+								"РћР±СЉРµРєС‚", sn,
+								"Р’РµСЂСЃРёСЏ", flde_vernum->get_presentation(rec));
 						}
 						else
 						{
@@ -10668,7 +10668,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 
 					}
 					nreces = 0;
-					extnames.Length = 0;
+					extnames.SetLength(0);
 				}
 			}
 
@@ -10708,11 +10708,11 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	for(j = 0; j < nreces; j++) delete[] reces[j];
 
 
-	// Завершаем формирование списков версий
+	// Р—Р°РІРµСЂС€Р°РµРј С„РѕСЂРјРёСЂРѕРІР°РЅРёРµ СЃРїРёСЃРєРѕРІ РІРµСЂСЃРёР№
 	std::map<String,String>::iterator pmap;
 
 	CreateGUID(guid);
-	vermap[L"versions"] = GUIDasMS(uid);
+	vermap["versions"] = GUIDasMS(uid);
 	if(oldformat)
 	{
 		tcountv->set_value(vermap.size(), nd_number);
@@ -10721,11 +10721,11 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	else
 	{
 		CreateGUID(guid);
-		vermap[L"root"] = GUIDasMS(uid);
+		vermap["root"] = GUIDasMS(uid);
 		tcountv->set_value(vermap.size(), nd_number);
 	}
 
-	// Запись root
+	// Р—Р°РїРёСЃСЊ root
 	for(pmap = rootmap.begin(); pmap != rootmap.end(); ++pmap)
 	{
 		trc->add_child(pmap->first, nd_string);
@@ -10733,8 +10733,8 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	}
 	s = outtext(tr);
 	delete tr;
-	in->Size = 0;
-	in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().Length);
+	in->SetSize(0);
+	in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().GetLength());
 	sw = new TStreamWriter(in, TEncoding::UTF8, 1024);
 	sw->Write(s);
 	delete sw;
@@ -10743,15 +10743,15 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	if(oldformat)
 	{
 		out->CopyFrom(in, 0);
-		metamap[L"root"] = out;
+		metamap["root"] = out;
 	}
 	else
 	{
 		ZDeflateStream(in, out);
-		extmap[L"root"] = out;
+		extmap["root"] = out;
 	}
 
-	// Запись versions
+	// Р—Р°РїРёСЃСЊ versions
 
 	for(pmap = vermap.begin(); pmap != vermap.end(); ++pmap)
 	{
@@ -10761,20 +10761,20 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 
 	s = outtext(tv);
 	delete tv;
-	in->Size = 0;
-	in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().Length);
+	in->SetSize(0);
+	in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().GetLength());
 	sw = new TStreamWriter(in, TEncoding::UTF8, 1024);
 	sw->Write(s);
 	delete sw;
 	out = new TTempStream;
 	in->Seek(0, soFromBeginning);
 	ZDeflateStream(in, out);
-	extmap[L"versions"] = out;
+	extmap["versions"] = out;
 
 	std::map<String,TStream*>::iterator psmap;
 	if(oldformat)
 	{
-		cath = cat->CreateCatalog(L"metadata", true);
+		cath = cat->CreateCatalog("metadata", true);
 		for(psmap = metamap.begin(); psmap != metamap.end(); ++psmap)
 		{
 			f = cath->createFile(psmap->first);
@@ -10803,11 +10803,11 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 }
 
 //---------------------------------------------------------------------------
-// Сохранение файлов конфигурации в каталог из хранилища конфигураций
-// ver_begin - начальный номер диапазона версий сохраняемых файлов конфигурации
-// ver_end - конечный номер диапазона версий сохраняемых файлов конфигурации
-// ver_begin > 0, ver_end > 0 - используется переданный номер версии
-// ver_begin <= 0, ver_end <= 0 - номер версии от последней конфигурации. 0 - последняя конфигурация, -1 - предпоследняя и т.д., т.е. Номер версии определяется как номер последней + ver
+// РЎРѕС…СЂР°РЅРµРЅРёРµ С„Р°Р№Р»РѕРІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РІ РєР°С‚Р°Р»РѕРі РёР· С…СЂР°РЅРёР»РёС‰Р° РєРѕРЅС„РёРіСѓСЂР°С†РёР№
+// ver_begin - РЅР°С‡Р°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ РґРёР°РїР°Р·РѕРЅР° РІРµСЂСЃРёР№ СЃРѕС…СЂР°РЅСЏРµРјС‹С… С„Р°Р№Р»РѕРІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё
+// ver_end - РєРѕРЅРµС‡РЅС‹Р№ РЅРѕРјРµСЂ РґРёР°РїР°Р·РѕРЅР° РІРµСЂСЃРёР№ СЃРѕС…СЂР°РЅСЏРµРјС‹С… С„Р°Р№Р»РѕРІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё
+// ver_begin > 0, ver_end > 0 - РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РїРµСЂРµРґР°РЅРЅС‹Р№ РЅРѕРјРµСЂ РІРµСЂСЃРёРё
+// ver_begin <= 0, ver_end <= 0 - РЅРѕРјРµСЂ РІРµСЂСЃРёРё РѕС‚ РїРѕСЃР»РµРґРЅРµР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё. 0 - РїРѕСЃР»РµРґРЅСЏСЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ, -1 - РїСЂРµРґРїРѕСЃР»РµРґРЅСЏСЏ Рё С‚.Рґ., С‚.Рµ. РќРѕРјРµСЂ РІРµСЂСЃРёРё РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РєР°Рє РЅРѕРјРµСЂ РїРѕСЃР»РµРґРЅРµР№ + ver
 bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_begin, int ver_end)
 {
 	char* rec;
@@ -10828,10 +10828,10 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 	field* fldh_objdata;
 	field* fldh_datahash;
 	index* indh;
-	char* rech; // текущая запись HISTORY
-	char* rech1; // запись с версией < ver_begin
+	char* rech; // С‚РµРєСѓС‰Р°СЏ Р·Р°РїРёСЃСЊ HISTORY
+	char* rech1; // Р·Р°РїРёСЃСЊ СЃ РІРµСЂСЃРёРµР№ < ver_begin
 	bool hasrech1;
-	char* rech2; // запись с версией <= ver_end
+	char* rech2; // Р·Р°РїРёСЃСЊ СЃ РІРµСЂСЃРёРµР№ <= ver_end
 	bool hasrech2;
 
 	char rootobj[16];
@@ -10875,7 +10875,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 	TSearchRec srec;
 	_packdata pd;
 	_packdata* pdr;
-	__int64 packlen;
+	int64_t packlen;
 	v8catalog* cat;
 	String cath;
 	TFileStream* f;
@@ -10898,18 +10898,18 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 
 	if(!is_depot)
 	{
-		error(L"База не является хранилищем конфигурации.");
+		error("Р‘Р°Р·Р° РЅРµ СЏРІР»СЏРµС‚СЃСЏ С…СЂР°РЅРёР»РёС‰РµРј РєРѕРЅС„РёРіСѓСЂР°С†РёРё.");
 		return false;
 	}
 
-	// Получаем версию хранилища
+	// РџРѕР»СѓС‡Р°РµРј РІРµСЂСЃРёСЋ С…СЂР°РЅРёР»РёС‰Р°
 	if(!table_depot)
 	{
-		error(L"В базе хранилища отсутствует таблица DEPOT.");
+		error("Р’ Р±Р°Р·Рµ С…СЂР°РЅРёР»РёС‰Р° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° DEPOT.");
 		return false;
 	}
 
-	fldd_depotver = get_field(table_depot, L"DEPOTVER");
+	fldd_depotver = get_field(table_depot, "DEPOTVER");
 	if(!fldd_depotver) return false;
 
 	rec = new char[table_depot->get_recordlen()];
@@ -10925,27 +10925,27 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 	}
 	if(!ok)
 	{
-		error(L"Не удалось прочитать запись в таблице DEPOT.");
+		error("РќРµ СѓРґР°Р»РѕСЃСЊ РїСЂРѕС‡РёС‚Р°С‚СЊ Р·Р°РїРёСЃСЊ РІ С‚Р°Р±Р»РёС†Рµ DEPOT.");
 		delete[] rec;
 		return false;
 	}
 
 	s = fldd_depotver->get_presentation(rec, true);
 
-	if(s.CompareIC(L"0300000000000000") == 0) depotVer = depotVer3;
-	else if(s.CompareIC(L"0500000000000000") == 0) depotVer = depotVer5;
-	else if(s.CompareIC(L"0600000000000000") == 0) depotVer = depotVer6;
+	if(s.CompareIC("0300000000000000") == 0) depotVer = depotVer3;
+	else if(s.CompareIC("0500000000000000") == 0) depotVer = depotVer5;
+	else if(s.CompareIC("0600000000000000") == 0) depotVer = depotVer6;
 	else
 	{
-		msreg->AddMessage_(L"Неизвестная версия хранилища", msError,
-			L"Версия хранилища", s);
+		msreg->AddMessage_("РќРµРёР·РІРµСЃС‚РЅР°СЏ РІРµСЂСЃРёСЏ С…СЂР°РЅРёР»РёС‰Р°", msError,
+			"Р’РµСЂСЃРёСЏ С…СЂР°РЅРёР»РёС‰Р°", s);
 		delete[] rec;
 		return false;
 	}
 
 	delete[] rec;
 
-	// "Нормализуем" версию конфигурации
+	// "РќРѕСЂРјР°Р»РёР·СѓРµРј" РІРµСЂСЃРёСЋ РєРѕРЅС„РёРіСѓСЂР°С†РёРё
 	ver_begin = get_ver_depot_config(ver_begin);
 	ver_end = get_ver_depot_config(ver_end);
 	if(ver_end < ver_begin)
@@ -10955,23 +10955,23 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 		ver_end = v;
 	}
 
-	// Ищем строку с номером версии конфигурации
+	// РС‰РµРј СЃС‚СЂРѕРєСѓ СЃ РЅРѕРјРµСЂРѕРј РІРµСЂСЃРёРё РєРѕРЅС„РёРіСѓСЂР°С†РёРё
 	if(!table_versions)
 	{
-		error(L"В базе хранилища отсутствует таблица VERSIONS.");
+		error("Р’ Р±Р°Р·Рµ С…СЂР°РЅРёР»РёС‰Р° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° VERSIONS.");
 		return false;
 	}
 
-	fldv_vernum = get_field(table_versions, L"VERNUM");
+	fldv_vernum = get_field(table_versions, "VERNUM");
 	if(!fldv_vernum) return false;
 	if(depotVer >= depotVer5)
 	{
-		fldv_cversion = get_field(table_versions, L"CVERSION");
+		fldv_cversion = get_field(table_versions, "CVERSION");
 		if(!fldv_cversion) return false;
 	}
-	fldv_snapshotcrc = get_field(table_versions, L"SNAPSHOTCRC");
+	fldv_snapshotcrc = get_field(table_versions, "SNAPSHOTCRC");
 	if(!fldv_snapshotcrc) return false;
-	fldv_snapshotmaker = get_field(table_versions, L"SNAPSHOTMAKER");
+	fldv_snapshotmaker = get_field(table_versions, "SNAPSHOTMAKER");
 	if(!fldv_snapshotmaker) return false;
 
 	rec = new char[table_versions->get_recordlen()];
@@ -10989,16 +10989,16 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 
 	if(n < 2)
 	{
-		if(msreg) msreg->AddMessage_(L"В хранилище не найдены запрошенные версии конфигурации", msError
-			, L"Версия с", ver_begin
-			, L"Версия по", ver_end);
+		if(msreg) msreg->AddMessage_("Р’ С…СЂР°РЅРёР»РёС‰Рµ РЅРµ РЅР°Р№РґРµРЅС‹ Р·Р°РїСЂРѕС€РµРЅРЅС‹Рµ РІРµСЂСЃРёРё РєРѕРЅС„РёРіСѓСЂР°С†РёРё", msError
+			, "Р’РµСЂСЃРёСЏ СЃ", ver_begin
+			, "Р’РµСЂСЃРёСЏ РїРѕ", ver_end);
 		delete[] rec;
 		return false;
 	}
 
 	__filename = System::Ioutils::TPath::GetFullPath(_filename);
 
-	// Определяем версию структуры конфигурации (для файла version)
+	// РћРїСЂРµРґРµР»СЏРµРј РІРµСЂСЃРёСЋ СЃС‚СЂСѓРєС‚СѓСЂС‹ РєРѕРЅС„РёРіСѓСЂР°С†РёРё (РґР»СЏ С„Р°Р№Р»Р° version)
 	if(depotVer >= depotVer5)
 	{
 		frec = rec + fldv_cversion->offset;
@@ -11020,54 +11020,54 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 
 	delete[] rec;
 
-	// Инициализируем таблицы HISTORY и EXTERNALS
+	// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј С‚Р°Р±Р»РёС†С‹ HISTORY Рё EXTERNALS
 	if(!table_history)
 	{
-		error(L"В базе хранилища отсутствует таблица HISTORY.");
+		error("Р’ Р±Р°Р·Рµ С…СЂР°РЅРёР»РёС‰Р° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° HISTORY.");
 		return false;
 	}
 
 	if(!table_externals)
 	{
-		error(L"В базе хранилища отсутствует таблица EXTERNALS.");
+		error("Р’ Р±Р°Р·Рµ С…СЂР°РЅРёР»РёС‰Р° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° EXTERNALS.");
 		return false;
 	}
 
-	fldh_objid = get_field(table_history, L"OBJID");
+	fldh_objid = get_field(table_history, "OBJID");
 	if(!fldh_objid) return false;
-	fldh_vernum = get_field(table_history, L"VERNUM");
+	fldh_vernum = get_field(table_history, "VERNUM");
 	if(!fldh_vernum) return false;
-	fldh_objverid = get_field(table_history, L"OBJVERID");
+	fldh_objverid = get_field(table_history, "OBJVERID");
 	if(!fldh_objverid) return false;
-	fldh_removed = get_field(table_history, L"REMOVED");
+	fldh_removed = get_field(table_history, "REMOVED");
 	if(!fldh_removed) return false;
-	fldh_datapacked = get_field(table_history, L"DATAPACKED");
+	fldh_datapacked = get_field(table_history, "DATAPACKED");
 	if(!fldh_datapacked) return false;
-	fldh_objdata = get_field(table_history, L"OBJDATA");
+	fldh_objdata = get_field(table_history, "OBJDATA");
 	if(!fldh_objdata) return false;
 
-	flde_objid = get_field(table_externals, L"OBJID");
+	flde_objid = get_field(table_externals, "OBJID");
 	if(!flde_objid) return false;
-	flde_vernum = get_field(table_externals, L"VERNUM");
+	flde_vernum = get_field(table_externals, "VERNUM");
 	if(!flde_vernum) return false;
-	flde_extname = get_field(table_externals, L"EXTNAME");
+	flde_extname = get_field(table_externals, "EXTNAME");
 	if(!flde_extname) return false;
-	flde_extverid = get_field(table_externals, L"EXTVERID");
+	flde_extverid = get_field(table_externals, "EXTVERID");
 	if(!flde_extverid) return false;
-	flde_datapacked = get_field(table_externals, L"DATAPACKED");
+	flde_datapacked = get_field(table_externals, "DATAPACKED");
 	if(!flde_datapacked) return false;
-	flde_extdata = get_field(table_externals, L"EXTDATA");
+	flde_extdata = get_field(table_externals, "EXTDATA");
 	if(!flde_extdata) return false;
 
 	if(depotVer >= depotVer6)
 	{
-		fldh_datahash = get_field(table_history, L"DATAHASH");
+		fldh_datahash = get_field(table_history, "DATAHASH");
 		if(!fldh_datahash) return false;
-		flde_datahash = get_field(table_externals, L"DATAHASH");
+		flde_datahash = get_field(table_externals, "DATAHASH");
 		if(!flde_datahash) return false;
 
-		sp = filename.SubString(1, filename.LastDelimiter(L"\\")) + L"data\\pack\\";
-		s = sp + L"pack-*.ind";
+		sp = filename.SubString(1, filename.LastDelimiter("\\")) + "data\\pack\\";
+		s = sp + "pack-*.ind";
 		if(FindFirst(s, 0, srec) == 0)
 		{
 			do
@@ -11078,8 +11078,8 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 				}
 				catch(...)
 				{
-					if(msreg) msreg->AddMessage_(L"Ошибка открытия файла", msError,
-						L"Файл", srec.Name);
+					if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°", msError,
+						"Р¤Р°Р№Р»", srec.Name);
 					FindClose(srec);
 					return false;
 				}
@@ -11091,13 +11091,13 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 				pd.count = i;
 				try
 				{
-					s = sp + srec.Name.SubString(1, srec.Name.Length() - 3) + L"pck";
+					s = sp + srec.Name.SubString(1, srec.Name.GetLength() - 3) + "pck";
 					pd.pack = new TFileStream(s, fmOpenRead | fmShareDenyNone);
 				}
 				catch(...)
 				{
-					if(msreg) msreg->AddMessage_(L"Ошибка открытия файла", msError,
-						L"Файл", s);
+					if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°", msError,
+						"Р¤Р°Р№Р»", s);
 					FindClose(srec);
 					return false;
 				}
@@ -11106,7 +11106,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 			FindClose(srec);
 		}
 
-		sp = filename.SubString(1, filename.LastDelimiter(L"\\")) + L"data\\objects\\";
+		sp = filename.SubString(1, filename.LastDelimiter("\\")) + "data\\objects\\";
 	}
 	else
 	{
@@ -11114,9 +11114,9 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 		flde_datahash = NULL;
 	}
 
-	indh = get_index(table_history, L"PK");
+	indh = get_index(table_history, "PK");
 	if(!indh) return 0;
-	inde = get_index(table_externals, L"PK");
+	inde = get_index(table_externals, "PK");
 	if(!inde) return 0;
 
 	rech = new char[table_history->get_recordlen()];
@@ -11132,11 +11132,11 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 
 	if(configVerMajor < 100)
 	{
-		cath = __filename + L"\\metadata\\";
+		cath = __filename + "\\metadata\\";
 	}
 	else
 	{
-		cath = __filename + L"\\";
+		cath = __filename + "\\";
 	}
 
 	lastver = -1;
@@ -11144,7 +11144,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 
 	sd = new TMemoryStream;
 	sw = new TStreamWriter(sd, TEncoding::UTF8, 4096);
-	//sd->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().Length);
+	//sd->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().GetLength());
 	hasdeleted = false;
 
 	in = new TMemoryStream;
@@ -11161,7 +11161,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 		}
 
 		if(memcmp(curobj, rech + fldh_objid->offset, 16) != 0 || ih == nh)
-		{ // это новый объект или конец таблицы
+		{ // СЌС‚Рѕ РЅРѕРІС‹Р№ РѕР±СЉРµРєС‚ РёР»Рё РєРѕРЅРµС† С‚Р°Р±Р»РёС†С‹
 			if(ih) if(hasrech2)
 			{
 				s = fldh_vernum->get_presentation(rech2, false);
@@ -11174,7 +11174,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 				{
 					if(hasrech1)
 					{
-						sw->Write(sn + L"\r\n");
+						sw->Write(sn + "\r\n");
 						hasdeleted = true;
 					}
 					else hasext = false;
@@ -11203,7 +11203,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 									{
 										table_history->readBlob(in, *(unsigned int*)rec, *(unsigned int*)(rec + 4));
 										inreaded = true;
-										if(in->Size == out->Size) if(memcmp(in->Memory, out->Memory, in->Size) == 0) changed = false;
+										if(in->GetSize() == out->GetSize()) if(memcmp(in->Memory, out->Memory, in->GetSize()) == 0) changed = false;
 									}
 								}
 								else if(depotVer >= depotVer6)
@@ -11243,7 +11243,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 										sobj = pdr->pack;
 										sobj->Seek(pdr->datahashes[k].offset, soBeginning);
 										sobj->Read(&packlen, 8);
-										in->Size = 0;
+										in->SetSize(0);
 										in->CopyFrom(sobj, packlen);
 										sobj = in;
 										ok = true;
@@ -11255,7 +11255,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 								if(!ok)
 								{
 									ss = fldh_datahash->get_presentation(rech2, true);
-									s = sp + ss.SubString(1, 2) + L'\\' + ss.SubString(3, ss.Length() - 2);
+									s = sp + ss.SubString(1, 2) + L'\\' + ss.SubString(3, ss.GetLength() - 2);
 									if(FileExists(s))
 									{
 										try
@@ -11266,30 +11266,30 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 										}
 										catch(...)
 										{
-											if(msreg) msreg->AddMessage_(L"Ошибка открытия файла", msError,
-												L"Файл", s,
-												L"Таблица", L"HISTORY",
-												L"Объект", sn,
-												L"Версия", lastver);
+											if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°", msError,
+												"Р¤Р°Р№Р»", s,
+												"РўР°Р±Р»РёС†Р°", "HISTORY",
+												"РћР±СЉРµРєС‚", sn,
+												"Р’РµСЂСЃРёСЏ", lastver);
 										}
 									}
 									else
 									{
-										if(msreg) msreg->AddMessage_(L"Не найден файл", msError,
-											L"Файл", s,
-											L"Таблица", L"HISTORY",
-											L"Объект", sn,
-											L"Версия", lastver);
+										if(msreg) msreg->AddMessage_("РќРµ РЅР°Р№РґРµРЅ С„Р°Р№Р»", msError,
+											"Р¤Р°Р№Р»", s,
+											"РўР°Р±Р»РёС†Р°", "HISTORY",
+											"РћР±СЉРµРєС‚", sn,
+											"Р’РµСЂСЃРёСЏ", lastver);
 									}
 								}
 							}
 
 							if(!ok)
 							{
-								if(msreg) msreg->AddMessage_(L"Ошибка чтения объекта конфигурации", msError,
-									L"Таблица", L"HISTORY",
-									L"Объект", sn,
-									L"Версия", lastver);
+								if(msreg) msreg->AddMessage_("РћС€РёР±РєР° С‡С‚РµРЅРёСЏ РѕР±СЉРµРєС‚Р° РєРѕРЅС„РёРіСѓСЂР°С†РёРё", msError,
+									"РўР°Р±Р»РёС†Р°", "HISTORY",
+									"РћР±СЉРµРєС‚", sn,
+									"Р’РµСЂСЃРёСЏ", lastver);
 							}
 							else
 							{
@@ -11304,7 +11304,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 					}
 				}
 
-				// Вот тут идем по EXTERNALS
+				// Р’РѕС‚ С‚СѓС‚ РёРґРµРј РїРѕ EXTERNALS
 				while(hasext)
 				{
 					if(ie > ne) break;
@@ -11319,16 +11319,16 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 							se = flde_extname->get_presentation(rece);
 							if(removed)
 							{
-								sw->Write(se + L"\r\n");
+								sw->Write(se + "\r\n");
 								hasdeleted = true;
 							}
 							else
 							{
 								datapacked = *(rece + flde_datapacked->offset);
 
-								// ==> Поиск записи о файле
-								// В случае отсутствия данных (datapacked = false) в этой записи пытаемся найти предыдущую запись с данными
-								// (с тем же objid, extname и extverid), но в пределах ver_begin <= vernum < lastver
+								// ==> РџРѕРёСЃРє Р·Р°РїРёСЃРё Рѕ С„Р°Р№Р»Рµ
+								// Р’ СЃР»СѓС‡Р°Рµ РѕС‚СЃСѓС‚СЃС‚РІРёСЏ РґР°РЅРЅС‹С… (datapacked = false) РІ СЌС‚РѕР№ Р·Р°РїРёСЃРё РїС‹С‚Р°РµРјСЃСЏ РЅР°Р№С‚Рё РїСЂРµРґС‹РґСѓС‰СѓСЋ Р·Р°РїРёСЃСЊ СЃ РґР°РЅРЅС‹РјРё
+								// (СЃ С‚РµРј Р¶Рµ objid, extname Рё extverid), РЅРѕ РІ РїСЂРµРґРµР»Р°С… ver_begin <= vernum < lastver
 								memcpy(verid, rece + flde_extverid->offset, 16);
 								je = ie;
 								while(!datapacked && v > ver_begin && je)
@@ -11347,7 +11347,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 										datapacked = *(rece + flde_datapacked->offset);
 									}
 								}
-								// <== Поиск записи о файле
+								// <== РџРѕРёСЃРє Р·Р°РїРёСЃРё Рѕ С„Р°Р№Р»Рµ
 
 								if(datapacked)
 								{
@@ -11372,7 +11372,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 												sobj = pdr->pack;
 												sobj->Seek(pdr->datahashes[k].offset, soBeginning);
 												sobj->Read(&packlen, 8);
-												in->Size = 0;
+												in->SetSize(0);
 												in->CopyFrom(sobj, packlen);
 												sobj = in;
 												ok = true;
@@ -11384,7 +11384,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 										if(!ok)
 										{
 											ss = flde_datahash->get_presentation(rece, true);
-											s = sp + ss.SubString(1, 2) + L'\\' + ss.SubString(3, ss.Length() - 2);
+											s = sp + ss.SubString(1, 2) + L'\\' + ss.SubString(3, ss.GetLength() - 2);
 											if(FileExists(s))
 											{
 												try
@@ -11395,40 +11395,40 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 												}
 												catch(...)
 												{
-													if(msreg) msreg->AddMessage_(L"Ошибка открытия файла", msError,
-														L"Файл", s,
-														L"Таблица", L"EXTERNALS",
-														L"Объект", sn,
-														L"Файл конфигурации", se,
-														L"Версия", v);
+													if(msreg) msreg->AddMessage_("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°", msError,
+														"Р¤Р°Р№Р»", s,
+														"РўР°Р±Р»РёС†Р°", "EXTERNALS",
+														"РћР±СЉРµРєС‚", sn,
+														"Р¤Р°Р№Р» РєРѕРЅС„РёРіСѓСЂР°С†РёРё", se,
+														"Р’РµСЂСЃРёСЏ", v);
 												}
 											}
 											else
 											{
-												if(msreg) msreg->AddMessage_(L"Не найден файл", msError,
-													L"Файл", s,
-													L"Таблица", L"EXTERNALS",
-													L"Объект", sn,
-													L"Файл конфигурации", se,
-													L"Версия", v);
+												if(msreg) msreg->AddMessage_("РќРµ РЅР°Р№РґРµРЅ С„Р°Р№Р»", msError,
+													"Р¤Р°Р№Р»", s,
+													"РўР°Р±Р»РёС†Р°", "EXTERNALS",
+													"РћР±СЉРµРєС‚", sn,
+													"Р¤Р°Р№Р» РєРѕРЅС„РёРіСѓСЂР°С†РёРё", se,
+													"Р’РµСЂСЃРёСЏ", v);
 											}
 										}
 									}
 									if(!ok)
 									{
-										if(msreg) msreg->AddMessage_(L"Ошибка чтения объекта конфигурации", msError,
-											L"Таблица", L"EXTERNALS",
-											L"Объект", sn,
-											L"Файл конфигурации", se,
-											L"Версия", v);
+										if(msreg) msreg->AddMessage_("РћС€РёР±РєР° С‡С‚РµРЅРёСЏ РѕР±СЉРµРєС‚Р° РєРѕРЅС„РёРіСѓСЂР°С†РёРё", msError,
+											"РўР°Р±Р»РёС†Р°", "EXTERNALS",
+											"РћР±СЉРµРєС‚", sn,
+											"Р¤Р°Р№Р» РєРѕРЅС„РёРіСѓСЂР°С†РёРё", se,
+											"Р’РµСЂСЃРёСЏ", v);
 									}
 									else
 									{
-										out->Size = 0;
+										out->SetSize(0);
 										sobj->Seek(0, soFromBeginning);
 										ZInflateStream(sobj, out);
 										iscatalog = false;
-										if(out->Size > 0)
+										if(out->GetSize() > 0)
 										{
 											cat = new v8catalog(out, false, true);
 											iscatalog = cat->IsCatalog();
@@ -11488,7 +11488,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 	delete sw;
 	if(hasdeleted)
 	{
-		f = new TFileStream(__filename + L"\\deleted", fmCreate);
+		f = new TFileStream(__filename + "\\deleted", fmCreate);
 		f->CopyFrom(sd, 0);
 		delete f;
 	}
@@ -11513,9 +11513,9 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 
 #ifndef PublicRelease
 //---------------------------------------------------------------------------
-// Проверка и восстановление таблицы размещения файла DATA переденной таблицы
-// Проверка записей происходит по тестовому шаблону, созданному из описания полей
-// Проверяются страницы файла DATA, если проверка не проходит, производится поиск подходящей страницы в файле.
+// РџСЂРѕРІРµСЂРєР° Рё РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ С‚Р°Р±Р»РёС†С‹ СЂР°Р·РјРµС‰РµРЅРёСЏ С„Р°Р№Р»Р° DATA РїРµСЂРµРґРµРЅРЅРѕР№ С‚Р°Р±Р»РёС†С‹
+// РџСЂРѕРІРµСЂРєР° Р·Р°РїРёСЃРµР№ РїСЂРѕРёСЃС…РѕРґРёС‚ РїРѕ С‚РµСЃС‚РѕРІРѕРјСѓ С€Р°Р±Р»РѕРЅСѓ, СЃРѕР·РґР°РЅРЅРѕРјСѓ РёР· РѕРїРёСЃР°РЅРёСЏ РїРѕР»РµР№
+// РџСЂРѕРІРµСЂСЏСЋС‚СЃСЏ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р° DATA, РµСЃР»Рё РїСЂРѕРІРµСЂРєР° РЅРµ РїСЂРѕС…РѕРґРёС‚, РїСЂРѕРёР·РІРѕРґРёС‚СЃСЏ РїРѕРёСЃРє РїРѕРґС…РѕРґСЏС‰РµР№ СЃС‚СЂР°РЅРёС†С‹ РІ С„Р°Р№Р»Рµ.
 void __fastcall T_1CD::restore_DATA_allocation_table(table* tab)
 {
 	char* rectt;
@@ -11533,9 +11533,9 @@ void __fastcall T_1CD::restore_DATA_allocation_table(table* tab)
 
 	if(block < 5 || block >= length)
 	{
-		if(msreg) msreg->AddMessage_(L"Номер корневого блока файла DATA некорректный", msError
-			,L"Таблица", tab->getname()
-			,L"Номер блока", block
+		if(msreg) msreg->AddMessage_("РќРѕРјРµСЂ РєРѕСЂРЅРµРІРѕРіРѕ Р±Р»РѕРєР° С„Р°Р№Р»Р° DATA РЅРµРєРѕСЂСЂРµРєС‚РЅС‹Р№", msError
+			,"РўР°Р±Р»РёС†Р°", tab->getname()
+			,"РќРѕРјРµСЂ Р±Р»РѕРєР°", block
 		);
 		return;
 	}
@@ -11545,11 +11545,11 @@ void __fastcall T_1CD::restore_DATA_allocation_table(table* tab)
 	if(memcmp(rootobj->sig, SIG_OBJ, 8))
 	{
 		//memcpy(rootobj->sig, SIG_OBJ, 8);
-		//if(msreg) msreg->AddMessage_(L"Сигнатура корневого блока файла DATA некорректная. Записана новая сигнатура.", msError
-		if(msreg) msreg->AddMessage_(L"Сигнатура корневого блока файла DATA некорректная.", msError
-			,L"Таблица", tab->getname()
-			,L"Номер блока (dec)", block
-			,L"Номер блока (hex)", tohex(block)
+		//if(msreg) msreg->AddMessage_("РЎРёРіРЅР°С‚СѓСЂР° РєРѕСЂРЅРµРІРѕРіРѕ Р±Р»РѕРєР° С„Р°Р№Р»Р° DATA РЅРµРєРѕСЂСЂРµРєС‚РЅР°СЏ. Р—Р°РїРёСЃР°РЅР° РЅРѕРІР°СЏ СЃРёРіРЅР°С‚СѓСЂР°.", msError
+		if(msreg) msreg->AddMessage_("РЎРёРіРЅР°С‚СѓСЂР° РєРѕСЂРЅРµРІРѕРіРѕ Р±Р»РѕРєР° С„Р°Р№Р»Р° DATA РЅРµРєРѕСЂСЂРµРєС‚РЅР°СЏ.", msError
+			,"РўР°Р±Р»РёС†Р°", tab->getname()
+			,"РќРѕРјРµСЂ Р±Р»РѕРєР° (dec)", block
+			,"РќРѕРјРµСЂ Р±Р»РѕРєР° (hex)", tohex(block)
 		);
 		return;
 	}
@@ -11558,12 +11558,12 @@ void __fastcall T_1CD::restore_DATA_allocation_table(table* tab)
 	rl = tab->get_recordlen();
 	if(l / rl * rl != l)
 	{
-		if(msreg) msreg->AddMessage_(L"Длина файла DATA не кратна длине одной записи.", msError
-			,L"Таблица", tab->getname()
-			,L"Номер блока (dec)", block
-			,L"Номер блока (hex)", tohex(block)
-			,L"Длина файла", l
-			,L"Длина записи", tab->get_recordlen()
+		if(msreg) msreg->AddMessage_("Р”Р»РёРЅР° С„Р°Р№Р»Р° DATA РЅРµ РєСЂР°С‚РЅР° РґР»РёРЅРµ РѕРґРЅРѕР№ Р·Р°РїРёСЃРё.", msError
+			,"РўР°Р±Р»РёС†Р°", tab->getname()
+			,"РќРѕРјРµСЂ Р±Р»РѕРєР° (dec)", block
+			,"РќРѕРјРµСЂ Р±Р»РѕРєР° (hex)", tohex(block)
+			,"Р”Р»РёРЅР° С„Р°Р№Р»Р°", l
+			,"Р”Р»РёРЅР° Р·Р°РїРёСЃРё", tab->get_recordlen()
 		);
 		return;
 	}
@@ -11579,28 +11579,28 @@ void __fastcall T_1CD::restore_DATA_allocation_table(table* tab)
 			a = rootobj->blocks[k];
 			if(a < 5 || a >= length)
 			{
-				if(msreg) msreg->AddMessage_(L"Некорректный номер блока таблицы размещения файла DATA. Создана новая страница размещения", msWarning
-					,L"Таблица", tab->getname()
-					,L"Индекс страницы", k
-					,L"Номер блока", a
+				if(msreg) msreg->AddMessage_("РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ РЅРѕРјРµСЂ Р±Р»РѕРєР° С‚Р°Р±Р»РёС†С‹ СЂР°Р·РјРµС‰РµРЅРёСЏ С„Р°Р№Р»Р° DATA. РЎРѕР·РґР°РЅР° РЅРѕРІР°СЏ СЃС‚СЂР°РЅРёС†Р° СЂР°Р·РјРµС‰РµРЅРёСЏ", msWarning
+					,"РўР°Р±Р»РёС†Р°", tab->getname()
+					,"РРЅРґРµРєСЃ СЃС‚СЂР°РЅРёС†С‹", k
+					,"РќРѕРјРµСЂ Р±Р»РѕРєР°", a
 				);
 				a = length;
 				ca = (objtab*)getblock_for_write(a, false);
 			}
 			else ca = (objtab*)getblock_for_write(a, true);
 
-			n = ((unsigned __int64)l + 0xfff) >> 12;
+			n = ((uint64_t)l + 0xfff) >> 12;
 			if(n > 1023) n = 1023;
 			m = ca->numblocks;
 
 			if(n != m)
 			{
-				if(msreg) msreg->AddMessage_(L"Некорректное число блоков на странице размещения файла DATA. Исправлено.", msWarning
-					,L"Таблица", tab->getname()
-					,L"Номер блока", a
-					,L"Индекс страницы", k
-					,L"Неверное количество блоков", m
-					,L"Верное количество блоков", n
+				if(msreg) msreg->AddMessage_("РќРµРєРѕСЂСЂРµРєС‚РЅРѕРµ С‡РёСЃР»Рѕ Р±Р»РѕРєРѕРІ РЅР° СЃС‚СЂР°РЅРёС†Рµ СЂР°Р·РјРµС‰РµРЅРёСЏ С„Р°Р№Р»Р° DATA. РСЃРїСЂР°РІР»РµРЅРѕ.", msWarning
+					,"РўР°Р±Р»РёС†Р°", tab->getname()
+					,"РќРѕРјРµСЂ Р±Р»РѕРєР°", a
+					,"РРЅРґРµРєСЃ СЃС‚СЂР°РЅРёС†С‹", k
+					,"РќРµРІРµСЂРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р»РѕРєРѕРІ", m
+					,"Р’РµСЂРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р»РѕРєРѕРІ", n
 				);
 				ca->numblocks = n;
 			}
@@ -11612,12 +11612,12 @@ void __fastcall T_1CD::restore_DATA_allocation_table(table* tab)
 		ok = true;
 		if(d < 5 || d >= length)
 		{
-			if(msreg) msreg->AddMessage_(L"Некорректный номер страницы данных файла DATA.", msWarning
-				,L"Таблица", tab->getname()
-				,L"Номер блока", a
-				,L"Индекс страницы размещения", k - 1
-				,L"Индекс блока на странице", j
-				,L"Неверный номер страницы", d
+			if(msreg) msreg->AddMessage_("РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ РЅРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ РґР°РЅРЅС‹С… С„Р°Р№Р»Р° DATA.", msWarning
+				,"РўР°Р±Р»РёС†Р°", tab->getname()
+				,"РќРѕРјРµСЂ Р±Р»РѕРєР°", a
+				,"РРЅРґРµРєСЃ СЃС‚СЂР°РЅРёС†С‹ СЂР°Р·РјРµС‰РµРЅРёСЏ", k - 1
+				,"РРЅРґРµРєСЃ Р±Р»РѕРєР° РЅР° СЃС‚СЂР°РЅРёС†Рµ", j
+				,"РќРµРІРµСЂРЅС‹Р№ РЅРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹", d
 			);
 			ok = false;
 		}
@@ -11626,12 +11626,12 @@ void __fastcall T_1CD::restore_DATA_allocation_table(table* tab)
 			ok = test_block_by_template(d, rectt, i, rl, cl);
 			if(!ok)
 			{
-			if(msreg) msreg->AddMessage_(L"Cтраница данных файла DATA не подходит по шаблону.", msWarning
-				,L"Таблица", tab->getname()
-				,L"Номер блока", d
-				,L"Индекс страницы размещения", k - 1
-				,L"Индекс блока на странице", j
-				,L"Индекс страницы в файле DATA", i
+			if(msreg) msreg->AddMessage_("CС‚СЂР°РЅРёС†Р° РґР°РЅРЅС‹С… С„Р°Р№Р»Р° DATA РЅРµ РїРѕРґС…РѕРґРёС‚ РїРѕ С€Р°Р±Р»РѕРЅСѓ.", msWarning
+				,"РўР°Р±Р»РёС†Р°", tab->getname()
+				,"РќРѕРјРµСЂ Р±Р»РѕРєР°", d
+				,"РРЅРґРµРєСЃ СЃС‚СЂР°РЅРёС†С‹ СЂР°Р·РјРµС‰РµРЅРёСЏ", k - 1
+				,"РРЅРґРµРєСЃ Р±Р»РѕРєР° РЅР° СЃС‚СЂР°РЅРёС†Рµ", j
+				,"РРЅРґРµРєСЃ СЃС‚СЂР°РЅРёС†С‹ РІ С„Р°Р№Р»Рµ DATA", i
 			);
 			}
 		}
@@ -11645,40 +11645,40 @@ void __fastcall T_1CD::restore_DATA_allocation_table(table* tab)
 			}
 			if(bk.size() == 0)
 			{
-				if(msreg) msreg->AddMessage_(L"Не удалось найти подходящую страницу данных файла DATA по шаблону.", msError
-					,L"Таблица", tab->getname()
-					,L"Индекс страницы размещения", k - 1
-					,L"Индекс блока на странице", j
-					,L"Индекс страницы в файле DATA", i
+				if(msreg) msreg->AddMessage_("РќРµ СѓРґР°Р»РѕСЃСЊ РЅР°Р№С‚Рё РїРѕРґС…РѕРґСЏС‰СѓСЋ СЃС‚СЂР°РЅРёС†Сѓ РґР°РЅРЅС‹С… С„Р°Р№Р»Р° DATA РїРѕ С€Р°Р±Р»РѕРЅСѓ.", msError
+					,"РўР°Р±Р»РёС†Р°", tab->getname()
+					,"РРЅРґРµРєСЃ СЃС‚СЂР°РЅРёС†С‹ СЂР°Р·РјРµС‰РµРЅРёСЏ", k - 1
+					,"РРЅРґРµРєСЃ Р±Р»РѕРєР° РЅР° СЃС‚СЂР°РЅРёС†Рµ", j
+					,"РРЅРґРµРєСЃ СЃС‚СЂР°РЅРёС†С‹ РІ С„Р°Р№Р»Рµ DATA", i
 				);
 			}
 			else if(bk.size() == 1)
 			{
 				d = bk[0];
 				ca->blocks[j] = d;
-				if(msreg) msreg->AddMessage_(L"Найдена подходящая страница данных файла DATA. Страница восстановлена", msInfo
-					,L"Таблица", tab->getname()
-					,L"Номер блока", d
-					,L"Индекс страницы размещения", k - 1
-					,L"Индекс блока на странице", j
-					,L"Индекс страницы в файле DATA", i
+				if(msreg) msreg->AddMessage_("РќР°Р№РґРµРЅР° РїРѕРґС…РѕРґСЏС‰Р°СЏ СЃС‚СЂР°РЅРёС†Р° РґР°РЅРЅС‹С… С„Р°Р№Р»Р° DATA. РЎС‚СЂР°РЅРёС†Р° РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅР°", msInfo
+					,"РўР°Р±Р»РёС†Р°", tab->getname()
+					,"РќРѕРјРµСЂ Р±Р»РѕРєР°", d
+					,"РРЅРґРµРєСЃ СЃС‚СЂР°РЅРёС†С‹ СЂР°Р·РјРµС‰РµРЅРёСЏ", k - 1
+					,"РРЅРґРµРєСЃ Р±Р»РѕРєР° РЅР° СЃС‚СЂР°РЅРёС†Рµ", j
+					,"РРЅРґРµРєСЃ СЃС‚СЂР°РЅРёС†С‹ РІ С„Р°Р№Р»Рµ DATA", i
 				);
 
 			}
 			else
 			{
-				s = L"";
+				s = "";
 				for(d = 0; d < bk.size(); ++d)
 				{
-					if(d > 0) s += L", ";
+					if(d > 0) s += ", ";
 					s += tohex(bk[d]);
 				}
-				if(msreg) msreg->AddMessage_(L"Найдено несколько подходящих страниц данных файла DATA.", msHint
-					,L"Таблица", tab->getname()
-					,L"Список подходящих блоков", s
-					,L"Индекс страницы размещения", k - 1
-					,L"Индекс блока на странице", j
-					,L"Индекс страницы в файле DATA", i
+				if(msreg) msreg->AddMessage_("РќР°Р№РґРµРЅРѕ РЅРµСЃРєРѕР»СЊРєРѕ РїРѕРґС…РѕРґСЏС‰РёС… СЃС‚СЂР°РЅРёС† РґР°РЅРЅС‹С… С„Р°Р№Р»Р° DATA.", msHint
+					,"РўР°Р±Р»РёС†Р°", tab->getname()
+					,"РЎРїРёСЃРѕРє РїРѕРґС…РѕРґСЏС‰РёС… Р±Р»РѕРєРѕРІ", s
+					,"РРЅРґРµРєСЃ СЃС‚СЂР°РЅРёС†С‹ СЂР°Р·РјРµС‰РµРЅРёСЏ", k - 1
+					,"РРЅРґРµРєСЃ Р±Р»РѕРєР° РЅР° СЃС‚СЂР°РЅРёС†Рµ", j
+					,"РРЅРґРµРєСЃ СЃС‚СЂР°РЅРёС†С‹ РІ С„Р°Р№Р»Рµ DATA", i
 				);
 			}
 		}
@@ -11699,7 +11699,7 @@ void __fastcall T_1CD::restore_DATA_allocation_table(table* tab)
 }
 
 //---------------------------------------------------------------------------
-// Проверка блока таблицы по шаблону
+// РџСЂРѕРІРµСЂРєР° Р±Р»РѕРєР° С‚Р°Р±Р»РёС†С‹ РїРѕ С€Р°Р±Р»РѕРЅСѓ
 bool __fastcall T_1CD::test_block_by_template(unsigned int testblock, char* tt, unsigned int num, int rlen, int len)
 {
 	unsigned char b[0x1000]; // TODO pagesize
@@ -11707,7 +11707,7 @@ bool __fastcall T_1CD::test_block_by_template(unsigned int testblock, char* tt, 
 	int i, j;
 
 	ok = true;
-	fs->Seek((__int64)testblock << 12, (TSeekOrigin)soFromBeginning);
+	fs->Seek((int64_t)testblock << 12, (TSeekOrigin)soFromBeginning);
 	fs->ReadBuffer(b, len);
 
 	if(!num)
@@ -11821,28 +11821,28 @@ String __fastcall T_1CD::pagemaprec_presentation(pagemaprec& pmr)
 {
 	switch(pmr.type)
 	{
-		case pt_lost: return String(L"потерянная страница");
-		case pt_root: return String(L"корневая страница базы");
-		case pt_freeroot: return String(L"корневая страница таблицы свободных блоков");
-		case pt_freealloc: return String(L"страница размещения таблицы свободных блоков номер ") + pmr.number;
-		case pt_free: return String(L"свободная страница номер ") + pmr.number;
-		case pt_rootfileroot: return String(L"корневая страница корневого файла");
-		case pt_rootfilealloc: return String(L"страница размещения корневого файла номер ") + pmr.number;
-		case pt_rootfile: return String(L"страница данных корневого файла номер ") + pmr.number;
-		case pt_descrroot: return String(L"корневая страница файла descr таблицы ") + tables[pmr.tab]->getname();
-		case pt_descralloc: return String(L"страница размещения файла descr таблицы ") + tables[pmr.tab]->getname() + L" номер " + pmr.number;
-		case pt_descr: return String(L"страница данных файла descr таблицы ") + tables[pmr.tab]->getname() + L" номер " + pmr.number;
-		case pt_dataroot: return String(L"корневая страница файла data таблицы ") + tables[pmr.tab]->getname();
-		case pt_dataalloc: return String(L"страница размещения файла data таблицы ") + tables[pmr.tab]->getname() + L" номер " + pmr.number;
-		case pt_data: return String(L"страница данных файла data таблицы ") + tables[pmr.tab]->getname() + L" номер " + pmr.number;
-		case pt_indexroot: return String(L"корневая страница файла index таблицы ") + tables[pmr.tab]->getname();
-		case pt_indexalloc: return String(L"страница размещения файла index таблицы ") + tables[pmr.tab]->getname() + L" номер " + pmr.number;
-		case pt_index: return String(L"страница данных файла index таблицы ") + tables[pmr.tab]->getname() + L" номер " + pmr.number;
-		case pt_blobroot: return String(L"корневая страница файла blob таблицы ") + tables[pmr.tab]->getname();
-		case pt_bloballoc: return String(L"страница размещения файла blob таблицы ") + tables[pmr.tab]->getname() + L" номер " + pmr.number;
-		case pt_blob: return String(L"страница данных файла blob таблицы ") + tables[pmr.tab]->getname() + L" номер " + pmr.number;
+		case pt_lost: return String("РїРѕС‚РµСЂСЏРЅРЅР°СЏ СЃС‚СЂР°РЅРёС†Р°");
+		case pt_root: return String("РєРѕСЂРЅРµРІР°СЏ СЃС‚СЂР°РЅРёС†Р° Р±Р°Р·С‹");
+		case pt_freeroot: return String("РєРѕСЂРЅРµРІР°СЏ СЃС‚СЂР°РЅРёС†Р° С‚Р°Р±Р»РёС†С‹ СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ");
+		case pt_freealloc: return String("СЃС‚СЂР°РЅРёС†Р° СЂР°Р·РјРµС‰РµРЅРёСЏ С‚Р°Р±Р»РёС†С‹ СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ РЅРѕРјРµСЂ ") + pmr.number;
+		case pt_free: return String("СЃРІРѕР±РѕРґРЅР°СЏ СЃС‚СЂР°РЅРёС†Р° РЅРѕРјРµСЂ ") + pmr.number;
+		case pt_rootfileroot: return String("РєРѕСЂРЅРµРІР°СЏ СЃС‚СЂР°РЅРёС†Р° РєРѕСЂРЅРµРІРѕРіРѕ С„Р°Р№Р»Р°");
+		case pt_rootfilealloc: return String("СЃС‚СЂР°РЅРёС†Р° СЂР°Р·РјРµС‰РµРЅРёСЏ РєРѕСЂРЅРµРІРѕРіРѕ С„Р°Р№Р»Р° РЅРѕРјРµСЂ ") + pmr.number;
+		case pt_rootfile: return String("СЃС‚СЂР°РЅРёС†Р° РґР°РЅРЅС‹С… РєРѕСЂРЅРµРІРѕРіРѕ С„Р°Р№Р»Р° РЅРѕРјРµСЂ ") + pmr.number;
+		case pt_descrroot: return String("РєРѕСЂРЅРµРІР°СЏ СЃС‚СЂР°РЅРёС†Р° С„Р°Р№Р»Р° descr С‚Р°Р±Р»РёС†С‹ ") + tables[pmr.tab]->getname();
+		case pt_descralloc: return String("СЃС‚СЂР°РЅРёС†Р° СЂР°Р·РјРµС‰РµРЅРёСЏ С„Р°Р№Р»Р° descr С‚Р°Р±Р»РёС†С‹ ") + tables[pmr.tab]->getname() + " РЅРѕРјРµСЂ " + pmr.number;
+		case pt_descr: return String("СЃС‚СЂР°РЅРёС†Р° РґР°РЅРЅС‹С… С„Р°Р№Р»Р° descr С‚Р°Р±Р»РёС†С‹ ") + tables[pmr.tab]->getname() + " РЅРѕРјРµСЂ " + pmr.number;
+		case pt_dataroot: return String("РєРѕСЂРЅРµРІР°СЏ СЃС‚СЂР°РЅРёС†Р° С„Р°Р№Р»Р° data С‚Р°Р±Р»РёС†С‹ ") + tables[pmr.tab]->getname();
+		case pt_dataalloc: return String("СЃС‚СЂР°РЅРёС†Р° СЂР°Р·РјРµС‰РµРЅРёСЏ С„Р°Р№Р»Р° data С‚Р°Р±Р»РёС†С‹ ") + tables[pmr.tab]->getname() + " РЅРѕРјРµСЂ " + pmr.number;
+		case pt_data: return String("СЃС‚СЂР°РЅРёС†Р° РґР°РЅРЅС‹С… С„Р°Р№Р»Р° data С‚Р°Р±Р»РёС†С‹ ") + tables[pmr.tab]->getname() + " РЅРѕРјРµСЂ " + pmr.number;
+		case pt_indexroot: return String("РєРѕСЂРЅРµРІР°СЏ СЃС‚СЂР°РЅРёС†Р° С„Р°Р№Р»Р° index С‚Р°Р±Р»РёС†С‹ ") + tables[pmr.tab]->getname();
+		case pt_indexalloc: return String("СЃС‚СЂР°РЅРёС†Р° СЂР°Р·РјРµС‰РµРЅРёСЏ С„Р°Р№Р»Р° index С‚Р°Р±Р»РёС†С‹ ") + tables[pmr.tab]->getname() + " РЅРѕРјРµСЂ " + pmr.number;
+		case pt_index: return String("СЃС‚СЂР°РЅРёС†Р° РґР°РЅРЅС‹С… С„Р°Р№Р»Р° index С‚Р°Р±Р»РёС†С‹ ") + tables[pmr.tab]->getname() + " РЅРѕРјРµСЂ " + pmr.number;
+		case pt_blobroot: return String("РєРѕСЂРЅРµРІР°СЏ СЃС‚СЂР°РЅРёС†Р° С„Р°Р№Р»Р° blob С‚Р°Р±Р»РёС†С‹ ") + tables[pmr.tab]->getname();
+		case pt_bloballoc: return String("СЃС‚СЂР°РЅРёС†Р° СЂР°Р·РјРµС‰РµРЅРёСЏ С„Р°Р№Р»Р° blob С‚Р°Р±Р»РёС†С‹ ") + tables[pmr.tab]->getname() + " РЅРѕРјРµСЂ " + pmr.number;
+		case pt_blob: return String("СЃС‚СЂР°РЅРёС†Р° РґР°РЅРЅС‹С… С„Р°Р№Р»Р° blob С‚Р°Р±Р»РёС†С‹ ") + tables[pmr.tab]->getname() + " РЅРѕРјРµСЂ " + pmr.number;
 
-		default: return String(L"??? неизвестный тип страницы ???");
+		default: return String("??? РЅРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї СЃС‚СЂР°РЅРёС†С‹ ???");
 	}
 }
 

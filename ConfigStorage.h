@@ -45,7 +45,7 @@ private:
 	String fdir;
 public:
 	__fastcall ConfigStorageDirectory(const String& _dir);
-	__property String dir = {read = fdir};
+//	__property String dir = {read = fdir};
 	virtual ConfigFile* __fastcall readfile(const String& path);
 	virtual bool __fastcall writefile(const String& path, TStream* str);
 	virtual String __fastcall presentation();

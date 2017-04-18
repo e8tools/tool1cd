@@ -1,11 +1,11 @@
-#pragma hdrstop
+Ôªø#pragma hdrstop
 #pragma argsused
 
-#include <tchar.h>
+//#include <tchar.h>
 #include <stdio.h>
 #include <boost/regex.hpp>
 
-#include <iostream.h>
+#include <iostream>
 //#include <vcl.h>
 //#include <windows.h>
 #include <System.IOUtils.hpp>
@@ -14,6 +14,8 @@
 
 #include "cTool_1CD_Main.h"
 #include "ParseCommandLine.h"
+
+using std::cout;
 
 //---------------------------------------------------------------------------
 MessageRegistrator* msreg;
@@ -24,14 +26,14 @@ char temp[TEMP_BUFFER_SIZE];
 //---------------------------------------------------------------------------
 char* oem(const char* str)
 {
-	CharToOemA(str, temp);
+	// CharToOemA(str, temp);
 	return temp;
 }
 
 //---------------------------------------------------------------------------
 char* oem(const String& str)
 {
-	WideCharToMultiByte(CP_OEMCP, WC_NO_BEST_FIT_CHARS, str.c_str(), -1, temp, TEMP_BUFFER_SIZE - 1, "?", NULL);
+	// WideCharToMultiByte(CP_OEMCP, WC_NO_BEST_FIT_CHARS, str.c_str(), -1, temp, TEMP_BUFFER_SIZE - 1, "?", NULL);
 	return temp;
 }
 
@@ -39,7 +41,7 @@ char* oem(const String& str)
 __fastcall Messager::Messager()
 {
 	has_error = false;
-	logfile = L"";
+	logfile = "";
 	noverbose = false;
 
 }
@@ -52,68 +54,6 @@ void __fastcall Messager::Status(const String& message)
 //---------------------------------------------------------------------------
 void __fastcall Messager::AddMessage(const String& message, const MessageState mstate, TStringList* param)
 {
-	int i;
-	TFileStream* log = NULL;
-	TStreamWriter* sw;
-	String s;
-
-	if(!logfile.IsEmpty())
-	{
-		if(FileExists(logfile))
-		{
-			log = new TFileStream(logfile, fmOpenReadWrite | fmShareDenyNone);
-			log->Seek(0, soFromEnd);
-		}
-		else
-		{
-			log = new TFileStream(logfile, fmCreate | fmShareDenyNone);
-			log->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().Length);
-		}
-		sw = new TStreamWriter(log, TEncoding::UTF8, 4096);
-		sw->Write(DateTimeToStr(Now(), FormatSettings));
-		s = L" "; sw->Write(s);
-		switch(mstate)
-		{
-			case msEmpty: s = L"<>"; break;
-			case msSuccesfull: s = L"<ok>"; break;
-			case msWarning: s = L"<warning>"; break;
-			case msInfo: s = L"<info>"; break;
-			case msError: s = L"<error>"; break;
-			case msWait: s = L"<wait>"; break;
-			case msHint: s = L"<hint>"; break;
-			default: s = L"<>";
-		}
-		sw->Write(s);
-		s = L" "; sw->Write(s);
-		sw->Write(message);
-		if(param) for(int i = 0; i < param->Count; i++)
-		{
-			s = L"\r\n\t"; sw->Write(s);
-			sw->Write((*param)[i]);
-		}
-		s = L"\r\n\r\n"; sw->Write(s);
-		delete sw;
-		delete log;
-	}
-
-
-	if(mstate == msWarning || mstate == msError) has_error = true;
-
-	if(!noverbose)
-	{
-		switch(mstate)
-		{
-			case msEmpty: break;
-			case msSuccesfull: break;
-			case msWarning: cout << "<Warning> "; break;
-			case msInfo: cout << "<Info> "; break;
-			case msError: cout << "<Error> "; break;
-			case msWait: cout << "<Wait> "; break;
-			case msHint: cout << "<Hint> "; break;
-		}
-		cout << oem(message) << "\n";
-		if(param) for(i = 0; i < param->Count; i++) cout << "\t" << oem((*param)[i]) << "\n";
-	}
 }
 
 //---------------------------------------------------------------------------
@@ -124,10 +64,10 @@ void __fastcall Messager::setlogfile(String _logfile)
 }
 
 //---------------------------------------------------------------------------
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
 {
-	CommandParse* comm; // ÍÎ‡ÒÒ ÍÓÏ‡Ì‰ ÍÓÏ‡Ì‰ÌÓÈ ÒÚÓÍË
-	Messager* mess; // Â„ËÒÚ‡ÚÓ ÒÓÓ·˘ÂÌËÈ
+	CommandParse* comm; // –∫–ª–∞—Å—Å –∫–æ–º–∞–Ω–¥ –∫–æ–º–∞–Ω–¥–Ω–æ–π —Å—Ç—Ä–æ–∫–∏
+	Messager* mess; // —Ä–µ–≥–∏—Å—Ç—Ä–∞—Ç–æ—Ä —Å–æ–æ–±—â–µ–Ω–∏–π
 	int i, j, k, m;
 	int ret;
 	unsigned int n;
@@ -136,9 +76,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	bool b;
 	Sysutils::TStringBuilder* filter;
 	TStringList* filters;
-	boost::wregex* expr;
+	boost::regex* expr;
 
-	T_1CD* base1CD; // ·‡Á‡ 1CD
+	T_1CD* base1CD; // –±–∞–∑–∞ 1CD
 
 	bool ActionOpenBaseNotMonopolyChecked = false;
 	bool ActionXMLSaveBLOBToFileChecked = false;
@@ -148,17 +88,17 @@ int _tmain(int argc, _TCHAR* argv[])
 	msreg = mess;
 	base1CD = NULL;
 
-	comm = new CommandParse(GetCommandLineW(), mess);
+	comm = new CommandParse(argv, argc, mess);
 
 	DynamicArray<ParsedCommand>& commands = comm->getcommands();
 
 	if(commands.get_length() == 0)
 	{
-		cout << oem("cTool_1CD (c) awa 2009 - 2016\r\n«‡ÔÛÒÚË cTool_1CD -h ‰Îˇ ÒÔ‡‚ÍË");
+		cout << oem("cTool_1CD (c) awa 2009 - 2016\r\n–ó–∞–ø—É—Å—Ç–∏ cTool_1CD -h –¥–ª—è —Å–ø—Ä–∞–≤–∫–∏");
 		return 0;
 	}
 
-	// œÂ‚˚È ˆËÍÎ ÔÓÒÏÓÚ‡ ÍÓÏ‡Ì‰ ‰Îˇ ÓÔÂ‰ÂÎÂÌËˇ ÍÎ˛˜ÂÈ Ô‡‡ÏÂÚÓ‚
+	// –ü–µ—Ä–≤—ã–π —Ü–∏–∫–ª –ø—Ä–æ—Å–º–æ—Ç—Ä–∞ –∫–æ–º–∞–Ω–¥ –¥–ª—è –æ–ø—Ä–µ–¥–µ–ª–µ–Ω–∏—è –∫–ª—é—á–µ–π –ø–∞—Ä–∞–º–µ—Ç—Ä–æ–≤
 	for(i = 0; i < commands.get_length(); i++)
 	{
 		ParsedCommand& pc = commands[i];
@@ -184,12 +124,12 @@ int _tmain(int argc, _TCHAR* argv[])
 				break;
 			case cmd_xml_blob_to_file:
 				f = pc.param1.LowerCase();
-				b = f.Compare(L"1") == 0 || f.Compare(L"y") == 0 || f.Compare(L"yes") || f.Compare(L"‰") || f.Compare(L"‰‡") == 0;
+				b = f.Compare("1") == 0 || f.Compare("y") == 0 || f.Compare("yes") || f.Compare("–¥") || f.Compare("–¥–∞") == 0;
 				ActionXMLSaveBLOBToFileChecked = b;
 				break;
 			case cmd_xml_parse_blob:
 				f = pc.param1.LowerCase();
-				b = f.Compare(L"1") == 0 || f.Compare(L"y") == 0 || f.Compare(L"yes") || f.Compare(L"‰") || f.Compare(L"‰‡") == 0;
+				b = f.Compare("1") == 0 || f.Compare("y") == 0 || f.Compare("yes") || f.Compare("–¥") || f.Compare("–¥–∞") == 0;
 				ActionXMLUnpackBLOBChecked = b;
 				break;
 		}
@@ -198,19 +138,19 @@ int _tmain(int argc, _TCHAR* argv[])
 	f = comm->getfilename();
 	if(f.IsEmpty())
 	{
-		mess->AddMessage(L"¬ ÍÓÏ‡Ì‰ÌÓÈ ÒÚÓÍÂ ÌÂ Ì‡È‰ÂÌ Ù‡ÈÎ ·‡Á˚ 1CD", msError);
+		mess->AddMessage("–í –∫–æ–º–∞–Ω–¥–Ω–æ–π —Å—Ç—Ä–æ–∫–µ –Ω–µ –Ω–∞–π–¥–µ–Ω —Ñ–∞–π–ª –±–∞–∑—ã 1CD", msError);
 		return 3;
 	}
 	f = System::Ioutils::TPath::GetFullPath(f);
 	base1CD = new T_1CD(f, mess, !ActionOpenBaseNotMonopolyChecked);
 	if(base1CD->is_open())
 	{
-		mess->AddMessage_(L"¡‡Á‡ ‰‡ÌÌ˚ı 1CD ÓÚÍ˚Ú‡", msSuccesfull,
-			L"‘‡ÈÎ", f,
-			L"¬ÂÒËˇ ·‡Á˚", base1CD->ver,
-			L"Locale", base1CD->locale,
-			L"–ÂÊËÏ", base1CD->get_readonly() ? L"“ÓÎ¸ÍÓ ˜ÚÂÌËÂ" : L"–Â‰‡ÍÚËÓ‚‡ÌËÂ",
-			L" ÓÎË˜ÂÒÚ‚Ó Ú‡·ÎËˆ", base1CD->get_numtables());
+		mess->AddMessage_("–ë–∞–∑–∞ –¥–∞–Ω–Ω—ã—Ö 1CD –æ—Ç–∫—Ä—ã—Ç–∞", msSuccesfull,
+			"–§–∞–π–ª", f,
+			"–í–µ—Ä—Å–∏—è –±–∞–∑—ã", base1CD->ver,
+			"Locale", base1CD->locale,
+			"–†–µ–∂–∏–º", base1CD->get_readonly() ? "–¢–æ–ª—å–∫–æ —á—Ç–µ–Ω–∏–µ" : "–†–µ–¥–∞–∫—Ç–∏—Ä–æ–≤–∞–Ω–∏–µ",
+			"–ö–æ–ª–∏—á–µ—Å—Ç–≤–æ —Ç–∞–±–ª–∏—Ü", base1CD->get_numtables());
 	}
 	else return 2;
 
@@ -233,15 +173,15 @@ int _tmain(int argc, _TCHAR* argv[])
 								t->fillrecordsindex();
 							}
 
-							f = pc.param1 + L"\\" + t->getname() + L".xml";
+							f = pc.param1 + "\\" + t->getname() + ".xm";
 
 							t->export_to_xml(f, ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
-							mess->AddMessage_(L"¬˚ÔÓÎÌÂÌ ˝ÍÒÔÓÚ Ú‡·ÎËˆ˚ ‚ Ù‡ÈÎ.", msSuccesfull,
-								L"“‡·ÎËˆ‡", t->getname(),
-								L"‘‡ÈÎ", f);
+							mess->AddMessage_("–í—ã–ø–æ–ª–Ω–µ–Ω —ç–∫—Å–ø–æ—Ä—Ç —Ç–∞–±–ª–∏—Ü—ã –≤ —Ñ–∞–π–ª.", msSuccesfull,
+								"–¢–∞–±–ª–∏—Ü–∞", t->getname(),
+								"–§–∞–π–ª", f);
 						}
 					}
-					else mess->AddError(L"œÓÔ˚ÚÍ‡ ‚˚„ÛÁÍË ‚ÒÂı Ú‡·ÎËˆ ‚ XML ·ÂÁ ÓÚÍ˚ÚÓÈ ·‡Á˚.");
+					else mess->AddError("–ü–æ–ø—ã—Ç–∫–∞ –≤—ã–≥—Ä—É–∑–∫–∏ –≤—Å–µ—Ö —Ç–∞–±–ª–∏—Ü –≤ XML –±–µ–∑ –æ—Ç–∫—Ä—ã—Ç–æ–π –±–∞–∑—ã.");
 					break;
 
 				case cmd_export_to_xml:
@@ -249,32 +189,32 @@ int _tmain(int argc, _TCHAR* argv[])
 					{
 
 						filter = new Sysutils::TStringBuilder(pc.param2);
-						filter->Replace(L"*", L".*");
-						filter->Replace(L'?', L'.');
-						filter->Replace(L" ", L"\r\n");
-						filter->Replace(L"\t", L"\r\n");
-						filter->Replace(L",", L"\r\n");
-						filter->Replace(L";", L"\r\n");
+						filter->Replace("*", ".*");
+						filter->Replace("?", ".");
+						filter->Replace(" ", "\r\n");
+						filter->Replace("\t", "\r\n");
+						filter->Replace(",", "\r\n");
+						filter->Replace(";", "\r\n");
 
 						filters = new TStringList;
-						filters->Text = filter->ToString();
-						for(m = filters->Count - 1; m >= 0; m--)
+						filters->SetText(filter->ToString());
+						for(m = filters->Count() - 1; m >= 0; m--)
 						{
 							if(filters->Strings[m].Length() == 0) filters->Delete(m);
-							else filters->Strings[m] = String(L"^") + filters->Strings[m].UpperCase() + L"$";
+							else filters->Strings[m] = String("^") + filters->Strings[m].UpperCase() + "$";
 						}
 
-						k = filters->Count;
+						k = filters->Count();
 						if(k == 0)
 						{
-							mess->AddError(L"—ÔËÒÓÍ Ú‡·ÎËˆ ‰Îˇ ‚˚„ÛÁÍË ‚ XML ÔÛÒÚ.");
+							mess->AddError("–°–ø–∏—Å–æ–∫ —Ç–∞–±–ª–∏—Ü –¥–ª—è –≤—ã–≥—Ä—É–∑–∫–∏ –≤ XML –ø—É—Å—Ç.");
 							delete filter;
 							delete filters;
 							break;
 						}
 
-						expr = new boost::wregex[k];
-						for(m = 0; m < k; m++) expr[m] = boost::wregex(filters->Strings[m].w_str());
+						expr = new boost::regex[k];
+						for(m = 0; m < k; m++) expr[m] = boost::regex(filters->Strings[m].c_str());
 
 						for(j = 0; j < base1CD->get_numtables(); j++)
 						{
@@ -298,12 +238,12 @@ int _tmain(int argc, _TCHAR* argv[])
 									t->fillrecordsindex();
 								}
 
-								f = pc.param1 + L"\\" + t->getname() + L".xml";
+								f = pc.param1 + "\\" + t->getname() + ".xml";
 
 								t->export_to_xml(f, ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
-								mess->AddMessage_(L"¬˚ÔÓÎÌÂÌ ˝ÍÒÔÓÚ Ú‡·ÎËˆ˚ ‚ Ù‡ÈÎ.", msSuccesfull,
-									L"“‡·ÎËˆ‡", t->getname(),
-									L"‘‡ÈÎ", f);
+								mess->AddMessage_("–í—ã–ø–æ–ª–Ω–µ–Ω —ç–∫—Å–ø–æ—Ä—Ç —Ç–∞–±–ª–∏—Ü—ã –≤ —Ñ–∞–π–ª.", msSuccesfull,
+									"–¢–∞–±–ª–∏—Ü–∞", t->getname(),
+									"–§–∞–π–ª", f);
 							}
 
 						}
@@ -313,7 +253,7 @@ int _tmain(int argc, _TCHAR* argv[])
 						delete filters;
 
 					}
-					else mess->AddError(L"œÓÔ˚ÚÍ‡ ‚˚„ÛÁÍË Ú‡·ÎËˆ ‚ XML ·ÂÁ ÓÚÍ˚ÚÓÈ ·‡Á˚.");
+					else mess->AddError("–ü–æ–ø—ã—Ç–∫–∞ –≤—ã–≥—Ä—É–∑–∫–∏ —Ç–∞–±–ª–∏—Ü –≤ XML –±–µ–∑ –æ—Ç–∫—Ä—ã—Ç–æ–π –±–∞–∑—ã.");
 
 					break;
 				case cmd_save_config:
@@ -321,48 +261,48 @@ int _tmain(int argc, _TCHAR* argv[])
 					{
 						f = pc.param1;
 						f = System::Ioutils::TPath::GetFullPath(f);
-						if(f.SubString(f.Length() - 2, 3).CompareIC(L".cf") != 0)
+						if(f.SubString(f.Length() - 2, 3).CompareIC(".cf") != 0)
 						{
 							if(!DirectoryExists(f))
 							{
-								mess->AddMessage_(L" ‡Ú‡ÎÓ„ ÌÂ ÒÛ˘ÂÒÚ‚ÛÂÚ.", msError,
-									L" ‡Ú‡ÎÓ„", f);
+								mess->AddMessage_("–ö–∞—Ç–∞–ª–æ–≥ –Ω–µ —Å—É—â–µ—Å—Ç–≤—É–µ—Ç.", msError,
+									"–ö–∞—Ç–∞–ª–æ–≥", f);
 								break;
 							}
-							f = f + L"\\dbcf.cf";
+							f = f + "\\dbcf.cf";
 						}
 						if(base1CD->save_config(f))
-							mess->AddMessage_(L"—Óı‡ÌÂÌËÂ ÍÓÌÙË„Û‡ˆËË ·‡Á˚ ‰‡ÌÌ˚ı Á‡‚Â¯ÂÌÓ.", msSuccesfull,
-								L"‘‡ÈÎ", f);
+							mess->AddMessage_("–°–æ—Ö—Ä–∞–Ω–µ–Ω–∏–µ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ –±–∞–∑—ã –¥–∞–Ω–Ω—ã—Ö –∑–∞–≤–µ—Ä—à–µ–Ω–æ.", msSuccesfull,
+								"–§–∞–π–ª", f);
 						else
-							mess->AddMessage_(L"ÕÂ Û‰‡ÎÓÒ¸ ÒÓı‡ÌËÚ¸ ÍÓÌÙË„Û‡ˆË˛ ·‡Á˚ ‰‡ÌÌ˚ı.", msError,
-								L"‘‡ÈÎ", f);
+							mess->AddMessage_("–ù–µ —É–¥–∞–ª–æ—Å—å —Å–æ—Ö—Ä–∞–Ω–∏—Ç—å –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏—é –±–∞–∑—ã –¥–∞–Ω–Ω—ã—Ö.", msError,
+								"–§–∞–π–ª", f);
 					}
-					else mess->AddError(L"œÓÔ˚ÚÍ‡ ‚˚„ÛÁÍË ÍÓÌÙË„Û‡ˆËË ·‡Á˚ ‰‡ÌÌ˚ı ·ÂÁ ÓÚÍ˚ÚÓÈ ·‡Á˚.");
+					else mess->AddError("–ü–æ–ø—ã—Ç–∫–∞ –≤—ã–≥—Ä—É–∑–∫–∏ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ –±–∞–∑—ã –¥–∞–Ω–Ω—ã—Ö –±–µ–∑ –æ—Ç–∫—Ä—ã—Ç–æ–π –±–∞–∑—ã.");
 					break;
 				case cmd_save_configsave:
 					if(base1CD->is_open())
 					{
 						f = pc.param1;
 						f = System::Ioutils::TPath::GetFullPath(f);
-						if(f.SubString(f.Length() - 2, 3).CompareIC(L".cf") != 0)
+						if(f.SubString(f.Length() - 2, 3).CompareIC(".cf") != 0)
 						{
 							if(!DirectoryExists(f))
 							{
-								mess->AddMessage_(L" ‡Ú‡ÎÓ„ ÌÂ ÒÛ˘ÂÒÚ‚ÛÂÚ.", msError,
-									L" ‡Ú‡ÎÓ„", f);
+								mess->AddMessage_("–ö–∞—Ç–∞–ª–æ–≥ –Ω–µ —Å—É—â–µ—Å—Ç–≤—É–µ—Ç.", msError,
+									"–ö–∞—Ç–∞–ª–æ–≥", f);
 								break;
 							}
-							f = f + L"\\cf.cf";
+							f = f + "\\cf.cf";
 						}
 						if(base1CD->save_configsave(f))
-							mess->AddMessage_(L"—Óı‡ÌÂÌËÂ ÓÒÌÓ‚ÌÓÈ ÍÓÌÙË„Û‡ˆËË Á‡‚Â¯ÂÌÓ.", msSuccesfull,
-								L"‘‡ÈÎ", f);
+							mess->AddMessage_("–°–æ—Ö—Ä–∞–Ω–µ–Ω–∏–µ –æ—Å–Ω–æ–≤–Ω–æ–π –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ –∑–∞–≤–µ—Ä—à–µ–Ω–æ.", msSuccesfull,
+								"–§–∞–π–ª", f);
 						else
-							mess->AddMessage_(L"ÕÂ Û‰‡ÎÓÒ¸ ÒÓı‡ÌËÚ¸ ÓÒÌÓ‚ÌÛ˛ ÍÓÌÙË„Û‡ˆË˛.", msError,
-								L"‘‡ÈÎ", f);
+							mess->AddMessage_("–ù–µ —É–¥–∞–ª–æ—Å—å —Å–æ—Ö—Ä–∞–Ω–∏—Ç—å –æ—Å–Ω–æ–≤–Ω—É—é –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏—é.", msError,
+								"–§–∞–π–ª", f);
 					}
-					else mess->AddError(L"œÓÔ˚ÚÍ‡ ‚˚„ÛÁÍË ÓÒÌÓ‚ÌÓÈ ÍÓÌÙË„Û‡ˆËË ·ÂÁ ÓÚÍ˚ÚÓÈ ·‡Á˚.");
+					else mess->AddError("–ü–æ–ø—ã—Ç–∫–∞ –≤—ã–≥—Ä—É–∑–∫–∏ –æ—Å–Ω–æ–≤–Ω–æ–π –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ –±–µ–∑ –æ—Ç–∫—Ä—ã—Ç–æ–π –±–∞–∑—ã.");
 					break;
 				case cmd_save_vendors_configs:
 					if(base1CD->is_open())
@@ -370,102 +310,102 @@ int _tmain(int argc, _TCHAR* argv[])
 						base1CD->find_supplier_configs();
 						for(n = 0; n < base1CD->supplier_configs.size(); n++)
 						{
-							f = pc.param1 + L"\\" + base1CD->supplier_configs[n].name + L" " + base1CD->supplier_configs[n].version + L".cf";
+							f = pc.param1 + "\\" + base1CD->supplier_configs[n].name + " " + base1CD->supplier_configs[n].version + ".cf";
 							if(base1CD->save_supplier_configs(n, f))
-								mess->AddMessage_(L"—Óı‡ÌÂÌËÂ ÍÓÌÙË„Û‡ˆËË ÔÓÒÚ‡‚˘ËÍ‡ Á‡‚Â¯ÂÌÓ.", msSuccesfull,
-									L"‘‡ÈÎ", f);
+								mess->AddMessage_("–°–æ—Ö—Ä–∞–Ω–µ–Ω–∏–µ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ –ø–æ—Å—Ç–∞–≤—â–∏–∫–∞ –∑–∞–≤–µ—Ä—à–µ–Ω–æ.", msSuccesfull,
+									"–§–∞–π–ª", f);
 							else
-								mess->AddMessage_(L"ÕÂ Û‰‡ÎÓÒ¸ ÒÓı‡ÌËÚ¸ ÍÓÌÙË„Û‡ˆË˛ ÔÓÒÚ‡‚˘ËÍ‡.", msError,
-									L"‘‡ÈÎ", f);
+								mess->AddMessage_("–ù–µ —É–¥–∞–ª–æ—Å—å —Å–æ—Ö—Ä–∞–Ω–∏—Ç—å –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏—é –ø–æ—Å—Ç–∞–≤—â–∏–∫–∞.", msError,
+									"–§–∞–π–ª", f);
 						}
 					}
-					else mess->AddError(L"œÓÔ˚ÚÍ‡ ‚˚„ÛÁÍË ÍÓÌÙË„Û‡ˆËÈ ÔÓÒÚ‡‚˘ËÍÓ‚ ·ÂÁ ÓÚÍ˚ÚÓÈ ·‡Á˚.");
+					else mess->AddError("–ü–æ–ø—ã—Ç–∫–∞ –≤—ã–≥—Ä—É–∑–∫–∏ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–π –ø–æ—Å—Ç–∞–≤—â–∏–∫–æ–≤ –±–µ–∑ –æ—Ç–∫—Ä—ã—Ç–æ–π –±–∞–∑—ã.");
 					break;
 				case cmd_save_all_configs:
 					if(base1CD->is_open())
 					{
-						f = pc.param1 + L"\\dbcf.cf";
+						f = pc.param1 + "\\dbcf.cf";
 						if(base1CD->save_config(f))
-							mess->AddMessage_(L"—Óı‡ÌÂÌËÂ ÍÓÌÙË„Û‡ˆËË ·‡Á˚ ‰‡ÌÌ˚ı Á‡‚Â¯ÂÌÓ.", msSuccesfull,
-								L"‘‡ÈÎ", f);
+							mess->AddMessage_("–°–æ—Ö—Ä–∞–Ω–µ–Ω–∏–µ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ –±–∞–∑—ã –¥–∞–Ω–Ω—ã—Ö –∑–∞–≤–µ—Ä—à–µ–Ω–æ.", msSuccesfull,
+								"–§–∞–π–ª", f);
 						else
-							mess->AddMessage_(L"ÕÂ Û‰‡ÎÓÒ¸ ÒÓı‡ÌËÚ¸ ÍÓÌÙË„Û‡ˆË˛ ·‡Á˚ ‰‡ÌÌ˚ı.", msError,
-								L"‘‡ÈÎ", f);
+							mess->AddMessage_("–ù–µ —É–¥–∞–ª–æ—Å—å —Å–æ—Ö—Ä–∞–Ω–∏—Ç—å –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏—é –±–∞–∑—ã –¥–∞–Ω–Ω—ã—Ö.", msError,
+								"–§–∞–π–ª", f);
 
-						f = pc.param1 + L"\\cf.cf";
+						f = pc.param1 + "\\cf.cf";
 						if(base1CD->save_configsave(f))
-							mess->AddMessage_(L"—Óı‡ÌÂÌËÂ ÓÒÌÓ‚ÌÓÈ ÍÓÌÙË„Û‡ˆËË Á‡‚Â¯ÂÌÓ.", msSuccesfull,
-								L"‘‡ÈÎ", f);
+							mess->AddMessage_("–°–æ—Ö—Ä–∞–Ω–µ–Ω–∏–µ –æ—Å–Ω–æ–≤–Ω–æ–π –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ –∑–∞–≤–µ—Ä—à–µ–Ω–æ.", msSuccesfull,
+								"–§–∞–π–ª", f);
 						else
-							mess->AddMessage_(L"ÕÂ Û‰‡ÎÓÒ¸ ÒÓı‡ÌËÚ¸ ÓÒÌÓ‚ÌÛ˛ ÍÓÌÙË„Û‡ˆË˛.", msError,
-								L"‘‡ÈÎ", f);
+							mess->AddMessage_("–ù–µ —É–¥–∞–ª–æ—Å—å —Å–æ—Ö—Ä–∞–Ω–∏—Ç—å –æ—Å–Ω–æ–≤–Ω—É—é –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏—é.", msError,
+								"–§–∞–π–ª", f);
 
 						base1CD->find_supplier_configs();
 						for(n = 0; n < base1CD->supplier_configs.size(); n++)
 						{
-							f = pc.param1 + L"\\" + base1CD->supplier_configs[n].name + L" " + base1CD->supplier_configs[n].version + L".cf";
+							f = pc.param1 + "\\" + base1CD->supplier_configs[n].name + " " + base1CD->supplier_configs[n].version + ".cf";
 							if(base1CD->save_supplier_configs(n, f))
-								mess->AddMessage_(L"—Óı‡ÌÂÌËÂ ÍÓÌÙË„Û‡ˆËË ÔÓÒÚ‡‚˘ËÍ‡ Á‡‚Â¯ÂÌÓ.", msSuccesfull,
-									L"‘‡ÈÎ", f);
+								mess->AddMessage_("–°–æ—Ö—Ä–∞–Ω–µ–Ω–∏–µ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ –ø–æ—Å—Ç–∞–≤—â–∏–∫–∞ –∑–∞–≤–µ—Ä—à–µ–Ω–æ.", msSuccesfull,
+									"–§–∞–π–ª", f);
 							else
-								mess->AddMessage_(L"ÕÂ Û‰‡ÎÓÒ¸ ÒÓı‡ÌËÚ¸ ÍÓÌÙË„Û‡ˆË˛ ÔÓÒÚ‡‚˘ËÍ‡.", msError,
-									L"‘‡ÈÎ", f);
+								mess->AddMessage_("–ù–µ —É–¥–∞–ª–æ—Å—å —Å–æ—Ö—Ä–∞–Ω–∏—Ç—å –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏—é –ø–æ—Å—Ç–∞–≤—â–∏–∫–∞.", msError,
+									"–§–∞–π–ª", f);
 						}
 					}
-					else mess->AddError(L"œÓÔ˚ÚÍ‡ ‚˚„ÛÁÍË ‚ÒÂı ÍÓÌÙË„Û‡ˆËÈ ·ÂÁ ÓÚÍ˚ÚÓÈ ·‡Á˚.");
+					else mess->AddError("–ü–æ–ø—ã—Ç–∫–∞ –≤—ã–≥—Ä—É–∑–∫–∏ –≤—Å–µ—Ö –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–π –±–µ–∑ –æ—Ç–∫—Ä—ã—Ç–æ–π –±–∞–∑—ã.");
 					break;
 				case cmd_save_depot_config:
 					if(!base1CD->is_open())
 					{
-						mess->AddError(L"œÓÔ˚ÚÍ‡ ‚˚„ÛÁÍË ÍÓÌÙË„Û‡ˆËË ı‡ÌËÎË˘‡ ·ÂÁ ÓÚÍ˚ÚÓÈ ·‡Á˚.");
+						mess->AddError("–ü–æ–ø—ã—Ç–∫–∞ –≤—ã–≥—Ä—É–∑–∫–∏ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ —Ö—Ä–∞–Ω–∏–ª–∏—â–∞ –±–µ–∑ –æ—Ç–∫—Ä—ã—Ç–æ–π –±–∞–∑—ã.");
 						break;
 					}
 					if(!base1CD->is_depot)
 					{
-						if(mess) mess->AddError(L"œÓÔ˚ÚÍ‡ ‚˚„ÛÁÍË ÍÓÌÙË„Û‡ˆËË ı‡ÌËÎË˘‡ ËÁ ·‡Á˚, ÌÂ ˇ‚Îˇ˛˘ÂÈÒˇ ı‡ÌËÎË˘ÂÏ ÍÓÌÙË„Û‡ˆËË.");
+						if(mess) mess->AddError("–ü–æ–ø—ã—Ç–∫–∞ –≤—ã–≥—Ä—É–∑–∫–∏ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ —Ö—Ä–∞–Ω–∏–ª–∏—â–∞ –∏–∑ –±–∞–∑—ã, –Ω–µ —è–≤–ª—è—é—â–µ–π—Å—è —Ö—Ä–∞–Ω–∏–ª–∏—â–µ–º –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏.");
 						break;
 					}
 					f = pc.param1;
-					if(f.Compare(L"0") == 0) j = 0;
+					if(f.Compare("0") == 0) j = 0;
 					else j = f.ToIntDef(0);
 					j = base1CD->get_ver_depot_config(j);
 					if(!j)
 					{
-						if(mess) mess->AddError(L"«‡ÔÓ¯ÂÌÌÓÈ ‚ÂÒËË ÍÓÌÙË„Û‡ˆËË ÌÂÚ ‚ ı‡ÌËÎË˘Â ÍÓÌÙË„Û‡ˆËË.");
+						if(mess) mess->AddError("–ó–∞–ø—Ä–æ—à–µ–Ω–Ω–æ–π –≤–µ—Ä—Å–∏–∏ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ –Ω–µ—Ç –≤ —Ö—Ä–∞–Ω–∏–ª–∏—â–µ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏.");
 						break;
 					}
 					f = pc.param2;
 					f = System::Ioutils::TPath::GetFullPath(f);
-					if(f.SubString(f.Length() - 2, 3).CompareIC(L".cf") != 0)
+					if(f.SubString(f.Length() - 2, 3).CompareIC(".cf") != 0)
 					{
 						if(!DirectoryExists(f))
 						{
-							mess->AddMessage_(L" ‡Ú‡ÎÓ„ ÌÂ ÒÛ˘ÂÒÚ‚ÛÂÚ.", msError,
-								L" ‡Ú‡ÎÓ„", f);
+							mess->AddMessage_("–ö–∞—Ç–∞–ª–æ–≥ –Ω–µ —Å—É—â–µ—Å—Ç–≤—É–µ—Ç.", msError,
+								"–ö–∞—Ç–∞–ª–æ–≥", f);
 							break;
 						}
-						f = f + L"\\v" + j + L".cf";
+						f = f + "\\v" + j + ".cf";
 					}
 					if(base1CD->save_depot_config(f, j))
-						mess->AddMessage_(L"—Óı‡ÌÂÌËÂ ÍÓÌÙË„Û‡ˆËË ı‡ÌËÎË˘‡ Á‡‚Â¯ÂÌÓ.", msSuccesfull,
-							L"‘‡ÈÎ", f);
+						mess->AddMessage_("–°–æ—Ö—Ä–∞–Ω–µ–Ω–∏–µ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ —Ö—Ä–∞–Ω–∏–ª–∏—â–∞ –∑–∞–≤–µ—Ä—à–µ–Ω–æ.", msSuccesfull,
+							"–§–∞–π–ª", f);
 					else
-						mess->AddMessage_(L"ÕÂ Û‰‡ÎÓÒ¸ ÒÓı‡ÌËÚ¸ ÍÓÌÙË„Û‡ˆË˛ ı‡ÌËÎË˘‡.", msError,
-							L"‘‡ÈÎ", f);
+						mess->AddMessage_("–ù–µ —É–¥–∞–ª–æ—Å—å —Å–æ—Ö—Ä–∞–Ω–∏—Ç—å –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏—é —Ö—Ä–∞–Ω–∏–ª–∏—â–∞.", msError,
+							"–§–∞–π–ª", f);
 					break;
 				case cmd_save_depot_config_part:
 					if(!base1CD->is_open())
 					{
-						mess->AddError(L"œÓÔ˚ÚÍ‡ ‚˚„ÛÁÍË Ù‡ÈÎÓ‚ ÍÓÌÙË„Û‡ˆËË ı‡ÌËÎË˘‡ ·ÂÁ ÓÚÍ˚ÚÓÈ ·‡Á˚.");
+						mess->AddError("–ü–æ–ø—ã—Ç–∫–∞ –≤—ã–≥—Ä—É–∑–∫–∏ —Ñ–∞–π–ª–æ–≤ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ —Ö—Ä–∞–Ω–∏–ª–∏—â–∞ –±–µ–∑ –æ—Ç–∫—Ä—ã—Ç–æ–π –±–∞–∑—ã.");
 						break;
 					}
 					if(!base1CD->is_depot)
 					{
-						if(mess) mess->AddError(L"œÓÔ˚ÚÍ‡ ‚˚„ÛÁÍË Ù‡ÈÎÓ‚ ÍÓÌÙË„Û‡ˆËË ı‡ÌËÎË˘‡ ËÁ ·‡Á˚, ÌÂ ˇ‚Îˇ˛˘ÂÈÒˇ ı‡ÌËÎË˘ÂÏ ÍÓÌÙË„Û‡ˆËË.");
+						if(mess) mess->AddError("–ü–æ–ø—ã—Ç–∫–∞ –≤—ã–≥—Ä—É–∑–∫–∏ —Ñ–∞–π–ª–æ–≤ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ —Ö—Ä–∞–Ω–∏–ª–∏—â–∞ –∏–∑ –±–∞–∑—ã, –Ω–µ —è–≤–ª—è—é—â–µ–π—Å—è —Ö—Ä–∞–Ω–∏–ª–∏—â–µ–º –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏.");
 						break;
 					}
 					f = pc.param1;
-					k = f.Pos(L":");
+					k = f.Pos(":");
 					if(k)
 					{
 						v = f.SubString(k + 1, f.Length() - k);
@@ -481,26 +421,26 @@ int _tmain(int argc, _TCHAR* argv[])
 					j = base1CD->get_ver_depot_config(j);
 					if(!j)
 					{
-						if(mess) mess->AddError(L"«‡ÔÓ¯ÂÌÌÓÈ ‚ÂÒËË ÍÓÌÙË„Û‡ˆËË ÌÂÚ ‚ ı‡ÌËÎË˘Â ÍÓÌÙË„Û‡ˆËË."
-							, "¬ÂÒËˇ", j);
+						if(mess) mess->AddError("–ó–∞–ø—Ä–æ—à–µ–Ω–Ω–æ–π –≤–µ—Ä—Å–∏–∏ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ –Ω–µ—Ç –≤ —Ö—Ä–∞–Ω–∏–ª–∏—â–µ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏."
+							, "–í–µ—Ä—Å–∏—è", j);
 						break;
 					}
 					k = base1CD->get_ver_depot_config(k);
 					if(!k)
 					{
-						if(mess) mess->AddError(L"«‡ÔÓ¯ÂÌÌÓÈ ‚ÂÒËË ÍÓÌÙË„Û‡ˆËË ÌÂÚ ‚ ı‡ÌËÎË˘Â ÍÓÌÙË„Û‡ˆËË."
-							, "¬ÂÒËˇ", k);
+						if(mess) mess->AddError("–ó–∞–ø—Ä–æ—à–µ–Ω–Ω–æ–π –≤–µ—Ä—Å–∏–∏ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ –Ω–µ—Ç –≤ —Ö—Ä–∞–Ω–∏–ª–∏—â–µ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏."
+							, "–í–µ—Ä—Å–∏—è", k);
 						break;
 					}
 					f = pc.param2;
 					f = System::Ioutils::TPath::GetFullPath(f);
 					if(!DirectoryExists(f)) System::Ioutils::TDirectory::CreateDirectory(f);
 					if(base1CD->save_part_depot_config(f, j, k))
-						mess->AddMessage_(L"—Óı‡ÌÂÌËÂ Ù‡ÈÎÓ‚ ÍÓÌÙË„Û‡ˆËË ı‡ÌËÎË˘‡ Á‡‚Â¯ÂÌÓ.", msSuccesfull,
-							L"‘‡ÈÎ", f);
+						mess->AddMessage_("–°–æ—Ö—Ä–∞–Ω–µ–Ω–∏–µ —Ñ–∞–π–ª–æ–≤ –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ —Ö—Ä–∞–Ω–∏–ª–∏—â–∞ –∑–∞–≤–µ—Ä—à–µ–Ω–æ.", msSuccesfull,
+							"–§–∞–π–ª", f);
 					else
-						mess->AddMessage_(L"ÕÂ Û‰‡ÎÓÒ¸ ÒÓı‡ÌËÚ¸ Ù‡ÈÎ˚ ÍÓÌÙË„Û‡ˆËË ı‡ÌËÎË˘‡.", msError,
-							L"‘‡ÈÎ", f);
+						mess->AddMessage_("–ù–µ —É–¥–∞–ª–æ—Å—å —Å–æ—Ö—Ä–∞–Ω–∏—Ç—å —Ñ–∞–π–ª—ã –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ —Ö—Ä–∞–Ω–∏–ª–∏—â–∞.", msError,
+							"–§–∞–π–ª", f);
 					break;
 			}
 		}
@@ -510,11 +450,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		catch(Exception& ex)
 		{
-			if(mess) mess->AddError(ex.Message);
+			if(mess) mess->AddError(ex.Message());
 		}
 		catch(...)
 		{
-			if(mess) mess->AddError(L"ÕÂËÁ‚ÂÒÚÌ‡ˇ Ó¯Ë·Í‡.");
+			if(mess) mess->AddError("–ù–µ–∏–∑–≤–µ—Å—Ç–Ω–∞—è –æ—à–∏–±–∫–∞.");
 		}
 	}
 

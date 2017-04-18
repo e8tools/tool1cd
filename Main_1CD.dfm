@@ -3,7 +3,7 @@ object FormMain: TFormMain
   Top = 186
   Anchors = [akLeft, akTop, akRight, akBottom]
   Caption = 'Tool_1CD'
-  ClientHeight = 682
+  ClientHeight = 662
   ClientWidth = 870
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -21,7 +21,7 @@ object FormMain: TFormMain
   TextHeight = 13
   object Splitter2: TSplitter
     Left = 0
-    Top = 503
+    Top = 483
     Width = 870
     Height = 3
     Cursor = crVSplit
@@ -31,7 +31,7 @@ object FormMain: TFormMain
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 663
+    Top = 643
     Width = 870
     Height = 19
     Constraints.MaxHeight = 19
@@ -62,7 +62,7 @@ object FormMain: TFormMain
     Left = 0
     Top = 21
     Width = 870
-    Height = 482
+    Height = 462
     ActivePage = TabSheetView
     Align = alClient
     Images = ImageListMain
@@ -72,6 +72,10 @@ object FormMain: TFormMain
     object TabSheetTest: TTabSheet
       Caption = #1059#1090#1080#1083#1080#1090#1099
       ImageIndex = 7
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object PageControlUtils: TPageControl
         Left = 0
         Top = 0
@@ -82,23 +86,10 @@ object FormMain: TFormMain
         TabOrder = 0
         object TabSheetConfigSave: TTabSheet
           Caption = #1057#1086#1093#1088#1072#1085#1077#1085#1080#1077' '#1082#1086#1085#1092#1080#1075#1091#1088#1072#1094#1080#1081
-          object HTMLabel2: THTMLabel
-            Left = 231
-            Top = 3
-            Width = 282
-            Height = 71
-            HTMLText.Strings = (
-              
-                '<P align="center">'#1044#1083#1103' '#1089#1086#1093#1088#1072#1085#1077#1085#1080#1103' '#1088#1072#1089#1096#1080#1088#1077#1085#1080#1103' '#1082#1086#1085#1092#1080#1075#1091#1088#1072#1094#1080#1080' '#1087#1077#1088#1077#1081#1076#1080 +
-                #1090#1077' '#1074' '#1090#1072#1073#1083#1080#1094#1091' <B>_EXTENSIONSINFO</B>, '#1074#1099#1073#1077#1088#1080#1090#1077' '#1089#1090#1088#1086#1082#1091' '#1089' '#1085#1091#1078#1085#1099#1084' '#1088#1072 +
-                #1089#1096#1080#1088#1077#1085#1080#1077#1084' '#1082#1086#1085#1092#1080#1075#1091#1088#1072#1094#1080#1080' '#1080' '#1085#1072#1078#1084#1080#1090#1077' '#1082#1085#1086#1087#1082#1091' <IMG src="database_save"' +
-                '> '#1080#1083#1080' <IMG src="database_save_db"></P>')
-            Images = ImageListMain
-            LineSpacing = 3
-            PictureContainer = PictureContainer1
-            Transparent = True
-            Version = '1.8.4.0'
-          end
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object ButtonSaveConfigSave: TButton
             Left = 3
             Top = 3
@@ -132,119 +123,6 @@ object FormMain: TFormMain
               Height = 13
               Caption = #1050#1086#1085#1092#1080#1075#1091#1088#1072#1094#1080#1080' '#1087#1086#1089#1090#1072#1074#1097#1080#1082#1072
             end
-            object StringGridSupplierConfigs: TAdvStringGrid
-              Left = 0
-              Top = 20
-              Width = 854
-              Height = 265
-              Cursor = crDefault
-              Align = alBottom
-              Anchors = [akLeft, akTop, akRight, akBottom]
-              ColCount = 3
-              DefaultColWidth = 100
-              DefaultRowHeight = 18
-              DrawingStyle = gdsClassic
-              FixedCols = 0
-              RowCount = 1
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              Font.Style = []
-              Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
-              ParentFont = False
-              ScrollBars = ssBoth
-              TabOrder = 0
-              HoverRowCells = [hcNormal, hcSelected]
-              ActiveCellFont.Charset = DEFAULT_CHARSET
-              ActiveCellFont.Color = clWindowText
-              ActiveCellFont.Height = -11
-              ActiveCellFont.Name = 'Tahoma'
-              ActiveCellFont.Style = [fsBold]
-              ActiveCellColor = 15387318
-              ColumnHeaders.Strings = (
-                #1050#1086#1085#1092#1080#1075#1091#1088#1072#1094#1080#1103
-                #1042#1077#1088#1089#1080#1103
-                #1055#1086#1089#1090#1072#1074#1097#1080#1082)
-              ControlLook.FixedGradientFrom = clWhite
-              ControlLook.FixedGradientTo = clBtnFace
-              ControlLook.FixedGradientHoverFrom = 13619409
-              ControlLook.FixedGradientHoverTo = 12502728
-              ControlLook.FixedGradientHoverMirrorFrom = 12502728
-              ControlLook.FixedGradientHoverMirrorTo = 11254975
-              ControlLook.FixedGradientDownFrom = 8816520
-              ControlLook.FixedGradientDownTo = 7568510
-              ControlLook.FixedGradientDownMirrorFrom = 7568510
-              ControlLook.FixedGradientDownMirrorTo = 6452086
-              ControlLook.DropDownHeader.Font.Charset = DEFAULT_CHARSET
-              ControlLook.DropDownHeader.Font.Color = clWindowText
-              ControlLook.DropDownHeader.Font.Height = -11
-              ControlLook.DropDownHeader.Font.Name = 'Tahoma'
-              ControlLook.DropDownHeader.Font.Style = []
-              ControlLook.DropDownHeader.Visible = True
-              ControlLook.DropDownHeader.Buttons = <>
-              ControlLook.DropDownFooter.Font.Charset = DEFAULT_CHARSET
-              ControlLook.DropDownFooter.Font.Color = clWindowText
-              ControlLook.DropDownFooter.Font.Height = -11
-              ControlLook.DropDownFooter.Font.Name = 'Tahoma'
-              ControlLook.DropDownFooter.Font.Style = []
-              ControlLook.DropDownFooter.Visible = True
-              ControlLook.DropDownFooter.Buttons = <>
-              Filter = <>
-              FilterDropDown.Font.Charset = DEFAULT_CHARSET
-              FilterDropDown.Font.Color = clWindowText
-              FilterDropDown.Font.Height = -11
-              FilterDropDown.Font.Name = 'Tahoma'
-              FilterDropDown.Font.Style = []
-              FilterDropDownClear = '(All)'
-              FixedColWidth = 100
-              FixedRowHeight = 18
-              FixedRowAlways = True
-              FixedFont.Charset = DEFAULT_CHARSET
-              FixedFont.Color = clWindowText
-              FixedFont.Height = -11
-              FixedFont.Name = 'Tahoma'
-              FixedFont.Style = [fsBold]
-              FloatFormat = '%.2f'
-              PrintSettings.DateFormat = 'dd/mm/yyyy'
-              PrintSettings.Font.Charset = DEFAULT_CHARSET
-              PrintSettings.Font.Color = clWindowText
-              PrintSettings.Font.Height = -11
-              PrintSettings.Font.Name = 'Tahoma'
-              PrintSettings.Font.Style = []
-              PrintSettings.FixedFont.Charset = DEFAULT_CHARSET
-              PrintSettings.FixedFont.Color = clWindowText
-              PrintSettings.FixedFont.Height = -11
-              PrintSettings.FixedFont.Name = 'Tahoma'
-              PrintSettings.FixedFont.Style = []
-              PrintSettings.HeaderFont.Charset = DEFAULT_CHARSET
-              PrintSettings.HeaderFont.Color = clWindowText
-              PrintSettings.HeaderFont.Height = -11
-              PrintSettings.HeaderFont.Name = 'Tahoma'
-              PrintSettings.HeaderFont.Style = []
-              PrintSettings.FooterFont.Charset = DEFAULT_CHARSET
-              PrintSettings.FooterFont.Color = clWindowText
-              PrintSettings.FooterFont.Height = -11
-              PrintSettings.FooterFont.Name = 'Tahoma'
-              PrintSettings.FooterFont.Style = []
-              PrintSettings.PageNumSep = '/'
-              SearchFooter.ColorTo = 14215660
-              SearchFooter.FindNextCaption = 'Find &next'
-              SearchFooter.FindPrevCaption = 'Find &previous'
-              SearchFooter.Font.Charset = DEFAULT_CHARSET
-              SearchFooter.Font.Color = clWindowText
-              SearchFooter.Font.Height = -11
-              SearchFooter.Font.Name = 'Tahoma'
-              SearchFooter.Font.Style = []
-              SearchFooter.HighLightCaption = 'Highlight'
-              SearchFooter.HintClose = 'Close'
-              SearchFooter.HintFindNext = 'Find next occurence'
-              SearchFooter.HintFindPrev = 'Find previous occurence'
-              SearchFooter.HintHighlight = 'Highlight occurences'
-              SearchFooter.MatchCaseCaption = 'Match case'
-              Version = '6.2.1.1'
-              ExplicitHeight = 270
-            end
             object sPanel3: TPanel
               Left = 0
               Top = 285
@@ -252,7 +130,7 @@ object FormMain: TFormMain
               Height = 33
               Align = alBottom
               BevelOuter = bvNone
-              TabOrder = 1
+              TabOrder = 0
               object sButton3: TButton
                 Left = 3
                 Top = 4
@@ -275,23 +153,10 @@ object FormMain: TFormMain
         object TabSheetDepotConfigSave: TTabSheet
           Caption = #1057#1086#1093#1088#1072#1085#1077#1085#1080#1077' '#1082#1086#1085#1092#1080#1075#1091#1088#1072#1094#1080#1081
           ImageIndex = 2
-          object HTMLabel1: THTMLabel
-            Left = 3
-            Top = 43
-            Width = 278
-            Height = 71
-            HTMLText.Strings = (
-              
-                '<P align="center">'#1044#1083#1103' '#1089#1086#1093#1088#1072#1085#1077#1085#1080#1103' '#1087#1088#1086#1080#1079#1074#1086#1083#1100#1085#1086#1081' '#1074#1077#1088#1089#1080#1080' '#1082#1086#1085#1092#1080#1075#1091#1088#1072#1094#1080 +
-                #1080' '#1093#1088#1072#1085#1080#1083#1080#1097#1072' '#1087#1077#1088#1077#1081#1076#1080#1090#1077' '#1074' '#1090#1072#1073#1083#1080#1094#1091' <B>VERSION</B>, '#1074#1099#1073#1077#1088#1080#1090#1077' '#1089#1090#1088#1086#1082#1091' ' +
-                #1089' '#1085#1091#1078#1085#1086#1081' '#1074#1077#1088#1089#1080#1077#1081' '#1082#1086#1085#1092#1080#1075#1091#1088#1072#1094#1080#1080' '#1080' '#1085#1072#1078#1084#1080#1090#1077' '#1082#1085#1086#1087#1082#1091' <IMG src="databas' +
-                'e_save"></P>')
-            Images = ImageListMain
-            LineSpacing = 3
-            PictureContainer = PictureContainer1
-            Transparent = True
-            Version = '1.8.4.0'
-          end
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object ButtonSaveLastDepotConfig: TButton
             Left = 3
             Top = 3
@@ -303,142 +168,10 @@ object FormMain: TFormMain
         end
         object TabSheetStatistic: TTabSheet
           Caption = #1060#1072#1081#1083#1099' '#1090#1072#1073#1083#1080#1094
-          object AdvStringGridStatistic: TAdvStringGrid
-            Left = 0
-            Top = 0
-            Width = 854
-            Height = 425
-            Cursor = crDefault
-            Align = alClient
-            DefaultRowHeight = 18
-            DrawingStyle = gdsClassic
-            FixedCols = 0
-            RowCount = 1
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goFixedColClick, goFixedRowClick]
-            ParentFont = False
-            ScrollBars = ssBoth
-            TabOrder = 0
-            HoverRowCells = [hcNormal, hcSelected]
-            OnGetAlignment = AdvStringGridStatisticGetAlignment
-            OnGetFormat = AdvStringGridStatisticGetFormat
-            OnGridHint = AdvStringGridStatisticGridHint
-            OnCanSort = AdvStringGridStatisticCanSort
-            HintShowCells = True
-            ActiveCellFont.Charset = DEFAULT_CHARSET
-            ActiveCellFont.Color = clWindowText
-            ActiveCellFont.Height = -11
-            ActiveCellFont.Name = 'Tahoma'
-            ActiveCellFont.Style = [fsBold]
-            ActiveCellColor = 15387318
-            ColumnHeaders.Strings = (
-              #1058#1072#1073#1083#1080#1094#1072
-              #1060#1072#1081#1083
-              #1056#1072#1079#1084#1077#1088
-              #1055#1088#1086#1094#1077#1085#1090
-              #1052#1072#1082#1089#1080#1084#1072#1083#1100#1085#1099#1081' '#1088#1072#1079#1084#1077#1088)
-            ControlLook.FixedGradientFrom = clWhite
-            ControlLook.FixedGradientTo = clBtnFace
-            ControlLook.FixedGradientHoverFrom = 13619409
-            ControlLook.FixedGradientHoverTo = 12502728
-            ControlLook.FixedGradientHoverMirrorFrom = 12502728
-            ControlLook.FixedGradientHoverMirrorTo = 11254975
-            ControlLook.FixedGradientDownFrom = 8816520
-            ControlLook.FixedGradientDownTo = 7568510
-            ControlLook.FixedGradientDownMirrorFrom = 7568510
-            ControlLook.FixedGradientDownMirrorTo = 6452086
-            ControlLook.FixedGradientDownBorder = 11440207
-            ControlLook.DropDownHeader.Font.Charset = DEFAULT_CHARSET
-            ControlLook.DropDownHeader.Font.Color = clWindowText
-            ControlLook.DropDownHeader.Font.Height = -11
-            ControlLook.DropDownHeader.Font.Name = 'Tahoma'
-            ControlLook.DropDownHeader.Font.Style = []
-            ControlLook.DropDownHeader.Visible = True
-            ControlLook.DropDownHeader.Buttons = <>
-            ControlLook.DropDownFooter.Font.Charset = DEFAULT_CHARSET
-            ControlLook.DropDownFooter.Font.Color = clWindowText
-            ControlLook.DropDownFooter.Font.Height = -11
-            ControlLook.DropDownFooter.Font.Name = 'Tahoma'
-            ControlLook.DropDownFooter.Font.Style = []
-            ControlLook.DropDownFooter.Visible = True
-            ControlLook.DropDownFooter.Buttons = <>
-            Filter = <>
-            FilterDropDown.Font.Charset = DEFAULT_CHARSET
-            FilterDropDown.Font.Color = clWindowText
-            FilterDropDown.Font.Height = -11
-            FilterDropDown.Font.Name = 'Tahoma'
-            FilterDropDown.Font.Style = []
-            FilterDropDownClear = '(All)'
-            FixedColWidth = 180
-            FixedRowHeight = 18
-            FixedRowAlways = True
-            FixedFont.Charset = DEFAULT_CHARSET
-            FixedFont.Color = clWindowText
-            FixedFont.Height = -11
-            FixedFont.Name = 'Tahoma'
-            FixedFont.Style = [fsBold]
-            FloatFormat = '%.2f'
-            Navigation.AllowClipboardShortCuts = True
-            Navigation.AllowSmartClipboard = True
-            Navigation.AllowRTFClipboard = True
-            Navigation.AllowClipboardAlways = True
-            Navigation.HomeEndKey = heFirstLastRow
-            PrintSettings.DateFormat = 'dd/mm/yyyy'
-            PrintSettings.Font.Charset = DEFAULT_CHARSET
-            PrintSettings.Font.Color = clWindowText
-            PrintSettings.Font.Height = -11
-            PrintSettings.Font.Name = 'Tahoma'
-            PrintSettings.Font.Style = []
-            PrintSettings.FixedFont.Charset = DEFAULT_CHARSET
-            PrintSettings.FixedFont.Color = clWindowText
-            PrintSettings.FixedFont.Height = -11
-            PrintSettings.FixedFont.Name = 'Tahoma'
-            PrintSettings.FixedFont.Style = []
-            PrintSettings.HeaderFont.Charset = DEFAULT_CHARSET
-            PrintSettings.HeaderFont.Color = clWindowText
-            PrintSettings.HeaderFont.Height = -11
-            PrintSettings.HeaderFont.Name = 'Tahoma'
-            PrintSettings.HeaderFont.Style = []
-            PrintSettings.FooterFont.Charset = DEFAULT_CHARSET
-            PrintSettings.FooterFont.Color = clWindowText
-            PrintSettings.FooterFont.Height = -11
-            PrintSettings.FooterFont.Name = 'Tahoma'
-            PrintSettings.FooterFont.Style = []
-            PrintSettings.PageNumSep = '/'
-            SearchFooter.ColorTo = 14215660
-            SearchFooter.FindNextCaption = 'Find &next'
-            SearchFooter.FindPrevCaption = 'Find &previous'
-            SearchFooter.Font.Charset = DEFAULT_CHARSET
-            SearchFooter.Font.Color = clWindowText
-            SearchFooter.Font.Height = -11
-            SearchFooter.Font.Name = 'Tahoma'
-            SearchFooter.Font.Style = []
-            SearchFooter.HighLightCaption = 'Highlight'
-            SearchFooter.HintClose = 'Close'
-            SearchFooter.HintFindNext = 'Find next occurence'
-            SearchFooter.HintFindPrev = 'Find previous occurence'
-            SearchFooter.HintHighlight = 'Highlight occurences'
-            SearchFooter.MatchCaseCaption = 'Match case'
-            SortSettings.Column = 2
-            SortSettings.Show = True
-            SortSettings.Direction = sdDescending
-            SortSettings.IgnoreCase = True
-            SortSettings.HeaderColor = 16579058
-            SortSettings.HeaderColorTo = 16579058
-            SortSettings.HeaderMirrorColor = 16380385
-            SortSettings.HeaderMirrorColorTo = 16182488
-            Version = '6.2.1.1'
-            ColWidths = (
-              180
-              60
-              100
-              92
-              150)
-          end
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
         end
       end
     end
@@ -452,7 +185,7 @@ object FormMain: TFormMain
       object Splitter7: TSplitter
         Left = 185
         Top = 0
-        Height = 453
+        Height = 433
         ExplicitLeft = 192
         ExplicitTop = 104
         ExplicitHeight = 100
@@ -461,7 +194,7 @@ object FormMain: TFormMain
         Left = 0
         Top = 0
         Width = 185
-        Height = 453
+        Height = 433
         Align = alLeft
         BevelOuter = bvNone
         Constraints.MinWidth = 50
@@ -470,7 +203,7 @@ object FormMain: TFormMain
           Left = 0
           Top = 31
           Width = 185
-          Height = 422
+          Height = 402
           Align = alClient
           Color = clWhite
           Columns = <
@@ -539,7 +272,7 @@ object FormMain: TFormMain
         Left = 188
         Top = 0
         Width = 674
-        Height = 453
+        Height = 433
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 0
@@ -550,6 +283,10 @@ object FormMain: TFormMain
         OnChange = PageControlTableViewChange
         object TabSheetDescription: TTabSheet
           Caption = #1054#1087#1080#1089#1072#1085#1080#1077
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object Splitter6: TSplitter
             Left = 432
             Top = 0
@@ -626,7 +363,7 @@ object FormMain: TFormMain
               object Label5: TLabel
                 Left = 0
                 Top = 0
-                Width = 432
+                Width = 43
                 Height = 13
                 Align = alTop
                 Caption = #1058#1072#1073#1083#1080#1094#1072
@@ -637,7 +374,6 @@ object FormMain: TFormMain
                 Font.Style = []
                 ParentFont = False
                 Layout = tlCenter
-                ExplicitWidth = 43
               end
               object ValueListEditorDescriprionTable: TValueListEditor
                 Left = 0
@@ -654,6 +390,9 @@ object FormMain: TFormMain
                 ColWidths = (
                   137
                   262)
+                RowHeights = (
+                  16
+                  16)
               end
             end
             object Panel6: TPanel
@@ -712,15 +451,16 @@ object FormMain: TFormMain
               Left = 0
               Top = 108
               Width = 432
-              Height = 215
+              Height = 195
               Align = alClient
               BevelOuter = bvNone
               Constraints.MinHeight = 30
               TabOrder = 2
+              ExplicitHeight = 215
               object Label2: TLabel
                 Left = 0
                 Top = 0
-                Width = 432
+                Width = 26
                 Height = 13
                 Align = alTop
                 Caption = #1055#1086#1083#1103
@@ -731,111 +471,6 @@ object FormMain: TFormMain
                 Font.Style = []
                 ParentFont = False
                 Layout = tlCenter
-                ExplicitWidth = 26
-              end
-              object StringGridDescriptionFields: TAdvStringGrid
-                Left = 0
-                Top = 13
-                Width = 432
-                Height = 202
-                Cursor = crDefault
-                Align = alClient
-                ColCount = 8
-                DefaultRowHeight = 18
-                DrawingStyle = gdsClassic
-                FixedCols = 0
-                RowCount = 1
-                Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
-                ScrollBars = ssBoth
-                TabOrder = 0
-                HoverRowCells = [hcNormal, hcSelected]
-                ActiveCellFont.Charset = DEFAULT_CHARSET
-                ActiveCellFont.Color = clWindowText
-                ActiveCellFont.Height = -11
-                ActiveCellFont.Name = 'MS Sans Serif'
-                ActiveCellFont.Style = [fsBold]
-                ControlLook.FixedGradientHoverFrom = clGray
-                ControlLook.FixedGradientHoverTo = clWhite
-                ControlLook.FixedGradientDownFrom = clGray
-                ControlLook.FixedGradientDownTo = clSilver
-                ControlLook.DropDownHeader.Font.Charset = DEFAULT_CHARSET
-                ControlLook.DropDownHeader.Font.Color = clWindowText
-                ControlLook.DropDownHeader.Font.Height = -11
-                ControlLook.DropDownHeader.Font.Name = 'Tahoma'
-                ControlLook.DropDownHeader.Font.Style = []
-                ControlLook.DropDownHeader.Visible = True
-                ControlLook.DropDownHeader.Buttons = <>
-                ControlLook.DropDownFooter.Font.Charset = DEFAULT_CHARSET
-                ControlLook.DropDownFooter.Font.Color = clWindowText
-                ControlLook.DropDownFooter.Font.Height = -11
-                ControlLook.DropDownFooter.Font.Name = 'Tahoma'
-                ControlLook.DropDownFooter.Font.Style = []
-                ControlLook.DropDownFooter.Visible = True
-                ControlLook.DropDownFooter.Buttons = <>
-                EnableHTML = False
-                EnhTextSize = True
-                Filter = <>
-                FilterDropDown.Font.Charset = DEFAULT_CHARSET
-                FilterDropDown.Font.Color = clWindowText
-                FilterDropDown.Font.Height = -11
-                FilterDropDown.Font.Name = 'Tahoma'
-                FilterDropDown.Font.Style = []
-                FilterDropDownClear = '(All)'
-                FixedRowHeight = 18
-                FixedRowAlways = True
-                FixedFont.Charset = DEFAULT_CHARSET
-                FixedFont.Color = clWindowText
-                FixedFont.Height = -11
-                FixedFont.Name = 'MS Sans Serif'
-                FixedFont.Style = [fsBold]
-                FloatFormat = '%.2f'
-                Navigation.AllowClipboardShortCuts = True
-                PrintSettings.DateFormat = 'dd/mm/yyyy'
-                PrintSettings.Font.Charset = DEFAULT_CHARSET
-                PrintSettings.Font.Color = clWindowText
-                PrintSettings.Font.Height = -11
-                PrintSettings.Font.Name = 'Tahoma'
-                PrintSettings.Font.Style = []
-                PrintSettings.FixedFont.Charset = DEFAULT_CHARSET
-                PrintSettings.FixedFont.Color = clWindowText
-                PrintSettings.FixedFont.Height = -11
-                PrintSettings.FixedFont.Name = 'Tahoma'
-                PrintSettings.FixedFont.Style = []
-                PrintSettings.HeaderFont.Charset = DEFAULT_CHARSET
-                PrintSettings.HeaderFont.Color = clWindowText
-                PrintSettings.HeaderFont.Height = -11
-                PrintSettings.HeaderFont.Name = 'Tahoma'
-                PrintSettings.HeaderFont.Style = []
-                PrintSettings.FooterFont.Charset = DEFAULT_CHARSET
-                PrintSettings.FooterFont.Color = clWindowText
-                PrintSettings.FooterFont.Height = -11
-                PrintSettings.FooterFont.Name = 'Tahoma'
-                PrintSettings.FooterFont.Style = []
-                PrintSettings.PageNumSep = '/'
-                SearchFooter.FindNextCaption = 'Find &next'
-                SearchFooter.FindPrevCaption = 'Find &previous'
-                SearchFooter.Font.Charset = DEFAULT_CHARSET
-                SearchFooter.Font.Color = clWindowText
-                SearchFooter.Font.Height = -11
-                SearchFooter.Font.Name = 'Tahoma'
-                SearchFooter.Font.Style = []
-                SearchFooter.HighLightCaption = 'Highlight'
-                SearchFooter.HintClose = 'Close'
-                SearchFooter.HintFindNext = 'Find next occurence'
-                SearchFooter.HintFindPrev = 'Find previous occurence'
-                SearchFooter.HintHighlight = 'Highlight occurences'
-                SearchFooter.MatchCaseCaption = 'Match case'
-                Version = '6.2.1.1'
-                ExplicitWidth = 405
-                ColWidths = (
-                  64
-                  64
-                  64
-                  64
-                  64
-                  64
-                  64
-                  64)
               end
             end
           end
@@ -846,7 +481,7 @@ object FormMain: TFormMain
           OnResize = TabSheetPhysicalViewResize
           object SplitterBlobView: TSplitter
             Left = 0
-            Top = 205
+            Top = 185
             Width = 666
             Height = 3
             Cursor = crVSplit
@@ -856,7 +491,7 @@ object FormMain: TFormMain
           end
           object PanelBlobView: TPanel
             Left = 0
-            Top = 208
+            Top = 188
             Width = 666
             Height = 217
             Align = alBottom
@@ -1076,778 +711,18 @@ object FormMain: TFormMain
                 OnExpanded = TreeViewContainerExpanded
               end
             end
-            object ATViewerBlob: TATViewer
-              Left = 140
-              Top = 0
-              Width = 372
-              Height = 217
-              Align = alClient
-              BevelOuter = bvNone
-              ParentShowHint = False
-              ShowCaption = False
-              ShowHint = False
-              TabOrder = 2
-              ModeUndetected = vmodeHex
-              ModeUndetectedCfm = False
-              ModesDisabledForDetect = [vmodeWLX]
-              MessagesEnabled = True
-              ExtImages = 
-                'bmp,ico,wmf,emf,jpg,jpeg,jpe,jfif,png,gif,rle,dib,tga,tif,tiff,p' +
-                'sd,fax,eps,icb,win,vst,vda,pcx,pcc,rpf,rla,sgi,rgba,rgb,bw,pdd,p' +
-                'pm,pgm,pbm,cel,pic,pcd,cut,pal,psp,jp2,jpc,pnm,ras,mis,ani,cur'
-              ExtMedia = 
-                'avi,mpg,mpeg,mpe,mpv,mp3,mp2,mp1,m1v,m2v,mpv2,mp2v,mpa,m1a,m2a,a' +
-                'sf,lsf,lsx,ivf,wav,mid,midi,rmi,kar,aif,aifc,aiff,au,snd,mov,qt,' +
-                '3gp,3gp2,3g2,3gpp,ra,rm,ram,rmvb,rpm,rt,rp,smi,smil,roq,asx,m3u,' +
-                'pls,wvx,wax,wmx,wmv,wma,wmp,wm,cda,ac3,dts,vob,ifo,d2v,fli,flc,f' +
-                'lic,mka,mkv,ts,tp,tpr,pva,aac,mp4,ogm,ogg,divx,vp6,m4a,m4b,vqf,a' +
-                'pe,mpc,flac,flv,dvr-ms,wtv'
-              ExtInet = 
-                'htm,html,xml,xsl,mht,pdf,swf,xps,shtml,xhtml,shtm,stm,php,php2,p' +
-                'hp3,asp,pl,vrml,plg,htt,htx'
-              TextFont.Charset = DEFAULT_CHARSET
-              TextFont.Color = clWindowText
-              TextFont.Height = -13
-              TextFont.Name = 'Courier New'
-              TextFont.Style = []
-              TextFontOEM.Charset = OEM_CHARSET
-              TextFontOEM.Color = clWindowText
-              TextFontOEM.Height = -12
-              TextFontOEM.Name = 'Terminal'
-              TextFontOEM.Style = []
-              TextFontFooter.Charset = DEFAULT_CHARSET
-              TextFontFooter.Color = clBlack
-              TextFontFooter.Height = -12
-              TextFontFooter.Name = 'Arial'
-              TextFontFooter.Style = []
-              TextFontGutter.Charset = DEFAULT_CHARSET
-              TextFontGutter.Color = clBlack
-              TextFontGutter.Height = -12
-              TextFontGutter.Name = 'Courier New'
-              TextFontGutter.Style = []
-              MediaLoop = False
-              MediaShowControls = True
-              MediaShowTracker = True
-            end
           end
           object PanelPhysView: TPanel
             Left = 0
             Top = 0
             Width = 666
-            Height = 205
+            Height = 185
             Align = alClient
             BevelOuter = bvNone
             Constraints.MinHeight = 100
             Ctl3D = False
             ParentCtl3D = False
             TabOrder = 1
-            object StringGridPhysicalView: TAdvStringGrid
-              Left = 0
-              Top = 24
-              Width = 666
-              Height = 159
-              Cursor = crDefault
-              Align = alClient
-              BevelInner = bvNone
-              BevelOuter = bvNone
-              ColCount = 1
-              Ctl3D = True
-              DefaultColWidth = 100
-              DefaultRowHeight = 18
-              DrawingStyle = gdsClassic
-              RowCount = 1
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'MS Sans Serif'
-              Font.Style = []
-              Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goEditing]
-              ParentCtl3D = False
-              ParentFont = False
-              ScrollBars = ssBoth
-              TabOrder = 0
-              OnKeyDown = StringGridPhysicalViewKeyDown
-              OnKeyUp = StringGridPhysicalViewKeyUp
-              OnSelectCell = StringGridPhysicalViewSelectCell
-              HoverRowCells = [hcNormal, hcSelected]
-              OnGetDisplText = StringGridPhysicalViewGetDisplText
-              OnGetCellColor = StringGridPhysicalViewGetCellColor
-              OnGetAlignment = StringGridPhysicalViewGetAlignment
-              OnCanInsertRow = StringGridPhysicalViewCanInsertRow
-              OnCanDeleteRow = StringGridPhysicalViewCanDeleteRow
-              OnCanSort = StringGridPhysicalViewCanSort
-              OnCanEditCell = StringGridPhysicalViewCanEditCell
-              OnGetEditorType = StringGridPhysicalViewGetEditorType
-              OnEditCellDone = StringGridPhysicalViewEditCellDone
-              DragDropSettings.OleAcceptFiles = False
-              DragDropSettings.OleAcceptText = False
-              DragDropSettings.OleAcceptURLs = False
-              HintShowLargeText = True
-              ActiveCellFont.Charset = DEFAULT_CHARSET
-              ActiveCellFont.Color = clWindowText
-              ActiveCellFont.Height = -11
-              ActiveCellFont.Name = 'MS Sans Serif'
-              ActiveCellFont.Style = [fsBold]
-              ActiveCellColor = 15387318
-              ControlLook.FixedGradientFrom = clWhite
-              ControlLook.FixedGradientTo = clBtnFace
-              ControlLook.FixedGradientHoverFrom = 13619409
-              ControlLook.FixedGradientHoverTo = 12502728
-              ControlLook.FixedGradientHoverMirrorFrom = 12502728
-              ControlLook.FixedGradientHoverMirrorTo = 11254975
-              ControlLook.FixedGradientDownFrom = 8816520
-              ControlLook.FixedGradientDownTo = 7568510
-              ControlLook.FixedGradientDownMirrorFrom = 7568510
-              ControlLook.FixedGradientDownMirrorTo = 6452086
-              ControlLook.FixedGradientDownBorder = 14007466
-              ControlLook.DropDownHeader.Font.Charset = DEFAULT_CHARSET
-              ControlLook.DropDownHeader.Font.Color = clWindowText
-              ControlLook.DropDownHeader.Font.Height = -11
-              ControlLook.DropDownHeader.Font.Name = 'Tahoma'
-              ControlLook.DropDownHeader.Font.Style = []
-              ControlLook.DropDownHeader.Visible = True
-              ControlLook.DropDownHeader.Buttons = <>
-              ControlLook.DropDownFooter.Font.Charset = DEFAULT_CHARSET
-              ControlLook.DropDownFooter.Font.Color = clWindowText
-              ControlLook.DropDownFooter.Font.Height = -11
-              ControlLook.DropDownFooter.Font.Name = 'Tahoma'
-              ControlLook.DropDownFooter.Font.Style = []
-              ControlLook.DropDownFooter.Visible = False
-              ControlLook.DropDownFooter.Buttons = <>
-              DefaultEditor = edNone
-              EnableHTML = False
-              EnhTextSize = True
-              Filter = <>
-              FilterActive = True
-              FilterDropDown.Font.Charset = DEFAULT_CHARSET
-              FilterDropDown.Font.Color = clWindowText
-              FilterDropDown.Font.Height = -11
-              FilterDropDown.Font.Name = 'Tahoma'
-              FilterDropDown.Font.Style = []
-              FilterDropDownClear = '(All)'
-              FixedColWidth = 60
-              FixedRowHeight = 18
-              FixedRowAlways = True
-              FixedColAlways = True
-              FixedFont.Charset = DEFAULT_CHARSET
-              FixedFont.Color = clWindowText
-              FixedFont.Height = -11
-              FixedFont.Name = 'MS Sans Serif'
-              FixedFont.Style = [fsBold]
-              FloatFormat = '%.2f'
-              FloatingFooter.CalculateHiddenRows = False
-              FloatingFooter.FooterStyle = fsCustomPreview
-              IntelliZoom = False
-              MouseActions.SizeFixedCol = True
-              MouseActions.WheelAction = waScroll
-              Navigation.AllowInsertRow = True
-              Navigation.AllowDeleteRow = True
-              Navigation.AllowClipboardShortCuts = True
-              Navigation.AllowClipboardAlways = True
-              Navigation.InsertPosition = pInsertAfter
-              PrintSettings.DateFormat = 'dd/mm/yyyy'
-              PrintSettings.Font.Charset = DEFAULT_CHARSET
-              PrintSettings.Font.Color = clWindowText
-              PrintSettings.Font.Height = -11
-              PrintSettings.Font.Name = 'Tahoma'
-              PrintSettings.Font.Style = []
-              PrintSettings.FixedFont.Charset = DEFAULT_CHARSET
-              PrintSettings.FixedFont.Color = clWindowText
-              PrintSettings.FixedFont.Height = -11
-              PrintSettings.FixedFont.Name = 'Tahoma'
-              PrintSettings.FixedFont.Style = []
-              PrintSettings.HeaderFont.Charset = DEFAULT_CHARSET
-              PrintSettings.HeaderFont.Color = clWindowText
-              PrintSettings.HeaderFont.Height = -11
-              PrintSettings.HeaderFont.Name = 'Tahoma'
-              PrintSettings.HeaderFont.Style = []
-              PrintSettings.FooterFont.Charset = DEFAULT_CHARSET
-              PrintSettings.FooterFont.Color = clWindowText
-              PrintSettings.FooterFont.Height = -11
-              PrintSettings.FooterFont.Name = 'Tahoma'
-              PrintSettings.FooterFont.Style = []
-              PrintSettings.PageNumSep = '/'
-              SearchFooter.AutoSearch = False
-              SearchFooter.ColorTo = 14215660
-              SearchFooter.FindNextCaption = 'Find &next'
-              SearchFooter.FindPrevCaption = 'Find &previous'
-              SearchFooter.Font.Charset = DEFAULT_CHARSET
-              SearchFooter.Font.Color = clWindowText
-              SearchFooter.Font.Height = -11
-              SearchFooter.Font.Name = 'Tahoma'
-              SearchFooter.Font.Style = []
-              SearchFooter.HighLightCaption = 'Highlight'
-              SearchFooter.HintClose = 'Close'
-              SearchFooter.HintFindNext = 'Find next occurence'
-              SearchFooter.HintFindPrev = 'Find previous occurence'
-              SearchFooter.HintHighlight = 'Highlight occurences'
-              SearchFooter.MatchCaseCaption = 'Match case'
-              ShowDesignHelper = False
-              SizeWhileTyping.Width = True
-              SortSettings.AutoSortForGrouping = False
-              SortSettings.Show = True
-              SortSettings.Full = False
-              SortSettings.AutoFormat = False
-              SortSettings.FixedCols = True
-              SortSettings.SortOnVirtualCells = False
-              SortSettings.HeaderColor = 16579058
-              SortSettings.HeaderColorTo = 16579058
-              SortSettings.HeaderMirrorColor = 16380385
-              SortSettings.HeaderMirrorColorTo = 16182488
-              VAlignment = vtaCenter
-              Version = '6.2.1.1'
-              ColWidths = (
-                60)
-              object MaskEditCommonEdit: TawaMaskEdit
-                Left = 405
-                Top = 67
-                Width = 121
-                Height = 21
-                AutoSize = False
-                BevelInner = bvSpace
-                BevelOuter = bvNone
-                BevelKind = bkFlat
-                BevelWidth = 3
-                BorderStyle = bsNone
-                PopupMenu = EmptyPopupMenu
-                TabOrder = 6
-                Text = 'MaskEditCommonEdit'
-                Visible = False
-                OnChange = ButtonedEditCommonEditChange
-                OnKeyPress = ButtonedEditCommonEditKeyPress
-                OnMouseDown = MaskEditCommonEdit_MouseDown
-              end
-              object ButtonedEditCommonEdit: TButtonedEdit
-                Left = 550
-                Top = 3
-                Width = 69
-                Height = 18
-                Margins.Left = 0
-                Margins.Top = 2
-                Margins.Right = 0
-                Margins.Bottom = 0
-                AutoSize = False
-                BevelEdges = [beLeft, beTop]
-                BevelInner = bvSpace
-                BevelKind = bkFlat
-                BevelOuter = bvNone
-                BevelWidth = 3
-                BorderStyle = bsNone
-                Ctl3D = False
-                Images = ImageListEdits
-                LeftButton.Enabled = False
-                ParentCtl3D = False
-                PopupMenu = EmptyPopupMenu
-                RightButton.Hint = #1044#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1086'...'
-                RightButton.HotImageIndex = 1
-                RightButton.ImageIndex = 0
-                RightButton.PressedImageIndex = 2
-                RightButton.Visible = True
-                TabOrder = 4
-                Visible = False
-                OnChange = ButtonedEditCommonEditChange
-                OnKeyPress = ButtonedEditCommonEditKeyPress
-                OnMouseDown = MaskEditCommonEdit_MouseDown
-                OnRightButtonClick = ButtonedEditCommonEditRightButtonClick
-              end
-              object PanelEditDropDown: TPanel
-                Left = 538
-                Top = 18
-                Width = 83
-                Height = 18
-                BevelOuter = bvNone
-                ParentBackground = False
-                TabOrder = 3
-                Visible = False
-                object AdvToolButtonStringNULL: TAdvToolButton
-                  Left = 23
-                  Top = 0
-                  Width = 40
-                  Height = 18
-                  Hint = #1042#1074#1077#1089#1090#1080' '#1079#1085#1072#1095#1077#1085#1080#1077' NULL (Ctrl-N)'
-                  Align = alRight
-                  AutoThemeAdapt = False
-                  BorderDownColor = clBlack
-                  BorderHotColor = clBtnShadow
-                  ColorDown = clBtnFace
-                  ColorHot = clBtnFace
-                  Glyph.Data = {
-                    F6060000424DF606000000000000360000002800000023000000100000000100
-                    180000000000C0060000120B0000120B00000000000000000000FFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFF000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FFFF
-                    FFAAAAAA7F7F7F9E9E9EF8F8F8FFFFFFCCCCCC7F7F7F7F7F7FE5E5E5FFFFFFFD
-                    FDFDC6C6C68888887F7F7F7F7F7FACACACF1F1F1FFFFFFFFFFFF9E9E9E7F7F7F
-                    7F7F7F7F7F7F7F7F7F7F7F7FB6B6B6E1E1E17F7F7F7F7F7F7F7F7F7F7F7F7F7F
-                    7F868686AAAAAA000000FFFFFFAAAAAA7F7F7F9E9E9EFBFBFBFAFAFA9898987F
-                    7F7F7F7F7FE5E5E5FFFFFFC7C7C77F7F7F7F7F7F7F7F7F7F7F7F7F7F7FA8A8A8
-                    FEFEFEFFFFFF9E9E9E7F7F7F7F7F7F7F7F7F7F7F7F7F7F7FB6B6B6E1E1E17F7F
-                    7F7F7F7F7F7F7F7F7F7F7F7F7F868686AAAAAA000000FFFFFFAAAAAA7F7F7F9E
-                    9E9EFFFFFFD1D1D17F7F7F7F7F7F7F7F7FE6E6E6FFFFFF9494947F7F7FA7A7A7
-                    FFFFFFC8C8C87F7F7F7F7F7FE3E3E3FFFFFF9E9E9E7F7F7FA7A7A7FDFDFDFFFF
-                    FFFFFFFFFFFFFFD7D7D77F7F7F7F7F7FD9D9D9FFFFFFFFFFFFFFFFFFFFFFFF00
-                    0000FFFFFFAAAAAA7F7F7FA0A0A0F2F2F29A9A9A7F7F7F7F7F7F7F7F7FE9E9E9
-                    E8E8E88888887F7F7FD4D4D4FFFFFFF1F1F18989897F7F7FCACACAFFFFFF9E9E
-                    9E7F7F7FA7A7A7FDFDFDFFFFFFFFFFFFFFFFFFD7D7D77F7F7F7F7F7FD9D9D9FF
-                    FFFFFFFFFFFFFFFFFFFFFF000000FFFFFFAAAAAA7F7F7FA2A2A2CDCDCD7F7F7F
-                    7F7F7F7F7F7F7F7F7FEBEBEBDFDFDF8383837F7F7FDADADAFFFFFFF6F6F68A8A
-                    8A7F7F7FC4C4C4FFFFFF9E9E9E7F7F7FA7A7A7FDFDFDFFFFFFFFFFFFFFFFFFD7
-                    D7D77F7F7F7F7F7FD9D9D9FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFAAAAAA
-                    7F7F7F9A9A9A9393937F7F7FA7A7A78585857F7F7FEBEBEBDFDFDF8383837F7F
-                    7FDADADAFFFFFFF6F6F68A8A8A7F7F7FC4C4C4FFFFFF9E9E9E7F7F7FA7A7A7FD
-                    FDFDFFFFFFFFFFFFFFFFFFD7D7D77F7F7F7F7F7FD9D9D9FFFFFFFFFFFFFFFFFF
-                    FFFFFF000000FFFFFFAAAAAA7F7F7F7F7F7F7F7F7F929292D0D0D08686867F7F
-                    7FEBEBEBDFDFDF8383837F7F7FDADADAFFFFFFF6F6F68A8A8A7F7F7FC4C4C4FF
-                    FFFF9E9E9E7F7F7FA7A7A7FDFDFDFFFFFFFFFFFFFFFFFFD7D7D77F7F7F7F7F7F
-                    D9D9D9FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFAAAAAA7F7F7F7F7F7F7F7F
-                    7FBCBCBCE8E8E88282827F7F7FEBEBEBDFDFDF8383837F7F7FDADADAFFFFFFF6
-                    F6F68A8A8A7F7F7FC4C4C4FFFFFF9E9E9E7F7F7FA7A7A7FDFDFDFFFFFFFFFFFF
-                    FFFFFFD7D7D77F7F7F7F7F7FD9D9D9FFFFFFFFFFFFFFFFFFFFFFFF000000FFFF
-                    FFAAAAAA7F7F7F7F7F7F898989F4F4F4E5E5E58181817F7F7FEBEBEBDFDFDF83
-                    83837F7F7FDADADAFFFFFFF6F6F68A8A8A7F7F7FC4C4C4FFFFFF9E9E9E7F7F7F
-                    A7A7A7FDFDFDFFFFFFFFFFFFFFFFFFD7D7D77F7F7F7F7F7FD9D9D9FFFFFFFFFF
-                    FFFFFFFFFFFFFF000000FFFFFFAAAAAA7F7F7F7F7F7FB7B7B7FFFFFFE3E3E381
-                    81817F7F7FEBEBEBDFDFDF8383837F7F7FDADADAFFFFFFF6F6F68A8A8A7F7F7F
-                    C4C4C4FFFFFF9E9E9E7F7F7FA7A7A7FDFDFDFFFFFFFFFFFFFFFFFFD7D7D77F7F
-                    7F7F7F7FD9D9D9FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFAAAAAA7F7F7F86
-                    8686EDEDEDFFFFFFE3E3E38181817F7F7FEBEBEBDFDFDF8383837F7F7FDADADA
-                    FFFFFFF6F6F68A8A8A7F7F7FC4C4C4FFFFFF9E9E9E7F7F7FA7A7A7FDFDFDFFFF
-                    FFFFFFFFFFFFFFD7D7D77F7F7F7F7F7FD9D9D9FFFFFFFFFFFFFFFFFFFFFFFF00
-                    0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000}
-                  GlyphHot.Data = {
-                    F6060000424DF606000000000000360000002800000023000000100000000100
-                    180000000000C0060000120B0000120B00000000000000000000FFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFF000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FFFF
-                    FFFF565CFF0009FF3D44FFF2F2FFFFFFFF9A9EFF0009FF0009FFCBCDFFFFFFFF
-                    FCFCFF8D91FF121AFF0009FF0009FF5A60FFE4E5FFFFFFFFFFFFFF3E45FF0009
-                    FF0009FF0009FF0009FF0009FF6E73FFC3C5FF0009FF0009FF0009FF0009FF00
-                    09FF0E17FF565C000000FFFFFFFF565CFF0009FF3D44FFF7F7FFF5F5FF3138FF
-                    0009FF0009FFCBCDFFFFFFFF9094FF0009FF0009FF0009FF0009FF0009FF5157
-                    FFFEFEFFFFFFFF3E45FF0009FF0009FF0009FF0009FF0009FF6E73FFC3C5FF00
-                    09FF0009FF0009FF0009FF0009FF0E17FF565C000000FFFFFFFF565CFF0009FF
-                    3D44FFFFFFFFA4A7FF0009FF0009FF0009FFCED0FFFFFFFF2931FF0009FF4F55
-                    FFFFFFFF9195FF0009FF0009FFC8CAFFFFFFFF3E45FF0009FF5056FFFBFBFFFF
-                    FFFFFFFFFFFFFFFFB0B3FF0009FF0009FFB3B6FFFFFFFFFFFFFFFFFFFFFFFF00
-                    0000FFFFFFFF565CFF0009FF4148FFE5E6FF363DFF0009FF0009FF0009FFD4D6
-                    FFD1D3FF1119FF0009FFA9ACFFFFFFFFE3E4FF131BFF0009FF9599FFFFFFFF3E
-                    45FF0009FF5056FFFBFBFFFFFFFFFFFFFFFFFFFFB0B3FF0009FF0009FFB3B6FF
-                    FFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFF565CFF0009FF454CFF9B9FFF0009
-                    FF0009FF0009FF0009FFD7D8FFBFC1FF0811FF0009FFB5B8FFFFFFFFEEEFFF16
-                    1EFF0009FF898DFFFFFFFF3E45FF0009FF5056FFFBFBFFFFFFFFFFFFFFFFFFFF
-                    B0B3FF0009FF0009FFB3B6FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFF565C
-                    FF0009FF363DFF2830FF0009FF4F55FF0C15FF0009FFD7D8FFBFC1FF0811FF00
-                    09FFB5B8FFFFFFFFEEEFFF161EFF0009FF898DFFFFFFFF3E45FF0009FF5056FF
-                    FBFBFFFFFFFFFFFFFFFFFFFFB0B3FF0009FF0009FFB3B6FFFFFFFFFFFFFFFFFF
-                    FFFFFF000000FFFFFFFF565CFF0009FF0009FF0009FF252DFFA2A5FF0D16FF00
-                    09FFD7D8FFBFC1FF0811FF0009FFB5B8FFFFFFFFEEEFFF161EFF0009FF898DFF
-                    FFFFFF3E45FF0009FF5056FFFBFBFFFFFFFFFFFFFFFFFFFFB0B3FF0009FF0009
-                    FFB3B6FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFF565CFF0009FF0009FF00
-                    09FF797EFFD1D3FF050EFF0009FFD7D8FFBFC1FF0811FF0009FFB5B8FFFFFFFF
-                    EEEFFF161EFF0009FF898DFFFFFFFF3E45FF0009FF5056FFFBFBFFFFFFFFFFFF
-                    FFFFFFFFB0B3FF0009FF0009FFB3B6FFFFFFFFFFFFFFFFFFFFFFFF000000FFFF
-                    FFFF565CFF0009FF0009FF131BFFEAEBFFCBCDFF040DFF0009FFD7D8FFBFC1FF
-                    0811FF0009FFB5B8FFFFFFFFEEEFFF161EFF0009FF898DFFFFFFFF3E45FF0009
-                    FF5056FFFBFBFFFFFFFFFFFFFFFFFFFFB0B3FF0009FF0009FFB3B6FFFFFFFFFF
-                    FFFFFFFFFFFFFF000000FFFFFFFF565CFF0009FF0009FF6F74FFFFFFFFC7C9FF
-                    040DFF0009FFD7D8FFBFC1FF0811FF0009FFB5B8FFFFFFFFEEEFFF161EFF0009
-                    FF898DFFFFFFFF3E45FF0009FF5056FFFBFBFFFFFFFFFFFFFFFFFFFFB0B3FF00
-                    09FF0009FFB3B6FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFF565CFF0009FF
-                    0E17FFDBDCFFFFFFFFC7C9FF040DFF0009FFD7D8FFBFC1FF0811FF0009FFB5B8
-                    FFFFFFFFEEEFFF161EFF0009FF898DFFFFFFFF3E45FF0009FF5056FFFBFBFFFF
-                    FFFFFFFFFFFFFFFFB0B3FF0009FF0009FFB3B6FFFFFFFFFFFFFFFFFFFFFFFF00
-                    0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000}
-                  GlyphDown.Data = {
-                    F6060000424DF606000000000000360000002800000023000000100000000100
-                    180000000000C0060000120B0000120B00000000000000000000FFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFF000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FFFF
-                    FF9E565C6D0009903D44F8F2F2FFFFFFC59A9E6D00096D0009E1CBCDFFFFFFFD
-                    FCFCBE8D9177121A6D00096D0009A15A60F0E4E5FFFFFFFFFFFF903E456D0009
-                    6D00096D00096D00096D0009AC6E73DDC3C56D00096D00096D00096D00096D00
-                    09750E179E565C000000FFFFFF9E565C6D0009903D44FAF7F7F9F5F58931386D
-                    00096D0009E1CBCDFFFFFFBF90946D00096D00096D00096D00096D00099B5157
-                    FEFEFEFFFFFF903E456D00096D00096D00096D00096D0009AC6E73DDC3C56D00
-                    096D00096D00096D00096D0009750E179E565C000000FFFFFF9E565C6D000990
-                    3D44FFFFFFCBA4A76D00096D00096D0009E3CED0FFFFFF8429316D00099A4F55
-                    FFFFFFC091956D00096D0009E0C8CAFFFFFF903E456D00099B5056FDFBFBFFFF
-                    FFFFFFFFFFFFFFD2B0B36D00096D0009D3B3B6FFFFFFFFFFFFFFFFFFFFFFFF00
-                    0000FFFFFF9E565C6D0009924148F0E5E68C363D6D00096D00096D0009E6D4D6
-                    E5D1D37711196D0009CEA9ACFFFFFFEFE3E478131B6D0009C29599FFFFFF903E
-                    456D00099B5056FDFBFBFFFFFFFFFFFFFFFFFFD2B0B36D00096D0009D3B3B6FF
-                    FFFFFFFFFFFFFFFFFFFFFF000000FFFFFF9E565C6D000995454CC69B9F6D0009
-                    6D00096D00096D0009E8D7D8DABFC17208116D0009D5B5B8FFFFFFF5EEEF7A16
-                    1E6D0009BB898DFFFFFF903E456D00099B5056FDFBFBFFFFFFFFFFFFFFFFFFD2
-                    B0B36D00096D0009D3B3B6FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFF9E565C
-                    6D00098C363D8428306D00099A4F55740C156D0009E8D7D8DABFC17208116D00
-                    09D5B5B8FFFFFFF5EEEF7A161E6D0009BB898DFFFFFF903E456D00099B5056FD
-                    FBFBFFFFFFFFFFFFFFFFFFD2B0B36D00096D0009D3B3B6FFFFFFFFFFFFFFFFFF
-                    FFFFFF000000FFFFFF9E565C6D00096D00096D000982252DCAA2A5740D166D00
-                    09E8D7D8DABFC17208116D0009D5B5B8FFFFFFF5EEEF7A161E6D0009BB898DFF
-                    FFFF903E456D00099B5056FDFBFBFFFFFFFFFFFFFFFFFFD2B0B36D00096D0009
-                    D3B3B6FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFF9E565C6D00096D00096D00
-                    09B2797EE5D1D370050E6D0009E8D7D8DABFC17208116D0009D5B5B8FFFFFFF5
-                    EEEF7A161E6D0009BB898DFFFFFF903E456D00099B5056FDFBFBFFFFFFFFFFFF
-                    FFFFFFD2B0B36D00096D0009D3B3B6FFFFFFFFFFFFFFFFFFFFFFFF000000FFFF
-                    FF9E565C6D00096D000978131BF3EAEBE1CBCD6F040D6D0009E8D7D8DABFC172
-                    08116D0009D5B5B8FFFFFFF5EEEF7A161E6D0009BB898DFFFFFF903E456D0009
-                    9B5056FDFBFBFFFFFFFFFFFFFFFFFFD2B0B36D00096D0009D3B3B6FFFFFFFFFF
-                    FFFFFFFFFFFFFF000000FFFFFF9E565C6D00096D0009AD6F74FFFFFFDFC7C96F
-                    040D6D0009E8D7D8DABFC17208116D0009D5B5B8FFFFFFF5EEEF7A161E6D0009
-                    BB898DFFFFFF903E456D00099B5056FDFBFBFFFFFFFFFFFFFFFFFFD2B0B36D00
-                    096D0009D3B3B6FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFF9E565C6D000975
-                    0E17EADBDCFFFFFFDFC7C96F040D6D0009E8D7D8DABFC17208116D0009D5B5B8
-                    FFFFFFF5EEEF7A161E6D0009BB898DFFFFFF903E456D00099B5056FDFBFBFFFF
-                    FFFFFFFFFFFFFFD2B0B36D00096D0009D3B3B6FFFFFFFFFFFFFFFFFFFFFFFF00
-                    0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000}
-                  GlyphDisabled.Data = {
-                    B6060000424DB606000000000000360000002800000022000000100000000100
-                    1800000000008006000000000000000000000000000000000000959595868686
-                    868686C8C8C8DFDFDFB7B7B7868686868686868686BBBBBBDFDFDFB4B4B49090
-                    90868686868686868686929292BDBDBDDFDFDFC6C6C686868686868686868685
-                    8585858585858585AFAFAFA0A0A08686868686868686868585858585858B8B8B
-                    00008E8E8E7F7F7F7F7F7FC6C6C6DFDFDF9696967F7F7F7F7F7F7F7F7FBBBBBB
-                    B6B6B67F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7FC0C0C0C8C8C87F7F
-                    7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7FACACAC9A9A9A7F7F7F7F7F7F7F7F7F7F
-                    7F7F7F7F7F86868600008F8F8F7F7F7F7F7F7FC9C9C9D9D9D98484847F7F7F7F
-                    7F7F7F7F7FB8B8B89696967F7F7F7F7F7F8A8A8AC2C2C28585857F7F7F7F7F7F
-                    A5A5A5C8C8C87F7F7F7F7F7F7F7F7FB1B1B1CFCFCFCFCFCFD7D7D79797977F7F
-                    7F7F7F7F858585CACACACFCFCFD1D1D100008F8F8F7F7F7F7F7F7FCCCCCCBFBF
-                    BF7F7F7F7F7F7F7F7F7F7F7F7FB7B7B79797977F7F7F7F7F7F929292DADADA88
-                    88887F7F7F7F7F7FA5A5A5C8C8C87F7F7F7F7F7F7F7F7FBDBDBDDFDFDFDFDFDF
-                    DFDFDF9696967F7F7F7F7F7F868686DBDBDBDFDFDFDFDFDF00008F8F8F7F7F7F
-                    7F7F7FCACACAA2A2A27F7F7F7F7F7F7F7F7F7F7F7FB7B7B79797977F7F7F7F7F
-                    7F919191D7D7D78787877F7F7F7F7F7FA5A5A5C8C8C87F7F7F7F7F7F7F7F7FBB
-                    BBBBDFDFDFDFDFDFDFDFDF9696967F7F7F7F7F7F868686D8D8D8DFDFDFDFDFDF
-                    00008F8F8F7F7F7F7F7F7FC1C1C18C8C8C7F7F7F7F7F7F7F7F7F7F7F7FB7B7B7
-                    9797977F7F7F7F7F7F919191D7D7D78787877F7F7F7F7F7FA5A5A5C8C8C87F7F
-                    7F7F7F7F7F7F7FBBBBBBDFDFDFDFDFDFDFDFDF9696967F7F7F7F7F7F868686D8
-                    D8D8DFDFDFDFDFDF00008F8F8F7F7F7F808080B0B0B08282827F7F7F7F7F7F7F
-                    7F7F7F7F7FB7B7B79797977F7F7F7F7F7F919191D7D7D78787877F7F7F7F7F7F
-                    A5A5A5C8C8C87F7F7F7F7F7F7F7F7FBBBBBBDFDFDFDFDFDFDFDFDF9696967F7F
-                    7F7F7F7F868686D8D8D8DFDFDFDFDFDF00008F8F8F7F7F7F8181819191917F7F
-                    7F7F7F7F7F7F7F7F7F7F7F7F7FB7B7B79797977F7F7F7F7F7F919191D7D7D787
-                    87877F7F7F7F7F7FA5A5A5C8C8C87F7F7F7F7F7F7F7F7FBBBBBBDFDFDFDFDFDF
-                    DFDFDF9696967F7F7F7F7F7F868686D8D8D8DFDFDFDFDFDF00008F8F8F7F7F7F
-                    7F7F7F8080807F7F7F7F7F7F7F7F7F7F7F7F7F7F7FB7B7B79797977F7F7F7F7F
-                    7F919191D7D7D78787877F7F7F7F7F7FA5A5A5C8C8C87F7F7F7F7F7F7F7F7FBB
-                    BBBBDFDFDFDFDFDFDFDFDF9696967F7F7F7F7F7F868686D8D8D8DFDFDFDFDFDF
-                    00008F8F8F7F7F7F7F7F7F7F7F7F7F7F7F8484848D8D8D7F7F7F7F7F7FB7B7B7
-                    9797977F7F7F7F7F7F919191D7D7D78787877F7F7F7F7F7FA5A5A5C8C8C87F7F
-                    7F7F7F7F7F7F7FBBBBBBDFDFDFDFDFDFDFDFDF9696967F7F7F7F7F7F868686D8
-                    D8D8DFDFDFDFDFDF00008F8F8F7F7F7F7F7F7F7F7F7F7F7F7F959595A1A1A17F
-                    7F7F7F7F7FB7B7B79797977F7F7F7F7F7F919191D7D7D78787877F7F7F7F7F7F
-                    A5A5A5C8C8C87F7F7F7F7F7F7F7F7FBBBBBBDFDFDFDFDFDFDFDFDF9696967F7F
-                    7F7F7F7F868686D8D8D8DFDFDFDFDFDF00008F8F8F7F7F7F7F7F7F7F7F7F7F7F
-                    7FA8A8A8A6A6A67F7F7F7F7F7FB7B7B79797977F7F7F7F7F7F919191D7D7D787
-                    87877F7F7F7F7F7FA5A5A5C8C8C87F7F7F7F7F7F7F7F7FBBBBBBDFDFDFDFDFDF
-                    DFDFDF9696967F7F7F7F7F7F868686D8D8D8DFDFDFDFDFDF00008F8F8F7F7F7F
-                    7F7F7F7F7F7F7F7F7FC4C4C4A6A6A67F7F7F7F7F7FB7B7B79797977F7F7F7F7F
-                    7F919191D7D7D78787877F7F7F7F7F7FA5A5A5C8C8C87F7F7F7F7F7F7F7F7FBB
-                    BBBBDFDFDFDFDFDFDFDFDF9696967F7F7F7F7F7F868686D8D8D8DFDFDFDFDFDF
-                    00008F8F8F7F7F7F7F7F7F7F7F7F858585DBDBDBA3A3A37F7F7F7F7F7FB7B7B7
-                    9797977F7F7F7F7F7F919191D7D7D78787877F7F7F7F7F7FA5A5A5C8C8C87F7F
-                    7F7F7F7F7F7F7FBBBBBBDFDFDFDFDFDFDFDFDF9696967F7F7F7F7F7F868686D8
-                    D8D8DFDFDFDFDFDF00008E8E8E7F7F7F7F7F7F7F7F7F9B9B9BDFDFDFA0A0A07F
-                    7F7F7F7F7FB7B7B79595957F7F7F7F7F7F8F8F8FD7D7D78686867F7F7F7F7F7F
-                    A4A4A4C8C8C87F7F7F7F7F7F7F7F7FBABABADFDFDFDFDFDFDFDFDF9494947F7F
-                    7F7F7F7F848484D8D8D8DFDFDFDFDFDF0000959595868686868686868686BABA
-                    BADFDFDFA5A5A5868686868686BABABA9C9C9C868686868686979797D7D7D78E
-                    8E8E868686868686A9A9A9C9C9C9868686868686868686BDBDBDDFDFDFDFDFDF
-                    DFDFDF9B9B9B8686868686868C8C8CD9D9D9DFDFDFDFDFDF0000}
-                  ImageIndex = 0
-                  Shaded = False
-                  ShowCaption = False
-                  OnClick = ActionNULLExecute
-                  Version = '1.6.1.0'
-                  ExplicitLeft = 22
-                end
-                object AdvToolButtonStringRestore: TAdvToolButton
-                  Left = 3
-                  Top = 0
-                  Width = 20
-                  Height = 18
-                  Hint = #1042#1086#1089#1089#1090#1072#1085#1086#1074#1080#1090#1100' '#1079#1085#1072#1095#1077#1085#1080#1077' (Ctrl-R)'
-                  Align = alRight
-                  AutoThemeAdapt = False
-                  BorderDownColor = clBlack
-                  BorderHotColor = clBtnShadow
-                  ColorDown = clBtnFace
-                  ColorHot = clBtnFace
-                  Glyph.Data = {
-                    36030000424D3603000000000000360000002800000010000000100000000100
-                    18000000000000030000120B0000120B00000000000000000000FFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFAFAFAECECECECECECECECECEBEBEBECECECF8F8F8FFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF9595955C5C5C5C5C5C5C5C
-                    5C5B5B5B606060CACACAFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE0E0E0CECECEF9
-                    F9F9FFFFFF5D5D5D767676767676727272717171464646C2C2C2FFFFFFFFFFFF
-                    FFFFFFFFFFFFC8C8C8515151858585F5F5F5F7F7F75959598A8A8A8787878080
-                    807C7C7C525252D7D7D7FFFFFFFFFFFFFFFFFFBEBEBE5A5A5A6B6B6B808080D1
-                    D1D1818181676767909090868686808080848484606060F5F5F5FFFFFFFFFFFF
-                    B2B2B25858589292927D7D7D4F4F4F5A5A5A7171719292928B8B8B878787A2A2
-                    A27B7B7B989898FFFFFFFFFFFFA6A6A65E5E5E8D8D8D90909091919194949498
-                    98989696969393939C9C9CB6B6B6B8B8B85D5D5DEEEEEEFFFFFFA9A9A96B6B6B
-                    8989898383838888888F8F8F979797A2A2A2B0B0B0BDBDBDD0D0D0D1D1D16363
-                    63C6C6C6FFFFFFFFFFFF9B9B9B8E8E8ED9D9D9B5B5B5B6B6B6BFBFBFC8C8C8D0
-                    D0D0DBDBDBE7E7E7C8C8C8656565BCBCBCFFFFFFFFFFFFFFFFFFFFFFFF9E9E9E
-                    939393F2F2F2DADADADCDCDCEBEBEBE8E8E8CECECE888888737373DBDBDBFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA5A5A5838383F9F9F9C1C1C170707077
-                    77778B8B8BCCCCCCFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFAFAFAF848484A6A6A6787878F7F7F7FFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBABABA5B5B5B848484F5
-                    F5F5FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFC8C8C8D6D6D6FEFEFEFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
-                  GlyphHot.Data = {
-                    36030000424D3603000000000000360000002800000010000000100000000100
-                    18000000000000030000120B0000120B00000000000000000000FFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFAFAFAECECECECECECECECECEBEBEBECECECF8F8F8FFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF959D8C5874425773435774
-                    445774435F744DCACBCAFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE0E0E0CECECEF9
-                    F9F9FFFFFF567A423FB3623FB2673CAC5F39AB5A2F771EC3C3C2FFFFFFFFFFFF
-                    FFFFFFFFFFFFC9CAC74D7430858D7FF5F5F5F7F7F74C7C3C4AC98C49C48A44BC
-                    7E3FB873407933D7D7D7FFFFFFFFFFFFFFFFFFBFC0BD47833E42A75382897AD1
-                    D1D1838B7A409D524FCF9A48C38944BD8050BB785C784BF5F5F5FFFFFFFFFFFF
-                    B3B6B044863E51D39A49B97A47753848824545AB6450D39F4ACC954AC58B70D2
-                    A55DAA64989E94FFFFFFFFFFFFA7ABA24491474DCD924FD09C50D19D52D6A153
-                    DCA951DAAA54D2A067D2A38FDDBA95DDB3577948EEEEEEFFFFFFA9B1A24A9E58
-                    4AC78B44C1864AC78E51CD985CD4A36BD8AC83DDB79AE0C1B6EAD4B6EED15788
-                    4BC6C8C6FFFFFFFFFFFF9BAD8D69C085C0EFDD93D7B392DAB69FE0C1ACE4CAB9
-                    E8D2C7EFDED4F8ECB1E5C35A894FBDBFBCFFFFFFFFFFFFFFFFFFFFFFFF9DB78A
-                    78BB88E3FDF6CBEAD8CBEDDCDCFAEED8F8E8BDE6C779AB74708765DBDBDBFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA4B99569B178ECFFFCACDCBE64915D71
-                    8E65899880CCCECCFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFB0C0A36BAF7786D2A3788376F7F7F7FFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBCC7B046903A848D7CF5
-                    F5F5FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFC9D0C1D6D6D5FEFEFEFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
-                  GlyphDown.Data = {
-                    36030000424D3603000000000000360000002800000010000000100000000100
-                    18000000000000030000120B0000120B00000000000000000000FFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFAFAFAECECECECECECECECECEBEBEBECECECF8F8F8FFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF97A28D5B7A435978425A79
-                    435B7A44647E4FCBCBCAFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE0E0E0CECECEF9
-                    F9F9FFFFFF557D400D9637068C37088A320A9032277715C4C4C2FFFFFFFFFFFF
-                    FFFFFFFFFFFFC9CAC750793087907FF5F5F5F7F7F741763400984F008A490086
-                    41008F3E377829D8D7D7FFFFFFFFFFFFFFFFFFC0C1BD32792E178F31868C7AD2
-                    D1D1878D7A14812E009A59008C4A0086411696465E7D4BF5F5F5FFFFFFFFFFFF
-                    B5B7B029742902A25B068B4837662D317433108C3B00A160009354008A49209A
-                    613793439BA194FFFFFFFFFFFFA9ACA2227A2D01955100925800975B00A26100
-                    A76800A26603985D17965E3CA07359B47F557A44EEEEEEFFFFFFA9B2A2218137
-                    008845007F40008749018E520A965D1B9B6835A2744DA67F6DB2947EC4A2477E
-                    3EC7C8C6FFFFFFFFFFFF97A78C31975C8FC9B046986D409C6F53A47E62AA8974
-                    B19588BBA49ECCBA8BC6A14D7F46BDBFBCFFFFFFFFFFFFFFFFFFFFFFFF94A688
-                    4E9C6BBEE1D48EB69F92BCA6B0D4C4B2D8C59DCCAB6398636D8662DBDBDBFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF9DAC953C8C5ACEEBE37EB498507A4F6A
-                    886188987FCCCECCFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFABB6A33F8A585CB483788276F7F7F7FFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB8C0B02B7828858E7CF5
-                    F5F5FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFC8CDC1D6D7D5FEFEFEFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
-                  GlyphDisabled.Data = {
-                    36030000424D3603000000000000360000002800000010000000100000000100
-                    1800000000000003000000000000000000000000000000000000DFDFDFDFDFDF
-                    DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDF
-                    DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDF
-                    DFDFDFDFDFDDDDDDD6D6D6D6D6D6D6D6D6D5D5D5D6D6D6DCDCDCDFDFDFDFDFDF
-                    DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFAAAAAA8E8E8E8E8E8E8E8E
-                    8E8D8D8D909090C5C5C5DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD0D0D0C7C7C7DC
-                    DCDCDFDFDF8E8E8E9B9B9B9B9B9B999999989898838383C1C1C1DFDFDFDFDFDF
-                    DFDFDFDFDFDFC4C4C4888888A2A2A2DADADADBDBDB8C8C8CA5A5A5A3A3A3A0A0
-                    A09E9E9E898989CBCBCBDFDFDFDFDFDFDFDFDFBFBFBF8D8D8D959595A0A0A0C8
-                    C8C8A0A0A0939393A8A8A8A3A3A3A0A0A0A2A2A2909090DADADADFDFDFDFDFDF
-                    B9B9B98C8C8CA9A9A99E9E9E8787878D8D8D989898A9A9A9A5A5A5A3A3A3B1B1
-                    B19D9D9DACACACDFDFDFDFDFDFB3B3B38F8F8FA6A6A6A8A8A8A8A8A8AAAAAAAC
-                    ACACABABABA9A9A9AEAEAEBBBBBBBCBCBC8E8E8ED7D7D7DFDFDFB4B4B4959595
-                    A4A4A4A1A1A1A4A4A4A7A7A7ABABABB1B1B1B8B8B8BEBEBEC8C8C8C8C8C89191
-                    91C3C3C3DFDFDFDFDFDFADADADA7A7A7CCCCCCBABABABBBBBBBFBFBFC4C4C4C8
-                    C8C8CDCDCDD3D3D3C4C4C4929292BEBEBEDFDFDFDFDFDFDFDFDFDFDFDFAFAFAF
-                    A9A9A9D9D9D9CDCDCDCECECED5D5D5D4D4D4C7C7C7A4A4A4999999CDCDCDDFDF
-                    DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFB2B2B2A1A1A1DCDCDCC0C0C09898989B
-                    9B9BA5A5A5C6C6C6DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDF
-                    DFDFDFB7B7B7A2A2A2B3B3B39C9C9CDBDBDBDFDFDFDFDFDFDFDFDFDFDFDFDFDF
-                    DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFBDBDBD8D8D8DA2A2A2DA
-                    DADADFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDF
-                    DFDFDFDFDFDFDFDFDFC4C4C4CBCBCBDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDF
-                    DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDF
-                    DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDF}
-                  ImageIndex = 0
-                  Shaded = False
-                  ShowCaption = False
-                  OnClick = ActionRestoreExecute
-                  Version = '1.6.1.0'
-                  ExplicitLeft = 69
-                end
-                object AdvToolButtonStringClear: TAdvToolButton
-                  Left = 63
-                  Top = 0
-                  Width = 20
-                  Height = 18
-                  Hint = #1054#1095#1080#1089#1090#1080#1090#1100' '#1079#1085#1072#1095#1077#1085#1080#1077' (Ctrl-X)'
-                  Align = alRight
-                  AutoThemeAdapt = False
-                  BorderDownColor = clBlack
-                  BorderHotColor = clBtnShadow
-                  ColorDown = clBtnFace
-                  ColorHot = clBtnFace
-                  Glyph.Data = {
-                    9E020000424D9E0200000000000036000000280000000E0000000E0000000100
-                    18000000000068020000120B0000120B00000000000000000000FFFFFFC0C0C0
-                    B1B1B1B4B4B4FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCFCFCFB3B3B3AAAA
-                    AAF6F6F60000D3D3D3C2C2C2D5D5D5C1C1C1ABABABFFFFFFFFFFFFFFFFFFFFFF
-                    FFD8D8D8C8C8C8D4D4D4C0C0C0AAAAAA0000A4A4A48F8F8F9C9C9CBABABAC7C7
-                    C7AAAAAAFFFFFFFFFFFFD6D6D6C5C5C5AEAEAE9595959696969898980000CBCB
-                    CB929292A0A0A0B0B0B0CFCFCFC2C2C2ACACACC7C7C7CBCBCBC4C4C4AAAAAA9B
-                    9B9B969696CECECE0000FFFFFFC7C7C79C9C9CACACACC0C0C0D9D9D9CECECECD
-                    CDCDD1D1D1BABABAA6A6A6999999D8D8D8FFFFFF0000FFFFFFFDFDFDC4C4C4A1
-                    A1A1B5B5B5C1C1C1C9C9C9C7C7C7BCBCBCADADADA3A3A3D4D4D4FFFFFFFFFFFF
-                    0000FFFFFFFFFFFFFFFFFFC0C0C0A9A9A9B8B8B8B8B8B8B0B0B0A9A9A99C9C9C
-                    C5C5C5FFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFC5C5C5A3A3A3B1B1B1
-                    B4B4B4ABABAB999999969696A7A7A7FFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFF
-                    CDCDCD9C9C9CA6A6A6ACACACB0B0B0B2B2B2979797808080858585A7A7A7FFFF
-                    FFFFFFFF0000FFFFFFC8C8C8A9A9A9B1B1B1AFAFAFB8B8B8AEAEAEB3B3B3B1B1
-                    B17E7E7E7E7E7E848484A5A5A5FFFFFF0000D1D1D1AFAFAFC3C3C3BFBFBFC7C7
-                    C7BABABAC5C5C5BDBDBDC6C6C6A5A5A5787878808080828282B1B1B10000B0B0
-                    B0D5D5D5CBCBCBD7D7D7D1D1D1D1D1D1FFFFFFFFFFFFC4C4C4D9D9D986868672
-                    72728888889393930000C3C3C3E4E4E4F1F1F1D2D2D2CDCDCDFFFFFFFFFFFFFF
-                    FFFFFCFCFCC6C6C6BEBEBEB2B2B2BCBCBCB8B8B80000FCFCFCC6C6C6C5C5C5D5
-                    D5D5FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCBCBCBC4C4C4D2D2D2FFFFFF
-                    0000}
-                  GlyphHot.Data = {
-                    9E020000424D9E0200000000000036000000280000000E0000000E0000000100
-                    18000000000068020000120B0000120B00000000000000000000FFFFFFD8A9AB
-                    D18A8EC2A5A6FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBB3B5D28F92BC99
-                    9AF6F6F60000FFA7AAFF7B81FF9FA4FF7D83BF989AFFFFFFFFFFFFFFFFFFFFFF
-                    FFFFB1B5FF8F93FF9DA2FF7178BC989A0000FF4B53FE212AFC3D45F87B80FF81
-                    88BF9698FFFFFFFFFFFFFFA8ACFF8B8FF5676CFB3039FF1F29D05F640000FF98
-                    9DFF242EF9484FF56B71FF9A9FFE8287C39698E9A4A7FF9095FF8B8FF65F64FB
-                    3C44FF222DEDB0B30000FFFFFFFF8E93FC3D45F56369FF8287FFB1B5FF9096FF
-                    9A9EFFA4A8FE767CF6575EFD343DFFB2B6FFFFFF0000FFFFFFFFFBFBFF8A8FF6
-                    4D55FC6F75FE8489FF9499FF8F94FE797EF86369FF444DFFA5A9FFFFFFFFFFFF
-                    0000FFFFFFFFFFFFFFFFFFFD8288FA5960FE7378FE7479FC646AF75B61F74148
-                    EAA1A5FFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFFF8C91F75158FC676C
-                    FE6B71FA5E64FB3840FF202BC18E91FFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFF
-                    FE9CA1F1464DF15C62FA5F65FC666CFC686EFC333CFD030CFB0C17BC9294FFFF
-                    FFFFFFFF0000FFFFFFFD9397F95A61F66C72F9676DFC7479FD5E66FD6970FB68
-                    6EF9050FFD0008FF010DB99193FFFFFF0000FDA5A8FD6269FD888DFE8085FF8F
-                    94FE777EFD8F91FD8084FF8D92FB4F56FA0002FD000BF70913C0A2A30000FB64
-                    6BFFACB0FF989CFFAFB3FEA5AAFEA7A9FFFFFFFFFFFFFD8B8FFFB2B6FA131DFA
-                    0000FF0713D253590000FC8C8FFFC9CCFFE2E4FCA7ABFCA0A1FFFFFFFFFFFFFF
-                    FFFFFFF9F9FD9294FD7F85FA7272FF6E74D0A3A40000FFFAFAFD8E93FD8C92FD
-                    AEB1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD999EFC8B91FFA1A6FFFFFF
-                    0000}
-                  GlyphDown.Data = {
-                    9E020000424D9E0200000000000036000000280000000E0000000E0000000100
-                    18000000000068020000120B0000120B00000000000000000000FFFFFFB0AEAC
-                    96938FA9A8A7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBBB9B69995929E9D
-                    9BF6F6F60000B6B2AD918B84AEAAA5918B859D9B9AFFFFFFFFFFFFFFFFFFFFFF
-                    FFBBB8B49F9A94AAA6A08881799D9C9A0000696157443B315A534A8F8A849691
-                    8B9B9A98FFFFFFFFFFFFB6B2AE9B96907D77704F463C443A2F726D680000A8A3
-                    9D453C31635C53827C75A8A5A0918C869B9A98AEABA89E99929C979376706958
-                    5047453C31B9B6B30000FFFFFF9E98925A52497B746E95908BB8B5B19C9792A3
-                    9E9AADAAA68C878170696251483FBCB9B5FFFFFF0000FFFFFFFBFBFB9C979168
-                    605885807A96918CA29E999F9A968D88837A746D615850B3AFAAFFFFFFFFFFFF
-                    0000FFFFFFFFFFFFFFFFFF96918B736C6488837C8A847E7C766F736C655D554C
-                    ADAAA6FFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFF9E9A956B635B7F7871
-                    827C75766F68544C43433A2F959391FFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFF
-                    ADA9A5625A51746D667870697E7870807A73534A412A1F1332291D979694FFFF
-                    FFFFFFFF0000FFFFFFA39F9A736C64837D767F787189837D777169817B747F79
-                    722A2013261A0D2B1F13979594FFFFFF0000B3AFAB7B746D9B9590938E889F9B
-                    968A847E9F9994938D879D9893696259201408281D102D2317A5A4A300007C76
-                    6EB8B4B1A7A29DB9B6B2B0ACA8B3AFABFFFFFFFFFFFF9C9691BBB8B4362C2115
-                    090030241866615B00009B9791CFCDCAE4E3E2B1ADA9ABA7A3FFFFFFFFFFFFFF
-                    FFFFFAF9F9A09B95908B85807A74857E76A8A6A50000FBFAFAA09B969E9994BA
-                    B7B3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA9A49F9E9893B0ACA7FFFFFF
-                    0000}
-                  GlyphDisabled.Data = {
-                    36030000424D3603000000000000360000002800000010000000100000000100
-                    1800000000000003000000000000000000000000000000000000DFDFDFDFDFDF
-                    DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDF
-                    DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDF
-                    DFDFDFDFDFDDDDDDD6D6D6D6D6D6D6D6D6D5D5D5D6D6D6DCDCDCDFDFDFDFDFDF
-                    DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFAAAAAA8E8E8E8E8E8E8E8E
-                    8E8D8D8D909090C5C5C5DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD0D0D0C7C7C7DC
-                    DCDCDFDFDF8E8E8E9B9B9B9B9B9B999999989898838383C1C1C1DFDFDFDFDFDF
-                    DFDFDFDFDFDFC4C4C4888888A2A2A2DADADADBDBDB8C8C8CA5A5A5A3A3A3A0A0
-                    A09E9E9E898989CBCBCBDFDFDFDFDFDFDFDFDFBFBFBF8D8D8D959595A0A0A0C8
-                    C8C8A0A0A0939393A8A8A8A3A3A3A0A0A0A2A2A2909090DADADADFDFDFDFDFDF
-                    B9B9B98C8C8CA9A9A99E9E9E8787878D8D8D989898A9A9A9A5A5A5A3A3A3B1B1
-                    B19D9D9DACACACDFDFDFDFDFDFB3B3B38F8F8FA6A6A6A8A8A8A8A8A8AAAAAAAC
-                    ACACABABABA9A9A9AEAEAEBBBBBBBCBCBC8E8E8ED7D7D7DFDFDFB4B4B4959595
-                    A4A4A4A1A1A1A4A4A4A7A7A7ABABABB1B1B1B8B8B8BEBEBEC8C8C8C8C8C89191
-                    91C3C3C3DFDFDFDFDFDFADADADA7A7A7CCCCCCBABABABBBBBBBFBFBFC4C4C4C8
-                    C8C8CDCDCDD3D3D3C4C4C4929292BEBEBEDFDFDFDFDFDFDFDFDFDFDFDFAFAFAF
-                    A9A9A9D9D9D9CDCDCDCECECED5D5D5D4D4D4C7C7C7A4A4A4999999CDCDCDDFDF
-                    DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFB2B2B2A1A1A1DCDCDCC0C0C09898989B
-                    9B9BA5A5A5C6C6C6DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDF
-                    DFDFDFB7B7B7A2A2A2B3B3B39C9C9CDBDBDBDFDFDFDFDFDFDFDFDFDFDFDFDFDF
-                    DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFBDBDBD8D8D8DA2A2A2DA
-                    DADADFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDF
-                    DFDFDFDFDFDFDFDFDFC4C4C4CBCBCBDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDF
-                    DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDF
-                    DFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDF}
-                  ImageIndex = 0
-                  Shaded = False
-                  ShowCaption = False
-                  OnClick = ActionClearExecute
-                  Version = '1.6.1.0'
-                  ExplicitLeft = 116
-                end
-              end
-            end
             object ToolBarPhysView: TToolBar
               Left = 0
               Top = 0
@@ -1941,13 +816,13 @@ object FormMain: TFormMain
             end
             object PanelBlobTools: TPanel
               Left = 0
-              Top = 183
+              Top = 163
               Width = 666
               Height = 22
               Align = alBottom
               BevelEdges = []
               BevelOuter = bvNone
-              TabOrder = 2
+              TabOrder = 0
               object LabelPhysPreview: TLabel
                 Left = 92
                 Top = 0
@@ -2001,391 +876,17 @@ object FormMain: TFormMain
         end
         object TabSheetUtilities: TTabSheet
           Caption = #1044#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1086
-          object AdvToolButton1: TAdvToolButton
-            Left = 3
-            Top = 53
-            Width = 160
-            Height = 22
-            Action = ActionExportTable
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton2: TAdvToolButton
-            Left = 1
-            Top = 213
-            Width = 161
-            Height = 22
-            Action = ActionTestIndexes
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton3: TAdvToolButton
-            Left = 3
-            Top = 81
-            Width = 160
-            Height = 22
-            Action = ActionImportTable
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton4: TAdvToolButton
-            Left = 179
-            Top = 53
-            Width = 158
-            Height = 22
-            Action = ActionExportDataTables
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton5: TAdvToolButton
-            Left = 179
-            Top = 81
-            Width = 158
-            Height = 22
-            Action = ActionImportDataTables
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton6: TAdvToolButton
-            Left = 1
-            Top = 241
-            Width = 160
-            Height = 22
-            Action = ActionFindLostObjects
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton7: TAdvToolButton
-            Left = 1
-            Top = 269
-            Width = 160
-            Height = 22
-            Action = ActionTestStreamFormat
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton8: TAdvToolButton
-            Left = 1
-            Top = 297
-            Width = 160
-            Height = 22
-            Action = ActionCreateEmptyObject
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton9: TAdvToolButton
-            Left = 2
-            Top = 325
-            Width = 160
-            Height = 22
-            Action = ActionCreateObjectFromFile
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton10: TAdvToolButton
-            Left = 327
-            Top = 159
-            Width = 160
-            Height = 22
-            Action = ActionCreateAndImportTable
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton11: TAdvToolButton
-            Left = 446
-            Top = 213
-            Width = 190
-            Height = 22
-            Action = ActionEnableEdit
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Visible = False
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton12: TAdvToolButton
-            Left = 179
-            Top = 213
-            Width = 246
-            Height = 22
-            Action = ActionTestListTables
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton13: TAdvToolButton
-            Left = 179
-            Top = 109
-            Width = 158
-            Height = 22
-            Action = ActionCreateTables
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton14: TAdvToolButton
-            Left = 405
-            Top = 364
-            Width = 100
-            Height = 22
-            Action = ActionReplaceTREF
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton15: TAdvToolButton
-            Left = 364
-            Top = 53
-            Width = 160
-            Height = 22
-            Action = ActionDeleteTable
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton16: TAdvToolButton
-            Left = 179
-            Top = 241
-            Width = 246
-            Height = 22
-            Action = ActionFindAndCreateLostTables
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton17: TAdvToolButton
-            Left = 364
-            Top = 81
-            Width = 160
-            Height = 21
-            Action = ActionDeleteWrongTables
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton18: TAdvToolButton
-            Left = 364
-            Top = 109
-            Width = 160
-            Height = 21
-            Action = ActionFindTableDoubles
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton19: TAdvToolButton
-            Left = 179
-            Top = 269
-            Width = 246
-            Height = 22
-            Action = ActionFindAndSaveLostObjects
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton20: TAdvToolButton
-            Left = 179
-            Top = 297
-            Width = 246
-            Height = 22
-            Action = ActionTestStreamFormatExternal
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            ImageIndex = 0
-            Version = '1.6.1.0'
-          end
-          object AdvToolButton21: TAdvToolButton
-            Left = 179
-            Top = 325
-            Width = 358
-            Height = 22
-            Action = ActionRestoreDATAAllocationTable
-            AutoThemeAdapt = False
-            ColorDown = 14210002
-            ColorHot = 13289415
-            Flat = False
-            Visible = False
-            Version = '1.6.1.0'
-          end
-          object DirectoryEditExportImportTable: TAdvDirectoryEdit
-            Left = 3
-            Top = 15
-            Width = 318
-            Height = 21
-            EmptyTextStyle = []
-            Flat = False
-            LabelCaption = #1044#1080#1088#1077#1082#1090#1086#1088#1080#1103' '#1080#1084#1087#1086#1088#1090#1072'/'#1101#1082#1089#1087#1086#1088#1090#1072' '#1090#1072#1073#1083#1080#1094
-            LabelPosition = lpTopLeft
-            LabelAlwaysEnabled = True
-            LabelFont.Charset = DEFAULT_CHARSET
-            LabelFont.Color = clWindowText
-            LabelFont.Height = -11
-            LabelFont.Name = 'Tahoma'
-            LabelFont.Style = []
-            Lookup.Separator = ';'
-            Persistence.Location = plRegistry
-            Color = clWindow
-            ReadOnly = False
-            TabOrder = 0
-            Text = ''
-            Visible = True
-            Version = '1.3.3.4'
-            ButtonStyle = bsButton
-            ButtonWidth = 18
-            Etched = False
-            Glyph.Data = {
-              CE000000424DCE0000000000000076000000280000000C0000000B0000000100
-              0400000000005800000000000000000000001000000000000000000000000000
-              8000008000000080800080000000800080008080000080808000C0C0C0000000
-              FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00F00000000FFF
-              00000088888880FF00000B088888880F00000BB08888888000000BBB00000000
-              00000BBBBBBB0B0F00000BBB00000B0F0000F000BBBBBB0F0000FF0BBBBBBB0F
-              0000FF0BBB00000F0000FFF000FFFFFF0000}
-            BrowseDialogText = 'Select Directory'
-          end
-          object DirectoryEditCreateImportTable: TAdvDirectoryEdit
-            Left = 3
-            Top = 161
-            Width = 318
-            Height = 21
-            EmptyTextStyle = []
-            Flat = False
-            LabelFont.Charset = DEFAULT_CHARSET
-            LabelFont.Color = clWindowText
-            LabelFont.Height = -11
-            LabelFont.Name = 'Tahoma'
-            LabelFont.Style = []
-            Lookup.Separator = ';'
-            Color = clWindow
-            ReadOnly = False
-            TabOrder = 1
-            Text = ''
-            Visible = True
-            Version = '1.3.3.4'
-            ButtonStyle = bsButton
-            ButtonWidth = 18
-            Etched = False
-            Glyph.Data = {
-              CE000000424DCE0000000000000076000000280000000C0000000B0000000100
-              0400000000005800000000000000000000001000000000000000000000000000
-              8000008000000080800080000000800080008080000080808000C0C0C0000000
-              FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00F00000000FFF
-              00000088888880FF00000B088888880F00000BB08888888000000BBB00000000
-              00000BBBBBBB0B0F00000BBB00000B0F0000F000BBBBBB0F0000FF0BBBBBBB0F
-              0000FF0BBB00000F0000FFF000FFFFFF0000}
-            BrowseDialogText = #1042#1099#1073#1077#1088#1080#1090#1077' '#1076#1080#1088#1077#1082#1090#1086#1088#1080#1102' '#1080#1084#1087#1086#1088#1090#1072' '#1090#1072#1073#1083#1080#1094#1099
-          end
-          object AdvFileNameEditReplaceTREF: TAdvFileNameEdit
-            Left = 161
-            Top = 365
-            Width = 241
-            Height = 21
-            EmptyTextStyle = []
-            Flat = False
-            LabelCaption = #1060#1072#1081#1083' '#1089#1086#1086#1090#1074#1077#1090#1089#1090#1074#1080#1103' '#1085#1086#1084#1077#1088#1086#1074
-            LabelFont.Charset = DEFAULT_CHARSET
-            LabelFont.Color = clWindowText
-            LabelFont.Height = -11
-            LabelFont.Name = 'Tahoma'
-            LabelFont.Style = []
-            Lookup.Separator = ';'
-            Color = clWindow
-            ReadOnly = False
-            TabOrder = 2
-            Text = ''
-            Visible = True
-            Version = '1.3.3.4'
-            ButtonStyle = bsButton
-            ButtonWidth = 18
-            Etched = False
-            Glyph.Data = {
-              CE000000424DCE0000000000000076000000280000000C0000000B0000000100
-              0400000000005800000000000000000000001000000000000000000000000000
-              8000008000000080800080000000800080008080000080808000C0C0C0000000
-              FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00D00000000DDD
-              00000077777770DD00000F077777770D00000FF07777777000000FFF00000000
-              00000FFFFFFF0DDD00000FFF00000DDD0000D000DDDDD0000000DDDDDDDDDD00
-              0000DDDDD0DDD0D00000DDDDDD000DDD0000}
-            FilterIndex = 0
-            DialogOptions = [ofFileMustExist]
-            DialogTitle = #1042#1099#1073#1077#1088#1080#1090#1077' '#1092#1072#1081#1083' '#1089#1086#1086#1090#1074#1077#1090#1089#1090#1074#1080#1103' '#1085#1086#1084#1077#1088#1086#1074
-            DialogKind = fdOpen
-          end
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
         end
       end
     end
   end
   object PanelMessages: TPanel
     Left = 0
-    Top = 506
+    Top = 486
     Width = 870
     Height = 157
     Margins.Left = 0
@@ -2450,13 +951,16 @@ object FormMain: TFormMain
       ColWidths = (
         109
         255)
+      RowHeights = (
+        16
+        16)
     end
   end
   object ImageListMessages: TImageList
     Left = 120
     Top = 584
     Bitmap = {
-      494C010107001300900110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010107001300940110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       00000000000000000000000000000000000000000000EDEDED00D9D9D900CDCD
       CD00BEBEBE009E9E9E008A8A8A007B7B7B007B7B7B008A8A8A009E9E9E00BEBE
@@ -3217,7 +1721,7 @@ object FormMain: TFormMain
     Left = 32
     Top = 584
     Bitmap = {
-      494C01011D001001500210001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01011D001001540210001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000008000000001002000000000000080
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000000000000000000EBEBEB00D5D5D500D3D3D300D3D3
@@ -4481,31 +2985,13 @@ object FormMain: TFormMain
     Left = 440
     Top = 520
   end
-  object FormControlEditLinkCommon: TFormControlEditLink
-    Tag = 0
-    AutoPopupWidth = True
-    EditStyle = esInplace
-    PopupWidth = 0
-    PopupHeight = 0
-    WantKeyLeftRight = True
-    WantKeyUpDown = False
-    WantKeyHomeEnd = True
-    WantKeyPriorNext = False
-    WantKeyReturn = False
-    WantKeyEscape = False
-    Control = ButtonedEditCommonEdit
-    OnSetEditorFocus = FormControlEditLinkCommonSetEditorFocus
-    OnGetEditorValue = FormControlEditLinkCommonGetEditorValue
-    Left = 784
-    Top = 152
-  end
   object ImageListEdits: TImageList
     Height = 12
     Width = 12
     Left = 784
     Top = 192
     Bitmap = {
-      494C01010300090084010C000C00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010300090088010C000C00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000300000000C00000001002000000000000009
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4604,24 +3090,6 @@ object FormMain: TFormMain
     Left = 784
     Top = 80
   end
-  object FormControlEditLinkMasked: TFormControlEditLink
-    Tag = 0
-    AutoPopupWidth = True
-    EditStyle = esInplace
-    PopupWidth = 0
-    PopupHeight = 0
-    WantKeyLeftRight = True
-    WantKeyUpDown = False
-    WantKeyHomeEnd = True
-    WantKeyPriorNext = False
-    WantKeyReturn = False
-    WantKeyEscape = False
-    Control = MaskEditCommonEdit
-    OnSetEditorFocus = FormControlEditLinkCommonSetEditorFocus
-    OnGetEditorValue = FormControlEditLinkCommonGetEditorValue
-    Left = 784
-    Top = 112
-  end
   object SaveDialogCFE: TSaveDialog
     DefaultExt = 'cfe'
     Filter = #1056#1072#1089#1096#1080#1088#1077#1085#1080#1077' '#1082#1086#1085#1092#1080#1075#1091#1088#1072#1094#1080#1080' 1'#1057'|*.cfe|'#1042#1089#1077' '#1092#1072#1081#1083#1099'|*.*'
@@ -4629,77 +3097,5 @@ object FormMain: TFormMain
     Title = #1057#1086#1093#1088#1072#1085#1077#1085#1080#1077' '#1088#1072#1089#1096#1080#1088#1077#1085#1080#1103' '#1082#1086#1085#1092#1080#1075#1091#1088#1072#1094#1080#1080' 1'#1057
     Left = 520
     Top = 520
-  end
-  object PictureContainer1: TPictureContainer
-    Items = <
-      item
-        Picture.Stretch = False
-        Picture.Frame = 1
-        Picture.Data = {
-          424D360300000000000036000000280000001000000010000000010018000000
-          00000003000000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFF
-          FFFFFFFFFFFFFFFFFFFFFFFFFFFFEBEBEBD5D5D5D3D3D3D3D3D3D3D3D3D3D3D3
-          D5D5D5EBEBEBFFFFFFF7F7F7E9E9E9D9D9D9D3D3D3D3D3D3D3D3D3D3D3D3BFA6
-          72D5A44AD7BC85A68B53D7BB82D5BA83D5A44BD1B887EBEBEBB3B1ADA9A49EAF
-          A9A1BBB4ABBEB7AEC2B9B1BFB8B0B89A60EEBF71F0E9E388817BF0E6DBECE5E0
-          EEC072CFB47EC4C2BDBEB8AED0C8BFD6CDC5DDD3CBE4DAD2EADFD8E5DBD5CAAB
-          70ECBD6FEBC88DF1D4A1EFD2A0EAC78DECBE71CFB47EC0BDB8C9C2B8CDC5BCD4
-          CBC3DBD2CAE3D8D1E9DED7E4DAD3C9A96FEBBB6BE6BE7FE6C28BE6C28BE6BE7F
-          EBBC6DCFB47DC1BEB9D6CFC6E0DAD2DBD4CDD9D3CADAD3CBDBD5CDDBD3CDC6A8
-          6CEAB866DED8D3D1C8BED1C8BEDED8D3EAB968CFB37DC9C7C3C5BDB4BBB2A8CB
-          C2B9D8CFC6E5DBD4ECE0D9E6DDD6CAA96EE9B867E1DFDAD4CFC5D4CFC5E1DFDA
-          E9B868CFB37CC7C5C0C5BEB4CFC7BED5CCC4DCD3CBE3D9D2E9DED7E4DAD3CDB0
-          7DD8AF62D9BB7FD9BB7FDABC81DABD84D9B46CD9C293C4C0BBC8C0B7D4CDC4E3
-          DCD4ECE6DEF0E9E1F3EBE4F0E9E2EDE7E1E5DFD9D6D0C9C9C2BBC5C3BFFFFFFF
-          FFFFFFFFFFFFC6C2BDDCD5CDC6BFB6C1B8AFC3BAB0CDC3BBD3C8C0CFC5BDC5BB
-          B3C4BCB3C9C2BADBD5CDC7C4C0FFFFFFFFFFFFFFFFFFCECCC8BAB2A8CEC6BDD6
-          CDC5DDD3CCE4DAD2EADFD8E5DBD3DED4CCD7CEC6D0C8BFBFB7AECECCC8FFFFFF
-          FFFFFFFFFFFFC6C3BDC9C1B8CDC5BCD4CBC2DBD1C9E2D8D1E9DED7E3D9D2DCD2
-          CAD5CCC3CEC6BDCAC2B9C6C3BDFFFFFFFFFFFFFFFFFFC7C3BDD5CEC5EAE4DDEB
-          E5DDE9E3DBE8E1D9E8E1D9E8E1D9E9E3DBEBE5DDEBE5DDD4CDC5C7C3BDFFFFFF
-          FFFFFFFFFFFFC7C3BDEAE4DBD2C9BFD2C9BFD3CABFD3CAC0D3CAC0D3CAC0D3CA
-          BFD2C9BFD2C9BFEAE4DBC8C5BFFFFFFFFFFFFFFFFFFFD5D2CDD4CBC1E2DAD0E1
-          D8CEE0D8CEE0D8CEE0D8CEE0D8CEE0D8CEE1D8CEE2DAD0D5CCC2D5D2CDFFFFFF
-          FFFFFFFFFFFFFFFFFFDDDAD6CEC8C0C7BFB5CDC5BACDC5BACDC5BACDC5BACDC5
-          BAC7BFB5CEC8C0DDDAD6FFFFFFFFFFFFFFFFFFFFFFFF}
-        Name = 'database_save'
-        Tag = 0
-      end
-      item
-        Picture.Stretch = False
-        Picture.Frame = 1
-        Picture.Data = {
-          424D380300000000000036000000280000001000000010000000010018000000
-          000002030000120B0000120B00000000000000000000FFFFFFFFFFFFFFFFFFFF
-          FFFFFFFFFFFFFFFFFFFFFFFFFFFFEBEBEBD5D5D5D3D3D3D3D3D3D3D3D3D3D3D3
-          D5D5D5EBEBEBFFFFFFF7F7F7E9E9E9D9D9D9D3D3D3D3D3D3D3D3D3D3D3D374B9
-          6966B15A87CF7D5F9C4D85CE7C85CD7B66B25B88CC7CEBEBEBB3B1ADA9A49EAF
-          A9A1BBB4ABBEB7AEC2B9B1BFB8B068AC5B78D17BDAF5D5659561D2F5CBD2F3CE
-          79D27C81C776C4C2BDBEB8AED0C8BFD6CDC5DDD3CBE4DAD2EADFD8E5DBD574BE
-          6C76CF7990DC89A4E898A2E6968FDB8877D07A81C776C0BDB8C9C2B8CDC5BCD4
-          CBC3DBD2CAE3D8D1E9DED7E4DAD372BC6A73CC7683D27E8CD6848CD68483D27E
-          74CD777FC775C1BEB9D6CFC6E0DAD2DBD4CDD9D3CADAD3CBDBD5CDDBD3CD70BA
-          6870C973BDEBB9ABDCA5ABDCA5BDEBB971CA747FC675C9C7C3C5BDB4BBB2A8CB
-          C2B9D8CFC6E5DBD4ECE0D9E6DDD671BC6A70C973C5F0C4B1E3ADB1E3ADC5F0C4
-          70C9737FC775C7C5C0C5BEB4CFC7BED5CCC4DCD3CBE3D9D2E9DED7E4DAD37EC4
-          746CBF6A83CD7B83CD7B85CF7D87D07E72C57093D587C4C0BBC8C0B7D4CDC4E3
-          DCD4ECE6DEF0E9E1F3EBE4F0E9E2EDE7E1E5DFD9D6D0C9C9C2BBC5C3BFFFFFFF
-          FFFFFFFFFFFFC6C2BDDCD5CDC6BFB6C1B8AFC3BAB0CDC3BBD3C8C0CFC5BDC5BB
-          B3C4BCB3C9C2BADBD5CDC7C4C0FFFFFFFFFFFFFFFFFFCECCC8BAB2A8CEC6BDD6
-          CDC5DDD3CCE4DAD2EADFD8E5DBD3DED4CCD7CEC6D0C8BFBFB7AECECCC8FFFFFF
-          FFFFFFFFFFFFC6C3BDC9C1B8CDC5BCD4CBC2DBD1C9E2D8D1E9DED7E3D9D2DCD2
-          CAD5CCC3CEC6BDCAC2B9C6C3BDFFFFFFFFFFFFFFFFFFC7C3BDD5CEC5EAE4DDEB
-          E5DDE9E3DBE8E1D9E8E1D9E8E1D9E9E3DBEBE5DDEBE5DDD4CDC5C7C3BDFFFFFF
-          FFFFFFFFFFFFC7C3BDEAE4DBD2C9BFD2C9BFD3CABFD3CAC0D3CAC0D3CAC0D3CA
-          BFD2C9BFD2C9BFEAE4DBC8C5BFFFFFFFFFFFFFFFFFFFD5D2CDD4CBC1E2DAD0E1
-          D8CEE0D8CEE0D8CEE0D8CEE0D8CEE0D8CEE1D8CEE2DAD0D5CCC2D5D2CDFFFFFF
-          FFFFFFFFFFFFFFFFFFDDDAD6CEC8C0C7BFB5CDC5BACDC5BACDC5BACDC5BACDC5
-          BAC7BFB5CEC8C0DDDAD6FFFFFFFFFFFFFFFFFFFFFFFF0000}
-        Name = 'database_save_db'
-        Tag = 0
-      end>
-    Version = '1.0.0.0'
-    Left = 576
-    Top = 584
   end
 end

@@ -51,8 +51,8 @@ private:
 	DynamicArray<ParsedCommand> commands;
 	MessageRegistrator* mess; // регистратор сообщений
 public:
-	//__fastcall CommandParse(LPWSTR *szArglist, int nArgs, Messager* _mess = NULL);
-	__fastcall CommandParse(LPWSTR CommandLine, MessageRegistrator* _mess = NULL);
+	__fastcall CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mess = NULL);
+	//__fastcall CommandParse(LPWSTR CommandLine, MessageRegistrator* _mess = NULL);
 	DynamicArray<ParsedCommand>& getcommands();
 	String& __fastcall getfilename();
 	static String& __fastcall gethelpstring();

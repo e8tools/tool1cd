@@ -9,7 +9,6 @@
 
 #include "Zip.h"
 
-
 #pragma package(smart_init)
 
 #ifndef _DELPHI_STRING_UNICODE

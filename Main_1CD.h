@@ -51,6 +51,7 @@
 #include "awaMaskEdit.h"
 #include "HTMLabel.hpp"
 #include "PictureContainer.hpp"
+#include <System.ImageList.hpp>
 
 //---------------------------------------------------------------------------
 class Messager;
