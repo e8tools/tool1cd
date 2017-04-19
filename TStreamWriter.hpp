@@ -13,7 +13,8 @@ class TStreamWriter
 {
 public:
 	TStreamWriter(const String Filename, TEncoding* Encoding, int BufferSize) {}
-	Write(const String &s) {}
+	
+	void Write(const String &s) {}
 };
 
 } // Classes

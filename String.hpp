@@ -146,6 +146,8 @@ public:
 	{
 		return 0;
 	}
+
+	static String IntToHex(int n, int digits) {}
 };
 
 template <typename char_type>

@@ -1,9 +1,20 @@
+#include "System.hpp"
 #include "System.IOUtils.hpp"
 #include "System.SysUtils.hpp"
 #include <boost/filesystem.hpp>
 
 
 namespace System {
+
+bool SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime, LPFILETIME lpFileTime)
+{
+	return false;
+}
+
+bool LocalFileTimeToFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileTime)
+{
+	return false;
+}
 
 namespace Classes {
 
