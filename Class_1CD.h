@@ -656,6 +656,7 @@ public:
 	table* __fastcall gettable(){return tab;};
 
 	// __property std::map<String,table_file*> files = {read = allfiles};
+	std::map<String,table_file*> files();
 };
 
 //---------------------------------------------------------------------------

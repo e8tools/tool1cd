@@ -7835,7 +7835,7 @@ db_ver __fastcall T_1CD::getversion()
 //---------------------------------------------------------------------------
 bool __fastcall T_1CD::save_config(String _filename)
 {
-	if(!cs_config) cs_config = new ConfigStorageTableConfig(files_config);
+	if(!cs_config) cs_config = new ConfigStorageTableConfig(get_files_config());
 	if(!cs_config->getready()) return false;
 	return cs_config->save_config(_filename);
 }
@@ -7843,7 +7843,7 @@ bool __fastcall T_1CD::save_config(String _filename)
 //---------------------------------------------------------------------------
 bool __fastcall T_1CD::save_configsave(String _filename)
 {
-	if(!cs_configsave) cs_configsave = new ConfigStorageTableConfigSave(files_config, files_configsave);
+	if(!cs_configsave) cs_configsave = new ConfigStorageTableConfigSave(get_files_config(), get_files_configsave());
 	if(!cs_configsave->getready()) return false;
 	return cs_configsave->save_config(_filename);
 }
@@ -7853,11 +7853,11 @@ void __fastcall T_1CD::find_supplier_configs()
 {
 	std::map<String,table_file*>::iterator p;
 
-	for(p = files_configsave->files.begin(); p != files_configsave->files.end(); ++p)
+	for(p = get_files_configsave()->files().begin(); p != get_files_configsave()->files().end(); ++p)
 	{
 		if(p->first.GetLength() == 73) add_supplier_config(p->second);
 	}
-	for(p = files_config->files.begin(); p != files_config->files.end(); ++p)
+	for(p = get_files_config()->files().begin(); p != get_files_config()->files().end(); ++p)
 	{
 		if(p->first.GetLength() == 73) add_supplier_config(p->second);
 	}
@@ -9255,7 +9255,7 @@ bool __fastcall T_1CD::test_list_of_tables()
 
 		if(version == ver8_0_3_0 || version == ver8_0_5_0)
 		{
-			_sb->CopyFrom(str, 0i64);
+			_sb->CopyFrom(str, 0);
 		}
 		else
 		{
@@ -9432,7 +9432,7 @@ bool __fastcall T_1CD::replaceTREF(String mapfile)
 	list->LoadFromFile(mapfile);
 
 	m = 0;
-	for(k = 0; k < list->Count; k++)
+	for(k = 0; k < list->Count(); k++)
 	{
 		str = (*list)[k];
 		l = str.Pos("\t");
@@ -9443,7 +9443,7 @@ bool __fastcall T_1CD::replaceTREF(String mapfile)
 
 	map.set_length(m + 1);
 
-	for(k = 0; k < list->Count; k++)
+	for(k = 0; k < list->Count(); k++)
 	{
 		str = (*list)[k];
 		l = str.Pos("\t");
@@ -10407,7 +10407,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 							{
 								for(j = 0; j < nreces; j++) if(s.CompareIC(flde_extname->get_presentation(reces[j])) == 0) break;
 								if(j == reces.GetLength()){
-									reces.GetLength()++;
+									reces.SetLength(reces.GetLength() + 1);
 									reces[j] = new char[table_externals->get_recordlen()];
 								}
 								if(j == nreces) nreces++;
@@ -10415,7 +10415,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 							}
 							if(v == lastver)
 							{
-								extnames.GetLength()++;
+								extnames.SetLength(extnames.GetLength() + 1);
 								extnames[extnames.GetLength() - 1] = s;
 							}
 						}
@@ -11628,7 +11628,7 @@ bool __fastcall T_1CD::save_config_ext(const String& _filename, const TGUID& uid
 	ConfigStorageTableConfigCasSave* cs;
 	bool res;
 
-	cs = new ConfigStorageTableConfigCasSave(files_configcas, files_configcassave, uid, hashname);
+	cs = new ConfigStorageTableConfigCasSave(get_files_configcas(), get_files_configcassave(), uid, hashname);
 	if(!cs->getready()) res = false;
 	else res = cs->save_config(_filename);
 	delete cs;
@@ -11641,7 +11641,7 @@ bool __fastcall T_1CD::save_config_ext_db(const String& _filename, const String&
 	ConfigStorageTableConfigCas* cs;
 	bool res;
 
-	cs = new ConfigStorageTableConfigCas(files_configcas, hashname);
+	cs = new ConfigStorageTableConfigCas(get_files_configcas(), hashname);
 	if(!cs->getready()) res = false;
 	else res = cs->save_config(_filename);
 	delete cs;
@@ -11689,6 +11689,11 @@ String __fastcall T_1CD::pagemaprec_presentation(pagemaprec& pmr)
 
 		default: return String("??? неизвестный тип страницы ???");
 	}
+}
+
+std::map<String,table_file*> TableFiles::files()
+{
+	return allfiles;
 }
 
 //---------------------------------------------------------------------------
