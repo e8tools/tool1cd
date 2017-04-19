@@ -34,7 +34,12 @@ public:
 
 class TMultiReadExclusiveWriteSynchronizer 
 {
+public:
+	void BeginWrite() {}
+	void EndWrite() {}
 
+	void BeginRead() {}
+	void EndRead() {}
 };
 
 class TEncoding
@@ -42,14 +47,34 @@ class TEncoding
 
 public:
 
+System::DynamicArray<System::Byte> GetPreamble();
+
 static int GetBufferEncoding(const System::DynamicArray<Byte> &Buffer, TEncoding* &AEncoding);
 static DynamicArray<Byte> Convert(TEncoding * const Source, TEncoding * const Destination, const DynamicArray<Byte> &Bytes, int StartIndex, int Count);
 
 static TEncoding *Unicode = nullptr;
+static TEncoding *UTF8 = nullptr;
 
 };
 
 typedef System::DynamicArray<System::Byte> TBytes;
+
+int StrToInt(const String &s);
+
+
+struct TSearchRec {
+	int     Time;
+	int64_t Size;
+	int     Attr;
+	String  Name;
+	int     ExcludeAttr;
+};
+
+int  FindFirst(const String &Path, int Attr, TSearchRec &rec);
+int  FindNext(TSearchRec &rec);
+void FindClose(TSearchRec &rec);
+
+void CreateGUID(TGUID &guid);
 
 } // SysUtils
 

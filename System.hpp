@@ -19,6 +19,8 @@ typedef wchar_t *LPWSTR;
 typedef char *LPSTR;
 
 const unsigned int MAXUINT = UINT_MAX;
+const int MaxInt = INT_MAX;
+const int MAX_PATH = 260;
 
 struct FILETIME {};
 
@@ -28,6 +30,8 @@ struct TGUID {
   Word D3;
   Byte D4[8];
 };
+
+typedef TGUID GUID;
 
 enum TReplaceFlags {
 	rfReplaceAll = 1,

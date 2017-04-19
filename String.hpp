@@ -22,7 +22,7 @@ public:
 	{
 	}
 
-	String(const char *src)
+	String(const char *src, int limit_size = -1)
 		 : std::string(src)
 	{
 	}
@@ -111,8 +111,15 @@ public:
 		return *this;
 	}
 
+	int ToInt() const
+	{
+		// TODO: String::ToInt
+		return ToIntDef(0);
+	}
+
 	int ToIntDef(int default_value) const
 	{
+		// TODO: String::ToIntDef
 		return default_value;
 	}
 
@@ -120,7 +127,7 @@ public:
 	{
 		auto index = find(substr);
 		if (index == npos) {
-			return -1;
+			return 0;
 		}
 		return index;
 	}
@@ -128,6 +135,16 @@ public:
 	int GetLength() const
 	{
 		return this->size();
+	}
+
+	void SetLength(int NewLength)
+	{
+		// TODO: String::SetLength()
+	}
+
+	int LastDelimiter(const String &delimiters) const
+	{
+		return 0;
 	}
 };
 
@@ -159,6 +176,11 @@ public:
 	void Delete(int index)
 	{
 		erase(begin() + index);
+	}
+
+	void LoadFromFile(const String &filename)
+	{
+
 	}
 
 	DynamicArray<String> Strings;

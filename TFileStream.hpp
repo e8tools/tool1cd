@@ -10,9 +10,13 @@ namespace System {
 
 namespace Classes {
 
-const uint16_t fmOpenReadWrite = 0x0002;
-const uint16_t fmShareDenyNone = 0x0040;
-const uint16_t fmCreate = 0xFFFF;
+const uint16_t fmOpenRead       = 0x0000;
+const uint16_t fmOpenReadWrite  = 0x0002;
+const uint16_t fmShareDenyNone  = 0x0040;
+const uint16_t fmShareDenyWrite = 0x0020;
+const uint16_t fmShareDenyRead  = 0x0030;
+const uint16_t fmCreate         = 0xFFFF;
+
 typedef uint16_t HANDLE;
 
 class TFileStream : public TWrapperStream

@@ -65,13 +65,47 @@ namespace SysUtils {
 
 static int GetBufferEncoding(const System::DynamicArray<Byte> &Buffer, TEncoding* &AEncoding)
 {
+	// TODO: 
 	return 0;
 }
 
-static DynamicArray<Byte> Convert(TEncoding * const Source, TEncoding * const Destination, const DynamicArray<Byte> &Bytes, int StartIndex, int Count)
+static DynamicArray<Byte> TEncoding::Convert(TEncoding * const Source, TEncoding * const Destination, const DynamicArray<Byte> &Bytes, int StartIndex, int Count)
 {
 	return Bytes;
 }
+
+DynamicArray<Byte> TEncoding::GetPreamble()
+{
+	return DynamicArray<Byte>();
+}
+
+int StrToInt(const String &s)
+{
+	return std::atoi(s.c_str());
+}
+
+int FindFirst(const String &Path, int Attr, TSearchRec &rec)
+{
+	// TODO: FindFirst
+	return 1;
+}
+
+int  FindNext(TSearchRec &rec)
+{
+	// TODO: 
+	return 1;
+}
+
+void FindClose(TSearchRec &rec)
+{
+	// TODO: 
+}
+
+void CreateGUID(TGUID &guid)
+{
+	// TODO: CreateGUID
+}
+
 
 } // SysUtils
 

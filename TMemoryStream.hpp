@@ -59,6 +59,11 @@ public:
 		return _data;
 	}
 
+	void *GetMemory()
+	{
+		return _data.data();
+	}
+
 private:
 
 	void EnsureSize(int size)
