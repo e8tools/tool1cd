@@ -3629,13 +3629,13 @@ String __fastcall field::get_XML_presentation(char* rec, bool ignore_showGUID)
 		case tf_string:
 			out = new TMemoryStream();
 			parent->readBlob(out, *(unsigned int*)fr, *(unsigned int*)(fr + 4));
-			s = toXML(String((wchar_t*)(out->Memory), out->GetSize() / 2));
+			s = toXML(String((wchar_t*)(out->GetMemory()), out->GetSize() / 2));
 			delete out;
 			return s;
 		case tf_text:
 			out = new TMemoryStream();
 			parent->readBlob(out, *(unsigned int*)fr, *(unsigned int*)(fr + 4));
-			s = toXML(String((char*)(out->Memory), out->GetSize()));
+			s = toXML(String((char*)(out->GetMemory()), out->GetSize()));
 			delete out;
 			return s;
 		case tf_image:
@@ -3643,7 +3643,7 @@ String __fastcall field::get_XML_presentation(char* rec, bool ignore_showGUID)
 			out = new TMemoryStream();
 			parent->readBlob(in, *(unsigned int*)fr, *(unsigned int*)(fr + 4));
 			base64_encode(in, out, 72);
-			s = String((wchar_t*)(out->Memory), out->GetSize() / 2);
+			s = String((wchar_t*)(out->GetMemory()), out->GetSize() / 2);
 			delete in;
 			delete out;
 			return s;
@@ -3773,7 +3773,7 @@ String __fastcall TrimSpacesRight(String s)
 unsigned int __fastcall field::getSortKey(const char* rec, unsigned char* SortKey, int maxlen)
 {
 	T_1CD* base;
-	ICU_Result res;
+	// ICU_Result res;
 	int i, j, m;
 	bool k;
 	unsigned int addlen = 0;
@@ -3906,131 +3906,18 @@ unsigned int __fastcall field::getSortKey(const char* rec, unsigned char* SortKe
 			return len;
 
 		case tf_char:
-			base = parent->base;
-			if(!isnull) s = TrimSpacesRight(String((wchar_t*)fr, length));
-
-			if(isnull || s.GetLength() == 0)
-			{
-				if(maxl < 2)
-				{
-					error("Ошибка получения ключа сортировки поля. Длина буфера меньше необходимой.",
-						"Таблица", parent->name,
-						"Поле", name,
-						"Значение поля", get_presentation(rec),
-						"Длина буфера", maxlen,
-						"Необходимая длина буфера", 2 + addlen);
-					memcpy(SortKey, null_index, maxl);
-					return maxlen;
-				}
-				memcpy(SortKey, null_index, 2);
-				return 2 + addlen;
-			}
-
-			res = base->icu->getSortKey(s.c_str(), SortKey, maxl, j, case_sensitive);
-			i = length * 3 + 2;
-			if(j > i) j = i;
-			switch(res)
-			{
-				case r_OK:
-					return j + addlen;
-				case r_badLocale:
-					error("Ошибка получения ключа сортировки поля. Недопустимый Locale.",
-						"Таблица", parent->name,
-						"Поле", name,
-						"Значение поля", get_presentation(rec),
-						"Locale", base->locale);
-					return addlen;
-				case r_keyTooSmall:
-					error("Ошибка получения ключа сортировки поля. Длина буфера меньше необходимой.",
-						"Таблица", parent->name,
-						"Поле", name,
-						"Значение поля", get_presentation(rec),
-						"Длина буфера", maxlen,
-						"Необходимая длина буфера", j + addlen);
-					return maxlen;
-				case r_LocaleNotSet:
-					error("Ошибка получения ключа сортировки поля. Locale не установлен.",
-						"Таблица", parent->name,
-						"Поле", name,
-						"Значение поля", get_presentation(rec));
-					return addlen;
-				case r_notInit:
-					error("Ошибка получения ключа сортировки поля. Компонент ICU не инициализирован.",
-						"Таблица", parent->name,
-						"Поле", name,
-						"Значение поля", get_presentation(rec));
-					return addlen;
-				default:
 					error("Ошибка получения ключа сортировки поля. Неизвестный код возврата.",
 						"Таблица", parent->name,
 						"Поле", name,
 						"Значение поля", get_presentation(rec));
 					return addlen;
-			}
 
 		case tf_varchar:
-			i = *(short int*)fr;
-			base = parent->base;
-			if(!isnull) s = TrimSpacesRight(String((wchar_t*)(fr + 2), i));
-
-			if(isnull || s.GetLength() == 0)
-			{
-				if(maxl < 2)
-				{
-					error("Ошибка получения ключа сортировки поля. Длина буфера меньше необходимой.",
-						"Таблица", parent->name,
-						"Поле", name,
-						"Значение поля", get_presentation(rec),
-						"Длина буфера", maxlen,
-						"Необходимая длина буфера", 2 + addlen);
-					memcpy(SortKey, null_index, maxl);
-					return maxlen;
-				}
-				memcpy(SortKey, null_index, 2);
-				return 2 + addlen;
-			}
-
-			res = base->icu->getSortKey(s.c_str(), SortKey, maxl, j, case_sensitive);
-			i = length * 3 + 2;
-			if(j > i) j = i;
-			switch(res)
-			{
-				case r_OK:
-					return j + addlen;
-				case r_badLocale:
-					error("Ошибка получения ключа сортировки поля. Недопустимый Locale.",
-						"Таблица", parent->name,
-						"Поле", name,
-						"Значение поля", get_presentation(rec),
-						"Locale", base->locale);
-					return addlen;
-				case r_keyTooSmall:
-					error("Ошибка получения ключа сортировки поля. Длина буфера меньше необходимой.",
-						"Таблица", parent->name,
-						"Поле", name,
-						"Значение поля", get_presentation(rec),
-						"Длина буфера", maxlen,
-						"Необходимая длина буфера", j + addlen);
-					return maxlen;
-				case r_LocaleNotSet:
-					error("Ошибка получения ключа сортировки поля. Locale не установлен.",
-						"Таблица", parent->name,
-						"Поле", name,
-						"Значение поля", get_presentation(rec));
-					return addlen;
-				case r_notInit:
-					error("Ошибка получения ключа сортировки поля. Компонент ICU не инициализирован.",
-						"Таблица", parent->name,
-						"Поле", name,
-						"Значение поля", get_presentation(rec));
-					return addlen;
-				default:
 					error("Ошибка получения ключа сортировки поля. Неизвестный код возврата.",
 						"Таблица", parent->name,
 						"Поле", name,
 						"Значение поля", get_presentation(rec));
 					return addlen;
-			}
 
 		case tf_version:
 		case tf_version8:
@@ -4150,7 +4037,7 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 				_xor_buf[i] ^= _xor_mask[k];
 			}
 			temp_stream = new TFileStream(_filename, fmCreate);
-			temp_stream->GetSize() = 0;
+			temp_stream->SetSize(0);
 			temp_stream->WriteBuffer(_xor_buf, l);
 			delete temp_stream;
 			delete[] _bb;
@@ -4377,7 +4264,7 @@ void __fastcall table::init(int block_descr)
 	unsigned int m;
 	uint64_t s;
 	String ws;
-	index* ind;
+	class index* ind;
 	int numrec;
 	int blockfile[3];
 	field* fld;
@@ -4718,8 +4605,8 @@ void __fastcall table::init(int block_descr)
 	num_indexes = t->get_num_subnode() - 1;
 	if(num_indexes)
 	{
-		indexes = new index*[num_indexes];
-		for(i = 0; i < num_indexes; i++) indexes[i] = new index(this);
+		indexes = new class index*[num_indexes];
+		for(i = 0; i < num_indexes; i++) indexes[i] = new class index(this);
 
 		f = t->get_first();
 		if(f->get_type() != nd_string)
@@ -5308,7 +5195,7 @@ field* __fastcall table::getfield(int numfield)
 }
 
 //---------------------------------------------------------------------------
-index* __fastcall table::getindex(int numindex)
+class index* __fastcall table::getindex(int numindex)
 {
 	if(numindex >= num_indexes)
 	{
@@ -5588,11 +5475,11 @@ bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool u
 	bool dircreated = false;
 	bool canwriteblob = false;
 	String dir;
-	index* curindex;
+	class index* curindex;
 	int ic; // image count, количество полей с типом image
 	int rc; // repeat count, количество повторов имени записи подряд (для случая, если индекс не уникальный)
 
-	char UnicodeHeader[2] = {0xff, 0xfe};
+	char UnicodeHeader[2] = {'\xff', '\xfe'};
 	String part1 = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\r\n<!--Файл сформирован программой Tool_1CD-->\r\n<Table Name=\"";
 	String part2 = "\">\r\n\t<Fields>\r\n";
 	String part3 = "\t</Fields>\r\n\t<Records>\r\n";
@@ -6333,7 +6220,7 @@ char* __fastcall table::get_edit_record(unsigned int phys_numrecord, char* rec)
 }
 
 //---------------------------------------------------------------------------
-unsigned int __fastcall table::get_phys_numrec(int ARow, index* cur_index)
+unsigned int __fastcall table::get_phys_numrec(int ARow, class index* cur_index)
 {
 	unsigned int numrec;
 //	unsigned int numrecords;
@@ -6545,7 +6432,7 @@ void __fastcall table::delete_index_record(unsigned int phys_numrecord)
 //---------------------------------------------------------------------------
 void __fastcall table::delete_index_record(unsigned int phys_numrecord, char* rec)
 {
-	index* ind;
+	class index* ind;
 	int i;
 
 	if(*rec)
@@ -6717,7 +6604,7 @@ unsigned int __fastcall table::write_blob_record(TStream* bstr)
 void __fastcall table::write_index_record(const unsigned int phys_numrecord, const char* rec)
 {
 	char* index_buf;
-	index* ind;
+	class index* ind;
 	int i;
 
 	if(*rec)
@@ -7118,7 +7005,7 @@ String __fastcall table::get_file_name_for_field(int num_field, char* rec, unsig
 {
 	String s("");
 	int i;
-	index* ind;
+	class index* ind;
 
 	if(num_indexes)
 	{
@@ -7151,7 +7038,7 @@ String __fastcall table::get_file_name_for_record(char* rec)
 {
 	String s("");
 	int i;
-	index* ind;
+	class index* ind;
 
 	if(num_indexes)
 	{
@@ -7678,9 +7565,6 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 	char* b;
 	unsigned int* table_blocks;
 	int i, j;
-#ifndef PublicRelease
-	ICU_Result icu_res;
-#endif //#ifdef PublicRelease
 	TMemoryStream* tstr;
 	root_80* root80;
 	root_81* root81;
@@ -7823,7 +7707,7 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 			tstr = new TMemoryStream;
 			root_object->readBlob(tstr, 1);
 			b = new char[tstr->GetSize()];
-			memcpy(b, tstr->Memory, tstr->GetSize());
+			memcpy(b, tstr->GetMemory(), tstr->GetSize());
 			root81 = (root_81*)b;
 		}
 		else //if(version < ver8_3_8_0)
@@ -7838,45 +7722,6 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 		num_tables = root81->numblocks;
 		table_blocks = &(root81->blocks[0]);
 
-#ifndef PublicRelease
-		icu = new ICU(version);
-
-		if(!readonly)
-		{
-			icu_res = icu->setLocale(locale);
-			switch(icu_res)
-			{
-				case r_badLocale:
-					error("Некорректный Locale",
-						"Locale", locale);
-					readonly = true;
-					break;
-
-				case r_LocaleNotSet:
-					error("Ошибка при установке Locale",
-						"Locale", locale);
-					readonly = true;
-					break;
-
-				case r_badVersion:
-					error("Неподдерживаемая версия Locale",
-						"Версия базы", ver,
-						"Locale", locale);
-					readonly = true;
-					break;
-
-				case r_OK:
-					break;
-
-				default:
-					error("Неизвестный код возврата библиотеки ICU при установке Locale",
-						"Код возврата", icu_res,
-						"Locale", locale);
-					readonly = true;
-					break;
-			}
-		}
-#endif //#ifdef PublicRelease
 	}
 
 	tables = new table*[num_tables];
@@ -7889,7 +7734,7 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 		else
 		{
 			root_object->readBlob(tstr, table_blocks[i]);
-			tables[j] = new table(this, String((char*)(tstr->Memory), tstr->GetSize()), table_blocks[i]);
+			tables[j] = new table(this, String((char*)(tstr->GetMemory()), tstr->GetSize()), table_blocks[i]);
 		}
 		if(tables[j]->bad)
 		{
@@ -9874,7 +9719,7 @@ void __fastcall T_1CD::find_and_save_lost_objects()
 int __fastcall T_1CD::get_ver_depot_config(int ver) // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
 {
 	char* rec;
-	index* ind;
+	class index* ind;
 	field* fld;
 	unsigned int i;
 	int v;
@@ -9951,10 +9796,10 @@ field* T_1CD::get_field(table* tab, String fieldname)
 	return NULL;
 }
 
-index* T_1CD::get_index(table* tab, String indexname)
+class index* T_1CD::get_index(table* tab, String indexname)
 {
 	int j;
-	index* ind;
+	class index* ind;
 	String s;
 
 	for(j = 0; j < tab->num_indexes; j++)
@@ -9999,7 +9844,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	field* fldh_datapacked;
 	field* fldh_objdata;
 	field* fldh_datahash;
-	index* indh;
+	class index* indh;
 	char* rech1;
 	char* rech2;
 
@@ -10014,7 +9859,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 	field* flde_datapacked;
 	field* flde_extdata;
 	field* flde_datahash;
-	index* inde;
+	class index* inde;
 	char* rece;
 	DynamicArray<char*> reces;
 	DynamicArray<String> extnames;
@@ -10827,7 +10672,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 	field* fldh_datapacked;
 	field* fldh_objdata;
 	field* fldh_datahash;
-	index* indh;
+	class index* indh;
 	char* rech; // текущая запись HISTORY
 	char* rech1; // запись с версией < ver_begin
 	bool hasrech1;
@@ -10845,7 +10690,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 	field* flde_datapacked;
 	field* flde_extdata;
 	field* flde_datahash;
-	index* inde;
+	class index* inde;
 	char* rece;
 	unsigned int ie, ne, je;
 
@@ -11203,7 +11048,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 									{
 										table_history->readBlob(in, *(unsigned int*)rec, *(unsigned int*)(rec + 4));
 										inreaded = true;
-										if(in->GetSize() == out->GetSize()) if(memcmp(in->Memory, out->Memory, in->GetSize()) == 0) changed = false;
+										if(in->GetSize() == out->GetSize()) if(memcmp(in->GetMemory(), out->GetMemory(), in->GetSize()) == 0) changed = false;
 									}
 								}
 								else if(depotVer >= depotVer6)

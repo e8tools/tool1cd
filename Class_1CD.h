@@ -32,10 +32,10 @@ class ConfigStorageTableConfigSave;
 #pragma pack(push)
 #pragma pack(1)
 
-// структура первой страницы контейнера
+// СЃС‚СЂСѓРєС‚СѓСЂР° РїРµСЂРІРѕР№ СЃС‚СЂР°РЅРёС†С‹ РєРѕРЅС‚РµР№РЅРµСЂР°
 struct v8con
 {
-	char sig[8]; // сигнатура SIG_CON
+	char sig[8]; // СЃРёРіРЅР°С‚СѓСЂР° SIG_CON
 	char ver1;
 	char ver2;
 	char ver3;
@@ -56,71 +56,71 @@ struct v8con
 	}
 };
 
-// Структура страницы размещения уровня 1 версий от 8.0 до 8.2.14
+// РЎС‚СЂСѓРєС‚СѓСЂР° СЃС‚СЂР°РЅРёС†С‹ СЂР°Р·РјРµС‰РµРЅРёСЏ СѓСЂРѕРІРЅСЏ 1 РІРµСЂСЃРёР№ РѕС‚ 8.0 РґРѕ 8.2.14
 struct objtab
 {
 	int numblocks;
 	unsigned int blocks[1023];
 };
 
-// Структура страницы размещения уровня 1 версий от 8.3.8
+// РЎС‚СЂСѓРєС‚СѓСЂР° СЃС‚СЂР°РЅРёС†С‹ СЂР°Р·РјРµС‰РµРЅРёСЏ СѓСЂРѕРІРЅСЏ 1 РІРµСЂСЃРёР№ РѕС‚ 8.3.8
 struct objtab838
 {
-	unsigned int blocks[1]; // реальное количество блоков зависит от размера страницы (pagesize)
+	unsigned int blocks[1]; // СЂРµР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р±Р»РѕРєРѕРІ Р·Р°РІРёСЃРёС‚ РѕС‚ СЂР°Р·РјРµСЂР° СЃС‚СЂР°РЅРёС†С‹ (pagesize)
 };
 
 struct _version_rec
 {
-	unsigned int version_1; // версия реструктуризации
-	unsigned int version_2; // версия изменения
+	unsigned int version_1; // РІРµСЂСЃРёСЏ СЂРµСЃС‚СЂСѓРєС‚СѓСЂРёР·Р°С†РёРё
+	unsigned int version_2; // РІРµСЂСЃРёСЏ РёР·РјРµРЅРµРЅРёСЏ
 };
 
 struct _version
 {
-	unsigned int version_1; // версия реструктуризации
-	unsigned int version_2; // версия изменения
-	unsigned int version_3; // версия изменения 2
+	unsigned int version_1; // РІРµСЂСЃРёСЏ СЂРµСЃС‚СЂСѓРєС‚СѓСЂРёР·Р°С†РёРё
+	unsigned int version_2; // РІРµСЂСЃРёСЏ РёР·РјРµРЅРµРЅРёСЏ
+	unsigned int version_3; // РІРµСЂСЃРёСЏ РёР·РјРµРЅРµРЅРёСЏ 2
 };
 
-// структура заголовочной страницы файла данных или файла свободных страниц
+// СЃС‚СЂСѓРєС‚СѓСЂР° Р·Р°РіРѕР»РѕРІРѕС‡РЅРѕР№ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р° РґР°РЅРЅС‹С… РёР»Рё С„Р°Р№Р»Р° СЃРІРѕР±РѕРґРЅС‹С… СЃС‚СЂР°РЅРёС†
 struct v8ob
 {
-	char sig[8]; // сигнатура SIG_OBJ
-	unsigned int len; // длина файла
+	char sig[8]; // СЃРёРіРЅР°С‚СѓСЂР° SIG_OBJ
+	unsigned int len; // РґР»РёРЅР° С„Р°Р№Р»Р°
 	_version version;
 	unsigned int blocks[1018];
 };
 
-// структура заголовочной страницы файла данных начиная с версии 8.3.8
+// СЃС‚СЂСѓРєС‚СѓСЂР° Р·Р°РіРѕР»РѕРІРѕС‡РЅРѕР№ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р° РґР°РЅРЅС‹С… РЅР°С‡РёРЅР°СЏ СЃ РІРµСЂСЃРёРё 8.3.8
 struct v838ob_data
 {
-	unsigned char sig[2]; // сигнатура 0x1C 0xFD (1C File Data?)
-	short int fatlevel; // уровень таблицы размещения (0x0000 - в таблице blocks номера страниц с данными, 0x0001 - в таблице blocks номера страниц с таблицами размещения второго уровня, в которых уже, в свою очередь, находятся номера страниц с данными)
+	unsigned char sig[2]; // СЃРёРіРЅР°С‚СѓСЂР° 0x1C 0xFD (1C File Data?)
+	short int fatlevel; // СѓСЂРѕРІРµРЅСЊ С‚Р°Р±Р»РёС†С‹ СЂР°Р·РјРµС‰РµРЅРёСЏ (0x0000 - РІ С‚Р°Р±Р»РёС†Рµ blocks РЅРѕРјРµСЂР° СЃС‚СЂР°РЅРёС† СЃ РґР°РЅРЅС‹РјРё, 0x0001 - РІ С‚Р°Р±Р»РёС†Рµ blocks РЅРѕРјРµСЂР° СЃС‚СЂР°РЅРёС† СЃ С‚Р°Р±Р»РёС†Р°РјРё СЂР°Р·РјРµС‰РµРЅРёСЏ РІС‚РѕСЂРѕРіРѕ СѓСЂРѕРІРЅСЏ, РІ РєРѕС‚РѕСЂС‹С… СѓР¶Рµ, РІ СЃРІРѕСЋ РѕС‡РµСЂРµРґСЊ, РЅР°С…РѕРґСЏС‚СЃСЏ РЅРѕРјРµСЂР° СЃС‚СЂР°РЅРёС† СЃ РґР°РЅРЅС‹РјРё)
 	_version version;
-	uint64_t len; // длина файла
-	unsigned int blocks[1]; // Реальная длина массива зависит от размера страницы и равна pagesize/4-6 (от это 1018 для 4К до 16378 для 64К)
+	uint64_t len; // РґР»РёРЅР° С„Р°Р№Р»Р°
+	unsigned int blocks[1]; // Р РµР°Р»СЊРЅР°СЏ РґР»РёРЅР° РјР°СЃСЃРёРІР° Р·Р°РІРёСЃРёС‚ РѕС‚ СЂР°Р·РјРµСЂР° СЃС‚СЂР°РЅРёС†С‹ Рё СЂР°РІРЅР° pagesize/4-6 (РѕС‚ СЌС‚Рѕ 1018 РґР»СЏ 4Рљ РґРѕ 16378 РґР»СЏ 64Рљ)
 };
 
-// структура заголовочной страницы файла свободных страниц начиная с версии 8.3.8
+// СЃС‚СЂСѓРєС‚СѓСЂР° Р·Р°РіРѕР»РѕРІРѕС‡РЅРѕР№ СЃС‚СЂР°РЅРёС†С‹ С„Р°Р№Р»Р° СЃРІРѕР±РѕРґРЅС‹С… СЃС‚СЂР°РЅРёС† РЅР°С‡РёРЅР°СЏ СЃ РІРµСЂСЃРёРё 8.3.8
 struct v838ob_free
 {
-	unsigned char sig[2]; // сигнатура 0x1C 0xFF (1C File Free?)
-	short int fatlevel; // 0x0000 пока! но может ... уровень таблицы размещения (0x0000 - в таблице blocks номера страниц с данными, 0x0001 - в таблице blocks номера страниц с таблицами размещения второго уровня, в которых уже, в свою очередь, находятся номера страниц с данными)
-	unsigned int version; // ??? предположительно...
-	unsigned int blocks[1]; // Реальная длина массива зависит от размера страницы и равна pagesize/4-6 (от это 1018 для 4К до 16378 для 64К)
+	unsigned char sig[2]; // СЃРёРіРЅР°С‚СѓСЂР° 0x1C 0xFF (1C File Free?)
+	short int fatlevel; // 0x0000 РїРѕРєР°! РЅРѕ РјРѕР¶РµС‚ ... СѓСЂРѕРІРµРЅСЊ С‚Р°Р±Р»РёС†С‹ СЂР°Р·РјРµС‰РµРЅРёСЏ (0x0000 - РІ С‚Р°Р±Р»РёС†Рµ blocks РЅРѕРјРµСЂР° СЃС‚СЂР°РЅРёС† СЃ РґР°РЅРЅС‹РјРё, 0x0001 - РІ С‚Р°Р±Р»РёС†Рµ blocks РЅРѕРјРµСЂР° СЃС‚СЂР°РЅРёС† СЃ С‚Р°Р±Р»РёС†Р°РјРё СЂР°Р·РјРµС‰РµРЅРёСЏ РІС‚РѕСЂРѕРіРѕ СѓСЂРѕРІРЅСЏ, РІ РєРѕС‚РѕСЂС‹С… СѓР¶Рµ, РІ СЃРІРѕСЋ РѕС‡РµСЂРµРґСЊ, РЅР°С…РѕРґСЏС‚СЃСЏ РЅРѕРјРµСЂР° СЃС‚СЂР°РЅРёС† СЃ РґР°РЅРЅС‹РјРё)
+	unsigned int version; // ??? РїСЂРµРґРїРѕР»РѕР¶РёС‚РµР»СЊРЅРѕ...
+	unsigned int blocks[1]; // Р РµР°Р»СЊРЅР°СЏ РґР»РёРЅР° РјР°СЃСЃРёРІР° Р·Р°РІРёСЃРёС‚ РѕС‚ СЂР°Р·РјРµСЂР° СЃС‚СЂР°РЅРёС†С‹ Рё СЂР°РІРЅР° pagesize/4-6 (РѕС‚ СЌС‚Рѕ 1018 РґР»СЏ 4Рљ РґРѕ 16378 РґР»СЏ 64Рљ)
 };
 
 
 #pragma pack(pop)
 
-// типы внутренних файлов
+// С‚РёРїС‹ РІРЅСѓС‚СЂРµРЅРЅРёС… С„Р°Р№Р»РѕРІ
 enum v8objtype
 {
-	v8ot_unknown = 0, // тип неизвестен
-	v8ot_data80 = 1, // файл данных формата 8.0 (до 8.2.14 включительно)
-	v8ot_free80 = 2, // файл свободных страниц формата 8.0 (до 8.2.14 включительно)
-	v8ot_data838 = 3, // файл данных формата 8.3.8
-	v8ot_free838 = 4 // файл свободных страниц формата 8.3.8
+	v8ot_unknown = 0, // С‚РёРї РЅРµРёР·РІРµСЃС‚РµРЅ
+	v8ot_data80 = 1, // С„Р°Р№Р» РґР°РЅРЅС‹С… С„РѕСЂРјР°С‚Р° 8.0 (РґРѕ 8.2.14 РІРєР»СЋС‡РёС‚РµР»СЊРЅРѕ)
+	v8ot_free80 = 2, // С„Р°Р№Р» СЃРІРѕР±РѕРґРЅС‹С… СЃС‚СЂР°РЅРёС† С„РѕСЂРјР°С‚Р° 8.0 (РґРѕ 8.2.14 РІРєР»СЋС‡РёС‚РµР»СЊРЅРѕ)
+	v8ot_data838 = 3, // С„Р°Р№Р» РґР°РЅРЅС‹С… С„РѕСЂРјР°С‚Р° 8.3.8
+	v8ot_free838 = 4 // С„Р°Р№Р» СЃРІРѕР±РѕРґРЅС‹С… СЃС‚СЂР°РЅРёС† С„РѕСЂРјР°С‚Р° 8.3.8
 };
 
 class v8object
@@ -131,53 +131,53 @@ private:
 	MessageRegistrator* err;
 	T_1CD* base;
 
-	uint64_t len; // длина объекта. Для типа таблицы свободных страниц - количество свободных блоков
-	_version version; // текущая версия объекта
-	_version_rec version_rec; // текущая версия записи
-	bool new_version_recorded; // признак, что новая версия объекта записана
-//	unsigned int version_restr; // версия реструктуризации
-//	unsigned int version_edit; // версия изменения
-	v8objtype type; // тип и формат файла
-	int fatlevel; // Количество промежуточных уровней в таблице размещения
-	unsigned int numblocks; // кол-во страниц в корневой таблице размещения объекта
-	unsigned int real_numblocks; // реальное кол-во страниц в корневой таблице (только для файлов свободных страниц, может быть больше numblocks)
-	unsigned int* blocks; // таблица страниц корневой таблицы размещения объекта (т.е. уровня 0)
-	unsigned int block; // номер блока объекта
-	char* data; // данные, представляемые объектом, NULL если не прочитаны или len = 0
+	uint64_t len; // РґР»РёРЅР° РѕР±СЉРµРєС‚Р°. Р”Р»СЏ С‚РёРїР° С‚Р°Р±Р»РёС†С‹ СЃРІРѕР±РѕРґРЅС‹С… СЃС‚СЂР°РЅРёС† - РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ
+	_version version; // С‚РµРєСѓС‰Р°СЏ РІРµСЂСЃРёСЏ РѕР±СЉРµРєС‚Р°
+	_version_rec version_rec; // С‚РµРєСѓС‰Р°СЏ РІРµСЂСЃРёСЏ Р·Р°РїРёСЃРё
+	bool new_version_recorded; // РїСЂРёР·РЅР°Рє, С‡С‚Рѕ РЅРѕРІР°СЏ РІРµСЂСЃРёСЏ РѕР±СЉРµРєС‚Р° Р·Р°РїРёСЃР°РЅР°
+//	unsigned int version_restr; // РІРµСЂСЃРёСЏ СЂРµСЃС‚СЂСѓРєС‚СѓСЂРёР·Р°С†РёРё
+//	unsigned int version_edit; // РІРµСЂСЃРёСЏ РёР·РјРµРЅРµРЅРёСЏ
+	v8objtype type; // С‚РёРї Рё С„РѕСЂРјР°С‚ С„Р°Р№Р»Р°
+	int fatlevel; // РљРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅС‹С… СѓСЂРѕРІРЅРµР№ РІ С‚Р°Р±Р»РёС†Рµ СЂР°Р·РјРµС‰РµРЅРёСЏ
+	unsigned int numblocks; // РєРѕР»-РІРѕ СЃС‚СЂР°РЅРёС† РІ РєРѕСЂРЅРµРІРѕР№ С‚Р°Р±Р»РёС†Рµ СЂР°Р·РјРµС‰РµРЅРёСЏ РѕР±СЉРµРєС‚Р°
+	unsigned int real_numblocks; // СЂРµР°Р»СЊРЅРѕРµ РєРѕР»-РІРѕ СЃС‚СЂР°РЅРёС† РІ РєРѕСЂРЅРµРІРѕР№ С‚Р°Р±Р»РёС†Рµ (С‚РѕР»СЊРєРѕ РґР»СЏ С„Р°Р№Р»РѕРІ СЃРІРѕР±РѕРґРЅС‹С… СЃС‚СЂР°РЅРёС†, РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ numblocks)
+	unsigned int* blocks; // С‚Р°Р±Р»РёС†Р° СЃС‚СЂР°РЅРёС† РєРѕСЂРЅРµРІРѕР№ С‚Р°Р±Р»РёС†С‹ СЂР°Р·РјРµС‰РµРЅРёСЏ РѕР±СЉРµРєС‚Р° (С‚.Рµ. СѓСЂРѕРІРЅСЏ 0)
+	unsigned int block; // РЅРѕРјРµСЂ Р±Р»РѕРєР° РѕР±СЉРµРєС‚Р°
+	char* data; // РґР°РЅРЅС‹Рµ, РїСЂРµРґСЃС‚Р°РІР»СЏРµРјС‹Рµ РѕР±СЉРµРєС‚РѕРј, NULL РµСЃР»Рё РЅРµ РїСЂРѕС‡РёС‚Р°РЅС‹ РёР»Рё len = 0
 
 	static v8object* first;
 	static v8object* last;
 	v8object* next;
 	v8object* prev;
-	unsigned int lastdataget; // время (Windows time, в миллисекундах) последнего обращения к данным объекта (data)
+	unsigned int lastdataget; // РІСЂРµРјСЏ (Windows time, РІ РјРёР»Р»РёСЃРµРєСѓРЅРґР°С…) РїРѕСЃР»РµРґРЅРµРіРѕ РѕР±СЂР°С‰РµРЅРёСЏ Рє РґР°РЅРЅС‹Рј РѕР±СЉРµРєС‚Р° (data)
 	bool lockinmemory;
 
-	void __fastcall set_len(uint64_t _len); // установка новой длины объекта
+	void __fastcall set_len(uint64_t _len); // СѓСЃС‚Р°РЅРѕРІРєР° РЅРѕРІРѕР№ РґР»РёРЅС‹ РѕР±СЉРµРєС‚Р°
 
 	void __fastcall init();
 	void __fastcall init(T_1CD* _base, int blockNum);
 
 public:
-	__fastcall v8object(T_1CD* _base, int blockNum); // конструктор существующего объекта
-	__fastcall v8object(T_1CD* _base); // конструктор нового (еще не существующего) объекта
+	__fastcall v8object(T_1CD* _base, int blockNum); // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ РѕР±СЉРµРєС‚Р°
+	__fastcall v8object(T_1CD* _base); // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РЅРѕРІРѕРіРѕ (РµС‰Рµ РЅРµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ) РѕР±СЉРµРєС‚Р°
 	__fastcall ~v8object();
-	char* __fastcall getdata(); // чтение всего объекта целиком, поддерживает кеширование объектов. Буфер принадлежит объекту
-	char* __fastcall getdata(void* buf, uint64_t _start, uint64_t _length); // чтение кусочка объекта, поддерживает кеширование блоков. Буфер не принадлежит объекту
-	bool __fastcall setdata(void* buf, uint64_t _start, uint64_t _length); // запись кусочка объекта, поддерживает кеширование блоков.
-	bool __fastcall setdata(void* buf, uint64_t _length); // запись объекта целиком, поддерживает кеширование блоков.
-	bool __fastcall setdata(TStream* stream); // записывает поток целиком в объект, поддерживает кеширование блоков.
-	bool __fastcall setdata(TStream* stream, uint64_t _start, uint64_t _length); // запись части потока в объект, поддерживает кеширование блоков.
+	char* __fastcall getdata(); // С‡С‚РµРЅРёРµ РІСЃРµРіРѕ РѕР±СЉРµРєС‚Р° С†РµР»РёРєРѕРј, РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РєРµС€РёСЂРѕРІР°РЅРёРµ РѕР±СЉРµРєС‚РѕРІ. Р‘СѓС„РµСЂ РїСЂРёРЅР°РґР»РµР¶РёС‚ РѕР±СЉРµРєС‚Сѓ
+	char* __fastcall getdata(void* buf, uint64_t _start, uint64_t _length); // С‡С‚РµРЅРёРµ РєСѓСЃРѕС‡РєР° РѕР±СЉРµРєС‚Р°, РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РєРµС€РёСЂРѕРІР°РЅРёРµ Р±Р»РѕРєРѕРІ. Р‘СѓС„РµСЂ РЅРµ РїСЂРёРЅР°РґР»РµР¶РёС‚ РѕР±СЉРµРєС‚Сѓ
+	bool __fastcall setdata(void* buf, uint64_t _start, uint64_t _length); // Р·Р°РїРёСЃСЊ РєСѓСЃРѕС‡РєР° РѕР±СЉРµРєС‚Р°, РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РєРµС€РёСЂРѕРІР°РЅРёРµ Р±Р»РѕРєРѕРІ.
+	bool __fastcall setdata(void* buf, uint64_t _length); // Р·Р°РїРёСЃСЊ РѕР±СЉРµРєС‚Р° С†РµР»РёРєРѕРј, РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РєРµС€РёСЂРѕРІР°РЅРёРµ Р±Р»РѕРєРѕРІ.
+	bool __fastcall setdata(TStream* stream); // Р·Р°РїРёСЃС‹РІР°РµС‚ РїРѕС‚РѕРє С†РµР»РёРєРѕРј РІ РѕР±СЉРµРєС‚, РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РєРµС€РёСЂРѕРІР°РЅРёРµ Р±Р»РѕРєРѕРІ.
+	bool __fastcall setdata(TStream* stream, uint64_t _start, uint64_t _length); // Р·Р°РїРёСЃСЊ С‡Р°СЃС‚Рё РїРѕС‚РѕРєР° РІ РѕР±СЉРµРєС‚, РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РєРµС€РёСЂРѕРІР°РЅРёРµ Р±Р»РѕРєРѕРІ.
 	uint64_t __fastcall getlen();
 	//void __fastcall savetofile();
 	void __fastcall savetofile(String filename);
 	void __fastcall set_lockinmemory(bool _lock);
 	static void __fastcall garbage();
-	uint64_t __fastcall get_fileoffset(uint64_t offset); // получить физическое смещение в файле по смещению в объекте
-	void __fastcall set_block_as_free(unsigned int block_number); // пометить блок как свободный
-	unsigned int __fastcall get_free_block(); // получить номер свободного блока (и пометить как занятый)
-	void __fastcall get_version_rec_and_increase(_version* ver); // получает версию очередной записи и увеличивает сохраненную версию объекта
-	void __fastcall get_version(_version* ver); // получает сохраненную версию объекта
-	void __fastcall write_new_version(); // записывает новую версию объекта
+	uint64_t __fastcall get_fileoffset(uint64_t offset); // РїРѕР»СѓС‡РёС‚СЊ С„РёР·РёС‡РµСЃРєРѕРµ СЃРјРµС‰РµРЅРёРµ РІ С„Р°Р№Р»Рµ РїРѕ СЃРјРµС‰РµРЅРёСЋ РІ РѕР±СЉРµРєС‚Рµ
+	void __fastcall set_block_as_free(unsigned int block_number); // РїРѕРјРµС‚РёС‚СЊ Р±Р»РѕРє РєР°Рє СЃРІРѕР±РѕРґРЅС‹Р№
+	unsigned int __fastcall get_free_block(); // РїРѕР»СѓС‡РёС‚СЊ РЅРѕРјРµСЂ СЃРІРѕР±РѕРґРЅРѕРіРѕ Р±Р»РѕРєР° (Рё РїРѕРјРµС‚РёС‚СЊ РєР°Рє Р·Р°РЅСЏС‚С‹Р№)
+	void __fastcall get_version_rec_and_increase(_version* ver); // РїРѕР»СѓС‡Р°РµС‚ РІРµСЂСЃРёСЋ РѕС‡РµСЂРµРґРЅРѕР№ Р·Р°РїРёСЃРё Рё СѓРІРµР»РёС‡РёРІР°РµС‚ СЃРѕС…СЂР°РЅРµРЅРЅСѓСЋ РІРµСЂСЃРёСЋ РѕР±СЉРµРєС‚Р°
+	void __fastcall get_version(_version* ver); // РїРѕР»СѓС‡Р°РµС‚ СЃРѕС…СЂР°РЅРµРЅРЅСѓСЋ РІРµСЂСЃРёСЋ РѕР±СЉРµРєС‚Р°
+	void __fastcall write_new_version(); // Р·Р°РїРёСЃС‹РІР°РµС‚ РЅРѕРІСѓСЋ РІРµСЂСЃРёСЋ РѕР±СЉРµРєС‚Р°
 	static v8object* __fastcall get_first();
 	static v8object* __fastcall get_last();
 	v8object* __fastcall get_next();
@@ -212,26 +212,26 @@ union root
 
 enum type_fields
 {
-	tf_binary, // B // длина = length
-	tf_bool, // L // длина = 1
-	tf_numeric, // N // длина = (length + 2) / 2
-	tf_char, // NC // длина = length * 2
-	tf_varchar, // NVC // длина = length * 2 + 2
-	tf_version, // RV // 16, 8 версия создания и 8 версия модификации ? каждая версия int(изменения) + int(реструктуризация)
+	tf_binary, // B // РґР»РёРЅР° = length
+	tf_bool, // L // РґР»РёРЅР° = 1
+	tf_numeric, // N // РґР»РёРЅР° = (length + 2) / 2
+	tf_char, // NC // РґР»РёРЅР° = length * 2
+	tf_varchar, // NVC // РґР»РёРЅР° = length * 2 + 2
+	tf_version, // RV // 16, 8 РІРµСЂСЃРёСЏ СЃРѕР·РґР°РЅРёСЏ Рё 8 РІРµСЂСЃРёСЏ РјРѕРґРёС„РёРєР°С†РёРё ? РєР°Р¶РґР°СЏ РІРµСЂСЃРёСЏ int(РёР·РјРµРЅРµРЅРёСЏ) + int(СЂРµСЃС‚СЂСѓРєС‚СѓСЂРёР·Р°С†РёСЏ)
 	tf_string, // NT // 8 (unicode text)
 	tf_text, // T // 8 (ascii text)
 	tf_image, // I // 8 (image = bynary data)
 	tf_datetime, // DT //7
-	tf_version8, // 8, скрытое поле при recordlock == false и отсутствии поля типа tf_version
-	tf_varbinary // VB // длина = length + 2
+	tf_version8, // 8, СЃРєСЂС‹С‚РѕРµ РїРѕР»Рµ РїСЂРё recordlock == false Рё РѕС‚СЃСѓС‚СЃС‚РІРёРё РїРѕР»СЏ С‚РёРїР° tf_version
+	tf_varbinary // VB // РґР»РёРЅР° = length + 2
 };
 
-// Стили преобразования bynary16 в GUID
+// РЎС‚РёР»Рё РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ bynary16 РІ GUID
 //
-// Исходное значение
+// РСЃС…РѕРґРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ
 // 00112233445566778899aabbccddeeff
 //
-// 1С style
+// 1РЎ style
 // ccddeeff-aabb-8899-0011-223344556677
 //
 // MS style
@@ -255,9 +255,9 @@ private:
 	bool case_sensitive;
 
 	table* parent;
-	int len; // длина поля в байтах
-	int offset; // смещение поля в записи
-	static bool showGUIDasMS; // Признак, что GUID надо преобразовывать по стилю MS (иначе по стилю 1С)
+	int len; // РґР»РёРЅР° РїРѕР»СЏ РІ Р±Р°Р№С‚Р°С…
+	int offset; // СЃРјРµС‰РµРЅРёРµ РїРѕР»СЏ РІ Р·Р°РїРёСЃРё
+	static bool showGUIDasMS; // РџСЂРёР·РЅР°Рє, С‡С‚Рѕ GUID РЅР°РґРѕ РїСЂРµРѕР±СЂР°Р·РѕРІС‹РІР°С‚СЊ РїРѕ СЃС‚РёР»СЋ MS (РёРЅР°С‡Рµ РїРѕ СЃС‚РёР»СЋ 1РЎ)
 	static char buf[];
 	static char null_index[];
 	static bool null_index_initialized;
@@ -265,7 +265,7 @@ private:
 public:
 	__fastcall field(table* _parent);
 
-	int __fastcall getlen(); // возвращает длину поля в байтах
+	int __fastcall getlen(); // РІРѕР·РІСЂР°С‰Р°РµС‚ РґР»РёРЅСѓ РїРѕР»СЏ РІ Р±Р°Р№С‚Р°С…
 	String __fastcall getname();
 	String __fastcall get_presentation(const char* rec, bool EmptyNull = false, wchar_t Delimiter = 0, bool ignore_showGUID = false, bool detailed = false);
 	String __fastcall get_XML_presentation(char* rec, bool ignore_showGUID = false);
@@ -294,27 +294,27 @@ struct index_record
 #pragma pack(1)
 
 
-// структура одной записи распакованного индекса страницы-листа
+// СЃС‚СЂСѓРєС‚СѓСЂР° РѕРґРЅРѕР№ Р·Р°РїРёСЃРё СЂР°СЃРїР°РєРѕРІР°РЅРЅРѕРіРѕ РёРЅРґРµРєСЃР° СЃС‚СЂР°РЅРёС†С‹-Р»РёСЃС‚Р°
 struct unpack_index_record
 {
-	unsigned int _record_number; // номер (индекс) записи в таблице записей
-	unsigned char _index[1]; // значение индекса записи. Реальная длина значения определяется полем length класса index
+	unsigned int _record_number; // РЅРѕРјРµСЂ (РёРЅРґРµРєСЃ) Р·Р°РїРёСЃРё РІ С‚Р°Р±Р»РёС†Рµ Р·Р°РїРёСЃРµР№
+	unsigned char _index[1]; // Р·РЅР°С‡РµРЅРёРµ РёРЅРґРµРєСЃР° Р·Р°РїРёСЃРё. Р РµР°Р»СЊРЅР°СЏ РґР»РёРЅР° Р·РЅР°С‡РµРЅРёСЏ РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РїРѕР»РµРј length РєР»Р°СЃСЃР° index
 };
 
-// структура заголовка страницы-ветки индексов
+// СЃС‚СЂСѓРєС‚СѓСЂР° Р·Р°РіРѕР»РѕРІРєР° СЃС‚СЂР°РЅРёС†С‹-РІРµС‚РєРё РёРЅРґРµРєСЃРѕРІ
 struct branch_page_header{
 	unsigned short int flags; // offset 0
 	unsigned short int number_indexes; // offset 2
-	unsigned int prev_page; // offset 4 // для 8.3.8 - это номер страницы (реальное смещение = prev_page * pagesize), до 8.3.8 - это реальное смещение
-	unsigned int next_page; // offset 8 // для 8.3.8 - это номер страницы (реальное смещение = next_page * pagesize), до 8.3.8 - это реальное смещение
+	unsigned int prev_page; // offset 4 // РґР»СЏ 8.3.8 - СЌС‚Рѕ РЅРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (СЂРµР°Р»СЊРЅРѕРµ СЃРјРµС‰РµРЅРёРµ = prev_page * pagesize), РґРѕ 8.3.8 - СЌС‚Рѕ СЂРµР°Р»СЊРЅРѕРµ СЃРјРµС‰РµРЅРёРµ
+	unsigned int next_page; // offset 8 // РґР»СЏ 8.3.8 - СЌС‚Рѕ РЅРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (СЂРµР°Р»СЊРЅРѕРµ СЃРјРµС‰РµРЅРёРµ = next_page * pagesize), РґРѕ 8.3.8 - СЌС‚Рѕ СЂРµР°Р»СЊРЅРѕРµ СЃРјРµС‰РµРЅРёРµ
 };
 
-// структура заголовка страницы-листа индексов
+// СЃС‚СЂСѓРєС‚СѓСЂР° Р·Р°РіРѕР»РѕРІРєР° СЃС‚СЂР°РЅРёС†С‹-Р»РёСЃС‚Р° РёРЅРґРµРєСЃРѕРІ
 struct leaf_page_header{
 	short int flags; // offset 0
 	unsigned short int number_indexes; // offset 2
-	unsigned int prev_page; // offset 4 // для 8.3.8 - это номер страницы (реальное смещение = prev_page * pagesize), до 8.3.8 - это реальное смещение
-	unsigned int next_page; // offset 8 // для 8.3.8 - это номер страницы (реальное смещение = next_page * pagesize), до 8.3.8 - это реальное смещение
+	unsigned int prev_page; // offset 4 // РґР»СЏ 8.3.8 - СЌС‚Рѕ РЅРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (СЂРµР°Р»СЊРЅРѕРµ СЃРјРµС‰РµРЅРёРµ = prev_page * pagesize), РґРѕ 8.3.8 - СЌС‚Рѕ СЂРµР°Р»СЊРЅРѕРµ СЃРјРµС‰РµРЅРёРµ
+	unsigned int next_page; // offset 8 // РґР»СЏ 8.3.8 - СЌС‚Рѕ РЅРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (СЂРµР°Р»СЊРЅРѕРµ СЃРјРµС‰РµРЅРёРµ = next_page * pagesize), РґРѕ 8.3.8 - СЌС‚Рѕ СЂРµР°Р»СЊРЅРѕРµ СЃРјРµС‰РµРЅРёРµ
 	unsigned short int freebytes; // offset 12
 	unsigned int numrecmask; // offset 14
 	unsigned short int leftmask; // offset 18
@@ -325,7 +325,7 @@ struct leaf_page_header{
 	unsigned short int recbytes; // offset 28
 };
 
-// Вспомогательная структура для упаковки индексов на странице-листе
+// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ СѓРїР°РєРѕРІРєРё РёРЅРґРµРєСЃРѕРІ РЅР° СЃС‚СЂР°РЅРёС†Рµ-Р»РёСЃС‚Рµ
 struct _pack_index_record
 {
 	unsigned int numrec;
@@ -335,9 +335,9 @@ struct _pack_index_record
 
 #pragma pack(pop)
 
-// Значения битовых флагов в заголовке стрницы индекса
-const short int indexpage_is_root = 1; // Установленный флаг означает, что страница является корневой
-const short int indexpage_is_leaf = 2; // Установленный флаг означает, что страница является листом, иначе веткой
+// Р—РЅР°С‡РµРЅРёСЏ Р±РёС‚РѕРІС‹С… С„Р»Р°РіРѕРІ РІ Р·Р°РіРѕР»РѕРІРєРµ СЃС‚СЂРЅРёС†С‹ РёРЅРґРµРєСЃР°
+const short int indexpage_is_root = 1; // РЈСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Р№ С„Р»Р°Рі РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ СЃС‚СЂР°РЅРёС†Р° СЏРІР»СЏРµС‚СЃСЏ РєРѕСЂРЅРµРІРѕР№
+const short int indexpage_is_leaf = 2; // РЈСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Р№ С„Р»Р°Рі РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ СЃС‚СЂР°РЅРёС†Р° СЏРІР»СЏРµС‚СЃСЏ Р»РёСЃС‚РѕРј, РёРЅР°С‡Рµ РІРµС‚РєРѕР№
 
 class index
 {
@@ -345,29 +345,29 @@ friend table;
 private:
 	MessageRegistrator* err;
 	table* tbase;
-	db_ver version; // версия базы
-	unsigned int pagesize; // размер одной стрницы (до версии 8.2.14 всегда 0x1000 (4K), начиная с версии 8.3.8 от 0x1000 (4K) до 0x10000 (64K))
+	db_ver version; // РІРµСЂСЃРёСЏ Р±Р°Р·С‹
+	unsigned int pagesize; // СЂР°Р·РјРµСЂ РѕРґРЅРѕР№ СЃС‚СЂРЅРёС†С‹ (РґРѕ РІРµСЂСЃРёРё 8.2.14 РІСЃРµРіРґР° 0x1000 (4K), РЅР°С‡РёРЅР°СЏ СЃ РІРµСЂСЃРёРё 8.3.8 РѕС‚ 0x1000 (4K) РґРѕ 0x10000 (64K))
 
 	String name;
 	bool is_primary;
-	int num_records; // количество полей в индексе
+	int num_records; // РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕР»РµР№ РІ РёРЅРґРµРєСЃРµ
 	index_record* records;
 
-	uint64_t start; // Смещение в файле индексов блока описания индекса
-	uint64_t rootblock; // Смещение в файле индексов корневого блока индекса
-	unsigned int length; // длина в байтах одной распакованной записи индекса
-	DynamicArray<unsigned int> recordsindex; // динамический массив индексов записей по номеру (только не пустые записи)
-	bool recordsindex_complete; // признак заполнености recordsindex
+	uint64_t start; // РЎРјРµС‰РµРЅРёРµ РІ С„Р°Р№Р»Рµ РёРЅРґРµРєСЃРѕРІ Р±Р»РѕРєР° РѕРїРёСЃР°РЅРёСЏ РёРЅРґРµРєСЃР°
+	uint64_t rootblock; // РЎРјРµС‰РµРЅРёРµ РІ С„Р°Р№Р»Рµ РёРЅРґРµРєСЃРѕРІ РєРѕСЂРЅРµРІРѕРіРѕ Р±Р»РѕРєР° РёРЅРґРµРєСЃР°
+	unsigned int length; // РґР»РёРЅР° РІ Р±Р°Р№С‚Р°С… РѕРґРЅРѕР№ СЂР°СЃРїР°РєРѕРІР°РЅРЅРѕР№ Р·Р°РїРёСЃРё РёРЅРґРµРєСЃР°
+	DynamicArray<unsigned int> recordsindex; // РґРёРЅР°РјРёС‡РµСЃРєРёР№ РјР°СЃСЃРёРІ РёРЅРґРµРєСЃРѕРІ Р·Р°РїРёСЃРµР№ РїРѕ РЅРѕРјРµСЂСѓ (С‚РѕР»СЊРєРѕ РЅРµ РїСѓСЃС‚С‹Рµ Р·Р°РїРёСЃРё)
+	bool recordsindex_complete; // РїСЂРёР·РЅР°Рє Р·Р°РїРѕР»РЅРµРЅРѕСЃС‚Рё recordsindex
 	void __fastcall create_recordsindex();
 
 #ifndef PublicRelease
 	void __fastcall dump_recursive(v8object* file_index, TFileStream* f, int level, uint64_t curblock);
-	void __fastcall delete_index(const char* rec, const unsigned int phys_numrec); // удаление индекса записи из файла index
-	void __fastcall delete_index_record(const char* index_buf, const unsigned int phys_numrec); // удаление одного индекса из файла index
-	void __fastcall delete_index_record(const char* index_buf, const unsigned int phys_numrec, uint64_t block, bool& is_last_record, bool& page_is_empty, char* new_last_index_buf, unsigned int& new_last_phys_num); // рекурсивное удаление одного индекса из блока файла index
-	void __fastcall write_index(const unsigned int phys_numrecord, const char* rec); // запись индекса записи
-	void __fastcall write_index_record(const unsigned int phys_numrecord, const char* index_buf); // запись индекса
-	void __fastcall write_index_record(const unsigned int phys_numrecord, const char* index_buf, uint64_t block, int& result, char* new_last_index_buf, unsigned int& new_last_phys_num, char* new_last_index_buf2, unsigned int& new_last_phys_num2, uint64_t& new_last_block2); // рекурсивная запись индекса
+	void __fastcall delete_index(const char* rec, const unsigned int phys_numrec); // СѓРґР°Р»РµРЅРёРµ РёРЅРґРµРєСЃР° Р·Р°РїРёСЃРё РёР· С„Р°Р№Р»Р° index
+	void __fastcall delete_index_record(const char* index_buf, const unsigned int phys_numrec); // СѓРґР°Р»РµРЅРёРµ РѕРґРЅРѕРіРѕ РёРЅРґРµРєСЃР° РёР· С„Р°Р№Р»Р° index
+	void __fastcall delete_index_record(const char* index_buf, const unsigned int phys_numrec, uint64_t block, bool& is_last_record, bool& page_is_empty, char* new_last_index_buf, unsigned int& new_last_phys_num); // СЂРµРєСѓСЂСЃРёРІРЅРѕРµ СѓРґР°Р»РµРЅРёРµ РѕРґРЅРѕРіРѕ РёРЅРґРµРєСЃР° РёР· Р±Р»РѕРєР° С„Р°Р№Р»Р° index
+	void __fastcall write_index(const unsigned int phys_numrecord, const char* rec); // Р·Р°РїРёСЃСЊ РёРЅРґРµРєСЃР° Р·Р°РїРёСЃРё
+	void __fastcall write_index_record(const unsigned int phys_numrecord, const char* index_buf); // Р·Р°РїРёСЃСЊ РёРЅРґРµРєСЃР°
+	void __fastcall write_index_record(const unsigned int phys_numrecord, const char* index_buf, uint64_t block, int& result, char* new_last_index_buf, unsigned int& new_last_phys_num, char* new_last_index_buf2, unsigned int& new_last_phys_num2, uint64_t& new_last_block2); // СЂРµРєСѓСЂСЃРёРІРЅР°СЏ Р·Р°РїРёСЃСЊ РёРЅРґРµРєСЃР°
 #endif //#ifdef PublicRelease
 
 public:
@@ -376,30 +376,30 @@ public:
 
 	String __fastcall getname();
 	bool __fastcall get_is_primary();
-	int __fastcall get_num_records(); // получить количество полей в индексе
+	int __fastcall get_num_records(); // РїРѕР»СѓС‡РёС‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕР»РµР№ РІ РёРЅРґРµРєСЃРµ
 	index_record* __fastcall get_records();
 
-	unsigned int __fastcall get_numrecords(); // получает количество записей, проиндексированных индексом
-	unsigned int __fastcall get_numrec(unsigned int num_record); // получает физический индекс записи по порядковому индексу
+	unsigned int __fastcall get_numrecords(); // РїРѕР»СѓС‡Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РїРёСЃРµР№, РїСЂРѕРёРЅРґРµРєСЃРёСЂРѕРІР°РЅРЅС‹С… РёРЅРґРµРєСЃРѕРј
+	unsigned int __fastcall get_numrec(unsigned int num_record); // РїРѕР»СѓС‡Р°РµС‚ С„РёР·РёС‡РµСЃРєРёР№ РёРЅРґРµРєСЃ Р·Р°РїРёСЃРё РїРѕ РїРѕСЂСЏРґРєРѕРІРѕРјСѓ РёРЅРґРµРєСЃСѓ
 
 #ifndef PublicRelease
 	void __fastcall dump(String filename);
-	void __fastcall calcRecordIndex(const char* rec, char* indexBuf); // вычислить индекс записи rec и поместить в indexBuf. Длина буфера indexBuf должна быть не меньше length
+	void __fastcall calcRecordIndex(const char* rec, char* indexBuf); // РІС‹С‡РёСЃР»РёС‚СЊ РёРЅРґРµРєСЃ Р·Р°РїРёСЃРё rec Рё РїРѕРјРµСЃС‚РёС‚СЊ РІ indexBuf. Р”Р»РёРЅР° Р±СѓС„РµСЂР° indexBuf РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РЅРµ РјРµРЅСЊС€Рµ length
 #endif //#ifdef PublicRelease
 
 	unsigned int __fastcall get_rootblock();
 	unsigned int __fastcall get_length();
 
-	// распаковывает одну страницу-лист индексов
-	// возвращает массив структур unpack_index_record. Количество элементов массива возвращается в number_indexes
+	// СЂР°СЃРїР°РєРѕРІС‹РІР°РµС‚ РѕРґРЅСѓ СЃС‚СЂР°РЅРёС†Сѓ-Р»РёСЃС‚ РёРЅРґРµРєСЃРѕРІ
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РјР°СЃСЃРёРІ СЃС‚СЂСѓРєС‚СѓСЂ unpack_index_record. РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РјР°СЃСЃРёРІР° РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РІ number_indexes
 	char* __fastcall unpack_leafpage(uint64_t page_offset, unsigned int& number_indexes);
 
-	// распаковывает одну страницу-лист индексов
-	// возвращает массив структур unpack_index_record. Количество элементов массива возвращается в number_indexes
+	// СЂР°СЃРїР°РєРѕРІС‹РІР°РµС‚ РѕРґРЅСѓ СЃС‚СЂР°РЅРёС†Сѓ-Р»РёСЃС‚ РёРЅРґРµРєСЃРѕРІ
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РјР°СЃСЃРёРІ СЃС‚СЂСѓРєС‚СѓСЂ unpack_index_record. РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РјР°СЃСЃРёРІР° РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РІ number_indexes
 	char* __fastcall unpack_leafpage(char* page, unsigned int& number_indexes);
 
-	// упаковывает одну страницу-лист индексов.
-	// возвращвет истина, если упаковка произведена, и ложь, если упаковка невозможна.
+	// СѓРїР°РєРѕРІС‹РІР°РµС‚ РѕРґРЅСѓ СЃС‚СЂР°РЅРёС†Сѓ-Р»РёСЃС‚ РёРЅРґРµРєСЃРѕРІ.
+	// РІРѕР·РІСЂР°С‰РІРµС‚ РёСЃС‚РёРЅР°, РµСЃР»Рё СѓРїР°РєРѕРІРєР° РїСЂРѕРёР·РІРµРґРµРЅР°, Рё Р»РѕР¶СЊ, РµСЃР»Рё СѓРїР°РєРѕРІРєР° РЅРµРІРѕР·РјРѕР¶РЅР°.
 	bool __fastcall pack_leafpage(char* unpack_index, unsigned int number_indexes, char* page_buf);
 
 };
@@ -413,7 +413,7 @@ enum table_info
 	ti_logical_view
 };
 
-// типы измененных записей
+// С‚РёРїС‹ РёР·РјРµРЅРµРЅРЅС‹С… Р·Р°РїРёСЃРµР№
 enum changed_rec_type
 {
 	crt_not_changed,
@@ -422,27 +422,27 @@ enum changed_rec_type
 	crt_delete
 };
 
-// структура изменной записи таблицы
+// СЃС‚СЂСѓРєС‚СѓСЂР° РёР·РјРµРЅРЅРѕР№ Р·Р°РїРёСЃРё С‚Р°Р±Р»РёС†С‹
 class changed_rec
 {
 public:
-	// владелец
+	// РІР»Р°РґРµР»РµС†
 	table* parent;
 
-	// физический номер записи (для добавленных записей нумерация начинается с phys_numrecords)
+	// С„РёР·РёС‡РµСЃРєРёР№ РЅРѕРјРµСЂ Р·Р°РїРёСЃРё (РґР»СЏ РґРѕР±Р°РІР»РµРЅРЅС‹С… Р·Р°РїРёСЃРµР№ РЅСѓРјРµСЂР°С†РёСЏ РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ phys_numrecords)
 	unsigned int numrec;
 
-	// тип изменения записи (изменена, добавлена, удалена)
+	// С‚РёРї РёР·РјРµРЅРµРЅРёСЏ Р·Р°РїРёСЃРё (РёР·РјРµРЅРµРЅР°, РґРѕР±Р°РІР»РµРЅР°, СѓРґР°Р»РµРЅР°)
 	changed_rec_type changed_type;
 
-	// следующая измененная запись в списке измененных записей
+	// СЃР»РµРґСѓСЋС‰Р°СЏ РёР·РјРµРЅРµРЅРЅР°СЏ Р·Р°РїРёСЃСЊ РІ СЃРїРёСЃРєРµ РёР·РјРµРЅРµРЅРЅС‹С… Р·Р°РїРёСЃРµР№
 	changed_rec* next;
 
-	// массив признаков изменения поля (по одному байту на каждое поле, всего num_fields байт)
+	// РјР°СЃСЃРёРІ РїСЂРёР·РЅР°РєРѕРІ РёР·РјРµРЅРµРЅРёСЏ РїРѕР»СЏ (РїРѕ РѕРґРЅРѕРјСѓ Р±Р°Р№С‚Сѓ РЅР° РєР°Р¶РґРѕРµ РїРѕР»Рµ, РІСЃРµРіРѕ num_fields Р±Р°Р№С‚)
 	char* fields;
 
-	// измененная запись. Для типов полей tf_text (TEXT), tf_string (MEMO) и tf_image (BLOB), если соответствующий признак в fields установлен,
-	// содержит указатель на TStream с содержимым поля (или NULL)
+	// РёР·РјРµРЅРµРЅРЅР°СЏ Р·Р°РїРёСЃСЊ. Р”Р»СЏ С‚РёРїРѕРІ РїРѕР»РµР№ tf_text (TEXT), tf_string (MEMO) Рё tf_image (BLOB), РµСЃР»Рё СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РїСЂРёР·РЅР°Рє РІ fields СѓСЃС‚Р°РЅРѕРІР»РµРЅ,
+	// СЃРѕРґРµСЂР¶РёС‚ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° TStream СЃ СЃРѕРґРµСЂР¶РёРјС‹Рј РїРѕР»СЏ (РёР»Рё NULL)
 	char* rec;
 
 	__fastcall changed_rec(table* _parent, changed_rec_type crt, unsigned int phys_numrecord);
@@ -450,28 +450,28 @@ public:
 	void __fastcall clear();
 };
 
-// структура одного блока в файле file_blob
+// СЃС‚СЂСѓРєС‚СѓСЂР° РѕРґРЅРѕРіРѕ Р±Р»РѕРєР° РІ С„Р°Р№Р»Рµ file_blob
 struct blob_block{
 	unsigned int nextblock;
 	short int length;
 	char data[250];
 };
 
-// структура root файла экспорта/импорта таблиц
+// СЃС‚СЂСѓРєС‚СѓСЂР° root С„Р°Р№Р»Р° СЌРєСЃРїРѕСЂС‚Р°/РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†
 struct export_import_table_root
 {
 	bool has_data;
 	bool has_blob;
 	bool has_index;
 	bool has_descr;
-	int data_version_1; // версия реструктуризации
-	int data_version_2; // версия изменения
-	int blob_version_1; // версия реструктуризации
-	int blob_version_2; // версия изменения
-	int index_version_1; // версия реструктуризации
-	int index_version_2; // версия изменения
-	int descr_version_1; // версия реструктуризации
-	int descr_version_2; // версия изменения
+	int data_version_1; // РІРµСЂСЃРёСЏ СЂРµСЃС‚СЂСѓРєС‚СѓСЂРёР·Р°С†РёРё
+	int data_version_2; // РІРµСЂСЃРёСЏ РёР·РјРµРЅРµРЅРёСЏ
+	int blob_version_1; // РІРµСЂСЃРёСЏ СЂРµСЃС‚СЂСѓРєС‚СѓСЂРёР·Р°С†РёРё
+	int blob_version_2; // РІРµСЂСЃРёСЏ РёР·РјРµРЅРµРЅРёСЏ
+	int index_version_1; // РІРµСЂСЃРёСЏ СЂРµСЃС‚СЂСѓРєС‚СѓСЂРёР·Р°С†РёРё
+	int index_version_2; // РІРµСЂСЃРёСЏ РёР·РјРµРЅРµРЅРёСЏ
+	int descr_version_1; // РІРµСЂСЃРёСЏ СЂРµСЃС‚СЂСѓРєС‚СѓСЂРёР·Р°С†РёРё
+	int descr_version_2; // РІРµСЂСЃРёСЏ РёР·РјРµРЅРµРЅРёСЏ
 };
 
 class table{
@@ -483,11 +483,11 @@ private:
 	MessageRegistrator* err;
 	T_1CD* base;
 
-	v8object* descr_table; // объект с описанием структуры таблицы (только для версий с 8.0 до 8.2.14)
+	v8object* descr_table; // РѕР±СЉРµРєС‚ СЃ РѕРїРёСЃР°РЅРёРµРј СЃС‚СЂСѓРєС‚СѓСЂС‹ С‚Р°Р±Р»РёС†С‹ (С‚РѕР»СЊРєРѕ РґР»СЏ РІРµСЂСЃРёР№ СЃ 8.0 РґРѕ 8.2.14)
 	String description;
 	String name;
 	int num_fields;
-	int num_fields2; // количество элементов в массиве fields
+	int num_fields2; // РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ РјР°СЃСЃРёРІРµ fields
 	field** fields;
 	int num_indexes;
 	class index** indexes;
@@ -495,48 +495,48 @@ private:
 	v8object* file_data;
 	v8object* file_blob;
 	v8object* file_index;
-	int recordlen; // длина записи (в байтах)
-	bool issystem; // Признак системной таблицы (имя таблицы не начинается с подчеркивания)
-	int lockinmemory; // счетчик блокировок в памяти
+	int recordlen; // РґР»РёРЅР° Р·Р°РїРёСЃРё (РІ Р±Р°Р№С‚Р°С…)
+	bool issystem; // РџСЂРёР·РЅР°Рє СЃРёСЃС‚РµРјРЅРѕР№ С‚Р°Р±Р»РёС†С‹ (РёРјСЏ С‚Р°Р±Р»РёС†С‹ РЅРµ РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ РїРѕРґС‡РµСЂРєРёРІР°РЅРёСЏ)
+	int lockinmemory; // СЃС‡РµС‚С‡РёРє Р±Р»РѕРєРёСЂРѕРІРѕРє РІ РїР°РјСЏС‚Рё
 
 	void __fastcall deletefields();
 	void __fastcall deleteindexes();
 
-	changed_rec* ch_rec; // первая измененная запись в списке измененных записей
-	unsigned int added_numrecords; // количество добавленных записей в режиме редактирования
+	changed_rec* ch_rec; // РїРµСЂРІР°СЏ РёР·РјРµРЅРµРЅРЅР°СЏ Р·Р°РїРёСЃСЊ РІ СЃРїРёСЃРєРµ РёР·РјРµРЅРµРЅРЅС‹С… Р·Р°РїРёСЃРµР№
+	unsigned int added_numrecords; // РєРѕР»РёС‡РµСЃС‚РІРѕ РґРѕР±Р°РІР»РµРЅРЅС‹С… Р·Р°РїРёСЃРµР№ РІ СЂРµР¶РёРјРµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ
 
-	unsigned int phys_numrecords; // физическое количество записей (вместе с удаленными)
-	unsigned int log_numrecords; // логическое количество записей (только не удаленные)
+	unsigned int phys_numrecords; // С„РёР·РёС‡РµСЃРєРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РїРёСЃРµР№ (РІРјРµСЃС‚Рµ СЃ СѓРґР°Р»РµРЅРЅС‹РјРё)
+	unsigned int log_numrecords; // Р»РѕРіРёС‡РµСЃРєРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РїРёСЃРµР№ (С‚РѕР»СЊРєРѕ РЅРµ СѓРґР°Р»РµРЅРЅС‹Рµ)
 
-	void __fastcall create_file_data(); // создание файла file_data
-	void __fastcall create_file_blob(); // создание файла file_blob
-	void __fastcall create_file_index(); // создание файла file_index
-	void __fastcall refresh_descr_table(); // создание и запись файла описания таблицы
+	void __fastcall create_file_data(); // СЃРѕР·РґР°РЅРёРµ С„Р°Р№Р»Р° file_data
+	void __fastcall create_file_blob(); // СЃРѕР·РґР°РЅРёРµ С„Р°Р№Р»Р° file_blob
+	void __fastcall create_file_index(); // СЃРѕР·РґР°РЅРёРµ С„Р°Р№Р»Р° file_index
+	void __fastcall refresh_descr_table(); // СЃРѕР·РґР°РЅРёРµ Рё Р·Р°РїРёСЃСЊ С„Р°Р№Р»Р° РѕРїРёСЃР°РЅРёСЏ С‚Р°Р±Р»РёС†С‹
 #ifndef PublicRelease
 
-	bool edit; // признак, что таблица находится в режиме редактирования
+	bool edit; // РїСЂРёР·РЅР°Рє, С‡С‚Рѕ С‚Р°Р±Р»РёС†Р° РЅР°С…РѕРґРёС‚СЃСЏ РІ СЂРµР¶РёРјРµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ
 
-	void __fastcall delete_data_record(unsigned int phys_numrecord); // удаление записи из файла data
-	void __fastcall delete_blob_record(unsigned int blob_numrecord); // удаление записи из файла blob
-	void __fastcall delete_index_record(unsigned int phys_numrecord); // удаление всех индексов записи из файла index
-	void __fastcall delete_index_record(unsigned int phys_numrecord, char* rec); // удаление всех индексов записи из файла index
-	void __fastcall write_data_record(unsigned int phys_numrecord, char* rec); // запись одной записи в файл data
-	unsigned int __fastcall write_blob_record(char* blob_record, unsigned int blob_len); // записывает НОВУЮ запись в файл blob, возвращает индекс новой записи
-	unsigned int __fastcall write_blob_record(TStream* bstr); //  // записывает НОВУЮ запись в файл blob, возвращает индекс новой записи
-	void __fastcall write_index_record(const unsigned int phys_numrecord, const char* rec); // запись индексов записи в файл index
+	void __fastcall delete_data_record(unsigned int phys_numrecord); // СѓРґР°Р»РµРЅРёРµ Р·Р°РїРёСЃРё РёР· С„Р°Р№Р»Р° data
+	void __fastcall delete_blob_record(unsigned int blob_numrecord); // СѓРґР°Р»РµРЅРёРµ Р·Р°РїРёСЃРё РёР· С„Р°Р№Р»Р° blob
+	void __fastcall delete_index_record(unsigned int phys_numrecord); // СѓРґР°Р»РµРЅРёРµ РІСЃРµС… РёРЅРґРµРєСЃРѕРІ Р·Р°РїРёСЃРё РёР· С„Р°Р№Р»Р° index
+	void __fastcall delete_index_record(unsigned int phys_numrecord, char* rec); // СѓРґР°Р»РµРЅРёРµ РІСЃРµС… РёРЅРґРµРєСЃРѕРІ Р·Р°РїРёСЃРё РёР· С„Р°Р№Р»Р° index
+	void __fastcall write_data_record(unsigned int phys_numrecord, char* rec); // Р·Р°РїРёСЃСЊ РѕРґРЅРѕР№ Р·Р°РїРёСЃРё РІ С„Р°Р№Р» data
+	unsigned int __fastcall write_blob_record(char* blob_record, unsigned int blob_len); // Р·Р°РїРёСЃС‹РІР°РµС‚ РќРћР’РЈР® Р·Р°РїРёСЃСЊ РІ С„Р°Р№Р» blob, РІРѕР·РІСЂР°С‰Р°РµС‚ РёРЅРґРµРєСЃ РЅРѕРІРѕР№ Р·Р°РїРёСЃРё
+	unsigned int __fastcall write_blob_record(TStream* bstr); //  // Р·Р°РїРёСЃС‹РІР°РµС‚ РќРћР’РЈР® Р·Р°РїРёСЃСЊ РІ С„Р°Р№Р» blob, РІРѕР·РІСЂР°С‰Р°РµС‚ РёРЅРґРµРєСЃ РЅРѕРІРѕР№ Р·Р°РїРёСЃРё
+	void __fastcall write_index_record(const unsigned int phys_numrecord, const char* rec); // Р·Р°РїРёСЃСЊ РёРЅРґРµРєСЃРѕРІ Р·Р°РїРёСЃРё РІ С„Р°Р№Р» index
 #endif //#ifdef PublicRelease
 
-	bool bad; // признак битой таблицы
+	bool bad; // РїСЂРёР·РЅР°Рє Р±РёС‚РѕР№ С‚Р°Р±Р»РёС†С‹
 
 public:
-	//--> поддержка динамического построения таблицы записей
-	//DynamicArray<unsigned int> recordsindex; // динамический массив индексов записей по номеру (только не пустые записи)
-	unsigned int* recordsindex; // массив индексов записей по номеру (только не пустые записи)
-	bool recordsindex_complete; // признак заполнености recordsindex
-	unsigned int numrecords_review; // количество просмотренных записей всего в поиске не пустых
-	unsigned int numrecords_found; // количество найденных непустых записей (текущий размер recordsindex)
-	//<-- поддержка динамического построения таблицы записей
-	void __fastcall fillrecordsindex(); // заполнить recordsindex не динамически
+	//--> РїРѕРґРґРµСЂР¶РєР° РґРёРЅР°РјРёС‡РµСЃРєРѕРіРѕ РїРѕСЃС‚СЂРѕРµРЅРёСЏ С‚Р°Р±Р»РёС†С‹ Р·Р°РїРёСЃРµР№
+	//DynamicArray<unsigned int> recordsindex; // РґРёРЅР°РјРёС‡РµСЃРєРёР№ РјР°СЃСЃРёРІ РёРЅРґРµРєСЃРѕРІ Р·Р°РїРёСЃРµР№ РїРѕ РЅРѕРјРµСЂСѓ (С‚РѕР»СЊРєРѕ РЅРµ РїСѓСЃС‚С‹Рµ Р·Р°РїРёСЃРё)
+	unsigned int* recordsindex; // РјР°СЃСЃРёРІ РёРЅРґРµРєСЃРѕРІ Р·Р°РїРёСЃРµР№ РїРѕ РЅРѕРјРµСЂСѓ (С‚РѕР»СЊРєРѕ РЅРµ РїСѓСЃС‚С‹Рµ Р·Р°РїРёСЃРё)
+	bool recordsindex_complete; // РїСЂРёР·РЅР°Рє Р·Р°РїРѕР»РЅРµРЅРѕСЃС‚Рё recordsindex
+	unsigned int numrecords_review; // РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕСЃРјРѕС‚СЂРµРЅРЅС‹С… Р·Р°РїРёСЃРµР№ РІСЃРµРіРѕ РІ РїРѕРёСЃРєРµ РЅРµ РїСѓСЃС‚С‹С…
+	unsigned int numrecords_found; // РєРѕР»РёС‡РµСЃС‚РІРѕ РЅР°Р№РґРµРЅРЅС‹С… РЅРµРїСѓСЃС‚С‹С… Р·Р°РїРёСЃРµР№ (С‚РµРєСѓС‰РёР№ СЂР°Р·РјРµСЂ recordsindex)
+	//<-- РїРѕРґРґРµСЂР¶РєР° РґРёРЅР°РјРёС‡РµСЃРєРѕРіРѕ РїРѕСЃС‚СЂРѕРµРЅРёСЏ С‚Р°Р±Р»РёС†С‹ Р·Р°РїРёСЃРµР№
+	void __fastcall fillrecordsindex(); // Р·Р°РїРѕР»РЅРёС‚СЊ recordsindex РЅРµ РґРёРЅР°РјРёС‡РµСЃРєРё
 
 
 	__fastcall table();
@@ -555,12 +555,12 @@ public:
 	int __fastcall get_recordlen();
 	bool __fastcall get_recordlock();
 
-	unsigned int __fastcall get_phys_numrecords(); // возвращает количество записей в таблице всего, вместе с удаленными
-	unsigned int __fastcall get_log_numrecords(); // возвращает количество записей в таблице всего, без удаленных
+	unsigned int __fastcall get_phys_numrecords(); // РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РїРёСЃРµР№ РІ С‚Р°Р±Р»РёС†Рµ РІСЃРµРіРѕ, РІРјРµСЃС‚Рµ СЃ СѓРґР°Р»РµРЅРЅС‹РјРё
+	unsigned int __fastcall get_log_numrecords(); // РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РїРёСЃРµР№ РІ С‚Р°Р±Р»РёС†Рµ РІСЃРµРіРѕ, Р±РµР· СѓРґР°Р»РµРЅРЅС‹С…
 	void __fastcall set_log_numrecords(unsigned int _log_numrecords); //
 	unsigned int __fastcall get_added_numrecords();
 
-	char* __fastcall getrecord(unsigned int phys_numrecord, char* buf); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
+	char* __fastcall getrecord(unsigned int phys_numrecord, char* buf); // РІРѕР·РІСЂР°С‰Р°РµС‚ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° Р·Р°РїРёСЃСЊ, Р±СѓС„РµСЂ РїСЂРёРЅР°РґР»РµР¶РёС‚ РІС‹Р·С‹РІР°СЋС‰РµР№ РїСЂРѕС†РµРґСѓСЂРµ
 	TStream* readBlob(TStream* _str, unsigned int _startblock, unsigned int _length, bool rewrite = true);
 	unsigned int readBlob(void* _buf, unsigned int _startblock, unsigned int _length);
 	void __fastcall set_lockinmemory(bool _lock);
@@ -571,20 +571,20 @@ public:
 	v8object* __fastcall get_file_blob();
 	v8object* __fastcall get_file_index();
 
-	__int64 __fastcall get_fileoffset(unsigned int phys_numrecord); // получить физическое смещение в файле записи по номеру
+	int64_t __fastcall get_fileoffset(unsigned int phys_numrecord); // РїРѕР»СѓС‡РёС‚СЊ С„РёР·РёС‡РµСЃРєРѕРµ СЃРјРµС‰РµРЅРёРµ РІ С„Р°Р№Р»Рµ Р·Р°РїРёСЃРё РїРѕ РЅРѕРјРµСЂСѓ
 
-	char* __fastcall get_edit_record(unsigned int phys_numrecord, char* buf); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
+	char* __fastcall get_edit_record(unsigned int phys_numrecord, char* buf); // РІРѕР·РІСЂР°С‰Р°РµС‚ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° Р·Р°РїРёСЃСЊ, Р±СѓС„РµСЂ РїСЂРёРЅР°РґР»РµР¶РёС‚ РІС‹Р·С‹РІР°СЋС‰РµР№ РїСЂРѕС†РµРґСѓСЂРµ
 	bool __fastcall get_edit();
 
-	unsigned int __fastcall get_phys_numrec(int ARow, class index* cur_index); // получить физический индекс записи по номеру строки по указанному индексу
-	String __fastcall get_file_name_for_field(int num_field, char* rec, unsigned int numrec = 0); // получить имя файла по-умолчанию конкретного поля конкретной записи
-	String __fastcall get_file_name_for_record(char* rec); // получить имя файла по-умолчанию конкретной записи
+	unsigned int __fastcall get_phys_numrec(int ARow, class index* cur_index); // РїРѕР»СѓС‡РёС‚СЊ С„РёР·РёС‡РµСЃРєРёР№ РёРЅРґРµРєСЃ Р·Р°РїРёСЃРё РїРѕ РЅРѕРјРµСЂСѓ СЃС‚СЂРѕРєРё РїРѕ СѓРєР°Р·Р°РЅРЅРѕРјСѓ РёРЅРґРµРєСЃСѓ
+	String __fastcall get_file_name_for_field(int num_field, char* rec, unsigned int numrec = 0); // РїРѕР»СѓС‡РёС‚СЊ РёРјСЏ С„Р°Р№Р»Р° РїРѕ-СѓРјРѕР»С‡Р°РЅРёСЋ РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ РїРѕР»СЏ РєРѕРЅРєСЂРµС‚РЅРѕР№ Р·Р°РїРёСЃРё
+	String __fastcall get_file_name_for_record(char* rec); // РїРѕР»СѓС‡РёС‚СЊ РёРјСЏ С„Р°Р№Р»Р° РїРѕ-СѓРјРѕР»С‡Р°РЅРёСЋ РєРѕРЅРєСЂРµС‚РЅРѕР№ Р·Р°РїРёСЃРё
 	T_1CD* __fastcall getbase(){return base;};
 
 #ifndef PublicRelease
-	void __fastcall begin_edit(); // переводит таблицу в режим редактирования
-	void __fastcall cancel_edit(); // переводит таблицу в режим просмотра и отменяет все изменения
-	void __fastcall end_edit(); // переводит таблицу в режим просмотра и сохраняет все изменения
+	void __fastcall begin_edit(); // РїРµСЂРµРІРѕРґРёС‚ С‚Р°Р±Р»РёС†Сѓ РІ СЂРµР¶РёРј СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ
+	void __fastcall cancel_edit(); // РїРµСЂРµРІРѕРґРёС‚ С‚Р°Р±Р»РёС†Сѓ РІ СЂРµР¶РёРј РїСЂРѕСЃРјРѕС‚СЂР° Рё РѕС‚РјРµРЅСЏРµС‚ РІСЃРµ РёР·РјРµРЅРµРЅРёСЏ
+	void __fastcall end_edit(); // РїРµСЂРµРІРѕРґРёС‚ С‚Р°Р±Р»РёС†Сѓ РІ СЂРµР¶РёРј РїСЂРѕСЃРјРѕС‚СЂР° Рё СЃРѕС…СЂР°РЅСЏРµС‚ РІСЃРµ РёР·РјРµРЅРµРЅРёСЏ
 	changed_rec_type __fastcall get_rec_type(unsigned int phys_numrecord);
 	changed_rec_type __fastcall get_rec_type(unsigned int phys_numrecord, int numfield);
 	void __fastcall set_edit_value(unsigned int phys_numrecord, int numfield, bool null, String value, TStream* st = NULL);
@@ -595,16 +595,16 @@ public:
 	void __fastcall import_table(String path);
 	void __fastcall import_table2(String path);
 
-	void __fastcall delete_record(unsigned int phys_numrecord); // удаление записи
-	void __fastcall insert_record(char* rec); // добавление записи
-	void __fastcall update_record(unsigned int phys_numrecord, char* rec, char* changed_fields); // изменение записи
+	void __fastcall delete_record(unsigned int phys_numrecord); // СѓРґР°Р»РµРЅРёРµ Р·Р°РїРёСЃРё
+	void __fastcall insert_record(char* rec); // РґРѕР±Р°РІР»РµРЅРёРµ Р·Р°РїРёСЃРё
+	void __fastcall update_record(unsigned int phys_numrecord, char* rec, char* changed_fields); // РёР·РјРµРЅРµРЅРёРµ Р·Р°РїРёСЃРё
 	char* __fastcall get_record_template_test();
 #endif //#ifdef PublicRelease
 
 };
 
 //---------------------------------------------------------------------------
-// Структура адреса файла таблицы-контейнера файлов
+// РЎС‚СЂСѓРєС‚СѓСЂР° Р°РґСЂРµСЃР° С„Р°Р№Р»Р° С‚Р°Р±Р»РёС†С‹-РєРѕРЅС‚РµР№РЅРµСЂР° С„Р°Р№Р»РѕРІ
 struct table_blob_file
 {
 	unsigned int blob_start;
@@ -612,7 +612,7 @@ struct table_blob_file
 };
 
 //---------------------------------------------------------------------------
-// Структура записи таблицы контейнера файлов
+// РЎС‚СЂСѓРєС‚СѓСЂР° Р·Р°РїРёСЃРё С‚Р°Р±Р»РёС†С‹ РєРѕРЅС‚РµР№РЅРµСЂР° С„Р°Р№Р»РѕРІ
 struct table_rec
 {
 	String name;
@@ -623,11 +623,11 @@ struct table_rec
 };
 
 //---------------------------------------------------------------------------
-// Структура файла таблицы контейнера файлов
+// РЎС‚СЂСѓРєС‚СѓСЂР° С„Р°Р№Р»Р° С‚Р°Р±Р»РёС†С‹ РєРѕРЅС‚РµР№РЅРµСЂР° С„Р°Р№Р»РѕРІ
 struct table_file
 {
 	table* t;
-	String name; // Имя, как оно хранится в таблице
+	String name; // РРјСЏ, РєР°Рє РѕРЅРѕ С…СЂР°РЅРёС‚СЃСЏ РІ С‚Р°Р±Р»РёС†Рµ
 	unsigned int maxpartno;
 	table_blob_file* addr;
 	FILETIME ft_create;
@@ -638,7 +638,7 @@ struct table_file
 };
 
 //---------------------------------------------------------------------------
-// Класс таблицы контейнера файлов (CONFIG, CONFIGSAVE, PARAMS, FILES, CONFICAS, CONFICASSAVE)
+// РљР»Р°СЃСЃ С‚Р°Р±Р»РёС†С‹ РєРѕРЅС‚РµР№РЅРµСЂР° С„Р°Р№Р»РѕРІ (CONFIG, CONFIGSAVE, PARAMS, FILES, CONFICAS, CONFICASSAVE)
 class TableFiles
 {
 private:
@@ -659,11 +659,11 @@ public:
 };
 
 //---------------------------------------------------------------------------
-// Класс таблицы контейнера файлов (CONFIG, CONFIGSAVE, PARAMS, FILES, CONFICAS, CONFICASSAVE)
+// РљР»Р°СЃСЃ С‚Р°Р±Р»РёС†С‹ РєРѕРЅС‚РµР№РЅРµСЂР° С„Р°Р№Р»РѕРІ (CONFIG, CONFIGSAVE, PARAMS, FILES, CONFICAS, CONFICASSAVE)
 class TableFileStream : public TStream
 {
 private:
-	__int64 curoffset;
+	int64_t curoffset;
 	table_file* tablefile;
 	TStream** streams;
 public:
@@ -675,42 +675,42 @@ public:
 	virtual int __fastcall Write(const void *Buffer, int Count){throw(Exception(L"Write read-only stream"));};
 	virtual int __fastcall Write(const System::DynamicArray<System::Byte> Buffer, int Offset, int Count){throw(Exception(L"Write read-only stream"));};
 	virtual int __fastcall Seek(int Offset, System::Word Origin);
-	virtual __int64 __fastcall Seek(const __int64 Offset, TSeekOrigin Origin);
+	virtual int64_t __fastcall Seek(const int64_t Offset, TSeekOrigin Origin);
 };
 
 
-// класс кешированного блока в памяти
-// первый в цепочке кешированный блок - тот, к которому наиболее давно обращались
-// последний в цепочке - с самым последним обращением
+// РєР»Р°СЃСЃ РєРµС€РёСЂРѕРІР°РЅРЅРѕРіРѕ Р±Р»РѕРєР° РІ РїР°РјСЏС‚Рё
+// РїРµСЂРІС‹Р№ РІ С†РµРїРѕС‡РєРµ РєРµС€РёСЂРѕРІР°РЅРЅС‹Р№ Р±Р»РѕРє - С‚РѕС‚, Рє РєРѕС‚РѕСЂРѕРјСѓ РЅР°РёР±РѕР»РµРµ РґР°РІРЅРѕ РѕР±СЂР°С‰Р°Р»РёСЃСЊ
+// РїРѕСЃР»РµРґРЅРёР№ РІ С†РµРїРѕС‡РєРµ - СЃ СЃР°РјС‹Рј РїРѕСЃР»РµРґРЅРёРј РѕР±СЂР°С‰РµРЅРёРµРј
 class memblock
 {
 friend T_1CD;
 private:
-	char* buf; // указатель на блок в памяти
-	static unsigned int pagesize; // размер одной стрницы (до версии 8.2.14 всегда 0x1000 (4K), начиная с версии 8.3.8 от 0x1000 (4K) до 0x10000 (64K))
+	char* buf; // СѓРєР°Р·Р°С‚РµР»СЊ РЅР° Р±Р»РѕРє РІ РїР°РјСЏС‚Рё
+	static unsigned int pagesize; // СЂР°Р·РјРµСЂ РѕРґРЅРѕР№ СЃС‚СЂРЅРёС†С‹ (РґРѕ РІРµСЂСЃРёРё 8.2.14 РІСЃРµРіРґР° 0x1000 (4K), РЅР°С‡РёРЅР°СЏ СЃ РІРµСЂСЃРёРё 8.3.8 РѕС‚ 0x1000 (4K) РґРѕ 0x10000 (64K))
 	unsigned int numblock;
 	memblock* next;
 	memblock* prev;
-	TFileStream* file; // файл, которому принадлежит блок
-	bool is_changed; // признак, что блок изменен (требует записи)
+	TFileStream* file; // С„Р°Р№Р», РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРЅР°РґР»РµР¶РёС‚ Р±Р»РѕРє
+	bool is_changed; // РїСЂРёР·РЅР°Рє, С‡С‚Рѕ Р±Р»РѕРє РёР·РјРµРЅРµРЅ (С‚СЂРµР±СѓРµС‚ Р·Р°РїРёСЃРё)
 
 	static memblock* first;
 	static memblock* last;
-	static unsigned int maxcount; // максимальное количество кешированных блоков
-	static unsigned int numblocks; // количество значащих элементов в массиве memblocks (равно количеству блоков в файле *.1CD)
-	static unsigned int array_numblocks; // количество элементов в массиве memblocks (больше или равно количеству блоков в файле *.1CD)
-	static unsigned int delta; // шаг увеличения массива memblocks
-	static memblock** memblocks; // указатель на массив указателей memblock (количество равно количеству блоков в файле *.1CD)
+	static unsigned int maxcount; // РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РєРµС€РёСЂРѕРІР°РЅРЅС‹С… Р±Р»РѕРєРѕРІ
+	static unsigned int numblocks; // РєРѕР»РёС‡РµСЃС‚РІРѕ Р·РЅР°С‡Р°С‰РёС… СЌР»РµРјРµРЅС‚РѕРІ РІ РјР°СЃСЃРёРІРµ memblocks (СЂР°РІРЅРѕ РєРѕР»РёС‡РµСЃС‚РІСѓ Р±Р»РѕРєРѕРІ РІ С„Р°Р№Р»Рµ *.1CD)
+	static unsigned int array_numblocks; // РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ РјР°СЃСЃРёРІРµ memblocks (Р±РѕР»СЊС€Рµ РёР»Рё СЂР°РІРЅРѕ РєРѕР»РёС‡РµСЃС‚РІСѓ Р±Р»РѕРєРѕРІ РІ С„Р°Р№Р»Рµ *.1CD)
+	static unsigned int delta; // С€Р°Рі СѓРІРµР»РёС‡РµРЅРёСЏ РјР°СЃСЃРёРІР° memblocks
+	static memblock** memblocks; // СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РјР°СЃСЃРёРІ СѓРєР°Р·Р°С‚РµР»РµР№ memblock (РєРѕР»РёС‡РµСЃС‚РІРѕ СЂР°РІРЅРѕ РєРѕР»РёС‡РµСЃС‚РІСѓ Р±Р»РѕРєРѕРІ РІ С„Р°Р№Р»Рµ *.1CD)
 
-	unsigned int lastdataget; // время (Windows time, в миллисекундах) последнего обращения к данным объекта (data)
-	char* __fastcall getblock(bool for_write); // получить блок для чтения или для записи
+	unsigned int lastdataget; // РІСЂРµРјСЏ (Windows time, РІ РјРёР»Р»РёСЃРµРєСѓРЅРґР°С…) РїРѕСЃР»РµРґРЅРµРіРѕ РѕР±СЂР°С‰РµРЅРёСЏ Рє РґР°РЅРЅС‹Рј РѕР±СЉРµРєС‚Р° (data)
+	char* __fastcall getblock(bool for_write); // РїРѕР»СѓС‡РёС‚СЊ Р±Р»РѕРє РґР»СЏ С‡С‚РµРЅРёСЏ РёР»Рё РґР»СЏ Р·Р°РїРёСЃРё
 	__fastcall memblock(TFileStream* fs, unsigned int _numblock, bool for_write, bool read);
 	__fastcall ~memblock();
 	static void __fastcall add_block();
 	void __fastcall write();
 
 public:
-	static unsigned int count; // текущее количество кешированных блоков
+	static unsigned int count; // С‚РµРєСѓС‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РєРµС€РёСЂРѕРІР°РЅРЅС‹С… Р±Р»РѕРєРѕРІ
 
 	static void __fastcall garbage();
 	static char* __fastcall getblock(TFileStream* fs, unsigned int _numblock);
@@ -721,71 +721,71 @@ public:
 	static void __fastcall flush();
 };
 
-// класс конфигурации поставщика
+// РєР»Р°СЃСЃ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕСЃС‚Р°РІС‰РёРєР°
 class SupplierConfig
 {
 public:
 	table_file* file;
-	String name; // имя конфигурация поставщика
-	String supplier; // синоним конфигурация поставщика
-	String version; // версия конфигурация поставщика
+	String name; // РёРјСЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕСЃС‚Р°РІС‰РёРєР°
+	String supplier; // СЃРёРЅРѕРЅРёРј РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕСЃС‚Р°РІС‰РёРєР°
+	String version; // РІРµСЂСЃРёСЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕСЃС‚Р°РІС‰РёРєР°
 };
 
-// Структура одной записи индекса упакованных объектов хранилища 8.3 (из файла *.ind)
+// РЎС‚СЂСѓРєС‚СѓСЂР° РѕРґРЅРѕР№ Р·Р°РїРёСЃРё РёРЅРґРµРєСЃР° СѓРїР°РєРѕРІР°РЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ С…СЂР°РЅРёР»РёС‰Р° 8.3 (РёР· С„Р°Р№Р»Р° *.ind)
 
 #pragma pack(push)
 #pragma pack(1)
 struct _datahash
 {
-	char datahash[20]; // хэш файла
-	__int64 offset; // смещение файла в файле *.pck
+	char datahash[20]; // С…СЌС€ С„Р°Р№Р»Р°
+	int64_t offset; // СЃРјРµС‰РµРЅРёРµ С„Р°Р№Р»Р° РІ С„Р°Р№Р»Рµ *.pck
 };
 #pragma pack(pop)
 
-// Структура для одной пары файлов *.ind и *.pck в каталоге data\pack\ хранилища 8.3
+// РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ РѕРґРЅРѕР№ РїР°СЂС‹ С„Р°Р№Р»РѕРІ *.ind Рё *.pck РІ РєР°С‚Р°Р»РѕРіРµ data\pack\ С…СЂР°РЅРёР»РёС‰Р° 8.3
 struct _packdata
 {
-	TFileStream* pack; // открытый на чтение файл *.pck
-	unsigned int count; // кол-во записей (объектов) в файле *.pck
-	_datahash* datahashes; // массив
+	TFileStream* pack; // РѕС‚РєСЂС‹С‚С‹Р№ РЅР° С‡С‚РµРЅРёРµ С„Р°Р№Р» *.pck
+	unsigned int count; // РєРѕР»-РІРѕ Р·Р°РїРёСЃРµР№ (РѕР±СЉРµРєС‚РѕРІ) РІ С„Р°Р№Р»Рµ *.pck
+	_datahash* datahashes; // РјР°СЃСЃРёРІ
 };
 
-// Типы страниц
+// РўРёРїС‹ СЃС‚СЂР°РЅРёС†
 enum pagetype
 {
-	pt_lost, // потерянная страница (не относится ни к одному объекту)
-	pt_root, // корневая страница (страница 0)
-	pt_freeroot, // корневая страница таблицы свободных блоков (страница 1)
-	pt_freealloc, // страница размещения таблицы свободных блоков
-	pt_free, // свободная страница
-	pt_rootfileroot, // корневая страница корневого файла (страница 2)
-	pt_rootfilealloc, // страница размещения корневого файла
-	pt_rootfile, // страница данных корневого файла
-	pt_descrroot, // корневая страница файла descr таблицы
-	pt_descralloc, // страница размещения файла descr таблицы
-	pt_descr, // страница данных файла descr таблицы
-	pt_dataroot, // корневая страница файла data таблицы
-	pt_dataalloc, // страница размещения файла data таблицы
-	pt_data, // страница данных файла data таблицы
-	pt_indexroot, // корневая страница файла index таблицы
-	pt_indexalloc, // страница размещения файла index таблицы
-	pt_index, // страница данных файла index таблицы
-	pt_blobroot, // корневая страница файла blob таблицы
-	pt_bloballoc, // страница размещения файла blob таблицы
-	pt_blob // страница данных файла blob таблицы
+	pt_lost, // РїРѕС‚РµСЂСЏРЅРЅР°СЏ СЃС‚СЂР°РЅРёС†Р° (РЅРµ РѕС‚РЅРѕСЃРёС‚СЃСЏ РЅРё Рє РѕРґРЅРѕРјСѓ РѕР±СЉРµРєС‚Сѓ)
+	pt_root, // РєРѕСЂРЅРµРІР°СЏ СЃС‚СЂР°РЅРёС†Р° (СЃС‚СЂР°РЅРёС†Р° 0)
+	pt_freeroot, // РєРѕСЂРЅРµРІР°СЏ СЃС‚СЂР°РЅРёС†Р° С‚Р°Р±Р»РёС†С‹ СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ (СЃС‚СЂР°РЅРёС†Р° 1)
+	pt_freealloc, // СЃС‚СЂР°РЅРёС†Р° СЂР°Р·РјРµС‰РµРЅРёСЏ С‚Р°Р±Р»РёС†С‹ СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ
+	pt_free, // СЃРІРѕР±РѕРґРЅР°СЏ СЃС‚СЂР°РЅРёС†Р°
+	pt_rootfileroot, // РєРѕСЂРЅРµРІР°СЏ СЃС‚СЂР°РЅРёС†Р° РєРѕСЂРЅРµРІРѕРіРѕ С„Р°Р№Р»Р° (СЃС‚СЂР°РЅРёС†Р° 2)
+	pt_rootfilealloc, // СЃС‚СЂР°РЅРёС†Р° СЂР°Р·РјРµС‰РµРЅРёСЏ РєРѕСЂРЅРµРІРѕРіРѕ С„Р°Р№Р»Р°
+	pt_rootfile, // СЃС‚СЂР°РЅРёС†Р° РґР°РЅРЅС‹С… РєРѕСЂРЅРµРІРѕРіРѕ С„Р°Р№Р»Р°
+	pt_descrroot, // РєРѕСЂРЅРµРІР°СЏ СЃС‚СЂР°РЅРёС†Р° С„Р°Р№Р»Р° descr С‚Р°Р±Р»РёС†С‹
+	pt_descralloc, // СЃС‚СЂР°РЅРёС†Р° СЂР°Р·РјРµС‰РµРЅРёСЏ С„Р°Р№Р»Р° descr С‚Р°Р±Р»РёС†С‹
+	pt_descr, // СЃС‚СЂР°РЅРёС†Р° РґР°РЅРЅС‹С… С„Р°Р№Р»Р° descr С‚Р°Р±Р»РёС†С‹
+	pt_dataroot, // РєРѕСЂРЅРµРІР°СЏ СЃС‚СЂР°РЅРёС†Р° С„Р°Р№Р»Р° data С‚Р°Р±Р»РёС†С‹
+	pt_dataalloc, // СЃС‚СЂР°РЅРёС†Р° СЂР°Р·РјРµС‰РµРЅРёСЏ С„Р°Р№Р»Р° data С‚Р°Р±Р»РёС†С‹
+	pt_data, // СЃС‚СЂР°РЅРёС†Р° РґР°РЅРЅС‹С… С„Р°Р№Р»Р° data С‚Р°Р±Р»РёС†С‹
+	pt_indexroot, // РєРѕСЂРЅРµРІР°СЏ СЃС‚СЂР°РЅРёС†Р° С„Р°Р№Р»Р° index С‚Р°Р±Р»РёС†С‹
+	pt_indexalloc, // СЃС‚СЂР°РЅРёС†Р° СЂР°Р·РјРµС‰РµРЅРёСЏ С„Р°Р№Р»Р° index С‚Р°Р±Р»РёС†С‹
+	pt_index, // СЃС‚СЂР°РЅРёС†Р° РґР°РЅРЅС‹С… С„Р°Р№Р»Р° index С‚Р°Р±Р»РёС†С‹
+	pt_blobroot, // РєРѕСЂРЅРµРІР°СЏ СЃС‚СЂР°РЅРёС†Р° С„Р°Р№Р»Р° blob С‚Р°Р±Р»РёС†С‹
+	pt_bloballoc, // СЃС‚СЂР°РЅРёС†Р° СЂР°Р·РјРµС‰РµРЅРёСЏ С„Р°Р№Р»Р° blob С‚Р°Р±Р»РёС†С‹
+	pt_blob // СЃС‚СЂР°РЅРёС†Р° РґР°РЅРЅС‹С… С„Р°Р№Р»Р° blob С‚Р°Р±Р»РёС†С‹
 };
 
-// Структура принадлежности страницы
+// РЎС‚СЂСѓРєС‚СѓСЂР° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚Рё СЃС‚СЂР°РЅРёС†С‹
 struct pagemaprec
 {
-	int tab; // Индекс в T_1CD::tables, -1 - страница не относится к таблицам
-	pagetype type; // тип страницы
-	unsigned int number; // номер страницы в своем типе
+	int tab; // РРЅРґРµРєСЃ РІ T_1CD::tables, -1 - СЃС‚СЂР°РЅРёС†Р° РЅРµ РѕС‚РЅРѕСЃРёС‚СЃСЏ Рє С‚Р°Р±Р»РёС†Р°Рј
+	pagetype type; // С‚РёРї СЃС‚СЂР°РЅРёС†С‹
+	unsigned int number; // РЅРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ РІ СЃРІРѕРµРј С‚РёРїРµ
 	pagemaprec(){tab = -1; type = pt_lost; number = 0;};
 };
 
 
-// класс базы 1CD
+// РєР»Р°СЃСЃ Р±Р°Р·С‹ 1CD
 class T_1CD
 {
 friend v8object;
@@ -799,18 +799,18 @@ private:
 	String filename;
 	TFileStream* fs;
 
-	db_ver version; // версия базы
-	unsigned int pagesize; // размер одной стрницы (до версии 8.2.14 всегда 0x1000 (4K), начиная с версии 8.3.8 от 0x1000 (4K) до 0x10000 (64K))
-	unsigned int length; // длина базы в блоках
-	v8object* free_blocks; // свободные блоки
-	v8object* root_object; // корневой объект
-	int num_tables; // количество таблиц
-	table** tables; // таблицы базы
+	db_ver version; // РІРµСЂСЃРёСЏ Р±Р°Р·С‹
+	unsigned int pagesize; // СЂР°Р·РјРµСЂ РѕРґРЅРѕР№ СЃС‚СЂРЅРёС†С‹ (РґРѕ РІРµСЂСЃРёРё 8.2.14 РІСЃРµРіРґР° 0x1000 (4K), РЅР°С‡РёРЅР°СЏ СЃ РІРµСЂСЃРёРё 8.3.8 РѕС‚ 0x1000 (4K) РґРѕ 0x10000 (64K))
+	unsigned int length; // РґР»РёРЅР° Р±Р°Р·С‹ РІ Р±Р»РѕРєР°С…
+	v8object* free_blocks; // СЃРІРѕР±РѕРґРЅС‹Рµ Р±Р»РѕРєРё
+	v8object* root_object; // РєРѕСЂРЅРµРІРѕР№ РѕР±СЉРµРєС‚
+	int num_tables; // РєРѕР»РёС‡РµСЃС‚РІРѕ С‚Р°Р±Р»РёС†
+	table** tables; // С‚Р°Р±Р»РёС†С‹ Р±Р°Р·С‹
 	bool readonly;
 //#ifndef PublicRelease
 //	ICU* icu;
 //#endif //#ifdef PublicRelease
-	pagemaprec* pagemap; // Массив длиной length
+	pagemaprec* pagemap; // РњР°СЃСЃРёРІ РґР»РёРЅРѕР№ length
 
 	TableFiles* _files_config;
 	TableFiles* _files_configsave;
@@ -827,27 +827,27 @@ private:
 	TableFiles* get_files_configcassave();
 
 	void __fastcall init();
-	bool __fastcall getblock(void* buf, unsigned int block_number, int blocklen = -1); // буфер принадлежит вызывающей процедуре
-	char*  __fastcall getblock(unsigned int block_number); // буфер не принадлежит вызывающей стороне (принадлежит memblock)
-	char*  __fastcall getblock_for_write(unsigned int block_number, bool read); // буфер не принадлежит вызывающей стороне (принадлежит memblock)
-	void __fastcall set_block_as_free(unsigned int block_number); // пометить блок как свободный
-	unsigned int __fastcall get_free_block(); // получить номер свободного блока (и пометить как занятый)
+	bool __fastcall getblock(void* buf, unsigned int block_number, int blocklen = -1); // Р±СѓС„РµСЂ РїСЂРёРЅР°РґР»РµР¶РёС‚ РІС‹Р·С‹РІР°СЋС‰РµР№ РїСЂРѕС†РµРґСѓСЂРµ
+	char*  __fastcall getblock(unsigned int block_number); // Р±СѓС„РµСЂ РЅРµ РїСЂРёРЅР°РґР»РµР¶РёС‚ РІС‹Р·С‹РІР°СЋС‰РµР№ СЃС‚РѕСЂРѕРЅРµ (РїСЂРёРЅР°РґР»РµР¶РёС‚ memblock)
+	char*  __fastcall getblock_for_write(unsigned int block_number, bool read); // Р±СѓС„РµСЂ РЅРµ РїСЂРёРЅР°РґР»РµР¶РёС‚ РІС‹Р·С‹РІР°СЋС‰РµР№ СЃС‚РѕСЂРѕРЅРµ (РїСЂРёРЅР°РґР»РµР¶РёС‚ memblock)
+	void __fastcall set_block_as_free(unsigned int block_number); // РїРѕРјРµС‚РёС‚СЊ Р±Р»РѕРє РєР°Рє СЃРІРѕР±РѕРґРЅС‹Р№
+	unsigned int __fastcall get_free_block(); // РїРѕР»СѓС‡РёС‚СЊ РЅРѕРјРµСЂ СЃРІРѕР±РѕРґРЅРѕРіРѕ Р±Р»РѕРєР° (Рё РїРѕРјРµС‚РёС‚СЊ РєР°Рє Р·Р°РЅСЏС‚С‹Р№)
 
 	void __fastcall add_supplier_config(table_file* file);
 
 	bool __fastcall recursive_test_stream_format(table* t, unsigned int nrec);
-	bool __fastcall recursive_test_stream_format2(table* t, unsigned int nrec); // для DBSCHEMA
+	bool __fastcall recursive_test_stream_format2(table* t, unsigned int nrec); // РґР»СЏ DBSCHEMA
 	bool __fastcall recursive_test_stream_format(TStream* str, String path, bool maybezipped2 = false);
 	bool __fastcall recursive_test_stream_format(v8catalog* cat, String path);
 
 	void __fastcall pagemapfill();
 	String __fastcall pagemaprec_presentation(pagemaprec& pmr);
 public:
-	char* locale; // код языка базы
-	bool is_infobase; // признак информационной базы
-	bool is_depot; // признак хранилища конфигурации
+	char* locale; // РєРѕРґ СЏР·С‹РєР° Р±Р°Р·С‹
+	bool is_infobase; // РїСЂРёР·РЅР°Рє РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅРѕР№ Р±Р°Р·С‹
+	bool is_depot; // РїСЂРёР·РЅР°Рє С…СЂР°РЅРёР»РёС‰Р° РєРѕРЅС„РёРіСѓСЂР°С†РёРё
 
-	// Таблицы информационной базы
+	// РўР°Р±Р»РёС†С‹ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅРѕР№ Р±Р°Р·С‹
 	table* table_config;
 	table* table_configsave;
 	table* table_params;
@@ -864,11 +864,11 @@ public:
 //	__property TableFiles* files_configcas = {read = get_files_configcas};
 //	__property TableFiles* files_configcassave = {read = get_files_configcassave};
 
-	// таблицы - хранилища файлов
+	// С‚Р°Р±Р»РёС†С‹ - С…СЂР°РЅРёР»РёС‰Р° С„Р°Р№Р»РѕРІ
 	ConfigStorageTableConfig* cs_config;
 	ConfigStorageTableConfigSave* cs_configsave;
 
-	// Таблицы хранилища конфигураций
+	// РўР°Р±Р»РёС†С‹ С…СЂР°РЅРёР»РёС‰Р° РєРѕРЅС„РёРіСѓСЂР°С†РёР№
 	table* table_depot;
 	table* table_users;
 	table* table_objects;
@@ -882,8 +882,8 @@ public:
 
 	String ver;
 
-	std::vector<SupplierConfig> supplier_configs; // конфигурации поставщика
-	bool supplier_configs_defined; // признак, что был произведен поиск конфигураций поставщика
+	std::vector<SupplierConfig> supplier_configs; // РєРѕРЅС„РёРіСѓСЂР°С†РёРё РїРѕСЃС‚Р°РІС‰РёРєР°
+	bool supplier_configs_defined; // РїСЂРёР·РЅР°Рє, С‡С‚Рѕ Р±С‹Р» РїСЂРѕРёР·РІРµРґРµРЅ РїРѕРёСЃРє РєРѕРЅС„РёРіСѓСЂР°С†РёР№ РїРѕСЃС‚Р°РІС‰РёРєР°
 
 	__fastcall T_1CD(String _filename, MessageRegistrator* _err = NULL, bool monopoly = true);
 	__fastcall T_1CD();
@@ -899,7 +899,7 @@ public:
 	bool __fastcall save_supplier_configs(unsigned int numcon, const String& filename);
 	bool __fastcall save_depot_config(const String& _filename, int ver = 0);
 	bool __fastcall save_part_depot_config(const String& _filename, int ver_begin, int ver_end);
-	int __fastcall get_ver_depot_config(int ver); // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
+	int __fastcall get_ver_depot_config(int ver); // РџРѕР»СѓС‡РµРЅРёРµ РЅРѕРјРµСЂР° РІРµСЂСЃРёРё РєРѕРЅС„РёРіСѓСЂР°С†РёРё (0 - РїРѕСЃР»РµРґРЅСЏСЏ, -1 - РїСЂРµРґРїРѕСЃР»РµРґРЅСЏСЏ Рё С‚.Рґ.)
 	bool __fastcall save_config_ext(const String& _filename, const TGUID& uid, const String& hashname);
 	bool __fastcall save_config_ext_db(const String& _filename, const String& hashname);
 
@@ -911,14 +911,14 @@ public:
 	void __fastcall flush();
 
 	bool __fastcall test_stream_format();
-	bool __fastcall test_list_of_tables(); // проверка списка таблиц (по DBNames)
+	bool __fastcall test_list_of_tables(); // РїСЂРѕРІРµСЂРєР° СЃРїРёСЃРєР° С‚Р°Р±Р»РёС† (РїРѕ DBNames)
 #ifndef PublicRelease
 	void __fastcall find_lost_objects();
 	void __fastcall find_and_save_lost_objects();
-	bool __fastcall create_table(String path); // создание таблицы из файлов импорта таблиц
+	bool __fastcall create_table(String path); // СЃРѕР·РґР°РЅРёРµ С‚Р°Р±Р»РёС†С‹ РёР· С„Р°Р№Р»РѕРІ РёРјРїРѕСЂС‚Р° С‚Р°Р±Р»РёС†
 	bool __fastcall delete_table(table* tab);
 	bool __fastcall delete_object(v8object* ob);
-	bool __fastcall replaceTREF(String mapfile); // замена значений полей ...TREF во всех таблицах базы
+	bool __fastcall replaceTREF(String mapfile); // Р·Р°РјРµРЅР° Р·РЅР°С‡РµРЅРёР№ РїРѕР»РµР№ ...TREF РІРѕ РІСЃРµС… С‚Р°Р±Р»РёС†Р°С… Р±Р°Р·С‹
 	void __fastcall find_and_create_lost_tables();
 	void __fastcall restore_DATA_allocation_table(table* tab);
 	bool __fastcall test_block_by_template(unsigned int testblock, char* tt, unsigned int num, int rlen, int len);
@@ -928,7 +928,7 @@ public:
 
 };
 //---------------------------------------------------------------------------
-// Известные версии хранилища конфигурации
+// РР·РІРµСЃС‚РЅС‹Рµ РІРµСЂСЃРёРё С…СЂР°РЅРёР»РёС‰Р° РєРѕРЅС„РёРіСѓСЂР°С†РёРё
 enum depot_ver
 {
 	depotVer3 = 3, // 0300000000000000
