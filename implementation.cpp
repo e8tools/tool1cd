@@ -63,7 +63,11 @@ String GetFullPath(const String &filename)
 
 namespace SysUtils {
 
-static int GetBufferEncoding(const System::DynamicArray<Byte> &Buffer, TEncoding* &AEncoding)
+static TEncoding *TEncoding::Unicode = new TEncoding();
+static TEncoding *TEncoding::UTF8 = new TEncoding();
+
+
+static int TEncoding::GetBufferEncoding(const System::DynamicArray<Byte> &Buffer, TEncoding* &AEncoding)
 {
 	// TODO: 
 	return 0;
