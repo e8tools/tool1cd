@@ -229,9 +229,9 @@ String __fastcall toXML(String in)
 //---------------------------------------------------------------------------
 unsigned char __fastcall from_hex_digit(wchar_t digit)
 {
-	if(digit >= L'0' && digit <= L'9') return digit - L'0';
-	if(digit >= L'a' && digit <= L'f') return digit - L'a' + 10;
-	if(digit >= L'A' && digit <= L'F') return digit - L'A' + 10;
+	if(digit >= L'0' && digit <= L'9') return digit - L'0';       // ' // в VSCode тупит подсветка
+	if(digit >= L'a' && digit <= L'f') return digit - L'a' + 10;  // ' // в VSCode тупит подсветка
+	if(digit >= L'A' && digit <= L'F') return digit - L'A' + 10;  // ' // в VSCode тупит подсветка
 	return 0;
 }
 
