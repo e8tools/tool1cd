@@ -1,4 +1,5 @@
 #include "System.IOUtils.hpp"
+#include "System.SysUtils.hpp"
 #include <boost/filesystem.hpp>
 
 
@@ -67,7 +68,7 @@ static int GetBufferEncoding(const System::DynamicArray<Byte> &Buffer, TEncoding
 	return 0;
 }
 
-static DynamicArray<Byte> Convert(TEncoding * const Source, TEncoding * const Destination, const DynamicArra<Byte> &Bytes, int StartIndex, int Count)
+static DynamicArray<Byte> Convert(TEncoding * const Source, TEncoding * const Destination, const DynamicArray<Byte> &Bytes, int StartIndex, int Count)
 {
 	return Bytes;
 }
