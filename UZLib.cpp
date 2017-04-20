@@ -26,7 +26,7 @@ void ZInflateStream_Old(TStream* src, TStream* dst)
 
 	ret = inflateInit2(&strm, -MAX_WBITS);
 
-	srcSize = src->Size;
+	srcSize = src->GetSize();
 
 	src->Read(srcBuf, srcSize);
 	strm.avail_in  = srcSize;
@@ -44,7 +44,7 @@ void ZInflateStream_Old(TStream* src, TStream* dst)
 
 void ZDeflateStream(TStream* src, TStream* dst)
 {
-	// Пока не реализовано
+	// РџРѕРєР° РЅРµ СЂРµР°Р»РёР·РѕРІР°РЅРѕ
 }
 
 void ZInflateStream(TStream* src, TStream* dst)
@@ -70,8 +70,8 @@ void ZInflateStream(TStream* src, TStream* dst)
 	do {
 		//strm.avail_in = fread(in, 1, CHUNK, source);
 
-		srcSize = src->Size;         // определяем размер данных
-		src->Read(srcBuf, srcSize);  // читаем из потока в буфер данные
+		srcSize = src->GetSize();         // РѕРїСЂРµРґРµР»СЏРµРј СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С…
+		src->Read(srcBuf, srcSize);  // С‡РёС‚Р°РµРј РёР· РїРѕС‚РѕРєР° РІ Р±СѓС„РµСЂ РґР°РЅРЅС‹Рµ
 		strm.avail_in = srcSize;
 
 		if (strm.avail_in == 0)

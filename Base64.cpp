@@ -9,7 +9,7 @@
 
 #pragma package(smart_init)
 
-// Êóñêè èñõîäíîãî êîäà âçÿòû ñ http://base64.sourceforge.net/
+// ÐšÑƒÑÐºÐ¸ Ð¸ÑÑ…Ð¾Ð´Ð½Ð¾Ð³Ð¾ ÐºÐ¾Ð´Ð° Ð²Ð·ÑÑ‚Ñ‹ Ñ http://base64.sourceforge.net/
 
 // Translation Table as described in RFC1113
 static const char cb64[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -19,16 +19,16 @@ static const char cd64[]="|$$$}rstuvwxyz{$$$$$$$>?@ABCDEFGHIJKLMNOPQRSTUVW$$$$$$
 
 // encode
 // base64 encode a stream adding padding and line breaks as per spec.
-// linesize - äëèíà ñòðîêè. Åñëè linesize = 0, âûâîäèòñÿ âñ¸ â îäíó ñòðîêó, áåç ïåðåíîñîâ
+// linesize - Ð´Ð»Ð¸Ð½Ð° ÑÑ‚Ñ€Ð¾ÐºÐ¸. Ð•ÑÐ»Ð¸ linesize = 0, Ð²Ñ‹Ð²Ð¾Ð´Ð¸Ñ‚ÑÑ Ð²ÑÑ‘ Ð² Ð¾Ð´Ð½Ñƒ ÑÑ‚Ñ€Ð¾ÐºÑƒ, Ð±ÐµÐ· Ð¿ÐµÑ€ÐµÐ½Ð¾ÑÐ¾Ð²
 void __fastcall base64_encode(TStream* infile, TStream* outfile, int linesize)
 {
 	unsigned char in[3];
 	wchar_t out[4];
-	__int64 i;
+	int64_t i;
 	int len, blocksout = 0;
-	__int64 inlenblock = infile->Size / 3;
+	int64_t inlenblock = infile->GetSize() / 3;
 
-	infile->Seek(0i64, soBeginning);
+	infile->Seek(0, soBeginning);
 	for(i = 0; i < inlenblock; i++)
 	{
 		if(blocksout >= linesize/4 && linesize)
@@ -45,7 +45,7 @@ void __fastcall base64_encode(TStream* infile, TStream* outfile, int linesize)
 		outfile->Write(out, 8);
 	}
 
-	len = infile->Size - infile->Position;
+	len = infile->GetSize() - infile->GetPosition();
 	if(len > 0)
 	{
 		if(blocksout >= linesize / 4 && linesize) outfile->Write(L"\r\n", 4);
@@ -71,12 +71,12 @@ void __fastcall base64_decode(TStream* infile, TStream* outfile)
 	int i, len;
 
 //	infile->Seek(0i64, soBeginning);
-	while(infile->Position < infile->Size)
+	while(infile->GetPosition() < infile->GetSize())
 	{
-		for(len = 0, i = 0; i < 4 && infile->Position < infile->Size; i++ )
+		for(len = 0, i = 0; i < 4 && infile->GetPosition() < infile->GetSize(); i++ )
 		{
 			v = 0;
-			while(infile->Position < infile->Size && v == 0)
+			while(infile->GetPosition() < infile->GetSize() && v == 0)
 			{
 				infile->Read(&s, 2);
 				v = (unsigned char)((s < 43 || s > 122) ? 0 : cd64[s - 43]);
@@ -87,7 +87,7 @@ void __fastcall base64_decode(TStream* infile, TStream* outfile)
 				in[i] = (unsigned char)(v - 1);
 				len++;
 			}
-//			if(infile->Position < infile->Size)
+//			if(infile->Position < infile->GetSize())
 //			{
 //				len++;
 //				if(v) in[i] = (unsigned char)(v - 1);
@@ -111,8 +111,8 @@ void __fastcall base64_decode(TStream* infile, TStream* outfile)
 void __fastcall base64_decode(const String& instr, TStream* outfile, int start)
 {
 	unsigned char in[4], out[3], v;
-	wchar_t s;
-	wchar_t* str;
+	char s;
+	const char* str;
 	int i, len, is, slen;
 
 	slen = instr.Length();

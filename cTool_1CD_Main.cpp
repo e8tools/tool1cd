@@ -17,6 +17,8 @@
 
 using std::cout;
 
+TMultiReadExclusiveWriteSynchronizer* tr_syn = new TMultiReadExclusiveWriteSynchronizer();
+
 //---------------------------------------------------------------------------
 MessageRegistrator* msreg;
 const int TEMP_BUFFER_SIZE = 4096;

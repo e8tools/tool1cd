@@ -1,16 +1,16 @@
 #include "APIcfBase.h"
 
-#include "UZlib.h"
+#include "UZLib.h"
 #pragma comment (lib, "zlibstatic.lib")
 
 #define CHUNK 65536
 
-// массив для преобразования числа в шестнадцатиричную строку
+// РјР°СЃСЃРёРІ РґР»СЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ С‡РёСЃР»Р° РІ С€РµСЃС‚РЅР°РґС†Р°С‚РёСЂРёС‡РЅСѓСЋ СЃС‚СЂРѕРєСѓ
 const char _bufhex[] = "0123456789abcdef";
 
-// шаблон заголовка блока
+// С€Р°Р±Р»РѕРЅ Р·Р°РіРѕР»РѕРІРєР° Р±Р»РѕРєР°
 const char _block_header_template[] = "\r\n00000000 00000000 00000000 \r\n";
-const char _empty_catalog_template[16] = {0xff,0xff,0xff,0x7f,0,2,0,0,0,0,0,0,0,0,0,0};
+const char _empty_catalog_template[16] = {'\xff','\xff','\xff','\x7f',0,2,0,0,0,0,0,0,0,0,0,0};
 
 #ifdef __cplusplus
 int max(int value1, int value2)
@@ -25,7 +25,7 @@ int min(int value1, int value2)
 #endif
 
 //---------------------------------------------------------------------------
-// преобразует шестнадцатиричную восьмисимвольную строку в число
+// РїСЂРµРѕР±СЂР°Р·СѓРµС‚ С€РµСЃС‚РЅР°РґС†Р°С‚РёСЂРёС‡РЅСѓСЋ РІРѕСЃСЊРјРёСЃРёРјРІРѕР»СЊРЅСѓСЋ СЃС‚СЂРѕРєСѓ РІ С‡РёСЃР»Рѕ
 int __fastcall hex_to_int(char* hexstr)
 {
 	int res = 0;
@@ -42,7 +42,7 @@ int __fastcall hex_to_int(char* hexstr)
 }
 
 //---------------------------------------------------------------------------
-// преобразует число в шестнадцатиричную восьмисимвольную строку
+// РїСЂРµРѕР±СЂР°Р·СѓРµС‚ С‡РёСЃР»Рѕ РІ С€РµСЃС‚РЅР°РґС†Р°С‚РёСЂРёС‡РЅСѓСЋ РІРѕСЃСЊРјРёСЃРёРјРІРѕР»СЊРЅСѓСЋ СЃС‚СЂРѕРєСѓ
 char* __fastcall int_to_hex(char* hexstr, int dec)
 {
 	int _t1 = dec;
@@ -57,7 +57,7 @@ char* __fastcall int_to_hex(char* hexstr, int dec)
 }
 
 //---------------------------------------------------------------------------
-// читает блок из потока каталога stream_from, собирая его по страницам
+// С‡РёС‚Р°РµС‚ Р±Р»РѕРє РёР· РїРѕС‚РѕРєР° РєР°С‚Р°Р»РѕРіР° stream_from, СЃРѕР±РёСЂР°СЏ РµРіРѕ РїРѕ СЃС‚СЂР°РЅРёС†Р°Рј
 TStream* __fastcall read_block(TStream* stream_from, int start, TStream* stream_to = NULL)
 {
 	char temp_buf[32];
@@ -65,9 +65,9 @@ TStream* __fastcall read_block(TStream* stream_from, int start, TStream* stream_
 
 	if(!stream_to) stream_to = new TMemoryStream;
 	stream_to->Seek(0, soFromBeginning);
-	stream_to->Size = 0;
+	stream_to->SetSize(0);
 
-	if(start < 0 || start == 0x7fffffff || start > stream_from->Size) return stream_to;
+	if(start < 0 || start == 0x7fffffff || start > stream_from->GetSize()) return stream_to;
 
 	stream_from->Seek(start, soFromBeginning);
 	stream_from->Read(temp_buf, 31);
@@ -99,28 +99,28 @@ TStream* __fastcall read_block(TStream* stream_from, int start, TStream* stream_
 }
 
 //---------------------------------------------------------------------------
-//преобразование времени
-void __fastcall V8timeToFileTime(const __int64* v8t, FILETIME* ft){
+//РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ РІСЂРµРјРµРЅРё
+void __fastcall V8timeToFileTime(const int64_t* v8t, FILETIME* ft){
 	FILETIME lft;
-	__int64 t = *v8t;
-	t -= 504911232000000i64; //504911232000000 = ((365 * 4 + 1) * 100 - 3) * 4 * 24 * 60 * 60 * 10000
+	int64_t t = *v8t;
+	t -= 504911232000000; //504911232000000 = ((365 * 4 + 1) * 100 - 3) * 4 * 24 * 60 * 60 * 10000
 	t *= 1000;
-	*(__int64*)&lft = t;
+	*(int64_t*)&lft = t;
 	LocalFileTimeToFileTime(&lft, ft);
 }
 
 //---------------------------------------------------------------------------
-void __fastcall FileTimeToV8time(const FILETIME* ft, __int64* v8t){
+void __fastcall FileTimeToV8time(const FILETIME* ft, int64_t* v8t){
 	FILETIME lft;
 	FileTimeToLocalFileTime(ft, &lft);
-	__int64 t = *(__int64*)&lft;
+	int64_t t = *(int64_t*)&lft;
 	t /= 1000;
-	t += 504911232000000i64;
+	t += 504911232000000; //504911232000000 = ((365 * 4 + 1) * 100 - 3) * 4 * 24 * 60 * 60 * 10000
 	*v8t = t;
 }
 
 //---------------------------------------------------------------------------
-void __fastcall setCurrentTime(__int64* v8t)
+void __fastcall setCurrentTime(int64_t* v8t)
 {
 	SYSTEMTIME st;
 	FILETIME ft;
@@ -132,10 +132,10 @@ void __fastcall setCurrentTime(__int64* v8t)
 //---------------------------------------------------------------------------
 
 //********************************************************
-// Класс v8file
+// РљР»Р°СЃСЃ v8file
 
 //---------------------------------------------------------------------------
-__fastcall v8file::v8file(v8catalog* _parent, const String& _name, v8file* _previous, int _start_data, int _start_header, __int64* _time_create, __int64* _time_modify)
+__fastcall v8file::v8file(v8catalog* _parent, const String& _name, v8file* _previous, int _start_data, int _start_header, int64_t* _time_create, int64_t* _time_modify)
 {
 	Lock = new TCriticalSection();
 	is_destructed = false;
@@ -195,7 +195,7 @@ void __fastcall v8file::SaveToFile(const String& FileName)
 	Lock->Release();
 	GetTimeCreate(&create);
 	GetTimeModify(&modify);
-	SetFileTime((HANDLE)fs->Handle, &create, &modify, &modify);
+	// SetFileTime((HANDLE)fs->Handle, &create, &modify, &modify); // TODO: SetFileTime
 	delete fs;
 }
 
@@ -214,18 +214,18 @@ int __fastcall v8file::GetFileLength()
 	int ret;
 	Lock->Acquire();
 	if(!is_opened) if(!Open()) return 0;
-	ret = data->Size;
+	ret = data->GetSize();
 	Lock->Release();
 	return ret;
 }
 
 //---------------------------------------------------------------------------
-__int64 __fastcall v8file::GetFileLength64()
+int64_t __fastcall v8file::GetFileLength64()
 {
-	__int64 ret;
+	int64_t ret;
 	Lock->Acquire();
 	if(!is_opened) if(!Open()) return 0l;
-	ret = data->Size;
+	ret = data->GetSize();
 	Lock->Release();
 	return ret;
 }
@@ -255,7 +255,7 @@ int __fastcall v8file::Read(System::DynamicArray<System::Byte> Buffer, int Start
 }
 
 ////---------------------------------------------------------------------------
-//// Потоконебезопасная функция!
+//// РџРѕС‚РѕРєРѕРЅРµР±РµР·РѕРїР°СЃРЅР°СЏ С„СѓРЅРєС†РёСЏ!
 //TStream* __fastcall v8file::get_data()
 //{
 //	return data;
@@ -268,7 +268,7 @@ TV8FileStream* __fastcall v8file::get_stream(bool own)
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8file::Write(const void* Buffer, int Start, int Length) // дозапись/перезапись частично
+int __fastcall v8file::Write(const void* Buffer, int Start, int Length) // РґРѕР·Р°РїРёСЃСЊ/РїРµСЂРµР·Р°РїРёСЃСЊ С‡Р°СЃС‚РёС‡РЅРѕ
 {
 	int ret;
 //	if(readonly) return 0;
@@ -284,7 +284,7 @@ int __fastcall v8file::Write(const void* Buffer, int Start, int Length) // дозап
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8file::Write(System::DynamicArray<System::Byte> Buffer, int Start, int Length) // дозапись/перезапись частично
+int __fastcall v8file::Write(System::DynamicArray<System::Byte> Buffer, int Start, int Length) // РґРѕР·Р°РїРёСЃСЊ/РїРµСЂРµР·Р°РїРёСЃСЊ С‡Р°СЃС‚РёС‡РЅРѕ
 {
 	int ret;
 //	if(readonly) return 0;
@@ -300,7 +300,7 @@ int __fastcall v8file::Write(System::DynamicArray<System::Byte> Buffer, int Star
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8file::Write(const void* Buffer, int Length) // перезапись целиком
+int __fastcall v8file::Write(const void* Buffer, int Length) // РїРµСЂРµР·Р°РїРёСЃСЊ С†РµР»РёРєРѕРј
 {
 	int ret;
 //	if(readonly) return 0;
@@ -309,7 +309,7 @@ int __fastcall v8file::Write(const void* Buffer, int Length) // перезапись целик
 	setCurrentTime(&time_modify);
 	is_headermodified = true;
 	is_datamodified = true;
-	if(data->Size > Length) data->Size = Length;
+	if(data->GetSize() > Length) data->SetSize(Length);
 	data->Seek(0, soFromBeginning);
 	ret = data->Write(Buffer, Length);
 	Lock->Release();
@@ -317,7 +317,7 @@ int __fastcall v8file::Write(const void* Buffer, int Length) // перезапись целик
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8file::Write(TStream* Stream, int Start, int Length) // дозапись/перезапись частично
+int __fastcall v8file::Write(TStream* Stream, int Start, int Length) // РґРѕР·Р°РїРёСЃСЊ/РїРµСЂРµР·Р°РїРёСЃСЊ С‡Р°СЃС‚РёС‡РЅРѕ
 {
 	int ret;
 //	if(readonly) return 0;
@@ -333,7 +333,7 @@ int __fastcall v8file::Write(TStream* Stream, int Start, int Length) // дозапись
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8file::Write(TStream* Stream) // перезапись целиком
+int __fastcall v8file::Write(TStream* Stream) // РїРµСЂРµР·Р°РїРёСЃСЊ С†РµР»РёРєРѕРј
 {
 	int ret;
 //	if(readonly) return 0;
@@ -342,7 +342,7 @@ int __fastcall v8file::Write(TStream* Stream) // перезапись целиком
 	setCurrentTime(&time_modify);
 	is_headermodified = true;
 	is_datamodified = true;
-	if(data->Size > Stream->Size) data->Size = Stream->Size;
+	if(data->GetSize() > Stream->GetSize()) data->SetSize(Stream->GetSize());
 	data->Seek(0, soFromBeginning);
 	ret = data->CopyFrom(Stream, 0);
 	Lock->Release();
@@ -387,13 +387,13 @@ bool __fastcall v8file::IsCatalog()
 
 	Lock->Acquire();
 	if(iscatalog == iscatalog_unknown){
-		// эмпирический метод?
+		// СЌРјРїРёСЂРёС‡РµСЃРєРёР№ РјРµС‚РѕРґ?
 		if(!is_opened) if(!Open())
 		{
 			Lock->Release();
 			return false;
 		}
-		_filelen = data->Size;
+		_filelen = data->GetSize();
 		if(_filelen == 16)
 		{
 			data->Seek(0, soFromBeginning);
@@ -518,7 +518,7 @@ void __fastcall v8file::DeleteFile()
 	is_datamodified = false;
 	is_headermodified = false;
 	//Lock->Release();
-	//delete this; // суицид
+	//delete this; // СЃСѓРёС†РёРґ
 }
 
 //---------------------------------------------------------------------------
@@ -644,7 +644,7 @@ int __fastcall v8file::WriteAndClose(TStream* Stream, int Length)
 	is_headermodified = false;
 	Lock->Release();
 
-	if(Length == -1) return Stream->Size;
+	if(Length == -1) return Stream->GetSize();
 	return Length;
 }
 
@@ -757,7 +757,7 @@ void __fastcall v8file::Flush()
 //---------------------------------------------------------------------------
 
 //********************************************************
-// Класс v8catalog
+// РљР»Р°СЃСЃ v8catalog
 
 //---------------------------------------------------------------------------
 bool __fastcall v8catalog::IsCatalog()
@@ -775,8 +775,8 @@ bool __fastcall v8catalog::IsCatalog()
 	iscatalogdefined = true;
 	iscatalog = false;
 
-	// эмпирический метод?
-	_filelen = data->Size;
+	// СЌРјРїРёСЂРёС‡РµСЃРєРёР№ РјРµС‚РѕРґ?
+	_filelen = data->GetSize();
 	if(_filelen == 16)
 	{
 		data->Seek(0, soFromBeginning);
@@ -828,7 +828,7 @@ bool __fastcall v8catalog::IsCatalog()
 }
 
 //---------------------------------------------------------------------------
-__fastcall v8catalog::v8catalog(String name) // создать каталог из физического файла .cf
+__fastcall v8catalog::v8catalog(String name) // СЃРѕР·РґР°С‚СЊ РєР°С‚Р°Р»РѕРі РёР· С„РёР·РёС‡РµСЃРєРѕРіРѕ С„Р°Р№Р»Р° .cf
 {
 	Lock = new TCriticalSection();
 	iscatalogdefined = false;
@@ -886,7 +886,7 @@ __fastcall v8catalog::v8catalog(String name) // создать каталог из физического ф
 }
 
 //---------------------------------------------------------------------------
-__fastcall v8catalog::v8catalog(String name, bool _zipped) // создать каталог из физического файла
+__fastcall v8catalog::v8catalog(String name, bool _zipped) // СЃРѕР·РґР°С‚СЊ РєР°С‚Р°Р»РѕРі РёР· С„РёР·РёС‡РµСЃРєРѕРіРѕ С„Р°Р№Р»Р°
 {
 	Lock = new TCriticalSection();
 	iscatalogdefined = false;
@@ -921,7 +921,7 @@ __fastcall v8catalog::v8catalog(String name, bool _zipped) // создать каталог из
 }
 
 //---------------------------------------------------------------------------
-__fastcall v8catalog::v8catalog(TStream* stream, bool _zipped, bool leave_stream) // создать каталог из потока
+__fastcall v8catalog::v8catalog(TStream* stream, bool _zipped, bool leave_stream) // СЃРѕР·РґР°С‚СЊ РєР°С‚Р°Р»РѕРі РёР· РїРѕС‚РѕРєР°
 {
 	Lock = new TCriticalSection();
 	is_cfu = false;
@@ -931,7 +931,7 @@ __fastcall v8catalog::v8catalog(TStream* stream, bool _zipped, bool leave_stream
 	//data->CopyFrom(stream, 0);
 	data = stream;
 	file = NULL;
-	if(!data->Size) data->WriteBuffer(_empty_catalog_template, 16);
+	if(!data->GetSize()) data->WriteBuffer(_empty_catalog_template, 16);
 	if(IsCatalog()) initialize();
 	else
 	{
@@ -952,7 +952,7 @@ __fastcall v8catalog::v8catalog(TStream* stream, bool _zipped, bool leave_stream
 }
 
 //---------------------------------------------------------------------------
-__fastcall v8catalog::v8catalog(v8file* f) // создать каталог из файла
+__fastcall v8catalog::v8catalog(v8file* f) // СЃРѕР·РґР°С‚СЊ РєР°С‚Р°Р»РѕРі РёР· С„Р°Р№Р»Р°
 {
 	is_cfu = false;
 	iscatalogdefined = false;
@@ -1011,19 +1011,19 @@ void __fastcall v8catalog::initialize()
 	_prev = NULL;
 	try
 	{
-		if(data->Size > 16)
+		if(data->GetSize() > 16)
 		{
 			_fat = read_block(data, 16);
 			_fat->Seek(0, soFromBeginning);
-			_countfiles = _fat->Size / 12;
+			_countfiles = _fat->GetSize() / 12;
 			for(int i = 0; i < _countfiles; i++){
 				_fat->Read(&_fi, 12);
 				read_block(data, _fi.header_start, _file_header);
 				_file_header->Seek(0, soFromBeginning);
-				_temp_buf = new char[_file_header->Size];
-				_file_header->Read(_temp_buf, _file_header->Size);
+				_temp_buf = new char[_file_header->GetSize()];
+				_file_header->Read(_temp_buf, _file_header->GetSize());
 				_name = (wchar_t*)(_temp_buf + 20);
-				_file = new v8file(this, _name, _prev, _fi.data_start, _fi.header_start, (__int64*)_temp_buf, (__int64*)(_temp_buf + 8));
+				_file = new v8file(this, _name, _prev, _fi.data_start, _fi.header_start, (int64_t*)_temp_buf, (int64_t*)(_temp_buf + 8));
 				delete[] _temp_buf;
 				if(!_prev) first = _file;
 				_prev = _file;
@@ -1102,7 +1102,7 @@ v8file* __fastcall v8catalog::GetFirst(){
 
 //---------------------------------------------------------------------------
 v8file* __fastcall v8catalog::createFile(const String& FileName, bool _selfzipped){
-	__int64 v8t;
+	int64_t v8t;
 	v8file* f;
 
 	Lock->Acquire();
@@ -1234,7 +1234,7 @@ int __fastcall v8catalog::get_nextblock(int start)
 	if(start == 0 || start == 0x7fffffff)
 	{
 		start = start_empty;
-		if(start == 0x7fffffff) start = data->Size;
+		if(start == 0x7fffffff) start = data->GetSize();
 	}
 	ret = start;
 	Lock->Release();
@@ -1248,10 +1248,10 @@ int __fastcall v8catalog::write_block(TStream* block, int start, bool use_page_s
 	char* _t;
 	int firststart, nextstart, blocklen, curlen;
 	bool isfirstblock = true;
-	bool addwrite = false; // признак, что надо дозаписать файл при использовании размера страницы по умолчанию
+	bool addwrite = false; // РїСЂРёР·РЅР°Рє, С‡С‚Рѕ РЅР°РґРѕ РґРѕР·Р°РїРёСЃР°С‚СЊ С„Р°Р№Р» РїСЂРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРё СЂР°Р·РјРµСЂР° СЃС‚СЂР°РЅРёС†С‹ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 
 	Lock->Acquire();
-	if(data->Size == 16 && start != 16) // если каталог пустой, надо выделить первую страницу!!!
+	if(data->GetSize() == 16 && start != 16) // РµСЃР»Рё РєР°С‚Р°Р»РѕРі РїСѓСЃС‚РѕР№, РЅР°РґРѕ РІС‹РґРµР»РёС‚СЊ РїРµСЂРІСѓСЋ СЃС‚СЂР°РЅРёС†Сѓ!!!
 	{
 		TMemoryStream* _ts = new TMemoryStream;
 		write_block(_ts, 16, true);
@@ -1259,7 +1259,7 @@ int __fastcall v8catalog::write_block(TStream* block, int start, bool use_page_s
 
 	if(len == -1)
 	{
-		len = block->Size;
+		len = block->GetSize();
 		block->Seek(0, soFromBeginning);
 	}
 	start = get_nextblock(start);
@@ -1267,7 +1267,7 @@ int __fastcall v8catalog::write_block(TStream* block, int start, bool use_page_s
 	do
 	{
 		if(start == start_empty)
-		{// пишем в свободный блок
+		{// РїРёС€РµРј РІ СЃРІРѕР±РѕРґРЅС‹Р№ Р±Р»РѕРє
 			data->Seek(start, soFromBeginning);
 			data->ReadBuffer(temp_buf, 31);
 			blocklen = hex_to_int(&temp_buf[11]);
@@ -1276,8 +1276,8 @@ int __fastcall v8catalog::write_block(TStream* block, int start, bool use_page_s
 			start_empty = nextstart;
 			is_emptymodified = true;
 		}
-		else if(start == data->Size)
-		{// пишем в новый блок
+		else if(start == data->GetSize())
+		{// РїРёС€РµРј РІ РЅРѕРІС‹Р№ Р±Р»РѕРє
 			memcpy(temp_buf, _block_header_template, 31);
 			blocklen = use_page_size ? len > page_size ? len : page_size : len;
 			int_to_hex(&temp_buf[11], blocklen);
@@ -1285,7 +1285,7 @@ int __fastcall v8catalog::write_block(TStream* block, int start, bool use_page_s
 			if(blocklen > len) addwrite = true;
 		}
 		else
-		{// пишем в существующий блок
+		{// РїРёС€РµРј РІ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ Р±Р»РѕРє
 			data->Seek(start, soFromBeginning);
 			data->ReadBuffer(temp_buf, 31);
 			blocklen = hex_to_int(&temp_buf[11]);
@@ -1294,7 +1294,7 @@ int __fastcall v8catalog::write_block(TStream* block, int start, bool use_page_s
 
 		int_to_hex(&temp_buf[2], isfirstblock ? len : 0);
 		curlen = min(blocklen, len);
-		if(!nextstart) nextstart = data->Size + 31 + blocklen;
+		if(!nextstart) nextstart = data->GetSize() + 31 + blocklen;
 		else nextstart = get_nextblock(nextstart);
 		int_to_hex(&temp_buf[20], len <= blocklen ? 0x7fffffff : nextstart);
 
@@ -1320,7 +1320,7 @@ int __fastcall v8catalog::write_block(TStream* block, int start, bool use_page_s
 
 	}while(len > 0);
 
-	if(start < data->Size && start != start_empty) free_block(start);
+	if(start < data->GetSize() && start != start_empty) free_block(start);
 
 	is_modified = true;
 	Lock->Release();
@@ -1584,7 +1584,7 @@ void __fastcall v8catalog::HalfOpen(const String& name)
 //---------------------------------------------------------------------------
 
 //********************************************************
-// Класс TV8FileStream
+// РљР»Р°СЃСЃ TV8FileStream
 
 //---------------------------------------------------------------------------
 __fastcall TV8FileStream::TV8FileStream(v8file* f, bool ownfile) : TStream(), file(f), own(ownfile)
@@ -1661,9 +1661,9 @@ int __fastcall TV8FileStream::Seek(int Offset, System::Word Origin)
 }
 
 //---------------------------------------------------------------------------
-__int64 __fastcall TV8FileStream::Seek(const __int64 Offset, TSeekOrigin Origin)
+int64_t __fastcall TV8FileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
 {
-	__int64 l = file->GetFileLength64();
+	int64_t l = file->GetFileLength64();
 	switch(Origin)
 	{
 		case soBeginning:

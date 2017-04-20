@@ -37,10 +37,10 @@ void __fastcall TableReadThread::Execute()
 
 	if(!tab) return;
 
-	unsigned int* recordsindex = tab->recordsindex; // массив индексов записей по номеру (только не пустые записи)
-	bool& recordsindex_complete = tab->recordsindex_complete; // признак заполнености recordsindex
-	unsigned int& numrecords_review = tab->numrecords_review; // количество просмотренных записей всего в поиске не пустых
-	unsigned int& numrecords_found = tab->numrecords_found; // количество найденных непустых записей (текущий размер recordsindex)
+	unsigned int* recordsindex = tab->recordsindex; // РјР°СЃСЃРёРІ РёРЅРґРµРєСЃРѕРІ Р·Р°РїРёСЃРµР№ РїРѕ РЅРѕРјРµСЂСѓ (С‚РѕР»СЊРєРѕ РЅРµ РїСѓСЃС‚С‹Рµ Р·Р°РїРёСЃРё)
+	bool& recordsindex_complete = tab->recordsindex_complete; // РїСЂРёР·РЅР°Рє Р·Р°РїРѕР»РЅРµРЅРѕСЃС‚Рё recordsindex
+	unsigned int& numrecords_review = tab->numrecords_review; // РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕСЃРјРѕС‚СЂРµРЅРЅС‹С… Р·Р°РїРёСЃРµР№ РІСЃРµРіРѕ РІ РїРѕРёСЃРєРµ РЅРµ РїСѓСЃС‚С‹С…
+	unsigned int& numrecords_found = tab->numrecords_found; // РєРѕР»РёС‡РµСЃС‚РІРѕ РЅР°Р№РґРµРЅРЅС‹С… РЅРµРїСѓСЃС‚С‹С… Р·Р°РїРёСЃРµР№ (С‚РµРєСѓС‰РёР№ СЂР°Р·РјРµСЂ recordsindex)
 
 
 	unsigned int numrecords = tab->get_phys_numrecords();

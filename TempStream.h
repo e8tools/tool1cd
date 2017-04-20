@@ -14,7 +14,7 @@ public:
 
 
 //---------------------------------------------------------------------------
-class TTempStream : public THandleStream
+class TTempStream : public TFileStream
 {
 public:
 	static String tempcat;

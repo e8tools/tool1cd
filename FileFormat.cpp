@@ -10,13 +10,13 @@
 #pragma package(smart_init)
 
 //---------------------------------------------------------------------------
-const unsigned char SIG_GIF87[6] = {'G', 'I', 'F', '8', '7', 'a'}; // версия 87 года
-const unsigned char SIG_GIF89[6] = {'G', 'I', 'F', '8', '9', 'a'}; // версия 89 года
+const unsigned char SIG_GIF87[6] = {'G', 'I', 'F', '8', '7', 'a'}; // РІРµСЂСЃРёСЏ 87 РіРѕРґР°
+const unsigned char SIG_GIF89[6] = {'G', 'I', 'F', '8', '9', 'a'}; // РІРµСЂСЃРёСЏ 89 РіРѕРґР°
 const unsigned char SIG_UTF8[3] = {0xEF, 0xBB, 0xBF};
-const unsigned char SIG_PCX25[3] = {0x0a, 0x00, 0x01}; // версия 2.5
-const unsigned char SIG_PCX28P[3] = {0x0a, 0x02, 0x01}; // версия 2.8  с информацией о палитре
-const unsigned char SIG_PCX28[3] = {0x0a, 0x03, 0x01}; // Версия 2.8 без информации о палитре
-const unsigned char SIG_PCX30[3] = {0x0a, 0x05, 0x01}; // Версия 3.0
+const unsigned char SIG_PCX25[3] = {0x0a, 0x00, 0x01}; // РІРµСЂСЃРёСЏ 2.5
+const unsigned char SIG_PCX28P[3] = {0x0a, 0x02, 0x01}; // РІРµСЂСЃРёСЏ 2.8  СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ РїР°Р»РёС‚СЂРµ
+const unsigned char SIG_PCX28[3] = {0x0a, 0x03, 0x01}; // Р’РµСЂСЃРёСЏ 2.8 Р±РµР· РёРЅС„РѕСЂРјР°С†РёРё Рѕ РїР°Р»РёС‚СЂРµ
+const unsigned char SIG_PCX30[3] = {0x0a, 0x05, 0x01}; // Р’РµСЂСЃРёСЏ 3.0
 const unsigned char SIG_BMP[2] = {0x42, 0x4d};
 const unsigned char SIG_JPG[3] = {0xff, 0xd8, 0xff};
 const unsigned char SIG_PNG[16] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52};

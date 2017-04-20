@@ -9,15 +9,15 @@
 
 #pragma package(smart_init)
 
-//const boost::wregex exp_number(L"^-?[0-9]+\\.?[0-9]*$");
-//const boost::wregex exp_number_exp(L"^-?[0-9]+\\.?[0-9]*e-?[0-9]+$");
-const boost::wregex exp_number(L"^-?\\d+$");
-const boost::wregex exp_number_exp(L"^-?\\d+(\\.?\\d*)?((e|E)-?\\d+)?$");
-const boost::wregex exp_guid(L"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
-const boost::wregex exp_binary(L"^#base64:[0-9a-zA-Z\\+=\\r\\n\\/]*$");
-const boost::wregex exp_binary2(L"^[0-9a-zA-Z\\+=\\r\\n\\/]+$");
-const boost::wregex exp_link(L"^[0-9]+:[0-9a-fA-F]{32}$");
-const boost::wregex exp_binary_d(L"^#data:[0-9a-zA-Z\\+=\\r\\n\\/]*$");
+//const boost::regex exp_number("^-?[0-9]+\\.?[0-9]*$");
+//const boost::regex exp_number_exp("^-?[0-9]+\\.?[0-9]*e-?[0-9]+$");
+const boost::regex exp_number("^-?\\d+$");
+const boost::regex exp_number_exp("^-?\\d+(\\.?\\d*)?((e|E)-?\\d+)?$");
+const boost::regex exp_guid("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+const boost::regex exp_binary("^#base64:[0-9a-zA-Z\\+=\\r\\n\\/]*$");
+const boost::regex exp_binary2("^[0-9a-zA-Z\\+=\\r\\n\\/]+$");
+const boost::regex exp_link("^[0-9]+:[0-9a-fA-F]{32}$");
+const boost::regex exp_binary_d("^#data:[0-9a-zA-Z\\+=\\r\\n\\/]*$");
 
 extern MessageRegistrator* msreg;
 #define error if(msreg) msreg->AddError
@@ -72,13 +72,13 @@ tree* __fastcall tree::add_child(const String& _value, const node_type _type)
 //---------------------------------------------------------------------------
 tree* __fastcall tree::add_child()
 {
-	return new tree(L"", nd_empty, this);
+	return new tree("", nd_empty, this);
 }
 
 //---------------------------------------------------------------------------
 tree* __fastcall tree::add_node()
 {
-	return new tree(L"", nd_empty, this->parent);
+	return new tree("", nd_empty, this->parent);
 }
 
 //---------------------------------------------------------------------------
@@ -177,7 +177,7 @@ void __fastcall tree::outtext(String& text)
 
 	if(num_subnode)
 	{
-		if(text.Length()) text += L"\r\n";
+		if(text.Length()) text += "\r\n";
 		text += L'{';
 		tree* t = first;
 		while(t)
@@ -187,7 +187,7 @@ void __fastcall tree::outtext(String& text)
 			t = t->next;
 			if(t) text += L',';
 		}
-		if(lt == nd_list) text += L"\r\n";
+		if(lt == nd_list) text += "\r\n";
 		text += L'}';
 	}
 	else
@@ -197,7 +197,7 @@ void __fastcall tree::outtext(String& text)
 			case nd_string:
 				text += L'\"';
 				_ReplaceAll << rfReplaceAll;
-				text += StringReplace(value, L"\"", L"\"\"", _ReplaceAll);
+				text += StringReplace(value, "\"", "\"\"", _ReplaceAll);
 				text += L'\"';
 				break;
 			case nd_number:
@@ -211,7 +211,7 @@ void __fastcall tree::outtext(String& text)
 				text += value;
 				break;
 			default:
-				//if(msreg) msreg->AddError(L"Ошибка вывода потока. Пустой или неизвестный узел.");
+				//if(msreg) msreg->AddError("РћС€РёР±РєР° РІС‹РІРѕРґР° РїРѕС‚РѕРєР°. РџСѓСЃС‚РѕР№ РёР»Рё РЅРµРёР·РІРµСЃС‚РЅС‹Р№ СѓР·РµР».");
 				break;
 		}
 	}
@@ -220,13 +220,13 @@ void __fastcall tree::outtext(String& text)
 //---------------------------------------------------------------------------
 String __fastcall tree::path()
 {
-	String p = L"";
+	String p = "";
 	tree* t;
 
-	if(!this) return L":??"; //-V704
+	if(!this) return ":??"; //-V704
 	for(t = this; t->parent; t = t->parent)
 	{
-		p = String(L":") + t->index + p;
+		p = String(":") + t->index + p;
 	}
 	return p;
 }
@@ -250,11 +250,11 @@ tree* __fastcall parse_1Cstream(TStream* str, const String& path)
 	TStringBuilder* __curvalue__;
 
 	enum _state{
-		s_value, // ожидание начала значения
-		s_delimitier, // ожидание разделителя
-		s_string, // режим ввода строки
-		s_quote_or_endstring, // режим ожидания конца строки или двойной кавычки
-		s_nonstring // режим ввода значения не строки
+		s_value, // РѕР¶РёРґР°РЅРёРµ РЅР°С‡Р°Р»Р° Р·РЅР°С‡РµРЅРёСЏ
+		s_delimitier, // РѕР¶РёРґР°РЅРёРµ СЂР°Р·РґРµР»РёС‚РµР»СЏ
+		s_string, // СЂРµР¶РёРј РІРІРѕРґР° СЃС‚СЂРѕРєРё
+		s_quote_or_endstring, // СЂРµР¶РёРј РѕР¶РёРґР°РЅРёСЏ РєРѕРЅС†Р° СЃС‚СЂРѕРєРё РёР»Рё РґРІРѕР№РЅРѕР№ РєР°РІС‹С‡РєРё
+		s_nonstring // СЂРµР¶РёРј РІРІРѕРґР° Р·РЅР°С‡РµРЅРёСЏ РЅРµ СЃС‚СЂРѕРєРё
 	}state = s_value;
 
 	String curvalue;
@@ -268,7 +268,7 @@ tree* __fastcall parse_1Cstream(TStream* str, const String& path)
 
 	__curvalue__ = new TStringBuilder;
 
-	ret = new tree(L"", nd_list, NULL);
+	ret = new tree("", nd_list, NULL);
 	t = ret;
 
 	//str->Seek(0l, soBeginning);
@@ -277,7 +277,7 @@ tree* __fastcall parse_1Cstream(TStream* str, const String& path)
 	for(i = 1, _sym = reader->Read(); _sym >= 0; i++, _sym = reader->Read())
 	{
 		sym = _sym;
-		//if(i % 0x100000 == 0) if(msreg) msreg->Status(String(i/0x100000) + L" MB");
+		//if(i % 0x100000 == 0) if(msreg) msreg->Status(String(i/0x100000) + " MB");
 
 		switch(state)
 		{
@@ -290,28 +290,28 @@ tree* __fastcall parse_1Cstream(TStream* str, const String& path)
 					case L'\n':
 						break;
 					case L'"':
-						//curvalue = L"";
+						//curvalue = "";
 						__curvalue__->Clear();
 						state = s_string;
 						break;
 					case L'{':
-						t = new tree(L"", nd_list, t);
+						t = new tree("", nd_list, t);
 						break;
 					case L'}':
-						if(t->get_first()) t->add_child(L"", nd_empty);
+						if(t->get_first()) t->add_child("", nd_empty);
 						t = t->get_parent();
 						if(!t)
 						{
-							if(msreg) msreg->AddError(L"Ошибка формата потока. Лишняя закрывающая скобка }.",
-								L"Позиция", i,
-								L"Путь", path);
+							if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. Р›РёС€РЅСЏСЏ Р·Р°РєСЂС‹РІР°СЋС‰Р°СЏ СЃРєРѕР±РєР° }.",
+								"РџРѕР·РёС†РёСЏ", i,
+								"РџСѓС‚СЊ", path);
 							delete ret;
 							return NULL;
 						}
 						state = s_delimitier;
 						break;
 					case L',':
-						t->add_child(L"", nd_empty);
+						t->add_child("", nd_empty);
 						break;
 					default:
 						//curvalue = String(sym);
@@ -336,19 +336,19 @@ tree* __fastcall parse_1Cstream(TStream* str, const String& path)
 						t = t->get_parent();
 						if(!t)
 						{
-							if(msreg) msreg->AddError(L"Ошибка формата потока. Лишняя закрывающая скобка }.",
-								L"Позиция", i,
-								L"Путь", path);
+							if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. Р›РёС€РЅСЏСЏ Р·Р°РєСЂС‹РІР°СЋС‰Р°СЏ СЃРєРѕР±РєР° }.",
+								"РџРѕР·РёС†РёСЏ", i,
+								"РџСѓС‚СЊ", path);
 							delete ret;
 							return NULL;
 						}
 						//state = s_delimitier;
 						break;
 					default:
-						if(msreg) msreg->AddError(L"Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
-							L"Символ", sym,
-							L"Код символа", tohex(sym),
-							L"Путь", path);
+						if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РћС€РёР±РѕС‡РЅС‹Р№ СЃРёРјРІРѕР» РІ СЂРµР¶РёРјРµ РѕР¶РёРґР°РЅРёСЏ СЂР°Р·РґРµР»РёС‚РµР»СЏ.",
+							"РЎРёРјРІРѕР»", sym,
+							"РљРѕРґ СЃРёРјРІРѕР»Р°", tohex(sym),
+							"РџСѓС‚СЊ", path);
 						delete ret;
 						return NULL;
 				}
@@ -386,19 +386,19 @@ tree* __fastcall parse_1Cstream(TStream* str, const String& path)
 							t = t->get_parent();
 							if(!t)
 							{
-								if(msreg) msreg->AddError(L"Ошибка формата потока. Лишняя закрывающая скобка }.",
-									L"Позиция", i,
-									L"Путь", path);
+								if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. Р›РёС€РЅСЏСЏ Р·Р°РєСЂС‹РІР°СЋС‰Р°СЏ СЃРєРѕР±РєР° }.",
+									"РџРѕР·РёС†РёСЏ", i,
+									"РџСѓС‚СЊ", path);
 								delete ret;
 								return NULL;
 							}
 							state = s_delimitier;
 							break;
 						default:
-							if(msreg) msreg->AddError(L"Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
-								L"Символ", sym,
-								L"Код символа", tohex(sym),
-								L"Путь", path);
+							if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РћС€РёР±РѕС‡РЅС‹Р№ СЃРёРјРІРѕР» РІ СЂРµР¶РёРјРµ РѕР¶РёРґР°РЅРёСЏ СЂР°Р·РґРµР»РёС‚РµР»СЏ.",
+								"РЎРёРјРІРѕР»", sym,
+								"РљРѕРґ СЃРёРјРІРѕР»Р°", tohex(sym),
+								"РџСѓС‚СЊ", path);
 							delete ret;
 							return NULL;
 					}
@@ -410,25 +410,25 @@ tree* __fastcall parse_1Cstream(TStream* str, const String& path)
 					case L',':
 						curvalue = __curvalue__->ToString();
 						nt = classification_value(curvalue);
-						if(nt == nd_unknown) if(msreg) msreg->AddError(L"Ошибка формата потока. Неизвестный тип значения.",
-							L"Значение", curvalue,
-							L"Путь", path);
+						if(nt == nd_unknown) if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї Р·РЅР°С‡РµРЅРёСЏ.",
+							"Р—РЅР°С‡РµРЅРёРµ", curvalue,
+							"РџСѓС‚СЊ", path);
 						t->add_child(curvalue, nt);
 						state = s_value;
 						break;
 					case L'}':
 						curvalue = __curvalue__->ToString();
 						nt = classification_value(curvalue);
-						if(nt == nd_unknown) if(msreg) msreg->AddError(L"Ошибка формата потока. Неизвестный тип значения.",
-							L"Значение", curvalue,
-							L"Путь", path);
+						if(nt == nd_unknown) if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї Р·РЅР°С‡РµРЅРёСЏ.",
+							"Р—РЅР°С‡РµРЅРёРµ", curvalue,
+							"РџСѓС‚СЊ", path);
 						t->add_child(curvalue, nt);
 						t = t->get_parent();
 						if(!t)
 						{
-							if(msreg) msreg->AddError(L"Ошибка формата потока. Лишняя закрывающая скобка }.",
-								L"Позиция", i,
-								L"Путь", path);
+							if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. Р›РёС€РЅСЏСЏ Р·Р°РєСЂС‹РІР°СЋС‰Р°СЏ СЃРєРѕР±РєР° }.",
+								"РџРѕР·РёС†РёСЏ", i,
+								"РџСѓС‚СЊ", path);
 							delete ret;
 							return NULL;
 						}
@@ -441,9 +441,9 @@ tree* __fastcall parse_1Cstream(TStream* str, const String& path)
 				}
 				break;
 			default:
-				if(msreg) msreg->AddError(L"Ошибка формата потока. Неизвестный режим разбора.",
-					L"Режим разбора", tohex(state),
-					L"Путь", path);
+				if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµРёР·РІРµСЃС‚РЅС‹Р№ СЂРµР¶РёРј СЂР°Р·Р±РѕСЂР°.",
+					"Р РµР¶РёРј СЂР°Р·Р±РѕСЂР°", tohex(state),
+					"РџСѓС‚СЊ", path);
 				delete ret;
 				return NULL;
 
@@ -454,26 +454,26 @@ tree* __fastcall parse_1Cstream(TStream* str, const String& path)
 	{
 		curvalue = __curvalue__->ToString();
 		nt = classification_value(curvalue);
-		if(nt == nd_unknown) if(msreg) msreg->AddError(L"Ошибка формата потока. Неизвестный тип значения.",
-			L"Значение", curvalue,
-			L"Путь", path);
+		if(nt == nd_unknown) if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї Р·РЅР°С‡РµРЅРёСЏ.",
+			"Р—РЅР°С‡РµРЅРёРµ", curvalue,
+			"РџСѓС‚СЊ", path);
 		t->add_child(curvalue, nt);
 	}
 	//else if(state == s_quote_or_endstring) t->add_child(curvalue, nd_string);
 	else if(state == s_quote_or_endstring) t->add_child(__curvalue__->ToString(), nd_string);
 	else if(state != s_delimitier)
 	{
-		if(msreg) msreg->AddError(L"Ошибка формата потока. Незавершенное значение",
-			L"Режим разбора", tohex(state),
-			L"Путь", path);
+		if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµР·Р°РІРµСЂС€РµРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ",
+			"Р РµР¶РёРј СЂР°Р·Р±РѕСЂР°", tohex(state),
+			"РџСѓС‚СЊ", path);
 		delete ret;
 		return NULL;
 	}
 
 	if(t != ret)
 	{
-		if(msreg) msreg->AddError(L"Ошибка формата потока. Не хватает закрывающих скобок } в конце текста разбора.",
-			L"Путь", path);
+		if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµ С…РІР°С‚Р°РµС‚ Р·Р°РєСЂС‹РІР°СЋС‰РёС… СЃРєРѕР±РѕРє } РІ РєРѕРЅС†Рµ С‚РµРєСЃС‚Р° СЂР°Р·Р±РѕСЂР°.",
+			"РџСѓС‚СЊ", path);
 		delete ret;
 		return NULL;
 	}
@@ -488,11 +488,11 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 	TStringBuilder* __curvalue__;
 
 	enum _state{
-		s_value, // ожидание начала значения
-		s_delimitier, // ожидание разделителя
-		s_string, // режим ввода строки
-		s_quote_or_endstring, // режим ожидания конца строки или двойной кавычки
-		s_nonstring // режим ввода значения не строки
+		s_value, // РѕР¶РёРґР°РЅРёРµ РЅР°С‡Р°Р»Р° Р·РЅР°С‡РµРЅРёСЏ
+		s_delimitier, // РѕР¶РёРґР°РЅРёРµ СЂР°Р·РґРµР»РёС‚РµР»СЏ
+		s_string, // СЂРµР¶РёРј РІРІРѕРґР° СЃС‚СЂРѕРєРё
+		s_quote_or_endstring, // СЂРµР¶РёРј РѕР¶РёРґР°РЅРёСЏ РєРѕРЅС†Р° СЃС‚СЂРѕРєРё РёР»Рё РґРІРѕР№РЅРѕР№ РєР°РІС‹С‡РєРё
+		s_nonstring // СЂРµР¶РёРј РІРІРѕРґР° Р·РЅР°С‡РµРЅРёСЏ РЅРµ СЃС‚СЂРѕРєРё
 	}state = s_value;
 
 	String curvalue;
@@ -505,7 +505,7 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 
 	__curvalue__ = new TStringBuilder;
 
-	ret = new tree(L"", nd_list, NULL);
+	ret = new tree("", nd_list, NULL);
 	t = ret;
 
 	for(i = 1; i <= len; i++)
@@ -524,28 +524,28 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 					case L'\n':
 						break;
 					case L'"':
-						//curvalue = L"";
+						//curvalue = "";
 						__curvalue__->Clear();
 						state = s_string;
 						break;
 					case L'{':
-						t = new tree(L"", nd_list, t);
+						t = new tree("", nd_list, t);
 						break;
 					case L'}':
-						if(t->get_first()) t->add_child(L"", nd_empty);
+						if(t->get_first()) t->add_child("", nd_empty);
 						t = t->get_parent();
 						if(!t)
 						{
-							if(msreg) msreg->AddError(L"Ошибка формата потока. Лишняя закрывающая скобка }.",
-								L"Позиция", i,
-								L"Путь", path);
+							if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. Р›РёС€РЅСЏСЏ Р·Р°РєСЂС‹РІР°СЋС‰Р°СЏ СЃРєРѕР±РєР° }.",
+								"РџРѕР·РёС†РёСЏ", i,
+								"РџСѓС‚СЊ", path);
 							delete ret;
 							return NULL;
 						}
 						state = s_delimitier;
 						break;
 					case L',':
-						t->add_child(L"", nd_empty);
+						t->add_child("", nd_empty);
 						break;
 					default:
 						//curvalue = String(sym);
@@ -570,19 +570,19 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 						t = t->get_parent();
 						if(!t)
 						{
-							if(msreg) msreg->AddError(L"Ошибка формата потока. Лишняя закрывающая скобка }.",
-								L"Позиция", i,
-								L"Путь", path);
+							if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. Р›РёС€РЅСЏСЏ Р·Р°РєСЂС‹РІР°СЋС‰Р°СЏ СЃРєРѕР±РєР° }.",
+								"РџРѕР·РёС†РёСЏ", i,
+								"РџСѓС‚СЊ", path);
 							delete ret;
 							return NULL;
 						}
 						//state = s_delimitier;
 						break;
 					default:
-						if(msreg) msreg->AddError(L"Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
-							L"Символ", sym,
-							L"Код символа", tohex(sym),
-							L"Путь", path);
+						if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РћС€РёР±РѕС‡РЅС‹Р№ СЃРёРјРІРѕР» РІ СЂРµР¶РёРјРµ РѕР¶РёРґР°РЅРёСЏ СЂР°Р·РґРµР»РёС‚РµР»СЏ.",
+							"РЎРёРјРІРѕР»", sym,
+							"РљРѕРґ СЃРёРјРІРѕР»Р°", tohex(sym),
+							"РџСѓС‚СЊ", path);
 						delete ret;
 						return NULL;
 				}
@@ -620,19 +620,19 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 							t = t->get_parent();
 							if(!t)
 							{
-								if(msreg) msreg->AddError(L"Ошибка формата потока. Лишняя закрывающая скобка }.",
-									L"Позиция", i,
-									L"Путь", path);
+								if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. Р›РёС€РЅСЏСЏ Р·Р°РєСЂС‹РІР°СЋС‰Р°СЏ СЃРєРѕР±РєР° }.",
+									"РџРѕР·РёС†РёСЏ", i,
+									"РџСѓС‚СЊ", path);
 								delete ret;
 								return NULL;
 							}
 							state = s_delimitier;
 							break;
 						default:
-							if(msreg) msreg->AddError(L"Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
-								L"Символ", sym,
-								L"Код символа", tohex(sym),
-								L"Путь", path);
+							if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РћС€РёР±РѕС‡РЅС‹Р№ СЃРёРјРІРѕР» РІ СЂРµР¶РёРјРµ РѕР¶РёРґР°РЅРёСЏ СЂР°Р·РґРµР»РёС‚РµР»СЏ.",
+								"РЎРёРјРІРѕР»", sym,
+								"РљРѕРґ СЃРёРјРІРѕР»Р°", tohex(sym),
+								"РџСѓС‚СЊ", path);
 							delete ret;
 							return NULL;
 					}
@@ -644,25 +644,25 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 					case L',':
 						curvalue = __curvalue__->ToString();
 						nt = classification_value(curvalue);
-						if(nt == nd_unknown) if(msreg) msreg->AddError(L"Ошибка формата потока. Неизвестный тип значения.",
-							L"Значение", curvalue,
-							L"Путь", path);
+						if(nt == nd_unknown) if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї Р·РЅР°С‡РµРЅРёСЏ.",
+							"Р—РЅР°С‡РµРЅРёРµ", curvalue,
+							"РџСѓС‚СЊ", path);
 						t->add_child(curvalue, nt);
 						state = s_value;
 						break;
 					case L'}':
 						curvalue = __curvalue__->ToString();
 						nt = classification_value(curvalue);
-						if(nt == nd_unknown) if(msreg) msreg->AddError(L"Ошибка формата потока. Неизвестный тип значения.",
-							L"Значение", curvalue,
-							L"Путь", path);
+						if(nt == nd_unknown) if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї Р·РЅР°С‡РµРЅРёСЏ.",
+							"Р—РЅР°С‡РµРЅРёРµ", curvalue,
+							"РџСѓС‚СЊ", path);
 						t->add_child(curvalue, nt);
 						t = t->get_parent();
 						if(!t)
 						{
-							if(msreg) msreg->AddError(L"Ошибка формата потока. Лишняя закрывающая скобка }.",
-								L"Позиция", i,
-								L"Путь", path);
+							if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. Р›РёС€РЅСЏСЏ Р·Р°РєСЂС‹РІР°СЋС‰Р°СЏ СЃРєРѕР±РєР° }.",
+								"РџРѕР·РёС†РёСЏ", i,
+								"РџСѓС‚СЊ", path);
 							delete ret;
 							return NULL;
 						}
@@ -675,9 +675,9 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 				}
 				break;
 			default:
-				if(msreg) msreg->AddError(L"Ошибка формата потока. Неизвестный режим разбора.",
-					L"Режим разбора", tohex(state),
-					L"Путь", path);
+				if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµРёР·РІРµСЃС‚РЅС‹Р№ СЂРµР¶РёРј СЂР°Р·Р±РѕСЂР°.",
+					"Р РµР¶РёРј СЂР°Р·Р±РѕСЂР°", tohex(state),
+					"РџСѓС‚СЊ", path);
 				delete ret;
 				return NULL;
 
@@ -688,26 +688,26 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 	{
 		curvalue = __curvalue__->ToString();
 		nt = classification_value(curvalue);
-		if(nt == nd_unknown) if(msreg) msreg->AddError(L"Ошибка формата потока. Неизвестный тип значения.",
-			L"Значение", curvalue,
-			L"Путь", path);
+		if(nt == nd_unknown) if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї Р·РЅР°С‡РµРЅРёСЏ.",
+			"Р—РЅР°С‡РµРЅРёРµ", curvalue,
+			"РџСѓС‚СЊ", path);
 		t->add_child(curvalue, nt);
 	}
 	//else if(state == s_quote_or_endstring) t->add_child(curvalue, nd_string);
 	else if(state == s_quote_or_endstring) t->add_child(__curvalue__->ToString(), nd_string);
 	else if(state != s_delimitier)
 	{
-		if(msreg) msreg->AddError(L"Ошибка формата потока. Незавершенное значение",
-			L"Режим разбора", tohex(state),
-			L"Путь", path);
+		if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµР·Р°РІРµСЂС€РµРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ",
+			"Р РµР¶РёРј СЂР°Р·Р±РѕСЂР°", tohex(state),
+			"РџСѓС‚СЊ", path);
 		delete ret;
 		return NULL;
 	}
 
 	if(t != ret)
 	{
-		if(msreg) msreg->AddError(L"Ошибка формата потока. Не хватает закрывающих скобок } в конце текста разбора.",
-			L"Путь", path);
+		if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµ С…РІР°С‚Р°РµС‚ Р·Р°РєСЂС‹РІР°СЋС‰РёС… СЃРєРѕР±РѕРє } РІ РєРѕРЅС†Рµ С‚РµРєСЃС‚Р° СЂР°Р·Р±РѕСЂР°.",
+			"РџСѓС‚СЊ", path);
 		delete ret;
 		return NULL;
 	}
@@ -716,17 +716,17 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 
 }
 
-// проверка формата потока
+// РїСЂРѕРІРµСЂРєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°
 bool __fastcall test_parse_1Ctext(TStream* str, const String& path)
 {
 	TStringBuilder* __curvalue__;
 
 	enum _state{
-		s_value, // ожидание начала значения
-		s_delimitier, // ожидание разделителя
-		s_string, // режим ввода строки
-		s_quote_or_endstring, // режим ожидания конца строки или двойной кавычки
-		s_nonstring // режим ввода значения не строки
+		s_value, // РѕР¶РёРґР°РЅРёРµ РЅР°С‡Р°Р»Р° Р·РЅР°С‡РµРЅРёСЏ
+		s_delimitier, // РѕР¶РёРґР°РЅРёРµ СЂР°Р·РґРµР»РёС‚РµР»СЏ
+		s_string, // СЂРµР¶РёРј РІРІРѕРґР° СЃС‚СЂРѕРєРё
+		s_quote_or_endstring, // СЂРµР¶РёРј РѕР¶РёРґР°РЅРёСЏ РєРѕРЅС†Р° СЃС‚СЂРѕРєРё РёР»Рё РґРІРѕР№РЅРѕР№ РєР°РІС‹С‡РєРё
+		s_nonstring // СЂРµР¶РёРј РІРІРѕРґР° Р·РЅР°С‡РµРЅРёСЏ РЅРµ СЃС‚СЂРѕРєРё
 	}state = s_value;
 
 	String curvalue;
@@ -748,7 +748,7 @@ bool __fastcall test_parse_1Ctext(TStream* str, const String& path)
 	for(i = 1, _sym = reader->Read(); _sym > 0; i++, _sym = reader->Read())
 	{
 		sym = _sym;
-		//if(i % 0x100000 == 0) if(msreg) msreg->Status(String(i/0x100000) + L" MB");
+		//if(i % 0x100000 == 0) if(msreg) msreg->Status(String(i/0x100000) + " MB");
 
 		switch(state)
 		{
@@ -761,7 +761,7 @@ bool __fastcall test_parse_1Ctext(TStream* str, const String& path)
 					case L'\n':
 						break;
 					case L'"':
-						//curvalue = L"";
+						//curvalue = "";
 						__curvalue__->Clear();
 						state = s_string;
 						break;
@@ -771,9 +771,9 @@ bool __fastcall test_parse_1Ctext(TStream* str, const String& path)
 					case L'}':
 						if(level <= 0)
 						{
-							if(msreg) msreg->AddError(L"Ошибка формата потока. Лишняя закрывающая скобка }.",
-								L"Позиция", i,
-								L"Путь", path);
+							if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. Р›РёС€РЅСЏСЏ Р·Р°РєСЂС‹РІР°СЋС‰Р°СЏ СЃРєРѕР±РєР° }.",
+								"РџРѕР·РёС†РёСЏ", i,
+								"РџСѓС‚СЊ", path);
 							ret = false;
 						}
 						state = s_delimitier;
@@ -801,19 +801,19 @@ bool __fastcall test_parse_1Ctext(TStream* str, const String& path)
 					case L'}':
 						if(level <= 0)
 						{
-							if(msreg) msreg->AddError(L"Ошибка формата потока. Лишняя закрывающая скобка }.",
-								L"Позиция", i,
-								L"Путь", path);
+							if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. Р›РёС€РЅСЏСЏ Р·Р°РєСЂС‹РІР°СЋС‰Р°СЏ СЃРєРѕР±РєР° }.",
+								"РџРѕР·РёС†РёСЏ", i,
+								"РџСѓС‚СЊ", path);
 							ret = false;
 						}
 						level--;
 						break;
 					default:
-						if(msreg) msreg->AddError(L"Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
-							L"Символ", sym,
-							L"Код символа", tohex(sym),
-							L"Путь", path);
-						//msreg->Status(L"");
+						if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РћС€РёР±РѕС‡РЅС‹Р№ СЃРёРјРІРѕР» РІ СЂРµР¶РёРјРµ РѕР¶РёРґР°РЅРёСЏ СЂР°Р·РґРµР»РёС‚РµР»СЏ.",
+							"РЎРёРјРІРѕР»", sym,
+							"РљРѕРґ СЃРёРјРІРѕР»Р°", tohex(sym),
+							"РџСѓС‚СЊ", path);
+						//msreg->Status("");
 						delete reader;
 						return ret;
 				}
@@ -848,20 +848,20 @@ bool __fastcall test_parse_1Ctext(TStream* str, const String& path)
 						case L'}':
 							if(level <= 0)
 							{
-								if(msreg) msreg->AddError(L"Ошибка формата потока. Лишняя закрывающая скобка }.",
-									L"Позиция", i,
-									L"Путь", path);
+								if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. Р›РёС€РЅСЏСЏ Р·Р°РєСЂС‹РІР°СЋС‰Р°СЏ СЃРєРѕР±РєР° }.",
+									"РџРѕР·РёС†РёСЏ", i,
+									"РџСѓС‚СЊ", path);
 								ret = false;
 							}
 							level--;
 							state = s_delimitier;
 							break;
 						default:
-							if(msreg) msreg->AddError(L"Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
-								L"Символ", sym,
-								L"Код символа", tohex(sym),
-								L"Путь", path);
-							//msreg->Status(L"");
+							if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РћС€РёР±РѕС‡РЅС‹Р№ СЃРёРјРІРѕР» РІ СЂРµР¶РёРјРµ РѕР¶РёРґР°РЅРёСЏ СЂР°Р·РґРµР»РёС‚РµР»СЏ.",
+								"РЎРёРјРІРѕР»", sym,
+								"РљРѕРґ СЃРёРјРІРѕР»Р°", tohex(sym),
+								"РџСѓС‚СЊ", path);
+							//msreg->Status("");
 							delete reader;
 							return ret;
 					}
@@ -875,9 +875,9 @@ bool __fastcall test_parse_1Ctext(TStream* str, const String& path)
 						nt = classification_value(curvalue);
 						if(nt == nd_unknown)
 						{
-							if(msreg) msreg->AddError(L"Ошибка формата потока. Неизвестный тип значения.",
-								L"Значение", curvalue,
-								L"Путь", path);
+							if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї Р·РЅР°С‡РµРЅРёСЏ.",
+								"Р—РЅР°С‡РµРЅРёРµ", curvalue,
+								"РџСѓС‚СЊ", path);
 							ret = false;
 						}
 						state = s_value;
@@ -887,16 +887,16 @@ bool __fastcall test_parse_1Ctext(TStream* str, const String& path)
 						nt = classification_value(curvalue);
 						if(nt == nd_unknown)
 						{
-							if(msreg) msreg->AddError(L"Ошибка формата потока. Неизвестный тип значения.",
-								L"Значение", curvalue,
-								L"Путь", path);
+							if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї Р·РЅР°С‡РµРЅРёСЏ.",
+								"Р—РЅР°С‡РµРЅРёРµ", curvalue,
+								"РџСѓС‚СЊ", path);
 							ret = false;
 						}
 						if(level <= 0)
 						{
-							if(msreg) msreg->AddError(L"Ошибка формата потока. Лишняя закрывающая скобка }.",
-								L"Позиция", i,
-								L"Путь", path);
+							if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. Р›РёС€РЅСЏСЏ Р·Р°РєСЂС‹РІР°СЋС‰Р°СЏ СЃРєРѕР±РєР° }.",
+								"РџРѕР·РёС†РёСЏ", i,
+								"РџСѓС‚СЊ", path);
 							ret = false;
 						}
 						level--;
@@ -909,9 +909,9 @@ bool __fastcall test_parse_1Ctext(TStream* str, const String& path)
 				}
 				break;
 			default:
-				if(msreg) msreg->AddError(L"Ошибка формата потока. Неизвестный режим разбора.",
-					L"Режим разбора", tohex(state),
-					L"Путь", path);
+				if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµРёР·РІРµСЃС‚РЅС‹Р№ СЂРµР¶РёРј СЂР°Р·Р±РѕСЂР°.",
+					"Р РµР¶РёРј СЂР°Р·Р±РѕСЂР°", tohex(state),
+					"РџСѓС‚СЊ", path);
 				ret = false;
 				break;
 		}
@@ -923,9 +923,9 @@ bool __fastcall test_parse_1Ctext(TStream* str, const String& path)
 		nt = classification_value(curvalue);
 		if(nt == nd_unknown)
 		{
-			if(msreg) msreg->AddError(L"Ошибка формата потока. Неизвестный тип значения.",
-				L"Значение", curvalue,
-				L"Путь", path);
+			if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї Р·РЅР°С‡РµРЅРёСЏ.",
+				"Р—РЅР°С‡РµРЅРёРµ", curvalue,
+				"РџСѓС‚СЊ", path);
 			ret = false;
 		}
 	}
@@ -935,20 +935,20 @@ bool __fastcall test_parse_1Ctext(TStream* str, const String& path)
 	}
 	else if(state != s_delimitier)
 	{
-		if(msreg) msreg->AddError(L"Ошибка формата потока. Незавершенное значение",
-			L"Режим разбора", tohex(state),
-			L"Путь", path);
+		if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµР·Р°РІРµСЂС€РµРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ",
+			"Р РµР¶РёРј СЂР°Р·Р±РѕСЂР°", tohex(state),
+			"РџСѓС‚СЊ", path);
 		ret = false;
 	}
 
 	if(level > 0)
 	{
-		if(msreg) msreg->AddError(L"Ошибка формата потока. Не хватает закрывающих скобок } в конце текста разбора.",
-			L"Путь", path);
+		if(msreg) msreg->AddError("РћС€РёР±РєР° С„РѕСЂРјР°С‚Р° РїРѕС‚РѕРєР°. РќРµ С…РІР°С‚Р°РµС‚ Р·Р°РєСЂС‹РІР°СЋС‰РёС… СЃРєРѕР±РѕРє } РІ РєРѕРЅС†Рµ С‚РµРєСЃС‚Р° СЂР°Р·Р±РѕСЂР°.",
+			"РџСѓС‚СЊ", path);
 		ret = false;
 	}
 
-	//msreg->Status(L"");
+	//msreg->Status("");
 	delete reader;
 	return ret;
 

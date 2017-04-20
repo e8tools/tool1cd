@@ -15,7 +15,7 @@ class tree
 private:
 	String value;
 	node_type type;
-	int num_subnode; // количество подчиненных
+	int num_subnode; // РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕРґС‡РёРЅРµРЅРЅС‹С…
 	tree* parent; // +1
 	tree* next; // 0
 	tree* prev; // 0

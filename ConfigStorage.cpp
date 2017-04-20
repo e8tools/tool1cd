@@ -10,7 +10,7 @@
 
 //#pragma package(smart_init)
 
-#include "UZlib.h"
+#include "UZLib.h"
 #pragma comment (lib, "zlibstatic.lib")
 
 #define CHUNK 65536
@@ -19,18 +19,18 @@
 #define error if(msreg) msreg->AddError
 #define status if(msreg) msreg->Status
 extern MessageRegistrator* msreg;
-const String spoint = L".";
-const String sdynupdate = L"_dynupdate_";
+const String spoint = ".";
+const String sdynupdate = "_dynupdate_";
 const int lsdynupdate = sdynupdate.Length();
 
 //********************************************************
-// Класс ConfigStorageDirectory
+// РљР»Р°СЃСЃ ConfigStorageDirectory
 
 //---------------------------------------------------------------------------
 __fastcall ConfigStorageDirectory::ConfigStorageDirectory(const String& _dir)
 {
 	fdir = _dir;
-	if(*fdir.LastChar() != L'\\') fdir += L'\\';
+	if(*fdir.LastChar() != '\\') fdir += '\\';
 }
 
 //---------------------------------------------------------------------------
@@ -39,7 +39,7 @@ ConfigFile* __fastcall ConfigStorageDirectory::readfile(const String& path)
 	ConfigFile* cf;
 	String filename;
 
-	filename = fdir + TStringBuilder(path).Replace(L'/', L'\\')->ToString();
+	filename = fdir + TStringBuilder(path).Replace('/', '\\')->ToString();
 
 	//status(path);
 
@@ -54,7 +54,7 @@ ConfigFile* __fastcall ConfigStorageDirectory::readfile(const String& path)
 		}
 		catch(...)
 		{
-			// Здесь надо бы что-нибудь сообщить об ошибке
+			// Р—РґРµСЃСЊ РЅР°РґРѕ Р±С‹ С‡С‚Рѕ-РЅРёР±СѓРґСЊ СЃРѕРѕР±С‰РёС‚СЊ РѕР± РѕС€РёР±РєРµ
 			delete cf;
 			return NULL;
 		}
@@ -67,7 +67,7 @@ ConfigFile* __fastcall ConfigStorageDirectory::readfile(const String& path)
 //---------------------------------------------------------------------------
 bool __fastcall ConfigStorageDirectory::writefile(const String& path, TStream* str)
 {
-	String filename = fdir + TStringBuilder(path).Replace(L'/', L'\\')->ToString();
+	String filename = fdir + TStringBuilder(path).Replace('/', '\\')->ToString();
 	TFileStream* f = new TFileStream(filename, fmCreate);
 	f->CopyFrom(str, 0);
 	delete f;
@@ -85,14 +85,14 @@ String __fastcall ConfigStorageDirectory::presentation()
 bool __fastcall ConfigStorageDirectory::fileexists(const String& path)
 {
 	String filename;
-	filename = fdir + TStringBuilder(path).Replace(L'/', L'\\')->ToString();
+	filename = fdir + TStringBuilder(path).Replace('/', '\\')->ToString();
 	return FileExists(filename);
 }
 
 //---------------------------------------------------------------------------
 
 //********************************************************
-// Класс ConfigStorageCFFile
+// РљР»Р°СЃСЃ ConfigStorageCFFile
 
 //---------------------------------------------------------------------------
 __fastcall ConfigStorageCFFile::ConfigStorageCFFile(const String& fname)
@@ -120,9 +120,9 @@ ConfigFile* __fastcall ConfigStorageCFFile::readfile(const String& path)
 
 	//status(path);
 
-	String fname = TStringBuilder(path).Replace(L'/', L'\\')->ToString();
+	String fname = TStringBuilder(path).Replace('/', '\\')->ToString();
 	c = cat;
-	for(i = fname.Pos(L"\\"); i; i = fname.Pos(L"\\"))
+	for(i = fname.Pos("\\"); i; i = fname.Pos("\\"))
 	{
 		f = c->GetFile(fname.SubString(1, i - 1));
 		if(!f) return NULL;
@@ -151,9 +151,9 @@ bool __fastcall ConfigStorageCFFile::writefile(const String& path, TStream* str)
 
 	if(!cat->isOpen()) return false;
 
-	String fname = TStringBuilder(path).Replace(L'/', L'\\')->ToString();
+	String fname = TStringBuilder(path).Replace('/', '\\')->ToString();
 	c = cat;
-	for(i = fname.Pos(L"\\"); i; i = fname.Pos(L"\\"))
+	for(i = fname.Pos("\\"); i; i = fname.Pos("\\"))
 	{
 		c = c->CreateCatalog(fname.SubString(1, i - 1));
 		fname = fname.SubString(i + 1, fname.Length() - i);
@@ -182,17 +182,17 @@ void __fastcall ConfigStorageCFFile::close(ConfigFile* cf)
 //---------------------------------------------------------------------------
 bool __fastcall ConfigStorageCFFile::fileexists(const String& path)
 {
-	// По сути, проверяется существование только каталога (файла верхнего уровня)
-	// Это неправильно для формата 8.0 с файлом каталогом metadata. Но метод fileexists используется только для внешних файлов,
-	// поэтому такой проверки достаточно
+	// РџРѕ СЃСѓС‚Рё, РїСЂРѕРІРµСЂСЏРµС‚СЃСЏ СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ С‚РѕР»СЊРєРѕ РєР°С‚Р°Р»РѕРіР° (С„Р°Р№Р»Р° РІРµСЂС…РЅРµРіРѕ СѓСЂРѕРІРЅСЏ)
+	// Р­С‚Рѕ РЅРµРїСЂР°РІРёР»СЊРЅРѕ РґР»СЏ С„РѕСЂРјР°С‚Р° 8.0 СЃ С„Р°Р№Р»РѕРј РєР°С‚Р°Р»РѕРіРѕРј metadata. РќРѕ РјРµС‚РѕРґ fileexists РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ РІРЅРµС€РЅРёС… С„Р°Р№Р»РѕРІ,
+	// РїРѕСЌС‚РѕРјСѓ С‚Р°РєРѕР№ РїСЂРѕРІРµСЂРєРё РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ
 
 	v8file* f;
 	int i;
 
 	if(!cat->isOpen()) return false;
 
-	String fname = TStringBuilder(path).Replace(L'/', L'\\')->ToString();
-	i = fname.Pos(L"\\");
+	String fname = TStringBuilder(path).Replace('/', '\\')->ToString();
+	i = fname.Pos("\\");
 	if(i) fname = fname.SubString(1, i - 1);
 	f = cat->GetFile(fname);
 	if(!f) return false;
@@ -202,7 +202,7 @@ bool __fastcall ConfigStorageCFFile::fileexists(const String& path)
 //---------------------------------------------------------------------------
 
 //********************************************************
-// Класс container_file
+// РљР»Р°СЃСЃ container_file
 
 //---------------------------------------------------------------------------
 __fastcall container_file::container_file(table_file* _f, const String& _name)
@@ -345,18 +345,18 @@ bool container_file::isPacked()
 	int i;
 	String ext;
 
-	if(name.CompareIC(L"DynamicallyUpdated") == 0) return false;
-	if(name.CompareIC(L"SprScndInfo") == 0) return false;
-	if(name.CompareIC(L"DBNamesVersion") == 0) return false;
-	if(name.CompareIC(L"siVersions") == 0) return false;
-	if(name.UpperCase().Pos(L"FO_VERSION") > 0) return false;
-	if(name[1] == L'{') return false;
+	if(name.CompareIC("DynamicallyUpdated") == 0) return false;
+	if(name.CompareIC("SprScndInfo") == 0) return false;
+	if(name.CompareIC("DBNamesVersion") == 0) return false;
+	if(name.CompareIC("siVersions") == 0) return false;
+	if(name.UpperCase().Pos("FO_VERSION") > 0) return false;
+	if(name[1] == '{') return false;
 	i = name.LastDelimiter(spoint);
 	if(i)
 	{
 		ext = name.SubString(i + 1, name.Length() - i).UpperCase();
-		if(ext.Compare(L"INF") == 0) return false;
-		if(ext.Compare(L"PFL") == 0) return false;
+		if(ext.Compare("INF") == 0) return false;
+		if(ext.Compare("PF") == 0) return false;
 	}
 	return true;
 
@@ -365,7 +365,7 @@ bool container_file::isPacked()
 //---------------------------------------------------------------------------
 
 //********************************************************
-// Структура дополнительных данных открытого файла класса ConfigStorageTable
+// РЎС‚СЂСѓРєС‚СѓСЂР° РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РґР°РЅРЅС‹С… РѕС‚РєСЂС‹С‚РѕРіРѕ С„Р°Р№Р»Р° РєР»Р°СЃСЃР° ConfigStorageTable
 
 //---------------------------------------------------------------------------
 enum ConfigStorageTableAddinVariant
@@ -386,7 +386,7 @@ struct ConfigStorageTable_addin
 };
 
 //********************************************************
-// Класс ConfigStorageTable
+// РљР»Р°СЃСЃ ConfigStorageTable
 
 //---------------------------------------------------------------------------
 __fastcall ConfigStorageTable::~ConfigStorageTable()
@@ -419,8 +419,8 @@ ConfigFile* __fastcall ConfigStorageTable::readfile(const String& path)
 
 	//status(path);
 
-	fname = TStringBuilder(path).Replace(L'/', L'\\')->ToString();
-	i = fname.Pos(L"\\");
+	fname = TStringBuilder(path).Replace('/', '\\')->ToString();
+	i = fname.Pos("\\");
 	if(i)
 	{
 		r_name = fname.SubString(1, i - 1);
@@ -429,7 +429,7 @@ ConfigFile* __fastcall ConfigStorageTable::readfile(const String& path)
 	else
 	{
 		r_name = fname;
-		fname = L"";
+		fname = "";
 	}
 
 	pfiles = files.find(r_name.UpperCase());
@@ -441,7 +441,7 @@ ConfigFile* __fastcall ConfigStorageTable::readfile(const String& path)
 	{
 		if(!tf->cat) tf->cat = new v8catalog(tf->stream, false, true);
 		c = tf->cat;
-		for(i = fname.Pos(L"\\"); i; i = fname.Pos(L"\\"))
+		for(i = fname.Pos("\\"); i; i = fname.Pos("\\"))
 		{
 			f = c->GetFile(fname.SubString(1, i - 1));
 			if(!f) return NULL;
@@ -479,7 +479,7 @@ ConfigFile* __fastcall ConfigStorageTable::readfile(const String& path)
 //---------------------------------------------------------------------------
 bool __fastcall ConfigStorageTable::writefile(const String& path, TStream* str)
 {
-	return false; // Запись в таблицы пока не поддерживается
+	return false; // Р—Р°РїРёСЃСЊ РІ С‚Р°Р±Р»РёС†С‹ РїРѕРєР° РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ
 }
 
 //---------------------------------------------------------------------------
@@ -522,7 +522,7 @@ bool __fastcall ConfigStorageTable::save_config(String _filename)
 		if(j != prevj)
 		{
 			prevj = j;
-			status(String(j) + L"%");
+			status(String(j) + "%");
 		}
 
 		tf = pfiles->second;
@@ -539,15 +539,15 @@ bool __fastcall ConfigStorageTable::save_config(String _filename)
 	}
 
 	delete c;
-	status(L"");
+	status("");
 	return true;
 }
 
 //---------------------------------------------------------------------------
 bool __fastcall ConfigStorageTable::fileexists(const String& path)
 {
-	// По сути, проверяется существование только каталога (файла записи верхнего уровня)
-	// Это неправильно для формата 8.0 с файлом каталогом metadata. Но метод fileexists используется только для внешних файлов, поэтому такой проверки достаточно
+	// РџРѕ СЃСѓС‚Рё, РїСЂРѕРІРµСЂСЏРµС‚СЃСЏ СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ С‚РѕР»СЊРєРѕ РєР°С‚Р°Р»РѕРіР° (С„Р°Р№Р»Р° Р·Р°РїРёСЃРё РІРµСЂС…РЅРµРіРѕ СѓСЂРѕРІРЅСЏ)
+	// Р­С‚Рѕ РЅРµРїСЂР°РІРёР»СЊРЅРѕ РґР»СЏ С„РѕСЂРјР°С‚Р° 8.0 СЃ С„Р°Р№Р»РѕРј РєР°С‚Р°Р»РѕРіРѕРј metadata. РќРѕ РјРµС‚РѕРґ fileexists РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ РІРЅРµС€РЅРёС… С„Р°Р№Р»РѕРІ, РїРѕСЌС‚РѕРјСѓ С‚Р°РєРѕР№ РїСЂРѕРІРµСЂРєРё РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ
 
 	std::map<String,container_file*>::iterator pfiles;
 	int i;
@@ -555,8 +555,8 @@ bool __fastcall ConfigStorageTable::fileexists(const String& path)
 
 	if(!ready) return false;
 
-	fname = TStringBuilder(path).Replace(L'/', L'\\')->ToString();
-	i = fname.Pos(L"\\");
+	fname = TStringBuilder(path).Replace('/', '\\')->ToString();
+	i = fname.Pos("\\");
 	if(i) fname = fname.SubString(1, i - 1);
 
 	pfiles = files.find(fname.UpperCase());
@@ -567,7 +567,7 @@ bool __fastcall ConfigStorageTable::fileexists(const String& path)
 //---------------------------------------------------------------------------
 
 //********************************************************
-// Класс ConfigStorageTableConfig
+// РљР»Р°СЃСЃ ConfigStorageTableConfig
 
 //---------------------------------------------------------------------------
 __fastcall ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _base) : ConfigStorageTable(_base)
@@ -592,53 +592,53 @@ __fastcall ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, 
 	ready = tabf->getready();
 	if(!ready) return;
 
-	present = tabf->gettable()->getbase()->getfilename() + L"\\CONFIG";
+	present = tabf->gettable()->getbase()->getfilename() + "\\CONFIG";
 
 	tab = tabf->gettable();
-	_DynamicallyUpdated = tabf->getfile(L"DynamicallyUpdated");
+	_DynamicallyUpdated = tabf->getfile("DynamicallyUpdated");
 
 	dynup = NULL;
 	if(_DynamicallyUpdated)
 	{
 		DynamicallyUpdated = new container_file(_DynamicallyUpdated, _DynamicallyUpdated->name);
 		DynamicallyUpdated->open();
-		s = tab->getbase()->getfilename() + L"\\" + tab->getname() + L"\\" + DynamicallyUpdated->name;
+		s = tab->getbase()->getfilename() + "\\" + tab->getname() + "\\" + DynamicallyUpdated->name;
 		tt = parse_1Cstream(DynamicallyUpdated->stream, s);
 		if(!tt)
 		{
-			error(L"Ошибка разбора файла DynamicallyUpdated"
-				, L"Путь", s);
+			error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° DynamicallyUpdated"
+				, "РџСѓС‚СЊ", s);
 		}
 		else
 		{
 			ct = tt->get_first();
 			if(!ct)
 			{
-				error(L"Ошибка разбора файла DynamicallyUpdated"
-					, L"Путь", s);
+				error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° DynamicallyUpdated"
+					, "РџСѓС‚СЊ", s);
 			}
 			else
 			{
 				ct = ct->get_first();
 				if(!ct)
 				{
-					error(L"Ошибка разбора файла DynamicallyUpdated"
-						, L"Путь", s);
+					error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° DynamicallyUpdated"
+						, "РџСѓС‚СЊ", s);
 				}
 				else
 				{
 					ct = ct->get_next();
 					if(!ct)
 					{
-						error(L"Ошибка разбора файла DynamicallyUpdated"
-							, L"Путь", s);
+						error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° DynamicallyUpdated"
+							, "РџСѓС‚СЊ", s);
 					}
 					else
 					{
 						if(ct->get_type() != nd_number)
 						{
-							error(L"Ошибка разбора файла DynamicallyUpdated"
-								, L"Путь", s);
+							error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° DynamicallyUpdated"
+								, "РџСѓС‚СЊ", s);
 						}
 						else
 						{
@@ -662,7 +662,7 @@ __fastcall ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, 
 		delete DynamicallyUpdated;
 	}
 
-	for(pfilesmap = tabf->files.begin(); pfilesmap != tabf->files.end(); ++pfilesmap)
+	for(pfilesmap = tabf->files().begin(); pfilesmap != tabf->files().end(); ++pfilesmap)
 	{
 		tf = pfilesmap->second;
 		if(tf == _DynamicallyUpdated) continue;
@@ -677,12 +677,12 @@ __fastcall ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, 
 		else
 		{
 			name = s;
-			ext = L"";
+			ext = "";
 		}
 
-		if(ext.CompareIC(L"new") == 0)
+		if(ext.CompareIC("new") == 0)
 		{
-			ext = L"";
+			ext = "";
 			dynno = - 2;
 		}
 		else dynno = -1;
@@ -734,7 +734,7 @@ String __fastcall ConfigStorageTableConfig::presentation()
 }
 
 //********************************************************
-// Класс ConfigStorageTableConfigSave
+// РљР»Р°СЃСЃ ConfigStorageTableConfigSave
 
 //---------------------------------------------------------------------------
 __fastcall ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, TableFiles* tabcs, T_1CD* _base) : ConfigStorageTable(_base)
@@ -765,28 +765,28 @@ __fastcall ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles
 	ready = tabcs->getready();
 	if(!ready) return;
 
-	present = tabc->gettable()->getbase()->getfilename() + L"\\CONFIGSAVE";
+	present = tabc->gettable()->getbase()->getfilename() + "\\CONFIGSAVE";
 
 	tab = tabcs->gettable();
-	_deleted = tabcs->getfile(L"deleted");
+	_deleted = tabcs->getfile("deleted");
 	if(_deleted)
 	{
 		deleted = new container_file(_deleted, _deleted->name);
 		deleted->open();
-		s = tab->getbase()->getfilename() + L"\\" + tab->getname() + L"\\" + deleted->name;
+		s = tab->getbase()->getfilename() + "\\" + tab->getname() + "\\" + deleted->name;
 		tt = parse_1Cstream(deleted->stream, s);
 		if(!tt)
 		{
-			error(L"Ошибка разбора файла deleted"
-				, L"Путь", s);
+			error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° deleted"
+				, "РџСѓС‚СЊ", s);
 		}
 		else
 		{
 			ct = tt->get_first();
 			if(!ct)
 			{
-				error(L"Ошибка разбора файла DynamicallyUpdated"
-					, L"Путь", s);
+				error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° DynamicallyUpdated"
+					, "РџСѓС‚СЊ", s);
 			}
 			{
 				for(m = ct->get_value().ToIntDef(0); m; --m)
@@ -794,16 +794,16 @@ __fastcall ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles
 					ct = ct->get_next();
 					if(!ct)
 					{
-						error(L"Ошибка разбора файла DynamicallyUpdated"
-							, L"Путь", s);
+						error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° DynamicallyUpdated"
+							, "РџСѓС‚СЊ", s);
 						break;
 					}
 					del.insert(ct->get_value().UpperCase());
 					ct = ct->get_next();
 					if(!ct)
 					{
-						error(L"Ошибка разбора файла DynamicallyUpdated"
-							, L"Путь", s);
+						error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° DynamicallyUpdated"
+							, "РџСѓС‚СЊ", s);
 						break;
 					}
 				}
@@ -814,50 +814,50 @@ __fastcall ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles
 	}
 
 	tab = tabc->gettable();
-	_DynamicallyUpdated = tabc->getfile(L"DynamicallyUpdated");
+	_DynamicallyUpdated = tabc->getfile("DynamicallyUpdated");
 
 	dynup = NULL;
 	if(_DynamicallyUpdated)
 	{
 		DynamicallyUpdated = new container_file(_DynamicallyUpdated, _DynamicallyUpdated->name);
 		DynamicallyUpdated->open();
-		s = tab->getbase()->getfilename() + L"\\" + tab->getname() + L"\\" + DynamicallyUpdated->name;
+		s = tab->getbase()->getfilename() + "\\" + tab->getname() + "\\" + DynamicallyUpdated->name;
 		tt = parse_1Cstream(DynamicallyUpdated->stream, s);
 		if(!tt)
 		{
-			error(L"Ошибка разбора файла DynamicallyUpdated"
-				, L"Путь", s);
+			error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° DynamicallyUpdated"
+				, "РџСѓС‚СЊ", s);
 		}
 		else
 		{
 			ct = tt->get_first();
 			if(!ct)
 			{
-				error(L"Ошибка разбора файла DynamicallyUpdated"
-					, L"Путь", s);
+				error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° DynamicallyUpdated"
+					, "РџСѓС‚СЊ", s);
 			}
 			else
 			{
 				ct = ct->get_first();
 				if(!ct)
 				{
-					error(L"Ошибка разбора файла DynamicallyUpdated"
-						, L"Путь", s);
+					error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° DynamicallyUpdated"
+						, "РџСѓС‚СЊ", s);
 				}
 				else
 				{
 					ct = ct->get_next();
 					if(!ct)
 					{
-						error(L"Ошибка разбора файла DynamicallyUpdated"
-							, L"Путь", s);
+						error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° DynamicallyUpdated"
+							, "РџСѓС‚СЊ", s);
 					}
 					else
 					{
 						if(ct->get_type() != nd_number)
 						{
-							error(L"Ошибка разбора файла DynamicallyUpdated"
-								, L"Путь", s);
+							error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° DynamicallyUpdated"
+								, "РџСѓС‚СЊ", s);
 						}
 						else
 						{
@@ -883,7 +883,7 @@ __fastcall ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles
 
 	m = ndynup + 2;
 
-	for(pfilesmap = tabcs->files.begin(); pfilesmap != tabcs->files.end(); ++pfilesmap)
+	for(pfilesmap = tabcs->files().begin(); pfilesmap != tabcs->files().end(); ++pfilesmap)
 	{
 		tf = pfilesmap->second;
 		if(tf == _deleted) continue;
@@ -900,12 +900,12 @@ __fastcall ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles
 		}
 		else
 		{
-			error(L"Ошибка чтения CONFIGSAVE. Повторяющееся имя файла"
-				, L"Имя файла", s);
+			error("РћС€РёР±РєР° С‡С‚РµРЅРёСЏ CONFIGSAVE. РџРѕРІС‚РѕСЂСЏСЋС‰РµРµСЃСЏ РёРјСЏ С„Р°Р№Р»Р°"
+				, "РРјСЏ С„Р°Р№Р»Р°", s);
 		}
 	}
 
-	for(pfilesmap = tabc->files.begin(); pfilesmap != tabc->files.end(); ++pfilesmap)
+	for(pfilesmap = tabc->files().begin(); pfilesmap != tabc->files().end(); ++pfilesmap)
 	{
 		tf = pfilesmap->second;
 		if(tf == _DynamicallyUpdated) continue;
@@ -924,11 +924,11 @@ __fastcall ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles
 		else
 		{
 			name = s;
-			ext = L"";
+			ext = "";
 		}
-		if(ext.CompareIC(L"new") == 0)
+		if(ext.CompareIC("new") == 0)
 		{
-			ext = L"";
+			ext = "";
 			dynno = ndynup + 1;
 		}
 		else dynno = -1;
@@ -980,7 +980,7 @@ String __fastcall ConfigStorageTableConfigSave::presentation()
 }
 
 //********************************************************
-// Класс ConfigStorageTableConfigCas
+// РљР»Р°СЃСЃ ConfigStorageTableConfigCas
 
 //---------------------------------------------------------------------------
 __fastcall ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* tabc, const String& configver, T_1CD* _base) : ConfigStorageTable(_base)
@@ -998,59 +998,59 @@ __fastcall ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* 
 	ready = tabc->getready();
 	if(!ready) return;
 
-	present = tabc->gettable()->getbase()->getfilename() + L"\\CONFIGCAS";
-	s = present + L"\\" + configver;
+	present = tabc->gettable()->getbase()->getfilename() + "\\CONFIGCAS";
+	s = present + "\\" + configver;
 
 	_configinfo = tabc->getfile(configver);
 	if(!_configinfo)
 	{
-		error(L"Ошибка поиска файла"
-			, L"Путь", s
-			, L"Имя", configver
-			, L"Имя файла", L"configinfo");
+		error("РћС€РёР±РєР° РїРѕРёСЃРєР° С„Р°Р№Р»Р°"
+			, "РџСѓС‚СЊ", s
+			, "РРјСЏ", configver
+			, "РРјСЏ С„Р°Р№Р»Р°", "configinfo");
 		return;
 	}
 
-	configinfo = new container_file(_configinfo, L"configinfo");
-	files[L"CONFIGINFO"] = configinfo;
+	configinfo = new container_file(_configinfo, "configinfo");
+	files["CONFIGINFO"] = configinfo;
 	configinfo->open();
 	tt = parse_1Cstream(configinfo->stream, s);
 	if(!tt)
 	{
-		error(L"Ошибка разбора файла configinfo"
-			, L"Путь", s);
+		error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+			, "РџСѓС‚СЊ", s);
 		delete tt;
 		return;
 	}
 	ct = tt->get_first();
 	if(!ct)
 	{
-		error(L"Ошибка разбора файла configinfo"
-			, L"Путь", s);
+		error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+			, "РџСѓС‚СЊ", s);
 		delete tt;
 		return;
 	}
 	ct = ct->get_next();
 	if(!ct)
 	{
-		error(L"Ошибка разбора файла configinfo"
-			, L"Путь", s);
+		error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+			, "РџСѓС‚СЊ", s);
 		delete tt;
 		return;
 	}
 	ct = ct->get_next();
 	if(!ct)
 	{
-		error(L"Ошибка разбора файла configinfo"
-			, L"Путь", s);
+		error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+			, "РџСѓС‚СЊ", s);
 		delete tt;
 		return;
 	}
 	ct = ct->get_first();
 	if(!ct)
 	{
-		error(L"Ошибка разбора файла configinfo"
-			, L"Путь", s);
+		error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+			, "РџСѓС‚СЊ", s);
 		delete tt;
 		return;
 	}
@@ -1061,16 +1061,16 @@ __fastcall ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* 
 		ct = ct->get_next();
 		if(!ct)
 		{
-			error(L"Ошибка разбора файла configinfo"
-				, L"Путь", s);
+			error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+				, "РџСѓС‚СЊ", s);
 			delete tt;
 			delete stream;
 			return;
 		}
 		if(ct->get_type() != nd_string)
 		{
-			error(L"Ошибка разбора файла configinfo"
-				, L"Путь", s);
+			error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+				, "РџСѓС‚СЊ", s);
 			delete tt;
 			delete stream;
 			return;
@@ -1080,16 +1080,16 @@ __fastcall ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* 
 		ct = ct->get_next();
 		if(!ct)
 		{
-			error(L"Ошибка разбора файла configinfo"
-				, L"Путь", s);
+			error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+				, "РџСѓС‚СЊ", s);
 			delete tt;
 			delete stream;
 			return;
 		}
 		if(ct->get_type() != nd_binary2)
 		{
-			error(L"Ошибка разбора файла configinfo"
-				, L"Путь", s);
+			error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+				, "РџСѓС‚СЊ", s);
 			delete tt;
 			delete stream;
 			return;
@@ -1107,10 +1107,10 @@ __fastcall ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* 
 		}
 		else
 		{
-			error(L"Ошибка поиска файла"
-				, L"Путь", s
-				, L"Имя", hashname
-				, L"Имя файла", name);
+			error("РћС€РёР±РєР° РїРѕРёСЃРєР° С„Р°Р№Р»Р°"
+				, "РџСѓС‚СЊ", s
+				, "РРјСЏ", hashname
+				, "РРјСЏ С„Р°Р№Р»Р°", name);
 			delete tt;
 			delete stream;
 			return;
@@ -1129,7 +1129,7 @@ String __fastcall ConfigStorageTableConfigCas::presentation()
 }
 
 //********************************************************
-// Класс ConfigStorageTableConfigCasSave
+// РљР»Р°СЃСЃ ConfigStorageTableConfigCasSave
 
 //---------------------------------------------------------------------------
 __fastcall ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tabc, TableFiles* tabcs, const TGUID& uid, const String& configver, T_1CD* _base) : ConfigStorageTable(_base)
@@ -1154,17 +1154,17 @@ __fastcall ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(Tabl
 	if(!ready) return;
 
 	configinfo = NULL;
-	present = tabcs->gettable()->getbase()->getfilename() + L"\\CONFIGCASSAVE";
+	present = tabcs->gettable()->getbase()->getfilename() + "\\CONFIGCASSAVE";
 
-	g = GUID_to_string(uid) + L"__";
+	g = GUID_to_string(uid) + "__";
 	gl = g.Length();
-	for(ptf = tabcs->files.begin(); ptf != tabcs->files.end(); ++ptf)
+	for(ptf = tabcs->files().begin(); ptf != tabcs->files().end(); ++ptf)
 	{
 		if(ptf->first.SubString(1, gl).CompareIC(g) == 0)
 		{
 			tf = ptf->second;
 			pcf = new container_file(tf, tf->name.SubString(gl + 1, tf->name.Length() - gl));
-			if(pcf->name.CompareIC(L"configinfo") == 0) configinfo = pcf;
+			if(pcf->name.CompareIC("configinfo") == 0) configinfo = pcf;
 			files[pcf->name.UpperCase()] = pcf;
 		}
 	}
@@ -1173,67 +1173,67 @@ __fastcall ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(Tabl
 	{
 		if(files.size())
 		{
-			error(L"Ошибка поиска файла"
-				, L"Путь", present
-				, L"Имя", g + L"configinfo"
-				, L"Имя файла", L"configinfo");
+			error("РћС€РёР±РєР° РїРѕРёСЃРєР° С„Р°Р№Р»Р°"
+				, "РџСѓС‚СЊ", present
+				, "РРјСЏ", g + "configinfo"
+				, "РРјСЏ С„Р°Р№Р»Р°", "configinfo");
 			return;
 		}
 
-		s = tabc->gettable()->getbase()->getfilename() + L"\\CONFIGCAS\\" + configver;
+		s = tabc->gettable()->getbase()->getfilename() + "\\CONFIGCAS\\" + configver;
 		_configinfo = tabc->getfile(configver);
 		if(!_configinfo)
 		{
-			error(L"Ошибка поиска файла"
-				, L"Путь", s
-				, L"Имя", configver
-				, L"Имя файла", L"configinfo");
+			error("РћС€РёР±РєР° РїРѕРёСЃРєР° С„Р°Р№Р»Р°"
+				, "РџСѓС‚СЊ", s
+				, "РРјСЏ", configver
+				, "РРјСЏ С„Р°Р№Р»Р°", "configinfo");
 			return;
 		}
 
-		configinfo = new container_file(_configinfo, L"configinfo");
-		files[L"CONFIGINFO"] = configinfo;
+		configinfo = new container_file(_configinfo, "configinfo");
+		files["CONFIGINFO"] = configinfo;
 	}
-	else s = present + L"\\" + gl + L"configinfo";
+	else s = present + "\\" + gl + "configinfo";
 
 	configinfo->open();
 	tt = parse_1Cstream(configinfo->stream, s);
 	if(!tt)
 	{
-		error(L"Ошибка разбора файла configinfo"
-			, L"Путь", s);
+		error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+			, "РџСѓС‚СЊ", s);
 		delete tt;
 		return;
 	}
 	ct = tt->get_first();
 	if(!ct)
 	{
-		error(L"Ошибка разбора файла configinfo"
-			, L"Путь", s);
+		error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+			, "РџСѓС‚СЊ", s);
 		delete tt;
 		return;
 	}
 	ct = ct->get_next();
 	if(!ct)
 	{
-		error(L"Ошибка разбора файла configinfo"
-			, L"Путь", s);
+		error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+			, "РџСѓС‚СЊ", s);
 		delete tt;
 		return;
 	}
 	ct = ct->get_next();
 	if(!ct)
 	{
-		error(L"Ошибка разбора файла configinfo"
-			, L"Путь", s);
+		error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+			, "РџСѓС‚СЊ", s);
 		delete tt;
 		return;
 	}
 	ct = ct->get_first();
 	if(!ct)
 	{
-		error(L"Ошибка разбора файла configinfo"
-			, L"Путь", s);
+		error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+			, "РџСѓС‚СЊ", s);
 		delete tt;
 		return;
 	}
@@ -1244,16 +1244,16 @@ __fastcall ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(Tabl
 		ct = ct->get_next();
 		if(!ct)
 		{
-			error(L"Ошибка разбора файла configinfo"
-				, L"Путь", s);
+			error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+				, "РџСѓС‚СЊ", s);
 			delete tt;
 			delete stream;
 			return;
 		}
 		if(ct->get_type() != nd_string)
 		{
-			error(L"Ошибка разбора файла configinfo"
-				, L"Путь", s);
+			error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+				, "РџСѓС‚СЊ", s);
 			delete tt;
 			delete stream;
 			return;
@@ -1265,16 +1265,16 @@ __fastcall ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(Tabl
 
 		if(!ct)
 		{
-			error(L"Ошибка разбора файла configinfo"
-				, L"Путь", s);
+			error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+				, "РџСѓС‚СЊ", s);
 			delete tt;
 			delete stream;
 			return;
 		}
 		if(ct->get_type() != nd_binary2)
 		{
-			error(L"Ошибка разбора файла configinfo"
-				, L"Путь", s);
+			error("РћС€РёР±РєР° СЂР°Р·Р±РѕСЂР° С„Р°Р№Р»Р° configinfo"
+				, "РџСѓС‚СЊ", s);
 			delete tt;
 			delete stream;
 			return;
@@ -1292,10 +1292,10 @@ __fastcall ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(Tabl
 		}
 		else
 		{
-			error(L"Ошибка поиска файла"
-				, L"Путь", s
-				, L"Имя", hashname
-				, L"Имя файла", name);
+			error("РћС€РёР±РєР° РїРѕРёСЃРєР° С„Р°Р№Р»Р°"
+				, "РџСѓС‚СЊ", s
+				, "РРјСЏ", hashname
+				, "РРјСЏ С„Р°Р№Р»Р°", name);
 			delete tt;
 			delete stream;
 			return;
