@@ -500,7 +500,7 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 	tree* t;
 	int len = text.Length();
 	int i;
-	wchar_t sym;
+	char sym;
 	node_type nt;
 
 	__curvalue__ = new TStringBuilder;

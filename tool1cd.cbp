@@ -11,6 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option parameters="-drc 0 ../example.1CD" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -29,8 +30,49 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-Wall" />
+			<Add option="-std=c++11" />
+			<Add option="-fpermissive" />
+			<Add option="-Dconsole" />
+			<Add directory="SystemClasses" />
 		</Compiler>
+		<Linker>
+			<Add library="dmpassystem" />
+			<Add library="boost_regex" />
+			<Add library="boost_filesystem" />
+			<Add library="boost_system" />
+			<Add library="z" />
+			<Add directory="SystemClasses" />
+		</Linker>
+		<Unit filename="APIcfBase.cpp" />
+		<Unit filename="APIcfBase.h" />
+		<Unit filename="Base64.cpp" />
+		<Unit filename="Base64.h" />
+		<Unit filename="Class_1CD.cpp" />
+		<Unit filename="Class_1CD.h" />
+		<Unit filename="Common.cpp" />
+		<Unit filename="Common.h" />
+		<Unit filename="ConfigStorage.cpp" />
+		<Unit filename="ConfigStorage.h" />
+		<Unit filename="DTshkaPCH1.h" />
+		<Unit filename="MessageRegistration.cpp" />
+		<Unit filename="MessageRegistration.h" />
+		<Unit filename="NodeTypes.h" />
+		<Unit filename="ParseCommandLine.cpp" />
+		<Unit filename="ParseCommandLine.h" />
+		<Unit filename="Parse_tree.cpp" />
+		<Unit filename="Parse_tree.h" />
+		<Unit filename="PrecompiledHeaders.h" />
+		<Unit filename="TempStream.cpp" />
+		<Unit filename="TempStream.h" />
+		<Unit filename="UZLib.cpp" />
+		<Unit filename="UZLib.h" />
+		<Unit filename="Zip.cpp" />
+		<Unit filename="Zip.h" />
+		<Unit filename="cTool_1CD_Main.cpp" />
+		<Unit filename="cTool_1CD_Main.h" />
+		<Unit filename="cTool_1CD_PCH.h" />
+		<Unit filename="db_ver.h" />
+		<Unit filename="wcxhead.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

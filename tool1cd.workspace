@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="tool1cd">
+		<Project filename="SystemClasses/SystemClasses.cbp" />
 		<Project filename="tool1cd.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

@@ -43,10 +43,15 @@ public:
 		value += s;
 	}
 
+	void Append(char c)
+	{
+		value.append(1, c);
+	}
+
 	String value;
 };
 
-class TMultiReadExclusiveWriteSynchronizer 
+class TMultiReadExclusiveWriteSynchronizer
 {
 public:
 	void BeginWrite() {}
