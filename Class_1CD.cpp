@@ -7181,10 +7181,14 @@ __fastcall TableFiles::TableFiles(table* t)
 //---------------------------------------------------------------------------
 __fastcall TableFiles::~TableFiles()
 {
-	std::map<String,table_file*>::iterator p;
-
-	delete[] rec;
-	for(p = allfiles.begin(); p != allfiles.end(); ++p) delete p->second;
+	if (rec) {
+		delete[] rec;
+		rec = nullptr;
+	}
+	for (auto p : allfiles) {
+		delete p.second;
+	}
+	allfiles.clear();
 }
 
 //---------------------------------------------------------------------------

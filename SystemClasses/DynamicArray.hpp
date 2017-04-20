@@ -25,7 +25,7 @@ public:
 		return this->size();
 	}
 
-	int SetLength(int NewSize)
+	void SetLength(int NewSize)
 	{
 		this->resize(NewSize);
 	}

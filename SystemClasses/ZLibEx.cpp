@@ -1,4 +1,4 @@
-#include "ZlibEx.hpp"
+#include "ZLibEx.hpp"
 #include <zlib.h>
 
 namespace Zlibex

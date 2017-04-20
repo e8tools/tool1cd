@@ -42,8 +42,10 @@ void __fastcall Messager::Status(const String& message)
 void __fastcall Messager::AddMessage(const String& message, const MessageState mstate, TStringList* param)
 {
 	cerr << message << endl;
-	for (auto it : *param) {
-		cerr << "\t" << it << endl;
+	if (param) {
+		for (auto it : *param) {
+			cerr << "\t" << it << endl;
+		}
 	}
 }
 
@@ -54,11 +56,16 @@ void __fastcall Messager::setlogfile(String _logfile)
 	if(FileExists(logfile)) DeleteFile(logfile);
 }
 
+bool IsTrueString(const String &str)
+{
+	String s = str.LowerCase();
+	return s.Compare("1") == 0 || s.Compare("y") == 0 || s.Compare("yes") || s.Compare("д") || s.Compare("да") == 0;
+}
+
 //---------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-	CommandParse* comm; // класс команд командной строки
-	Messager* mess; // регистратор сообщений
+	Messager mess; // регистратор сообщений
 	int i, j, k, m;
 	int ret;
 	unsigned int n;
@@ -75,13 +82,12 @@ int main(int argc, char* argv[])
 	bool ActionXMLSaveBLOBToFileChecked = false;
 	bool ActionXMLUnpackBLOBChecked = true;
 
-	mess = new Messager;
-	msreg = mess;
+	msreg = &mess;
 	base1CD = NULL;
 
-	comm = new CommandParse(argv, argc, mess);
+	CommandParse comm(argv, argc, &mess);
 
-	DynamicArray<ParsedCommand>& commands = comm->getcommands();
+	DynamicArray<ParsedCommand>& commands = comm.getcommands();
 
 	if(commands.get_length() == 0)
 	{
@@ -96,47 +102,41 @@ int main(int argc, char* argv[])
 		switch(pc.command)
 		{
 			case cmd_help:
-				cout << comm->gethelpstring() << endl;
-				delete comm;
-				delete mess;
+				cout << comm.gethelpstring() << endl;
 				return 0;
 				break;
 			case cmd_no_verbose:
-				mess->setnoverbose(true);
+				mess.setnoverbose(true);
 				break;
 			case cmd_quit:
 				//quit = true;
 				break;
 			case cmd_logfile:
-				mess->setlogfile(pc.param1);
+				mess.setlogfile(pc.param1);
 				break;
 			case cmd_not_exclusively:
 				ActionOpenBaseNotMonopolyChecked = true;
 				break;
 			case cmd_xml_blob_to_file:
-				f = pc.param1.LowerCase();
-				b = f.Compare("1") == 0 || f.Compare("y") == 0 || f.Compare("yes") || f.Compare("д") || f.Compare("да") == 0;
-				ActionXMLSaveBLOBToFileChecked = b;
+				ActionXMLSaveBLOBToFileChecked = IsTrueString(pc.param1);
 				break;
 			case cmd_xml_parse_blob:
-				f = pc.param1.LowerCase();
-				b = f.Compare("1") == 0 || f.Compare("y") == 0 || f.Compare("yes") || f.Compare("д") || f.Compare("да") == 0;
-				ActionXMLUnpackBLOBChecked = b;
+				ActionXMLUnpackBLOBChecked = IsTrueString(pc.param1);
 				break;
 		}
 	}
 
-	f = comm->getfilename();
+	f = comm.getfilename();
 	if(f.IsEmpty())
 	{
-		mess->AddMessage("В командной строке не найден файл базы 1CD", msError);
+		mess.AddMessage("В командной строке не найден файл базы 1CD", msError);
 		return 3;
 	}
 	f = System::Ioutils::TPath::GetFullPath(f);
-	base1CD = new T_1CD(f, mess, !ActionOpenBaseNotMonopolyChecked);
+	base1CD = new T_1CD(f, &mess, !ActionOpenBaseNotMonopolyChecked);
 	if(base1CD->is_open())
 	{
-		mess->AddMessage_("База данных 1CD открыта", msSuccesfull,
+		mess.AddMessage_("База данных 1CD открыта", msSuccesfull,
 			"Файл", f,
 			"Версия базы", base1CD->ver,
 			"Locale", base1CD->locale,
@@ -167,12 +167,12 @@ int main(int argc, char* argv[])
 							f = pc.param1 + "\\" + t->getname() + ".xm";
 
 							t->export_to_xml(f, ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
-							mess->AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull,
+							mess.AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull,
 								"Таблица", t->getname(),
 								"Файл", f);
 						}
 					}
-					else mess->AddError("Попытка выгрузки всех таблиц в XML без открытой базы.");
+					else mess.AddError("Попытка выгрузки всех таблиц в XML без открытой базы.");
 					break;
 
 				case cmd_export_to_xml:
@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
 						k = filters->Count();
 						if(k == 0)
 						{
-							mess->AddError("Список таблиц для выгрузки в XML пуст.");
+							mess.AddError("Список таблиц для выгрузки в XML пуст.");
 							delete filter;
 							delete filters;
 							break;
@@ -232,7 +232,7 @@ int main(int argc, char* argv[])
 								f = pc.param1 + "\\" + t->getname() + ".xml";
 
 								t->export_to_xml(f, ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
-								mess->AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull,
+								mess.AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull,
 									"Таблица", t->getname(),
 									"Файл", f);
 							}
@@ -244,7 +244,7 @@ int main(int argc, char* argv[])
 						delete filters;
 
 					}
-					else mess->AddError("Попытка выгрузки таблиц в XML без открытой базы.");
+					else mess.AddError("Попытка выгрузки таблиц в XML без открытой базы.");
 
 					break;
 				case cmd_save_config:
@@ -256,20 +256,20 @@ int main(int argc, char* argv[])
 						{
 							if(!DirectoryExists(f))
 							{
-								mess->AddMessage_("Каталог не существует.", msError,
+								mess.AddMessage_("Каталог не существует.", msError,
 									"Каталог", f);
 								break;
 							}
 							f = f + "\\dbcf.cf";
 						}
 						if(base1CD->save_config(f))
-							mess->AddMessage_("Сохранение конфигурации базы данных завершено.", msSuccesfull,
+							mess.AddMessage_("Сохранение конфигурации базы данных завершено.", msSuccesfull,
 								"Файл", f);
 						else
-							mess->AddMessage_("Не удалось сохранить конфигурацию базы данных.", msError,
+							mess.AddMessage_("Не удалось сохранить конфигурацию базы данных.", msError,
 								"Файл", f);
 					}
-					else mess->AddError("Попытка выгрузки конфигурации базы данных без открытой базы.");
+					else mess.AddError("Попытка выгрузки конфигурации базы данных без открытой базы.");
 					break;
 				case cmd_save_configsave:
 					if(base1CD->is_open())
@@ -280,20 +280,20 @@ int main(int argc, char* argv[])
 						{
 							if(!DirectoryExists(f))
 							{
-								mess->AddMessage_("Каталог не существует.", msError,
+								mess.AddMessage_("Каталог не существует.", msError,
 									"Каталог", f);
 								break;
 							}
 							f = f + "\\cf.cf";
 						}
 						if(base1CD->save_configsave(f))
-							mess->AddMessage_("Сохранение основной конфигурации завершено.", msSuccesfull,
+							mess.AddMessage_("Сохранение основной конфигурации завершено.", msSuccesfull,
 								"Файл", f);
 						else
-							mess->AddMessage_("Не удалось сохранить основную конфигурацию.", msError,
+							mess.AddMessage_("Не удалось сохранить основную конфигурацию.", msError,
 								"Файл", f);
 					}
-					else mess->AddError("Попытка выгрузки основной конфигурации без открытой базы.");
+					else mess.AddError("Попытка выгрузки основной конфигурации без открытой базы.");
 					break;
 				case cmd_save_vendors_configs:
 					if(base1CD->is_open())
@@ -303,32 +303,32 @@ int main(int argc, char* argv[])
 						{
 							f = pc.param1 + "\\" + base1CD->supplier_configs[n].name + " " + base1CD->supplier_configs[n].version + ".cf";
 							if(base1CD->save_supplier_configs(n, f))
-								mess->AddMessage_("Сохранение конфигурации поставщика завершено.", msSuccesfull,
+								mess.AddMessage_("Сохранение конфигурации поставщика завершено.", msSuccesfull,
 									"Файл", f);
 							else
-								mess->AddMessage_("Не удалось сохранить конфигурацию поставщика.", msError,
+								mess.AddMessage_("Не удалось сохранить конфигурацию поставщика.", msError,
 									"Файл", f);
 						}
 					}
-					else mess->AddError("Попытка выгрузки конфигураций поставщиков без открытой базы.");
+					else mess.AddError("Попытка выгрузки конфигураций поставщиков без открытой базы.");
 					break;
 				case cmd_save_all_configs:
 					if(base1CD->is_open())
 					{
 						f = pc.param1 + "\\dbcf.cf";
 						if(base1CD->save_config(f))
-							mess->AddMessage_("Сохранение конфигурации базы данных завершено.", msSuccesfull,
+							mess.AddMessage_("Сохранение конфигурации базы данных завершено.", msSuccesfull,
 								"Файл", f);
 						else
-							mess->AddMessage_("Не удалось сохранить конфигурацию базы данных.", msError,
+							mess.AddMessage_("Не удалось сохранить конфигурацию базы данных.", msError,
 								"Файл", f);
 
 						f = pc.param1 + "\\cf.cf";
 						if(base1CD->save_configsave(f))
-							mess->AddMessage_("Сохранение основной конфигурации завершено.", msSuccesfull,
+							mess.AddMessage_("Сохранение основной конфигурации завершено.", msSuccesfull,
 								"Файл", f);
 						else
-							mess->AddMessage_("Не удалось сохранить основную конфигурацию.", msError,
+							mess.AddMessage_("Не удалось сохранить основную конфигурацию.", msError,
 								"Файл", f);
 
 						base1CD->find_supplier_configs();
@@ -336,24 +336,24 @@ int main(int argc, char* argv[])
 						{
 							f = pc.param1 + "\\" + base1CD->supplier_configs[n].name + " " + base1CD->supplier_configs[n].version + ".cf";
 							if(base1CD->save_supplier_configs(n, f))
-								mess->AddMessage_("Сохранение конфигурации поставщика завершено.", msSuccesfull,
+								mess.AddMessage_("Сохранение конфигурации поставщика завершено.", msSuccesfull,
 									"Файл", f);
 							else
-								mess->AddMessage_("Не удалось сохранить конфигурацию поставщика.", msError,
+								mess.AddMessage_("Не удалось сохранить конфигурацию поставщика.", msError,
 									"Файл", f);
 						}
 					}
-					else mess->AddError("Попытка выгрузки всех конфигураций без открытой базы.");
+					else mess.AddError("Попытка выгрузки всех конфигураций без открытой базы.");
 					break;
 				case cmd_save_depot_config:
 					if(!base1CD->is_open())
 					{
-						mess->AddError("Попытка выгрузки конфигурации хранилища без открытой базы.");
+						mess.AddError("Попытка выгрузки конфигурации хранилища без открытой базы.");
 						break;
 					}
 					if(!base1CD->is_depot)
 					{
-						if(mess) mess->AddError("Попытка выгрузки конфигурации хранилища из базы, не являющейся хранилищем конфигурации.");
+						mess.AddError("Попытка выгрузки конфигурации хранилища из базы, не являющейся хранилищем конфигурации.");
 						break;
 					}
 					f = pc.param1;
@@ -362,7 +362,7 @@ int main(int argc, char* argv[])
 					j = base1CD->get_ver_depot_config(j);
 					if(!j)
 					{
-						if(mess) mess->AddError("Запрошенной версии конфигурации нет в хранилище конфигурации.");
+						mess.AddError("Запрошенной версии конфигурации нет в хранилище конфигурации.");
 						break;
 					}
 					f = pc.param2;
@@ -371,28 +371,28 @@ int main(int argc, char* argv[])
 					{
 						if(!DirectoryExists(f))
 						{
-							mess->AddMessage_("Каталог не существует.", msError,
+							mess.AddMessage_("Каталог не существует.", msError,
 								"Каталог", f);
 							break;
 						}
 						f = f + "\\v" + j + ".cf";
 					}
 					if(base1CD->save_depot_config(f, j))
-						mess->AddMessage_("Сохранение конфигурации хранилища завершено.", msSuccesfull,
+						mess.AddMessage_("Сохранение конфигурации хранилища завершено.", msSuccesfull,
 							"Файл", f);
 					else
-						mess->AddMessage_("Не удалось сохранить конфигурацию хранилища.", msError,
+						mess.AddMessage_("Не удалось сохранить конфигурацию хранилища.", msError,
 							"Файл", f);
 					break;
 				case cmd_save_depot_config_part:
 					if(!base1CD->is_open())
 					{
-						mess->AddError("Попытка выгрузки файлов конфигурации хранилища без открытой базы.");
+						mess.AddError("Попытка выгрузки файлов конфигурации хранилища без открытой базы.");
 						break;
 					}
 					if(!base1CD->is_depot)
 					{
-						if(mess) mess->AddError("Попытка выгрузки файлов конфигурации хранилища из базы, не являющейся хранилищем конфигурации.");
+						mess.AddError("Попытка выгрузки файлов конфигурации хранилища из базы, не являющейся хранилищем конфигурации.");
 						break;
 					}
 					f = pc.param1;
@@ -412,14 +412,14 @@ int main(int argc, char* argv[])
 					j = base1CD->get_ver_depot_config(j);
 					if(!j)
 					{
-						if(mess) mess->AddError("Запрошенной версии конфигурации нет в хранилище конфигурации."
+						mess.AddError("Запрошенной версии конфигурации нет в хранилище конфигурации."
 							, "Версия", j);
 						break;
 					}
 					k = base1CD->get_ver_depot_config(k);
 					if(!k)
 					{
-						if(mess) mess->AddError("Запрошенной версии конфигурации нет в хранилище конфигурации."
+						mess.AddError("Запрошенной версии конфигурации нет в хранилище конфигурации."
 							, "Версия", k);
 						break;
 					}
@@ -427,35 +427,32 @@ int main(int argc, char* argv[])
 					f = System::Ioutils::TPath::GetFullPath(f);
 					if(!DirectoryExists(f)) System::Ioutils::TDirectory::CreateDirectory(f);
 					if(base1CD->save_part_depot_config(f, j, k))
-						mess->AddMessage_("Сохранение файлов конфигурации хранилища завершено.", msSuccesfull,
+						mess.AddMessage_("Сохранение файлов конфигурации хранилища завершено.", msSuccesfull,
 							"Файл", f);
 					else
-						mess->AddMessage_("Не удалось сохранить файлы конфигурации хранилища.", msError,
+						mess.AddMessage_("Не удалось сохранить файлы конфигурации хранилища.", msError,
 							"Файл", f);
 					break;
 			}
 		}
 		catch(String s)
 		{
-			if(mess) mess->AddError(s);
+			mess.AddError(s);
 		}
 		catch(Exception& ex)
 		{
-			if(mess) mess->AddError(ex.Message());
+			mess.AddError(ex.Message());
 		}
 		catch(...)
 		{
-			if(mess) mess->AddError("Неизвестная ошибка.");
+			mess.AddError("Неизвестная ошибка.");
 		}
 	}
 
 	delete base1CD;
-	delete comm;
-	comm = NULL;
 
-	if(mess->has_error) ret = 1;
+	if(mess.has_error) ret = 1;
 	else ret = 0;
-	delete mess;
 	return ret;
 }
 

@@ -12,7 +12,7 @@ bool operator == (const TGUID &a, const TGUID &b)
 {
 	return a.D1 == b.D1
 		&& a.D2 == b.D2
-		&& a.D3 == b.D3		
+		&& a.D3 == b.D3
 		&& a.D4[0] == b.D4[0]
 		&& a.D4[1] == b.D4[1]
 		&& a.D4[2] == b.D4[2]
@@ -94,8 +94,8 @@ void RemoveDir(const String &dirname)
 }
 
 namespace TDirectory {
-	
-void CreateDirectory(const String &dirname)		
+
+void CreateDirectory(const String &dirname)
 {
 	CreateDir(dirname);
 }
@@ -131,13 +131,13 @@ TEncoding *TEncoding::Unicode = new TEncoding();
 TEncoding *TEncoding::UTF8 = new TEncoding();
 
 
-static int TEncoding::GetBufferEncoding(const System::DynamicArray<Byte> &Buffer, TEncoding* &AEncoding)
+int TEncoding::GetBufferEncoding(const System::DynamicArray<Byte> &Buffer, TEncoding* &AEncoding)
 {
-	// TODO: 
+	// TODO:
 	return 0;
 }
 
-static DynamicArray<Byte> TEncoding::Convert(TEncoding * const Source, TEncoding * const Destination, const DynamicArray<Byte> &Bytes, int StartIndex, int Count)
+DynamicArray<Byte> TEncoding::Convert(TEncoding * const Source, TEncoding * const Destination, const DynamicArray<Byte> &Bytes, int StartIndex, int Count)
 {
 	return Bytes;
 }
@@ -160,13 +160,13 @@ int FindFirst(const String &Path, int Attr, TSearchRec &rec)
 
 int  FindNext(TSearchRec &rec)
 {
-	// TODO: 
+	// TODO:
 	return 1;
 }
 
 void FindClose(TSearchRec &rec)
 {
-	// TODO: 
+	// TODO:
 }
 
 void CreateGUID(TGUID &guid)
