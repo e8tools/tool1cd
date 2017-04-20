@@ -7,8 +7,6 @@
 #include <System.hpp>
 #include <DynamicArray.hpp>
 
-#define _DELPHI_STRING_UNICODE
-
 namespace System {
 
 class String : public std::string
@@ -145,6 +143,25 @@ public:
 	int LastDelimiter(const String &delimiters) const
 	{
 		return 0;
+	}
+
+	const char *LastChar() const
+	{
+		if (size() == 0) {
+			return nullptr;
+		}
+		return c_str() + (size() - 1);
+	}
+
+	int WideCharBufSize() const
+	{
+		return sizeof(wchar_t) * (size() + 1);
+	}
+
+	wchar_t *WideChar(wchar_t *wbuf, int destSize) const
+	{
+		// TODO: String:WideChar()
+		return wbuf;
 	}
 
 	static String IntToHex(int n, int digits) {}

@@ -35,10 +35,13 @@ typedef struct _SYSTEMTIME {
 	WORD wMinute;
 	WORD wSecond;
 	WORD wMilliseconds;
-} SYSTEMTIME, *PSYSTEMTIME;
+} SYSTEMTIME, *PSYSTEMTIME, *LPSYSTEMTIME;
 
 bool SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime, LPFILETIME lpFileTime);
-bool LocalFileTimeToFileTime(const FILETIME   *lpLocalFileTime, LPFILETIME lpFileTime);
+bool LocalFileTimeToFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileTime);
+bool FileTimeToLocalFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileTime);
+
+void GetSystemTime(LPSYSTEMTIME lpSystemTime);
 
 
 struct TGUID {
@@ -47,6 +50,8 @@ struct TGUID {
   Word D3;
   Byte D4[8];
 };
+
+bool operator == (const TGUID &a, const TGUID &b);
 
 typedef TGUID GUID;
 

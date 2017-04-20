@@ -13,6 +13,10 @@ String StringReplace(const String &S, const String &OldPattern, const String &Ne
 class TStringBuilder
 {
 public:
+	explicit TStringBuilder()
+	{
+	}
+
 	explicit TStringBuilder(const String &initial)
 		: value(initial)
 	{
@@ -27,6 +31,16 @@ public:
 	String ToString() const
 	{
 		return value;
+	}
+
+	void Clear()
+	{
+		value = "";
+	}
+
+	void Append(const String &s)
+	{
+		value += s;
 	}
 
 	String value;
@@ -75,6 +89,8 @@ int  FindNext(TSearchRec &rec);
 void FindClose(TSearchRec &rec);
 
 void CreateGUID(TGUID &guid);
+
+String ExtractFileExt(const String &filename);
 
 } // SysUtils
 

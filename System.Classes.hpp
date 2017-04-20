@@ -14,6 +14,7 @@
 #include "System.SysUtils.hpp"
 #include "Exception.hpp"
 #include "TStreamWriter.hpp"
+#include "TStreamReader.hpp"
 
 namespace System {
 

@@ -14,6 +14,8 @@ bool DirectoryExists(const String &filename);
 
 void DeleteFile(const String &filename);
 
+void RemoveDir(const String &dirname);
+
 namespace TDirectory {
 	
 void CreateDirectory(const String &dirname);
@@ -23,6 +25,8 @@ void CreateDirectory(const String &dirname);
 namespace TPath {
 
 String GetFullPath(const String &filename);
+String GetTempPath();
+void GetTempPath(int bufSize, char *buf);
 
 } // TPath
 
