@@ -9,6 +9,8 @@
 
 namespace System {
 
+// Важно: в String индексация символов идёт с 1, а не с 0!
+
 class String : public std::string
 {
 public:
@@ -30,10 +32,10 @@ public:
 		// TODO: Do magic!
 	}
 
-	String(const int value)
-	{
-		// TODO: Do magic!
-	}
+	String(int value) : std::string(ToString(value)) {}
+	String(unsigned int value) : std::string(ToString(value)) {}
+	String(long value) : std::string(ToString(value)) {}
+	String(unsigned long value) : std::string(ToString(value)) {}
 
 	String UpperCase() const
 	{
@@ -79,34 +81,29 @@ public:
 		return String(substr(StartIndex - 1, Count));
 	}
 
-	String& operator += (const wchar_t b)
+	char &operator[] (int index)
 	{
-		// TODO: String +=
+		return at(index - 1);
+	}
+
+	const char &operator[] (int index) const
+	{
+		return at(index - 1);
+	}
+
+	template<typename AnyStringable>
+	String& operator += (AnyStringable b)
+	{
+		append(String(b));
 		return *this;
 	}
 
-	String& operator += (const wchar_t *b)
+	template<typename AnyStringable>
+	String operator + (AnyStringable value) const
 	{
-		// TODO: String +=
-		return *this;
-	}
-
-	String& operator += (const char *b)
-	{
-		// TODO: String +=
-		return *this;
-	}
-
-	String& operator += (const String &b)
-	{
-		// TODO: String +=
-		return *this;
-	}
-
-	String operator + (const int value) const
-	{
-		// TODO: String +
-		return *this;
+		String result(*this);
+		result.append(String(value));
+		return result;
 	}
 
 	int ToInt() const
@@ -137,7 +134,7 @@ public:
 
 	void SetLength(int NewLength)
 	{
-		// TODO: String::SetLength()
+		resize(NewLength);
 	}
 
 	int LastDelimiter(const String &delimiters) const
@@ -165,12 +162,23 @@ public:
 	}
 
 	static String IntToHex(int n, int digits) {}
+	static String IntToStr(int n);
+	static String UIntToStr(unsigned int n);
+	static String LongToStr(long int n);
+	static String ULongToStr(unsigned long n);
+
+	static String ToString(int n);
+	static String ToString(unsigned int n);
+	static String ToString(long n);
+	static String ToString(unsigned long n);
 };
 
 template <typename char_type>
-std::basic_string<char_type> operator + (const std::basic_string<char_type> &text, const int value)
+String operator + (const std::basic_string<char_type> &text, const int value)
 {
-	return text;
+	String a(text);
+	a += value;
+	return a;
 }
 
 class TStringList : public std::vector<String>

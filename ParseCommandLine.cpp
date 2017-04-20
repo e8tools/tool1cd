@@ -134,8 +134,8 @@ String CommandParse::helpstring =
 String dequote(String str)
 {
 	if(str.Length() < 2) return str;
-	if(str[1] == L'\"' && str[str.Length()] == L'\"') str = str.SubString(2, str.Length() - 2);
-	while(str[str.Length()] == L'\"') str = str.SubString(1, str.Length() - 1);
+	if(str[1] == '\"' && str[str.Length()] == '\"') str = str.SubString(2, str.Length() - 2);
+	while(str[str.Length()] == '\"') str = str.SubString(1, str.Length() - 1);
 	return str;
 }
 
@@ -144,28 +144,31 @@ String dequote(String str)
 __fastcall CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mess = NULL)
 //__fastcall CommandParse::CommandParse(LPWSTR _CommandLine, MessageRegistrator* _mess)
 {
-	int i, j, n, l, m;
 	int numdef = sizeof(definitions) / sizeof(CommandDefinition);
 	String k, p;
 
 	mess = _mess;
 
 	filename = "";
-	for(i = 1; i < nArgs; i++)
+	for (int i = 1; i < nArgs; i++)
 	{
 		p = szArglist[i];
-		if(p[1] == L'/' || p[1] == L'-')
+		// ВАЖНО: ломающие изменения. С "/" может начинаться путь к файлу.
+		// if (p[1] == '/' || p[1] == '-')
+		if (p[1] == '-')
 		{
 			k = p.SubString(2, p.Length() - 1).LowerCase();
-			for(j = 0; j < numdef; j++) if(k.Compare(definitions[j].key) == 0) break;
-			if(j < numdef)
+			int j;
+			for (j = 0; j < numdef; j++) if(k.Compare(definitions[j].key) == 0) break;
+			if (j < numdef)
 			{
-				n = commands.get_length();
+				int n = commands.get_length();
 				commands.set_length(n + 1);
 				commands[n].command = definitions[j].command;
 				commands[n].param1 = "";
 				commands[n].param2 = "";
 				commands[n].param3 = "";
+				int l;
 				for(l = 0; l < definitions[j].num_add_par; l++)
 				{
 					if(++i < nArgs)

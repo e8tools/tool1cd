@@ -127,8 +127,8 @@ void GetTempPath(int bufSize, char *buf)
 
 namespace SysUtils {
 
-static TEncoding *TEncoding::Unicode = new TEncoding();
-static TEncoding *TEncoding::UTF8 = new TEncoding();
+TEncoding *TEncoding::Unicode = new TEncoding();
+TEncoding *TEncoding::UTF8 = new TEncoding();
 
 
 static int TEncoding::GetBufferEncoding(const System::DynamicArray<Byte> &Buffer, TEncoding* &AEncoding)
@@ -186,6 +186,56 @@ String StringReplace(const String &S, const String &OldPattern, const String &Ne
 	return S.Replace(OldPattern, NewPattern);
 }
 
+
 } // SysUtils
+
+String String::IntToStr(int n)
+{
+	char buffer[40];
+	sprintf(buffer, "%d", n);
+	return buffer;
+}
+
+String String::UIntToStr(unsigned int n)
+{
+	char buffer[40];
+	sprintf(buffer, "%u", n);
+	return buffer;
+}
+
+String String::ULongToStr(unsigned long n)
+{
+	char buffer[40];
+	sprintf(buffer, "%lu", n);
+	return buffer;
+}
+
+String String::LongToStr(long int n)
+{
+	char buffer[40];
+	sprintf(buffer, "%ld", n);
+	return buffer;
+}
+
+String String::ToString(int n)
+{
+	return IntToStr(n);
+}
+
+String String::ToString(unsigned int n)
+{
+	return UIntToStr(n);
+}
+
+String String::ToString(unsigned long n)
+{
+	return ULongToStr(n);
+}
+
+String String::ToString(long n)
+{
+	return LongToStr(n);
+}
+
 
 } // System

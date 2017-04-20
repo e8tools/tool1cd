@@ -15,7 +15,7 @@
 #include "cTool_1CD_Main.h"
 #include "ParseCommandLine.h"
 
-using std::cout;
+using namespace std;
 
 TMultiReadExclusiveWriteSynchronizer* tr_syn = new TMultiReadExclusiveWriteSynchronizer();
 
@@ -23,21 +23,6 @@ TMultiReadExclusiveWriteSynchronizer* tr_syn = new TMultiReadExclusiveWriteSynch
 MessageRegistrator* msreg;
 const int TEMP_BUFFER_SIZE = 4096;
 char temp[TEMP_BUFFER_SIZE];
-
-
-//---------------------------------------------------------------------------
-char* oem(const char* str)
-{
-	// CharToOemA(str, temp);
-	return temp;
-}
-
-//---------------------------------------------------------------------------
-char* oem(const String& str)
-{
-	// WideCharToMultiByte(CP_OEMCP, WC_NO_BEST_FIT_CHARS, str.c_str(), -1, temp, TEMP_BUFFER_SIZE - 1, "?", NULL);
-	return temp;
-}
 
 //---------------------------------------------------------------------------
 __fastcall Messager::Messager()
@@ -56,6 +41,10 @@ void __fastcall Messager::Status(const String& message)
 //---------------------------------------------------------------------------
 void __fastcall Messager::AddMessage(const String& message, const MessageState mstate, TStringList* param)
 {
+	cerr << message << endl;
+	for (auto it : *param) {
+		cerr << "\t" << it << endl;
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -96,7 +85,7 @@ int main(int argc, char* argv[])
 
 	if(commands.get_length() == 0)
 	{
-		cout << oem("cTool_1CD (c) awa 2009 - 2016\r\nЗапусти cTool_1CD -h для справки");
+		cout << "cTool_1CD (c) awa 2009 - 2016" << endl << "Запусти cTool_1CD -h для справки" << endl;
 		return 0;
 	}
 
@@ -107,7 +96,7 @@ int main(int argc, char* argv[])
 		switch(pc.command)
 		{
 			case cmd_help:
-				cout << oem(comm->gethelpstring());
+				cout << comm->gethelpstring() << endl;
 				delete comm;
 				delete mess;
 				return 0;

@@ -45,7 +45,7 @@ public:
 
 	virtual void SetPosition(uint64_t NewPosition)
 	{
-		
+		Seek(NewPosition, soFromBeginning);
 	}
 
 public:
@@ -134,13 +134,18 @@ protected:
 
 public:
 
+	virtual int64_t GetPosition() const
+	{
+		return _stream->tellg();
+	}
+
 	virtual int64_t GetSize() const
 	{
-		auto oldg = _stream->tellg();
-		_stream->seekg(0, std::ios_base::end);
-		auto pos = _stream->tellg();
-		_stream->seekg(oldg, std::ios_base::beg);
-		return pos;
+		auto oldP = _stream->tellg();
+		_stream->seekg(0, soFromEnd);
+		auto lastP = _stream->tellg();
+		_stream->seekg(oldP, soFromBeginning);
+		return lastP;
 	}
 
 

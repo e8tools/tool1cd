@@ -3,6 +3,15 @@
 using namespace System;
 using namespace System::Classes;
 
+String doit(char d1, char d2)
+{
+	String s = (int)d1;
+	s += ".";
+	s += (int)d2;
+
+	return s;
+}
+
 int main()
 {
 
@@ -18,5 +27,11 @@ int main()
 
 	TStream *stream = new TFileStream("somefile", fmCreate);
 	stream->CopyFrom(data, 0);
+
+	if (doit('\x00', '\x02') == "0.2") {
+		std::cout << "Ok!" << std::endl;
+	} else {
+		std::cout << "Bug :(" << std::endl;
+	}
 	return 0;
 }
