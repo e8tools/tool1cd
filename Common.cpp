@@ -38,8 +38,8 @@ unsigned int __fastcall reverse_byte_order(unsigned int value)
 String __fastcall GUIDas1C(const unsigned char* fr)
 {
 	int i, j;
-	wchar_t buf[37];
-	wchar_t sym;
+	WCHART buf[37];
+	WCHART sym;
 
 	j = 0;
 	for(i = 12; i < 16; i++)
@@ -100,8 +100,8 @@ String __fastcall GUIDas1C(const unsigned char* fr)
 String __fastcall GUIDasMS(const unsigned char* fr)
 {
 	int i, j;
-	wchar_t buf[37];
-	wchar_t sym;
+	WCHART buf[37];
+	WCHART sym;
 
 	j = 0;
 	for(i = 3; i >= 0; i--)
@@ -226,8 +226,8 @@ String __fastcall GUID_to_string_flat(TGUID* guid)
 {
 	int i,j;
 
-	wchar_t buf[33];
-	wchar_t sym;
+	WCHART buf[33];
+	WCHART sym;
 	unsigned char* g = (unsigned char*)guid;
 
 	j = 0;
@@ -328,7 +328,7 @@ bool __fastcall string_to_date(const String& str, unsigned char* bytedate)
 // char[7] -> yyyymmddhhmmss
 String __fastcall date_to_string1C(const unsigned char* bytedate)
 {
-	wchar_t buf[15];
+	WCHART buf[15];
 
 	buf[0] = L'0' + (bytedate[0] >> 4);
 	buf[1] = L'0' + (bytedate[0] & 0xf);
@@ -353,7 +353,7 @@ String __fastcall date_to_string1C(const unsigned char* bytedate)
 // char[7] -> dd.mm.yyyy hh:mm:ss
 String __fastcall date_to_string(const unsigned char* bytedate)
 {
-	wchar_t buf[20];
+	WCHART buf[20];
 
 	buf[0] = L'0' + (bytedate[3] >> 4);
 	buf[1] = L'0' + (bytedate[3] & 0xf);
@@ -383,7 +383,7 @@ String __fastcall date_to_string(const unsigned char* bytedate)
 String __fastcall hexstring(char* buf, int n)
 {
 	int i;
-	String s = L"";
+	String s = "";
 	wchar_t b;
 	unsigned char c;
 
@@ -397,7 +397,7 @@ String __fastcall hexstring(char* buf, int n)
 		c &= 0xf;
 		b = hexdecode[c];
 		s += b;
-		if(i < n - 1) s += L" ";
+		if(i < n - 1) s += " ";
 	}
 
 	return s;
@@ -424,7 +424,7 @@ String __fastcall tohex64(__int64 n)
 String __fastcall hexstring(TStream* str)
 {
 	int i;
-	String s = L"";
+	String s = "";
 	wchar_t b;
 	unsigned char c, d;
 

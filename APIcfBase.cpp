@@ -1022,7 +1022,7 @@ void __fastcall v8catalog::initialize()
 				_file_header->Seek(0, soFromBeginning);
 				_temp_buf = new char[_file_header->GetSize()];
 				_file_header->Read(_temp_buf, _file_header->GetSize());
-				_name = (wchar_t*)(_temp_buf + 20);
+				_name = (WCHART*)(_temp_buf + 20);
 				_file = new v8file(this, _name, _prev, _fi.data_start, _fi.header_start, (int64_t*)_temp_buf, (int64_t*)(_temp_buf + 8));
 				delete[] _temp_buf;
 				if(!_prev) first = _file;

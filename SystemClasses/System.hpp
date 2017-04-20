@@ -16,6 +16,7 @@ typedef uint16_t Word;
 typedef uint16_t WORD;
 typedef uint8_t Byte;
 typedef uint64_t __int64;
+typedef char16_t WCHART;
 typedef wchar_t *LPWSTR;
 typedef char *LPSTR;
 

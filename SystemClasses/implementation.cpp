@@ -4,6 +4,9 @@
 #include "TStream.hpp"
 #include "TStreamReader.hpp"
 #include <boost/filesystem.hpp>
+#include <string>
+#include <sstream>
+#include <iomanip>
 
 
 namespace System {
@@ -237,5 +240,17 @@ String String::ToString(long n)
 	return LongToStr(n);
 }
 
+
+String String::IntToHex(int n, int digits)
+{
+	std::stringstream ss;
+	ss << std::hex;
+	if (digits != 0) {
+		ss << std::setfill('0') << std::setw(digits);
+	}
+	ss << n;
+
+	return String(ss.str());
+}
 
 } // System

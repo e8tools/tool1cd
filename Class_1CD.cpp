@@ -215,7 +215,7 @@ tree* __fastcall get_treeFromV8file(v8file* f)
 	}
 	bytes = TEncoding::Convert(enc, TEncoding::Unicode, sb->GetBytes(), offset, sb->GetSize() - offset);
 
-	rt = parse_1Ctext(String((wchar_t*)&bytes[0], bytes.GetLength() / 2), f->GetFullName());
+	rt = parse_1Ctext(String((WCHART*)&bytes[0], bytes.GetLength() / 2), f->GetFullName());
 	delete sb;
 	return rt;
 }
@@ -3170,10 +3170,10 @@ String __fastcall field::get_presentation(const char* rec, bool EmptyNull, wchar
 			buf[i] = 0;
 			return buf;
 		case tf_char:
-			return String((wchar_t*)fr, length);
+			return String((WCHART*)fr, length);
 		case tf_varchar:
 			i = *(short int*)fr;
-			return String((wchar_t*)(fr + 2), i);
+			return String((WCHART*)(fr + 2), i);
 		case tf_version:
 			return String(*(int*)fr) + ":" + *(int*)(fr + 4) + ":" + *(int*)(fr + 8) + ":" + *(int*)(fr + 12);
 		case tf_version8:
@@ -3334,14 +3334,14 @@ bool __fastcall field::get_bynary_value(char* binary_value, bool null, String& v
 			l = value.GetLength();
 			i = min(l, length);
 			memcpy(fr, value.c_str(), i << 1);
-			while(i < length) ((wchar_t*)fr)[i++] = L' ';
+			while(i < length) ((WCHART*)fr)[i++] = L' ';
 			break;
 		case tf_varchar:
 			l = value.GetLength();
 			i = min(l, length);
 			*(short int*)fr = i;
 			memcpy(fr + 2, value.c_str(), i * 2);
-			while(i < length) ((wchar_t*)(fr + 2))[i++] = L' ';
+			while(i < length) ((WCHART*)(fr + 2))[i++] = L' ';
 			break;
 		case tf_version:
 			return false;
@@ -3618,10 +3618,10 @@ String __fastcall field::get_XML_presentation(char* rec, bool ignore_showGUID)
 			buf[i] = 0;
 			return buf;
 		case tf_char:
-			return toXML(String((wchar_t*)fr, length));
+			return toXML(String((WCHART*)fr, length));
 		case tf_varchar:
 			i = *(short int*)fr;
-			return toXML(String((wchar_t*)(fr + 2), i));
+			return toXML(String((WCHART*)(fr + 2), i));
 		case tf_version:
 			return String(*(int*)fr) + ":" + *(int*)(fr + 4) + ":" + *(int*)(fr + 8) + ":" + *(int*)(fr + 12);
 		case tf_version8:
@@ -3629,7 +3629,7 @@ String __fastcall field::get_XML_presentation(char* rec, bool ignore_showGUID)
 		case tf_string:
 			out = new TMemoryStream();
 			parent->readBlob(out, *(unsigned int*)fr, *(unsigned int*)(fr + 4));
-			s = toXML(String((wchar_t*)(out->GetMemory()), out->GetSize() / 2));
+			s = toXML(String((WCHART*)(out->GetMemory()), out->GetSize() / 2));
 			delete out;
 			return s;
 		case tf_text:
@@ -3643,7 +3643,7 @@ String __fastcall field::get_XML_presentation(char* rec, bool ignore_showGUID)
 			out = new TMemoryStream();
 			parent->readBlob(in, *(unsigned int*)fr, *(unsigned int*)(fr + 4));
 			base64_encode(in, out, 72);
-			s = String((wchar_t*)(out->GetMemory()), out->GetSize() / 2);
+			s = String((WCHART*)(out->GetMemory()), out->GetSize() / 2);
 			delete in;
 			delete out;
 			return s;
@@ -5071,7 +5071,7 @@ __fastcall table::table(T_1CD* _base, int block_descr)
 	base = _base;
 
 	descr_table = new v8object(base, block_descr);
-	description = String((wchar_t*)descr_table->getdata(), descr_table->getlen() / 2);
+	description = String((WCHART*)descr_table->getdata(), descr_table->getlen() / 2);
 
 
 	init(block_descr);
@@ -5925,7 +5925,7 @@ void __fastcall table::import_table2(String path)
 			f->Read(buf, i);
 			buf[i] =0;
 			buf[i + 1] =0;
-			str = String((wchar_t*)buf);
+			str = String((WCHART*)buf);
 			delete[] buf;
 			delete f;
 
@@ -7463,50 +7463,50 @@ table* __fastcall T_1CD::gettable(int numtable)
 void __fastcall T_1CD::init()
 {
 	filename = "";
-	fs = NULL;
-	free_blocks = NULL;
-	root_object = NULL;
-	tables = NULL;
+	fs = nullptr;
+	free_blocks = nullptr;
+	root_object = nullptr;
+	tables = nullptr;
 	num_tables = 0;
 //	ibtype = tt_unknown;
-	table_config = NULL;
-	table_configsave = NULL;
-	table_params = NULL;
-	table_files = NULL;
-	table_dbschema = NULL;
-	table_configcas = NULL;
-	table_configcassave = NULL;
-	table__extensionsinfo = NULL;
+	table_config = nullptr;
+	table_configsave = nullptr;
+	table_params = nullptr;
+	table_files = nullptr;
+	table_dbschema = nullptr;
+	table_configcas = nullptr;
+	table_configcassave = nullptr;
+	table__extensionsinfo = nullptr;
 
-	_files_config = NULL;
-	_files_configsave = NULL;
-	_files_params = NULL;
-	_files_files = NULL;
-	_files_configcas = NULL;
-	_files_configcassave = NULL;
+	_files_config = nullptr;
+	_files_configsave = nullptr;
+	_files_params = nullptr;
+	_files_files = nullptr;
+	_files_configcas = nullptr;
+	_files_configcassave = nullptr;
 
-	cs_config = NULL;
-	cs_configsave = NULL;
+	cs_config = nullptr;
+	cs_configsave = nullptr;
 
-	table_depot = NULL;
-	table_users = NULL;
-	table_objects = NULL;
-	table_versions = NULL;
-	table_labels = NULL;
-	table_history = NULL;
-	table_lastestversions = NULL;
-	table_externals = NULL;
-	table_selfrefs = NULL;
-	table_outrefs = NULL;
+	table_depot = nullptr;
+	table_users = nullptr;
+	table_objects = nullptr;
+	table_versions = nullptr;
+	table_labels = nullptr;
+	table_history = nullptr;
+	table_lastestversions = nullptr;
+	table_externals = nullptr;
+	table_selfrefs = nullptr;
+	table_outrefs = nullptr;
 
 	supplier_configs_defined = false;
-	locale = NULL;
+	locale = nullptr;
 
 	is_infobase = false;
 	is_depot = false;
 	field::showGUIDasMS = false;
 
-	pagemap = NULL;
+	pagemap = nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -8788,7 +8788,7 @@ bool __fastcall T_1CD::recursive_test_stream_format(TStream* str, String path, b
 				}
 				else
 				{
-					sf = String((wchar_t*)&bytes2[0], bytes2.GetLength() / 2);
+					sf = String((WCHART*)&bytes2[0], bytes2.GetLength() / 2);
 					for(i = 1; i <= sf.GetLength(); i++)
 					{
 						first_symbol = sf[i];
@@ -8928,7 +8928,7 @@ bool __fastcall T_1CD::create_table(String path)
 	f->Read(buf, i);
 	buf[i] = 0;
 	buf[i + 1] = 0;
-	str = String((wchar_t*)buf);
+	str = String((WCHART*)buf);
 	delete[] buf;
 	delete f;
 
@@ -9044,7 +9044,7 @@ bool __fastcall T_1CD::create_table(String path)
 			f->Read(buf, i);
 			buf[i] =0;
 			buf[i + 1] =0;
-			str = String((wchar_t*)buf);
+			str = String((WCHART*)buf);
 			delete[] buf;
 			delete f;
 
@@ -9295,7 +9295,7 @@ bool __fastcall T_1CD::test_list_of_tables()
 				}
 				else
 				{
-					sf = String((wchar_t*)&bytes2[0], bytes2.GetLength() / 2);
+					sf = String((WCHART*)&bytes2[0], bytes2.GetLength() / 2);
 					for(i = 1; i <= sf.GetLength(); i++)
 					{
 						first_symbol = sf[i];

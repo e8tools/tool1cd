@@ -518,20 +518,20 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 			case s_value:
 				switch(sym)
 				{
-					case L' ': // space
-					case L'\t':
-					case L'\r':
-					case L'\n':
+					case ' ': // space
+					case '\t':
+					case '\r':
+					case '\n':
 						break;
-					case L'"':
+					case '"':
 						//curvalue = "";
 						__curvalue__->Clear();
 						state = s_string;
 						break;
-					case L'{':
+					case '{':
 						t = new tree("", nd_list, t);
 						break;
-					case L'}':
+					case '}':
 						if(t->get_first()) t->add_child("", nd_empty);
 						t = t->get_parent();
 						if(!t)
@@ -544,7 +544,7 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 						}
 						state = s_delimitier;
 						break;
-					case L',':
+					case ',':
 						t->add_child("", nd_empty);
 						break;
 					default:
@@ -558,15 +558,15 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 			case s_delimitier:
 				switch(sym)
 				{
-					case L' ': // space
-					case L'\t':
-					case L'\r':
-					case L'\n':
+					case ' ': // space
+					case '\t':
+					case '\r':
+					case '\n':
 						break;
-					case L',':
+					case ',':
 						state = s_value;
 						break;
-					case L'}':
+					case '}':
 						t = t->get_parent();
 						if(!t)
 						{
@@ -588,14 +588,14 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 				}
 				break;
 			case s_string:
-				if(sym == L'"'){
+				if(sym == '"'){
 					state = s_quote_or_endstring;
 				}
 				//else curvalue += String(sym);
 				else __curvalue__->Append(sym);
 				break;
 			case s_quote_or_endstring:
-				if(sym == L'"')
+				if(sym == '"')
 				{
 					//curvalue += String(sym);
 					__curvalue__->Append(sym);
@@ -607,16 +607,16 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 					t->add_child(__curvalue__->ToString(), nd_string);
 					switch(sym)
 					{
-						case L' ': // space
-						case L'\t':
-						case L'\r':
-						case L'\n':
+						case ' ': // space
+						case '\t':
+						case '\r':
+						case '\n':
 							state = s_delimitier;
 							break;
-						case L',':
+						case ',':
 							state = s_value;
 							break;
-						case L'}':
+						case '}':
 							t = t->get_parent();
 							if(!t)
 							{
@@ -641,7 +641,7 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 			case s_nonstring:
 				switch(sym)
 				{
-					case L',':
+					case ',':
 						curvalue = __curvalue__->ToString();
 						nt = classification_value(curvalue);
 						if(nt == nd_unknown) if(msreg) msreg->AddError("Ошибка формата потока. Неизвестный тип значения.",
@@ -650,7 +650,7 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 						t->add_child(curvalue, nt);
 						state = s_value;
 						break;
-					case L'}':
+					case '}':
 						curvalue = __curvalue__->ToString();
 						nt = classification_value(curvalue);
 						if(nt == nd_unknown) if(msreg) msreg->AddError("Ошибка формата потока. Неизвестный тип значения.",

@@ -22,14 +22,23 @@ public:
 	{
 	}
 
-	String(const char *src, int limit_size = -1)
+	String(const char *src, int limit_size = 0)
 		 : std::string(src)
 	{
 	}
 
-	String(const wchar_t *w_src, int limit_size = -1)
+	String(const WCHART *w_src, int limit_size = 0)
 	{
-		// TODO: Do magic!
+		// Костыль
+		const WCHART *p = w_src;
+		bool limit_exceeded = false;
+		while (!limit_exceeded && *p) {
+			append(1, (const char)(*p));
+			++p;
+			if (limit_size) {
+				limit_exceeded = --limit_size == 0;
+			}
+		}
 	}
 
 	String(int value) : std::string(ToString(value)) {}
@@ -161,7 +170,7 @@ public:
 		return wbuf;
 	}
 
-	static String IntToHex(int n, int digits) {}
+	static String IntToHex(int n, int digits);
 	static String IntToStr(int n);
 	static String UIntToStr(unsigned int n);
 	static String LongToStr(long int n);
