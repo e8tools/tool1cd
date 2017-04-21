@@ -1,5 +1,5 @@
-CFLAGS=-std=c++11 -Wfatal-errors -fpermissive -ISystemClasses
-LDFLAGS=-LSystemClasses -ldmpassystem -lboost_regex -lboost_filesystem -lboost_system -lz
+CFLAGS=-std=c++11 -Wfatal-errors -fpermissive -ISystemClasses -g -pg
+LDFLAGS=-LSystemClasses -ldmpassystem -lboost_regex -lboost_filesystem -lboost_system -lz -g -pg
 
 .cpp.o:
 	g++ $(CFLAGS) -o $@ -c $<

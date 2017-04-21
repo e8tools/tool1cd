@@ -4,6 +4,7 @@
 #include "TStream.hpp"
 #include "String.hpp"
 #include <iostream>
+#include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
 namespace System {
@@ -31,11 +32,11 @@ public:
 			mode |= std::ios::trunc;
 		}
 
-		reset(new boost::filesystem::fstream(boost::filesystem::path(FileName), mode));
+		reset(new boost::filesystem::fstream(boost::filesystem::path(FileName.c_str()), mode));
 
 	}
 
-	~TFileStream()
+	virtual __fastcall ~TFileStream()
 	{
 	}
 

@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
 		return 3;
 	}
 
-	boost::filesystem::path dbpath(f);
+	boost::filesystem::path dbpath(f.c_str());
 	dbpath = boost::filesystem::absolute(dbpath);
 	T_1CD base1CD(dbpath.string(), &mess, !ActionOpenBaseNotMonopolyChecked);
 	if (base1CD.is_open())
@@ -253,7 +253,7 @@ int main(int argc, char* argv[])
 				case cmd_save_config:
 					if(base1CD.is_open())
 					{
-						boost::filesystem::path fpath(pc.param1);
+						boost::filesystem::path fpath(pc.param1.c_str());
 						fpath = boost::filesystem::absolute(fpath);
 						if (!boost::iequals(fpath.extension().string(), ".cf"))
 						{

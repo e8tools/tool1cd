@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-drc 0 ../example.1CD" />
+				<Option parameters="-drc 0 .. ../example.1CD" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -41,7 +41,7 @@
 			<Add library="boost_filesystem" />
 			<Add library="boost_system" />
 			<Add library="z" />
-			<Add directory="SystemClasses" />
+			<Add directory="SystemClasses/bin/Debug" />
 		</Linker>
 		<Unit filename="APIcfBase.cpp" />
 		<Unit filename="APIcfBase.h" />

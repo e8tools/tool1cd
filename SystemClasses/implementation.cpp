@@ -72,28 +72,28 @@ namespace Ioutils {
 
 void CreateDir(const String &dirname)
 {
-	boost::filesystem::create_directory(boost::filesystem::path(dirname));
+	boost::filesystem::create_directory(boost::filesystem::path(dirname.c_str()));
 }
 
 bool FileExists(const String &filename)
 {
-	return boost::filesystem::exists(boost::filesystem::path(filename));
+	return boost::filesystem::exists(boost::filesystem::path(filename.c_str()));
 }
 
 bool DirectoryExists(const String &filename)
 {
-	return boost::filesystem::exists(boost::filesystem::path(filename))
-		&& boost::filesystem::is_directory(boost::filesystem::path(filename));
+	return boost::filesystem::exists(boost::filesystem::path(filename.c_str()))
+		&& boost::filesystem::is_directory(boost::filesystem::path(filename.c_str()));
 }
 
 void DeleteFile(const String &filename)
 {
-	boost::filesystem::remove(boost::filesystem::path(filename));
+	boost::filesystem::remove(boost::filesystem::path(filename.c_str()));
 }
 
 void RemoveDir(const String &dirname)
 {
-	boost::filesystem::remove_all(dirname);
+	boost::filesystem::remove_all(dirname.c_str());
 }
 
 namespace TDirectory {
@@ -110,7 +110,7 @@ namespace TPath {
 
 String GetFullPath(const String &filename)
 {
-	auto absolute_path = boost::filesystem::absolute(boost::filesystem::path(filename));
+	auto absolute_path = boost::filesystem::absolute(boost::filesystem::path(filename.c_str()));
 	return String(absolute_path.string());
 }
 
@@ -179,7 +179,7 @@ void CreateGUID(TGUID &guid)
 
 String ExtractFileExt(const String &filename)
 {
-	boost::filesystem::path _p(filename);
+	boost::filesystem::path _p(filename.c_str());
 	return _p.extension().string();
 }
 
@@ -213,10 +213,24 @@ String String::ULongToStr(unsigned long n)
 	return buffer;
 }
 
-String String::LongToStr(long int n)
+String String::LongToStr(long n)
 {
 	char buffer[40];
 	sprintf(buffer, "%ld", n);
+	return buffer;
+}
+
+String String::ULongLongToStr(unsigned long long n)
+{
+	char buffer[40];
+	sprintf(buffer, "%llu", n);
+	return buffer;
+}
+
+String String::LongLongToStr(long long n)
+{
+	char buffer[40];
+	sprintf(buffer, "%lld", n);
 	return buffer;
 }
 
@@ -238,6 +252,16 @@ String String::ToString(unsigned long n)
 String String::ToString(long n)
 {
 	return LongToStr(n);
+}
+
+String String::ToString(unsigned long long n)
+{
+	return ULongLongToStr(n);
+}
+
+String String::ToString(long long n)
+{
+	return LongLongToStr(n);
 }
 
 

@@ -4467,7 +4467,7 @@ void __fastcall table::init(int block_descr)
 		}
 		ws = ff->get_value();
 		if(ws == "B") fld->type = tf_binary;
-		else if(ws == "") fld->type = tf_bool;
+		else if(ws == "L") fld->type = tf_bool;
 		else if(ws == "N") fld->type = tf_numeric;
 		else if(ws == "NC") fld->type = tf_char;
 		else if(ws == "NVC") fld->type = tf_varchar;

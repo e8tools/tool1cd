@@ -45,7 +45,7 @@ __fastcall TTempStream::~TTempStream()
 
 String __fastcall TTempStream::gettempname()
 {
-	return (boost::filesystem::path(tempname) / boost::filesystem::unique_path()).string();
+	return (boost::filesystem::path(tempname.c_str()) / boost::filesystem::unique_path()).string();
 }
 
 //---------------------------------------------------------------------------

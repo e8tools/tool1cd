@@ -45,6 +45,8 @@ public:
 	String(unsigned int value) : std::string(ToString(value)) {}
 	String(long value) : std::string(ToString(value)) {}
 	String(unsigned long value) : std::string(ToString(value)) {}
+	String(long long value) : std::string(ToString(value)) {}
+	String(unsigned long long value) : std::string(ToString(value)) {}
 
 	String UpperCase() const
 	{
@@ -87,6 +89,9 @@ public:
 
 	String SubString(int StartIndex, int Count) const
 	{
+		if (StartIndex > Length()) {
+			return String("");
+		}
 		return String(substr(StartIndex - 1, Count));
 	}
 
@@ -175,11 +180,15 @@ public:
 	static String UIntToStr(unsigned int n);
 	static String LongToStr(long int n);
 	static String ULongToStr(unsigned long n);
+	static String LongLongToStr(long long n);
+	static String ULongLongToStr(unsigned long long n);
 
 	static String ToString(int n);
 	static String ToString(unsigned int n);
 	static String ToString(long n);
 	static String ToString(unsigned long n);
+	static String ToString(long long n);
+	static String ToString(unsigned long long n);
 };
 
 template <typename char_type>

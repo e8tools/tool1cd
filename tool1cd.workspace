@@ -2,6 +2,8 @@
 <CodeBlocks_workspace_file>
 	<Workspace title="tool1cd">
 		<Project filename="SystemClasses/SystemClasses.cbp" />
-		<Project filename="tool1cd.cbp" />
+		<Project filename="tool1cd.cbp">
+			<Depends filename="SystemClasses/SystemClasses.cbp" />
+		</Project>
 	</Workspace>
 </CodeBlocks_workspace_file>

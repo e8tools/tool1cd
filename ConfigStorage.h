@@ -51,6 +51,7 @@ public:
 	virtual String __fastcall presentation();
 	virtual void __fastcall close(ConfigFile* cf){delete cf->str; delete cf;};
 	virtual bool __fastcall fileexists(const String& path);
+	virtual __fastcall ~ConfigStorageDirectory() {}
 };
 
 //---------------------------------------------------------------------------
@@ -129,6 +130,7 @@ private:
 public:
 	__fastcall ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _base = NULL);
 	virtual String __fastcall presentation();
+	virtual __fastcall ~ConfigStorageTableConfig() {}
 };
 
 //---------------------------------------------------------------------------
@@ -140,6 +142,7 @@ private:
 public:
 	__fastcall ConfigStorageTableConfigSave(TableFiles* tabc, TableFiles* tabcs, T_1CD* _base = NULL);
 	virtual String __fastcall presentation();
+	virtual __fastcall ~ConfigStorageTableConfigSave() {}
 };
 
 //---------------------------------------------------------------------------
@@ -151,6 +154,7 @@ private:
 public:
 	__fastcall ConfigStorageTableConfigCas(TableFiles* tabc, const String& configver, T_1CD* _base = NULL);
 	virtual String __fastcall presentation();
+	virtual __fastcall ~ConfigStorageTableConfigCas() {}
 };
 
 //---------------------------------------------------------------------------
@@ -162,6 +166,7 @@ private:
 public:
 	__fastcall ConfigStorageTableConfigCasSave(TableFiles* tabc, TableFiles* tabcs, const TGUID& uid, const String& configver, T_1CD* _base = NULL);
 	virtual String __fastcall presentation();
+	virtual __fastcall ~ConfigStorageTableConfigCasSave() {}
 };
 
 

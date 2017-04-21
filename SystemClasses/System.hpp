@@ -1,9 +1,13 @@
 #ifndef SYSTEM_HPP
 #define SYSTEM_HPP
 
+#ifndef DELPHI_PACKAGE
 #define DELPHI_PACKAGE
+#endif // DELPHI_PACKAGE
 
+#ifndef __fastcall
 #define __fastcall
+#endif // __fastcall
 
 #include <cstdint>
 #include <vector>
@@ -15,7 +19,9 @@ typedef uint32_t LongWord;
 typedef uint16_t Word;
 typedef uint16_t WORD;
 typedef uint8_t Byte;
+#ifndef __int64
 typedef uint64_t __int64;
+#endif // __int62
 typedef char16_t WCHART;
 typedef wchar_t *LPWSTR;
 typedef char *LPSTR;
