@@ -152,7 +152,7 @@ DynamicArray<Byte> TEncoding::GetPreamble()
 
 int StrToInt(const String &s)
 {
-	return std::atoi(s.c_str());
+	return std::stoi(s.c_str());
 }
 
 int FindFirst(const String &Path, int Attr, TSearchRec &rec)

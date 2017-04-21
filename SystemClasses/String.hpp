@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <System.hpp>
 #include <DynamicArray.hpp>
+#include <stdexcept>
 
 namespace System {
 
@@ -122,14 +123,16 @@ public:
 
 	int ToInt() const
 	{
-		// TODO: String::ToInt
-		return ToIntDef(0);
+		return std::stoi(*this);
 	}
 
 	int ToIntDef(int default_value) const
 	{
-		// TODO: String::ToIntDef
-		return default_value;
+		try {
+			return ToInt();
+		} catch (const std::invalid_argument &) {
+			return default_value;
+		}
 	}
 
 	int Pos(const String &substr)
@@ -172,6 +175,9 @@ public:
 	wchar_t *WideChar(wchar_t *wbuf, int destSize) const
 	{
 		// TODO: String:WideChar()
+		for (int i = 0; i < size(); i++) {
+			wbuf[i] = c_str()[i];
+		}
 		return wbuf;
 	}
 

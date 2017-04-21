@@ -25,27 +25,31 @@ const TSeekOrigin soFromEnd = std::ios_base::end;
 
 class TStream
 {
+protected:
+	int64_t m_position;
+	int64_t m_size;
 
 public:
 
 	virtual __fastcall int64_t GetSize() const
 	{
-		return 0;
+		return m_size;
 	}
 
 	virtual __fastcall void SetSize(int64_t NewSize)
 	{
-
+		// TODO: TStream::SetSize
+		m_size = NewSize;
 	}
 
 	virtual __fastcall int64_t GetPosition() const
 	{
-		return 0;
+		return m_position;
 	}
 
-	virtual __fastcall void SetPosition(uint64_t NewPosition)
+	virtual __fastcall void SetPosition(int64_t NewPosition)
 	{
-		Seek(NewPosition, soFromBeginning);
+		m_position = NewPosition;
 	}
 
 public:
@@ -57,17 +61,25 @@ public:
 
 	virtual __fastcall int64_t Seek(const int64_t offset, const TSeekOrigin Origin)
 	{
-		return 0;
+		if (Origin == soFromBeginning) {
+			m_position = offset;
+		} else if (Origin == soFromEnd) {
+			m_position = GetSize() - offset;
+		} else {
+			m_position += offset;
+		}
+		return m_position;
 	}
 
-	virtual __fastcall int64_t Write(const void *Buffer, const int64_t Count)
+	virtual __fastcall int64_t Write(const void *Buffer, int64_t Count)
 	{
 		return 0;
 	}
 
 	virtual __fastcall int64_t ReadBuffer(void *Buffer, int64_t Count)
 	{
-		return Read(Buffer, Count);
+		auto data_read = Read(Buffer, Count);
+		return data_read;
 	}
 
 	virtual __fastcall int64_t Read(System::DynamicArray<System::Byte> &Buffer, int64_t Count)
@@ -80,7 +92,11 @@ public:
 	virtual __fastcall int64_t CopyFrom(TStream *Source, const int64_t Count)
 	{
 		if (Count == 0) {
-			return CopyFrom(Source, Source->GetSize());
+			auto data_size = Source->GetSize();
+			if (data_size != 0) {
+				return CopyFrom(Source, data_size);
+			}
+			return 0;
 		}
 		System::DynamicArray<System::Byte> _data;
 		auto resultCount = Source->Read(_data, Count);
@@ -99,7 +115,11 @@ public:
 	virtual __fastcall int64_t Write(const System::DynamicArray<System::Byte> &Buffer, const int64_t Count)
 	{
 		if (Count == 0) {
-			return Write(Buffer.data(), Buffer.size());
+			auto data_size = Buffer.size();
+			if (data_size != 0) {
+				return Write(Buffer.data(), data_size);
+			}
+			return 0;
 		}
 		return Write(Buffer.data(), Count);
 	}
@@ -121,52 +141,50 @@ protected:
 
 	TWrapperStream(const std::shared_ptr<std::iostream> &stream)
 		: _stream(stream)
-	{}
+	{
+		init_size();
+	}
 
 	TWrapperStream(std::shared_ptr<std::iostream> &&stream)
 		: _stream(stream)
-	{}
+	{
+		init_size();
+	}
 
 	void reset(std::iostream *stream)
 	{
 		_stream.reset(stream);
+		init_size();
+		m_position = 0;
+	}
+
+	void init_size()
+	{
+		_stream->seekg(0, std::ios_base::end);
+		m_size = _stream->tellg();
+		_stream->seekg(0, std::ios_base::beg);
 	}
 
 public:
 
-	virtual __fastcall int64_t GetPosition() const
-	{
-		return _stream->tellg();
-	}
-
-	virtual __fastcall int64_t GetSize() const
-	{
-		auto oldP = _stream->tellg();
-		_stream->seekg(0, soFromEnd);
-		auto lastP = _stream->tellg();
-		_stream->seekg(oldP, soFromBeginning);
-		return lastP;
-	}
-
-
 	virtual __fastcall int64_t Read(void *Buffer, int64_t Count)
 	{
+		_stream->seekg(GetPosition(), std::ios_base::beg);
 		_stream->read((char*)Buffer, Count);
-		return _stream->gcount();
-	}
-
-	virtual __fastcall int64_t Seek(const int64_t offset, const TSeekOrigin Origin)
-	{
-		std::ios_base::seekdir native = Origin;
-		_stream->seekg(offset, native);
-		_stream->seekp(offset, native);
-		return _stream->tellg();
+		auto data_read = _stream->gcount();
+		m_position += data_read;
+		return data_read;
 	}
 
 	virtual __fastcall int64_t Write(const void *Buffer, const int64_t Count)
 	{
+		_stream->seekp(GetPosition(), std::ios_base::beg);
 		_stream->write((char*)Buffer, Count);
 		_stream->flush();
+		m_position += Count;
+		if (m_position > m_size) {
+			m_size = m_position;
+		}
 		return Count;
 	}
 
