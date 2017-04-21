@@ -1,0 +1,11 @@
+
+*.o
+bin/*
+obj/*
+
+*.layout
+*.depend
+
+*.a
+*.out
+
