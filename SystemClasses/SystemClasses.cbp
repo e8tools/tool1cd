@@ -45,20 +45,27 @@
 		<Unit filename="Classes.hpp" />
 		<Unit filename="DynamicArray.hpp" />
 		<Unit filename="Exception.hpp" />
+		<Unit filename="String.cpp" />
 		<Unit filename="String.hpp" />
 		<Unit filename="SysInit.hpp" />
+		<Unit filename="System.Classes.cpp" />
 		<Unit filename="System.Classes.hpp" />
+		<Unit filename="System.IOUtils.cpp" />
 		<Unit filename="System.IOUtils.hpp" />
+		<Unit filename="System.SysUtils.cpp" />
 		<Unit filename="System.SysUtils.hpp" />
+		<Unit filename="System.cpp" />
 		<Unit filename="System.hpp" />
 		<Unit filename="TFileStream.hpp" />
+		<Unit filename="TMemoryStream.cpp" />
 		<Unit filename="TMemoryStream.hpp" />
 		<Unit filename="TStream.hpp" />
+		<Unit filename="TStreamReader.cpp" />
 		<Unit filename="TStreamReader.hpp" />
+		<Unit filename="TStreamWriter.cpp" />
 		<Unit filename="TStreamWriter.hpp" />
 		<Unit filename="ZLibEx.cpp" />
 		<Unit filename="ZLibEx.hpp" />
-		<Unit filename="implementation.cpp" />
 		<Unit filename="vcl.h" />
 		<Extensions>
 			<code_completion />

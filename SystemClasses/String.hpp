@@ -3,10 +3,8 @@
 
 #include <string>
 #include <vector>
-#include <algorithm>
 #include <System.hpp>
 #include <DynamicArray.hpp>
-#include <stdexcept>
 
 namespace System {
 
@@ -16,95 +14,40 @@ class String : public std::string
 {
 public:
 
-	String() {}
+	String();
 
-	String(const std::string &src)
-		 : std::string(src)
-	{
-	}
+	String(const std::string &src);
 
-	String(const char *src, int limit_size = 0)
-		 : std::string(src)
-	{
-	}
+	String(const char *src, int limit_size = 0);
 
-	String(const WCHART *w_src, int limit_size = 0)
-	{
-		// Костыль
-		const WCHART *p = w_src;
-		bool limit_exceeded = false;
-		while (!limit_exceeded && *p) {
-			append(1, (const char)(*p));
-			++p;
-			if (limit_size) {
-				limit_exceeded = --limit_size == 0;
-			}
-		}
-	}
+	String(const WCHART *w_src, int limit_size = 0);
 
-	String(int value) : std::string(ToString(value)) {}
-	String(unsigned int value) : std::string(ToString(value)) {}
-	String(long value) : std::string(ToString(value)) {}
-	String(unsigned long value) : std::string(ToString(value)) {}
-	String(long long value) : std::string(ToString(value)) {}
-	String(unsigned long long value) : std::string(ToString(value)) {}
 
-	String UpperCase() const
-	{
-		std::string copy (*this);
-		std::transform(copy.begin(), copy.end(), copy.begin(), ::toupper);
-		return String(copy);
-	}
+	String(int value);
+	String(unsigned int value);
+	String(long value);
+	String(unsigned long value);
+	String(long long value);
+	String(unsigned long long value);
 
-	String LowerCase() const
-	{
-		std::string copy (*this);
-		std::transform(copy.begin(), copy.end(), copy.begin(), ::tolower);
-		return String(copy);
-	}
+	String UpperCase() const;
 
-	bool IsEmpty() const
-	{
-		return empty();
-	}
+	String LowerCase() const;
 
-	int Length() const
-	{
-		return size();
-	}
+	bool IsEmpty() const;
 
-	int CompareIC(const String &b) const
-	{
-		return LowerCase().compare(b.LowerCase());
-	}
+	int Length() const;
 
-	int Compare(const String &b) const
-	{
-		return compare(b);
-	}
+	int CompareIC(const String &b) const;
 
-	String Replace(const String &sub, const String &replace) const
-	{
-		return *this;
-	}
+	int Compare(const String &b) const;
 
-	String SubString(int StartIndex, int Count) const
-	{
-		if (StartIndex > Length()) {
-			return String("");
-		}
-		return String(substr(StartIndex - 1, Count));
-	}
+	String Replace(const String &sub, const String &replace) const;
 
-	char &operator[] (int index)
-	{
-		return at(index - 1);
-	}
+	String SubString(int StartIndex, int Count) const;
 
-	const char &operator[] (int index) const
-	{
-		return at(index - 1);
-	}
+	char &operator[] (int index);
+	const char &operator[] (int index) const;
 
 	template<typename AnyStringable>
 	String& operator += (AnyStringable b)
@@ -121,65 +64,21 @@ public:
 		return result;
 	}
 
-	int ToInt() const
-	{
-		return std::stoi(*this);
-	}
+	int ToInt() const;
 
-	int ToIntDef(int default_value) const
-	{
-		try {
-			return ToInt();
-		} catch (const std::invalid_argument &) {
-			return default_value;
-		}
-	}
+	int ToIntDef(int default_value) const;
 
-	int Pos(const String &substr)
-	{
-		auto index = find(substr);
-		if (index == npos) {
-			return 0;
-		}
-		return index;
-	}
+	int Pos(const String &substr);
 
-	int GetLength() const
-	{
-		return this->size();
-	}
+	int GetLength() const;
+	void SetLength(int NewLength);
 
-	void SetLength(int NewLength)
-	{
-		resize(NewLength);
-	}
+	int LastDelimiter(const String &delimiters) const;
 
-	int LastDelimiter(const String &delimiters) const
-	{
-		return 0;
-	}
+	const char *LastChar() const;
 
-	const char *LastChar() const
-	{
-		if (size() == 0) {
-			return nullptr;
-		}
-		return c_str() + (size() - 1);
-	}
-
-	int WideCharBufSize() const
-	{
-		return sizeof(wchar_t) * (size() + 1);
-	}
-
-	wchar_t *WideChar(wchar_t *wbuf, int destSize) const
-	{
-		// TODO: String:WideChar()
-		for (int i = 0; i < size(); i++) {
-			wbuf[i] = c_str()[i];
-		}
-		return wbuf;
-	}
+	int WideCharBufSize() const;
+	wchar_t *WideChar(wchar_t *wbuf, int destSize) const;
 
 	static String IntToHex(int n, int digits);
 	static String IntToStr(int n);
@@ -209,31 +108,12 @@ class TStringList : public std::vector<String>
 {
 public:
 
-	void Add(const String &item)
-	{
-		push_back(item);
-	}
+	void Add(const String &item);
+	void SetText(const String &text);
+	int Count() const;
+	void Delete(int index);
 
-	void SetText(const String &text)
-	{
-		// TODO: Magic
-	}
-
-	int Count() const
-	{
-		return size();
-	}
-
-	void Delete(int index)
-	{
-		erase(begin() + index);
-	}
-
-	void LoadFromFile(const String &filename)
-	{
-
-	}
-
+	void LoadFromFile(const String &filename);
 	DynamicArray<String> Strings;
 };
 

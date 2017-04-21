@@ -13,40 +13,19 @@ String StringReplace(const String &S, const String &OldPattern, const String &Ne
 class TStringBuilder
 {
 public:
-	explicit TStringBuilder()
-	{
-	}
+	explicit TStringBuilder();
 
-	explicit TStringBuilder(const String &initial)
-		: value(initial)
-	{
-	}
+	explicit TStringBuilder(const String &initial);
 
-	TStringBuilder *Replace(const String &substring, const String &replace)
-	{
-		value = value.Replace(substring, replace);
-		return this;
-	}
+	TStringBuilder *Replace(const String &substring, const String &replace);
 
-	String ToString() const
-	{
-		return value;
-	}
+	String ToString() const;
 
-	void Clear()
-	{
-		value = "";
-	}
+	void Clear();
 
-	void Append(const String &s)
-	{
-		value += s;
-	}
+	void Append(const String &s);
 
-	void Append(char c)
-	{
-		value.append(1, c);
-	}
+	void Append(char c);
 
 	String value;
 };
@@ -54,11 +33,11 @@ public:
 class TMultiReadExclusiveWriteSynchronizer
 {
 public:
-	void BeginWrite() {}
-	void EndWrite() {}
+	void BeginWrite();
+	void EndWrite();
 
-	void BeginRead() {}
-	void EndRead() {}
+	void BeginRead();
+	void EndRead();
 };
 
 class TEncoding

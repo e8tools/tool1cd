@@ -23,7 +23,6 @@ typedef uint8_t Byte;
 typedef uint64_t __int64;
 #endif // __int62
 typedef char16_t WCHART;
-typedef wchar_t *LPWSTR;
 typedef char *LPSTR;
 
 const unsigned int MAXUINT = UINT_MAX;

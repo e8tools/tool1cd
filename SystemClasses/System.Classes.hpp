@@ -24,10 +24,10 @@ namespace Classes {
 class TCriticalSection
 {
 public:
-	TCriticalSection() {}
+	TCriticalSection();
 
-	virtual void Acquire() {}
-	virtual void Release() {}
+	virtual void Acquire();
+	virtual void Release();
 };
 
 unsigned GetTickCount();

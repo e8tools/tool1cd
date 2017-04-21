@@ -12,9 +12,8 @@ namespace Classes {
 class TStreamReader
 {
 public:
-	TStreamReader(TStream *stream, bool DetectBOM)
-		: stream(stream) {}
-	
+	TStreamReader(TStream *stream, bool DetectBOM);
+
 	int Read();
 
 	String ReadLine();

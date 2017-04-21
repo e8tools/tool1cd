@@ -17,7 +17,7 @@ void DeleteFile(const String &filename);
 void RemoveDir(const String &dirname);
 
 namespace TDirectory {
-	
+
 void CreateDirectory(const String &dirname);
 
 } // TDirectory
