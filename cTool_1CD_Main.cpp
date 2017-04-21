@@ -351,7 +351,7 @@ int main(int argc, char* argv[])
 					}
 					else mess.AddError("Попытка выгрузки всех конфигураций без открытой базы.");
 					break;
-				case cmd_save_depot_config:
+				case cmd_save_depot_config: {
 					if(!base1CD.is_open())
 					{
 						mess.AddError("Попытка выгрузки конфигурации хранилища без открытой базы.");
@@ -371,25 +371,26 @@ int main(int argc, char* argv[])
 						mess.AddError("Запрошенной версии конфигурации нет в хранилище конфигурации.");
 						break;
 					}
-					f = pc.param2;
-					f = System::Ioutils::TPath::GetFullPath(f);
-					if(f.SubString(f.Length() - 2, 3).CompareIC(".cf") != 0)
+					boost::filesystem::path cfpath(pc.param2.c_str());
+					cfpath = boost::filesystem::absolute(cfpath);
+					if (!boost::iequals(cfpath.extension().string(), ".cf"))
 					{
-						if(!DirectoryExists(f))
+						if(!boost::filesystem::exists(cfpath))
 						{
 							mess.AddMessage_("Каталог не существует.", msError,
 								"Каталог", f);
 							break;
 						}
-						f = f + "\\v" + j + ".cf";
+						cfpath /= String(string("v") + j + string(".cf")).c_str();
 					}
-					if(base1CD.save_depot_config(f, j))
+					if(base1CD.save_depot_config(cfpath.string(), j))
 						mess.AddMessage_("Сохранение конфигурации хранилища завершено.", msSuccesfull,
 							"Файл", f);
 					else
 						mess.AddMessage_("Не удалось сохранить конфигурацию хранилища.", msError,
 							"Файл", f);
 					break;
+				}
 				case cmd_save_depot_config_part:
 					if(!base1CD.is_open())
 					{
