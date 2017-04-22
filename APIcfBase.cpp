@@ -576,7 +576,7 @@ void __fastcall v8file::Close(){
 				#ifndef _DELPHI_STRING_UNICODE
 				int ws = name.WideCharBufSize();
 				char* tb = new char[ws];
-				name.WideChar((wchar_t*)tb, ws);
+				name.WideChar((WCHART*)tb, ws);
 				hs->Write((char*)tb, ws);
 				delete[] tb;
 				#else
@@ -735,7 +735,7 @@ void __fastcall v8file::Flush()
 				#ifndef _DELPHI_STRING_UNICODE
 				int ws = name.WideCharBufSize();
 				char* tb = new char[ws];
-				name.WideChar((wchar_t*)tb, ws);
+				name.WideChar((WCHART*)tb, ws);
 				hs->Write((char*)tb, ws);
 				delete[] tb;
 				#else

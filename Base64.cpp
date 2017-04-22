@@ -23,7 +23,7 @@ static const char cd64[]="|$$$}rstuvwxyz{$$$$$$$>?@ABCDEFGHIJKLMNOPQRSTUVW$$$$$$
 void __fastcall base64_encode(TStream* infile, TStream* outfile, int linesize)
 {
 	unsigned char in[3];
-	wchar_t out[4];
+	WCHART out[4];
 	int64_t i;
 	int len, blocksout = 0;
 	int64_t inlenblock = infile->GetSize() / 3;
@@ -67,7 +67,7 @@ void __fastcall base64_encode(TStream* infile, TStream* outfile, int linesize)
 void __fastcall base64_decode(TStream* infile, TStream* outfile)
 {
 	unsigned char in[4], out[3], v;
-	wchar_t s;
+	WCHART s;
 	int i, len;
 
 //	infile->Seek(0i64, soBeginning);

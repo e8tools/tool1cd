@@ -59,6 +59,7 @@
 		<Unit filename="TFileStream.hpp" />
 		<Unit filename="TMemoryStream.cpp" />
 		<Unit filename="TMemoryStream.hpp" />
+		<Unit filename="TStream.cpp" />
 		<Unit filename="TStream.hpp" />
 		<Unit filename="TStreamReader.cpp" />
 		<Unit filename="TStreamReader.hpp" />

@@ -227,11 +227,11 @@ String __fastcall toXML(String in)
 }
 
 //---------------------------------------------------------------------------
-unsigned char __fastcall from_hex_digit(wchar_t digit)
+unsigned char __fastcall from_hex_digit(char digit)
 {
-	if(digit >= L'0' && digit <= L'9') return digit - L'0';       // ' // в VSCode тупит подсветка
-	if(digit >= L'a' && digit <= L'f') return digit - L'a' + 10;  // ' // в VSCode тупит подсветка
-	if(digit >= L'A' && digit <= L'F') return digit - L'A' + 10;  // ' // в VSCode тупит подсветка
+	if(digit >= '0' && digit <= '9') return digit - '0';
+	if(digit >= 'a' && digit <= 'f') return digit - 'a' + 10;
+	if(digit >= 'A' && digit <= 'F') return digit - 'A' + 10;
 	return 0;
 }
 
@@ -3962,10 +3962,6 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 	bool maybezipped2;
 
 	bool usetemporaryfiles = false;
-	wchar_t temppath[MAX_PATH];
-	wchar_t tempfile1[MAX_PATH];
-	wchar_t tempfile2[MAX_PATH];
-	wchar_t tempfile3[MAX_PATH];
 
 	orec = rec;
 	rec += offset;
@@ -8563,7 +8559,6 @@ bool __fastcall T_1CD::recursive_test_stream_format(table* t, unsigned int nrec)
 	TStream* str;
 	bool result;
 	bool res;
-	wchar_t temppath[MAX_PATH];
 	wchar_t tempfile[MAX_PATH];
 
 	rec = new char[t->get_recordlen()];
@@ -8671,9 +8666,6 @@ bool __fastcall T_1CD::recursive_test_stream_format(TStream* str, String path, b
 	String sf;
 	wchar_t first_symbol;
 	int i, j;
-	wchar_t temppath[MAX_PATH];
-	wchar_t tempfile1[MAX_PATH];
-	wchar_t tempfile2[MAX_PATH];
 	bool usetempfile;
 
 	msreg->Status(path);

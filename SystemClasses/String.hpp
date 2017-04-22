@@ -78,7 +78,7 @@ public:
 	const char *LastChar() const;
 
 	int WideCharBufSize() const;
-	wchar_t *WideChar(wchar_t *wbuf, int destSize) const;
+	WCHART *WideChar(WCHART *wbuf, int destSize) const;
 
 	static String IntToHex(int n, int digits);
 	static String IntToStr(int n);

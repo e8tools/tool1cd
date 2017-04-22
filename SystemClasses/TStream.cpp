@@ -4,6 +4,10 @@ namespace System {
 
 namespace Classes {
 
+TStream::TStream()
+	: m_position(0), m_size(0)
+{
+}
 
 
 int64_t TStream::GetSize() const
@@ -58,9 +62,11 @@ int64_t TStream::ReadBuffer(void *Buffer, int64_t Count)
 
 int64_t TStream::Read(System::DynamicArray<System::Byte> &Buffer, int64_t Count)
 {
-	auto old_size = Buffer.size();
-	Buffer.resize(old_size + Count);
-	return Read(Buffer.data() + old_size, Count);
+	auto CountToRead = (Count <= 0) ? GetSize() : Count;
+	if (Buffer.size() < CountToRead) {
+		Buffer.resize(CountToRead);
+	}
+	return Read(Buffer.data(), CountToRead);
 }
 
 int64_t TStream::CopyFrom(TStream *Source, const int64_t Count)
@@ -135,6 +141,9 @@ void TWrapperStream::init_size()
 	_stream->seekg(0, std::ios_base::end);
 	m_size = _stream->tellg();
 	_stream->seekg(0, std::ios_base::beg);
+	if (m_size < 0) {
+		m_size = 0;
+	}
 }
 
 

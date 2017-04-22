@@ -150,7 +150,7 @@ int String::WideCharBufSize() const
 	return sizeof(wchar_t) * (size() + 1);
 }
 
-wchar_t *String::WideChar(wchar_t *wbuf, int destSize) const
+WCHART *String::WideChar(WCHART *wbuf, int destSize) const
 {
 	// TODO: String:WideChar()
 	for (int i = 0; i < size(); i++) {

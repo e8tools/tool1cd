@@ -31,6 +31,8 @@ protected:
 
 public:
 
+	TStream();
+
 	virtual __fastcall int64_t GetSize() const;
 
 	virtual __fastcall void SetSize(int64_t NewSize);
