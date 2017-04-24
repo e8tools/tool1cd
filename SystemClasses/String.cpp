@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <iomanip>
 #include <sstream>
+#include <boost/filesystem/fstream.hpp>
+#include <boost/filesystem.hpp>
 
 namespace System {
 
@@ -152,8 +154,7 @@ int String::WideCharBufSize() const
 
 WCHART *String::WideChar(WCHART *wbuf, int destSize) const
 {
-	// TODO: String:WideChar()
-	for (int i = 0; i < size(); i++) {
+	for (size_t i = 0; i < size(); i++) {
 		wbuf[i] = c_str()[i];
 	}
 	return wbuf;
@@ -169,7 +170,12 @@ void TStringList::Add(const String &item)
 
 void TStringList::SetText(const String &text)
 {
-	// TODO: Magic
+	clear();
+	std::stringstream iss(text);
+	std::string line;
+	while (std::getline(iss, line)) {
+		push_back(line);
+	}
 }
 
 int TStringList::Count() const
@@ -184,50 +190,43 @@ void TStringList::Delete(int index)
 
 void TStringList::LoadFromFile(const String &filename)
 {
-
+	clear();
+	boost::filesystem::ifstream ifs(boost::filesystem::path(filename.c_str()));
+	std::string line;
+	while (std::getline(ifs, line)) {
+		push_back(line);
+	}
 }
 
 
 String String::IntToStr(int n)
 {
-	char buffer[40];
-	sprintf(buffer, "%d", n);
-	return buffer;
+	return std::to_string(n);
 }
 
 String String::UIntToStr(unsigned int n)
 {
-	char buffer[40];
-	sprintf(buffer, "%u", n);
-	return buffer;
+	return std::to_string(n);
 }
 
 String String::ULongToStr(unsigned long n)
 {
-	char buffer[40];
-	sprintf(buffer, "%lu", n);
-	return buffer;
+	return std::to_string(n);
 }
 
 String String::LongToStr(long n)
 {
-	char buffer[40];
-	sprintf(buffer, "%ld", n);
-	return buffer;
+	return std::to_string(n);
 }
 
 String String::ULongLongToStr(unsigned long long n)
 {
-	char buffer[40];
-	sprintf(buffer, "%llu", n);
-	return buffer;
+	return std::to_string(n);
 }
 
 String String::LongLongToStr(long long n)
 {
-	char buffer[40];
-	sprintf(buffer, "%lld", n);
-	return buffer;
+	return std::to_string(n);
 }
 
 String String::ToString(int n)
