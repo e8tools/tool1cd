@@ -59,6 +59,8 @@ public:
 
 	virtual __fastcall int64_t Write(const System::DynamicArray<System::Byte> &Buffer, const int64_t Count);
 
+	virtual __fastcall void    Close();
+
 	virtual __fastcall ~TStream();
 };
 
@@ -78,6 +80,7 @@ protected:
 	TWrapperStream(std::shared_ptr<std::iostream> &&stream);
 
 	void reset(std::iostream *stream);
+	void reopen(const std::shared_ptr<std::iostream> &stream);
 
 	void init_size();
 

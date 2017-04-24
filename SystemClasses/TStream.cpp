@@ -1,4 +1,6 @@
 #include "TStream.hpp"
+#include "Exception.hpp"
+#include <cstring>
 
 namespace System {
 
@@ -40,10 +42,25 @@ int64_t TStream::Read(void *Buffer, int64_t Count)
 int64_t TStream::Seek(const int64_t offset, const TSeekOrigin Origin)
 {
 	if (Origin == soFromBeginning) {
+
+		if (offset > GetSize()) {
+			throw Exception("Wrong offset");
+		}
 		m_position = offset;
+
 	} else if (Origin == soFromEnd) {
+
 		m_position = GetSize() - offset;
+
+		if (GetSize() < offset) {
+			throw Exception("Wrong offset");
+		}
+
 	} else {
+
+		if (m_position + offset < 0 || m_position + offset > GetSize()) {
+			throw Exception("Wrong offset");
+		}
 		m_position += offset;
 	}
 	return m_position;
@@ -104,6 +121,10 @@ int64_t TStream::Write(const System::DynamicArray<System::Byte> &Buffer, const i
 	return Write(Buffer.data(), Count);
 }
 
+void TStream::Close()
+{
+}
+
 TStream::~TStream()
 {
 }
@@ -136,6 +157,12 @@ void TWrapperStream::reset(std::iostream *stream)
 	m_position = 0;
 }
 
+void TWrapperStream::reopen(const std::shared_ptr<std::iostream> &stream)
+{
+	_stream = stream;
+	init_size();
+}
+
 void TWrapperStream::init_size()
 {
 	_stream->seekg(0, std::ios_base::end);
@@ -151,6 +178,11 @@ int64_t TWrapperStream::Read(void *Buffer, int64_t Count)
 {
 	_stream->seekg(GetPosition(), std::ios_base::beg);
 	_stream->read((char*)Buffer, Count);
+	if (!*_stream) {
+		String err(std::strerror(errno));
+		std::cerr << err << std::endl;
+		throw Exception(err);
+	}
 	auto data_read = _stream->gcount();
 	m_position += data_read;
 	return data_read;
@@ -161,6 +193,11 @@ int64_t TWrapperStream::Write(const void *Buffer, const int64_t Count)
 	_stream->seekp(GetPosition(), std::ios_base::beg);
 	_stream->write((char*)Buffer, Count);
 	_stream->flush();
+	if (!*_stream) {
+		String err(std::strerror(errno));
+		std::cerr << err << std::endl;
+		throw Exception(err);
+	}
 	m_position += Count;
 	if (m_position > m_size) {
 		m_size = m_position;
@@ -170,6 +207,7 @@ int64_t TWrapperStream::Write(const void *Buffer, const int64_t Count)
 
 TWrapperStream::~TWrapperStream()
 {
+	_stream.reset();
 }
 
 } // Classes

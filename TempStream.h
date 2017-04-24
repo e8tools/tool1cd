@@ -18,7 +18,6 @@ class TTempStream : public TFileStream
 {
 public:
 	static String tempcat;
-	static String tempname;
 	static long tempno;
 	static String __fastcall gettempname();
 

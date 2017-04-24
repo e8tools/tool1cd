@@ -6,6 +6,7 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 
 #include <iostream>
 //#include <vcl.h>
@@ -38,17 +39,25 @@ __fastcall Messager::Messager()
 //---------------------------------------------------------------------------
 void __fastcall Messager::Status(const String& message)
 {
+	cout << message << endl;
+	AddMessage(message, msEmpty, nullptr);
 }
 
 //---------------------------------------------------------------------------
 void __fastcall Messager::AddMessage(const String& message, const MessageState mstate, TStringList* param)
 {
-	cerr << message << endl;
+	shared_ptr<ofstream> output (&cerr, [](...){} );
+
+	if (!logfile.IsEmpty()) {
+		output = make_shared<boost::filesystem::ofstream>(boost::filesystem::path(logfile.c_str()), std::ios_base::app);
+	}
+	*output << message << endl;
 	if (param) {
 		for (auto it : *param) {
-			cerr << "\t" << it << endl;
+			*output << "\t" << it << endl;
 		}
 	}
+	output->flush();
 }
 
 //---------------------------------------------------------------------------
@@ -93,6 +102,8 @@ int main(int argc, char* argv[])
 		cout << "cTool_1CD (c) awa 2009 - 2016" << endl << "Запусти cTool_1CD -h для справки" << endl;
 		return 0;
 	}
+
+	mess.setlogfile("tool1cd.log");
 
 	// Первый цикл просмотра команд для определения ключей параметров
 	for(i = 0; i < commands.get_length(); i++)

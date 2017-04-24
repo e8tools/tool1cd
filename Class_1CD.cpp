@@ -10315,6 +10315,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 						ZInflateStream(in, out);
 					}
 					else table_history->readBlob(out, *(unsigned int*)rec, *(unsigned int*)(rec + 4));
+					out->Close();
 					ok = true;
 				}
 				else if(depotVer >= depotVer6)
@@ -10331,6 +10332,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 							out = new TTempStream;
 							out->CopyFrom(st, packlen);
 							ok = true;
+							out->Close();
 							break;
 						}
 						if(ok) break;
@@ -10443,6 +10445,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 						{
 							out = new TTempStream;
 							table_externals->readBlob(out, *(unsigned int*)frec, *(unsigned int*)(frec + 4));
+							out->Close();
 							ok = true;
 						}
 						else if(depotVer >= depotVer6)
@@ -10459,6 +10462,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 									st->Read(&packlen, 8);
 									out->CopyFrom(st, packlen);
 									ok = true;
+									out->Close();
 									break;
 								}
 								if(ok) break;

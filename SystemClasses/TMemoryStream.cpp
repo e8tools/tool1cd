@@ -24,9 +24,17 @@ void TMemoryStream::SetSize(int64_t NewSize)
 
 int64_t TMemoryStream::Read(void *Buffer, int64_t Count)
 {
-	memcpy(Buffer, _data.data() + m_position, Count);
-	m_position += Count;
-	return Count;
+	int64_t toRead = Count;
+	if (_data.size() <= m_position + toRead) {
+		toRead = _data.size() - m_position;
+		toRead -= 1;
+	}
+	if (toRead > 0) {
+		memcpy(Buffer, _data.data() + m_position, toRead);
+		m_position += toRead;
+		return toRead;
+	}
+	return 0;
 }
 
 int64_t TMemoryStream::Write(const void *Buffer, const int64_t Count)

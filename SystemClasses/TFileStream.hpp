@@ -3,9 +3,9 @@
 
 #include "TStream.hpp"
 #include "String.hpp"
+#include <string>
 #include <iostream>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
+#include <memory>
 
 namespace System {
 
@@ -23,28 +23,21 @@ typedef uint16_t HANDLE;
 class TFileStream : public TWrapperStream
 {
 public:
-	TFileStream(const String &FileName, const uint16_t fileMode)
-		: TWrapperStream()
-	{
 
-		std::ios_base::openmode mode = std::ios::binary | std::ios::in | std::ios::out;
-		if (fileMode == fmCreate) {
-			mode |= std::ios::trunc;
-		}
+	TFileStream(const String &FileName, const uint16_t fileMode);
 
-		reset(new boost::filesystem::fstream(boost::filesystem::path(FileName.c_str()), mode));
+	virtual __fastcall ~TFileStream();
 
-	}
+	int16_t GetHandle() const;
 
-	virtual __fastcall ~TFileStream()
-	{
-	}
+	virtual __fastcall void Close();
+	virtual __fastcall void Reopen();
+	virtual __fastcall int64_t Read(void *Buffer, int64_t Count);
+	virtual __fastcall int64_t Write(const void *Buffer, const int64_t Count);
 
-	int16_t GetHandle() const
-	{
-		return 0;
-	}
-
+protected:
+	std::string filename;
+	std::shared_ptr<std::fstream> _stream;
 };
 
 } // Classes

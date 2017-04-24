@@ -2,6 +2,7 @@
 #define SYSTEM__EXCEPTION_HPP
 
 #include <string>
+#include "String.hpp"
 
 namespace System {
 
@@ -13,7 +14,7 @@ public:
      *  @param message C-style string error message.
      *                 The string contents are copied upon construction.
      *                 Hence, responsibility for deleting the char* lies
-     *                 with the caller. 
+     *                 with the caller.
      */
     explicit Exception(const char* message):
       msg_(message)

@@ -24,12 +24,12 @@ bool DirectoryExists(const String &filename)
 
 void DeleteFile(const String &filename)
 {
-	boost::filesystem::remove(boost::filesystem::path(filename.c_str()));
+	boost::filesystem::remove_all(filename.c_str());
 }
 
 void RemoveDir(const String &dirname)
 {
-	boost::filesystem::remove_all(dirname.c_str());
+	// boost::filesystem::remove_all(dirname.c_str());
 }
 
 namespace TDirectory {

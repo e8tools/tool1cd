@@ -3,20 +3,29 @@
 #pragma hdrstop
 
 #include <stdio.h>
+#include <assert.h>
 #include "UZLib.h"
 
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 
-#define CHUNK 16384
+const int CHUNKSIZE = 16384;
+#ifndef DEF_MEM_LEVEL
+#	if MAX_MEM_LEVEL >= 8
+		const int DEF_MEM_LEVEL = 8;
+#	else
+		const int DEF_MEM_LEVEL = MAX_MEM_LEVEL
+#	endif
+#endif
+
 
 void ZInflateStream_Old(TStream* src, TStream* dst)
 {
 	z_stream strm;
 	int ret, srcSize, dstSize;
 
-	unsigned char srcBuf[CHUNK] = {0};
-	unsigned char dstBuf[CHUNK] = {0};
+	unsigned char srcBuf[CHUNKSIZE] = {0};
+	unsigned char dstBuf[CHUNKSIZE] = {0};
 
 	strm.zalloc   = Z_NULL;
 	strm.zfree    = Z_NULL;
@@ -30,7 +39,7 @@ void ZInflateStream_Old(TStream* src, TStream* dst)
 
 	src->Read(srcBuf, srcSize);
 	strm.avail_in  = srcSize;
-	strm.avail_out = CHUNK;
+	strm.avail_out = CHUNKSIZE;
 	strm.next_in   = srcBuf;
 	strm.next_out  = dstBuf;
 
@@ -44,7 +53,58 @@ void ZInflateStream_Old(TStream* src, TStream* dst)
 
 void ZDeflateStream(TStream* src, TStream* dst)
 {
-	// Пока не реализовано
+	int ret, flush;
+	unsigned have;
+	z_stream strm;
+	unsigned char in[CHUNKSIZE];
+	unsigned char out[CHUNKSIZE];
+
+	// allocate deflate state
+	strm.zalloc = Z_NULL;
+	strm.zfree = Z_NULL;
+	strm.opaque = Z_NULL;
+
+	ret = deflateInit2(&strm, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY);
+
+	if (ret != Z_OK) {
+		return;
+	}
+
+	// compress until end of file
+	do {
+		strm.avail_in = src->Read(in, CHUNKSIZE);
+		if (strm.avail_in == 0) {
+			return;
+		}
+		/* TODO: Check error */
+
+		flush = (strm.avail_in < CHUNKSIZE) ? Z_FINISH : Z_NO_FLUSH;
+		strm.next_in = in;
+
+		// run deflate() on input until output buffer not full, finish
+		//   compression if all of source has been read in
+		do {
+			strm.avail_out = CHUNKSIZE;
+			strm.next_out = out;
+			ret = deflate(&strm, flush);    // no bad return value
+			assert(ret != Z_STREAM_ERROR);  // state not clobbered
+			have = CHUNKSIZE - strm.avail_out;
+
+			int data_written = dst->Write(out, have);
+
+			if (data_written < have) {
+				(void)deflateEnd(&strm);
+				return Z_ERRNO;
+			}
+		} while (strm.avail_out == 0);
+		assert(strm.avail_in == 0);     // all input will be used
+
+		// done when last data in file processed
+	} while (flush != Z_FINISH);
+	assert(ret == Z_STREAM_END);        // stream will be complete
+
+	// clean up and return
+	(void)deflateEnd(&strm);
 }
 
 void ZInflateStream(TStream* src, TStream* dst)
@@ -53,8 +113,8 @@ void ZInflateStream(TStream* src, TStream* dst)
 	int ret, srcSize, dstSize;
 	unsigned have;
 
-	unsigned char srcBuf[CHUNK] = {0};
-	unsigned char dstBuf[CHUNK] = {0};
+	unsigned char srcBuf[CHUNKSIZE] = {0};
+	unsigned char dstBuf[CHUNKSIZE] = {0};
 
 
 	/* allocate inflate state */
@@ -68,7 +128,7 @@ void ZInflateStream(TStream* src, TStream* dst)
 
 	/* decompress until deflate stream ends or end of file */
 	do {
-		//strm.avail_in = fread(in, 1, CHUNK, source);
+		//strm.avail_in = fread(in, 1, CHUNKSIZE, source);
 
 		srcSize = src->GetSize();         // определяем размер данных
 		src->Read(srcBuf, srcSize);  // читаем из потока в буфер данные
@@ -81,7 +141,7 @@ void ZInflateStream(TStream* src, TStream* dst)
 
 		/* run inflate() on input until output buffer not full */
 		do {
-			strm.avail_out = CHUNK;
+			strm.avail_out = CHUNKSIZE;
 			strm.next_out = dstBuf;
 			ret = inflate(&strm, Z_NO_FLUSH);
 
@@ -94,7 +154,7 @@ void ZInflateStream(TStream* src, TStream* dst)
 				//return ret;
 			}
 
-			have = CHUNK - strm.avail_out;
+			have = CHUNKSIZE - strm.avail_out;
 			dst->Write(dstBuf, have);
 
 		} while (strm.avail_out == 0);
@@ -119,8 +179,8 @@ int inf(FILE *source, FILE *dest)
 	int ret;
 	unsigned have;
 	z_stream strm;
-	unsigned char in[CHUNK];
-	unsigned char out[CHUNK];
+	unsigned char in[CHUNKSIZE];
+	unsigned char out[CHUNKSIZE];
 
 	/* allocate inflate state */
 	strm.zalloc = Z_NULL;
@@ -135,7 +195,7 @@ int inf(FILE *source, FILE *dest)
 
 	/* decompress until deflate stream ends or end of file */
 	do {
-		strm.avail_in = fread(in, 1, CHUNK, source);
+		strm.avail_in = fread(in, 1, CHUNKSIZE, source);
 		if (ferror(source)) {
 			(void)inflateEnd(&strm);
 			return Z_ERRNO;
@@ -146,7 +206,7 @@ int inf(FILE *source, FILE *dest)
 
 		/* run inflate() on input until output buffer not full */
 		do {
-			strm.avail_out = CHUNK;
+			strm.avail_out = CHUNKSIZE;
 			strm.next_out = out;
 			ret = inflate(&strm, Z_NO_FLUSH);
 			assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
@@ -158,7 +218,7 @@ int inf(FILE *source, FILE *dest)
 				(void)inflateEnd(&strm);
 				return ret;
 			}
-			have = CHUNK - strm.avail_out;
+			have = CHUNKSIZE - strm.avail_out;
 			if (fwrite(out, 1, have, dest) != have || ferror(dest)) {
 				(void)inflateEnd(&strm);
 				return Z_ERRNO;
@@ -184,8 +244,8 @@ int def(FILE *source, FILE *dest, int level)
 	int ret, flush;
 	unsigned have;
 	z_stream strm;
-	unsigned char in[CHUNK];
-	unsigned char out[CHUNK];
+	unsigned char in[CHUNKSIZE];
+	unsigned char out[CHUNKSIZE];
 
 	/* allocate deflate state */
 	strm.zalloc = Z_NULL;
@@ -197,7 +257,7 @@ int def(FILE *source, FILE *dest, int level)
 
 	/* compress until end of file */
 	do {
-		strm.avail_in = fread(in, 1, CHUNK, source);
+		strm.avail_in = fread(in, 1, CHUNKSIZE, source);
 		if (ferror(source)) {
 			(void)deflateEnd(&strm);
 			return Z_ERRNO;
@@ -208,11 +268,11 @@ int def(FILE *source, FILE *dest, int level)
 		/* run deflate() on input until output buffer not full, finish
 		   compression if all of source has been read in */
 		do {
-            strm.avail_out = CHUNK;
+            strm.avail_out = CHUNKSIZE;
             strm.next_out = out;
             ret = deflate(&strm, flush);    /* no bad return value */
             assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
-            have = CHUNK - strm.avail_out;
+            have = CHUNKSIZE - strm.avail_out;
             if (fwrite(out, 1, have, dest) != have || ferror(dest)) {
                 (void)deflateEnd(&strm);
                 return Z_ERRNO;

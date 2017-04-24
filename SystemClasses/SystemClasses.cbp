@@ -56,6 +56,7 @@
 		<Unit filename="System.SysUtils.hpp" />
 		<Unit filename="System.cpp" />
 		<Unit filename="System.hpp" />
+		<Unit filename="TFileStream.cpp" />
 		<Unit filename="TFileStream.hpp" />
 		<Unit filename="TMemoryStream.cpp" />
 		<Unit filename="TMemoryStream.hpp" />
