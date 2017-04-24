@@ -5,5 +5,6 @@ main: main.cpp libdmpassystem.a
 	g++ -c $< -o $@ -I. -std=c++11 -fpermissive -g -pg
 
 libdmpassystem.a: String.o System.Classes.o System.o System.IOUtils.o \
-	System.SysUtils.o TMemoryStream.o TStreamReader.o TStreamWriter.o TStream.o
+	System.SysUtils.o TMemoryStream.o TStreamReader.o TStreamWriter.o TStream.o \
+	TFileStream.o
 	ar rvs $@ $?
