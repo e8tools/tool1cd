@@ -602,7 +602,7 @@ void __fastcall v8file::Close(){
 //---------------------------------------------------------------------------
 int __fastcall v8file::WriteAndClose(TStream* Stream, int Length)
 {
-	int _t = 0;
+	int32_t _4bzero = 0;
 
 	Lock->Acquire();
 	if(!is_opened) if(!Open())
@@ -625,18 +625,21 @@ int __fastcall v8file::WriteAndClose(TStream* Stream, int Length)
 
 	if(parent->data)
 	{
+		int name_size = name.WideCharBufSize();
+		WCHART *wname = new WCHART[name_size];
+		name.WideChar(wname, name.Length());
+
 		parent->Lock->Acquire();
 		start_data = parent->write_datablock(Stream, start_data, selfzipped, Length);
-		TMemoryStream* hs = new TMemoryStream();
-		hs->Write(&time_create, 8);
-		hs->Write(&time_modify, 8);
-		hs->Write(&_t, 4);
-		hs->Write(name.c_str(), name.Length() * 2);
-		hs->Write(&_t, 4);
-		start_header = parent->write_block(hs, start_header, false);
+		TMemoryStream hs;
+		hs.Write(&time_create, 8);
+		hs.Write(&time_modify, 8);
+		hs.Write(&_4bzero, 4);
+		hs.Write(wname, name.Length() * sizeof(WCHART));
+		hs.Write(&_4bzero, 4);
+		start_header = parent->write_block(&hs, start_header, false);
 		parent->Lock->Release();
-		delete hs;
-
+		delete []wname;
 	}
 	iscatalog = iscatalog_unknown;
 	is_opened = false;
