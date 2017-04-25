@@ -1,10 +1,10 @@
 #ifndef ZlibexHPP
 #define ZlibexHPP
 
-#include <System.hpp>
-#include <SysInit.hpp>
-#include <System.SysUtils.hpp>
-#include <System.Classes.hpp>
+#include "System.hpp"
+#include "SysInit.hpp"
+#include "System.SysUtils.hpp"
+#include "System.Classes.hpp"
 
 namespace Zlibex
 {
