@@ -6,6 +6,21 @@ namespace System {
 
 namespace SysUtils {
 
+class TUtf8Encoding : public TEncoding
+{
+
+virtual DynamicArray<Byte> GetPreamble()
+{
+	DynamicArray<Byte> result;
+	result.push_back(0xEF);
+	result.push_back(0xBB);
+	result.push_back(0xBF);
+	return result;
+}
+
+
+};
+
 TStringBuilder::TStringBuilder()
 {
 }
@@ -60,8 +75,8 @@ void TMultiReadExclusiveWriteSynchronizer::EndRead()
 }
 
 
-TEncoding *TEncoding::Unicode = new TEncoding();
-TEncoding *TEncoding::UTF8 = new TEncoding();
+TEncoding *TEncoding::Unicode = new TUtf8Encoding();
+TEncoding *TEncoding::UTF8 = new TUtf8Encoding();
 
 
 int TEncoding::GetBufferEncoding(const System::DynamicArray<Byte> &Buffer, TEncoding* &AEncoding)

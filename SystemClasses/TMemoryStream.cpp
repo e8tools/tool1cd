@@ -20,6 +20,10 @@ int64_t TMemoryStream::GetSize() const
 void TMemoryStream::SetSize(int64_t NewSize)
 {
 	_data.resize(NewSize);
+	m_size = NewSize;
+	if (m_position > m_size) {
+		m_position = m_size;
+	}
 }
 
 int64_t TMemoryStream::Read(void *Buffer, int64_t Count)
@@ -27,7 +31,6 @@ int64_t TMemoryStream::Read(void *Buffer, int64_t Count)
 	int64_t toRead = Count;
 	if (_data.size() <= m_position + toRead) {
 		toRead = _data.size() - m_position;
-		toRead -= 1;
 	}
 	if (toRead > 0) {
 		memcpy(Buffer, _data.data() + m_position, toRead);

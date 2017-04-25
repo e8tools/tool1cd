@@ -154,8 +154,12 @@ int String::WideCharBufSize() const
 
 WCHART *String::WideChar(WCHART *wbuf, int destSize) const
 {
-	for (size_t i = 0; i < size(); i++) {
+	bool limit_exceeded = false;
+	for (size_t i = 0; i < size() && !limit_exceeded; i++) {
 		wbuf[i] = c_str()[i];
+		if (destSize) {
+			limit_exceeded = --destSize == 0;
+		}
 	}
 	return wbuf;
 }

@@ -178,27 +178,27 @@ void __fastcall tree::outtext(String& text)
 	if(num_subnode)
 	{
 		if(text.Length()) text += "\r\n";
-		text += L'{';
+		text += "{";
 		tree* t = first;
 		while(t)
 		{
 			t->outtext(text);
 			lt = t->type;
 			t = t->next;
-			if(t) text += L',';
+			if(t) text += ",";
 		}
 		if(lt == nd_list) text += "\r\n";
-		text += L'}';
+		text += "}";
 	}
 	else
 	{
 		switch(type)
 		{
 			case nd_string:
-				text += L'\"';
+				text += "\"";
 				_ReplaceAll << rfReplaceAll;
 				text += StringReplace(value, "\"", "\"\"", _ReplaceAll);
-				text += L'\"';
+				text += "\"";
 				break;
 			case nd_number:
 			case nd_number_exp:
