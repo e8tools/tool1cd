@@ -46,6 +46,8 @@ class TEncoding
 public:
 
 virtual System::DynamicArray<System::Byte> GetPreamble() = 0;
+virtual char *toUtf8(const System::DynamicArray<Byte> &Buffer) const = 0;
+virtual DynamicArray<Byte> fromUtf8(const char *data) = 0;
 
 static int GetBufferEncoding(const System::DynamicArray<Byte> &Buffer, TEncoding* &AEncoding);
 static DynamicArray<Byte> Convert(TEncoding * const Source, TEncoding * const Destination, const DynamicArray<Byte> &Bytes, int StartIndex, int Count);

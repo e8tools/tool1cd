@@ -223,7 +223,13 @@ tree* __fastcall get_treeFromV8file(v8file* f)
 //---------------------------------------------------------------------------
 String __fastcall toXML(String in)
 {
-	return TStringBuilder(in).Replace("&", "&amp;")->Replace("<", "&lt;")->Replace(">", "&gt;")->Replace("'", "&apos;")->Replace("\"", "&quot;")->ToString();
+	return TStringBuilder(in)
+		.Replace("&", "&amp;")
+		->Replace("<", "&lt;")
+		->Replace(">", "&gt;")
+		->Replace("'", "&apos;")
+		->Replace("\"", "&quot;")
+		->ToString();
 }
 
 //---------------------------------------------------------------------------
@@ -5475,8 +5481,8 @@ bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool u
 	int ic; // image count, количество полей с типом image
 	int rc; // repeat count, количество повторов имени записи подряд (для случая, если индекс не уникальный)
 
-	char UnicodeHeader[2] = {'\xff', '\xfe'};
-	String part1 = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\r\n<!--Файл сформирован программой Tool_1CD-->\r\n<Table Name=\"";
+	char UnicodeHeader[3] = {'\xef', '\xbb', '\xbf'};
+	String part1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!--Файл сформирован программой Tool_1CD-->\r\n<Table Name=\"";
 	String part2 = "\">\r\n\t<Fields>\r\n";
 	String part3 = "\t</Fields>\r\n\t<Records>\r\n";
 	String part4 = "\t</Records>\r\n</Table>\r\n";
@@ -5496,10 +5502,10 @@ bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool u
 
 	TFileStream* f = new TFileStream(_filename, fmCreate);
 
-	f->Write(UnicodeHeader, 2);
-	f->Write(part1.c_str(), part1.GetLength() * 2);
-	f->Write(name.c_str(), name.GetLength() * 2);
-	f->Write(part2.c_str(), part2.GetLength() * 2);
+	f->Write(UnicodeHeader, 3);
+	f->Write(part1.c_str(), part1.GetLength());
+	f->Write(name.c_str(), name.GetLength());
+	f->Write(part2.c_str(), part2.GetLength());
 
 	if(num_indexes)
 	{
@@ -5515,23 +5521,23 @@ bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool u
 	ic = 0;
 	for(i = 0; i < num_fields; i++)
 	{
-		f->Write(fpart1.c_str(), fpart1.GetLength() * 2);
+		f->Write(fpart1.c_str(), fpart1.GetLength());
 		us = &(fields[i]->name);
-		f->Write(us->c_str(), us->Length() * 2);
-		f->Write(fpart2.c_str(), fpart2.GetLength() * 2);
+		f->Write(us->c_str(), us->Length());
+		f->Write(fpart2.c_str(), fpart2.GetLength());
 		s = fields[i]->get_presentation_type();
-		f->Write(s.c_str(), s.GetLength() * 2);
-		f->Write(fpart3.c_str(), fpart3.GetLength() * 2);
+		f->Write(s.c_str(), s.GetLength());
+		f->Write(fpart3.c_str(), fpart3.GetLength());
 		s = fields[i]->getlength();
-		f->Write(s.c_str(), s.GetLength() * 2);
-		f->Write(fpart4.c_str(), fpart4.GetLength() * 2);
+		f->Write(s.c_str(), s.GetLength());
+		f->Write(fpart4.c_str(), fpart4.GetLength());
 		s = fields[i]->getprecision();
-		f->Write(s.c_str(), s.GetLength() * 2);
-		f->Write(fpart5.c_str(), fpart5.GetLength() * 2);
+		f->Write(s.c_str(), s.GetLength());
+		f->Write(fpart5.c_str(), fpart5.GetLength());
 		if(fields[i]->type == tf_image) ic++;
 	}
 
-	f->Write(part3.c_str(), part3.GetLength() * 2);
+	f->Write(part3.c_str(), part3.GetLength());
 
 	if(curindex) numr = curindex->get_numrecords();
 	else numr = numrecords_found;
@@ -5546,7 +5552,7 @@ bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool u
 	{
 		if(j % 100 == 0 && j) if(msreg) msreg->Status(status + j);
 
-		f->Write(rpart1.c_str(), rpart1.GetLength() * 2);
+		f->Write(rpart1.c_str(), rpart1.GetLength());
 		if(curindex) nr = curindex->get_numrec(j);
 		else nr = recordsindex[j];
 		getrecord(nr, rec);
@@ -5561,10 +5567,10 @@ bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool u
 		}
 		for(i = 0; i < num_fields; i++)
 		{
-			f->Write(rpart3.c_str(), rpart3.GetLength() * 2);
+			f->Write(rpart3.c_str(), rpart3.GetLength());
 			us = &(fields[i]->name);
-			f->Write(us->c_str(), us->Length() * 2);
-			f->Write(">", 2);
+			f->Write(us->c_str(), us->Length());
+			f->Write(">", 1);
 
 			if(blob_to_file && fields[i]->type == tf_image)
 			{
@@ -5577,7 +5583,7 @@ bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool u
 						try
 						{
 							CreateDir(dir);
-							dir += "\\";
+							dir += "/";
 							canwriteblob = true;
 						}
 						catch(...)
@@ -5589,7 +5595,7 @@ bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool u
 					}
 					else
 					{
-						dir += "\\";
+						dir += "/";
 						canwriteblob = true;
 					}
 				}
@@ -5613,15 +5619,15 @@ bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool u
 			}
 			else s = fields[i]->get_XML_presentation(rec);
 
-			f->Write(s.c_str(), s.GetLength() * 2);
-			f->Write("</", 4);
-			f->Write(us->c_str(), us->Length() * 2);
-			f->Write(">\r\n", 6);
+			f->Write(s.c_str(), s.GetLength());
+			f->Write("</", 2);
+			f->Write(us->c_str(), us->Length());
+			f->Write(">\r\n", 3);
 		}
-		f->Write(rpart2.c_str(), rpart2.GetLength() * 2);
+		f->Write(rpart2.c_str(), rpart2.GetLength());
 
 	}
-	f->Write(part4.c_str(), part4.GetLength() * 2);
+	f->Write(part4.c_str(), part4.GetLength());
 
 	delete[] rec;
 	delete f;

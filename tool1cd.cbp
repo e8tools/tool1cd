@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-drc 1 .. ../example.1CD" />
+				<Option parameters="-ex .. LABELS ../example.1CD" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>

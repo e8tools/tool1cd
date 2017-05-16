@@ -1,5 +1,7 @@
 #include "System.SysUtils.hpp"
 #include <boost/filesystem.hpp>
+#include <codecvt>
+#include <string>
 
 
 namespace System {
@@ -15,6 +17,64 @@ virtual DynamicArray<Byte> GetPreamble()
 	result.push_back(0xEF);
 	result.push_back(0xBB);
 	result.push_back(0xBF);
+	return result;
+}
+
+// TODO: Убрать кучу магии
+
+virtual char *toUtf8(const System::DynamicArray<Byte> &Buffer) const
+{
+	char *data = new char[Buffer.size()];
+	strcpy(data, (char*)Buffer.data());
+	return data;
+}
+
+virtual DynamicArray<Byte> fromUtf8(const char *data)
+{
+	DynamicArray<Byte> result;
+	do {
+		result.push_back(*data);
+	} while (*data++);
+	return result;
+}
+
+};
+
+class TUcs2Encoding : public TEncoding
+{
+
+virtual DynamicArray<Byte> GetPreamble()
+{
+	DynamicArray<Byte> result;
+	result.push_back(0xFF);
+	result.push_back(0xFE);
+	return result;
+}
+
+virtual char *toUtf8(const System::DynamicArray<Byte> &Buffer) const
+{
+	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> converter;
+	auto s16 = converter.from_bytes((const char *)Buffer.data());
+
+	std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> conv;
+	auto result = conv.to_bytes(s16);
+
+	char *data = new char[result.size()];
+	strcpy(data, (char*)result.data());
+	return data;
+}
+
+virtual DynamicArray<Byte> fromUtf8(const char *data)
+{
+	std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> converter;
+	auto p = reinterpret_cast<const char16_t *>(data);
+	auto result_data = converter.to_bytes(p);
+
+	DynamicArray<Byte> result;
+	const char *outdata = result_data.c_str();
+	do {
+		result.push_back(*outdata);
+	} while (*outdata++);
 	return result;
 }
 
@@ -76,7 +136,7 @@ void TMultiReadExclusiveWriteSynchronizer::EndRead()
 
 
 TEncoding *TEncoding::Unicode = new TUtf8Encoding();
-TEncoding *TEncoding::UTF8 = new TUtf8Encoding();
+TEncoding *TEncoding::UTF8 = new TUcs2Encoding();
 
 
 int TEncoding::GetBufferEncoding(const System::DynamicArray<Byte> &Buffer, TEncoding* &AEncoding)
@@ -87,7 +147,11 @@ int TEncoding::GetBufferEncoding(const System::DynamicArray<Byte> &Buffer, TEnco
 
 DynamicArray<Byte> TEncoding::Convert(TEncoding * const Source, TEncoding * const Destination, const DynamicArray<Byte> &Bytes, int StartIndex, int Count)
 {
-	return Bytes;
+	// TODO: Костыли
+	auto data = Source->toUtf8(Bytes); // TODO: StartIndex, Count
+	DynamicArray<Byte> Result = Destination->fromUtf8(data);
+	delete [] data;
+	return Result;
 }
 
 DynamicArray<Byte> TEncoding::GetPreamble()

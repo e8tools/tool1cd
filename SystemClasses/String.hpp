@@ -114,7 +114,6 @@ public:
 	void Delete(int index);
 
 	void LoadFromFile(const String &filename);
-	DynamicArray<String> Strings;
 };
 
 

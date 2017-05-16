@@ -5,6 +5,7 @@
 #include <sstream>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem.hpp>
+#include "System.SysUtils.hpp"
 
 namespace System {
 
@@ -26,15 +27,19 @@ String::String(const char *src, int limit_size)
 String::String(const WCHART *w_src, int limit_size)
 {
 	// Костыль
+	DynamicArray<Byte> tmpdata;
 	const WCHART *p = w_src;
 	bool limit_exceeded = false;
 	while (!limit_exceeded && *p) {
-		append(1, (const char)(*p));
+		tmpdata.push_back((uint16_t)(*p) && 0xFF);
+		tmpdata.push_back((uint16_t)(*p) >> 16);
 		++p;
 		if (limit_size) {
 			limit_exceeded = --limit_size == 0;
 		}
 	}
+	std::string tmp(SysUtils::TEncoding::Unicode->toUtf8(tmpdata));
+	append(tmp);
 }
 
 String::String(int                value) : std::string(ToString(value)) {}
