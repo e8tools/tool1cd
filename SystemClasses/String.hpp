@@ -18,7 +18,11 @@ public:
 
 	String(const std::string &src);
 
-	String(const char *src, int limit_size = 0);
+	String(const char *src);
+
+	String(const char *src, int limit_size);
+
+	explicit String(const DynamicArray<Byte> &bytes);
 
 	String(const WCHART *w_src, int limit_size = 0);
 

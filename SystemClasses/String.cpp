@@ -19,9 +19,18 @@ String::String(const std::string &src)
 {
 }
 
-String::String(const char *src, int limit_size)
+String::String(const char *src)
 	 : std::string(src)
 {
+}
+
+String::String(const char *src, int limit_size)
+	 : std::string(src, limit_size)
+{
+}
+
+String::String(const DynamicArray<Byte> &bytes)
+	: std::string(reinterpret_cast<const char *>(bytes.data()), bytes.size()) {
 }
 
 String::String(const WCHART *w_src, int limit_size)
@@ -31,7 +40,7 @@ String::String(const WCHART *w_src, int limit_size)
 	const WCHART *p = w_src;
 	bool limit_exceeded = false;
 	while (!limit_exceeded && *p) {
-		tmpdata.push_back((uint16_t)(*p) && 0xFF);
+		tmpdata.push_back((uint16_t)(*p) & 0xFF);
 		tmpdata.push_back((uint16_t)(*p) >> 16);
 		++p;
 		if (limit_size) {
