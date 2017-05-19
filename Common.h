@@ -21,7 +21,7 @@ bool __fastcall string_to_date(const String& str, unsigned char* bytedate);
 String __fastcall date_to_string1C(const unsigned char* bytedate);
 String __fastcall date_to_string(const unsigned char* bytedate);
 String __fastcall tohex(int n);
-String __fastcall tohex64(__int64 n);
+String __fastcall tohex64(int64_t n);
 String __fastcall hexstring(char* buf, int n);
 String __fastcall hexstring(TStream* str);
 

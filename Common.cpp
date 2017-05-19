@@ -410,7 +410,7 @@ String __fastcall tohex(int n)
 }
 
 //---------------------------------------------------------------------------
-String __fastcall tohex64(__int64 n)
+String __fastcall tohex64(int64_t n)
 {
 	int nl;
 	int nh;
