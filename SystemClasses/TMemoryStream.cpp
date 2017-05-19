@@ -40,7 +40,7 @@ int64_t TMemoryStream::Read(void *Buffer, int64_t Count)
 	return 0;
 }
 
-int64_t TMemoryStream::Write(const void *Buffer, const int64_t Count)
+int64_t TMemoryStream::Write(const void *Buffer, int64_t Count)
 {
 	auto buf = reinterpret_cast<const Byte*>(Buffer);
 	EnsureSize(m_position + Count);

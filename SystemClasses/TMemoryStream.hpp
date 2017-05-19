@@ -23,7 +23,7 @@ public:
 
 	virtual __fastcall int64_t Read(void *Buffer, int64_t Count);
 
-	virtual __fastcall int64_t Write(const void *Buffer, const int64_t Count);
+	virtual __fastcall int64_t Write(const void *Buffer, int64_t Count);
 
 	const DynamicArray<Byte>  &GetBytes() const;
 
