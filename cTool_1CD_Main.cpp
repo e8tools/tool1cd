@@ -49,7 +49,7 @@ void __fastcall Messager::AddMessage(const String& message, const MessageState m
 	shared_ptr<ofstream> output (&cerr, [](...){} );
 
 	if (!logfile.IsEmpty()) {
-		output = make_shared<boost::filesystem::ofstream>(boost::filesystem::path(logfile.c_str()), std::ios_base::app);
+		output = make_shared<boost::filesystem::ofstream>(boost::filesystem::path(static_cast<string>(logfile)), std::ios_base::app);
 	}
 	*output << message << endl;
 	if (param) {
@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
 		return 3;
 	}
 
-	boost::filesystem::path dbpath(f.c_str());
+	boost::filesystem::path dbpath(static_cast<string>(f));
 	dbpath = boost::filesystem::absolute(dbpath);
 	T_1CD base1CD(dbpath.string(), &mess, !ActionOpenBaseNotMonopolyChecked);
 	if (base1CD.is_open())
@@ -178,8 +178,8 @@ int main(int argc, char* argv[])
 								t->fillrecordsindex();
 							}
 
-							boost::filesystem::path root_path(pc.param1);
-							boost::filesystem::path f = root_path / (t->getname() + ".xml");
+							boost::filesystem::path root_path(static_cast<string>(pc.param1));
+							boost::filesystem::path f = root_path / static_cast<string>(t->getname() + ".xml");
 
 							t->export_to_xml(f.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
 							mess.AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull,
@@ -193,7 +193,7 @@ int main(int argc, char* argv[])
 				case cmd_export_to_xml: {
 					if(base1CD.is_open())
 					{
-						boost::filesystem::path root_path(pc.param1);
+						boost::filesystem::path root_path(static_cast<string>(pc.param1));
 
 						Sysutils::TStringBuilder filter(pc.param2);
 						filter.Replace("*", ".*");
@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
 						}
 
 						expr = new boost::regex[k];
-						for(m = 0; m < k; m++) expr[m] = boost::regex(filters[m].c_str());
+						for(m = 0; m < k; m++) expr[m] = boost::regex(static_cast<string>(filters[m]));
 
 						for(j = 0; j < base1CD.get_numtables(); j++)
 						{
@@ -229,7 +229,7 @@ int main(int argc, char* argv[])
 
 							for(m = 0; m < k; m++)
 							{
-								if(regex_match(t->getname().UpperCase().c_str(), expr[m]))
+								if(regex_match(static_cast<string>(t->getname().UpperCase()), expr[m]))
 								{
 									b = true;
 									break;
@@ -243,7 +243,7 @@ int main(int argc, char* argv[])
 									t->fillrecordsindex();
 								}
 
-								boost::filesystem::path f = root_path / (t->getname() + ".xml");
+								boost::filesystem::path f = root_path / static_cast<string>(t->getname() + ".xml");
 
 								t->export_to_xml(f.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
 								mess.AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull,
@@ -263,7 +263,7 @@ int main(int argc, char* argv[])
 				case cmd_save_config:
 					if(base1CD.is_open())
 					{
-						boost::filesystem::path fpath(pc.param1.c_str());
+						boost::filesystem::path fpath(static_cast<string>(pc.param1));
 						fpath = boost::filesystem::absolute(fpath);
 						if (!boost::iequals(fpath.extension().string(), ".cf"))
 						{
@@ -381,7 +381,7 @@ int main(int argc, char* argv[])
 						mess.AddError("Запрошенной версии конфигурации нет в хранилище конфигурации.");
 						break;
 					}
-					boost::filesystem::path cfpath(pc.param2.c_str());
+					boost::filesystem::path cfpath(static_cast<string>(pc.param2));
 					cfpath = boost::filesystem::absolute(cfpath);
 					if (!boost::iequals(cfpath.extension().string(), ".cf"))
 					{
@@ -391,7 +391,7 @@ int main(int argc, char* argv[])
 								"Каталог", f);
 							break;
 						}
-						cfpath /= String(string("v") + j + string(".cf")).c_str();
+						cfpath /= static_cast<string>(String(string("v") + j + string(".cf")));
 					}
 					if(base1CD.save_depot_config(cfpath.string(), j))
 						mess.AddMessage_("Сохранение конфигурации хранилища завершено.", msSuccesfull,
