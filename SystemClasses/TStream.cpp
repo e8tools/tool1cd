@@ -188,7 +188,7 @@ int64_t TWrapperStream::Read(void *Buffer, int64_t Count)
 	return data_read;
 }
 
-int64_t TWrapperStream::Write(const void *Buffer, const int64_t Count)
+int64_t TWrapperStream::Write(const void *Buffer, int64_t Count)
 {
 	_stream->seekp(GetPosition(), std::ios_base::beg);
 	_stream->write((char*)Buffer, Count);
