@@ -6,6 +6,8 @@ set (SYSTEM_SOURCES String.cpp System.Classes.cpp System.cpp
 	TStreamReader.cpp TStreamWriter.cpp ZLibEx.cpp System.SysUtils.cpp)
 
 set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD_REQUIRED YES)
+set (CMAKE_CXX_EXTENSIONS OFF)
 add_library (SystemClasses STATIC ${SYSTEM_SOURCES})
 
 find_package (Boost 1.53 REQUIRED COMPONENTS filesystem regex system)
