@@ -41,7 +41,7 @@ String::String(const WCHART *w_src, int limit_size)
 	bool limit_exceeded = false;
 	while (!limit_exceeded && *p) {
 		tmpdata.push_back((uint16_t)(*p) & 0xFF);
-		tmpdata.push_back((uint16_t)(*p) >> 16);
+		tmpdata.push_back((uint16_t)(*p) >> 8);
 		++p;
 		if (limit_size) {
 			limit_exceeded = --limit_size == 0;

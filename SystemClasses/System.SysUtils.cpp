@@ -1,7 +1,7 @@
 #include "System.SysUtils.hpp"
 #include <boost/filesystem.hpp>
-#include <codecvt>
 #include <string>
+#include "utf8.h"
 
 using namespace std;
 
@@ -20,8 +20,6 @@ virtual DynamicArray<Byte> GetPreamble()
 	result.push_back(0xBF);
 	return result;
 }
-
-// TODO: Убрать кучу магии
 
 virtual String toUtf8(const System::DynamicArray<Byte> &Buffer) const
 {
@@ -53,24 +51,20 @@ virtual DynamicArray<Byte> GetPreamble()
 
 virtual String toUtf8(const System::DynamicArray<Byte> &Buffer) const
 {
-	wstring_convert<codecvt_utf8<char16_t>, char16_t> conv;
-	auto data_first = (const char16_t *)Buffer.data();
-	auto data_last = data_first + Buffer.size() / 2;
-	auto result = conv.to_bytes(data_first, data_last);
-	return String(result);
+	auto data_first = (const uint16_t *)Buffer.data();
+	auto data_last  = data_first + Buffer.size() / sizeof(uint16_t);
+	DynamicArray<Byte> result_vector;
+	utf8::utf16to8(data_first, data_last, back_inserter(result_vector));
+	return String(result_vector);
 }
 
 virtual DynamicArray<Byte> fromUtf8(const String &data)
 {
-	wstring_convert<codecvt_utf8<char16_t>, char16_t> converter;
-	auto result_data = converter.from_bytes(data.c_str());
-
-	DynamicArray<Byte> result;
-	const char *outdata = (const char *)result_data.c_str();
-	do {
-		result.push_back(*outdata);
-	} while (*outdata++);
-	return result;
+	auto data_first = data.c_str();
+	auto data_last = data_first + data.size();
+	DynamicArray<Byte> result_vector;
+	utf8::utf8to16(data_first, data_last, back_inserter(result_vector));
+	return result_vector;
 }
 
 
