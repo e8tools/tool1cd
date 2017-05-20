@@ -15,7 +15,7 @@ class TMemoryStream : public TStream
 public:
 
 	TMemoryStream();
-	__fastcall ~TMemoryStream();
+	virtual __fastcall ~TMemoryStream();
 
 	virtual __fastcall int64_t GetSize() const;
 
