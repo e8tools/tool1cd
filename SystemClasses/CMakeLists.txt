@@ -3,7 +3,7 @@ project (SystemClasses)
 
 set (SYSTEM_SOURCES String.cpp System.Classes.cpp System.cpp
 	System.IOUtils.cpp TFileStream.cpp TMemoryStream.cpp TStream.cpp
-	TStreamReader.cpp TStreamWriter.cpp ZLibEx.cpp System.SysUtils.cpp)
+	TStreamReader.cpp TStreamWriter.cpp System.SysUtils.cpp)
 
 set (CMAKE_CXX_STANDARD 14)
 set (CMAKE_CXX_STANDARD_REQUIRED YES)
