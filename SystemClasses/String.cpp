@@ -7,6 +7,8 @@
 #include <boost/filesystem.hpp>
 #include "System.SysUtils.hpp"
 
+using namespace std;
+
 namespace System {
 
 
@@ -14,23 +16,23 @@ String::String()
 {
 }
 
-String::String(const std::string &src)
-	 : std::string(src)
+String::String(const string &src)
+	 : string(src)
 {
 }
 
 String::String(const char *src)
-	 : std::string(src)
+	 : string(src)
 {
 }
 
 String::String(const char *src, int limit_size)
-	 : std::string(src, limit_size)
+	 : string(src, limit_size)
 {
 }
 
 String::String(const DynamicArray<t::Byte> &bytes)
-	: std::string(reinterpret_cast<const char *>(bytes.data()), bytes.size()) {
+	: string(reinterpret_cast<const char *>(bytes.data()), bytes.size()) {
 }
 
 String::String(const WCHART *w_src, int limit_size)
@@ -47,28 +49,28 @@ String::String(const WCHART *w_src, int limit_size)
 			limit_exceeded = --limit_size == 0;
 		}
 	}
-	std::string tmp(SysUtils::TEncoding::Unicode->toUtf8(tmpdata));
+	string tmp(SysUtils::TEncoding::Unicode->toUtf8(tmpdata));
 	append(tmp);
 }
 
-String::String(int                value) : std::string(ToString(value)) {}
-String::String(unsigned int       value) : std::string(ToString(value)) {}
-String::String(long               value) : std::string(ToString(value)) {}
-String::String(unsigned long      value) : std::string(ToString(value)) {}
-String::String(long long          value) : std::string(ToString(value)) {}
-String::String(unsigned long long value) : std::string(ToString(value)) {}
+String::String(int                value) : string(ToString(value)) {}
+String::String(unsigned int       value) : string(ToString(value)) {}
+String::String(long               value) : string(ToString(value)) {}
+String::String(unsigned long      value) : string(ToString(value)) {}
+String::String(long long          value) : string(ToString(value)) {}
+String::String(unsigned long long value) : string(ToString(value)) {}
 
 String String::UpperCase() const
 {
-	std::string copy (*this);
-	std::transform(copy.begin(), copy.end(), copy.begin(), ::toupper);
+	string copy (*this);
+	transform(copy.begin(), copy.end(), copy.begin(), ::toupper);
 	return String(copy);
 }
 
 String String::LowerCase() const
 {
-	std::string copy (*this);
-	std::transform(copy.begin(), copy.end(), copy.begin(), ::tolower);
+	string copy (*this);
+	transform(copy.begin(), copy.end(), copy.begin(), ::tolower);
 	return String(copy);
 }
 
@@ -94,7 +96,13 @@ int String::Compare(const String &b) const
 
 String String::Replace(const String &sub, const String &replace) const
 {
-	return *this;
+	string _copy(*this);
+	auto pos = _copy.find(sub);
+	while (pos != string::npos) {
+		_copy.replace(pos, sub.size(), replace);
+		pos = _copy.find(sub);
+	}
+	return _copy;
 }
 
 String String::SubString(int StartIndex, int Count) const
@@ -117,14 +125,14 @@ const char &String::operator[] (int index) const
 
 int String::ToInt() const
 {
-	return std::stoi(*this);
+	return stoi(*this);
 }
 
 int String::ToIntDef(int default_value) const
 {
 	try {
 		return ToInt();
-	} catch (const std::invalid_argument &) {
+	} catch (const invalid_argument &) {
 		return default_value;
 	}
 }
@@ -189,9 +197,9 @@ void TStringList::Add(const String &item)
 void TStringList::SetText(const String &text)
 {
 	clear();
-	std::stringstream iss(text);
-	std::string line;
-	while (std::getline(iss, line)) {
+	stringstream iss(text);
+	string line;
+	while (getline(iss, line)) {
 		push_back(line);
 	}
 }
@@ -210,8 +218,8 @@ void TStringList::LoadFromFile(const String &filename)
 {
 	clear();
 	boost::filesystem::ifstream ifs(boost::filesystem::path(filename.c_str()));
-	std::string line;
-	while (std::getline(ifs, line)) {
+	string line;
+	while (getline(ifs, line)) {
 		push_back(line);
 	}
 }
@@ -219,32 +227,32 @@ void TStringList::LoadFromFile(const String &filename)
 
 String String::IntToStr(int n)
 {
-	return std::to_string(n);
+	return to_string(n);
 }
 
 String String::UIntToStr(unsigned int n)
 {
-	return std::to_string(n);
+	return to_string(n);
 }
 
 String String::ULongToStr(unsigned long n)
 {
-	return std::to_string(n);
+	return to_string(n);
 }
 
 String String::LongToStr(long n)
 {
-	return std::to_string(n);
+	return to_string(n);
 }
 
 String String::ULongLongToStr(unsigned long long n)
 {
-	return std::to_string(n);
+	return to_string(n);
 }
 
 String String::LongLongToStr(long long n)
 {
-	return std::to_string(n);
+	return to_string(n);
 }
 
 String String::ToString(int n)
@@ -280,10 +288,10 @@ String String::ToString(long long n)
 
 String String::IntToHex(int n, int digits)
 {
-	std::stringstream ss;
-	ss << std::hex;
+	stringstream ss;
+	ss << hex;
 	if (digits != 0) {
-		ss << std::setfill('0') << std::setw(digits);
+		ss << setfill('0') << setw(digits);
 	}
 	ss << n;
 

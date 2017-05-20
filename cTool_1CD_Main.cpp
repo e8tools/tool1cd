@@ -196,10 +196,10 @@ int main(int argc, char* argv[])
 						Sysutils::TStringBuilder filter(pc.param2);
 						filter.Replace("*", ".*");
 						filter.Replace("?", ".");
-						filter.Replace(" ", "\r\n");
-						filter.Replace("\t", "\r\n");
-						filter.Replace(",", "\r\n");
-						filter.Replace(";", "\r\n");
+						filter.Replace(" ", "\n");
+						filter.Replace("\t", "\n");
+						filter.Replace(",", "\n");
+						filter.Replace(";", "\n");
 
 						TStringList filters;
 						filters.SetText(filter.ToString());
