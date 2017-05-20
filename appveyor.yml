@@ -27,6 +27,8 @@ install:
 
     cd ..
 
+    copy zconf.h SystemClasses
+
     cd ..
 build_script:
 - cmd: >-
