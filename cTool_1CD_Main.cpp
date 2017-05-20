@@ -46,7 +46,7 @@ void Messager::Status(const String& message)
 //---------------------------------------------------------------------------
 void Messager::AddMessage(const String& message, const MessageState mstate, TStringList* param)
 {
-	shared_ptr<ofstream> output (&cerr, [](...){} );
+	shared_ptr<ostream> output (&cerr, [](...){} );
 
 	if (!logfile.IsEmpty()) {
 		output = make_shared<boost::filesystem::ofstream>(boost::filesystem::path(static_cast<string>(logfile)), std::ios_base::app);
@@ -83,8 +83,6 @@ int main(int argc, char* argv[])
 	table* t;
 	String f, v;
 	bool b;
-	Sysutils::TStringBuilder* filter;
-	TStringList* filters;
 	boost::regex* expr;
 
 	bool ActionOpenBaseNotMonopolyChecked = false;
