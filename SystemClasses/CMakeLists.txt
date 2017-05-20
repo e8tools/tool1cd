@@ -5,10 +5,15 @@ set (SYSTEM_SOURCES String.cpp System.Classes.cpp System.cpp
 	System.IOUtils.cpp TFileStream.cpp TMemoryStream.cpp TStream.cpp
 	TStreamReader.cpp TStreamWriter.cpp System.SysUtils.cpp)
 
-set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_CXX_STANDARD_REQUIRED YES)
 set (CMAKE_CXX_EXTENSIONS OFF)
 add_library (SystemClasses STATIC ${SYSTEM_SOURCES})
+
+add_definitions (-DBOOST_ALL_NO_LIB)
+set (Boost_USE_STATIC_LIBS ON)
+set (Boost_USE_MULTITHREADED OFF)
+set (Boost_USE_STATIC_RUNTIME ON)
 
 find_package (Boost 1.53 REQUIRED COMPONENTS filesystem regex system)
 
