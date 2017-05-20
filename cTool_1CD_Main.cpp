@@ -28,7 +28,7 @@ const int TEMP_BUFFER_SIZE = 4096;
 char temp[TEMP_BUFFER_SIZE];
 
 //---------------------------------------------------------------------------
-__fastcall Messager::Messager()
+Messager::Messager()
 {
 	has_error = false;
 	logfile = "";
@@ -37,14 +37,14 @@ __fastcall Messager::Messager()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall Messager::Status(const String& message)
+void Messager::Status(const String& message)
 {
 	cout << message << endl;
 	AddMessage(message, msEmpty, nullptr);
 }
 
 //---------------------------------------------------------------------------
-void __fastcall Messager::AddMessage(const String& message, const MessageState mstate, TStringList* param)
+void Messager::AddMessage(const String& message, const MessageState mstate, TStringList* param)
 {
 	shared_ptr<ofstream> output (&cerr, [](...){} );
 
@@ -61,7 +61,7 @@ void __fastcall Messager::AddMessage(const String& message, const MessageState m
 }
 
 //---------------------------------------------------------------------------
-void __fastcall Messager::setlogfile(String _logfile)
+void Messager::setlogfile(String _logfile)
 {
 	logfile = System::Ioutils::TPath::GetFullPath(_logfile);
 	if(FileExists(logfile)) DeleteFile(logfile);

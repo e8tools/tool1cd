@@ -5,10 +5,6 @@
 #define DELPHI_PACKAGE
 #endif // DELPHI_PACKAGE
 
-#ifndef __fastcall
-#define __fastcall
-#endif // __fastcall
-
 #include <cstdint>
 #include <vector>
 #include <climits>

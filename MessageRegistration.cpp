@@ -8,31 +8,31 @@
 #pragma package(smart_init)
 
 //---------------------------------------------------------------------------
-__fastcall MessageRegistrator::MessageRegistrator()
+MessageRegistrator::MessageRegistrator()
 {
 	DebugMessage = false;
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::setDebugMode(bool dstate)
+void MessageRegistrator::setDebugMode(bool dstate)
 {
 	DebugMessage = dstate;
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall MessageRegistrator::getDebugMode()
+bool MessageRegistrator::getDebugMode()
 {
 	return DebugMessage;
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddError(const String& description)
+void MessageRegistrator::AddError(const String& description)
 {
 	AddMessage(description, msError);
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddError(const String& description,
+void MessageRegistrator::AddError(const String& description,
 	const String& parname1, const String& par1)
 {
 	TStringList* ts = new TStringList;
@@ -41,7 +41,7 @@ void __fastcall MessageRegistrator::AddError(const String& description,
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddError(const String& description,
+void MessageRegistrator::AddError(const String& description,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2)
 {
@@ -52,7 +52,7 @@ void __fastcall MessageRegistrator::AddError(const String& description,
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddError(const String& description,
+void MessageRegistrator::AddError(const String& description,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2,
 	const String& parname3, const String& par3)
@@ -65,7 +65,7 @@ void __fastcall MessageRegistrator::AddError(const String& description,
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddError(const String& description,
+void MessageRegistrator::AddError(const String& description,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2,
 	const String& parname3, const String& par3,
@@ -80,7 +80,7 @@ void __fastcall MessageRegistrator::AddError(const String& description,
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddError(const String& description,
+void MessageRegistrator::AddError(const String& description,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2,
 	const String& parname3, const String& par3,
@@ -97,7 +97,7 @@ void __fastcall MessageRegistrator::AddError(const String& description,
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddError(const String& description,
+void MessageRegistrator::AddError(const String& description,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2,
 	const String& parname3, const String& par3,
@@ -116,7 +116,7 @@ void __fastcall MessageRegistrator::AddError(const String& description,
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddError(const String& description,
+void MessageRegistrator::AddError(const String& description,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2,
 	const String& parname3, const String& par3,
@@ -137,7 +137,7 @@ void __fastcall MessageRegistrator::AddError(const String& description,
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddMessage_(const String& description, const MessageState mstate,
+void MessageRegistrator::AddMessage_(const String& description, const MessageState mstate,
 	const String& parname1, const String& par1)
 {
 	TStringList* ts = new TStringList;
@@ -146,7 +146,7 @@ void __fastcall MessageRegistrator::AddMessage_(const String& description, const
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddMessage_(const String& description, const MessageState mstate,
+void MessageRegistrator::AddMessage_(const String& description, const MessageState mstate,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2)
 {
@@ -157,7 +157,7 @@ void __fastcall MessageRegistrator::AddMessage_(const String& description, const
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddMessage_(const String& description, const MessageState mstate,
+void MessageRegistrator::AddMessage_(const String& description, const MessageState mstate,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2,
 	const String& parname3, const String& par3)
@@ -170,7 +170,7 @@ void __fastcall MessageRegistrator::AddMessage_(const String& description, const
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddMessage_(const String& description, const MessageState mstate,
+void MessageRegistrator::AddMessage_(const String& description, const MessageState mstate,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2,
 	const String& parname3, const String& par3,
@@ -185,7 +185,7 @@ void __fastcall MessageRegistrator::AddMessage_(const String& description, const
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddMessage_(const String& description, const MessageState mstate,
+void MessageRegistrator::AddMessage_(const String& description, const MessageState mstate,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2,
 	const String& parname3, const String& par3,
@@ -202,7 +202,7 @@ void __fastcall MessageRegistrator::AddMessage_(const String& description, const
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddMessage_(const String& description, const MessageState mstate,
+void MessageRegistrator::AddMessage_(const String& description, const MessageState mstate,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2,
 	const String& parname3, const String& par3,
@@ -221,7 +221,7 @@ void __fastcall MessageRegistrator::AddMessage_(const String& description, const
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddMessage_(const String& description, const MessageState mstate,
+void MessageRegistrator::AddMessage_(const String& description, const MessageState mstate,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2,
 	const String& parname3, const String& par3,
@@ -242,7 +242,7 @@ void __fastcall MessageRegistrator::AddMessage_(const String& description, const
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate)
+void MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate)
 {
 	if(!DebugMessage) return;
 	AddMessage(description, mstate);
@@ -250,7 +250,7 @@ void __fastcall MessageRegistrator::AddDebugMessage(const String& description, c
 
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate,
+void MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate,
 	const String& parname1, const String& par1)
 {
 	if(!DebugMessage) return;
@@ -259,7 +259,7 @@ void __fastcall MessageRegistrator::AddDebugMessage(const String& description, c
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate,
+void MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2)
 {
@@ -270,7 +270,7 @@ void __fastcall MessageRegistrator::AddDebugMessage(const String& description, c
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate,
+void MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2,
 	const String& parname3, const String& par3)
@@ -283,7 +283,7 @@ void __fastcall MessageRegistrator::AddDebugMessage(const String& description, c
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate,
+void MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2,
 	const String& parname3, const String& par3,
@@ -298,7 +298,7 @@ void __fastcall MessageRegistrator::AddDebugMessage(const String& description, c
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate,
+void MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2,
 	const String& parname3, const String& par3,
@@ -315,7 +315,7 @@ void __fastcall MessageRegistrator::AddDebugMessage(const String& description, c
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate,
+void MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2,
 	const String& parname3, const String& par3,
@@ -334,7 +334,7 @@ void __fastcall MessageRegistrator::AddDebugMessage(const String& description, c
 }
 
 //---------------------------------------------------------------------------
-void __fastcall MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate,
+void MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate,
 	const String& parname1, const String& par1,
 	const String& parname2, const String& par2,
 	const String& parname3, const String& par3,

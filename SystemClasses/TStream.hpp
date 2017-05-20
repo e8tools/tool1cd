@@ -33,40 +33,40 @@ public:
 
 	TStream();
 
-	virtual __fastcall int64_t GetSize() const;
+	virtual int64_t GetSize() const;
 
-	virtual __fastcall void SetSize(int64_t NewSize);
+	virtual void SetSize(int64_t NewSize);
 
-	virtual __fastcall int64_t GetPosition() const;
+	virtual int64_t GetPosition() const;
 
-	virtual __fastcall void SetPosition(int64_t NewPosition);
+	virtual void SetPosition(int64_t NewPosition);
 
 public:
 
-	virtual __fastcall int64_t Read(void *Buffer, int64_t Count);
+	virtual int64_t Read(void *Buffer, int64_t Count);
 
-	virtual __fastcall int64_t Seek(const int64_t offset, const TSeekOrigin Origin);
+	virtual int64_t Seek(const int64_t offset, const TSeekOrigin Origin);
 
-	virtual __fastcall int64_t Write(const void *Buffer, int64_t Count);
+	virtual int64_t Write(const void *Buffer, int64_t Count);
 
-	virtual __fastcall int64_t ReadBuffer(void *Buffer, int64_t Count);
+	virtual int64_t ReadBuffer(void *Buffer, int64_t Count);
 
-	virtual __fastcall int64_t Read(System::DynamicArray<System::Byte> &Buffer, int64_t Count);
+	virtual int64_t Read(System::DynamicArray<System::Byte> &Buffer, int64_t Count);
 
-	virtual __fastcall int64_t CopyFrom(TStream *Source, const int64_t Count);
+	virtual int64_t CopyFrom(TStream *Source, const int64_t Count);
 
-	virtual __fastcall int64_t WriteBuffer(const void *Buffer, const int64_t Count);
+	virtual int64_t WriteBuffer(const void *Buffer, const int64_t Count);
 
-	virtual __fastcall int64_t Write(const System::DynamicArray<System::Byte> &Buffer, const int64_t Count);
+	virtual int64_t Write(const System::DynamicArray<System::Byte> &Buffer, const int64_t Count);
 
-	virtual __fastcall void    Close();
+	virtual void    Close();
 
-	virtual __fastcall ~TStream();
+	virtual ~TStream();
 };
 
 class THandleStream : public TStream
 {
-	virtual __fastcall ~THandleStream();
+	virtual ~THandleStream();
 };
 
 class TWrapperStream : public TStream
@@ -86,11 +86,11 @@ protected:
 
 public:
 
-	virtual __fastcall int64_t Read(void *Buffer, int64_t Count);
+	virtual int64_t Read(void *Buffer, int64_t Count);
 
-	virtual __fastcall int64_t Write(const void *Buffer, int64_t Count);
+	virtual int64_t Write(const void *Buffer, int64_t Count);
 
-	virtual __fastcall ~TWrapperStream();
+	virtual ~TWrapperStream();
 
 private:
 	std::shared_ptr<std::iostream> _stream;

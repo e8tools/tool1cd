@@ -24,34 +24,34 @@ private:
 	unsigned int index;
 
 public:
-	__fastcall tree(const String& _value, const node_type _type, tree* _parent);
-	__fastcall ~tree();
-	tree* __fastcall add_child(const String& _value, const node_type _type);
-	tree* __fastcall add_child();
-	tree* __fastcall add_node();
-	String& __fastcall get_value();
-	node_type __fastcall get_type();
-	int __fastcall get_num_subnode();
-	tree* __fastcall get_subnode(int _index);
-	tree* __fastcall get_subnode(const String& node_name);
-	tree* __fastcall get_next();
-	tree* __fastcall get_parent();
-	tree* __fastcall get_first();
-	tree* __fastcall get_last();
-	tree& __fastcall operator [](int _index);
-	void __fastcall set_value(const String& v, const node_type t);
-	void __fastcall outtext(String& text);
-	String __fastcall path();
+	tree(const String& _value, const node_type _type, tree* _parent);
+	~tree();
+	tree* add_child(const String& _value, const node_type _type);
+	tree* add_child();
+	tree* add_node();
+	String& get_value();
+	node_type get_type();
+	int get_num_subnode();
+	tree* get_subnode(int _index);
+	tree* get_subnode(const String& node_name);
+	tree* get_next();
+	tree* get_parent();
+	tree* get_first();
+	tree* get_last();
+	tree& operator [](int _index);
+	void set_value(const String& v, const node_type t);
+	void outtext(String& text);
+	String path();
 };
 
 typedef tree* treeptr;
 
 
 
-//tree* __fastcall parse_1Ctext_old(String& text, String path);
-tree* __fastcall parse_1Ctext(const String& text, const String& path);
-tree* __fastcall parse_1Cstream(TStream* str, const String& path);
-bool __fastcall test_parse_1Ctext(TStream* str, const String& path);
+//tree* parse_1Ctext_old(String& text, String path);
+tree* parse_1Ctext(const String& text, const String& path);
+tree* parse_1Cstream(TStream* str, const String& path);
+bool test_parse_1Ctext(TStream* str, const String& path);
 String outtext(tree* t);
 
 #endif

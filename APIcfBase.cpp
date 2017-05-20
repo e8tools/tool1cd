@@ -26,7 +26,7 @@ int min(int value1, int value2)
 
 //---------------------------------------------------------------------------
 // преобразует шестнадцатиричную восьмисимвольную строку в число
-int __fastcall hex_to_int(char* hexstr)
+int hex_to_int(char* hexstr)
 {
 	int res = 0;
 	int sym;
@@ -43,7 +43,7 @@ int __fastcall hex_to_int(char* hexstr)
 
 //---------------------------------------------------------------------------
 // преобразует число в шестнадцатиричную восьмисимвольную строку
-char* __fastcall int_to_hex(char* hexstr, int dec)
+char* int_to_hex(char* hexstr, int dec)
 {
 	int _t1 = dec;
 	int _t2;
@@ -58,7 +58,7 @@ char* __fastcall int_to_hex(char* hexstr, int dec)
 
 //---------------------------------------------------------------------------
 // читает блок из потока каталога stream_from, собирая его по страницам
-TStream* __fastcall read_block(TStream* stream_from, int start, TStream* stream_to = NULL)
+TStream* read_block(TStream* stream_from, int start, TStream* stream_to = NULL)
 {
 	char temp_buf[32];
 	int len,curlen,pos,readlen;
@@ -100,7 +100,7 @@ TStream* __fastcall read_block(TStream* stream_from, int start, TStream* stream_
 
 //---------------------------------------------------------------------------
 //преобразование времени
-void __fastcall V8timeToFileTime(const int64_t* v8t, FILETIME* ft){
+void V8timeToFileTime(const int64_t* v8t, FILETIME* ft){
 	FILETIME lft;
 	int64_t t = *v8t;
 	t -= 504911232000000; //504911232000000 = ((365 * 4 + 1) * 100 - 3) * 4 * 24 * 60 * 60 * 10000
@@ -110,7 +110,7 @@ void __fastcall V8timeToFileTime(const int64_t* v8t, FILETIME* ft){
 }
 
 //---------------------------------------------------------------------------
-void __fastcall FileTimeToV8time(const FILETIME* ft, int64_t* v8t){
+void FileTimeToV8time(const FILETIME* ft, int64_t* v8t){
 	FILETIME lft;
 	FileTimeToLocalFileTime(ft, &lft);
 	int64_t t = *(int64_t*)&lft;
@@ -120,7 +120,7 @@ void __fastcall FileTimeToV8time(const FILETIME* ft, int64_t* v8t){
 }
 
 //---------------------------------------------------------------------------
-void __fastcall setCurrentTime(int64_t* v8t)
+void setCurrentTime(int64_t* v8t)
 {
 	SYSTEMTIME st;
 	FILETIME ft;
@@ -135,7 +135,7 @@ void __fastcall setCurrentTime(int64_t* v8t)
 // Класс v8file
 
 //---------------------------------------------------------------------------
-__fastcall v8file::v8file(v8catalog* _parent, const String& _name, v8file* _previous, int _start_data, int _start_header, int64_t* _time_create, int64_t* _time_modify)
+v8file::v8file(v8catalog* _parent, const String& _name, v8file* _previous, int _start_data, int _start_header, int64_t* _time_create, int64_t* _time_modify)
 {
 	Lock = new TCriticalSection();
 	is_destructed = false;
@@ -161,31 +161,31 @@ __fastcall v8file::v8file(v8catalog* _parent, const String& _name, v8file* _prev
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8file::GetTimeCreate(FILETIME* ft)
+void v8file::GetTimeCreate(FILETIME* ft)
 {
 	V8timeToFileTime(&time_create, ft);
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8file::GetTimeModify(FILETIME* ft)
+void v8file::GetTimeModify(FILETIME* ft)
 {
 	V8timeToFileTime(&time_modify, ft);
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8file::SetTimeCreate(FILETIME* ft)
+void v8file::SetTimeCreate(FILETIME* ft)
 {
 	FileTimeToV8time(ft, &time_create);
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8file::SetTimeModify(FILETIME* ft)
+void v8file::SetTimeModify(FILETIME* ft)
 {
 	FileTimeToV8time(ft, &time_modify);
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8file::SaveToFile(const String& FileName)
+void v8file::SaveToFile(const String& FileName)
 {
 	FILETIME create, modify;
 	if(!is_opened) if(!Open()) return;
@@ -200,7 +200,7 @@ void __fastcall v8file::SaveToFile(const String& FileName)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8file::SaveToStream(TStream* stream)
+void v8file::SaveToStream(TStream* stream)
 {
 	Lock->Acquire();
 	if(!is_opened) if(!Open()) return;
@@ -209,7 +209,7 @@ void __fastcall v8file::SaveToStream(TStream* stream)
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8file::GetFileLength()
+int v8file::GetFileLength()
 {
 	int ret;
 	Lock->Acquire();
@@ -220,7 +220,7 @@ int __fastcall v8file::GetFileLength()
 }
 
 //---------------------------------------------------------------------------
-int64_t __fastcall v8file::GetFileLength64()
+int64_t v8file::GetFileLength64()
 {
 	int64_t ret;
 	Lock->Acquire();
@@ -231,7 +231,7 @@ int64_t __fastcall v8file::GetFileLength64()
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8file::Read(void* Buffer, int Start, int Length)
+int v8file::Read(void* Buffer, int Start, int Length)
 {
 	int ret;
 	Lock->Acquire();
@@ -243,7 +243,7 @@ int __fastcall v8file::Read(void* Buffer, int Start, int Length)
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8file::Read(System::DynamicArray<System::Byte> Buffer, int Start, int Length)
+int v8file::Read(System::DynamicArray<System::Byte> Buffer, int Start, int Length)
 {
 	int ret;
 	Lock->Acquire();
@@ -256,19 +256,19 @@ int __fastcall v8file::Read(System::DynamicArray<System::Byte> Buffer, int Start
 
 ////---------------------------------------------------------------------------
 //// Потоконебезопасная функция!
-//TStream* __fastcall v8file::get_data()
+//TStream* v8file::get_data()
 //{
 //	return data;
 //}
 
 //---------------------------------------------------------------------------
-TV8FileStream* __fastcall v8file::get_stream(bool own)
+TV8FileStream* v8file::get_stream(bool own)
 {
 	return new TV8FileStream(this, own);
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8file::Write(const void* Buffer, int Start, int Length) // дозапись/перезапись частично
+int v8file::Write(const void* Buffer, int Start, int Length) // дозапись/перезапись частично
 {
 	int ret;
 //	if(readonly) return 0;
@@ -284,7 +284,7 @@ int __fastcall v8file::Write(const void* Buffer, int Start, int Length) // до�
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8file::Write(System::DynamicArray<System::Byte> Buffer, int Start, int Length) // дозапись/перезапись частично
+int v8file::Write(System::DynamicArray<System::Byte> Buffer, int Start, int Length) // дозапись/перезапись частично
 {
 	int ret;
 //	if(readonly) return 0;
@@ -300,7 +300,7 @@ int __fastcall v8file::Write(System::DynamicArray<System::Byte> Buffer, int Star
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8file::Write(const void* Buffer, int Length) // перезапись целиком
+int v8file::Write(const void* Buffer, int Length) // перезапись целиком
 {
 	int ret;
 //	if(readonly) return 0;
@@ -317,7 +317,7 @@ int __fastcall v8file::Write(const void* Buffer, int Length) // перезапи
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8file::Write(TStream* Stream, int Start, int Length) // дозапись/перезапись частично
+int v8file::Write(TStream* Stream, int Start, int Length) // дозапись/перезапись частично
 {
 	int ret;
 //	if(readonly) return 0;
@@ -333,7 +333,7 @@ int __fastcall v8file::Write(TStream* Stream, int Start, int Length) // доза
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8file::Write(TStream* Stream) // перезапись целиком
+int v8file::Write(TStream* Stream) // перезапись целиком
 {
 	int ret;
 //	if(readonly) return 0;
@@ -350,13 +350,13 @@ int __fastcall v8file::Write(TStream* Stream) // перезапись целик
 }
 
 //---------------------------------------------------------------------------
-String __fastcall v8file::GetFileName()
+String v8file::GetFileName()
 {
 	return name;
 }
 
 //---------------------------------------------------------------------------
-String __fastcall v8file::GetFullName()
+String v8file::GetFullName()
 {
 	if(parent) if(parent->file)
 	{
@@ -372,14 +372,14 @@ String __fastcall v8file::GetFullName()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8file::SetFileName(const String& _name)
+void v8file::SetFileName(const String& _name)
 {
 	name = _name;
 	is_headermodified = true;
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall v8file::IsCatalog()
+bool v8file::IsCatalog()
 {
 	int _filelen;
 	int _startempty = -1;
@@ -449,7 +449,7 @@ bool __fastcall v8file::IsCatalog()
 }
 
 //---------------------------------------------------------------------------
-v8catalog* __fastcall v8file::GetCatalog(){
+v8catalog* v8file::GetCatalog(){
 	v8catalog* ret;
 
 	Lock->Acquire();
@@ -467,13 +467,13 @@ v8catalog* __fastcall v8file::GetCatalog(){
 }
 
 //---------------------------------------------------------------------------
-v8catalog* __fastcall v8file::GetParentCatalog()
+v8catalog* v8file::GetParentCatalog()
 {
 	return parent;
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8file::DeleteFile()
+void v8file::DeleteFile()
 {
 //	if(readonly) return;
 	Lock->Acquire();
@@ -522,13 +522,13 @@ void __fastcall v8file::DeleteFile()
 }
 
 //---------------------------------------------------------------------------
-v8file* __fastcall v8file::GetNext()
+v8file* v8file::GetNext()
 {
 	return next;
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall v8file::Open(){
+bool v8file::Open(){
 	if(!parent) return false;
 	Lock->Acquire();
 	if(is_opened)
@@ -543,7 +543,7 @@ bool __fastcall v8file::Open(){
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8file::Close(){
+void v8file::Close(){
 	int _t = 0;
 
 	if(!parent) return;
@@ -600,7 +600,7 @@ void __fastcall v8file::Close(){
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8file::WriteAndClose(TStream* Stream, int Length)
+int v8file::WriteAndClose(TStream* Stream, int Length)
 {
 	int32_t _4bzero = 0;
 
@@ -652,7 +652,7 @@ int __fastcall v8file::WriteAndClose(TStream* Stream, int Length)
 }
 
 //---------------------------------------------------------------------------
-__fastcall v8file::~v8file()
+v8file::~v8file()
 {
 	std::set<TV8FileStream*>::iterator istreams;
 
@@ -694,7 +694,7 @@ __fastcall v8file::~v8file()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8file::Flush()
+void v8file::Flush()
 {
 	int _t = 0;
 
@@ -763,7 +763,7 @@ void __fastcall v8file::Flush()
 // Класс v8catalog
 
 //---------------------------------------------------------------------------
-bool __fastcall v8catalog::IsCatalog()
+bool v8catalog::IsCatalog()
 {
 	int _filelen;
 	int _startempty = -1;
@@ -831,7 +831,7 @@ bool __fastcall v8catalog::IsCatalog()
 }
 
 //---------------------------------------------------------------------------
-__fastcall v8catalog::v8catalog(String name) // создать каталог из физического файла .cf
+v8catalog::v8catalog(String name) // создать каталог из физического файла .cf
 {
 	Lock = new TCriticalSection();
 	iscatalogdefined = false;
@@ -889,7 +889,7 @@ __fastcall v8catalog::v8catalog(String name) // создать каталог и
 }
 
 //---------------------------------------------------------------------------
-__fastcall v8catalog::v8catalog(String name, bool _zipped) // создать каталог из физического файла
+v8catalog::v8catalog(String name, bool _zipped) // создать каталог из физического файла
 {
 	Lock = new TCriticalSection();
 	iscatalogdefined = false;
@@ -924,7 +924,7 @@ __fastcall v8catalog::v8catalog(String name, bool _zipped) // создать к�
 }
 
 //---------------------------------------------------------------------------
-__fastcall v8catalog::v8catalog(TStream* stream, bool _zipped, bool leave_stream) // создать каталог из потока
+v8catalog::v8catalog(TStream* stream, bool _zipped, bool leave_stream) // создать каталог из потока
 {
 	Lock = new TCriticalSection();
 	is_cfu = false;
@@ -955,7 +955,7 @@ __fastcall v8catalog::v8catalog(TStream* stream, bool _zipped, bool leave_stream
 }
 
 //---------------------------------------------------------------------------
-__fastcall v8catalog::v8catalog(v8file* f) // создать каталог из файла
+v8catalog::v8catalog(v8file* f) // создать каталог из файла
 {
 	is_cfu = false;
 	iscatalogdefined = false;
@@ -987,7 +987,7 @@ __fastcall v8catalog::v8catalog(v8file* f) // создать каталог из
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8catalog::initialize()
+void v8catalog::initialize()
 {
 	is_destructed = false;
 	catalog_header _ch;
@@ -1069,7 +1069,7 @@ void __fastcall v8catalog::initialize()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8catalog::DeleteFile(const String& FileName)
+void v8catalog::DeleteFile(const String& FileName)
 {
 	Lock->Acquire();
 	v8file* f = first;
@@ -1086,7 +1086,7 @@ void __fastcall v8catalog::DeleteFile(const String& FileName)
 }
 
 //---------------------------------------------------------------------------
-v8file* __fastcall v8catalog::GetFile(const String& FileName)
+v8file* v8catalog::GetFile(const String& FileName)
 {
 	v8file* ret;
 	Lock->Acquire();
@@ -1099,12 +1099,12 @@ v8file* __fastcall v8catalog::GetFile(const String& FileName)
 }
 
 //---------------------------------------------------------------------------
-v8file* __fastcall v8catalog::GetFirst(){
+v8file* v8catalog::GetFirst(){
 	return first;
 }
 
 //---------------------------------------------------------------------------
-v8file* __fastcall v8catalog::createFile(const String& FileName, bool _selfzipped){
+v8file* v8catalog::createFile(const String& FileName, bool _selfzipped){
 	int64_t v8t;
 	v8file* f;
 
@@ -1123,14 +1123,14 @@ v8file* __fastcall v8catalog::createFile(const String& FileName, bool _selfzippe
 }
 
 //---------------------------------------------------------------------------
-v8catalog* __fastcall v8catalog::GetParentCatalog()
+v8catalog* v8catalog::GetParentCatalog()
 {
 	if(!file) return NULL;
 	return file->parent;
 }
 
 //---------------------------------------------------------------------------
-TStream* __fastcall v8catalog::read_datablock(int start)
+TStream* v8catalog::read_datablock(int start)
 {
 	TStream* stream;
 	TStream* stream2;
@@ -1152,7 +1152,7 @@ TStream* __fastcall v8catalog::read_datablock(int start)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8catalog::free_block(int start){
+void v8catalog::free_block(int start){
 	char temp_buf[32];
 	int nextstart;
 	int prevempty;
@@ -1183,7 +1183,7 @@ void __fastcall v8catalog::free_block(int start){
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8catalog::write_datablock(TStream* block, int start, bool _zipped, int len)
+int v8catalog::write_datablock(TStream* block, int start, bool _zipped, int len)
 {
 	TMemoryStream* stream2;
 	TMemoryStream* stream;
@@ -1229,7 +1229,7 @@ int __fastcall v8catalog::write_datablock(TStream* block, int start, bool _zippe
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8catalog::get_nextblock(int start)
+int v8catalog::get_nextblock(int start)
 {
 	int ret;
 
@@ -1245,7 +1245,7 @@ int __fastcall v8catalog::get_nextblock(int start)
 }
 
 //---------------------------------------------------------------------------
-int __fastcall v8catalog::write_block(TStream* block, int start, bool use_page_size, int len)
+int v8catalog::write_block(TStream* block, int start, bool use_page_size, int len)
 {
 	char temp_buf[32];
 	char* _t;
@@ -1331,7 +1331,7 @@ int __fastcall v8catalog::write_block(TStream* block, int start, bool use_page_s
 }
 
 //---------------------------------------------------------------------------
-__fastcall v8catalog::~v8catalog()
+v8catalog::~v8catalog()
 {
 	fat_item fi;
 	v8file* f;
@@ -1425,13 +1425,13 @@ __fastcall v8catalog::~v8catalog()
 }
 
 //---------------------------------------------------------------------------
-v8file* __fastcall v8catalog::GetSelfFile()
+v8file* v8catalog::GetSelfFile()
 {
 	return file;
 }
 
 //---------------------------------------------------------------------------
-v8catalog* __fastcall v8catalog::CreateCatalog(const String& FileName, bool _selfzipped)
+v8catalog* v8catalog::CreateCatalog(const String& FileName, bool _selfzipped)
 {
 	v8catalog* ret;
 	Lock->Acquire();
@@ -1451,7 +1451,7 @@ v8catalog* __fastcall v8catalog::CreateCatalog(const String& FileName, bool _sel
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8catalog::SaveToDir(String DirName)
+void v8catalog::SaveToDir(String DirName)
 {
 	CreateDir(DirName);
 	if(DirName.SubString(DirName.Length(), 1) != str_backslash) DirName += str_backslash;
@@ -1468,13 +1468,13 @@ void __fastcall v8catalog::SaveToDir(String DirName)
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall v8catalog::isOpen()
+bool v8catalog::isOpen()
 {
 	return IsCatalog();
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8catalog::Flush()
+void v8catalog::Flush()
 {
 	fat_item fi;
 	v8file* f;
@@ -1553,7 +1553,7 @@ void __fastcall v8catalog::Flush()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8catalog::HalfClose()
+void v8catalog::HalfClose()
 {
 	Lock->Acquire();
 	Flush();
@@ -1571,7 +1571,7 @@ void __fastcall v8catalog::HalfClose()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8catalog::HalfOpen(const String& name)
+void v8catalog::HalfOpen(const String& name)
 {
 	Lock->Acquire();
 	if(is_cfu) cfu = new TFileStream(name, fmOpenReadWrite);
@@ -1579,7 +1579,7 @@ void __fastcall v8catalog::HalfOpen(const String& name)
 	Lock->Release();
 }
 
-//void __fastcall v8catalog::set_leave_data(bool ld)
+//void v8catalog::set_leave_data(bool ld)
 //{
 //    leave_data = ld;
 //}
@@ -1590,21 +1590,21 @@ void __fastcall v8catalog::HalfOpen(const String& name)
 // Класс TV8FileStream
 
 //---------------------------------------------------------------------------
-__fastcall TV8FileStream::TV8FileStream(v8file* f, bool ownfile) : TStream(), file(f), own(ownfile)
+TV8FileStream::TV8FileStream(v8file* f, bool ownfile) : TStream(), file(f), own(ownfile)
 {
 	pos = 0l;
 	file->streams.insert(this);
 }
 
 //---------------------------------------------------------------------------
-__fastcall TV8FileStream::~TV8FileStream()
+TV8FileStream::~TV8FileStream()
 {
 	if(own) delete file;
 	else file->streams.erase(this);
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TV8FileStream::Read(void *Buffer, int Count)
+int TV8FileStream::Read(void *Buffer, int Count)
 {
 	int r = file->Read(Buffer, pos, Count);
 	pos += r;
@@ -1612,7 +1612,7 @@ int __fastcall TV8FileStream::Read(void *Buffer, int Count)
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TV8FileStream::Read(System::DynamicArray<System::Byte> Buffer, int Offset, int Count)
+int TV8FileStream::Read(System::DynamicArray<System::Byte> Buffer, int Offset, int Count)
 {
 	int r = file->Read(Buffer, pos, Count);
 	pos += r;
@@ -1620,7 +1620,7 @@ int __fastcall TV8FileStream::Read(System::DynamicArray<System::Byte> Buffer, in
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TV8FileStream::Write(const void *Buffer, int Count)
+int TV8FileStream::Write(const void *Buffer, int Count)
 {
 	int r = file->Write(Buffer, pos, Count);
 	pos += r;
@@ -1628,7 +1628,7 @@ int __fastcall TV8FileStream::Write(const void *Buffer, int Count)
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TV8FileStream::Write(const System::DynamicArray<System::Byte> Buffer, int Offset, int Count)
+int TV8FileStream::Write(const System::DynamicArray<System::Byte> Buffer, int Offset, int Count)
 {
 	int r = file->Write(Buffer, pos, Count);
 	pos += r;
@@ -1636,7 +1636,7 @@ int __fastcall TV8FileStream::Write(const System::DynamicArray<System::Byte> Buf
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TV8FileStream::Seek(int Offset, System::Word Origin)
+int TV8FileStream::Seek(int Offset, System::Word Origin)
 {
 	int l = file->GetFileLength();
 	switch(Origin)
@@ -1664,7 +1664,7 @@ int __fastcall TV8FileStream::Seek(int Offset, System::Word Origin)
 }
 
 //---------------------------------------------------------------------------
-int64_t __fastcall TV8FileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
+int64_t TV8FileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
 {
 	int64_t l = file->GetFileLength64();
 	switch(Origin)

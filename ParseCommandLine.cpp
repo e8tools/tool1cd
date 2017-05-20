@@ -141,8 +141,8 @@ String dequote(String str)
 
 //---------------------------------------------------------------------------
 
-__fastcall CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mess)
-//__fastcall CommandParse::CommandParse(LPWSTR _CommandLine, MessageRegistrator* _mess)
+CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mess)
+//CommandParse::CommandParse(LPWSTR _CommandLine, MessageRegistrator* _mess)
 {
 	int numdef = sizeof(definitions) / sizeof(CommandDefinition);
 	String k, p;
@@ -243,12 +243,12 @@ DynamicArray<ParsedCommand>& CommandParse::getcommands()
 	return commands;
 }
 
-String& __fastcall CommandParse::getfilename()
+String& CommandParse::getfilename()
 {
 	return filename;
 }
 
-String& __fastcall CommandParse::gethelpstring()
+String& CommandParse::gethelpstring()
 {
 	return helpstring;
 }

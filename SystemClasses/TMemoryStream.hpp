@@ -15,15 +15,15 @@ class TMemoryStream : public TStream
 public:
 
 	TMemoryStream();
-	virtual __fastcall ~TMemoryStream();
+	virtual ~TMemoryStream();
 
-	virtual __fastcall int64_t GetSize() const;
+	virtual int64_t GetSize() const;
 
-	virtual __fastcall void    SetSize(int64_t NewSize);
+	virtual void    SetSize(int64_t NewSize);
 
-	virtual __fastcall int64_t Read(void *Buffer, int64_t Count);
+	virtual int64_t Read(void *Buffer, int64_t Count);
 
-	virtual __fastcall int64_t Write(const void *Buffer, int64_t Count);
+	virtual int64_t Write(const void *Buffer, int64_t Count);
 
 	const DynamicArray<Byte>  &GetBytes() const;
 
@@ -41,7 +41,7 @@ class TBytesStream : public TMemoryStream
 public:
 	TBytesStream(const DynamicArray<Byte> &initial);
 
-	virtual __fastcall ~TBytesStream();
+	virtual ~TBytesStream();
 };
 
 } // Classes

@@ -25,11 +25,11 @@ private:
 	bool noverbose;
 public:
 	bool has_error;
-	__fastcall Messager();
-	virtual void __fastcall AddMessage(const String& message, const MessageState mstate, TStringList* param = NULL);
-	virtual void __fastcall Status(const String& message);
-	void __fastcall setlogfile(String _logfile);
-	void __fastcall setnoverbose(bool nv){noverbose = nv;};
+	Messager();
+	virtual void AddMessage(const String& message, const MessageState mstate, TStringList* param = NULL);
+	virtual void Status(const String& message);
+	void setlogfile(String _logfile);
+	void setnoverbose(bool nv){noverbose = nv;};
 };
 
 #endif
