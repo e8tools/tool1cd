@@ -20,7 +20,7 @@ static const char cd64[]="|$$$}rstuvwxyz{$$$$$$$>?@ABCDEFGHIJKLMNOPQRSTUVW$$$$$$
 // encode
 // base64 encode a stream adding padding and line breaks as per spec.
 // linesize - длина строки. Если linesize = 0, выводится всё в одну строку, без переносов
-void __fastcall base64_encode(TStream* infile, TStream* outfile, int linesize)
+void base64_encode(TStream* infile, TStream* outfile, int linesize)
 {
 	unsigned char in[3];
 	WCHART out[4];
@@ -64,7 +64,7 @@ void __fastcall base64_encode(TStream* infile, TStream* outfile, int linesize)
 
 // decode
 // decode a base64 encoded stream discarding padding, line breaks and noise
-void __fastcall base64_decode(TStream* infile, TStream* outfile)
+void base64_decode(TStream* infile, TStream* outfile)
 {
 	unsigned char in[4], out[3], v;
 	WCHART s;
@@ -108,7 +108,7 @@ void __fastcall base64_decode(TStream* infile, TStream* outfile)
 
 // decode
 // decode a base64 encoded stream discarding padding, line breaks and noise
-void __fastcall base64_decode(const String& instr, TStream* outfile, int start)
+void base64_decode(const String& instr, TStream* outfile, int start)
 {
 	unsigned char in[4], out[3], v;
 	char s;

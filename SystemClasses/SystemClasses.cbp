@@ -66,8 +66,6 @@
 		<Unit filename="TStreamReader.hpp" />
 		<Unit filename="TStreamWriter.cpp" />
 		<Unit filename="TStreamWriter.hpp" />
-		<Unit filename="ZLibEx.cpp" />
-		<Unit filename="ZLibEx.hpp" />
 		<Unit filename="vcl.h" />
 		<Extensions>
 			<code_completion />

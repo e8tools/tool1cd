@@ -77,7 +77,7 @@ int64_t TStream::ReadBuffer(void *Buffer, int64_t Count)
 	return data_read;
 }
 
-int64_t TStream::Read(System::DynamicArray<System::Byte> &Buffer, int64_t Count)
+int64_t TStream::Read(System::DynamicArray<System::t::Byte> &Buffer, int64_t Count)
 {
 	auto CountToRead = (Count <= 0) ? GetSize() : Count;
 	if (Buffer.size() < CountToRead) {
@@ -95,7 +95,7 @@ int64_t TStream::CopyFrom(TStream *Source, const int64_t Count)
 		}
 		return 0;
 	}
-	System::DynamicArray<System::Byte> _data;
+	System::DynamicArray<System::t::Byte> _data;
 	auto resultCount = Source->Read(_data, Count);
 	return Write(_data, resultCount);
 }
@@ -109,7 +109,7 @@ int64_t TStream::WriteBuffer(const void *Buffer, const int64_t Count)
 	return result;
 }
 
-int64_t TStream::Write(const System::DynamicArray<System::Byte> &Buffer, const int64_t Count)
+int64_t TStream::Write(const System::DynamicArray<System::t::Byte> &Buffer, const int64_t Count)
 {
 	if (Count == 0) {
 		auto data_size = Buffer.size();
@@ -188,7 +188,7 @@ int64_t TWrapperStream::Read(void *Buffer, int64_t Count)
 	return data_read;
 }
 
-int64_t TWrapperStream::Write(const void *Buffer, const int64_t Count)
+int64_t TWrapperStream::Write(const void *Buffer, int64_t Count)
 {
 	_stream->seekp(GetPosition(), std::ios_base::beg);
 	_stream->write((char*)Buffer, Count);

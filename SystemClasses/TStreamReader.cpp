@@ -12,7 +12,7 @@ TStreamReader::TStreamReader(TStream *stream, bool DetectBOM)
 
 int TStreamReader::Read()
 {
-	Byte data;
+	t::Byte data;
 	auto data_read = stream->Read(&data, 1);
 	if (data_read != 1) {
 		return -1;

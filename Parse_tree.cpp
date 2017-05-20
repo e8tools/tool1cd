@@ -23,7 +23,7 @@ extern MessageRegistrator* msreg;
 #define error if(msreg) msreg->AddError
 
 //---------------------------------------------------------------------------
-__fastcall tree::tree(const String& _value, const node_type _type, tree* _parent)
+tree::tree(const String& _value, const node_type _type, tree* _parent)
 {
 	value = _value;
 	type = _type;
@@ -50,7 +50,7 @@ __fastcall tree::tree(const String& _value, const node_type _type, tree* _parent
 }
 
 //---------------------------------------------------------------------------
-__fastcall tree::~tree()
+tree::~tree()
 {
 	while(last) delete last;
 	if(prev) prev->next = next;
@@ -64,50 +64,50 @@ __fastcall tree::~tree()
 }
 
 //---------------------------------------------------------------------------
-tree* __fastcall tree::add_child(const String& _value, const node_type _type)
+tree* tree::add_child(const String& _value, const node_type _type)
 {
 	return new tree(_value, _type, this);
 }
 
 //---------------------------------------------------------------------------
-tree* __fastcall tree::add_child()
+tree* tree::add_child()
 {
 	return new tree("", nd_empty, this);
 }
 
 //---------------------------------------------------------------------------
-tree* __fastcall tree::add_node()
+tree* tree::add_node()
 {
 	return new tree("", nd_empty, this->parent);
 }
 
 //---------------------------------------------------------------------------
-String& __fastcall tree::get_value()
+String& tree::get_value()
 {
 	return value;
 }
 
 //---------------------------------------------------------------------------
-node_type __fastcall tree::get_type()
+node_type tree::get_type()
 {
 	return type;
 }
 
 //---------------------------------------------------------------------------
-void __fastcall tree::set_value(const String& v, const node_type t)
+void tree::set_value(const String& v, const node_type t)
 {
 	value = v;
 	type = t;
 }
 
 //---------------------------------------------------------------------------
-int __fastcall tree::get_num_subnode()
+int tree::get_num_subnode()
 {
 	return num_subnode;
 }
 
 //---------------------------------------------------------------------------
-tree* __fastcall tree::get_subnode(int _index)
+tree* tree::get_subnode(int _index)
 {
 	if(_index >= num_subnode) return NULL;
 	tree* t = first;
@@ -120,7 +120,7 @@ tree* __fastcall tree::get_subnode(int _index)
 }
 
 //---------------------------------------------------------------------------
-tree* __fastcall tree::get_subnode(const String& node_name)
+tree* tree::get_subnode(const String& node_name)
 {
 	tree* t = first;
 	while(t)
@@ -132,31 +132,31 @@ tree* __fastcall tree::get_subnode(const String& node_name)
 }
 
 //---------------------------------------------------------------------------
-tree* __fastcall tree::get_next()
+tree* tree::get_next()
 {
 	return next;
 }
 
 //---------------------------------------------------------------------------
-tree* __fastcall tree::get_parent()
+tree* tree::get_parent()
 {
 	return parent;
 }
 
 //---------------------------------------------------------------------------
-tree* __fastcall tree::get_first()
+tree* tree::get_first()
 {
 	return first;
 }
 
 //---------------------------------------------------------------------------
-tree* __fastcall tree::get_last()
+tree* tree::get_last()
 {
 	return last;
 }
 
 //---------------------------------------------------------------------------
-tree& __fastcall tree::operator [](int _index)
+tree& tree::operator [](int _index)
 {
 	if(!this) return *this; //-V704
 
@@ -170,7 +170,7 @@ tree& __fastcall tree::operator [](int _index)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall tree::outtext(String& text)
+void tree::outtext(String& text)
 {
 	node_type lt;
 	TReplaceFlags _ReplaceAll;
@@ -218,7 +218,7 @@ void __fastcall tree::outtext(String& text)
 }
 
 //---------------------------------------------------------------------------
-String __fastcall tree::path()
+String tree::path()
 {
 	String p = "";
 	tree* t;
@@ -245,7 +245,7 @@ node_type classification_value(const String& value)
 	return nd_unknown;
 }
 
-tree* __fastcall parse_1Cstream(TStream* str, const String& path)
+tree* parse_1Cstream(TStream* str, const String& path)
 {
 	TStringBuilder* __curvalue__;
 
@@ -483,7 +483,7 @@ tree* __fastcall parse_1Cstream(TStream* str, const String& path)
 }
 
 
-tree* __fastcall parse_1Ctext(const String& text, const String& path)
+tree* parse_1Ctext(const String& text, const String& path)
 {
 	TStringBuilder* __curvalue__;
 
@@ -717,7 +717,7 @@ tree* __fastcall parse_1Ctext(const String& text, const String& path)
 }
 
 // проверка формата потока
-bool __fastcall test_parse_1Ctext(TStream* str, const String& path)
+bool test_parse_1Ctext(TStream* str, const String& path)
 {
 	TStringBuilder* __curvalue__;
 

@@ -183,7 +183,7 @@ extern TMultiReadExclusiveWriteSynchronizer* tr_syn;
 //********************************************************
 // Перегрузка операторов
 
-//bool __fastcall operator<(const String& l, const String& r)
+//bool operator<(const String& l, const String& r)
 //{
 //	return l.Compare(r) < 0;
 //}
@@ -193,7 +193,7 @@ extern TMultiReadExclusiveWriteSynchronizer* tr_syn;
 
 
 //---------------------------------------------------------------------------
-tree* __fastcall get_treeFromV8file(v8file* f)
+tree* get_treeFromV8file(v8file* f)
 {
 	TBytesStream* sb;
 	TEncoding *enc;
@@ -221,7 +221,7 @@ tree* __fastcall get_treeFromV8file(v8file* f)
 }
 
 //---------------------------------------------------------------------------
-String __fastcall toXML(String in)
+String toXML(String in)
 {
 	return TStringBuilder(in)
 		.Replace("&", "&amp;")
@@ -233,7 +233,7 @@ String __fastcall toXML(String in)
 }
 
 //---------------------------------------------------------------------------
-unsigned char __fastcall from_hex_digit(char digit)
+unsigned char from_hex_digit(char digit)
 {
 	if(digit >= '0' && digit <= '9') return digit - '0';
 	if(digit >= 'a' && digit <= 'f') return digit - 'a' + 10;
@@ -246,7 +246,7 @@ unsigned char __fastcall from_hex_digit(char digit)
 // Класс memblock
 
 //---------------------------------------------------------------------------
-__fastcall memblock::memblock(TFileStream* fs, unsigned int _numblock, bool for_write, bool read)
+memblock::memblock(TFileStream* fs, unsigned int _numblock, bool for_write, bool read)
 {
 	numblock = _numblock;
 	if(count >= maxcount) delete first; // если количество кешированных блоков превышает максимальное, удаляем последний, к которому было обращение
@@ -293,7 +293,7 @@ __fastcall memblock::memblock(TFileStream* fs, unsigned int _numblock, bool for_
 }
 
 //---------------------------------------------------------------------------
-__fastcall memblock::~memblock()
+memblock::~memblock()
 {
 	if(is_changed) write();
 
@@ -311,7 +311,7 @@ __fastcall memblock::~memblock()
 }
 
 //---------------------------------------------------------------------------
-char* __fastcall memblock::getblock(bool for_write)
+char* memblock::getblock(bool for_write)
 {
 	lastdataget = GetTickCount();
 	// удаляем себя из текущего положения цепочки...
@@ -332,7 +332,7 @@ char* __fastcall memblock::getblock(bool for_write)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall memblock::garbage()
+void memblock::garbage()
 {
 	unsigned int curt = GetTickCount();
 	while(first)
@@ -343,7 +343,7 @@ void __fastcall memblock::garbage()
 }
 
 //---------------------------------------------------------------------------
-char* __fastcall memblock::getblock(TFileStream* fs, unsigned int _numblock)
+char* memblock::getblock(TFileStream* fs, unsigned int _numblock)
 {
 	if(_numblock >= numblocks) return NULL;
 	if(!memblocks[_numblock]) new memblock(fs, _numblock, false, true);
@@ -351,7 +351,7 @@ char* __fastcall memblock::getblock(TFileStream* fs, unsigned int _numblock)
 }
 
 //---------------------------------------------------------------------------
-char* __fastcall memblock::getblock_for_write(TFileStream* fs, unsigned int _numblock, bool read)
+char* memblock::getblock_for_write(TFileStream* fs, unsigned int _numblock, bool read)
 {
 	if(_numblock > numblocks) return NULL;
 	if(_numblock == numblocks) add_block();
@@ -361,7 +361,7 @@ char* __fastcall memblock::getblock_for_write(TFileStream* fs, unsigned int _num
 }
 
 //---------------------------------------------------------------------------
-void __fastcall memblock::create_memblocks(unsigned int _numblocks)
+void memblock::create_memblocks(unsigned int _numblocks)
 {
 	numblocks = _numblocks;
 	array_numblocks = (numblocks / delta + 1) * delta;
@@ -370,7 +370,7 @@ void __fastcall memblock::create_memblocks(unsigned int _numblocks)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall memblock::delete_memblocks()
+void memblock::delete_memblocks()
 {
 	while(first) delete first;
 	delete[] memblocks;
@@ -379,7 +379,7 @@ void __fastcall memblock::delete_memblocks()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall memblock::add_block()
+void memblock::add_block()
 {
 	unsigned int i;
 	memblock** mb;
@@ -397,20 +397,20 @@ void __fastcall memblock::add_block()
 }
 
 //---------------------------------------------------------------------------
-unsigned int __fastcall memblock::get_numblocks()
+unsigned int memblock::get_numblocks()
 {
 	return numblocks;
 }
 
 //---------------------------------------------------------------------------
-void __fastcall memblock::flush()
+void memblock::flush()
 {
 	memblock* cur;
 	for(cur = first; cur; cur = cur->next) if(cur->is_changed) cur->write();
 }
 
 //---------------------------------------------------------------------------
-void __fastcall memblock::write()
+void memblock::write()
 {
 	if(!is_changed) return;
 	file->Seek((int64_t)numblock * pagesize, (TSeekOrigin)soFromBeginning);
@@ -424,7 +424,7 @@ void __fastcall memblock::write()
 // Класс v8object
 
 //---------------------------------------------------------------------------
-void __fastcall v8object::garbage()
+void v8object::garbage()
 {
 	unsigned int curt = GetTickCount();
 	v8object* ob = first;
@@ -441,14 +441,14 @@ void __fastcall v8object::garbage()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8object::set_lockinmemory(bool _lock)
+void v8object::set_lockinmemory(bool _lock)
 {
 	lockinmemory = _lock;
 	lastdataget = GetTickCount();
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8object::init()
+void v8object::init()
 {
 	len = 0;
 	version.version_1 = 0;
@@ -468,7 +468,7 @@ void __fastcall v8object::init()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8object::init(T_1CD* _base, int blockNum)
+void v8object::init(T_1CD* _base, int blockNum)
 {
 	base = _base;
 	lockinmemory = false;
@@ -655,12 +655,12 @@ void __fastcall v8object::init(T_1CD* _base, int blockNum)
 }
 
 //---------------------------------------------------------------------------
-__fastcall v8object::v8object(T_1CD* _base, int blockNum)
+v8object::v8object(T_1CD* _base, int blockNum)
 {
 	init(_base, blockNum);
 }
 
-__fastcall v8object::v8object(T_1CD* _base)
+v8object::v8object(T_1CD* _base)
 {
 	int blockNum;
 	char* b;
@@ -679,7 +679,7 @@ __fastcall v8object::v8object(T_1CD* _base)
 
 
 //---------------------------------------------------------------------------
-__fastcall v8object::~v8object()
+v8object::~v8object()
 {
 	delete[] blocks;
 	delete[] data;
@@ -691,7 +691,7 @@ __fastcall v8object::~v8object()
 }
 
 //---------------------------------------------------------------------------
-char* __fastcall v8object::getdata()
+char* v8object::getdata()
 {
 	char* tt;
 	objtab* b;
@@ -782,7 +782,7 @@ char* __fastcall v8object::getdata()
 }
 
 //---------------------------------------------------------------------------
-char* __fastcall v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
+char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 {
 	unsigned int curblock;
 	unsigned int curoffblock;
@@ -934,7 +934,7 @@ char* __fastcall v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 }
 
 //---------------------------------------------------------------------------
-uint64_t __fastcall v8object::getlen()
+uint64_t v8object::getlen()
 {
 	//if(type == 0) return len * 4;
 	//if(block == 1) return len * 4;
@@ -943,7 +943,7 @@ uint64_t __fastcall v8object::getlen()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8object::savetofile(String _filename)
+void v8object::savetofile(String _filename)
 {
 	unsigned int j, pagesize;
 	uint64_t i, k, l;
@@ -967,7 +967,7 @@ void __fastcall v8object::savetofile(String _filename)
 }
 
 //---------------------------------------------------------------------------
-uint64_t __fastcall v8object::get_fileoffset(uint64_t offset)
+uint64_t v8object::get_fileoffset(uint64_t offset)
 {
 	unsigned int _start = offset;
 	objtab* b;
@@ -1025,7 +1025,7 @@ uint64_t __fastcall v8object::get_fileoffset(uint64_t offset)
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall v8object::setdata(void* buf, uint64_t _start, uint64_t _length)
+bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 {
 	unsigned int curblock;
 	unsigned int curoffblock;
@@ -1134,7 +1134,7 @@ bool __fastcall v8object::setdata(void* buf, uint64_t _start, uint64_t _length)
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall v8object::setdata(void* _buf, uint64_t _length)
+bool v8object::setdata(const void* _buf, uint64_t _length)
 {
 	char* tt;
 	objtab* b;
@@ -1231,7 +1231,7 @@ bool __fastcall v8object::setdata(void* _buf, uint64_t _length)
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall v8object::setdata(TStream* stream)
+bool v8object::setdata(TStream* stream)
 {
 	char* tt;
 	objtab* b;
@@ -1327,7 +1327,7 @@ bool __fastcall v8object::setdata(TStream* stream)
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
+bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 {
 	unsigned int curblock;
 	unsigned int curoffblock;
@@ -1431,7 +1431,7 @@ bool __fastcall v8object::setdata(TStream* stream, uint64_t _start, uint64_t _le
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8object::set_len(uint64_t _len)
+void v8object::set_len(uint64_t _len)
 {
 
 	unsigned int num_data_blocks;
@@ -1649,7 +1649,7 @@ void __fastcall v8object::set_len(uint64_t _len)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8object::set_block_as_free(unsigned int block_number)
+void v8object::set_block_as_free(unsigned int block_number)
 {
 	unsigned int i, j, k;
 	unsigned int* b;
@@ -1689,7 +1689,7 @@ void __fastcall v8object::set_block_as_free(unsigned int block_number)
 }
 
 //---------------------------------------------------------------------------
-unsigned int __fastcall v8object::get_free_block()
+unsigned int v8object::get_free_block()
 {
 	unsigned int i, j, k;
 	unsigned int* b;
@@ -1726,7 +1726,7 @@ unsigned int __fastcall v8object::get_free_block()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8object::get_version_rec_and_increase(_version* ver)
+void v8object::get_version_rec_and_increase(_version* ver)
 {
 	ver->version_1 = version_rec.version_1;
 	ver->version_2 = version_rec.version_2;
@@ -1735,14 +1735,14 @@ void __fastcall v8object::get_version_rec_and_increase(_version* ver)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8object::get_version(_version* ver)
+void v8object::get_version(_version* ver)
 {
 	ver->version_1 = version.version_1;
 	ver->version_2 = version.version_2;
 }
 
 //---------------------------------------------------------------------------
-void __fastcall v8object::write_new_version()
+void v8object::write_new_version()
 {
 	_version new_ver;
 	if(new_version_recorded) return;
@@ -1755,25 +1755,25 @@ void __fastcall v8object::write_new_version()
 }
 
 //---------------------------------------------------------------------------
-v8object* __fastcall v8object::get_first()
+v8object* v8object::get_first()
 {
 	return first;
 }
 
 //---------------------------------------------------------------------------
-v8object* __fastcall v8object::get_last()
+v8object* v8object::get_last()
 {
 	return last;
 }
 
 //---------------------------------------------------------------------------
-v8object* __fastcall v8object::get_next()
+v8object* v8object::get_next()
 {
 	return next;
 }
 
 //---------------------------------------------------------------------------
-unsigned int __fastcall v8object::get_block_number()
+unsigned int v8object::get_block_number()
 {
 	return block;
 }
@@ -1853,7 +1853,7 @@ TStream* v8object::readBlob(TStream* _str, unsigned int _startblock, unsigned in
 // Класс index
 
 //---------------------------------------------------------------------------
-__fastcall index::index(table* _base)
+index::index(table* _base)
 {
 	tbase = _base;
 
@@ -1869,37 +1869,37 @@ __fastcall index::index(table* _base)
 }
 
 //---------------------------------------------------------------------------
-__fastcall index::~index()
+index::~index()
 {
 	delete[] records;
 }
 
 //---------------------------------------------------------------------------
-String __fastcall index::getname()
+String index::getname()
 {
 	return name;
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall index::get_is_primary()
+bool index::get_is_primary()
 {
 	return is_primary;
 }
 
 //---------------------------------------------------------------------------
-int __fastcall index::get_num_records()
+int index::get_num_records()
 {
 	return num_records;
 }
 
 //---------------------------------------------------------------------------
-index_record* __fastcall index::get_records()
+index_record* index::get_records()
 {
 	return records;
 }
 
 //---------------------------------------------------------------------------
-unsigned int __fastcall index::get_numrecords()
+unsigned int index::get_numrecords()
 {
 	if(!start) return 0;
 	if(!recordsindex_complete) create_recordsindex();
@@ -1907,7 +1907,7 @@ unsigned int __fastcall index::get_numrecords()
 }
 
 //---------------------------------------------------------------------------
-unsigned int __fastcall index::get_numrec(unsigned int num_record)
+unsigned int index::get_numrec(unsigned int num_record)
 {
 	if(!start) return 0;
 	if(!recordsindex_complete) create_recordsindex();
@@ -1915,7 +1915,7 @@ unsigned int __fastcall index::get_numrec(unsigned int num_record)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall index::create_recordsindex()
+void index::create_recordsindex()
 {
 	char* buf;
 	char* rbuf;
@@ -1989,7 +1989,7 @@ void __fastcall index::create_recordsindex()
 
 //---------------------------------------------------------------------------
 #ifndef PublicRelease
-void __fastcall index::dump_recursive(v8object* file_index, TFileStream* f, int level, uint64_t curblock)
+void index::dump_recursive(v8object* file_index, TFileStream* f, int level, uint64_t curblock)
 {
 	unsigned char bf[3];
 	unsigned char b;
@@ -2165,7 +2165,7 @@ void __fastcall index::dump_recursive(v8object* file_index, TFileStream* f, int 
 #endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
-unsigned int __fastcall index::get_rootblock()
+unsigned int index::get_rootblock()
 {
 	char buf[8];
 
@@ -2182,7 +2182,7 @@ unsigned int __fastcall index::get_rootblock()
 }
 
 //---------------------------------------------------------------------------
-unsigned int __fastcall index::get_length()
+unsigned int index::get_length()
 {
 	char buf[8];
 
@@ -2200,7 +2200,7 @@ unsigned int __fastcall index::get_length()
 
 //---------------------------------------------------------------------------
 #ifndef PublicRelease
-void __fastcall index::dump(String _filename)
+void index::dump(String _filename)
 {
 	TFileStream* f;
 	v8object* file_index;
@@ -2236,7 +2236,7 @@ void __fastcall index::dump(String _filename)
 #endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
-char* __fastcall index::unpack_leafpage(uint64_t page_offset, unsigned int& number_indexes)
+char* index::unpack_leafpage(uint64_t page_offset, unsigned int& number_indexes)
 {
 	char* buf;
 	char* ret;
@@ -2251,7 +2251,7 @@ char* __fastcall index::unpack_leafpage(uint64_t page_offset, unsigned int& numb
 }
 
 //---------------------------------------------------------------------------
-char* __fastcall index::unpack_leafpage(char* page, unsigned int& number_indexes)
+char* index::unpack_leafpage(char* page, unsigned int& number_indexes)
 {
 	char* outbuf;
 	char* rbuf;
@@ -2340,7 +2340,7 @@ char* __fastcall index::unpack_leafpage(char* page, unsigned int& number_indexes
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall index::pack_leafpage(char* unpack_index, unsigned int number_indexes, char* page_buf)
+bool index::pack_leafpage(char* unpack_index, unsigned int number_indexes, char* page_buf)
 {
 	unsigned int min_numrec_bits;
 	unsigned int min_bits;
@@ -2478,14 +2478,14 @@ bool __fastcall index::pack_leafpage(char* unpack_index, unsigned int number_ind
 
 //---------------------------------------------------------------------------
 #ifndef PublicRelease
-void __fastcall index::calcRecordIndex(const char* rec, char* indexBuf)
+void index::calcRecordIndex(const char* rec, char* indexBuf)
 {
 	int i, j, k;
 
 	j = length;
 	for(i = 0; i < num_records; i++)
 	{
-		k = records[i].field->getSortKey(rec, indexBuf, j);
+		k = records[i].field->getSortKey(rec, (unsigned char *)indexBuf, j);
 		indexBuf += k;
 		j -= k;
 	}
@@ -2493,7 +2493,7 @@ void __fastcall index::calcRecordIndex(const char* rec, char* indexBuf)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall index::delete_index(const char* rec, const unsigned int phys_numrec)
+void index::delete_index(const char* rec, const unsigned int phys_numrec)
 {
 	char* index_buf;
 	index_buf = new char[length];
@@ -2503,7 +2503,7 @@ void __fastcall index::delete_index(const char* rec, const unsigned int phys_num
 }
 
 //---------------------------------------------------------------------------
-void __fastcall index::delete_index_record(const char* index_buf, const unsigned int phys_numrec)
+void index::delete_index_record(const char* index_buf, const unsigned int phys_numrec)
 {
 	bool is_last_record, page_is_empty; // заглушки для вызова рекурсивной функции
 	unsigned int new_last_phys_num; // заглушки для вызова рекурсивной функции
@@ -2513,7 +2513,7 @@ void __fastcall index::delete_index_record(const char* index_buf, const unsigned
 }
 
 //---------------------------------------------------------------------------
-void __fastcall index::delete_index_record(const char* index_buf, const unsigned int phys_numrec, uint64_t block, bool& is_last_record, bool& page_is_empty, char* new_last_index_buf, unsigned int& new_last_phys_num)
+void index::delete_index_record(const char* index_buf, const unsigned int phys_numrec, uint64_t block, bool& is_last_record, bool& page_is_empty, char* new_last_index_buf, unsigned int& new_last_phys_num)
 {
 	char* page;
 	branch_page_header* bph;
@@ -2658,7 +2658,7 @@ void __fastcall index::delete_index_record(const char* index_buf, const unsigned
 }
 
 //---------------------------------------------------------------------------
-void __fastcall index::write_index(const unsigned int phys_numrecord, const char* rec)
+void index::write_index(const unsigned int phys_numrecord, const char* rec)
 {
 	char* index_buf;
 	index_buf = new char[length];
@@ -2669,7 +2669,7 @@ void __fastcall index::write_index(const unsigned int phys_numrecord, const char
 }
 
 //---------------------------------------------------------------------------
-void __fastcall index::write_index_record(const unsigned int phys_numrecord, const char* index_buf)
+void index::write_index_record(const unsigned int phys_numrecord, const char* index_buf)
 {
 	int result;
 	char* new_last_index_buf = new char[length];
@@ -2734,7 +2734,7 @@ void __fastcall index::write_index_record(const unsigned int phys_numrecord, con
 }
 
 //---------------------------------------------------------------------------
-void __fastcall index::write_index_record(const unsigned int phys_numrecord, const char* index_buf, uint64_t block, int& result, char* new_last_index_buf, unsigned int& new_last_phys_num, char* new_last_index_buf2, unsigned int& new_last_phys_num2, uint64_t& new_last_block2)
+void index::write_index_record(const unsigned int phys_numrecord, const char* index_buf, uint64_t block, int& result, char* new_last_index_buf, unsigned int& new_last_phys_num, char* new_last_index_buf2, unsigned int& new_last_phys_num2, uint64_t& new_last_block2)
 {
 	// result - результат добавления.
 	// 0 - ничего делать не надо.
@@ -3062,7 +3062,7 @@ void __fastcall index::write_index_record(const unsigned int phys_numrecord, con
 // Класс field
 
 //---------------------------------------------------------------------------
-__fastcall field::field(table* _parent)
+field::field(table* _parent)
 {
 	if(!null_index_initialized)
 	{
@@ -3081,13 +3081,13 @@ __fastcall field::field(table* _parent)
 }
 
 //---------------------------------------------------------------------------
-String __fastcall field::getname()
+String field::getname()
 {
 	return name;
 }
 
 //---------------------------------------------------------------------------
-int __fastcall field::getlen() // возвращает длину поля в байтах
+int field::getlen() // возвращает длину поля в байтах
 {
 	if(len) return len;
 
@@ -3112,7 +3112,7 @@ int __fastcall field::getlen() // возвращает длину поля в б
 
 //---------------------------------------------------------------------------
 // При ignore_showGUID binary16 всегда преобразуется в GUID
-String __fastcall field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed)
+String field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed)
 {
 	char sym;
 	int i, j, m;
@@ -3213,7 +3213,7 @@ String __fastcall field::get_presentation(const char* rec, bool EmptyNull, wchar
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall field::get_bynary_value(char* binary_value, bool null, String& value)
+bool field::get_bynary_value(char* binary_value, bool null, String& value)
 {
 	wchar_t sym;
 	int i, j, m, l, p, q;
@@ -3560,7 +3560,7 @@ bool __fastcall field::get_bynary_value(char* binary_value, bool null, String& v
 }
 
 //---------------------------------------------------------------------------
-String __fastcall field::get_XML_presentation(char* rec, bool ignore_showGUID)
+String field::get_XML_presentation(char* rec, bool ignore_showGUID)
 {
 	char sym;
 	int i, j, m;
@@ -3694,49 +3694,49 @@ String __fastcall field::get_XML_presentation(char* rec, bool ignore_showGUID)
 }
 
 //---------------------------------------------------------------------------
-type_fields __fastcall field::gettype()
+type_fields field::gettype()
 {
 	return type;
 }
 
 //---------------------------------------------------------------------------
-table* __fastcall field::getparent()
+table* field::getparent()
 {
 	return parent;
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall field::getnull_exists()
+bool field::getnull_exists()
 {
 	return null_exists;
 }
 
 //---------------------------------------------------------------------------
-int __fastcall field::getlength()
+int field::getlength()
 {
 	return length;
 }
 
 //---------------------------------------------------------------------------
-int __fastcall field::getprecision()
+int field::getprecision()
 {
 	return precision;
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall field::getcase_sensitive()
+bool field::getcase_sensitive()
 {
 	return case_sensitive;
 }
 
 //---------------------------------------------------------------------------
-int __fastcall field::getoffset()
+int field::getoffset()
 {
 	return offset;
 }
 
 //---------------------------------------------------------------------------
-String __fastcall field::get_presentation_type()
+String field::get_presentation_type()
 {
 	switch(type)
 	{
@@ -3768,7 +3768,7 @@ String __fastcall field::get_presentation_type()
 }
 
 //---------------------------------------------------------------------------
-String __fastcall TrimSpacesRight(String s)
+String TrimSpacesRight(String s)
 {
 	while(s.SubString(s.GetLength(), 1) == " ") s.SetLength(s.GetLength() - 1);
 	return s;
@@ -3776,7 +3776,7 @@ String __fastcall TrimSpacesRight(String s)
 
 //---------------------------------------------------------------------------
 #ifndef PublicRelease
-unsigned int __fastcall field::getSortKey(const char* rec, unsigned char* SortKey, int maxlen)
+unsigned int field::getSortKey(const char* rec, unsigned char* SortKey, int maxlen)
 {
 	T_1CD* base;
 	// ICU_Result res;
@@ -3788,7 +3788,7 @@ unsigned int __fastcall field::getSortKey(const char* rec, unsigned char* SortKe
 	String s;
 	unsigned char c;
 
-	unsigned char* fr = rec + offset;
+	unsigned char* fr = (unsigned char *)rec + offset;
 
 	char nbuf[64];
 
@@ -3830,10 +3830,10 @@ unsigned int __fastcall field::getSortKey(const char* rec, unsigned char* SortKe
 					"Длина буфера", maxlen,
 					"Необходимая длина буфера", len);
 
-				memcpy(SortKey, isnull ? null_index : fr, maxl);
+				memcpy(SortKey, isnull ? (void *)null_index : (void *)fr, maxl);
 				return maxlen;
 			}
-			memcpy(SortKey, isnull ? null_index : fr, len - addlen);
+			memcpy(SortKey, isnull ? (void *)null_index : (void*)fr, len - addlen);
 			return len;
 
 		case tf_numeric:
@@ -3944,7 +3944,7 @@ unsigned int __fastcall field::getSortKey(const char* rec, unsigned char* SortKe
 #endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
-bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpack)
+bool field::save_blob_to_file(char* rec, String _filename, bool unpack)
 {
 	TStream* blob_stream;
 	bool zippedContainer;
@@ -4194,7 +4194,7 @@ bool __fastcall field::save_blob_to_file(char* rec, String _filename, bool unpac
 // Класс changed_rec
 
 //---------------------------------------------------------------------------
-__fastcall changed_rec::changed_rec(table* _parent, changed_rec_type crt, unsigned int phys_numrecord)
+changed_rec::changed_rec(table* _parent, changed_rec_type crt, unsigned int phys_numrecord)
 {
 	parent = _parent;
 	numrec = phys_numrecord;
@@ -4215,7 +4215,7 @@ __fastcall changed_rec::changed_rec(table* _parent, changed_rec_type crt, unsign
 	parent->ch_rec = this;
 }
 //---------------------------------------------------------------------------
-__fastcall changed_rec::~changed_rec()
+changed_rec::~changed_rec()
 {
 	clear();
 	delete[] fields;
@@ -4223,7 +4223,7 @@ __fastcall changed_rec::~changed_rec()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall changed_rec::clear()
+void changed_rec::clear()
 {
 	int i;
 	field* f;
@@ -4249,13 +4249,13 @@ void __fastcall changed_rec::clear()
 // Класс table
 
 //---------------------------------------------------------------------------
-bool __fastcall table::get_issystem()
+bool table::get_issystem()
 {
 	return issystem;
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::init(int block_descr)
+void table::init(int block_descr)
 {
 	tree* t;
 	tree* f;
@@ -5067,7 +5067,7 @@ void __fastcall table::init(int block_descr)
 }
 
 //---------------------------------------------------------------------------
-__fastcall table::table(T_1CD* _base, int block_descr)
+table::table(T_1CD* _base, int block_descr)
 {
 
 	base = _base;
@@ -5080,7 +5080,7 @@ __fastcall table::table(T_1CD* _base, int block_descr)
 }
 
 //---------------------------------------------------------------------------
-__fastcall table::table(T_1CD* _base, String _descr, int block_descr)
+table::table(T_1CD* _base, String _descr, int block_descr)
 {
 
 	base = _base;
@@ -5092,13 +5092,13 @@ __fastcall table::table(T_1CD* _base, String _descr, int block_descr)
 }
 
 //---------------------------------------------------------------------------
-__fastcall table::table()
+table::table()
 {
 	init();
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::deletefields()
+void table::deletefields()
 {
 	int i;
 	if(fields)
@@ -5109,7 +5109,7 @@ void __fastcall table::deletefields()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::deleteindexes()
+void table::deleteindexes()
 {
 	int i;
 	if(indexes)
@@ -5121,7 +5121,7 @@ void __fastcall table::deleteindexes()
 }
 
 //---------------------------------------------------------------------------
-__fastcall table::~table()
+table::~table()
 {
 	changed_rec* cr;
 	changed_rec* cr2;
@@ -5159,31 +5159,31 @@ __fastcall table::~table()
 }
 
 //---------------------------------------------------------------------------
-String __fastcall table::getname()
+String table::getname()
 {
 	return name;
 }
 
 //---------------------------------------------------------------------------
-String __fastcall table::getdescription()
+String table::getdescription()
 {
 	return description;
 }
 
 //---------------------------------------------------------------------------
-int __fastcall table::get_numfields()
+int table::get_numfields()
 {
 	return num_fields;
 }
 
 //---------------------------------------------------------------------------
-int __fastcall table::get_numindexes()
+int table::get_numindexes()
 {
 	return num_indexes;
 }
 
 //---------------------------------------------------------------------------
-field* __fastcall table::getfield(int numfield)
+field* table::getfield(int numfield)
 {
 	if(numfield >= num_fields)
 	{
@@ -5197,7 +5197,7 @@ field* __fastcall table::getfield(int numfield)
 }
 
 //---------------------------------------------------------------------------
-class index* __fastcall table::getindex(int numindex)
+class index* table::getindex(int numindex)
 {
 	if(numindex >= num_indexes)
 	{
@@ -5211,31 +5211,31 @@ class index* __fastcall table::getindex(int numindex)
 }
 
 //---------------------------------------------------------------------------
-unsigned int __fastcall table::get_phys_numrecords()
+unsigned int table::get_phys_numrecords()
 {
 	return phys_numrecords;
 }
 
 //---------------------------------------------------------------------------
-unsigned int __fastcall table::get_log_numrecords()
+unsigned int table::get_log_numrecords()
 {
 	return log_numrecords;
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::set_log_numrecords(unsigned int _log_numrecords)
+void table::set_log_numrecords(unsigned int _log_numrecords)
 {
 	log_numrecords = _log_numrecords;
 }
 
 //---------------------------------------------------------------------------
-unsigned int __fastcall table::get_added_numrecords()
+unsigned int table::get_added_numrecords()
 {
 	return added_numrecords;
 }
 
 //---------------------------------------------------------------------------
-char* __fastcall table::getrecord(unsigned int phys_numrecord, char* buf)
+char* table::getrecord(unsigned int phys_numrecord, char* buf)
 {
 	#ifndef console
 	#ifndef getcfname
@@ -5252,37 +5252,37 @@ char* __fastcall table::getrecord(unsigned int phys_numrecord, char* buf)
 }
 
 //---------------------------------------------------------------------------
-int __fastcall table::get_recordlen()
+int table::get_recordlen()
 {
 	return recordlen;
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall table::get_recordlock()
+bool table::get_recordlock()
 {
 	return recordlock;
 }
 
 //---------------------------------------------------------------------------
-v8object* __fastcall table::get_file_data()
+v8object* table::get_file_data()
 {
 	return file_data;
 }
 
 //---------------------------------------------------------------------------
-v8object* __fastcall table::get_file_blob()
+v8object* table::get_file_blob()
 {
 	return file_blob;
 }
 
 //---------------------------------------------------------------------------
-v8object* __fastcall table::get_file_index()
+v8object* table::get_file_index()
 {
 	return file_index;
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::set_lockinmemory(bool _lock)
+void table::set_lockinmemory(bool _lock)
 {
 	if(_lock)
 	{
@@ -5464,8 +5464,8 @@ unsigned int table::readBlob(void* buf, unsigned int _startblock, unsigned int _
 }
 
 //---------------------------------------------------------------------------
-//bool __fastcall table::export_to_xml(String _filename, index* curindex, bool blob_to_file, bool unpack)
-bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
+//bool table::export_to_xml(String _filename, index* curindex, bool blob_to_file, bool unpack)
+bool table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 {
 	String* us;
 	String s;
@@ -5636,14 +5636,14 @@ bool __fastcall table::export_to_xml(String _filename, bool blob_to_file, bool u
 }
 
 //---------------------------------------------------------------------------
-int64_t __fastcall table::get_fileoffset(unsigned int phys_numrecord)
+int64_t table::get_fileoffset(unsigned int phys_numrecord)
 {
 	unsigned int _offset = phys_numrecord * recordlen;
 	return file_data->get_fileoffset(_offset);
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall table::get_edit()
+bool table::get_edit()
 {
 #ifndef PublicRelease
 	return edit;
@@ -5654,7 +5654,7 @@ bool __fastcall table::get_edit()
 //---------------------------------------------------------------------------
 
 #ifndef PublicRelease
-void __fastcall table::begin_edit()
+void table::begin_edit()
 {
 	if(edit) return;
 	if(base->readonly)
@@ -5667,7 +5667,7 @@ void __fastcall table::begin_edit()
 }
 
 //---------------------------------------------------------------------------
-changed_rec_type __fastcall table::get_rec_type(unsigned int phys_numrecord)
+changed_rec_type table::get_rec_type(unsigned int phys_numrecord)
 {
 	changed_rec* cr;
 	if(!edit) return crt_not_changed;
@@ -5681,7 +5681,7 @@ changed_rec_type __fastcall table::get_rec_type(unsigned int phys_numrecord)
 }
 
 //---------------------------------------------------------------------------
-changed_rec_type __fastcall table::get_rec_type(unsigned int phys_numrecord, int numfield)
+changed_rec_type table::get_rec_type(unsigned int phys_numrecord, int numfield)
 {
 	changed_rec* cr;
 	if(!edit) return crt_not_changed;
@@ -5699,7 +5699,7 @@ changed_rec_type __fastcall table::get_rec_type(unsigned int phys_numrecord, int
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::export_table(String path)
+void table::export_table(String path)
 {
 	TFileStream* f;
 	String dir;
@@ -5764,7 +5764,7 @@ void __fastcall table::export_table(String path)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::import_table(String path)
+void table::import_table(String path)
 {
 	String dir;
 
@@ -5780,7 +5780,7 @@ void __fastcall table::import_table(String path)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::import_table2(String path)
+void table::import_table2(String path)
 {
 	TFileStream* f;
 	bool fopen;
@@ -5960,7 +5960,7 @@ void __fastcall table::import_table2(String path)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::set_edit_value(unsigned int phys_numrecord, int numfield, bool null, String value, TStream* st)
+void table::set_edit_value(unsigned int phys_numrecord, int numfield, bool null, String value, TStream* st)
 {
 	field* fld;
 	char* rec;
@@ -6058,7 +6058,7 @@ void __fastcall table::set_edit_value(unsigned int phys_numrecord, int numfield,
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::restore_edit_value(unsigned int phys_numrecord, int numfield)
+void table::restore_edit_value(unsigned int phys_numrecord, int numfield)
 {
 	field* fld;
 	char* rec;
@@ -6110,7 +6110,7 @@ void __fastcall table::restore_edit_value(unsigned int phys_numrecord, int numfi
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::set_rec_type(unsigned int phys_numrecord, changed_rec_type crt)
+void table::set_rec_type(unsigned int phys_numrecord, changed_rec_type crt)
 {
 	changed_rec* cr;
 	changed_rec* cr2;
@@ -6206,7 +6206,7 @@ void __fastcall table::set_rec_type(unsigned int phys_numrecord, changed_rec_typ
 #endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
-char* __fastcall table::get_edit_record(unsigned int phys_numrecord, char* rec)
+char* table::get_edit_record(unsigned int phys_numrecord, char* rec)
 {
 	changed_rec* cr;
 	for(cr = ch_rec; cr; cr = cr->next) if(phys_numrecord == cr->numrec)
@@ -6222,7 +6222,7 @@ char* __fastcall table::get_edit_record(unsigned int phys_numrecord, char* rec)
 }
 
 //---------------------------------------------------------------------------
-unsigned int __fastcall table::get_phys_numrec(int ARow, class index* cur_index)
+unsigned int table::get_phys_numrec(int ARow, class index* cur_index)
 {
 	unsigned int numrec;
 //	unsigned int numrecords;
@@ -6281,7 +6281,7 @@ unsigned int __fastcall table::get_phys_numrec(int ARow, class index* cur_index)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::create_file_data()
+void table::create_file_data()
 {
 	if(!file_data) return;
 	//if(!edit) return;
@@ -6290,7 +6290,7 @@ void __fastcall table::create_file_data()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::create_file_blob()
+void table::create_file_blob()
 {
 	if(!file_blob) return;
 	//if(!edit) return;
@@ -6299,7 +6299,7 @@ void __fastcall table::create_file_blob()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::create_file_index()
+void table::create_file_index()
 {
 	if(!file_index) return;
 	//if(!edit) return;
@@ -6309,7 +6309,7 @@ void __fastcall table::create_file_index()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::refresh_descr_table()
+void table::refresh_descr_table()
 {
 	error("Попытка обновления файла описания таблицы.",
 		"Таблица", name);
@@ -6319,7 +6319,7 @@ void __fastcall table::refresh_descr_table()
 
 #ifndef PublicRelease
 //---------------------------------------------------------------------------
-void __fastcall table::delete_data_record(unsigned int phys_numrecord)
+void table::delete_data_record(unsigned int phys_numrecord)
 {
 	char* rec;
 	int first_empty_rec;
@@ -6376,7 +6376,7 @@ void __fastcall table::delete_data_record(unsigned int phys_numrecord)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::delete_blob_record(unsigned int blob_numrecord)
+void table::delete_blob_record(unsigned int blob_numrecord)
 {
 	int prev_free_first;
 	int i, j;
@@ -6421,7 +6421,7 @@ void __fastcall table::delete_blob_record(unsigned int blob_numrecord)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::delete_index_record(unsigned int phys_numrecord)
+void table::delete_index_record(unsigned int phys_numrecord)
 {
 	char* rec;
 
@@ -6432,7 +6432,7 @@ void __fastcall table::delete_index_record(unsigned int phys_numrecord)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::delete_index_record(unsigned int phys_numrecord, char* rec)
+void table::delete_index_record(unsigned int phys_numrecord, char* rec)
 {
 	class index* ind;
 	int i;
@@ -6449,7 +6449,7 @@ void __fastcall table::delete_index_record(unsigned int phys_numrecord, char* re
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::write_data_record(unsigned int phys_numrecord, char* rec)
+void table::write_data_record(unsigned int phys_numrecord, char* rec)
 {
 	char* b;
 
@@ -6492,7 +6492,7 @@ void __fastcall table::write_data_record(unsigned int phys_numrecord, char* rec)
 }
 
 //---------------------------------------------------------------------------
-unsigned int __fastcall table::write_blob_record(char* blob_record, unsigned int blob_len)
+unsigned int table::write_blob_record(char* blob_record, unsigned int blob_len)
 {
 	unsigned int cur_block, cur_offset, prev_offset, first_block, next_block;
 	unsigned short int cur_len;
@@ -6545,7 +6545,7 @@ unsigned int __fastcall table::write_blob_record(char* blob_record, unsigned int
 }
 
 //---------------------------------------------------------------------------
-unsigned int __fastcall table::write_blob_record(TStream* bstr)
+unsigned int table::write_blob_record(TStream* bstr)
 {
 	unsigned int cur_block, cur_offset, prev_offset, first_block, next_block;
 	unsigned short int cur_len;
@@ -6603,7 +6603,7 @@ unsigned int __fastcall table::write_blob_record(TStream* bstr)
 
 //---------------------------------------------------------------------------
 
-void __fastcall table::write_index_record(const unsigned int phys_numrecord, const char* rec)
+void table::write_index_record(const unsigned int phys_numrecord, const char* rec)
 {
 	char* index_buf;
 	class index* ind;
@@ -6621,7 +6621,7 @@ void __fastcall table::write_index_record(const unsigned int phys_numrecord, con
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::cancel_edit()
+void table::cancel_edit()
 {
 	changed_rec* cr;
 	changed_rec* cr2;
@@ -6638,7 +6638,7 @@ void __fastcall table::cancel_edit()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::end_edit()
+void table::end_edit()
 {
 	changed_rec* cr;
 
@@ -6656,7 +6656,7 @@ void __fastcall table::end_edit()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::delete_record(unsigned int phys_numrecord)
+void table::delete_record(unsigned int phys_numrecord)
 {
 	int i;
 	unsigned int j;
@@ -6686,7 +6686,7 @@ void __fastcall table::delete_record(unsigned int phys_numrecord)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::insert_record(char* rec)
+void table::insert_record(char* rec)
 {
 	int i, offset;
 	char* j;
@@ -6762,7 +6762,7 @@ void __fastcall table::insert_record(char* rec)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall table::update_record(unsigned int phys_numrecord, char* rec, char* changed_fields)
+void table::update_record(unsigned int phys_numrecord, char* rec, char* changed_fields)
 {
 	char* orec;
 	int i, offset;
@@ -6861,7 +6861,7 @@ void __fastcall table::update_record(unsigned int phys_numrecord, char* rec, cha
 
 //---------------------------------------------------------------------------
 // получить шаблон проверки записи (массив, содержащий для каждого байта массив из 256 байт, содержащий 0, если значение не допусимо и 1, если допустимо)
-char* __fastcall table::get_record_template_test()
+char* table::get_record_template_test()
 {
 	int len;
 	char* res;
@@ -6978,7 +6978,7 @@ char* __fastcall table::get_record_template_test()
 
 //---------------------------------------------------------------------------
 // заполнить recordsindex не динамически
-void __fastcall table::fillrecordsindex()
+void table::fillrecordsindex()
 {
 	unsigned int i;
 	int j;
@@ -7003,7 +7003,7 @@ void __fastcall table::fillrecordsindex()
 	delete[] rec;
 }
 
-String __fastcall table::get_file_name_for_field(int num_field, char* rec, unsigned int numrec)
+String table::get_file_name_for_field(int num_field, char* rec, unsigned int numrec)
 {
 	String s("");
 	int i;
@@ -7036,7 +7036,7 @@ String __fastcall table::get_file_name_for_field(int num_field, char* rec, unsig
 	return s;
 }
 
-String __fastcall table::get_file_name_for_record(char* rec)
+String table::get_file_name_for_record(char* rec)
 {
 	String s("");
 	int i;
@@ -7066,7 +7066,7 @@ String __fastcall table::get_file_name_for_record(char* rec)
 // Класс table_file
 
 //---------------------------------------------------------------------------
-__fastcall table_file::table_file(table* _t, const String& _name, unsigned int _maxpartno)
+table_file::table_file(table* _t, const String& _name, unsigned int _maxpartno)
 {
 	unsigned int i;
 
@@ -7084,7 +7084,7 @@ __fastcall table_file::table_file(table* _t, const String& _name, unsigned int _
 }
 
 //---------------------------------------------------------------------------
-__fastcall table_file::~table_file()
+table_file::~table_file()
 {
 	delete[] addr;
 }
@@ -7095,7 +7095,7 @@ __fastcall table_file::~table_file()
 // Класс TableFiles
 
 //---------------------------------------------------------------------------
-__fastcall TableFiles::TableFiles(table* t)
+TableFiles::TableFiles(table* t)
 {
 	field* filename;
 	field* f;
@@ -7181,7 +7181,7 @@ __fastcall TableFiles::TableFiles(table* t)
 }
 
 //---------------------------------------------------------------------------
-__fastcall TableFiles::~TableFiles()
+TableFiles::~TableFiles()
 {
 	if (rec) {
 		delete[] rec;
@@ -7194,7 +7194,7 @@ __fastcall TableFiles::~TableFiles()
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall TableFiles::test_table()
+bool TableFiles::test_table()
 {
 	if(!tab) return false;
 	if(tab->get_numfields() < 6)
@@ -7275,7 +7275,7 @@ bool __fastcall TableFiles::test_table()
 }
 
 //---------------------------------------------------------------------------
-table_file* __fastcall TableFiles::getfile(const String& name)
+table_file* TableFiles::getfile(const String& name)
 {
 	std::map<String,table_file*>::iterator p;
 
@@ -7290,7 +7290,7 @@ table_file* __fastcall TableFiles::getfile(const String& name)
 // Класс TableFileStream
 
 //---------------------------------------------------------------------------
-__fastcall TableFileStream::TableFileStream(table_file* tf)
+TableFileStream::TableFileStream(table_file* tf)
 {
 	curoffset = 0;
 	tablefile = tf;
@@ -7299,14 +7299,14 @@ __fastcall TableFileStream::TableFileStream(table_file* tf)
 }
 
 //---------------------------------------------------------------------------
-__fastcall TableFileStream::~TableFileStream()
+TableFileStream::~TableFileStream()
 {
 	for(unsigned int i = 0; i <= tablefile->maxpartno; ++i) delete streams[i];
 	delete[] streams;
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TableFileStream::Read(void *Buffer, int Count)
+int TableFileStream::Read(void *Buffer, int Count)
 {
 	unsigned int nbf; // индекс текущего table_blob_file в tablefile->addr
 	unsigned int ibf; // индекс внутри table_blob_file
@@ -7359,21 +7359,21 @@ int __fastcall TableFileStream::Read(void *Buffer, int Count)
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TableFileStream::Read(System::DynamicArray<System::Byte> Buffer, int Offset, int Count)
+int TableFileStream::Read(System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count)
 {
 	// TODO
 	return 0;
 }
 
 //---------------------------------------------------------------------------
-int __fastcall TableFileStream::Seek(int Offset, System::Word Origin)
+int TableFileStream::Seek(int Offset, System::Word Origin)
 {
 	// TODO
 	return 0;
 }
 
 //---------------------------------------------------------------------------
-int64_t __fastcall TableFileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
+int64_t TableFileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
 {
 	// TODO
 	return 0;
@@ -7385,7 +7385,7 @@ int64_t __fastcall TableFileStream::Seek(const int64_t Offset, TSeekOrigin Origi
 // Класс T_1CD
 
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::getblock(void* buf, unsigned int block_number, int blocklen)
+bool T_1CD::getblock(void* buf, unsigned int block_number, int blocklen)
 {
 	if(!fs) return false;
 	if(blocklen < 0) blocklen = pagesize;
@@ -7402,7 +7402,7 @@ bool __fastcall T_1CD::getblock(void* buf, unsigned int block_number, int blockl
 }
 
 //---------------------------------------------------------------------------
-char*  __fastcall T_1CD::getblock(unsigned int block_number)
+char*  T_1CD::getblock(unsigned int block_number)
 {
 	if(!fs) return NULL;
 	if(block_number >= length)
@@ -7417,7 +7417,7 @@ char*  __fastcall T_1CD::getblock(unsigned int block_number)
 }
 
 //---------------------------------------------------------------------------
-char*  __fastcall T_1CD::getblock_for_write(unsigned int block_number, bool read)
+char*  T_1CD::getblock_for_write(unsigned int block_number, bool read)
 {
 	v8con* bc;
 
@@ -7443,13 +7443,13 @@ char*  __fastcall T_1CD::getblock_for_write(unsigned int block_number, bool read
 }
 
 //---------------------------------------------------------------------------
-int __fastcall T_1CD::get_numtables()
+int T_1CD::get_numtables()
 {
 	return num_tables;
 }
 
 //---------------------------------------------------------------------------
-table* __fastcall T_1CD::gettable(int numtable)
+table* T_1CD::gettable(int numtable)
 {
 	if(numtable >= num_tables)
 	{
@@ -7462,7 +7462,7 @@ table* __fastcall T_1CD::gettable(int numtable)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall T_1CD::init()
+void T_1CD::init()
 {
 	filename = "";
 	fs = nullptr;
@@ -7512,13 +7512,13 @@ void __fastcall T_1CD::init()
 }
 
 //---------------------------------------------------------------------------
-__fastcall T_1CD::T_1CD()
+T_1CD::T_1CD()
 {
 	init();
 }
 
 //---------------------------------------------------------------------------
-__fastcall T_1CD::~T_1CD()
+T_1CD::~T_1CD()
 {
 	//filename = "";
 	if(free_blocks)
@@ -7566,7 +7566,7 @@ __fastcall T_1CD::~T_1CD()
 }
 
 //---------------------------------------------------------------------------
-__fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
+T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 {
 	char* b;
 	unsigned int* table_blocks;
@@ -7827,19 +7827,19 @@ __fastcall T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopo
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::is_open()
+bool T_1CD::is_open()
 {
 	return fs != NULL;
 }
 
 //---------------------------------------------------------------------------
-db_ver __fastcall T_1CD::getversion()
+db_ver T_1CD::getversion()
 {
 	return version;
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::save_config(String _filename)
+bool T_1CD::save_config(String _filename)
 {
 	if(!cs_config) cs_config = new ConfigStorageTableConfig(get_files_config());
 	if(!cs_config->getready()) return false;
@@ -7847,7 +7847,7 @@ bool __fastcall T_1CD::save_config(String _filename)
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::save_configsave(String _filename)
+bool T_1CD::save_configsave(String _filename)
 {
 	if(!cs_configsave) cs_configsave = new ConfigStorageTableConfigSave(get_files_config(), get_files_configsave());
 	if(!cs_configsave->getready()) return false;
@@ -7855,7 +7855,7 @@ bool __fastcall T_1CD::save_configsave(String _filename)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall T_1CD::find_supplier_configs()
+void T_1CD::find_supplier_configs()
 {
 	std::map<String,table_file*>::iterator p;
 
@@ -7871,7 +7871,7 @@ void __fastcall T_1CD::find_supplier_configs()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall T_1CD::add_supplier_config(table_file* tf)
+void T_1CD::add_supplier_config(table_file* tf)
 {
 	container_file* f;
 	TStream* s;
@@ -8087,7 +8087,7 @@ void __fastcall T_1CD::add_supplier_config(table_file* tf)
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::save_supplier_configs(unsigned int numcon, const String& _filename)
+bool T_1CD::save_supplier_configs(unsigned int numcon, const String& _filename)
 {
 	TFileStream* _fs;
 	container_file* f;
@@ -8133,25 +8133,25 @@ bool __fastcall T_1CD::save_supplier_configs(unsigned int numcon, const String& 
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::get_readonly()
+bool T_1CD::get_readonly()
 {
 	return readonly;
 }
 
 //---------------------------------------------------------------------------
-void __fastcall T_1CD::set_block_as_free(unsigned int block_number)
+void T_1CD::set_block_as_free(unsigned int block_number)
 {
 	free_blocks->set_block_as_free(block_number);
 }
 
 //---------------------------------------------------------------------------
-unsigned int __fastcall T_1CD::get_free_block()
+unsigned int T_1CD::get_free_block()
 {
 	return free_blocks->get_free_block();
 }
 
 //---------------------------------------------------------------------------
-void __fastcall T_1CD::flush()
+void T_1CD::flush()
 {
 	memblock::flush();
 }
@@ -8159,7 +8159,7 @@ void __fastcall T_1CD::flush()
 //---------------------------------------------------------------------------
 
 #ifndef PublicRelease
-void __fastcall T_1CD::find_lost_objects()
+void T_1CD::find_lost_objects()
 {
 	unsigned int i;
 	char buf[8];
@@ -8188,7 +8188,7 @@ void __fastcall T_1CD::find_lost_objects()
 #endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::test_stream_format()
+bool T_1CD::test_stream_format()
 {
 	unsigned int i;
 	bool result;
@@ -8552,7 +8552,7 @@ bool __fastcall T_1CD::test_stream_format()
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::recursive_test_stream_format(table* t, unsigned int nrec)
+bool T_1CD::recursive_test_stream_format(table* t, unsigned int nrec)
 {
 	int j;
 	char* rec;
@@ -8619,7 +8619,7 @@ bool __fastcall T_1CD::recursive_test_stream_format(table* t, unsigned int nrec)
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::recursive_test_stream_format2(table* t, unsigned int nrec)
+bool T_1CD::recursive_test_stream_format2(table* t, unsigned int nrec)
 {
 	int j;
 	char* rec;
@@ -8655,7 +8655,7 @@ bool __fastcall T_1CD::recursive_test_stream_format2(table* t, unsigned int nrec
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezipped2)
+bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezipped2)
 {
 	bool zipped1;
 	bool zipped2;
@@ -8823,7 +8823,7 @@ bool __fastcall T_1CD::recursive_test_stream_format(TStream* str, String path, b
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::recursive_test_stream_format(v8catalog* cat, String path)
+bool T_1CD::recursive_test_stream_format(v8catalog* cat, String path)
 {
 	v8catalog* c;
 	bool result;
@@ -8870,7 +8870,7 @@ bool __fastcall T_1CD::recursive_test_stream_format(v8catalog* cat, String path)
 
 //---------------------------------------------------------------------------
 #ifndef PublicRelease
-bool __fastcall T_1CD::create_table(String path)
+bool T_1CD::create_table(String path)
 {
 	TFileStream* f;
 	bool fopen;
@@ -9100,13 +9100,13 @@ bool __fastcall T_1CD::create_table(String path)
 #endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
-void __fastcall T_1CD::set_readonly(bool ro)
+void T_1CD::set_readonly(bool ro)
 {
 	readonly = ro;
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::test_list_of_tables()
+bool T_1CD::test_list_of_tables()
 {
 	char* rec;
 	char* orec;
@@ -9417,7 +9417,7 @@ bool __fastcall T_1CD::test_list_of_tables()
 
 #ifndef PublicRelease
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::replaceTREF(String mapfile)
+bool T_1CD::replaceTREF(String mapfile)
 {
 	DynamicArray<int> map; // динамический массив соответствия номеров
 	int i,j,m;
@@ -9499,7 +9499,7 @@ bool __fastcall T_1CD::replaceTREF(String mapfile)
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::delete_table(table* tab)
+bool T_1CD::delete_table(table* tab)
 {
 	int i;
 	unsigned int j;
@@ -9554,7 +9554,7 @@ bool __fastcall T_1CD::delete_table(table* tab)
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::delete_object(v8object* ob)
+bool T_1CD::delete_object(v8object* ob)
 {
 	objtab* b;
 	unsigned int i;
@@ -9591,7 +9591,7 @@ bool __fastcall T_1CD::delete_object(v8object* ob)
 }
 
 //---------------------------------------------------------------------------
-void __fastcall T_1CD::find_and_create_lost_tables()
+void T_1CD::find_and_create_lost_tables()
 {
 	unsigned int i, k;
 	int j, numlosttables;
@@ -9669,7 +9669,7 @@ void __fastcall T_1CD::find_and_create_lost_tables()
 }
 
 //---------------------------------------------------------------------------
-void __fastcall T_1CD::find_and_save_lost_objects()
+void T_1CD::find_and_save_lost_objects()
 {
 	unsigned int i;
 	char buf[8];
@@ -9718,7 +9718,7 @@ void __fastcall T_1CD::find_and_save_lost_objects()
 
 //---------------------------------------------------------------------------
 // Если не удалось получить версию, возвращается 0, иначе возвращается положительное число
-int __fastcall T_1CD::get_ver_depot_config(int ver) // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
+int T_1CD::get_ver_depot_config(int ver) // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
 {
 	char* rec;
 	class index* ind;
@@ -9826,7 +9826,7 @@ class index* T_1CD::get_index(table* tab, String indexname)
 // ver - номер версии сохраняемой конфигурации
 // ver > 0 - используется переданный номер версии
 // ver <= 0 - номер версии от последней конфигурации. 0 - последняя конфигурация, -1 - предпоследняя и т.д., т.е. Номер версии определяется как номер последней + ver
-bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
+bool T_1CD::save_depot_config(const String& _filename, int ver)
 {
 	char* rec;
 	char* frec;
@@ -10659,7 +10659,7 @@ bool __fastcall T_1CD::save_depot_config(const String& _filename, int ver)
 // ver_end - конечный номер диапазона версий сохраняемых файлов конфигурации
 // ver_begin > 0, ver_end > 0 - используется переданный номер версии
 // ver_begin <= 0, ver_end <= 0 - номер версии от последней конфигурации. 0 - последняя конфигурация, -1 - предпоследняя и т.д., т.е. Номер версии определяется как номер последней + ver
-bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_begin, int ver_end)
+bool T_1CD::save_part_depot_config(const String& _filename, int ver_begin, int ver_end)
 {
 	char* rec;
 	char* frec;
@@ -11367,7 +11367,7 @@ bool __fastcall T_1CD::save_part_depot_config(const String& _filename, int ver_b
 // Проверка и восстановление таблицы размещения файла DATA переденной таблицы
 // Проверка записей происходит по тестовому шаблону, созданному из описания полей
 // Проверяются страницы файла DATA, если проверка не проходит, производится поиск подходящей страницы в файле.
-void __fastcall T_1CD::restore_DATA_allocation_table(table* tab)
+void T_1CD::restore_DATA_allocation_table(table* tab)
 {
 	char* rectt;
 	unsigned int block;
@@ -11551,7 +11551,7 @@ void __fastcall T_1CD::restore_DATA_allocation_table(table* tab)
 
 //---------------------------------------------------------------------------
 // Проверка блока таблицы по шаблону
-bool __fastcall T_1CD::test_block_by_template(unsigned int testblock, char* tt, unsigned int num, int rlen, int len)
+bool T_1CD::test_block_by_template(unsigned int testblock, char* tt, unsigned int num, int rlen, int len)
 {
 	unsigned char b[0x1000]; // TODO pagesize
 	bool ok;
@@ -11629,7 +11629,7 @@ TableFiles* T_1CD::get_files_configcassave()
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::save_config_ext(const String& _filename, const TGUID& uid, const String& hashname)
+bool T_1CD::save_config_ext(const String& _filename, const TGUID& uid, const String& hashname)
 {
 	ConfigStorageTableConfigCasSave* cs;
 	bool res;
@@ -11642,7 +11642,7 @@ bool __fastcall T_1CD::save_config_ext(const String& _filename, const TGUID& uid
 }
 
 //---------------------------------------------------------------------------
-bool __fastcall T_1CD::save_config_ext_db(const String& _filename, const String& hashname)
+bool T_1CD::save_config_ext_db(const String& _filename, const String& hashname)
 {
 	ConfigStorageTableConfigCas* cs;
 	bool res;
@@ -11656,7 +11656,7 @@ bool __fastcall T_1CD::save_config_ext_db(const String& _filename, const String&
 }
 
 //---------------------------------------------------------------------------
-void __fastcall T_1CD::pagemapfill()
+void T_1CD::pagemapfill()
 {
 	if(pagemap) delete[] pagemap;
 	pagemap = new pagemaprec[length];
@@ -11668,7 +11668,7 @@ void __fastcall T_1CD::pagemapfill()
 }
 
 //---------------------------------------------------------------------------
-String __fastcall T_1CD::pagemaprec_presentation(pagemaprec& pmr)
+String T_1CD::pagemaprec_presentation(pagemaprec& pmr)
 {
 	switch(pmr.type)
 	{

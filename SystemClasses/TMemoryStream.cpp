@@ -40,9 +40,9 @@ int64_t TMemoryStream::Read(void *Buffer, int64_t Count)
 	return 0;
 }
 
-int64_t TMemoryStream::Write(const void *Buffer, const int64_t Count)
+int64_t TMemoryStream::Write(const void *Buffer, int64_t Count)
 {
-	auto buf = reinterpret_cast<const Byte*>(Buffer);
+	auto buf = reinterpret_cast<const t::Byte*>(Buffer);
 	EnsureSize(m_position + Count);
 	for (auto i = Count; i; i--) {
 		_data[m_position++] = *buf++;
@@ -50,7 +50,7 @@ int64_t TMemoryStream::Write(const void *Buffer, const int64_t Count)
 	return Count;
 }
 
-const DynamicArray<Byte> &TMemoryStream::GetBytes() const
+const DynamicArray<t::Byte> &TMemoryStream::GetBytes() const
 {
 	return _data;
 }
@@ -69,7 +69,7 @@ void TMemoryStream::EnsureSize(size_t size)
 	}
 }
 
-TBytesStream::TBytesStream(const DynamicArray<Byte> &initial)
+TBytesStream::TBytesStream(const DynamicArray<t::Byte> &initial)
 {
 	Write(initial.data(), initial.size());
 	m_position = 0;

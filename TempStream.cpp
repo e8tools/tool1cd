@@ -12,7 +12,7 @@ long TTempStream::tempno = 0;
 TTempStreamStaticInit TempStreamStaticInit;
 
 //---------------------------------------------------------------------------
-__fastcall TTempStreamStaticInit::TTempStreamStaticInit()
+TTempStreamStaticInit::TTempStreamStaticInit()
 {
 	if(TTempStream::tempcat.IsEmpty())
 	{
@@ -24,24 +24,24 @@ __fastcall TTempStreamStaticInit::TTempStreamStaticInit()
 }
 
 //---------------------------------------------------------------------------
-__fastcall TTempStreamStaticInit::~TTempStreamStaticInit()
+TTempStreamStaticInit::~TTempStreamStaticInit()
 {
 	RemoveDir(TTempStream::tempcat);
 }
 
 //---------------------------------------------------------------------------
-__fastcall TTempStream::TTempStream() : TFileStream(gettempname(), fmCreate)
+TTempStream::TTempStream() : TFileStream(gettempname(), fmCreate)
 {
 }
 
 //---------------------------------------------------------------------------
-__fastcall TTempStream::~TTempStream()
+TTempStream::~TTempStream()
 {
 }
 
 //---------------------------------------------------------------------------
 
-String __fastcall TTempStream::gettempname()
+String TTempStream::gettempname()
 {
 	return (boost::filesystem::path(tempcat.c_str()) / boost::filesystem::unique_path()).string();
 }

@@ -91,38 +91,38 @@ class v8file{
 	std::set<TV8FileStream*> streams;
 
   public:
-	__fastcall v8file(v8catalog* _parent, const String& _name, v8file* _previous, int _start_data, int _start_header, int64_t* _time_create, int64_t* _time_modify);
+	v8file(v8catalog* _parent, const String& _name, v8file* _previous, int _start_data, int _start_header, int64_t* _time_create, int64_t* _time_modify);
 
-	__fastcall ~v8file();
-	bool __fastcall IsCatalog();
-	v8catalog* __fastcall GetCatalog();
-	int __fastcall GetFileLength();
-	int64_t __fastcall GetFileLength64();
-	int __fastcall Read(void* Buffer, int Start, int Length);
-	int __fastcall Read(System::DynamicArray<System::Byte> Buffer, int Start, int Length);
-	int __fastcall Write(const void* Buffer, int Start, int Length); // дозапись/перезапись частично
-	int __fastcall Write(System::DynamicArray<System::Byte> Buffer, int Start, int Length); // дозапись/перезапись частично
-	int __fastcall Write(const void* Buffer, int Length); // перезапись целиком
-	int __fastcall Write(TStream* Stream, int Start, int Length); // дозапись/перезапись частично
-	int __fastcall Write(TStream* Stream); // перезапись целиком
-	String __fastcall GetFileName();
-	String __fastcall GetFullName();
-	void __fastcall SetFileName(const String& _name);
-	v8catalog* __fastcall GetParentCatalog();
-	void __fastcall DeleteFile();
-	v8file* __fastcall GetNext();
-	bool __fastcall Open();
-	void __fastcall Close();
-	int __fastcall WriteAndClose(TStream* Stream, int Length = -1); // перезапись целиком и закрытие файла (для экономии памяти не используется data файла)
-	void __fastcall GetTimeCreate(FILETIME* ft);
-	void __fastcall GetTimeModify(FILETIME* ft);
-	void __fastcall SetTimeCreate(FILETIME* ft);
-	void __fastcall SetTimeModify(FILETIME* ft);
-	void __fastcall SaveToFile(const String& FileName);
-	void __fastcall SaveToStream(TStream* stream);
-	//TStream* __fastcall get_data();
-	TV8FileStream* __fastcall get_stream(bool own = false);
-	void __fastcall Flush();
+	~v8file();
+	bool IsCatalog();
+	v8catalog* GetCatalog();
+	int GetFileLength();
+	int64_t GetFileLength64();
+	int Read(void* Buffer, int Start, int Length);
+	int Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length);
+	int Write(const void* Buffer, int Start, int Length); // дозапись/перезапись частично
+	int Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length); // дозапись/перезапись частично
+	int Write(const void* Buffer, int Length); // перезапись целиком
+	int Write(TStream* Stream, int Start, int Length); // дозапись/перезапись частично
+	int Write(TStream* Stream); // перезапись целиком
+	String GetFileName();
+	String GetFullName();
+	void SetFileName(const String& _name);
+	v8catalog* GetParentCatalog();
+	void DeleteFile();
+	v8file* GetNext();
+	bool Open();
+	void Close();
+	int WriteAndClose(TStream* Stream, int Length = -1); // перезапись целиком и закрытие файла (для экономии памяти не используется data файла)
+	void GetTimeCreate(FILETIME* ft);
+	void GetTimeModify(FILETIME* ft);
+	void SetTimeCreate(FILETIME* ft);
+	void SetTimeModify(FILETIME* ft);
+	void SaveToFile(const String& FileName);
+	void SaveToStream(TStream* stream);
+	//TStream* get_data();
+	TV8FileStream* get_stream(bool own = false);
+	void Flush();
 };
 
 //---------------------------------------------------------------------------
@@ -133,7 +133,7 @@ class v8catalog{
 	v8file* file; // файл, которым является каталог. Для корневого каталога NULL
 	TStream* data; // поток каталога. Если file не NULL (каталог не корневой), совпадает с file->data
 	TStream* cfu; // поток файла cfu. Существует только при is_cfu == true
-	void __fastcall initialize();
+	void initialize();
 	v8file* first; // первый файл в каталоге
 	v8file* last; // последний файл в каталоге
 	std::map<String,v8file*> files; // Соответствие имен и файлов
@@ -149,11 +149,11 @@ class v8catalog{
 	bool is_emptymodified;
 	bool is_modified;
 
-	void __fastcall free_block(int start);
-	int __fastcall write_block(TStream* block, int start, bool use_page_size, int len = -1); // возвращает адрес начала блока
-	int __fastcall write_datablock(TStream* block, int start, bool _zipped = false, int len = -1); // возвращает адрес начала блока
-	TStream* __fastcall read_datablock(int start);
-	int __fastcall get_nextblock(int start);
+	void free_block(int start);
+	int write_block(TStream* block, int start, bool use_page_size, int len = -1); // возвращает адрес начала блока
+	int write_datablock(TStream* block, int start, bool _zipped = false, int len = -1); // возвращает адрес начала блока
+	TStream* read_datablock(int start);
+	int get_nextblock(int start);
 
 	bool is_destructed; // признак, что работает деструктор
 	bool flushed; // признак, что происходит сброс
@@ -161,26 +161,26 @@ class v8catalog{
 
   public:
 //	bool readonly;
-	__fastcall v8catalog(v8file* f); // создать каталог из файла
-	__fastcall v8catalog(String name); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
-	__fastcall v8catalog(String name, bool _zipped); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
-	bool __fastcall IsCatalog();
-	__fastcall v8catalog(TStream* stream, bool _zipped, bool leave_stream = false); // создать каталог из потока
-	__fastcall ~v8catalog();
-	v8file* __fastcall GetFile(const String& FileName);
-	v8file* __fastcall GetFirst();
-	v8file* __fastcall createFile(const String& FileName, bool _selfzipped = false); // CreateFile в win64 определяется как CreateFileW, пришлось заменить на маленькую букву
-	v8catalog* __fastcall CreateCatalog(const String& FileName, bool _selfzipped = false);
-	void __fastcall DeleteFile(const String& FileName);
-	v8catalog* __fastcall GetParentCatalog();
-	//void __fastcall Defrag(bool Recursively);
-	v8file* __fastcall GetSelfFile();
-	void __fastcall SaveToDir(String DirName);
-	bool __fastcall isOpen();
-	void __fastcall Flush();
-	void __fastcall HalfClose();
-	void __fastcall HalfOpen(const String& name);
-	//void __fastcall set_leave_data(bool ld);
+	v8catalog(v8file* f); // создать каталог из файла
+	v8catalog(String name); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
+	v8catalog(String name, bool _zipped); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
+	bool IsCatalog();
+	v8catalog(TStream* stream, bool _zipped, bool leave_stream = false); // создать каталог из потока
+	~v8catalog();
+	v8file* GetFile(const String& FileName);
+	v8file* GetFirst();
+	v8file* createFile(const String& FileName, bool _selfzipped = false); // CreateFile в win64 определяется как CreateFileW, пришлось заменить на маленькую букву
+	v8catalog* CreateCatalog(const String& FileName, bool _selfzipped = false);
+	void DeleteFile(const String& FileName);
+	v8catalog* GetParentCatalog();
+	//void Defrag(bool Recursively);
+	v8file* GetSelfFile();
+	void SaveToDir(String DirName);
+	bool isOpen();
+	void Flush();
+	void HalfClose();
+	void HalfOpen(const String& name);
+	//void set_leave_data(bool ld);
 };
 
 //---------------------------------------------------------------------------
@@ -191,14 +191,14 @@ protected:
 	bool own;
 	int64_t pos;
 public:
-	__fastcall TV8FileStream(v8file* f, bool ownfile = false);
-	virtual __fastcall ~TV8FileStream();
-	virtual int __fastcall Read(void *Buffer, int Count);
-	virtual int __fastcall Read(System::DynamicArray<System::Byte> Buffer, int Offset, int Count);
-	virtual int __fastcall Write(const void *Buffer, int Count);
-	virtual int __fastcall Write(const System::DynamicArray<System::Byte> Buffer, int Offset, int Count);
-	virtual int __fastcall Seek(int Offset, System::Word Origin);
-	virtual int64_t __fastcall Seek(const int64_t Offset, TSeekOrigin Origin);
+	TV8FileStream(v8file* f, bool ownfile = false);
+	virtual ~TV8FileStream();
+	virtual int Read(void *Buffer, int Count);
+	virtual int Read(System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count);
+	virtual int Write(const void *Buffer, int Count);
+	virtual int Write(const System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count);
+	virtual int Seek(int Offset, System::Word Origin);
+	virtual int64_t Seek(const int64_t Offset, TSeekOrigin Origin);
 };
 
 #endif

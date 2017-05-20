@@ -18,8 +18,8 @@
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
-//String __fastcall GUIDas1C(const unsigned char* fr);
-//String __fastcall GUIDasMS(const unsigned char* fr);
+//String GUIDas1C(const unsigned char* fr);
+//String GUIDasMS(const unsigned char* fr);
 
 class T_1CD;
 class table;
@@ -27,7 +27,7 @@ class table;
 class ConfigStorageTableConfig;
 class ConfigStorageTableConfigSave;
 
-//unsigned int __fastcall reverse_byte_order(unsigned int value);
+//unsigned int reverse_byte_order(unsigned int value);
 
 #pragma pack(push)
 #pragma pack(1)
@@ -44,7 +44,7 @@ struct v8con
 	int firstblock;
 	unsigned int pagesize;
 
-	String __fastcall getver(){
+	String getver(){
 		String ss = (int)ver1;
 		ss += ".";
 		ss += (int)ver2;
@@ -152,36 +152,36 @@ private:
 	unsigned int lastdataget; // время (Windows time, в миллисекундах) последнего обращения к данным объекта (data)
 	bool lockinmemory;
 
-	void __fastcall set_len(uint64_t _len); // установка новой длины объекта
+	void set_len(uint64_t _len); // установка новой длины объекта
 
-	void __fastcall init();
-	void __fastcall init(T_1CD* _base, int blockNum);
+	void init();
+	void init(T_1CD* _base, int blockNum);
 
 public:
-	__fastcall v8object(T_1CD* _base, int blockNum); // конструктор существующего объекта
-	__fastcall v8object(T_1CD* _base); // конструктор нового (еще не существующего) объекта
-	__fastcall ~v8object();
-	char* __fastcall getdata(); // чтение всего объекта целиком, поддерживает кеширование объектов. Буфер принадлежит объекту
-	char* __fastcall getdata(void* buf, uint64_t _start, uint64_t _length); // чтение кусочка объекта, поддерживает кеширование блоков. Буфер не принадлежит объекту
-	bool __fastcall setdata(void* buf, uint64_t _start, uint64_t _length); // запись кусочка объекта, поддерживает кеширование блоков.
-	bool __fastcall setdata(void* buf, uint64_t _length); // запись объекта целиком, поддерживает кеширование блоков.
-	bool __fastcall setdata(TStream* stream); // записывает поток целиком в объект, поддерживает кеширование блоков.
-	bool __fastcall setdata(TStream* stream, uint64_t _start, uint64_t _length); // запись части потока в объект, поддерживает кеширование блоков.
-	uint64_t __fastcall getlen();
-	//void __fastcall savetofile();
-	void __fastcall savetofile(String filename);
-	void __fastcall set_lockinmemory(bool _lock);
-	static void __fastcall garbage();
-	uint64_t __fastcall get_fileoffset(uint64_t offset); // получить физическое смещение в файле по смещению в объекте
-	void __fastcall set_block_as_free(unsigned int block_number); // пометить блок как свободный
-	unsigned int __fastcall get_free_block(); // получить номер свободного блока (и пометить как занятый)
-	void __fastcall get_version_rec_and_increase(_version* ver); // получает версию очередной записи и увеличивает сохраненную версию объекта
-	void __fastcall get_version(_version* ver); // получает сохраненную версию объекта
-	void __fastcall write_new_version(); // записывает новую версию объекта
-	static v8object* __fastcall get_first();
-	static v8object* __fastcall get_last();
-	v8object* __fastcall get_next();
-	unsigned int __fastcall get_block_number();
+	v8object(T_1CD* _base, int blockNum); // конструктор существующего объекта
+	v8object(T_1CD* _base); // конструктор нового (еще не существующего) объекта
+	~v8object();
+	char* getdata(); // чтение всего объекта целиком, поддерживает кеширование объектов. Буфер принадлежит объекту
+	char* getdata(void* buf, uint64_t _start, uint64_t _length); // чтение кусочка объекта, поддерживает кеширование блоков. Буфер не принадлежит объекту
+	bool setdata(const void* buf, uint64_t _start, uint64_t _length); // запись кусочка объекта, поддерживает кеширование блоков.
+	bool setdata(const void* buf, uint64_t _length); // запись объекта целиком, поддерживает кеширование блоков.
+	bool setdata(TStream* stream); // записывает поток целиком в объект, поддерживает кеширование блоков.
+	bool setdata(TStream* stream, uint64_t _start, uint64_t _length); // запись части потока в объект, поддерживает кеширование блоков.
+	uint64_t getlen();
+	//void savetofile();
+	void savetofile(String filename);
+	void set_lockinmemory(bool _lock);
+	static void garbage();
+	uint64_t get_fileoffset(uint64_t offset); // получить физическое смещение в файле по смещению в объекте
+	void set_block_as_free(unsigned int block_number); // пометить блок как свободный
+	unsigned int get_free_block(); // получить номер свободного блока (и пометить как занятый)
+	void get_version_rec_and_increase(_version* ver); // получает версию очередной записи и увеличивает сохраненную версию объекта
+	void get_version(_version* ver); // получает сохраненную версию объекта
+	void write_new_version(); // записывает новую версию объекта
+	static v8object* get_first();
+	static v8object* get_last();
+	v8object* get_next();
+	unsigned int get_block_number();
 	TStream* readBlob(TStream* _str, unsigned int _startblock, unsigned int _length = MAXUINT, bool rewrite = true);
 };
 
@@ -263,24 +263,24 @@ private:
 	static bool null_index_initialized;
 
 public:
-	__fastcall field(table* _parent);
+	field(table* _parent);
 
-	int __fastcall getlen(); // возвращает длину поля в байтах
-	String __fastcall getname();
-	String __fastcall get_presentation(const char* rec, bool EmptyNull = false, wchar_t Delimiter = 0, bool ignore_showGUID = false, bool detailed = false);
-	String __fastcall get_XML_presentation(char* rec, bool ignore_showGUID = false);
-	bool __fastcall get_bynary_value(char* buf, bool null, String& value);
-	type_fields __fastcall gettype();
-	table* __fastcall getparent();
-	bool __fastcall getnull_exists();
-	int __fastcall getlength();
-	int __fastcall getprecision();
-	bool __fastcall getcase_sensitive();
-	int __fastcall getoffset();
-	String __fastcall get_presentation_type();
-	bool __fastcall save_blob_to_file(char* rec, String filename, bool unpack);
+	int getlen(); // возвращает длину поля в байтах
+	String getname();
+	String get_presentation(const char* rec, bool EmptyNull = false, wchar_t Delimiter = 0, bool ignore_showGUID = false, bool detailed = false);
+	String get_XML_presentation(char* rec, bool ignore_showGUID = false);
+	bool get_bynary_value(char* buf, bool null, String& value);
+	type_fields gettype();
+	table* getparent();
+	bool getnull_exists();
+	int getlength();
+	int getprecision();
+	bool getcase_sensitive();
+	int getoffset();
+	String get_presentation_type();
+	bool save_blob_to_file(char* rec, String filename, bool unpack);
 #ifndef PublicRelease
-	unsigned int __fastcall getSortKey(const char* rec, unsigned char* SortKey, int maxlen);
+	unsigned int getSortKey(const char* rec, unsigned char* SortKey, int maxlen);
 #endif //#ifdef PublicRelease
 };
 
@@ -358,49 +358,49 @@ private:
 	unsigned int length; // длина в байтах одной распакованной записи индекса
 	DynamicArray<unsigned int> recordsindex; // динамический массив индексов записей по номеру (только не пустые записи)
 	bool recordsindex_complete; // признак заполнености recordsindex
-	void __fastcall create_recordsindex();
+	void create_recordsindex();
 
 #ifndef PublicRelease
-	void __fastcall dump_recursive(v8object* file_index, TFileStream* f, int level, uint64_t curblock);
-	void __fastcall delete_index(const char* rec, const unsigned int phys_numrec); // удаление индекса записи из файла index
-	void __fastcall delete_index_record(const char* index_buf, const unsigned int phys_numrec); // удаление одного индекса из файла index
-	void __fastcall delete_index_record(const char* index_buf, const unsigned int phys_numrec, uint64_t block, bool& is_last_record, bool& page_is_empty, char* new_last_index_buf, unsigned int& new_last_phys_num); // рекурсивное удаление одного индекса из блока файла index
-	void __fastcall write_index(const unsigned int phys_numrecord, const char* rec); // запись индекса записи
-	void __fastcall write_index_record(const unsigned int phys_numrecord, const char* index_buf); // запись индекса
-	void __fastcall write_index_record(const unsigned int phys_numrecord, const char* index_buf, uint64_t block, int& result, char* new_last_index_buf, unsigned int& new_last_phys_num, char* new_last_index_buf2, unsigned int& new_last_phys_num2, uint64_t& new_last_block2); // рекурсивная запись индекса
+	void dump_recursive(v8object* file_index, TFileStream* f, int level, uint64_t curblock);
+	void delete_index(const char* rec, const unsigned int phys_numrec); // удаление индекса записи из файла index
+	void delete_index_record(const char* index_buf, const unsigned int phys_numrec); // удаление одного индекса из файла index
+	void delete_index_record(const char* index_buf, const unsigned int phys_numrec, uint64_t block, bool& is_last_record, bool& page_is_empty, char* new_last_index_buf, unsigned int& new_last_phys_num); // рекурсивное удаление одного индекса из блока файла index
+	void write_index(const unsigned int phys_numrecord, const char* rec); // запись индекса записи
+	void write_index_record(const unsigned int phys_numrecord, const char* index_buf); // запись индекса
+	void write_index_record(const unsigned int phys_numrecord, const char* index_buf, uint64_t block, int& result, char* new_last_index_buf, unsigned int& new_last_phys_num, char* new_last_index_buf2, unsigned int& new_last_phys_num2, uint64_t& new_last_block2); // рекурсивная запись индекса
 #endif //#ifdef PublicRelease
 
 public:
-	__fastcall index(table* _base);
-	__fastcall ~index();
+	index(table* _base);
+	~index();
 
-	String __fastcall getname();
-	bool __fastcall get_is_primary();
-	int __fastcall get_num_records(); // получить количество полей в индексе
-	index_record* __fastcall get_records();
+	String getname();
+	bool get_is_primary();
+	int get_num_records(); // получить количество полей в индексе
+	index_record* get_records();
 
-	unsigned int __fastcall get_numrecords(); // получает количество записей, проиндексированных индексом
-	unsigned int __fastcall get_numrec(unsigned int num_record); // получает физический индекс записи по порядковому индексу
+	unsigned int get_numrecords(); // получает количество записей, проиндексированных индексом
+	unsigned int get_numrec(unsigned int num_record); // получает физический индекс записи по порядковому индексу
 
 #ifndef PublicRelease
-	void __fastcall dump(String filename);
-	void __fastcall calcRecordIndex(const char* rec, char* indexBuf); // вычислить индекс записи rec и поместить в indexBuf. Длина буфера indexBuf должна быть не меньше length
+	void dump(String filename);
+	void calcRecordIndex(const char* rec, char* indexBuf); // вычислить индекс записи rec и поместить в indexBuf. Длина буфера indexBuf должна быть не меньше length
 #endif //#ifdef PublicRelease
 
-	unsigned int __fastcall get_rootblock();
-	unsigned int __fastcall get_length();
+	unsigned int get_rootblock();
+	unsigned int get_length();
 
 	// распаковывает одну страницу-лист индексов
 	// возвращает массив структур unpack_index_record. Количество элементов массива возвращается в number_indexes
-	char* __fastcall unpack_leafpage(uint64_t page_offset, unsigned int& number_indexes);
+	char* unpack_leafpage(uint64_t page_offset, unsigned int& number_indexes);
 
 	// распаковывает одну страницу-лист индексов
 	// возвращает массив структур unpack_index_record. Количество элементов массива возвращается в number_indexes
-	char* __fastcall unpack_leafpage(char* page, unsigned int& number_indexes);
+	char* unpack_leafpage(char* page, unsigned int& number_indexes);
 
 	// упаковывает одну страницу-лист индексов.
 	// возвращвет истина, если упаковка произведена, и ложь, если упаковка невозможна.
-	bool __fastcall pack_leafpage(char* unpack_index, unsigned int number_indexes, char* page_buf);
+	bool pack_leafpage(char* unpack_index, unsigned int number_indexes, char* page_buf);
 
 };
 
@@ -445,9 +445,9 @@ public:
 	// содержит указатель на TStream с содержимым поля (или NULL)
 	char* rec;
 
-	__fastcall changed_rec(table* _parent, changed_rec_type crt, unsigned int phys_numrecord);
-	__fastcall ~changed_rec();
-	void __fastcall clear();
+	changed_rec(table* _parent, changed_rec_type crt, unsigned int phys_numrecord);
+	~changed_rec();
+	void clear();
 };
 
 // структура одного блока в файле file_blob
@@ -499,8 +499,8 @@ private:
 	bool issystem; // Признак системной таблицы (имя таблицы не начинается с подчеркивания)
 	int lockinmemory; // счетчик блокировок в памяти
 
-	void __fastcall deletefields();
-	void __fastcall deleteindexes();
+	void deletefields();
+	void deleteindexes();
 
 	changed_rec* ch_rec; // первая измененная запись в списке измененных записей
 	unsigned int added_numrecords; // количество добавленных записей в режиме редактирования
@@ -508,22 +508,22 @@ private:
 	unsigned int phys_numrecords; // физическое количество записей (вместе с удаленными)
 	unsigned int log_numrecords; // логическое количество записей (только не удаленные)
 
-	void __fastcall create_file_data(); // создание файла file_data
-	void __fastcall create_file_blob(); // создание файла file_blob
-	void __fastcall create_file_index(); // создание файла file_index
-	void __fastcall refresh_descr_table(); // создание и запись файла описания таблицы
+	void create_file_data(); // создание файла file_data
+	void create_file_blob(); // создание файла file_blob
+	void create_file_index(); // создание файла file_index
+	void refresh_descr_table(); // создание и запись файла описания таблицы
 #ifndef PublicRelease
 
 	bool edit; // признак, что таблица находится в режиме редактирования
 
-	void __fastcall delete_data_record(unsigned int phys_numrecord); // удаление записи из файла data
-	void __fastcall delete_blob_record(unsigned int blob_numrecord); // удаление записи из файла blob
-	void __fastcall delete_index_record(unsigned int phys_numrecord); // удаление всех индексов записи из файла index
-	void __fastcall delete_index_record(unsigned int phys_numrecord, char* rec); // удаление всех индексов записи из файла index
-	void __fastcall write_data_record(unsigned int phys_numrecord, char* rec); // запись одной записи в файл data
-	unsigned int __fastcall write_blob_record(char* blob_record, unsigned int blob_len); // записывает НОВУЮ запись в файл blob, возвращает индекс новой записи
-	unsigned int __fastcall write_blob_record(TStream* bstr); //  // записывает НОВУЮ запись в файл blob, возвращает индекс новой записи
-	void __fastcall write_index_record(const unsigned int phys_numrecord, const char* rec); // запись индексов записи в файл index
+	void delete_data_record(unsigned int phys_numrecord); // удаление записи из файла data
+	void delete_blob_record(unsigned int blob_numrecord); // удаление записи из файла blob
+	void delete_index_record(unsigned int phys_numrecord); // удаление всех индексов записи из файла index
+	void delete_index_record(unsigned int phys_numrecord, char* rec); // удаление всех индексов записи из файла index
+	void write_data_record(unsigned int phys_numrecord, char* rec); // запись одной записи в файл data
+	unsigned int write_blob_record(char* blob_record, unsigned int blob_len); // записывает НОВУЮ запись в файл blob, возвращает индекс новой записи
+	unsigned int write_blob_record(TStream* bstr); //  // записывает НОВУЮ запись в файл blob, возвращает индекс новой записи
+	void write_index_record(const unsigned int phys_numrecord, const char* rec); // запись индексов записи в файл index
 #endif //#ifdef PublicRelease
 
 	bool bad; // признак битой таблицы
@@ -536,69 +536,69 @@ public:
 	unsigned int numrecords_review; // количество просмотренных записей всего в поиске не пустых
 	unsigned int numrecords_found; // количество найденных непустых записей (текущий размер recordsindex)
 	//<-- поддержка динамического построения таблицы записей
-	void __fastcall fillrecordsindex(); // заполнить recordsindex не динамически
+	void fillrecordsindex(); // заполнить recordsindex не динамически
 
 
-	__fastcall table();
-	__fastcall table(T_1CD* _base, int block_descr);
-	__fastcall table(T_1CD* _base, String _descr, int block_descr = 0);
-	__fastcall ~table();
-	void __fastcall init(int block_descr = 0);
+	table();
+	table(T_1CD* _base, int block_descr);
+	table(T_1CD* _base, String _descr, int block_descr = 0);
+	~table();
+	void init(int block_descr = 0);
 
-	String __fastcall getname();
-	String __fastcall getdescription();
-	int __fastcall get_numfields();
-	int __fastcall get_numindexes();
-	field* __fastcall getfield(int numfield);
-	class index* __fastcall getindex(int numindex);
-	bool __fastcall get_issystem();
-	int __fastcall get_recordlen();
-	bool __fastcall get_recordlock();
+	String getname();
+	String getdescription();
+	int get_numfields();
+	int get_numindexes();
+	field* getfield(int numfield);
+	class index* getindex(int numindex);
+	bool get_issystem();
+	int get_recordlen();
+	bool get_recordlock();
 
-	unsigned int __fastcall get_phys_numrecords(); // возвращает количество записей в таблице всего, вместе с удаленными
-	unsigned int __fastcall get_log_numrecords(); // возвращает количество записей в таблице всего, без удаленных
-	void __fastcall set_log_numrecords(unsigned int _log_numrecords); //
-	unsigned int __fastcall get_added_numrecords();
+	unsigned int get_phys_numrecords(); // возвращает количество записей в таблице всего, вместе с удаленными
+	unsigned int get_log_numrecords(); // возвращает количество записей в таблице всего, без удаленных
+	void set_log_numrecords(unsigned int _log_numrecords); //
+	unsigned int get_added_numrecords();
 
-	char* __fastcall getrecord(unsigned int phys_numrecord, char* buf); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
+	char* getrecord(unsigned int phys_numrecord, char* buf); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
 	TStream* readBlob(TStream* _str, unsigned int _startblock, unsigned int _length, bool rewrite = true);
 	unsigned int readBlob(void* _buf, unsigned int _startblock, unsigned int _length);
-	void __fastcall set_lockinmemory(bool _lock);
-	//bool __fastcall export_to_xml(String filename, index* curindex, bool blob_to_file, bool unpack);
-	bool __fastcall export_to_xml(String filename, bool blob_to_file, bool unpack);
+	void set_lockinmemory(bool _lock);
+	//bool export_to_xml(String filename, index* curindex, bool blob_to_file, bool unpack);
+	bool export_to_xml(String filename, bool blob_to_file, bool unpack);
 
-	v8object* __fastcall get_file_data();
-	v8object* __fastcall get_file_blob();
-	v8object* __fastcall get_file_index();
+	v8object* get_file_data();
+	v8object* get_file_blob();
+	v8object* get_file_index();
 
-	int64_t __fastcall get_fileoffset(unsigned int phys_numrecord); // получить физическое смещение в файле записи по номеру
+	int64_t get_fileoffset(unsigned int phys_numrecord); // получить физическое смещение в файле записи по номеру
 
-	char* __fastcall get_edit_record(unsigned int phys_numrecord, char* buf); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
-	bool __fastcall get_edit();
+	char* get_edit_record(unsigned int phys_numrecord, char* buf); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
+	bool get_edit();
 
-	unsigned int __fastcall get_phys_numrec(int ARow, class index* cur_index); // получить физический индекс записи по номеру строки по указанному индексу
-	String __fastcall get_file_name_for_field(int num_field, char* rec, unsigned int numrec = 0); // получить имя файла по-умолчанию конкретного поля конкретной записи
-	String __fastcall get_file_name_for_record(char* rec); // получить имя файла по-умолчанию конкретной записи
-	T_1CD* __fastcall getbase(){return base;};
+	unsigned int get_phys_numrec(int ARow, class index* cur_index); // получить физический индекс записи по номеру строки по указанному индексу
+	String get_file_name_for_field(int num_field, char* rec, unsigned int numrec = 0); // получить имя файла по-умолчанию конкретного поля конкретной записи
+	String get_file_name_for_record(char* rec); // получить имя файла по-умолчанию конкретной записи
+	T_1CD* getbase(){return base;};
 
 #ifndef PublicRelease
-	void __fastcall begin_edit(); // переводит таблицу в режим редактирования
-	void __fastcall cancel_edit(); // переводит таблицу в режим просмотра и отменяет все изменения
-	void __fastcall end_edit(); // переводит таблицу в режим просмотра и сохраняет все изменения
-	changed_rec_type __fastcall get_rec_type(unsigned int phys_numrecord);
-	changed_rec_type __fastcall get_rec_type(unsigned int phys_numrecord, int numfield);
-	void __fastcall set_edit_value(unsigned int phys_numrecord, int numfield, bool null, String value, TStream* st = NULL);
-	void __fastcall restore_edit_value(unsigned int phys_numrecord, int numfield);
-	void __fastcall set_rec_type(unsigned int phys_numrecord, changed_rec_type crt);
+	void begin_edit(); // переводит таблицу в режим редактирования
+	void cancel_edit(); // переводит таблицу в режим просмотра и отменяет все изменения
+	void end_edit(); // переводит таблицу в режим просмотра и сохраняет все изменения
+	changed_rec_type get_rec_type(unsigned int phys_numrecord);
+	changed_rec_type get_rec_type(unsigned int phys_numrecord, int numfield);
+	void set_edit_value(unsigned int phys_numrecord, int numfield, bool null, String value, TStream* st = NULL);
+	void restore_edit_value(unsigned int phys_numrecord, int numfield);
+	void set_rec_type(unsigned int phys_numrecord, changed_rec_type crt);
 
-	void __fastcall export_table(String path);
-	void __fastcall import_table(String path);
-	void __fastcall import_table2(String path);
+	void export_table(String path);
+	void import_table(String path);
+	void import_table2(String path);
 
-	void __fastcall delete_record(unsigned int phys_numrecord); // удаление записи
-	void __fastcall insert_record(char* rec); // добавление записи
-	void __fastcall update_record(unsigned int phys_numrecord, char* rec, char* changed_fields); // изменение записи
-	char* __fastcall get_record_template_test();
+	void delete_record(unsigned int phys_numrecord); // удаление записи
+	void insert_record(char* rec); // добавление записи
+	void update_record(unsigned int phys_numrecord, char* rec, char* changed_fields); // изменение записи
+	char* get_record_template_test();
 #endif //#ifdef PublicRelease
 
 };
@@ -633,8 +633,8 @@ struct table_file
 	FILETIME ft_create;
 	FILETIME ft_modify;
 
-	__fastcall table_file(table* _t, const String& _name, unsigned int _maxpartno);
-	__fastcall ~table_file();
+	table_file(table* _t, const String& _name, unsigned int _maxpartno);
+	~table_file();
 };
 
 //---------------------------------------------------------------------------
@@ -647,13 +647,13 @@ private:
 	char* rec;
 	bool ready;
 
-	bool __fastcall test_table();
+	bool test_table();
 public:
-	__fastcall TableFiles(table* t);
-	virtual __fastcall ~TableFiles();
-	bool __fastcall getready(){return ready;};
-	table_file* __fastcall getfile(const String& name);
-	table* __fastcall gettable(){return tab;};
+	TableFiles(table* t);
+	virtual ~TableFiles();
+	bool getready(){return ready;};
+	table_file* getfile(const String& name);
+	table* gettable(){return tab;};
 
 	// __property std::map<String,table_file*> files = {read = allfiles};
 	std::map<String,table_file*> files();
@@ -668,15 +668,15 @@ private:
 	table_file* tablefile;
 	TStream** streams;
 public:
-	__fastcall TableFileStream(table_file* tf);
-	virtual __fastcall ~TableFileStream();
+	TableFileStream(table_file* tf);
+	virtual ~TableFileStream();
 
-	virtual int __fastcall Read(void *Buffer, int Count);
-	virtual int __fastcall Read(System::DynamicArray<System::Byte> Buffer, int Offset, int Count);
-	virtual int __fastcall Write(const void *Buffer, int Count){throw(Exception(L"Write read-only stream"));};
-	virtual int __fastcall Write(const System::DynamicArray<System::Byte> Buffer, int Offset, int Count){throw(Exception(L"Write read-only stream"));};
-	virtual int __fastcall Seek(int Offset, System::Word Origin);
-	virtual int64_t __fastcall Seek(const int64_t Offset, TSeekOrigin Origin);
+	virtual int Read(void *Buffer, int Count);
+	virtual int Read(System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count);
+	virtual int Write(const void *Buffer, int Count){throw(Exception(L"Write read-only stream"));};
+	virtual int Write(const System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count){throw(Exception(L"Write read-only stream"));};
+	virtual int Seek(int Offset, System::Word Origin);
+	virtual int64_t Seek(const int64_t Offset, TSeekOrigin Origin);
 };
 
 
@@ -704,22 +704,22 @@ private:
 	static memblock** memblocks; // указатель на массив указателей memblock (количество равно количеству блоков в файле *.1CD)
 
 	unsigned int lastdataget; // время (Windows time, в миллисекундах) последнего обращения к данным объекта (data)
-	char* __fastcall getblock(bool for_write); // получить блок для чтения или для записи
-	__fastcall memblock(TFileStream* fs, unsigned int _numblock, bool for_write, bool read);
-	__fastcall ~memblock();
-	static void __fastcall add_block();
-	void __fastcall write();
+	char* getblock(bool for_write); // получить блок для чтения или для записи
+	memblock(TFileStream* fs, unsigned int _numblock, bool for_write, bool read);
+	~memblock();
+	static void add_block();
+	void write();
 
 public:
 	static unsigned int count; // текущее количество кешированных блоков
 
-	static void __fastcall garbage();
-	static char* __fastcall getblock(TFileStream* fs, unsigned int _numblock);
-	static char* __fastcall getblock_for_write(TFileStream* fs, unsigned int _numblock, bool read);
-	static void __fastcall create_memblocks(unsigned int _numblocks);
-	static void __fastcall delete_memblocks();
-	static unsigned int __fastcall get_numblocks();
-	static void __fastcall flush();
+	static void garbage();
+	static char* getblock(TFileStream* fs, unsigned int _numblock);
+	static char* getblock_for_write(TFileStream* fs, unsigned int _numblock, bool read);
+	static void create_memblocks(unsigned int _numblocks);
+	static void delete_memblocks();
+	static unsigned int get_numblocks();
+	static void flush();
 };
 
 // класс конфигурации поставщика
@@ -827,22 +827,22 @@ private:
 	TableFiles* get_files_configcas();
 	TableFiles* get_files_configcassave();
 
-	void __fastcall init();
-	bool __fastcall getblock(void* buf, unsigned int block_number, int blocklen = -1); // буфер принадлежит вызывающей процедуре
-	char*  __fastcall getblock(unsigned int block_number); // буфер не принадлежит вызывающей стороне (принадлежит memblock)
-	char*  __fastcall getblock_for_write(unsigned int block_number, bool read); // буфер не принадлежит вызывающей стороне (принадлежит memblock)
-	void __fastcall set_block_as_free(unsigned int block_number); // пометить блок как свободный
-	unsigned int __fastcall get_free_block(); // получить номер свободного блока (и пометить как занятый)
+	void init();
+	bool getblock(void* buf, unsigned int block_number, int blocklen = -1); // буфер принадлежит вызывающей процедуре
+	char*  getblock(unsigned int block_number); // буфер не принадлежит вызывающей стороне (принадлежит memblock)
+	char*  getblock_for_write(unsigned int block_number, bool read); // буфер не принадлежит вызывающей стороне (принадлежит memblock)
+	void set_block_as_free(unsigned int block_number); // пометить блок как свободный
+	unsigned int get_free_block(); // получить номер свободного блока (и пометить как занятый)
 
-	void __fastcall add_supplier_config(table_file* file);
+	void add_supplier_config(table_file* file);
 
-	bool __fastcall recursive_test_stream_format(table* t, unsigned int nrec);
-	bool __fastcall recursive_test_stream_format2(table* t, unsigned int nrec); // для DBSCHEMA
-	bool __fastcall recursive_test_stream_format(TStream* str, String path, bool maybezipped2 = false);
-	bool __fastcall recursive_test_stream_format(v8catalog* cat, String path);
+	bool recursive_test_stream_format(table* t, unsigned int nrec);
+	bool recursive_test_stream_format2(table* t, unsigned int nrec); // для DBSCHEMA
+	bool recursive_test_stream_format(TStream* str, String path, bool maybezipped2 = false);
+	bool recursive_test_stream_format(v8catalog* cat, String path);
 
-	void __fastcall pagemapfill();
-	String __fastcall pagemaprec_presentation(pagemaprec& pmr);
+	void pagemapfill();
+	String pagemaprec_presentation(pagemaprec& pmr);
 public:
 	char* locale; // код языка базы
 	bool is_infobase; // признак информационной базы
@@ -886,45 +886,45 @@ public:
 	std::vector<SupplierConfig> supplier_configs; // конфигурации поставщика
 	bool supplier_configs_defined; // признак, что был произведен поиск конфигураций поставщика
 
-	__fastcall T_1CD(String _filename, MessageRegistrator* _err = NULL, bool monopoly = true);
-	__fastcall T_1CD();
-	__fastcall ~T_1CD();
-	bool __fastcall is_open();
-	int __fastcall get_numtables();
-	table* __fastcall gettable(int numtable);
-	db_ver __fastcall getversion();
+	T_1CD(String _filename, MessageRegistrator* _err = NULL, bool monopoly = true);
+	T_1CD();
+	~T_1CD();
+	bool is_open();
+	int get_numtables();
+	table* gettable(int numtable);
+	db_ver getversion();
 
-	bool __fastcall save_config(String filename);
-	bool __fastcall save_configsave(String filename);
-	void __fastcall find_supplier_configs();
-	bool __fastcall save_supplier_configs(unsigned int numcon, const String& filename);
-	bool __fastcall save_depot_config(const String& _filename, int ver = 0);
-	bool __fastcall save_part_depot_config(const String& _filename, int ver_begin, int ver_end);
-	int __fastcall get_ver_depot_config(int ver); // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
-	bool __fastcall save_config_ext(const String& _filename, const TGUID& uid, const String& hashname);
-	bool __fastcall save_config_ext_db(const String& _filename, const String& hashname);
+	bool save_config(String filename);
+	bool save_configsave(String filename);
+	void find_supplier_configs();
+	bool save_supplier_configs(unsigned int numcon, const String& filename);
+	bool save_depot_config(const String& _filename, int ver = 0);
+	bool save_part_depot_config(const String& _filename, int ver_begin, int ver_end);
+	int get_ver_depot_config(int ver); // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
+	bool save_config_ext(const String& _filename, const TGUID& uid, const String& hashname);
+	bool save_config_ext_db(const String& _filename, const String& hashname);
 
 	field* get_field(table* tab, String fieldname);
 	class index* get_index(table* tab, String indexname);
 
-	bool __fastcall get_readonly();
-	void __fastcall set_readonly(bool ro);
-	void __fastcall flush();
+	bool get_readonly();
+	void set_readonly(bool ro);
+	void flush();
 
-	bool __fastcall test_stream_format();
-	bool __fastcall test_list_of_tables(); // проверка списка таблиц (по DBNames)
+	bool test_stream_format();
+	bool test_list_of_tables(); // проверка списка таблиц (по DBNames)
 #ifndef PublicRelease
-	void __fastcall find_lost_objects();
-	void __fastcall find_and_save_lost_objects();
-	bool __fastcall create_table(String path); // создание таблицы из файлов импорта таблиц
-	bool __fastcall delete_table(table* tab);
-	bool __fastcall delete_object(v8object* ob);
-	bool __fastcall replaceTREF(String mapfile); // замена значений полей ...TREF во всех таблицах базы
-	void __fastcall find_and_create_lost_tables();
-	void __fastcall restore_DATA_allocation_table(table* tab);
-	bool __fastcall test_block_by_template(unsigned int testblock, char* tt, unsigned int num, int rlen, int len);
+	void find_lost_objects();
+	void find_and_save_lost_objects();
+	bool create_table(String path); // создание таблицы из файлов импорта таблиц
+	bool delete_table(table* tab);
+	bool delete_object(v8object* ob);
+	bool replaceTREF(String mapfile); // замена значений полей ...TREF во всех таблицах базы
+	void find_and_create_lost_tables();
+	void restore_DATA_allocation_table(table* tab);
+	bool test_block_by_template(unsigned int testblock, char* tt, unsigned int num, int rlen, int len);
 #endif //#ifdef PublicRelease
-	String& __fastcall getfilename(){return filename;};
+	String& getfilename(){return filename;};
 	unsigned int getpagesize(){return pagesize;};
 
 };
@@ -939,7 +939,7 @@ enum depot_ver
 };
 
 //---------------------------------------------------------------------------
-tree* __fastcall get_treeFromV8file(v8file* f);
+tree* get_treeFromV8file(v8file* f);
 
 //---------------------------------------------------------------------------
 #endif

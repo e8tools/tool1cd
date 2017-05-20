@@ -26,14 +26,14 @@ public:
 
 	TFileStream(const String &FileName, const uint16_t fileMode);
 
-	virtual __fastcall ~TFileStream();
+	virtual ~TFileStream();
 
 	int16_t GetHandle() const;
 
-	virtual __fastcall void Close();
-	virtual __fastcall void Reopen();
-	virtual __fastcall int64_t Read(void *Buffer, int64_t Count);
-	virtual __fastcall int64_t Write(const void *Buffer, const int64_t Count);
+	virtual void Close();
+	virtual void Reopen();
+	virtual int64_t Read(void *Buffer, int64_t Count);
+	virtual int64_t Write(const void *Buffer, int64_t Count);
 
 protected:
 	std::string filename;

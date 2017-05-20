@@ -94,7 +94,7 @@ void ZDeflateStream(TStream* src, TStream* dst)
 
 			if (data_written < have) {
 				(void)deflateEnd(&strm);
-				return Z_ERRNO;
+				return; //  Z_ERRNO
 			}
 		} while (strm.avail_out == 0);
 		assert(strm.avail_in == 0);     // all input will be used

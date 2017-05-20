@@ -53,7 +53,7 @@ int64_t TFileStream::Read(void *Buffer, int64_t Count)
 	return TWrapperStream::Read(Buffer, Count);
 }
 
-int64_t TFileStream::Write(const void *Buffer, const int64_t Count)
+int64_t TFileStream::Write(const void *Buffer, int64_t Count)
 {
 	Reopen();
 	return TWrapperStream::Write(Buffer, Count);
