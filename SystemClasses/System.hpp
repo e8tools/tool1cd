@@ -14,9 +14,12 @@ namespace System {
 typedef uint32_t LongWord;
 typedef uint16_t Word;
 typedef uint16_t WORD;
-typedef uint8_t Byte;
 typedef char16_t WCHART;
 typedef char *LPSTR;
+
+namespace t { // в msvc конфликтует с zlib
+typedef uint8_t Byte;
+}
 
 const unsigned int MAXUINT = UINT_MAX;
 const int MaxInt = INT_MAX;
@@ -47,7 +50,7 @@ struct TGUID {
   LongWord D1;
   Word D2;
   Word D3;
-  Byte D4[8];
+  t::Byte D4[8];
 };
 
 bool operator == (const TGUID &a, const TGUID &b);

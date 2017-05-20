@@ -7359,7 +7359,7 @@ int TableFileStream::Read(void *Buffer, int Count)
 }
 
 //---------------------------------------------------------------------------
-int TableFileStream::Read(System::DynamicArray<System::Byte> Buffer, int Offset, int Count)
+int TableFileStream::Read(System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count)
 {
 	// TODO
 	return 0;

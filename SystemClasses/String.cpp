@@ -29,14 +29,14 @@ String::String(const char *src, int limit_size)
 {
 }
 
-String::String(const DynamicArray<Byte> &bytes)
+String::String(const DynamicArray<t::Byte> &bytes)
 	: std::string(reinterpret_cast<const char *>(bytes.data()), bytes.size()) {
 }
 
 String::String(const WCHART *w_src, int limit_size)
 {
 	// Костыль
-	DynamicArray<Byte> tmpdata;
+	DynamicArray<t::Byte> tmpdata;
 	const WCHART *p = w_src;
 	bool limit_exceeded = false;
 	while (!limit_exceeded && *p) {

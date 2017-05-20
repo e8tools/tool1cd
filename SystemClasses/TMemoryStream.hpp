@@ -25,7 +25,7 @@ public:
 
 	virtual int64_t Write(const void *Buffer, int64_t Count);
 
-	const DynamicArray<Byte>  &GetBytes() const;
+	const DynamicArray<t::Byte>  &GetBytes() const;
 
 	void                      *GetMemory();
 
@@ -33,13 +33,13 @@ private:
 
 	void EnsureSize(size_t size);
 
-	DynamicArray<Byte> _data;
+	DynamicArray<t::Byte> _data;
 };
 
 class TBytesStream : public TMemoryStream
 {
 public:
-	TBytesStream(const DynamicArray<Byte> &initial);
+	TBytesStream(const DynamicArray<t::Byte> &initial);
 
 	virtual ~TBytesStream();
 };

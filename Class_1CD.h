@@ -672,9 +672,9 @@ public:
 	virtual ~TableFileStream();
 
 	virtual int Read(void *Buffer, int Count);
-	virtual int Read(System::DynamicArray<System::Byte> Buffer, int Offset, int Count);
+	virtual int Read(System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count);
 	virtual int Write(const void *Buffer, int Count){throw(Exception(L"Write read-only stream"));};
-	virtual int Write(const System::DynamicArray<System::Byte> Buffer, int Offset, int Count){throw(Exception(L"Write read-only stream"));};
+	virtual int Write(const System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count){throw(Exception(L"Write read-only stream"));};
 	virtual int Seek(int Offset, System::Word Origin);
 	virtual int64_t Seek(const int64_t Offset, TSeekOrigin Origin);
 };

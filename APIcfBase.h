@@ -99,9 +99,9 @@ class v8file{
 	int GetFileLength();
 	int64_t GetFileLength64();
 	int Read(void* Buffer, int Start, int Length);
-	int Read(System::DynamicArray<System::Byte> Buffer, int Start, int Length);
+	int Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length);
 	int Write(const void* Buffer, int Start, int Length); // дозапись/перезапись частично
-	int Write(System::DynamicArray<System::Byte> Buffer, int Start, int Length); // дозапись/перезапись частично
+	int Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length); // дозапись/перезапись частично
 	int Write(const void* Buffer, int Length); // перезапись целиком
 	int Write(TStream* Stream, int Start, int Length); // дозапись/перезапись частично
 	int Write(TStream* Stream); // перезапись целиком
@@ -194,9 +194,9 @@ public:
 	TV8FileStream(v8file* f, bool ownfile = false);
 	virtual ~TV8FileStream();
 	virtual int Read(void *Buffer, int Count);
-	virtual int Read(System::DynamicArray<System::Byte> Buffer, int Offset, int Count);
+	virtual int Read(System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count);
 	virtual int Write(const void *Buffer, int Count);
-	virtual int Write(const System::DynamicArray<System::Byte> Buffer, int Offset, int Count);
+	virtual int Write(const System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count);
 	virtual int Seek(int Offset, System::Word Origin);
 	virtual int64_t Seek(const int64_t Offset, TSeekOrigin Origin);
 };

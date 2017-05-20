@@ -22,7 +22,7 @@ public:
 
 	String(const char *src, int limit_size);
 
-	explicit String(const DynamicArray<Byte> &bytes);
+	explicit String(const DynamicArray<t::Byte> &bytes);
 
 	String(const WCHART *w_src, int limit_size = 0);
 

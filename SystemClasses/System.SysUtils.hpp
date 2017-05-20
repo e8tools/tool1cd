@@ -45,12 +45,12 @@ class TEncoding
 
 public:
 
-virtual System::DynamicArray<System::Byte> GetPreamble() = 0;
-virtual String toUtf8(const System::DynamicArray<Byte> &Buffer) const = 0;
-virtual DynamicArray<Byte> fromUtf8(const String &str) = 0;
+virtual System::DynamicArray<System::t::Byte> GetPreamble() = 0;
+virtual String toUtf8(const System::DynamicArray<t::Byte> &Buffer) const = 0;
+virtual DynamicArray<t::Byte> fromUtf8(const String &str) = 0;
 
-static int GetBufferEncoding(const System::DynamicArray<Byte> &Buffer, TEncoding* &AEncoding);
-static DynamicArray<Byte> Convert(TEncoding * const Source, TEncoding * const Destination, const DynamicArray<Byte> &Bytes, int StartIndex, int Count);
+static int GetBufferEncoding(const System::DynamicArray<t::Byte> &Buffer, TEncoding* &AEncoding);
+static DynamicArray<t::Byte> Convert(TEncoding * const Source, TEncoding * const Destination, const DynamicArray<t::Byte> &Bytes, int StartIndex, int Count);
 
 //! двухбайтная кодировка WCHART
 static TEncoding *Unicode;
@@ -59,7 +59,7 @@ static TEncoding *UTF8;
 
 };
 
-typedef System::DynamicArray<System::Byte> TBytes;
+typedef System::DynamicArray<System::t::Byte> TBytes;
 
 int StrToInt(const String &s);
 
