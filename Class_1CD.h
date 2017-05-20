@@ -163,8 +163,8 @@ public:
 	~v8object();
 	char* getdata(); // чтение всего объекта целиком, поддерживает кеширование объектов. Буфер принадлежит объекту
 	char* getdata(void* buf, uint64_t _start, uint64_t _length); // чтение кусочка объекта, поддерживает кеширование блоков. Буфер не принадлежит объекту
-	bool setdata(void* buf, uint64_t _start, uint64_t _length); // запись кусочка объекта, поддерживает кеширование блоков.
-	bool setdata(void* buf, uint64_t _length); // запись объекта целиком, поддерживает кеширование блоков.
+	bool setdata(const void* buf, uint64_t _start, uint64_t _length); // запись кусочка объекта, поддерживает кеширование блоков.
+	bool setdata(const void* buf, uint64_t _length); // запись объекта целиком, поддерживает кеширование блоков.
 	bool setdata(TStream* stream); // записывает поток целиком в объект, поддерживает кеширование блоков.
 	bool setdata(TStream* stream, uint64_t _start, uint64_t _length); // запись части потока в объект, поддерживает кеширование блоков.
 	uint64_t getlen();

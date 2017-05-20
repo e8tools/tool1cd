@@ -1025,7 +1025,7 @@ uint64_t v8object::get_fileoffset(uint64_t offset)
 }
 
 //---------------------------------------------------------------------------
-bool v8object::setdata(void* buf, uint64_t _start, uint64_t _length)
+bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 {
 	unsigned int curblock;
 	unsigned int curoffblock;
@@ -1134,7 +1134,7 @@ bool v8object::setdata(void* buf, uint64_t _start, uint64_t _length)
 }
 
 //---------------------------------------------------------------------------
-bool v8object::setdata(void* _buf, uint64_t _length)
+bool v8object::setdata(const void* _buf, uint64_t _length)
 {
 	char* tt;
 	objtab* b;
@@ -2485,7 +2485,7 @@ void index::calcRecordIndex(const char* rec, char* indexBuf)
 	j = length;
 	for(i = 0; i < num_records; i++)
 	{
-		k = records[i].field->getSortKey(rec, indexBuf, j);
+		k = records[i].field->getSortKey(rec, (unsigned char *)indexBuf, j);
 		indexBuf += k;
 		j -= k;
 	}
@@ -3788,7 +3788,7 @@ unsigned int field::getSortKey(const char* rec, unsigned char* SortKey, int maxl
 	String s;
 	unsigned char c;
 
-	unsigned char* fr = rec + offset;
+	unsigned char* fr = (unsigned char *)rec + offset;
 
 	char nbuf[64];
 
@@ -3830,10 +3830,10 @@ unsigned int field::getSortKey(const char* rec, unsigned char* SortKey, int maxl
 					"Длина буфера", maxlen,
 					"Необходимая длина буфера", len);
 
-				memcpy(SortKey, isnull ? null_index : fr, maxl);
+				memcpy(SortKey, isnull ? (void *)null_index : (void *)fr, maxl);
 				return maxlen;
 			}
-			memcpy(SortKey, isnull ? null_index : fr, len - addlen);
+			memcpy(SortKey, isnull ? (void *)null_index : (void*)fr, len - addlen);
 			return len;
 
 		case tf_numeric:
