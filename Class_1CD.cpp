@@ -181,14 +181,6 @@ extern TMultiReadExclusiveWriteSynchronizer* tr_syn;
 #endif
 
 //********************************************************
-// Перегрузка операторов
-
-//bool operator<(const String& l, const String& r)
-//{
-//	return l.Compare(r) < 0;
-//}
-
-//********************************************************
 // Функции
 
 
@@ -381,15 +373,14 @@ void memblock::delete_memblocks()
 //---------------------------------------------------------------------------
 void memblock::add_block()
 {
-	unsigned int i;
 	memblock** mb;
 
 	if(numblocks < array_numblocks) memblocks[numblocks++] = NULL;
 	else
 	{
 		mb = new memblock*[array_numblocks + delta];
-		for(i = 0; i < array_numblocks; i++) mb[i] = memblocks[i];
-		for(i = array_numblocks; i < array_numblocks + delta; i++) mb[i] = NULL;
+		for(unsigned i = 0; i < array_numblocks; i++) mb[i] = memblocks[i];
+		for(unsigned i = array_numblocks; i < array_numblocks + delta; i++) mb[i] = NULL;
 		array_numblocks += delta;
 		delete[] memblocks;
 		memblocks = mb;
@@ -945,24 +936,18 @@ uint64_t v8object::getlen()
 //---------------------------------------------------------------------------
 void v8object::savetofile(String _filename)
 {
-	unsigned int j, pagesize;
-	uint64_t i, k, l;
-	TFileStream* fs;
-	char* buf;
-
-	pagesize = base->pagesize;
-	fs = new TFileStream(_filename, fmCreate);
-	buf = new char[pagesize];
-	l = getlen();
-	k = l;
-	for(i = 0; i < l; i += pagesize)
+	uint64_t pagesize = base->pagesize;
+	TFileStream fs(_filename, fmCreate);
+	char *buf = new char[pagesize];
+	uint64_t total_size = getlen();
+	uint64_t remain_size = total_size;
+	for (uint64_t offset = 0; offset < total_size; offset += pagesize)
 	{
-		j = MIN(k, pagesize);
-		getdata(buf, i, j);
-		fs->Write(buf, j);
-		k -= pagesize;
+		unsigned size_of_block = std::min(remain_size, pagesize);
+		getdata(buf, offset, size_of_block);
+		fs.Write(buf, size_of_block);
+		remain_size -= pagesize;
 	}
-	delete fs;
 	delete[] buf;
 }
 
@@ -1032,8 +1017,6 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 	char* _buf;
 	unsigned int curlen;
 
-	objtab* b;
-	objtab838* bb;
 	unsigned int curobjblock;
 	unsigned int curoffobjblock;
 	unsigned int offsperpage;
@@ -1068,7 +1051,7 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 		curobjblock = curblock / 1023;
 		curoffobjblock = curblock - curobjblock * 1023;
 
-		b = (objtab*) base->getblock(blocks[curobjblock++]);
+		objtab *b = (objtab*) base->getblock(blocks[curobjblock++]);
 		while(_length)
 		{
 			memcpy((char*)(base->getblock_for_write(b->blocks[curoffobjblock++], curlen != 0x1000)) + curoffblock, _buf, curlen);
@@ -1099,7 +1082,7 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 			curobjblock = curblock / offsperpage;
 			curoffobjblock = curblock - curobjblock * offsperpage;
 
-			bb = (objtab838*) base->getblock(blocks[curobjblock++]);
+			objtab838 *bb = (objtab838*) base->getblock(blocks[curobjblock++]);
 			while(_length)
 			{
 				memcpy((char*)(base->getblock_for_write(bb->blocks[curoffobjblock++], curlen != base->pagesize)) + curoffblock, _buf, curlen);
@@ -1136,10 +1119,6 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 //---------------------------------------------------------------------------
 bool v8object::setdata(const void* _buf, uint64_t _length)
 {
-	char* tt;
-	objtab* b;
-	objtab838* bb;
-	unsigned int i;
 	unsigned int curlen;
 	char* buf;
 	unsigned int offsperpage;
@@ -1169,13 +1148,13 @@ bool v8object::setdata(const void* _buf, uint64_t _length)
 
 	if(type == v8ot_data80)
 	{
-		for(i = 0; i < numblocks; i++)
+		for (unsigned i = 0; i < numblocks; i++)
 		{
-			b = (objtab*)base->getblock(blocks[i]);
+			objtab *b = (objtab*)base->getblock(blocks[i]);
 			for(int j = 0; j < b->numblocks; j++)
 			{
 				curlen = _length > 0x1000 ? 0x1000 : _length;
-				tt = base->getblock_for_write(b->blocks[j], false);
+				char *tt = base->getblock_for_write(b->blocks[j], false);
 				memcpy(tt, buf, curlen);
 				buf += 0x1000;
 				if(_length <= curlen) break;
@@ -1198,7 +1177,7 @@ bool v8object::setdata(const void* _buf, uint64_t _length)
 			curobjblock = 0;
 			curoffobjblock = 0;
 
-			bb = (objtab838*) base->getblock(blocks[curobjblock++]);
+			objtab838 *bb = (objtab838*) base->getblock(blocks[curobjblock++]);
 			while(_length)
 			{
 				memcpy((char*)(base->getblock_for_write(bb->blocks[curoffobjblock++], false)), buf, curlen);
@@ -1233,10 +1212,6 @@ bool v8object::setdata(const void* _buf, uint64_t _length)
 //---------------------------------------------------------------------------
 bool v8object::setdata(TStream* stream)
 {
-	char* tt;
-	objtab* b;
-	objtab838* bb;
-	unsigned int i;
 	unsigned int curlen;
 	uint64_t _length;
 	unsigned int offsperpage;
@@ -1259,7 +1234,7 @@ bool v8object::setdata(TStream* stream)
 	}
 
 	delete[] data;
-	data = NULL;
+	data = nullptr;
 	_length = stream->GetSize();
 	set_len(_length);
 
@@ -1267,13 +1242,13 @@ bool v8object::setdata(TStream* stream)
 
 	if(type == v8ot_data80)
 	{
-		for(i = 0; i < numblocks; i++)
+		for (unsigned i = 0; i < numblocks; i++)
 		{
-			b = (objtab*)base->getblock(blocks[i]);
+			objtab *b = (objtab*)base->getblock(blocks[i]);
 			for(int j = 0; j < b->numblocks; j++)
 			{
 				curlen = _length > 0x1000 ? 0x1000 : _length;
-				tt = base->getblock_for_write(b->blocks[j], false);
+				char *tt = base->getblock_for_write(b->blocks[j], false);
 				stream->ReadBuffer(tt, curlen);
 				if(_length <= curlen) break;
 				_length -= curlen;
@@ -1295,7 +1270,7 @@ bool v8object::setdata(TStream* stream)
 			curobjblock = 0;
 			curoffobjblock = 0;
 
-			bb = (objtab838*) base->getblock(blocks[curobjblock++]);
+			objtab838 *bb = (objtab838*) base->getblock(blocks[curobjblock++]);
 			while(_length)
 			{
 				stream->ReadBuffer(base->getblock_for_write(bb->blocks[curoffobjblock++], false), curlen);
@@ -1333,8 +1308,8 @@ bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 	unsigned int curoffblock;
 	unsigned int curlen;
 
-	objtab* b;
-	objtab838* bb;
+	// objtab* b;
+	// objtab838* bb;
 	unsigned int curobjblock;
 	unsigned int curoffobjblock;
 	unsigned int offsperpage;
@@ -1368,7 +1343,7 @@ bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 		curobjblock = curblock / 1023;
 		curoffobjblock = curblock - curobjblock * 1023;
 
-		b = (objtab*) base->getblock(blocks[curobjblock++]);
+		objtab *b = (objtab*) base->getblock(blocks[curobjblock++]);
 		while(_length)
 		{
 			stream->ReadBuffer((char*)(base->getblock_for_write(b->blocks[curoffobjblock++], curlen != 0x1000)) + curoffblock, curlen);
@@ -1397,7 +1372,7 @@ bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 			curobjblock = curblock / offsperpage;
 			curoffobjblock = curblock - curobjblock * offsperpage;
 
-			bb = (objtab838*) base->getblock(blocks[curobjblock++]);
+			objtab838 *bb = (objtab838*) base->getblock(blocks[curobjblock++]);
 			while(_length)
 			{
 				stream->ReadBuffer((char*)(base->getblock_for_write(bb->blocks[curoffobjblock++], curlen != base->pagesize)) + curoffblock, curlen);
@@ -1436,12 +1411,11 @@ void v8object::set_len(uint64_t _len)
 
 	unsigned int num_data_blocks;
 	unsigned int num_blocks;
-//	unsigned int cur_data_blocks;
 	unsigned int cur_data_blocks;
 	unsigned int bl;
 	unsigned int i;
 	v8ob* b;
-	objtab* ot;
+	// objtab* ot;
 	v838ob_data* bd;
 	objtab838* bb;
 	unsigned int offsperpage;
@@ -1478,6 +1452,7 @@ void v8object::set_len(uint64_t _len)
 
 		if(num_data_blocks > cur_data_blocks)
 		{
+			objtab *ot;
 			// Увеличение длины объекта
 			if(numblocks) ot = (objtab*)base->getblock_for_write(b->blocks[numblocks - 1], true);
 			for(; cur_data_blocks < num_data_blocks; cur_data_blocks++)
@@ -1499,7 +1474,7 @@ void v8object::set_len(uint64_t _len)
 		else if(num_data_blocks < cur_data_blocks)
 		{
 			// Уменьшение длины объекта
-			ot = (objtab*)base->getblock_for_write(b->blocks[numblocks - 1], true);
+			objtab *ot = (objtab*)base->getblock_for_write(b->blocks[numblocks - 1], true);
 			for(cur_data_blocks--; cur_data_blocks >= num_data_blocks; cur_data_blocks--)
 			{
 				i = cur_data_blocks % 1023;
@@ -1651,10 +1626,6 @@ void v8object::set_len(uint64_t _len)
 //---------------------------------------------------------------------------
 void v8object::set_block_as_free(unsigned int block_number)
 {
-	unsigned int i, j, k;
-	unsigned int* b;
-	v8ob* ob;
-
 	//if(type)
 	if(block != 1)
 	{
@@ -1664,16 +1635,16 @@ void v8object::set_block_as_free(unsigned int block_number)
 		return;
 	}
 
-	j = len >> 10; // length / 1024
-	i = len & 0x3ff; // length % 1024
+	int j = len >> 10; // length / 1024
+	int i = len & 0x3ff; // length % 1024
 
-	ob = (v8ob*)base->getblock_for_write(block, true);
+	v8ob *ob = (v8ob*)base->getblock_for_write(block, true);
 
 	if(real_numblocks > j)
 	{
 		len++;
 		ob->len = len;
-		b = (unsigned int*)base->getblock_for_write(blocks[j], true);
+		unsigned int *b = (unsigned int*)base->getblock_for_write(blocks[j], true);
 		b[i] = block_number;
 		if(numblocks <= j) numblocks = j + 1;
 	}
@@ -1691,10 +1662,6 @@ void v8object::set_block_as_free(unsigned int block_number)
 //---------------------------------------------------------------------------
 unsigned int v8object::get_free_block()
 {
-	unsigned int i, j, k;
-	unsigned int* b;
-	v8ob* ob;
-
 	//if(type)
 	if(block != 1)
 	{
@@ -1707,18 +1674,18 @@ unsigned int v8object::get_free_block()
 	if(len)
 	{
 		len--;
-		j = len >> 10; // length / 1024
-		i = len & 0x3ff; // length % 1024
-		b = (unsigned int*)base->getblock_for_write(blocks[j], true);
-		k = b[i];
+		unsigned j = len >> 10; // length / 1024
+		unsigned i = len & 0x3ff; // length % 1024
+		unsigned int *b = (unsigned int*)base->getblock_for_write(blocks[j], true);
+		unsigned k = b[i];
 		b[i] = 0;
-		ob = (v8ob*)base->getblock_for_write(block, true);
+		v8ob *ob = (v8ob*)base->getblock_for_write(block, true);
 		ob->len = len;
 		return k;
 	}
 	else
 	{
-		i = memblock::get_numblocks();
+		unsigned i = memblock::get_numblocks();
 		base->getblock_for_write(i, false);
 		return i;
 	}
@@ -1785,8 +1752,7 @@ TStream* v8object::readBlob(TStream* _str, unsigned int _startblock, unsigned in
 //	char* _b;
 	unsigned int _curblock;
 	char* _curb;
-	unsigned short int _curlen;
-	unsigned int _filelen, _numblock;
+	unsigned int /*_filelen, */_numblock;
 	unsigned int startlen;
 
 	if(rewrite) _str->SetSize(0);
@@ -1804,7 +1770,7 @@ TStream* v8object::readBlob(TStream* _str, unsigned int _startblock, unsigned in
 	{
 		error("Длина файла Blob не кратна 0x100",
 			"Номер страницы файла", tohex(block),
-			"Длина файла", tohex(_filelen));
+			"Длина файла", tohex(len));
 	}
 
 	_curb = new char[0x100];
@@ -1821,7 +1787,7 @@ TStream* v8object::readBlob(TStream* _str, unsigned int _startblock, unsigned in
 		}
 		getdata(_curb, _curblock << 8, 0x100);
 		_curblock = *(unsigned int*)_curb;
-		_curlen = *(unsigned short int*)(_curb + 4);
+		unsigned short int _curlen = *(unsigned short int*)(_curb + 4);
 		if(_curlen > 0xfa)
 		{
 			error("Попытка чтения из блока файла Blob более 0xfa байт",
@@ -1918,14 +1884,9 @@ unsigned int index::get_numrec(unsigned int num_record)
 void index::create_recordsindex()
 {
 	char* buf;
-	char* rbuf;
 	int curlen;
-	bool is_leaf;
 	uint64_t curblock;
-	unsigned int curindex;
 	unsigned int mask;
-	int rlen;
-	int i;
 	v8object* file_index;
 
 	//return; // Временно!!!
@@ -1950,7 +1911,7 @@ void index::create_recordsindex()
 	if(curlen)
 	{
 		recordsindex.SetLength(tbase->file_data->getlen() / tbase->recordlen);
-		is_leaf = buf[0] & 0x2;
+		bool is_leaf = buf[0] & 0x2;
 		while(!is_leaf)
 		{
 			curblock = *(unsigned int*)(buf + 16 + length);
@@ -1960,15 +1921,15 @@ void index::create_recordsindex()
 			is_leaf = buf[0] & 0x2;
 		}
 
-		curindex = 0;
+		unsigned curindex = 0;
 		while(true)
 		{
 			curlen = *(short int*)(buf + 2);
 			curblock = *(unsigned int*)(buf + 8);
 			mask = *(unsigned int*)(buf + 14);
-			rlen = *(short int*)(buf + 28);
-			rbuf = buf + 30;
-			for(i = 0; i < curlen; i++)
+			int rlen = *(short int*)(buf + 28);
+			char *rbuf = buf + 30;
+			for (int i = 0; i < curlen; i++)
 			{
 				recordsindex[curindex++] = *(unsigned int*)rbuf & mask;
 				rbuf += rlen;
@@ -1992,32 +1953,13 @@ void index::create_recordsindex()
 void index::dump_recursive(v8object* file_index, TFileStream* f, int level, uint64_t curblock)
 {
 	unsigned char bf[3];
-	unsigned char b;
 	char* buf;
 	char* rbuf;
-	char* ibuf;
-	bool is_leaf;
 	unsigned int curlen;
-	unsigned int i, j;
 	unsigned int lastnumrec;
 	String s;
 
-	uint64_t blockx;
-	unsigned int numrecx;
-
-	unsigned int numrecmask;
-	unsigned int leftmask;
-	unsigned int rightmask;
-	unsigned int numrecbits;
-	unsigned int leftbits;
-	//unsigned int rightbits;
-	unsigned int recbytes;
-	int64_t indrec;
 	char* curindex;
-	unsigned int numrec;
-	unsigned int left;
-	unsigned int right;
-	unsigned int previous_right;
 
 	leaf_page_header* lph;
 	branch_page_header* bph;
@@ -2030,22 +1972,22 @@ void index::dump_recursive(v8object* file_index, TFileStream* f, int level, uint
 	curlen = bph->number_indexes;
 	if(curlen)
 	{
-		is_leaf = bph->flags & indexpage_is_leaf;
+		bool is_leaf = bph->flags & indexpage_is_leaf;
 		if(is_leaf)
 		{
 			curindex = new char[length]; //
 			memset(curindex, 0, length);
 
-			numrecmask = lph->numrecmask;
-			leftmask = lph->leftmask;
-			rightmask = lph->rightmask;
-			numrecbits = lph->numrecbits;
-			leftbits = lph->leftbits;
+			unsigned numrecmask = lph->numrecmask;
+			unsigned leftmask = lph->leftmask;
+			unsigned rightmask = lph->rightmask;
+			unsigned numrecbits = lph->numrecbits;
+			unsigned leftbits = lph->leftbits;
 			//rightbits = lph->rightbits;
-			recbytes = lph->recbytes;
+			unsigned recbytes = lph->recbytes;
 			rbuf = buf + 30;
-			ibuf = buf + pagesize;
-			previous_right = length;
+			char *ibuf = buf + pagesize;
+			unsigned previous_right = length;
 
 			s = "=";
 			s += level;
@@ -2066,17 +2008,17 @@ void index::dump_recursive(v8object* file_index, TFileStream* f, int level, uint
 			s += "\r\n";
 			f->Write(s.c_str(), s.GetLength());
 
-			for(i = 0; i < curlen; i++)
+			for (unsigned i = 0; i < curlen; i++)
 			{
-				indrec = *(int64_t*)rbuf;
-				numrec = indrec & numrecmask;
+				int64_t indrec = *(int64_t*)rbuf;
+				unsigned numrec = indrec & numrecmask;
 				indrec >>= numrecbits;
-				left =  indrec & leftmask;
+				unsigned left =  indrec & leftmask;
 				indrec >>= leftbits;
-				right =  indrec & rightmask;
+				unsigned right =  indrec & rightmask;
 				//indrec >>= rightbits;
 				rbuf += recbytes;
-				j = length - left - right;
+				unsigned j = length - left - right;
 				ibuf -= j;
 				memcpy(curindex + left, ibuf, j);
 				if(right > previous_right) memset(curindex + length - right, 0, right - previous_right);
@@ -2088,7 +2030,7 @@ void index::dump_recursive(v8object* file_index, TFileStream* f, int level, uint
 				f->Write(s.c_str(), s.GetLength());
 				for(j = 0; j < length; j++)
 				{
-					b = curindex[j];
+					unsigned char b = curindex[j];
 					b >>= 4;
 					b += '0';
 					if(b > '9') b += 'a' - '9' - 1;
@@ -2120,13 +2062,13 @@ void index::dump_recursive(v8object* file_index, TFileStream* f, int level, uint
 			f->Write(s.c_str(), s.GetLength());
 
 			rbuf = buf + 12;
-			for(i = 0; i < curlen; i++)
+			for (unsigned i = 0; i < curlen; i++)
 			{
 				curindex = rbuf;
 				rbuf += length;
-				numrecx = reverse_byte_order(*(unsigned int*)rbuf);
+				unsigned numrecx = reverse_byte_order(*(unsigned int*)rbuf);
 				rbuf += 4;
-				blockx = reverse_byte_order(*(unsigned int*)rbuf);
+				uint64_t blockx = reverse_byte_order(*(unsigned int*)rbuf);
 				if(version >= ver8_3_8_0) blockx *= pagesize;
 				rbuf += 4;
 
@@ -2136,9 +2078,9 @@ void index::dump_recursive(v8object* file_index, TFileStream* f, int level, uint
 				s += level;
 				s += ": ";
 				f->Write(s.c_str(), s.GetLength());
-				for(j = 0; j < length; j++)
+				for (unsigned j = 0; j < length; j++)
 				{
-					b = curindex[j];
+					unsigned char b = curindex[j];
 					b >>= 4;
 					b += '0';
 					if(b > '9') b += 'a' - '9' - 1;
@@ -2167,12 +2109,11 @@ void index::dump_recursive(v8object* file_index, TFileStream* f, int level, uint
 //---------------------------------------------------------------------------
 unsigned int index::get_rootblock()
 {
-	char buf[8];
-
 	if(!start) return 0;
 
 	if(rootblock == 0)
 	{
+		char buf[8];
 		tbase->file_index->getdata(buf, start, 8);
 		rootblock = *(unsigned int*)buf;
 		if(version >= ver8_3_8_0) rootblock *= pagesize;
@@ -2184,12 +2125,11 @@ unsigned int index::get_rootblock()
 //---------------------------------------------------------------------------
 unsigned int index::get_length()
 {
-	char buf[8];
-
 	if(!start) return 0;
 
 	if(rootblock == 0)
 	{
+		char buf[8];
 		tbase->file_index->getdata(buf, start, 8);
 		rootblock = *(unsigned int*)buf;
 		if(version >= ver8_3_8_0) rootblock *= pagesize;
@@ -2204,7 +2144,6 @@ void index::dump(String _filename)
 {
 	TFileStream* f;
 	v8object* file_index;
-	char buf[8];
 	String s;
 
 	f = new TFileStream(_filename, fmCreate);
@@ -2218,6 +2157,7 @@ void index::dump(String _filename)
 	file_index = tbase->file_index;
 	if(rootblock == 0)
 	{
+		char buf[8];
 		file_index->getdata(buf, start, 8);
 		rootblock = *(unsigned int*)buf;
 		if(version >= ver8_3_8_0) rootblock *= pagesize;
@@ -2259,19 +2199,7 @@ char* index::unpack_leafpage(char* page, unsigned int& number_indexes)
 	char* obuf;
 	leaf_page_header* header;
 
-	unsigned int numrecmask;
-	unsigned int leftmask;
-	unsigned int rightmask;
-	unsigned int numrecbits;
-	unsigned int leftbits;
-//	unsigned int rightbits;
-	unsigned int recbytes;
-	int64_t indrec;
-
 	unsigned int i, j, step;
-	unsigned int numrec;
-	unsigned int left;
-	unsigned int right;
 
 	if(length == 0)
 	{
@@ -2299,13 +2227,13 @@ char* index::unpack_leafpage(char* page, unsigned int& number_indexes)
 		return NULL;
 	}
 
-	numrecmask = header->numrecmask;
-	leftmask = header->leftmask;
-	rightmask = header->rightmask;
-	numrecbits = header->numrecbits;
-	leftbits = header->leftbits;
+	unsigned numrecmask = header->numrecmask;
+	unsigned leftmask = header->leftmask;
+	unsigned rightmask = header->rightmask;
+	unsigned numrecbits = header->numrecbits;
+	unsigned leftbits = header->leftbits;
 //	rightbits = header->rightbits;
-	recbytes = header->recbytes;
+	unsigned recbytes = header->recbytes;
 
 	step = length + 4;
 	outbuf = new char[number_indexes * step];
@@ -2316,12 +2244,12 @@ char* index::unpack_leafpage(char* page, unsigned int& number_indexes)
 
 	for(i = 0; i < number_indexes; i++)
 	{
-		indrec = *(int64_t*)rbuf;
-		numrec = indrec & numrecmask;
+		int64_t indrec = *(int64_t*)rbuf;
+		unsigned numrec = indrec & numrecmask;
 		indrec >>= numrecbits;
-		left = indrec & leftmask;
+		unsigned left = indrec & leftmask;
 		indrec >>= leftbits;
-		right = indrec & rightmask;
+		unsigned right = indrec & rightmask;
 		rbuf += recbytes;
 		j = length - left - right;
 		ibuf -= j;
@@ -6225,7 +6153,6 @@ char* table::get_edit_record(unsigned int phys_numrecord, char* rec)
 unsigned int table::get_phys_numrec(int ARow, class index* cur_index)
 {
 	unsigned int numrec;
-//	unsigned int numrecords;
 
 	if(ARow == 0)
 	{
@@ -7875,7 +7802,6 @@ void T_1CD::add_supplier_config(table_file* tf)
 {
 	container_file* f;
 	TStream* s;
-	//int i, j;
 	int i;
 	v8catalog* cat = NULL;
 	v8catalog* cat2;
@@ -9876,7 +9802,7 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 	char emptyimage[8];
 	unsigned int i, k, _crc;
 	int v, j, res, lastver, n;
-	String ss, sn;
+	String sn;
 	depot_ver depotVer;
 	unsigned int configVerMajor, configVerMinor;
 	//char VerDate[7];
