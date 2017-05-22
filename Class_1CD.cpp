@@ -9876,14 +9876,13 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 	char emptyimage[8];
 	unsigned int i, k, _crc;
 	int v, j, res, lastver, n;
-	String s, ss, sp, sn;
+	String ss, sp, sn;
 	depot_ver depotVer;
 	unsigned int configVerMajor, configVerMinor;
 	//char VerDate[7];
 	TStream* in;
 	TStream* out;
 	TStream* st;
-	TStreamWriter* sw;
 	std::vector<_packdata> packdates;
 	TSearchRec srec;
 	_packdata pd;
@@ -9954,7 +9953,8 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 		return false;
 	}
 
-	s = fldd_depotver->get_presentation(rec, true);
+	{
+	String s = fldd_depotver->get_presentation(rec, true);
 
 	if(s.CompareIC("0300000000000000") == 0) depotVer = depotVer3;
 	else if(s.CompareIC("0500000000000000") == 0) depotVer = depotVer5;
@@ -9966,6 +9966,7 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 			"Версия хранилища", s);
 		delete[] rec;
 		return false;
+	}
 	}
 
 	memcpy(rootobj, rec + fldd_rootobjid->offset, 16);
@@ -9999,7 +10000,7 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 	{
 		table_versions->getrecord(i, rec);
 		if(*rec) continue;
-		s = fldv_vernum->get_presentation(rec, true);
+		String s = fldv_vernum->get_presentation(rec, true);
 		v = s.ToIntDef(0);
 		if(v == ver)
 		{
@@ -10166,7 +10167,7 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 		if(!flde_datahash) return false;
 
 		sp = filename.SubString(1, filename.LastDelimiter("\\")) + "data\\pack\\";
-		s = sp + "pack-*.ind";
+		String s = sp + "pack-*.ind";
 		if(FindFirst(s, 0, srec) == 0)
 		{
 			do
@@ -10250,7 +10251,9 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 	CreateGUID(guid);
 	vermap[""] = GUIDasMS(uid);
 
-	// Создаем и записываем файл version
+	String sversion;
+	{// Создаем и записываем файл version
+	String s;
 	t = new tree("", nd_list, NULL);
 	tc = new tree("", nd_list, t);
 	tc = new tree("", nd_list, tc);
@@ -10258,14 +10261,16 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 	tc->add_child(s, nd_number);
 	s = configVerMinor;
 	tc->add_child(s, nd_number);
-	s = outtext(t);
+	sversion = outtext(t);
 	delete t;
+	}
 
 	in = new TMemoryStream;
 	in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().GetLength());
-	sw = new TStreamWriter(in, TEncoding::UTF8, 1024);
-	sw->Write(s);
-	delete sw;
+	{
+		TStreamWriter sw(in, TEncoding::UTF8, 1024);
+		sw.Write(sversion);
+	}
 	out = new TMemoryStream;
 	in->Seek(0, soFromBeginning);
 	ZDeflateStream(in, out);
@@ -10347,7 +10352,7 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 					if(!ok)
 					{
 						ss = fldh_datahash->get_presentation(rech1, true);
-						s = sp + ss.SubString(1, 2) + L'\\' + ss.SubString(3, ss.GetLength() - 2);
+						String s = sp + ss.SubString(1, 2) + L'\\' + ss.SubString(3, ss.GetLength() - 2);
 						if(FileExists(s))
 						{
 							try
@@ -10374,7 +10379,7 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 						}
 					}
 				}
-				s = fldh_objid->get_presentation(rech1, false, L'.', true);
+				String s = fldh_objid->get_presentation(rech1, false, L'.', true);
 				if(!ok)
 				{
 					if(msreg) msreg->AddMessage_("Ошибка чтения объекта конфигурации", msError,
@@ -10529,7 +10534,7 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 
 		if(ih < nh)
 		{
-			s = fldh_vernum->get_presentation(rech2, false);
+			String s = fldh_vernum->get_presentation(rech2, false);
 			v = s.ToIntDef(MaxInt);
 			if(v <= ver)
 			{
@@ -10582,13 +10587,14 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 		trc->add_child(pmap->first, nd_string);
 		trc->add_child(pmap->second, nd_guid);
 	}
-	s = outtext(tr);
+	String tree_text = outtext(tr);
 	delete tr;
 	in->SetSize(0);
 	in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().GetLength());
-	sw = new TStreamWriter(in, TEncoding::UTF8, 1024);
-	sw->Write(s);
-	delete sw;
+	{
+		TStreamWriter sw(in, TEncoding::UTF8, 1024);
+		sw.Write(tree_text);
+	}
 	in->Seek(0, soFromBeginning);
 	out = new TTempStream;
 	if(oldformat)
@@ -10610,13 +10616,14 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 		tvc->add_child(pmap->second, nd_guid);
 	}
 
-	s = outtext(tv);
+	String tv_text = outtext(tv);
 	delete tv;
 	in->SetSize(0);
 	in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().GetLength());
-	sw = new TStreamWriter(in, TEncoding::UTF8, 1024);
-	sw->Write(s);
-	delete sw;
+	{
+		TStreamWriter sw(in, TEncoding::UTF8, 1024);
+		sw.Write(tv_text);
+	}
 	out = new TTempStream;
 	in->Seek(0, soFromBeginning);
 	ZDeflateStream(in, out);
