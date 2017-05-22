@@ -1,0 +1,8 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: ctoolcd
+Source: https://github.com/dmpas/tool1cd
+
+Files: *
+Copyright: Valeriy Ageev
+License: No license
+
