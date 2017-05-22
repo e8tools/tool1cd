@@ -15,8 +15,12 @@
 
 //---------------------------------------------------------------------------
 
-#define min(a, b) ((a) < (b) ? (a) : (b))
-#define max(a, b) ((a) > (b) ? (a) : (b))
+#ifndef MIN
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif // MIN
+#ifndef MAX
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#endif // MAX
 
 //String GUIDas1C(const unsigned char* fr);
 //String GUIDasMS(const unsigned char* fr);

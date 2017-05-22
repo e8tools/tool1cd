@@ -3,7 +3,6 @@
 #include <vcl.h>
 #include <vector>
 #include <System.IOUtils.hpp>
-#pragma hdrstop
 
 #include "Class_1CD.h"
 #include "Base64.h"
@@ -13,9 +12,10 @@
 #include "Common.h"
 #include "TempStream.h"
 #include "ConfigStorage.h"
+#include <boost/filesystem.hpp>
+#include <regex>
 
 #include "UZLib.h"
-#pragma comment (lib, "zlibstatic.lib")
 
 #define CHUNK 65536
 
@@ -816,7 +816,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 			curblock = _start >> 12;
 			_buf = (char*)buf;
 			curoffblock = _start - (curblock << 12);
-			curlen = min(0x1000 - curoffblock, _length);
+			curlen = MIN(0x1000 - curoffblock, _length);
 
 			while(_length)
 			{
@@ -826,7 +826,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 				_buf += curlen;
 				_length -= curlen;
 				curoffblock = 0;
-				curlen = min(0x1000, _length);
+				curlen = MIN(0x1000, _length);
 			}
 
 		}
@@ -845,7 +845,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 			curblock = _start >> 12;
 			_buf = (char*)buf;
 			curoffblock = _start - (curblock << 12);
-			curlen = min(0x1000 - curoffblock, _length);
+			curlen = MIN(0x1000 - curoffblock, _length);
 
 			curobjblock = curblock / 1023;
 			curoffobjblock = curblock - curobjblock * 1023;
@@ -860,7 +860,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 				_buf += curlen;
 				_length -= curlen;
 				curoffblock = 0;
-				curlen = min(0x1000, _length);
+				curlen = MIN(0x1000, _length);
 				if(_length > 0) if(curoffobjblock >= 1023)
 				{
 					curoffobjblock = 0;
@@ -884,7 +884,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 			_buf = (char*)buf;
 			offsperpage = base->pagesize / 4;
 			curoffblock = _start - (curblock * base->pagesize);
-			curlen = min(base->pagesize - curoffblock, _length);
+			curlen = MIN(base->pagesize - curoffblock, _length);
 			if(fatlevel)
 			{
 				curobjblock = curblock / offsperpage;
@@ -900,7 +900,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 					_buf += curlen;
 					_length -= curlen;
 					curoffblock = 0;
-					curlen = min(base->pagesize, _length);
+					curlen = MIN(base->pagesize, _length);
 					if(_length > 0) if(curoffobjblock >= offsperpage)
 					{
 						curoffobjblock = 0;
@@ -918,7 +918,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 					_buf += curlen;
 					_length -= curlen;
 					curoffblock = 0;
-					curlen = min(base->pagesize, _length);
+					curlen = MIN(base->pagesize, _length);
 				}
 			}
 
@@ -957,7 +957,7 @@ void v8object::savetofile(String _filename)
 	k = l;
 	for(i = 0; i < l; i += pagesize)
 	{
-		j = min(k, pagesize);
+		j = MIN(k, pagesize);
 		getdata(buf, i, j);
 		fs->Write(buf, j);
 		k -= pagesize;
@@ -1063,7 +1063,7 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 		curblock = _start >> 12;
 		_buf = (char*)buf;
 		curoffblock = _start - (curblock << 12);
-		curlen = min(0x1000 - curoffblock, _length);
+		curlen = MIN(0x1000 - curoffblock, _length);
 
 		curobjblock = curblock / 1023;
 		curoffobjblock = curblock - curobjblock * 1023;
@@ -1075,7 +1075,7 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 			_buf += curlen;
 			_length -= curlen;
 			curoffblock = 0;
-			curlen = min(0x1000, _length);
+			curlen = MIN(0x1000, _length);
 			if(_length > 0) if(curoffobjblock >= 1023)
 			{
 				curoffobjblock = 0;
@@ -1091,7 +1091,7 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 		curblock = _start / base->pagesize;
 		_buf = (char*)buf;
 		curoffblock = _start - (curblock * base->pagesize);
-		curlen = min(base->pagesize - curoffblock, _length);
+		curlen = MIN(base->pagesize - curoffblock, _length);
 
 		if(fatlevel)
 		{
@@ -1106,7 +1106,7 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 				_buf += curlen;
 				_length -= curlen;
 				curoffblock = 0;
-				curlen = min(base->pagesize, _length);
+				curlen = MIN(base->pagesize, _length);
 				if(_length > 0) if(curoffobjblock >= offsperpage)
 				{
 					curoffobjblock = 0;
@@ -1122,7 +1122,7 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 				_buf += curlen;
 				_length -= curlen;
 				curoffblock = 0;
-				curlen = min(base->pagesize, _length);
+				curlen = MIN(base->pagesize, _length);
 			}
 		}
 
@@ -1190,7 +1190,7 @@ bool v8object::setdata(const void* _buf, uint64_t _length)
 	else if(type == v8ot_data838)
 	{
 		curblock = 0;
-		curlen = min(base->pagesize, _length);
+		curlen = MIN(base->pagesize, _length);
 
 		if(fatlevel)
 		{
@@ -1204,7 +1204,7 @@ bool v8object::setdata(const void* _buf, uint64_t _length)
 				memcpy((char*)(base->getblock_for_write(bb->blocks[curoffobjblock++], false)), buf, curlen);
 				buf += curlen;
 				_length -= curlen;
-				curlen = min(base->pagesize, _length);
+				curlen = MIN(base->pagesize, _length);
 				if(_length > 0) if(curoffobjblock >= offsperpage)
 				{
 					curoffobjblock = 0;
@@ -1219,7 +1219,7 @@ bool v8object::setdata(const void* _buf, uint64_t _length)
 				memcpy((char*)(base->getblock_for_write(blocks[curblock++], false)), buf, curlen);
 				buf += curlen;
 				_length -= curlen;
-				curlen = min(base->pagesize, _length);
+				curlen = MIN(base->pagesize, _length);
 			}
 		}
 
@@ -1287,7 +1287,7 @@ bool v8object::setdata(TStream* stream)
 	else if(type == v8ot_data838)
 	{
 		curblock = 0;
-		curlen = min(base->pagesize, _length);
+		curlen = MIN(base->pagesize, _length);
 
 		if(fatlevel)
 		{
@@ -1300,7 +1300,7 @@ bool v8object::setdata(TStream* stream)
 			{
 				stream->ReadBuffer(base->getblock_for_write(bb->blocks[curoffobjblock++], false), curlen);
 				_length -= curlen;
-				curlen = min(base->pagesize, _length);
+				curlen = MIN(base->pagesize, _length);
 				if(_length > 0) if(curoffobjblock >= offsperpage)
 				{
 					curoffobjblock = 0;
@@ -1314,7 +1314,7 @@ bool v8object::setdata(TStream* stream)
 			{
 				stream->ReadBuffer(base->getblock_for_write(blocks[curblock++], false), curlen);
 				_length -= curlen;
-				curlen = min(base->pagesize, _length);
+				curlen = MIN(base->pagesize, _length);
 			}
 		}
 
@@ -1363,7 +1363,7 @@ bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 	{
 		curblock = _start >> 12;
 		curoffblock = _start - (curblock << 12);
-		curlen = min(0x1000 - curoffblock, _length);
+		curlen = MIN(0x1000 - curoffblock, _length);
 
 		curobjblock = curblock / 1023;
 		curoffobjblock = curblock - curobjblock * 1023;
@@ -1374,7 +1374,7 @@ bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 			stream->ReadBuffer((char*)(base->getblock_for_write(b->blocks[curoffobjblock++], curlen != 0x1000)) + curoffblock, curlen);
 			_length -= curlen;
 			curoffblock = 0;
-			curlen = min(0x1000, _length);
+			curlen = MIN(0x1000, _length);
 			if(_length > 0) if(curoffobjblock >= 1023)
 			{
 				curoffobjblock = 0;
@@ -1389,7 +1389,7 @@ bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 	{
 		curblock = _start / base->pagesize;
 		curoffblock = _start - (curblock * base->pagesize);
-		curlen = min(base->pagesize - curoffblock, _length);
+		curlen = MIN(base->pagesize - curoffblock, _length);
 
 		if(fatlevel)
 		{
@@ -1403,7 +1403,7 @@ bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 				stream->ReadBuffer((char*)(base->getblock_for_write(bb->blocks[curoffobjblock++], curlen != base->pagesize)) + curoffblock, curlen);
 				_length -= curlen;
 				curoffblock = 0;
-				curlen = min(base->pagesize, _length);
+				curlen = MIN(base->pagesize, _length);
 				if(_length > 0) if(curoffobjblock >= offsperpage)
 				{
 					curoffobjblock = 0;
@@ -1418,7 +1418,7 @@ bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 				stream->ReadBuffer((char*)(base->getblock_for_write(blocks[curblock++], curlen != base->pagesize)) + curoffblock, curlen);
 				_length -= curlen;
 				curoffblock = 0;
-				curlen = min(base->pagesize, _length);
+				curlen = MIN(base->pagesize, _length);
 			}
 		}
 
@@ -3323,7 +3323,7 @@ bool field::get_bynary_value(char* binary_value, bool null, String& value)
 					if(i & 1) fr[(i + 1) >> 1] |= b[p] << 4;
 					else fr[(i + 1) >> 1] |= b[p];
 				}
-				q = min(j - m, precision); // количество цифр после запятой
+				q = MIN(j - m, precision); // количество цифр после запятой
 				for(i = l, p = m; p < m + q; i++, p++)
 				{
 					if(i & 1) fr[(i + 1) >> 1] |= b[p] << 4;
@@ -3338,13 +3338,13 @@ bool field::get_bynary_value(char* binary_value, bool null, String& value)
 			break;
 		case tf_char:
 			l = value.GetLength();
-			i = min(l, length);
+			i = MIN(l, length);
 			memcpy(fr, value.c_str(), i << 1);
 			while(i < length) ((WCHART*)fr)[i++] = L' ';
 			break;
 		case tf_varchar:
 			l = value.GetLength();
-			i = min(l, length);
+			i = MIN(l, length);
 			*(short int*)fr = i;
 			memcpy(fr + 2, value.c_str(), i * 2);
 			while(i < length) ((WCHART*)(fr + 2))[i++] = L' ';
@@ -6522,7 +6522,7 @@ unsigned int table::write_blob_record(char* blob_record, unsigned int blob_len)
 
 	for(cur_block = first_block; blob_len; blob_len -= cur_len, cur_block = next_block, blob_record += cur_len)
 	{
-		cur_len = min(blob_len, 250);
+		cur_len = MIN(blob_len, 250);
 		if(cur_len < 250) memset(blob_record, 0, 250);
 
 		if(prev_offset) file_blob->setdata(&cur_block, prev_offset, 4);
@@ -6578,7 +6578,7 @@ unsigned int table::write_blob_record(TStream* bstr)
 
 	for(cur_block = first_block; blob_len; blob_len -= cur_len, cur_block = next_block)
 	{
-		cur_len = min(blob_len, 250);
+		cur_len = MIN(blob_len, 250);
 		if(cur_len < 250) memset(blob_record, 0, 250); //-V512
 		bstr->Read(blob_record, cur_len);
 
@@ -7331,7 +7331,7 @@ int TableFileStream::Read(void *Buffer, int Count)
 
 	while(Count)
 	{
-		curlen = min(Count, (int)(addr[nbf].blob_length - ibf));
+		curlen = MIN(Count, (int)(addr[nbf].blob_length - ibf));
 		str = streams[nbf];
 		if(!str)
 		{
@@ -9876,7 +9876,7 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 	char emptyimage[8];
 	unsigned int i, k, _crc;
 	int v, j, res, lastver, n;
-	String ss, sp, sn;
+	String ss, sn;
 	depot_ver depotVer;
 	unsigned int configVerMajor, configVerMinor;
 	//char VerDate[7];
@@ -9900,7 +9900,6 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 	tree* trc; // тек. элемент дерева файла root
 	tree* tcountv; // узел, содержащий счетчик в файле versions
 	tree* tcountr; // узел, содержащий счетчик в файле root
-	String __filename;
 
 	union
 	{
@@ -10017,7 +10016,8 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 		return false;
 	}
 
-	__filename = System::Ioutils::TPath::GetFullPath(_filename);
+	//__filename = System::Ioutils::TPath::GetFullPath(_filename);
+	boost::filesystem::path filepath = boost::filesystem::path(static_cast<std::string>(_filename));
 /*
 	// Проверяем, нет ли снэпшота нужной версии конфигурации
 	if(*(rec + fldv_snapshotcrc->offset)) if(*(rec + fldv_snapshotmaker->offset)) if(memcmp(rootobj, rec + fldv_snapshotmaker->offset + 1, 16) == 0)
@@ -10159,6 +10159,9 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 	flde_extdata = get_field(table_externals, "EXTDATA");
 	if(!flde_extdata) return false;
 
+	boost::filesystem::path root_path(static_cast<std::string>(filename)); // путь к 1cd
+	boost::filesystem::path objects_path;
+
 	if(depotVer >= depotVer6)
 	{
 		fldh_datahash = get_field(table_history, "DATAHASH");
@@ -10166,21 +10169,23 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 		flde_datahash = get_field(table_externals, "DATAHASH");
 		if(!flde_datahash) return false;
 
-		sp = filename.SubString(1, filename.LastDelimiter("\\")) + "data\\pack\\";
-		String s = sp + "pack-*.ind";
-		if(FindFirst(s, 0, srec) == 0)
+		boost::filesystem::path subpath = root_path.parent_path() / "data" / "pack";
+		std::regex pack_mask("pack-.*\\.ind");
+		boost::filesystem::directory_iterator dit(subpath), dend;
+		for (; dit != dend; dit++)
 		{
-			do
-			{
+			boost::filesystem::path current_path = dit->path();
+			if (!std::regex_match(current_path.filename().string(), pack_mask)) {
+				continue;
+			}
 				try
 				{
-					in = new TFileStream(sp + srec.Name, fmOpenRead | fmShareDenyNone);
+					in = new TFileStream(current_path.string(), fmOpenRead | fmShareDenyNone);
 				}
 				catch(...)
 				{
 					if(msreg) msreg->AddMessage_("Ошибка открытия файла", msError,
-						"Файл", srec.Name);
-					FindClose(srec);
+						"Файл", current_path.string());
 					return false;
 				}
 				in->Seek(8, soFromBeginning);
@@ -10189,24 +10194,23 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 				in->Read(pd.datahashes, i * sizeof(_datahash));
 				delete in;
 				pd.count = i;
+
+				boost::filesystem::path pack_item = current_path;
+				pack_item.replace_extension("pck");
 				try
 				{
-					s = sp + srec.Name.SubString(1, srec.Name.GetLength() - 3) + "pck";
-					pd.pack = new TFileStream(s, fmOpenRead | fmShareDenyNone);
+					pd.pack = new TFileStream(pack_item.string(), fmOpenRead | fmShareDenyNone);
 				}
 				catch(...)
 				{
 					if(msreg) msreg->AddMessage_("Ошибка открытия файла", msError,
-						"Файл", s);
-					FindClose(srec);
+						"Файл", pack_item.string());
 					return false;
 				}
 				packdates.push_back(pd);
-			} while(FindNext(srec) == 0);
-			FindClose(srec);
 		}
 
-		sp = filename.SubString(1, filename.LastDelimiter("\\")) + "data\\objects\\";
+		objects_path = root_path / "data" / "objects";
 	}
 	else
 	{
@@ -10230,8 +10234,10 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 	ne = inde->get_numrecords();
 	memset(curobj, 0, 16);
 
-	if(FileExists(__filename)) DeleteFile(__filename);
-	cat = new v8catalog(__filename, false);
+	if (boost::filesystem::exists(filepath)) {
+		boost::filesystem::remove(filepath);
+	}
+	cat = new v8catalog(filepath.string(), false);
 
 	// root, versions
 
@@ -10351,19 +10357,19 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 
 					if(!ok)
 					{
-						ss = fldh_datahash->get_presentation(rech1, true);
-						String s = sp + ss.SubString(1, 2) + L'\\' + ss.SubString(3, ss.GetLength() - 2);
-						if(FileExists(s))
+						String ss = fldh_datahash->get_presentation(rech1, true);
+						boost::filesystem::path current_object_path = objects_path / static_cast<std::string>(ss.SubString(3, ss.GetLength() - 2));
+						if(boost::filesystem::exists(current_object_path))
 						{
 							try
 							{
-								out = new TFileStream(s, fmOpenRead | fmShareDenyNone);
+								out = new TFileStream(current_object_path.string(), fmOpenRead | fmShareDenyNone);
 								ok = true;
 							}
 							catch(...)
 							{
 								if(msreg) msreg->AddMessage_("Ошибка открытия файла", msError,
-									"Файл", s,
+									"Файл", current_object_path.string(),
 									"Таблица", "HISTORY",
 									"Объект", fldh_objid->get_presentation(rech1, false, L'.', true),
 									"Версия", fldh_vernum->get_presentation(rech1, false));
@@ -10372,7 +10378,7 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 						else
 						{
 							if(msreg) msreg->AddMessage_("Не найден файл", msError,
-								"Файл", s,
+								"Файл", current_object_path.string(),
 								"Таблица", "HISTORY",
 								"Объект", fldh_objid->get_presentation(rech1, false, L'.', true),
 								"Версия", fldh_vernum->get_presentation(rech1, false));
@@ -10481,19 +10487,19 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 
 							if(!ok)
 							{
-								ss = flde_datahash->get_presentation(rec, true);
-								s = sp + ss.SubString(1, 2) + L'\\' + ss.SubString(3, ss.GetLength() - 2);
-								if(FileExists(s))
+								String ss = flde_datahash->get_presentation(rec, true);
+								boost::filesystem::path current_object_path = objects_path / static_cast<std::string>(ss.SubString(3, ss.GetLength() - 2));
+								if (boost::filesystem::exists(current_object_path))
 								{
 									try
 									{
-										out = new TFileStream(s, fmOpenRead | fmShareDenyNone);
+										out = new TFileStream(current_object_path.string(), fmOpenRead | fmShareDenyNone);
 										ok = true;
 									}
 									catch(...)
 									{
 										if(msreg) msreg->AddMessage_("Ошибка открытия файла", msError,
-											"Файл", s,
+											"Файл", current_object_path.string(),
 											"Таблица", "EXTERNALS",
 											"Объект", flde_extname->get_presentation(rec),
 											"Версия", flde_vernum->get_presentation(rec));
@@ -10502,7 +10508,7 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 								else
 								{
 									if(msreg) msreg->AddMessage_("Не найден файл", msError,
-										"Файл", s,
+										"Файл", current_object_path.string(),
 										"Таблица", "EXTERNALS",
 										"Объект", flde_extname->get_presentation(rec),
 										"Версия", flde_vernum->get_presentation(rec));
