@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-ex .. LABELS ../example.1CD" />
+				<Option parameters="-drc 0 .. C:\1C\Rep\Jordan\1cv8ddb.1CD" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -31,7 +31,6 @@
 		</Build>
 		<Compiler>
 			<Add option="-std=c++11" />
-			<Add option="-fpermissive" />
 			<Add option="-Dconsole" />
 			<Add directory="SystemClasses" />
 		</Compiler>

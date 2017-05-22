@@ -28,11 +28,11 @@ extern MessageRegistrator* msreg;
 #define error if(msreg) msreg->AddError
 
 //---------------------------------------------------------------------------
-char field::buf[2048 + 16];
-char field::null_index[4096];
-bool field::null_index_initialized = false;
-bool field::showGUID = true;
-bool field::showGUIDasMS = false;
+char Field::buf[2048 + 16];
+char Field::null_index[4096];
+bool Field::null_index_initialized = false;
+bool Field::showGUID = true;
+bool Field::showGUIDasMS = false;
 
 bool T_1CD::recoveryMode = false;
 
@@ -1819,7 +1819,7 @@ TStream* v8object::readBlob(TStream* _str, unsigned int _startblock, unsigned in
 // Класс index
 
 //---------------------------------------------------------------------------
-index::index(table* _base)
+index::index(Table* _base)
 {
 	tbase = _base;
 
@@ -2990,7 +2990,7 @@ void index::write_index_record(const unsigned int phys_numrecord, const char* in
 // Класс field
 
 //---------------------------------------------------------------------------
-field::field(table* _parent)
+Field::Field(Table* _parent)
 {
 	if(!null_index_initialized)
 	{
@@ -3009,13 +3009,13 @@ field::field(table* _parent)
 }
 
 //---------------------------------------------------------------------------
-String field::getname()
+String Field::getname()
 {
 	return name;
 }
 
 //---------------------------------------------------------------------------
-int field::getlen() // возвращает длину поля в байтах
+int Field::getlen() // возвращает длину поля в байтах
 {
 	if(len) return len;
 
@@ -3040,7 +3040,7 @@ int field::getlen() // возвращает длину поля в байтах
 
 //---------------------------------------------------------------------------
 // При ignore_showGUID binary16 всегда преобразуется в GUID
-String field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed)
+String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed)
 {
 	char sym;
 	int i, j, m;
@@ -3141,7 +3141,7 @@ String field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimite
 }
 
 //---------------------------------------------------------------------------
-bool field::get_bynary_value(char* binary_value, bool null, String& value)
+bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 {
 	wchar_t sym;
 	int i, j, m, l, p, q;
@@ -3488,7 +3488,7 @@ bool field::get_bynary_value(char* binary_value, bool null, String& value)
 }
 
 //---------------------------------------------------------------------------
-String field::get_XML_presentation(char* rec, bool ignore_showGUID)
+String Field::get_XML_presentation(char* rec, bool ignore_showGUID)
 {
 	char sym;
 	int i, j, m;
@@ -3622,49 +3622,49 @@ String field::get_XML_presentation(char* rec, bool ignore_showGUID)
 }
 
 //---------------------------------------------------------------------------
-type_fields field::gettype()
+type_fields Field::gettype()
 {
 	return type;
 }
 
 //---------------------------------------------------------------------------
-table* field::getparent()
+Table* Field::getparent()
 {
 	return parent;
 }
 
 //---------------------------------------------------------------------------
-bool field::getnull_exists()
+bool Field::getnull_exists()
 {
 	return null_exists;
 }
 
 //---------------------------------------------------------------------------
-int field::getlength()
+int Field::getlength()
 {
 	return length;
 }
 
 //---------------------------------------------------------------------------
-int field::getprecision()
+int Field::getprecision()
 {
 	return precision;
 }
 
 //---------------------------------------------------------------------------
-bool field::getcase_sensitive()
+bool Field::getcase_sensitive()
 {
 	return case_sensitive;
 }
 
 //---------------------------------------------------------------------------
-int field::getoffset()
+int Field::getoffset()
 {
 	return offset;
 }
 
 //---------------------------------------------------------------------------
-String field::get_presentation_type()
+String Field::get_presentation_type()
 {
 	switch(type)
 	{
@@ -3704,7 +3704,7 @@ String TrimSpacesRight(String s)
 
 //---------------------------------------------------------------------------
 #ifndef PublicRelease
-unsigned int field::getSortKey(const char* rec, unsigned char* SortKey, int maxlen)
+unsigned int Field::getSortKey(const char* rec, unsigned char* SortKey, int maxlen)
 {
 	T_1CD* base;
 	// ICU_Result res;
@@ -3872,7 +3872,7 @@ unsigned int field::getSortKey(const char* rec, unsigned char* SortKey, int maxl
 #endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
-bool field::save_blob_to_file(char* rec, String _filename, bool unpack)
+bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 {
 	TStream* blob_stream;
 	bool zippedContainer;
@@ -3886,10 +3886,10 @@ bool field::save_blob_to_file(char* rec, String _filename, bool unpack)
 	unsigned int i, j, k, l;
 	char* _xor_mask;
 	char* _xor_buf;
-	table* tab;
+	Table* tab;
 	TStream* temp_stream;
 	bool zipped;
-	field* _f;
+	Field* _f;
 	char* _bb;
 	v8catalog* cat;
 	char* orec;
@@ -4122,7 +4122,7 @@ bool field::save_blob_to_file(char* rec, String _filename, bool unpack)
 // Класс changed_rec
 
 //---------------------------------------------------------------------------
-changed_rec::changed_rec(table* _parent, changed_rec_type crt, unsigned int phys_numrecord)
+changed_rec::changed_rec(Table* _parent, changed_rec_type crt, unsigned int phys_numrecord)
 {
 	parent = _parent;
 	numrec = phys_numrecord;
@@ -4154,7 +4154,7 @@ changed_rec::~changed_rec()
 void changed_rec::clear()
 {
 	int i;
-	field* f;
+	Field* f;
 	type_fields tf;
 	TStream* b;
 
@@ -4177,13 +4177,13 @@ void changed_rec::clear()
 // Класс table
 
 //---------------------------------------------------------------------------
-bool table::get_issystem()
+bool Table::get_issystem()
 {
 	return issystem;
 }
 
 //---------------------------------------------------------------------------
-void table::init(int block_descr)
+void Table::init(int block_descr)
 {
 	tree* t;
 	tree* f;
@@ -4197,7 +4197,7 @@ void table::init(int block_descr)
 	class index* ind;
 	int numrec;
 	int blockfile[3];
-	field* fld;
+	Field* fld;
 	unsigned int* buf;
 
 	num_fields = 0;
@@ -4325,9 +4325,9 @@ void table::init(int block_descr)
 
 	num_fields = t->get_num_subnode() - 1;
 	num_fields2 = num_fields + 1; // добавляем лишнее поле на случай наличия скрытого поля версии
-	fields = new field*[num_fields2];
+	fields = new Field*[num_fields2];
 	bool has_version = false; // признак наличия поля версии
-	for(i = 0; i < num_fields2; i++) fields[i] = new field(this);
+	for(i = 0; i < num_fields2; i++) fields[i] = new Field(this);
 
 	f = t->get_first();
 	if(f->get_type() != nd_string)
@@ -4995,7 +4995,7 @@ void table::init(int block_descr)
 }
 
 //---------------------------------------------------------------------------
-table::table(T_1CD* _base, int block_descr)
+Table::Table(T_1CD* _base, int block_descr)
 {
 
 	base = _base;
@@ -5008,7 +5008,7 @@ table::table(T_1CD* _base, int block_descr)
 }
 
 //---------------------------------------------------------------------------
-table::table(T_1CD* _base, String _descr, int block_descr)
+Table::Table(T_1CD* _base, String _descr, int block_descr)
 {
 
 	base = _base;
@@ -5020,13 +5020,13 @@ table::table(T_1CD* _base, String _descr, int block_descr)
 }
 
 //---------------------------------------------------------------------------
-table::table()
+Table::Table()
 {
 	init();
 }
 
 //---------------------------------------------------------------------------
-void table::deletefields()
+void Table::deletefields()
 {
 	int i;
 	if(fields)
@@ -5037,7 +5037,7 @@ void table::deletefields()
 }
 
 //---------------------------------------------------------------------------
-void table::deleteindexes()
+void Table::deleteindexes()
 {
 	int i;
 	if(indexes)
@@ -5049,7 +5049,7 @@ void table::deleteindexes()
 }
 
 //---------------------------------------------------------------------------
-table::~table()
+Table::~Table()
 {
 	changed_rec* cr;
 	changed_rec* cr2;
@@ -5087,31 +5087,31 @@ table::~table()
 }
 
 //---------------------------------------------------------------------------
-String table::getname()
+String Table::getname()
 {
 	return name;
 }
 
 //---------------------------------------------------------------------------
-String table::getdescription()
+String Table::getdescription()
 {
 	return description;
 }
 
 //---------------------------------------------------------------------------
-int table::get_numfields()
+int Table::get_numfields()
 {
 	return num_fields;
 }
 
 //---------------------------------------------------------------------------
-int table::get_numindexes()
+int Table::get_numindexes()
 {
 	return num_indexes;
 }
 
 //---------------------------------------------------------------------------
-field* table::getfield(int numfield)
+Field* Table::getfield(int numfield)
 {
 	if(numfield >= num_fields)
 	{
@@ -5125,7 +5125,7 @@ field* table::getfield(int numfield)
 }
 
 //---------------------------------------------------------------------------
-class index* table::getindex(int numindex)
+class index* Table::getindex(int numindex)
 {
 	if(numindex >= num_indexes)
 	{
@@ -5139,31 +5139,31 @@ class index* table::getindex(int numindex)
 }
 
 //---------------------------------------------------------------------------
-unsigned int table::get_phys_numrecords()
+unsigned int Table::get_phys_numrecords()
 {
 	return phys_numrecords;
 }
 
 //---------------------------------------------------------------------------
-unsigned int table::get_log_numrecords()
+unsigned int Table::get_log_numrecords()
 {
 	return log_numrecords;
 }
 
 //---------------------------------------------------------------------------
-void table::set_log_numrecords(unsigned int _log_numrecords)
+void Table::set_log_numrecords(unsigned int _log_numrecords)
 {
 	log_numrecords = _log_numrecords;
 }
 
 //---------------------------------------------------------------------------
-unsigned int table::get_added_numrecords()
+unsigned int Table::get_added_numrecords()
 {
 	return added_numrecords;
 }
 
 //---------------------------------------------------------------------------
-char* table::getrecord(unsigned int phys_numrecord, char* buf)
+char* Table::getrecord(unsigned int phys_numrecord, char* buf)
 {
 	#ifndef console
 	#ifndef getcfname
@@ -5180,37 +5180,37 @@ char* table::getrecord(unsigned int phys_numrecord, char* buf)
 }
 
 //---------------------------------------------------------------------------
-int table::get_recordlen()
+int Table::get_recordlen()
 {
 	return recordlen;
 }
 
 //---------------------------------------------------------------------------
-bool table::get_recordlock()
+bool Table::get_recordlock()
 {
 	return recordlock;
 }
 
 //---------------------------------------------------------------------------
-v8object* table::get_file_data()
+v8object* Table::get_file_data()
 {
 	return file_data;
 }
 
 //---------------------------------------------------------------------------
-v8object* table::get_file_blob()
+v8object* Table::get_file_blob()
 {
 	return file_blob;
 }
 
 //---------------------------------------------------------------------------
-v8object* table::get_file_index()
+v8object* Table::get_file_index()
 {
 	return file_index;
 }
 
 //---------------------------------------------------------------------------
-void table::set_lockinmemory(bool _lock)
+void Table::set_lockinmemory(bool _lock)
 {
 	if(_lock)
 	{
@@ -5235,7 +5235,7 @@ void table::set_lockinmemory(bool _lock)
 
 //---------------------------------------------------------------------------
 // rewrite - перезаписывать поток _str. Истина - перезаписывать (по умолчанию), Ложь - дописывать
-TStream* table::readBlob(TStream* _str, unsigned int _startblock, unsigned int _length, bool rewrite)
+TStream* Table::readBlob(TStream* _str, unsigned int _startblock, unsigned int _length, bool rewrite)
 {
 //	char* _b;
 	unsigned int _curblock;
@@ -5313,7 +5313,7 @@ TStream* table::readBlob(TStream* _str, unsigned int _startblock, unsigned int _
 }
 
 //---------------------------------------------------------------------------
-unsigned int table::readBlob(void* buf, unsigned int _startblock, unsigned int _length)
+unsigned int Table::readBlob(void* buf, unsigned int _startblock, unsigned int _length)
 {
 	unsigned int _curblock;
 	char* _curb;
@@ -5392,8 +5392,8 @@ unsigned int table::readBlob(void* buf, unsigned int _startblock, unsigned int _
 }
 
 //---------------------------------------------------------------------------
-//bool table::export_to_xml(String _filename, index* curindex, bool blob_to_file, bool unpack)
-bool table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
+//bool Table::export_to_xml(String _filename, index* curindex, bool blob_to_file, bool unpack)
+bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 {
 	String* us;
 	String s;
@@ -5564,14 +5564,14 @@ bool table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 }
 
 //---------------------------------------------------------------------------
-int64_t table::get_fileoffset(unsigned int phys_numrecord)
+int64_t Table::get_fileoffset(unsigned int phys_numrecord)
 {
 	unsigned int _offset = phys_numrecord * recordlen;
 	return file_data->get_fileoffset(_offset);
 }
 
 //---------------------------------------------------------------------------
-bool table::get_edit()
+bool Table::get_edit()
 {
 #ifndef PublicRelease
 	return edit;
@@ -5582,7 +5582,7 @@ bool table::get_edit()
 //---------------------------------------------------------------------------
 
 #ifndef PublicRelease
-void table::begin_edit()
+void Table::begin_edit()
 {
 	if(edit) return;
 	if(base->readonly)
@@ -5595,7 +5595,7 @@ void table::begin_edit()
 }
 
 //---------------------------------------------------------------------------
-changed_rec_type table::get_rec_type(unsigned int phys_numrecord)
+changed_rec_type Table::get_rec_type(unsigned int phys_numrecord)
 {
 	changed_rec* cr;
 	if(!edit) return crt_not_changed;
@@ -5609,7 +5609,7 @@ changed_rec_type table::get_rec_type(unsigned int phys_numrecord)
 }
 
 //---------------------------------------------------------------------------
-changed_rec_type table::get_rec_type(unsigned int phys_numrecord, int numfield)
+changed_rec_type Table::get_rec_type(unsigned int phys_numrecord, int numfield)
 {
 	changed_rec* cr;
 	if(!edit) return crt_not_changed;
@@ -5627,7 +5627,7 @@ changed_rec_type table::get_rec_type(unsigned int phys_numrecord, int numfield)
 }
 
 //---------------------------------------------------------------------------
-void table::export_table(String path)
+void Table::export_table(String path)
 {
 	TFileStream* f;
 	String dir;
@@ -5692,7 +5692,7 @@ void table::export_table(String path)
 }
 
 //---------------------------------------------------------------------------
-void table::import_table(String path)
+void Table::import_table(String path)
 {
 	String dir;
 
@@ -5708,7 +5708,7 @@ void table::import_table(String path)
 }
 
 //---------------------------------------------------------------------------
-void table::import_table2(String path)
+void Table::import_table2(String path)
 {
 	TFileStream* f;
 	bool fopen;
@@ -5888,9 +5888,9 @@ void table::import_table2(String path)
 }
 
 //---------------------------------------------------------------------------
-void table::set_edit_value(unsigned int phys_numrecord, int numfield, bool null, String value, TStream* st)
+void Table::set_edit_value(unsigned int phys_numrecord, int numfield, bool null, String value, TStream* st)
 {
-	field* fld;
+	Field* fld;
 	char* rec;
 	char* k;
 	char* editrec;
@@ -5986,9 +5986,9 @@ void table::set_edit_value(unsigned int phys_numrecord, int numfield, bool null,
 }
 
 //---------------------------------------------------------------------------
-void table::restore_edit_value(unsigned int phys_numrecord, int numfield)
+void Table::restore_edit_value(unsigned int phys_numrecord, int numfield)
 {
-	field* fld;
+	Field* fld;
 	char* rec;
 	changed_rec* cr;
 	changed_rec* cr2;
@@ -6038,7 +6038,7 @@ void table::restore_edit_value(unsigned int phys_numrecord, int numfield)
 }
 
 //---------------------------------------------------------------------------
-void table::set_rec_type(unsigned int phys_numrecord, changed_rec_type crt)
+void Table::set_rec_type(unsigned int phys_numrecord, changed_rec_type crt)
 {
 	changed_rec* cr;
 	changed_rec* cr2;
@@ -6134,7 +6134,7 @@ void table::set_rec_type(unsigned int phys_numrecord, changed_rec_type crt)
 #endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
-char* table::get_edit_record(unsigned int phys_numrecord, char* rec)
+char* Table::get_edit_record(unsigned int phys_numrecord, char* rec)
 {
 	changed_rec* cr;
 	for(cr = ch_rec; cr; cr = cr->next) if(phys_numrecord == cr->numrec)
@@ -6150,7 +6150,7 @@ char* table::get_edit_record(unsigned int phys_numrecord, char* rec)
 }
 
 //---------------------------------------------------------------------------
-unsigned int table::get_phys_numrec(int ARow, class index* cur_index)
+unsigned int Table::get_phys_numrec(int ARow, class index* cur_index)
 {
 	unsigned int numrec;
 
@@ -6208,7 +6208,7 @@ unsigned int table::get_phys_numrec(int ARow, class index* cur_index)
 }
 
 //---------------------------------------------------------------------------
-void table::create_file_data()
+void Table::create_file_data()
 {
 	if(!file_data) return;
 	//if(!edit) return;
@@ -6217,7 +6217,7 @@ void table::create_file_data()
 }
 
 //---------------------------------------------------------------------------
-void table::create_file_blob()
+void Table::create_file_blob()
 {
 	if(!file_blob) return;
 	//if(!edit) return;
@@ -6226,7 +6226,7 @@ void table::create_file_blob()
 }
 
 //---------------------------------------------------------------------------
-void table::create_file_index()
+void Table::create_file_index()
 {
 	if(!file_index) return;
 	//if(!edit) return;
@@ -6236,7 +6236,7 @@ void table::create_file_index()
 }
 
 //---------------------------------------------------------------------------
-void table::refresh_descr_table()
+void Table::refresh_descr_table()
 {
 	error("Попытка обновления файла описания таблицы.",
 		"Таблица", name);
@@ -6246,7 +6246,7 @@ void table::refresh_descr_table()
 
 #ifndef PublicRelease
 //---------------------------------------------------------------------------
-void table::delete_data_record(unsigned int phys_numrecord)
+void Table::delete_data_record(unsigned int phys_numrecord)
 {
 	char* rec;
 	int first_empty_rec;
@@ -6303,7 +6303,7 @@ void table::delete_data_record(unsigned int phys_numrecord)
 }
 
 //---------------------------------------------------------------------------
-void table::delete_blob_record(unsigned int blob_numrecord)
+void Table::delete_blob_record(unsigned int blob_numrecord)
 {
 	int prev_free_first;
 	int i, j;
@@ -6348,7 +6348,7 @@ void table::delete_blob_record(unsigned int blob_numrecord)
 }
 
 //---------------------------------------------------------------------------
-void table::delete_index_record(unsigned int phys_numrecord)
+void Table::delete_index_record(unsigned int phys_numrecord)
 {
 	char* rec;
 
@@ -6359,7 +6359,7 @@ void table::delete_index_record(unsigned int phys_numrecord)
 }
 
 //---------------------------------------------------------------------------
-void table::delete_index_record(unsigned int phys_numrecord, char* rec)
+void Table::delete_index_record(unsigned int phys_numrecord, char* rec)
 {
 	class index* ind;
 	int i;
@@ -6376,7 +6376,7 @@ void table::delete_index_record(unsigned int phys_numrecord, char* rec)
 }
 
 //---------------------------------------------------------------------------
-void table::write_data_record(unsigned int phys_numrecord, char* rec)
+void Table::write_data_record(unsigned int phys_numrecord, char* rec)
 {
 	char* b;
 
@@ -6419,7 +6419,7 @@ void table::write_data_record(unsigned int phys_numrecord, char* rec)
 }
 
 //---------------------------------------------------------------------------
-unsigned int table::write_blob_record(char* blob_record, unsigned int blob_len)
+unsigned int Table::write_blob_record(char* blob_record, unsigned int blob_len)
 {
 	unsigned int cur_block, cur_offset, prev_offset, first_block, next_block;
 	unsigned short int cur_len;
@@ -6472,7 +6472,7 @@ unsigned int table::write_blob_record(char* blob_record, unsigned int blob_len)
 }
 
 //---------------------------------------------------------------------------
-unsigned int table::write_blob_record(TStream* bstr)
+unsigned int Table::write_blob_record(TStream* bstr)
 {
 	unsigned int cur_block, cur_offset, prev_offset, first_block, next_block;
 	unsigned short int cur_len;
@@ -6530,7 +6530,7 @@ unsigned int table::write_blob_record(TStream* bstr)
 
 //---------------------------------------------------------------------------
 
-void table::write_index_record(const unsigned int phys_numrecord, const char* rec)
+void Table::write_index_record(const unsigned int phys_numrecord, const char* rec)
 {
 	char* index_buf;
 	class index* ind;
@@ -6548,7 +6548,7 @@ void table::write_index_record(const unsigned int phys_numrecord, const char* re
 }
 
 //---------------------------------------------------------------------------
-void table::cancel_edit()
+void Table::cancel_edit()
 {
 	changed_rec* cr;
 	changed_rec* cr2;
@@ -6565,7 +6565,7 @@ void table::cancel_edit()
 }
 
 //---------------------------------------------------------------------------
-void table::end_edit()
+void Table::end_edit()
 {
 	changed_rec* cr;
 
@@ -6583,11 +6583,11 @@ void table::end_edit()
 }
 
 //---------------------------------------------------------------------------
-void table::delete_record(unsigned int phys_numrecord)
+void Table::delete_record(unsigned int phys_numrecord)
 {
 	int i;
 	unsigned int j;
-	field* f;
+	Field* f;
 	type_fields tf;
 	char* rec;
 
@@ -6613,11 +6613,11 @@ void table::delete_record(unsigned int phys_numrecord)
 }
 
 //---------------------------------------------------------------------------
-void table::insert_record(char* rec)
+void Table::insert_record(char* rec)
 {
 	int i, offset;
 	char* j;
-	field* f;
+	Field* f;
 	type_fields tf;
 	unsigned int phys_numrecord;
 	unsigned int k, l;
@@ -6689,11 +6689,11 @@ void table::insert_record(char* rec)
 }
 
 //---------------------------------------------------------------------------
-void table::update_record(unsigned int phys_numrecord, char* rec, char* changed_fields)
+void Table::update_record(unsigned int phys_numrecord, char* rec, char* changed_fields)
 {
 	char* orec;
 	int i, offset;
-	field* f;
+	Field* f;
 	type_fields tf;
 	unsigned int k, l;
 	_version ver;
@@ -6788,13 +6788,13 @@ void table::update_record(unsigned int phys_numrecord, char* rec, char* changed_
 
 //---------------------------------------------------------------------------
 // получить шаблон проверки записи (массив, содержащий для каждого байта массив из 256 байт, содержащий 0, если значение не допусимо и 1, если допустимо)
-char* table::get_record_template_test()
+char* Table::get_record_template_test()
 {
 	int len;
 	char* res;
 	char* curp;
 	int i, j, l;
-	field* f;
+	Field* f;
 	bool required;
 
 	len = recordlen << 8;
@@ -6905,7 +6905,7 @@ char* table::get_record_template_test()
 
 //---------------------------------------------------------------------------
 // заполнить recordsindex не динамически
-void table::fillrecordsindex()
+void Table::fillrecordsindex()
 {
 	unsigned int i;
 	int j;
@@ -6930,7 +6930,7 @@ void table::fillrecordsindex()
 	delete[] rec;
 }
 
-String table::get_file_name_for_field(int num_field, char* rec, unsigned int numrec)
+String Table::get_file_name_for_field(int num_field, char* rec, unsigned int numrec)
 {
 	String s("");
 	int i;
@@ -6963,7 +6963,7 @@ String table::get_file_name_for_field(int num_field, char* rec, unsigned int num
 	return s;
 }
 
-String table::get_file_name_for_record(char* rec)
+String Table::get_file_name_for_record(char* rec)
 {
 	String s("");
 	int i;
@@ -6993,7 +6993,7 @@ String table::get_file_name_for_record(char* rec)
 // Класс table_file
 
 //---------------------------------------------------------------------------
-table_file::table_file(table* _t, const String& _name, unsigned int _maxpartno)
+table_file::table_file(Table* _t, const String& _name, unsigned int _maxpartno)
 {
 	unsigned int i;
 
@@ -7022,11 +7022,11 @@ table_file::~table_file()
 // Класс TableFiles
 
 //---------------------------------------------------------------------------
-TableFiles::TableFiles(table* t)
+TableFiles::TableFiles(Table* t)
 {
-	field* filename;
-	field* f;
-	field* partno;
+	Field* filename;
+	Field* f;
+	Field* partno;
 	int* start;
 	int* length;
 	unsigned char* create;
@@ -7376,7 +7376,7 @@ int T_1CD::get_numtables()
 }
 
 //---------------------------------------------------------------------------
-table* T_1CD::gettable(int numtable)
+Table* T_1CD::gettable(int numtable)
 {
 	if(numtable >= num_tables)
 	{
@@ -7433,7 +7433,7 @@ void T_1CD::init()
 
 	is_infobase = false;
 	is_depot = false;
-	field::showGUIDasMS = false;
+	Field::showGUIDasMS = false;
 
 	pagemap = nullptr;
 }
@@ -7657,17 +7657,17 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 
 	}
 
-	tables = new table*[num_tables];
+	tables = new Table*[num_tables];
 	for(i = 0, j = 0; i < num_tables; i++)
 	{
 		if(version < ver8_3_8_0)
 		{
-			tables[j] = new table(this, table_blocks[i]);
+			tables[j] = new Table(this, table_blocks[i]);
 		}
 		else
 		{
 			root_object->readBlob(tstr, table_blocks[i]);
-			tables[j] = new table(this, String((char*)(tstr->GetMemory()), tstr->GetSize()), table_blocks[i]);
+			tables[j] = new Table(this, String((char*)(tstr->GetMemory()), tstr->GetSize()), table_blocks[i]);
 		}
 		if(tables[j]->bad)
 		{
@@ -7735,7 +7735,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 			if(!table_externals) error("Отсутствует таблица EXTERNALS");
 			if(!table_selfrefs) error("Отсутствует таблица SELFREFS");
 			if(!table_outrefs) error("Отсутствует таблица OUTREFS");
-			field::showGUIDasMS = true;
+			Field::showGUIDasMS = true;
 		}
 	}
 	else
@@ -8478,14 +8478,14 @@ bool T_1CD::test_stream_format()
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::recursive_test_stream_format(table* t, unsigned int nrec)
+bool T_1CD::recursive_test_stream_format(Table* t, unsigned int nrec)
 {
 	int j;
 	char* rec;
 	char* orec;
-	field* f_name;
-	field* f_data_size;
-	field* f_binary_data;
+	Field* f_name;
+	Field* f_data_size;
+	Field* f_binary_data;
 	String path;
 	String slen;
 	TStream* str;
@@ -8545,12 +8545,12 @@ bool T_1CD::recursive_test_stream_format(table* t, unsigned int nrec)
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::recursive_test_stream_format2(table* t, unsigned int nrec)
+bool T_1CD::recursive_test_stream_format2(Table* t, unsigned int nrec)
 {
 	int j;
 	char* rec;
 	char* orec;
-	field* f_sd;
+	Field* f_sd;
 	String path;
 	TMemoryStream* str;
 	bool result;
@@ -9036,9 +9036,9 @@ bool T_1CD::test_list_of_tables()
 {
 	char* rec;
 	char* orec;
-	field* f_name;
-	field* f_data_size;
-	field* f_binary_data;
+	Field* f_name;
+	Field* f_data_size;
+	Field* f_binary_data;
 	bool hasDBNames;
 	bool result;
 	bool is_slave;
@@ -9352,8 +9352,8 @@ bool T_1CD::replaceTREF(String mapfile)
 	char* rec;
 	String str;
 	TStringList* list;
-	table* t;
-	field* f;
+	Table* t;
+	Field* f;
 	bool editsave;
 
 	list = new TStringList;
@@ -9425,7 +9425,7 @@ bool T_1CD::replaceTREF(String mapfile)
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::delete_table(table* tab)
+bool T_1CD::delete_table(Table* tab)
 {
 	int i;
 	unsigned int j;
@@ -9648,7 +9648,7 @@ int T_1CD::get_ver_depot_config(int ver) // Получение номера ве
 {
 	char* rec;
 	class index* ind;
-	field* fld;
+	Field* fld;
 	unsigned int i;
 	int v;
 	String s;
@@ -9701,10 +9701,10 @@ int T_1CD::get_ver_depot_config(int ver) // Получение номера ве
 	return v;
 }
 
-field* T_1CD::get_field(table* tab, String fieldname)
+Field* T_1CD::get_field(Table* tab, String fieldname)
 {
 	int j;
-	field* fld;
+	Field* fld;
 	String s;
 
 	for(j = 0; j < tab->num_fields; j++)
@@ -9724,7 +9724,7 @@ field* T_1CD::get_field(table* tab, String fieldname)
 	return NULL;
 }
 
-class index* T_1CD::get_index(table* tab, String indexname)
+class index* T_1CD::get_index(Table* tab, String indexname)
 {
 	int j;
 	class index* ind;
@@ -9756,22 +9756,22 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 {
 	char* rec;
 	char* frec;
-	//field* fld;
-	field* fldd_depotver;
-	field* fldd_rootobjid;
+	//Field* fld;
+	Field* fldd_depotver;
+	Field* fldd_rootobjid;
 
-	field* fldv_vernum;
-	field* fldv_cversion;
-	field* fldv_snapshotcrc;
-	field* fldv_snapshotmaker;
+	Field* fldv_vernum;
+	Field* fldv_cversion;
+	Field* fldv_snapshotcrc;
+	Field* fldv_snapshotmaker;
 
-	field* fldh_objid;
-	field* fldh_vernum;
-	field* fldh_objverid;
-	field* fldh_removed;
-	field* fldh_datapacked;
-	field* fldh_objdata;
-	field* fldh_datahash;
+	Field* fldh_objid;
+	Field* fldh_vernum;
+	Field* fldh_objverid;
+	Field* fldh_removed;
+	Field* fldh_datapacked;
+	Field* fldh_objdata;
+	Field* fldh_datahash;
 	class index* indh;
 	char* rech1;
 	char* rech2;
@@ -9780,13 +9780,13 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 	char curobj[16];
 	unsigned int ih, nh;
 
-	field* flde_objid;
-	field* flde_vernum;
-	field* flde_extname;
-	field* flde_extverid;
-	field* flde_datapacked;
-	field* flde_extdata;
-	field* flde_datahash;
+	Field* flde_objid;
+	Field* flde_vernum;
+	Field* flde_extname;
+	Field* flde_extverid;
+	Field* flde_datapacked;
+	Field* flde_extdata;
+	Field* flde_datahash;
 	class index* inde;
 	char* rece;
 	DynamicArray<char*> reces;
@@ -10602,21 +10602,21 @@ bool T_1CD::save_part_depot_config(const String& _filename, int ver_begin, int v
 {
 	char* rec;
 	char* frec;
-	field* fldd_depotver;
-	//field* fldd_rootobjid;
+	Field* fldd_depotver;
+	//Field* fldd_rootobjid;
 
-	field* fldv_vernum;
-	field* fldv_cversion;
-	field* fldv_snapshotcrc;
-	field* fldv_snapshotmaker;
+	Field* fldv_vernum;
+	Field* fldv_cversion;
+	Field* fldv_snapshotcrc;
+	Field* fldv_snapshotmaker;
 
-	field* fldh_objid;
-	field* fldh_vernum;
-	field* fldh_objverid;
-	field* fldh_removed;
-	field* fldh_datapacked;
-	field* fldh_objdata;
-	field* fldh_datahash;
+	Field* fldh_objid;
+	Field* fldh_vernum;
+	Field* fldh_objverid;
+	Field* fldh_removed;
+	Field* fldh_datapacked;
+	Field* fldh_objdata;
+	Field* fldh_datahash;
 	class index* indh;
 	char* rech; // текущая запись HISTORY
 	char* rech1; // запись с версией < ver_begin
@@ -10628,13 +10628,13 @@ bool T_1CD::save_part_depot_config(const String& _filename, int ver_begin, int v
 	char curobj[16];
 	unsigned int ih, nh;
 
-	field* flde_objid;
-	field* flde_vernum;
-	field* flde_extname;
-	field* flde_extverid;
-	field* flde_datapacked;
-	field* flde_extdata;
-	field* flde_datahash;
+	Field* flde_objid;
+	Field* flde_vernum;
+	Field* flde_extname;
+	Field* flde_extverid;
+	Field* flde_datapacked;
+	Field* flde_extdata;
+	Field* flde_datahash;
 	class index* inde;
 	char* rece;
 	unsigned int ie, ne, je;
@@ -11306,7 +11306,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int ver_begin, int v
 // Проверка и восстановление таблицы размещения файла DATA переденной таблицы
 // Проверка записей происходит по тестовому шаблону, созданному из описания полей
 // Проверяются страницы файла DATA, если проверка не проходит, производится поиск подходящей страницы в файле.
-void T_1CD::restore_DATA_allocation_table(table* tab)
+void T_1CD::restore_DATA_allocation_table(Table* tab)
 {
 	char* rectt;
 	unsigned int block;

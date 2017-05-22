@@ -231,7 +231,7 @@ bool container_file::open()
 	String tn;
 	wchar_t tempfile[MAX_PATH];
 	unsigned int i;
-	table* t;
+	Table* t;
 	table_blob_file* addr;
 	unsigned int maxpartno;
 
@@ -292,7 +292,7 @@ bool container_file::ropen()
 {
 	wchar_t tempfile[MAX_PATH];
 	unsigned int i;
-	table* t;
+	Table* t;
 	table_blob_file* addr;
 	unsigned int maxpartno;
 
@@ -585,7 +585,7 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 	TGUID* dynup;
 	int ndynup;
 	TGUID g;
-	table* tab;
+	Table* tab;
 	int dynno;
 	container_file* pcf;
 
@@ -754,7 +754,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 	TGUID* dynup;
 	int ndynup;
 	TGUID g;
-	table* tab;
+	Table* tab;
 	int dynno;
 	container_file* pcf;
 	std::set<String> del;

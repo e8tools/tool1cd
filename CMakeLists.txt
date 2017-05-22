@@ -20,8 +20,6 @@ if (MSVC)
 
 	set (CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} "/NODEFAULTLIBS:MSVCRT")
 
-else()
-	set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-fpermissive")
 endif()
 
 set (TOOL_SOURCES cTool_1CD_Main.cpp ParseCommandLine.cpp MessageRegistration.cpp Class_1CD.cpp

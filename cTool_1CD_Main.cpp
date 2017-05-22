@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 	int i, j, k, m;
 	int ret;
 	unsigned int n;
-	table* t;
+	Table* t;
 	String f, v;
 	bool b;
 	boost::regex* expr;

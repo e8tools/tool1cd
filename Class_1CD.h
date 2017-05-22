@@ -26,7 +26,7 @@
 //String GUIDasMS(const unsigned char* fr);
 
 class T_1CD;
-class table;
+class Table;
 
 class ConfigStorageTableConfig;
 class ConfigStorageTableConfigSave;
@@ -129,7 +129,7 @@ enum v8objtype
 
 class v8object
 {
-friend table;
+friend Table;
 friend T_1CD;
 private:
 	MessageRegistrator* err;
@@ -243,9 +243,9 @@ enum type_fields
 //
 
 
-class field
+class Field
 {
-friend table;
+friend Table;
 friend T_1CD;
 public:
 	static bool showGUID;
@@ -258,7 +258,7 @@ private:
 	int precision;
 	bool case_sensitive;
 
-	table* parent;
+	Table* parent;
 	int len; // длина поля в байтах
 	int offset; // смещение поля в записи
 	static bool showGUIDasMS; // Признак, что GUID надо преобразовывать по стилю MS (иначе по стилю 1С)
@@ -267,7 +267,7 @@ private:
 	static bool null_index_initialized;
 
 public:
-	field(table* _parent);
+	Field(Table* _parent);
 
 	int getlen(); // возвращает длину поля в байтах
 	String getname();
@@ -275,7 +275,7 @@ public:
 	String get_XML_presentation(char* rec, bool ignore_showGUID = false);
 	bool get_bynary_value(char* buf, bool null, String& value);
 	type_fields gettype();
-	table* getparent();
+	Table* getparent();
 	bool getnull_exists();
 	int getlength();
 	int getprecision();
@@ -290,7 +290,7 @@ public:
 
 struct index_record
 {
-	field* field;
+	Field* field;
 	int len;
 };
 
@@ -345,10 +345,10 @@ const short int indexpage_is_leaf = 2; // Установленный флаг о
 
 class index
 {
-friend table;
+friend Table;
 private:
 	MessageRegistrator* err;
-	table* tbase;
+	Table* tbase;
 	db_ver version; // версия базы
 	unsigned int pagesize; // размер одной стрницы (до версии 8.2.14 всегда 0x1000 (4K), начиная с версии 8.3.8 от 0x1000 (4K) до 0x10000 (64K))
 
@@ -375,7 +375,7 @@ private:
 #endif //#ifdef PublicRelease
 
 public:
-	index(table* _base);
+	index(Table* _base);
 	~index();
 
 	String getname();
@@ -431,7 +431,7 @@ class changed_rec
 {
 public:
 	// владелец
-	table* parent;
+	Table* parent;
 
 	// физический номер записи (для добавленных записей нумерация начинается с phys_numrecords)
 	unsigned int numrec;
@@ -449,7 +449,7 @@ public:
 	// содержит указатель на TStream с содержимым поля (или NULL)
 	char* rec;
 
-	changed_rec(table* _parent, changed_rec_type crt, unsigned int phys_numrecord);
+	changed_rec(Table* _parent, changed_rec_type crt, unsigned int phys_numrecord);
 	~changed_rec();
 	void clear();
 };
@@ -478,8 +478,8 @@ struct export_import_table_root
 	int descr_version_2; // версия изменения
 };
 
-class table{
-friend field;
+class Table{
+friend Field;
 friend class index;
 friend changed_rec;
 friend T_1CD;
@@ -492,7 +492,7 @@ private:
 	String name;
 	int num_fields;
 	int num_fields2; // количество элементов в массиве fields
-	field** fields;
+	Field** fields;
 	int num_indexes;
 	class index** indexes;
 	bool recordlock;
@@ -543,17 +543,17 @@ public:
 	void fillrecordsindex(); // заполнить recordsindex не динамически
 
 
-	table();
-	table(T_1CD* _base, int block_descr);
-	table(T_1CD* _base, String _descr, int block_descr = 0);
-	~table();
+	Table();
+	Table(T_1CD* _base, int block_descr);
+	Table(T_1CD* _base, String _descr, int block_descr = 0);
+	~Table();
 	void init(int block_descr = 0);
 
 	String getname();
 	String getdescription();
 	int get_numfields();
 	int get_numindexes();
-	field* getfield(int numfield);
+	Field* getfield(int numfield);
 	class index* getindex(int numindex);
 	bool get_issystem();
 	int get_recordlen();
@@ -630,14 +630,14 @@ struct table_rec
 // Структура файла таблицы контейнера файлов
 struct table_file
 {
-	table* t;
+	Table* t;
 	String name; // Имя, как оно хранится в таблице
 	unsigned int maxpartno;
 	table_blob_file* addr;
 	FILETIME ft_create;
 	FILETIME ft_modify;
 
-	table_file(table* _t, const String& _name, unsigned int _maxpartno);
+	table_file(Table* _t, const String& _name, unsigned int _maxpartno);
 	~table_file();
 };
 
@@ -646,18 +646,18 @@ struct table_file
 class TableFiles
 {
 private:
-	table* tab;
+	Table* tab;
 	std::map<String,table_file*> allfiles;
 	char* rec;
 	bool ready;
 
 	bool test_table();
 public:
-	TableFiles(table* t);
+	TableFiles(Table* t);
 	virtual ~TableFiles();
 	bool getready(){return ready;};
 	table_file* getfile(const String& name);
-	table* gettable(){return tab;};
+	Table* gettable(){return tab;};
 
 	// __property std::map<String,table_file*> files = {read = allfiles};
 	std::map<String,table_file*> files();
@@ -794,9 +794,9 @@ struct pagemaprec
 class T_1CD
 {
 friend v8object;
-friend table;
+friend Table;
 friend class index;
-friend field;
+friend Field;
 public:
 	static bool recoveryMode;
 private:
@@ -810,7 +810,7 @@ private:
 	v8object* free_blocks; // свободные блоки
 	v8object* root_object; // корневой объект
 	int num_tables; // количество таблиц
-	table** tables; // таблицы базы
+	Table** tables; // таблицы базы
 	bool readonly;
 //#ifndef PublicRelease
 //	ICU* icu;
@@ -840,8 +840,8 @@ private:
 
 	void add_supplier_config(table_file* file);
 
-	bool recursive_test_stream_format(table* t, unsigned int nrec);
-	bool recursive_test_stream_format2(table* t, unsigned int nrec); // для DBSCHEMA
+	bool recursive_test_stream_format(Table* t, unsigned int nrec);
+	bool recursive_test_stream_format2(Table* t, unsigned int nrec); // для DBSCHEMA
 	bool recursive_test_stream_format(TStream* str, String path, bool maybezipped2 = false);
 	bool recursive_test_stream_format(v8catalog* cat, String path);
 
@@ -853,14 +853,14 @@ public:
 	bool is_depot; // признак хранилища конфигурации
 
 	// Таблицы информационной базы
-	table* table_config;
-	table* table_configsave;
-	table* table_params;
-	table* table_files;
-	table* table_dbschema;
-	table* table_configcas;
-	table* table_configcassave;
-	table* table__extensionsinfo;
+	Table* table_config;
+	Table* table_configsave;
+	Table* table_params;
+	Table* table_files;
+	Table* table_dbschema;
+	Table* table_configcas;
+	Table* table_configcassave;
+	Table* table__extensionsinfo;
 
 //	__property TableFiles* files_config = {read = get_files_config};
 //	__property TableFiles* files_configsave = {read = get_files_configsave};
@@ -874,16 +874,16 @@ public:
 	ConfigStorageTableConfigSave* cs_configsave;
 
 	// Таблицы хранилища конфигураций
-	table* table_depot;
-	table* table_users;
-	table* table_objects;
-	table* table_versions;
-	table* table_labels;
-	table* table_history;
-	table* table_lastestversions;
-	table* table_externals;
-	table* table_selfrefs;
-	table* table_outrefs;
+	Table* table_depot;
+	Table* table_users;
+	Table* table_objects;
+	Table* table_versions;
+	Table* table_labels;
+	Table* table_history;
+	Table* table_lastestversions;
+	Table* table_externals;
+	Table* table_selfrefs;
+	Table* table_outrefs;
 
 	String ver;
 
@@ -895,7 +895,7 @@ public:
 	~T_1CD();
 	bool is_open();
 	int get_numtables();
-	table* gettable(int numtable);
+	Table* gettable(int numtable);
 	db_ver getversion();
 
 	bool save_config(String filename);
@@ -908,8 +908,8 @@ public:
 	bool save_config_ext(const String& _filename, const TGUID& uid, const String& hashname);
 	bool save_config_ext_db(const String& _filename, const String& hashname);
 
-	field* get_field(table* tab, String fieldname);
-	class index* get_index(table* tab, String indexname);
+	Field* get_field(Table* tab, String fieldname);
+	class index* get_index(Table* tab, String indexname);
 
 	bool get_readonly();
 	void set_readonly(bool ro);
@@ -921,11 +921,11 @@ public:
 	void find_lost_objects();
 	void find_and_save_lost_objects();
 	bool create_table(String path); // создание таблицы из файлов импорта таблиц
-	bool delete_table(table* tab);
+	bool delete_table(Table* tab);
 	bool delete_object(v8object* ob);
 	bool replaceTREF(String mapfile); // замена значений полей ...TREF во всех таблицах базы
 	void find_and_create_lost_tables();
-	void restore_DATA_allocation_table(table* tab);
+	void restore_DATA_allocation_table(Table* tab);
 	bool test_block_by_template(unsigned int testblock, char* tt, unsigned int num, int rlen, int len);
 #endif //#ifdef PublicRelease
 	String& getfilename(){return filename;};
