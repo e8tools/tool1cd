@@ -370,11 +370,15 @@ int main(int argc, char* argv[])
 						mess.AddError("Попытка выгрузки конфигурации хранилища из базы, не являющейся хранилищем конфигурации.");
 						break;
 					}
-					f = pc.param1;
-					if(f.Compare("0") == 0) j = 0;
-					else j = f.ToIntDef(0);
-					j = base1CD.get_ver_depot_config(j);
-					if(!j)
+					int version_number;
+					String version_number_param = pc.param1;
+					if (version_number_param.Compare("0") == 0) {
+						version_number = 0;
+					} else {
+						version_number = version_number_param.ToIntDef(0);
+					}
+					version_number = base1CD.get_ver_depot_config(version_number);
+					if(!version_number)
 					{
 						mess.AddError("Запрошенной версии конфигурации нет в хранилище конфигурации.");
 						break;
@@ -386,17 +390,17 @@ int main(int argc, char* argv[])
 						if(!boost::filesystem::exists(cfpath))
 						{
 							mess.AddMessage_("Каталог не существует.", msError,
-								"Каталог", f);
+								"Каталог", cfpath.string());
 							break;
 						}
-						cfpath /= static_cast<string>(String(string("v") + j + string(".cf")));
+						cfpath /= static_cast<string>(String(string("v") + version_number + string(".cf")));
 					}
-					if(base1CD.save_depot_config(cfpath.string(), j))
+					if(base1CD.save_depot_config(cfpath.string(), version_number))
 						mess.AddMessage_("Сохранение конфигурации хранилища завершено.", msSuccesfull,
-							"Файл", f);
+							"Файл", cfpath.string());
 					else
 						mess.AddMessage_("Не удалось сохранить конфигурацию хранилища.", msError,
-							"Файл", f);
+							"Файл", cfpath.string());
 					break;
 				}
 				case cmd_save_depot_config_part:
