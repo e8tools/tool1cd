@@ -46,3 +46,4 @@ find_package (ZLIB REQUIRED)
 include_directories (${ZLIB_INCLUDE_DIRS})
 target_link_libraries (ctool1cd ${ZLIB_LIBRARIES})
 
+install (TARGETS ctool1cd DESTINATION bin)
