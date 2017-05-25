@@ -258,57 +258,57 @@ int main(int argc, char* argv[])
 
 					break;
 				}
-				case cmd_save_config:
+				case cmd_save_config: {
 					if(base1CD.is_open())
 					{
-						boost::filesystem::path fpath(static_cast<string>(pc.param1));
-						fpath = boost::filesystem::absolute(fpath);
-						if (!boost::iequals(fpath.extension().string(), ".cf"))
+						boost::filesystem::path cfpath(static_cast<string>(pc.param1));
+						if (!boost::iequals(cfpath.extension().string(), ".cf"))
 						{
-							if(!boost::filesystem::exists(fpath))
+							if(!boost::filesystem::exists(cfpath))
 							{
 								mess.AddMessage_("Каталог не существует.", msError,
-									"Каталог", fpath.string());
+									"Каталог", cfpath.string());
 								break;
 							}
-							fpath /= "dbcf.cf";
+							cfpath /= "dbcf.cf";
 						}
-						if (base1CD.save_config(fpath.string())) {
+						if (base1CD.save_config(cfpath.string())) {
 							mess.AddMessage_("Сохранение конфигурации базы данных завершено.", msSuccesfull,
-								"Файл", fpath.string());
+								"Файл", cfpath.string());
 						} else {
 							mess.AddMessage_("Не удалось сохранить конфигурацию базы данных.", msError,
-								"Файл", fpath.string());
+								"Файл", cfpath.string());
 						}
 					}
 					else {
 						mess.AddError("Попытка выгрузки конфигурации базы данных без открытой базы.");
 					}
 					break;
-				case cmd_save_configsave:
+				}
+				case cmd_save_configsave: {
 					if(base1CD.is_open())
 					{
-						f = pc.param1;
-						f = System::Ioutils::TPath::GetFullPath(f);
-						if(f.SubString(f.Length() - 2, 3).CompareIC(".cf") != 0)
+						boost::filesystem::path cfpath(static_cast<string>(pc.param1));
+						if (!boost::iequals(cfpath.extension().string(), ".cf"))
 						{
-							if(!DirectoryExists(f))
+							if(!boost::filesystem::exists(cfpath))
 							{
 								mess.AddMessage_("Каталог не существует.", msError,
-									"Каталог", f);
+									"Каталог", cfpath.string());
 								break;
 							}
-							f = f + "\\cf.cf";
+							cfpath /= "cf.cf";
 						}
-						if(base1CD.save_configsave(f))
+						if(base1CD.save_configsave(cfpath.string()))
 							mess.AddMessage_("Сохранение основной конфигурации завершено.", msSuccesfull,
-								"Файл", f);
+								"Файл", cfpath.string());
 						else
 							mess.AddMessage_("Не удалось сохранить основную конфигурацию.", msError,
-								"Файл", f);
+								"Файл", cfpath.string());
 					}
 					else mess.AddError("Попытка выгрузки основной конфигурации без открытой базы.");
 					break;
+				}
 				case cmd_save_vendors_configs:
 					if(base1CD.is_open())
 					{
