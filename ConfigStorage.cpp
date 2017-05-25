@@ -662,7 +662,7 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 		delete DynamicallyUpdated;
 	}
 
-	for(pfilesmap = tabf->files().begin(); pfilesmap != tabf->files().end(); ++pfilesmap)
+	for (pfilesmap = tabf->files().begin(); pfilesmap != tabf->files().end(); ++pfilesmap)
 	{
 		tf = pfilesmap->second;
 		if(tf == _DynamicallyUpdated) continue;

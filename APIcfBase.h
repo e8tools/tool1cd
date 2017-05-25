@@ -31,23 +31,23 @@
 struct v8header_struct{
 	int64_t time_create;
 	int64_t time_modify;
-	int zero;
+	int32_t zero;
 	//wchar_t* name;
 };
 
 //---------------------------------------------------------------------------
 struct fat_item{
-	int header_start;
-	int data_start;
-	int ff; // всегда 7fffffff
+	int32_t header_start;
+	int32_t data_start;
+	int32_t ff; // всегда 7fffffff
 };
 
 //---------------------------------------------------------------------------
 struct catalog_header{
-	int start_empty; // начало первого пустого блока
-	int page_size; // размер страницы по умолчанию
-	int version; // версия
-	int zero; // всегда ноль?
+	int32_t start_empty; // начало первого пустого блока
+	int32_t page_size; // размер страницы по умолчанию
+	int32_t version; // версия
+	int32_t zero; // всегда ноль?
 };
 
 //---------------------------------------------------------------------------

@@ -164,15 +164,15 @@ v8object* v8object::last = NULL;
 
 memblock* memblock::first = NULL;
 memblock* memblock::last = NULL;
-unsigned int memblock::count = 0;
-unsigned int memblock::maxcount;
-//unsigned int memblock::maxcount = 0x10000; // 256 мегабайт ()
-//unsigned int memblock::maxcount = 0x8000; // 128 мегабайт ()
+uint32_t memblock::count = 0;
+uint32_t memblock::maxcount;
+//uint32_t memblock::maxcount = 0x10000; // 256 мегабайт ()
+//uint32_t memblock::maxcount = 0x8000; // 128 мегабайт ()
 memblock** memblock::memblocks = NULL;
-unsigned int memblock::numblocks = 0;
-unsigned int memblock::array_numblocks = 0;
-unsigned int memblock::delta = 128;
-unsigned int memblock::pagesize;
+uint32_t memblock::numblocks = 0;
+uint32_t memblock::array_numblocks = 0;
+uint32_t memblock::delta = 128;
+uint32_t memblock::pagesize;
 
 #ifndef getcfname
 #ifndef console
@@ -190,7 +190,7 @@ tree* get_treeFromV8file(v8file* f)
 	TBytesStream* sb;
 	TEncoding *enc;
 	TBytes bytes;
-	int offset;
+	int32_t offset;
 	tree* rt;
 
 	sb = new TBytesStream(bytes);
@@ -238,7 +238,7 @@ unsigned char from_hex_digit(char digit)
 // Класс memblock
 
 //---------------------------------------------------------------------------
-memblock::memblock(TFileStream* fs, unsigned int _numblock, bool for_write, bool read)
+memblock::memblock(TFileStream* fs, uint32_t _numblock, bool for_write, bool read)
 {
 	numblock = _numblock;
 	if(count >= maxcount) delete first; // если количество кешированных блоков превышает максимальное, удаляем последний, к которому было обращение
@@ -252,7 +252,7 @@ memblock::memblock(TFileStream* fs, unsigned int _numblock, bool for_write, bool
 	buf = new char[pagesize];
 	if(for_write)
 	{
-		unsigned int fnumblocks = fs->GetSize() / pagesize;
+		uint32_t fnumblocks = fs->GetSize() / pagesize;
 		if(fnumblocks <= numblock)
 		{
 			memset(buf, 0, pagesize);
@@ -326,7 +326,7 @@ char* memblock::getblock(bool for_write)
 //---------------------------------------------------------------------------
 void memblock::garbage()
 {
-	unsigned int curt = GetTickCount();
+	uint32_t curt = GetTickCount();
 	while(first)
 	{
 		if(curt - first->lastdataget > live_cash * 60 * 1000) delete first;
@@ -335,7 +335,7 @@ void memblock::garbage()
 }
 
 //---------------------------------------------------------------------------
-char* memblock::getblock(TFileStream* fs, unsigned int _numblock)
+char* memblock::getblock(TFileStream* fs, uint32_t _numblock)
 {
 	if(_numblock >= numblocks) return NULL;
 	if(!memblocks[_numblock]) new memblock(fs, _numblock, false, true);
@@ -343,7 +343,7 @@ char* memblock::getblock(TFileStream* fs, unsigned int _numblock)
 }
 
 //---------------------------------------------------------------------------
-char* memblock::getblock_for_write(TFileStream* fs, unsigned int _numblock, bool read)
+char* memblock::getblock_for_write(TFileStream* fs, uint32_t _numblock, bool read)
 {
 	if(_numblock > numblocks) return NULL;
 	if(_numblock == numblocks) add_block();
@@ -353,12 +353,12 @@ char* memblock::getblock_for_write(TFileStream* fs, unsigned int _numblock, bool
 }
 
 //---------------------------------------------------------------------------
-void memblock::create_memblocks(unsigned int _numblocks)
+void memblock::create_memblocks(uint32_t _numblocks)
 {
 	numblocks = _numblocks;
 	array_numblocks = (numblocks / delta + 1) * delta;
 	memblocks = new memblock*[array_numblocks];
-	memset(memblocks, 0, array_numblocks * 4); // 4 = sizeof(memblock*)
+	memset(memblocks, 0, array_numblocks * sizeof(memblock *));
 }
 
 //---------------------------------------------------------------------------
@@ -388,7 +388,7 @@ void memblock::add_block()
 }
 
 //---------------------------------------------------------------------------
-unsigned int memblock::get_numblocks()
+uint32_t memblock::get_numblocks()
 {
 	return numblocks;
 }
@@ -417,7 +417,7 @@ void memblock::write()
 //---------------------------------------------------------------------------
 void v8object::garbage()
 {
-	unsigned int curt = GetTickCount();
+	uint32_t curt = GetTickCount();
 	v8object* ob = first;
 
 	while(ob)
@@ -459,7 +459,7 @@ void v8object::init()
 }
 
 //---------------------------------------------------------------------------
-void v8object::init(T_1CD* _base, int blockNum)
+void v8object::init(T_1CD* _base, int32_t blockNum)
 {
 	base = _base;
 	lockinmemory = false;
@@ -517,8 +517,8 @@ void v8object::init(T_1CD* _base, int blockNum)
 			while(t->blocks[real_numblocks]) real_numblocks++;
 			if(real_numblocks)
 			{
-				blocks = new unsigned int[real_numblocks];
-				memcpy(blocks, t->blocks, real_numblocks * 4);
+				blocks = new uint32_t[real_numblocks];
+				memcpy(blocks, t->blocks, real_numblocks * sizeof(*blocks));
 			}
 			else blocks = NULL;
 		}
@@ -529,8 +529,8 @@ void v8object::init(T_1CD* _base, int blockNum)
 			else numblocks = 0;
 			if(numblocks)
 			{
-				blocks = new unsigned int[numblocks];
-				memcpy(blocks, t->blocks, numblocks * 4);
+				blocks = new uint32_t[numblocks];
+				memcpy(blocks, t->blocks, numblocks * sizeof(*blocks));
 			}
 			else blocks = NULL;
 		}
@@ -584,8 +584,8 @@ void v8object::init(T_1CD* _base, int blockNum)
 		else numblocks = 0;
 		if(numblocks)
 		{
-			blocks = new unsigned int[numblocks];
-			memcpy(blocks, t->blocks, numblocks * 4);
+			blocks = new uint32_t[numblocks];
+			memcpy(blocks, t->blocks, numblocks * sizeof(*blocks));
 		}
 		else blocks = NULL;
 
@@ -626,8 +626,8 @@ void v8object::init(T_1CD* _base, int blockNum)
 		while(t->blocks[real_numblocks]) real_numblocks++;
 		if(real_numblocks)
 		{
-			blocks = new unsigned int[real_numblocks];
-			memcpy(blocks, t->blocks, real_numblocks * 4);
+			blocks = new uint32_t[real_numblocks];
+			memcpy(blocks, t->blocks, real_numblocks * sizeof(*blocks));
 		}
 		else blocks = NULL;
 
@@ -646,14 +646,14 @@ void v8object::init(T_1CD* _base, int blockNum)
 }
 
 //---------------------------------------------------------------------------
-v8object::v8object(T_1CD* _base, int blockNum)
+v8object::v8object(T_1CD* _base, int32_t blockNum)
 {
 	init(_base, blockNum);
 }
 
 v8object::v8object(T_1CD* _base)
 {
-	int blockNum;
+	int32_t blockNum;
 	char* b;
 
 	blockNum = _base->get_free_block();
@@ -687,10 +687,10 @@ char* v8object::getdata()
 	char* tt;
 	objtab* b;
 	objtab838* bb;
-	unsigned int i, l;
-	int j, pagesize, blocksperpage;
+	uint32_t i, l;
+	int32_t j, pagesize, blocksperpage;
 	uint64_t ll;
-	unsigned int curlen;
+	uint32_t curlen;
 
 	lastdataget = GetTickCount();
 	if(!len) return NULL;
@@ -775,17 +775,17 @@ char* v8object::getdata()
 //---------------------------------------------------------------------------
 char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 {
-	unsigned int curblock;
-	unsigned int curoffblock;
+	uint32_t curblock;
+	uint32_t curoffblock;
 	char* _buf;
 	char* _bu;
-	unsigned int curlen;
-	unsigned int offsperpage;
+	uint32_t curlen;
+	uint32_t offsperpage;
 
 	objtab* b;
 	objtab838* bb;
-	unsigned int curobjblock;
-	unsigned int curoffobjblock;
+	uint32_t curobjblock;
+	uint32_t curoffobjblock;
 
 	lastdataget = GetTickCount();
 
@@ -954,14 +954,14 @@ void v8object::savetofile(String _filename)
 //---------------------------------------------------------------------------
 uint64_t v8object::get_fileoffset(uint64_t offset)
 {
-	unsigned int _start = offset;
+	uint32_t _start = offset;
 	objtab* b;
 	objtab838* bb;
-	unsigned int curblock;
-	unsigned int curoffblock;
-	unsigned int curobjblock;
-	unsigned int curoffobjblock;
-	unsigned int offsperpage;
+	uint32_t curblock;
+	uint32_t curoffblock;
+	uint32_t curobjblock;
+	uint32_t curoffobjblock;
+	uint32_t offsperpage;
 
 	if(type == v8ot_free80)
 	{
@@ -1012,14 +1012,14 @@ uint64_t v8object::get_fileoffset(uint64_t offset)
 //---------------------------------------------------------------------------
 bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 {
-	unsigned int curblock;
-	unsigned int curoffblock;
+	uint32_t curblock;
+	uint32_t curoffblock;
 	char* _buf;
-	unsigned int curlen;
+	uint32_t curlen;
 
-	unsigned int curobjblock;
-	unsigned int curoffobjblock;
-	unsigned int offsperpage;
+	uint32_t curobjblock;
+	uint32_t curoffobjblock;
+	uint32_t offsperpage;
 
 	if(base->get_readonly())
 	{
@@ -1119,12 +1119,12 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 //---------------------------------------------------------------------------
 bool v8object::setdata(const void* _buf, uint64_t _length)
 {
-	unsigned int curlen;
+	uint32_t curlen;
 	char* buf;
-	unsigned int offsperpage;
-	unsigned int curblock;
-	unsigned int curobjblock;
-	unsigned int curoffobjblock;
+	uint32_t offsperpage;
+	uint32_t curblock;
+	uint32_t curobjblock;
+	uint32_t curoffobjblock;
 
 	if(base->get_readonly())
 	{
@@ -1151,7 +1151,7 @@ bool v8object::setdata(const void* _buf, uint64_t _length)
 		for (unsigned i = 0; i < numblocks; i++)
 		{
 			objtab *b = (objtab*)base->getblock(blocks[i]);
-			for(int j = 0; j < b->numblocks; j++)
+			for(int32_t j = 0; j < b->numblocks; j++)
 			{
 				curlen = _length > 0x1000 ? 0x1000 : _length;
 				char *tt = base->getblock_for_write(b->blocks[j], false);
@@ -1212,12 +1212,12 @@ bool v8object::setdata(const void* _buf, uint64_t _length)
 //---------------------------------------------------------------------------
 bool v8object::setdata(TStream* stream)
 {
-	unsigned int curlen;
+	uint32_t curlen;
 	uint64_t _length;
-	unsigned int offsperpage;
-	unsigned int curblock;
-	unsigned int curobjblock;
-	unsigned int curoffobjblock;
+	uint32_t offsperpage;
+	uint32_t curblock;
+	uint32_t curobjblock;
+	uint32_t curoffobjblock;
 
 	if(base->get_readonly())
 	{
@@ -1245,7 +1245,7 @@ bool v8object::setdata(TStream* stream)
 		for (unsigned i = 0; i < numblocks; i++)
 		{
 			objtab *b = (objtab*)base->getblock(blocks[i]);
-			for(int j = 0; j < b->numblocks; j++)
+			for(int32_t j = 0; j < b->numblocks; j++)
 			{
 				curlen = _length > 0x1000 ? 0x1000 : _length;
 				char *tt = base->getblock_for_write(b->blocks[j], false);
@@ -1304,15 +1304,15 @@ bool v8object::setdata(TStream* stream)
 //---------------------------------------------------------------------------
 bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 {
-	unsigned int curblock;
-	unsigned int curoffblock;
-	unsigned int curlen;
+	uint32_t curblock;
+	uint32_t curoffblock;
+	uint32_t curlen;
 
 	// objtab* b;
 	// objtab838* bb;
-	unsigned int curobjblock;
-	unsigned int curoffobjblock;
-	unsigned int offsperpage;
+	uint32_t curobjblock;
+	uint32_t curoffobjblock;
+	uint32_t offsperpage;
 
 	if(base->get_readonly())
 	{
@@ -1409,18 +1409,18 @@ bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 void v8object::set_len(uint64_t _len)
 {
 
-	unsigned int num_data_blocks;
-	unsigned int num_blocks;
-	unsigned int cur_data_blocks;
-	unsigned int bl;
-	unsigned int i;
+	uint32_t num_data_blocks;
+	uint32_t num_blocks;
+	uint32_t cur_data_blocks;
+	uint32_t bl;
+	uint32_t i;
 	v8ob* b;
 	// objtab* ot;
 	v838ob_data* bd;
 	objtab838* bb;
-	unsigned int offsperpage;
+	uint32_t offsperpage;
 	uint64_t maxlen;
-	int newfatlevel;
+	int32_t newfatlevel;
 
 	if(len == _len) return;
 
@@ -1446,7 +1446,7 @@ void v8object::set_len(uint64_t _len)
 		if(numblocks != num_blocks)
 		{
 			delete[] blocks;
-			if(num_blocks) blocks = new unsigned int[num_blocks];
+			if(num_blocks) blocks = new uint32_t[num_blocks];
 			else blocks = NULL;
 		}
 
@@ -1528,7 +1528,7 @@ void v8object::set_len(uint64_t _len)
 		if(numblocks != num_blocks)
 		{
 			delete[] blocks;
-			if(num_blocks) blocks = new unsigned int[num_blocks];
+			if(num_blocks) blocks = new uint32_t[num_blocks];
 			else blocks = NULL;
 		}
 
@@ -1624,7 +1624,7 @@ void v8object::set_len(uint64_t _len)
 }
 
 //---------------------------------------------------------------------------
-void v8object::set_block_as_free(unsigned int block_number)
+void v8object::set_block_as_free(uint32_t block_number)
 {
 	//if(type)
 	if(block != 1)
@@ -1635,8 +1635,8 @@ void v8object::set_block_as_free(unsigned int block_number)
 		return;
 	}
 
-	int j = len >> 10; // length / 1024
-	int i = len & 0x3ff; // length % 1024
+	int32_t j = len >> 10; // length / 1024
+	int32_t i = len & 0x3ff; // length % 1024
 
 	v8ob *ob = (v8ob*)base->getblock_for_write(block, true);
 
@@ -1644,7 +1644,7 @@ void v8object::set_block_as_free(unsigned int block_number)
 	{
 		len++;
 		ob->len = len;
-		unsigned int *b = (unsigned int*)base->getblock_for_write(blocks[j], true);
+		uint32_t *b = (uint32_t*)base->getblock_for_write(blocks[j], true);
 		b[i] = block_number;
 		if(numblocks <= j) numblocks = j + 1;
 	}
@@ -1653,14 +1653,14 @@ void v8object::set_block_as_free(unsigned int block_number)
 		ob->blocks[real_numblocks] = block_number;
 		delete[] blocks;
 		real_numblocks++;
-		blocks = new unsigned int[real_numblocks];
+		blocks = new uint32_t[real_numblocks];
 		memcpy(blocks, ob->blocks, real_numblocks * 4);
 	}
 
 }
 
 //---------------------------------------------------------------------------
-unsigned int v8object::get_free_block()
+uint32_t v8object::get_free_block()
 {
 	//if(type)
 	if(block != 1)
@@ -1676,7 +1676,7 @@ unsigned int v8object::get_free_block()
 		len--;
 		unsigned j = len >> 10; // length / 1024
 		unsigned i = len & 0x3ff; // length % 1024
-		unsigned int *b = (unsigned int*)base->getblock_for_write(blocks[j], true);
+		uint32_t *b = (uint32_t*)base->getblock_for_write(blocks[j], true);
 		unsigned k = b[i];
 		b[i] = 0;
 		v8ob *ob = (v8ob*)base->getblock_for_write(block, true);
@@ -1713,7 +1713,7 @@ void v8object::write_new_version()
 {
 	_version new_ver;
 	if(new_version_recorded) return;
-	int veroffset = type == v8ot_data80 || type == v8ot_free80 ? 12 : 4;
+	int32_t veroffset = type == v8ot_data80 || type == v8ot_free80 ? 12 : 4;
 
 	new_ver.version_1 = version.version_1 + 1;
 	new_ver.version_2 = version.version_2;
@@ -1740,20 +1740,20 @@ v8object* v8object::get_next()
 }
 
 //---------------------------------------------------------------------------
-unsigned int v8object::get_block_number()
+uint32_t v8object::get_block_number()
 {
 	return block;
 }
 
 //---------------------------------------------------------------------------
 // rewrite - перезаписывать поток _str. Истина - перезаписывать (по умолчанию), Ложь - дописывать
-TStream* v8object::readBlob(TStream* _str, unsigned int _startblock, unsigned int _length, bool rewrite)
+TStream* v8object::readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, bool rewrite)
 {
 //	char* _b;
-	unsigned int _curblock;
+	uint32_t _curblock;
 	char* _curb;
-	unsigned int /*_filelen, */_numblock;
-	unsigned int startlen;
+	uint32_t /*_filelen, */_numblock;
+	uint32_t startlen;
 
 	if(rewrite) _str->SetSize(0);
 	startlen = _str->GetPosition();
@@ -1786,8 +1786,8 @@ TStream* v8object::readBlob(TStream* _str, unsigned int _startblock, unsigned in
 			return _str;
 		}
 		getdata(_curb, _curblock << 8, 0x100);
-		_curblock = *(unsigned int*)_curb;
-		unsigned short int _curlen = *(unsigned short int*)(_curb + 4);
+		_curblock = *(uint32_t*)_curb;
+		uint16_t _curlen = *(uint16_t*)(_curb + 4);
 		if(_curlen > 0xfa)
 		{
 			error("Попытка чтения из блока файла Blob более 0xfa байт",
@@ -1853,7 +1853,7 @@ bool index::get_is_primary()
 }
 
 //---------------------------------------------------------------------------
-int index::get_num_records()
+int32_t index::get_num_records()
 {
 	return num_records;
 }
@@ -1865,7 +1865,7 @@ index_record* index::get_records()
 }
 
 //---------------------------------------------------------------------------
-unsigned int index::get_numrecords()
+uint32_t index::get_numrecords()
 {
 	if(!start) return 0;
 	if(!recordsindex_complete) create_recordsindex();
@@ -1873,7 +1873,7 @@ unsigned int index::get_numrecords()
 }
 
 //---------------------------------------------------------------------------
-unsigned int index::get_numrec(unsigned int num_record)
+uint32_t index::get_numrec(uint32_t num_record)
 {
 	if(!start) return 0;
 	if(!recordsindex_complete) create_recordsindex();
@@ -1884,9 +1884,9 @@ unsigned int index::get_numrec(unsigned int num_record)
 void index::create_recordsindex()
 {
 	char* buf;
-	int curlen;
+	int32_t curlen;
 	uint64_t curblock;
-	unsigned int mask;
+	uint32_t mask;
 	v8object* file_index;
 
 	//return; // Временно!!!
@@ -1900,21 +1900,21 @@ void index::create_recordsindex()
 	file_index = tbase->file_index;
 	file_index->getdata(buf, start, 8);
 
-	rootblock = *(unsigned int*)buf;
+	rootblock = *(uint32_t*)buf;
 	if(version >= ver8_3_8_0) rootblock *= pagesize;
-	length = *(short int*)(buf + 4);
+	length = *(int16_t*)(buf + 4);
 
 	curblock = rootblock;
 
 	file_index->getdata(buf, curblock, pagesize);
-	curlen = *(short int*)(buf + 2);
+	curlen = *(int16_t*)(buf + 2);
 	if(curlen)
 	{
 		recordsindex.SetLength(tbase->file_data->getlen() / tbase->recordlen);
 		bool is_leaf = buf[0] & 0x2;
 		while(!is_leaf)
 		{
-			curblock = *(unsigned int*)(buf + 16 + length);
+			curblock = *(uint32_t*)(buf + 16 + length);
 			curblock = 	reverse_byte_order(curblock);
 			if(version >= ver8_3_8_0) curblock *= pagesize;
 			file_index->getdata(buf, curblock, pagesize);
@@ -1924,14 +1924,14 @@ void index::create_recordsindex()
 		unsigned curindex = 0;
 		while(true)
 		{
-			curlen = *(short int*)(buf + 2);
-			curblock = *(unsigned int*)(buf + 8);
-			mask = *(unsigned int*)(buf + 14);
-			int rlen = *(short int*)(buf + 28);
+			curlen = *(int16_t*)(buf + 2);
+			curblock = *(uint32_t*)(buf + 8);
+			mask = *(uint32_t*)(buf + 14);
+			int32_t rlen = *(int16_t*)(buf + 28);
 			char *rbuf = buf + 30;
-			for (int i = 0; i < curlen; i++)
+			for (int32_t i = 0; i < curlen; i++)
 			{
-				recordsindex[curindex++] = *(unsigned int*)rbuf & mask;
+				recordsindex[curindex++] = *(uint32_t*)rbuf & mask;
 				rbuf += rlen;
 				if(curindex % 10000 == 0) msreg->Status(readindex + curindex);
 			}
@@ -1950,13 +1950,13 @@ void index::create_recordsindex()
 
 //---------------------------------------------------------------------------
 #ifndef PublicRelease
-void index::dump_recursive(v8object* file_index, TFileStream* f, int level, uint64_t curblock)
+void index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, uint64_t curblock)
 {
 	unsigned char bf[3];
 	char* buf;
 	char* rbuf;
-	unsigned int curlen;
-	unsigned int lastnumrec;
+	uint32_t curlen;
+	uint32_t lastnumrec;
 	String s;
 
 	char* curindex;
@@ -2066,9 +2066,9 @@ void index::dump_recursive(v8object* file_index, TFileStream* f, int level, uint
 			{
 				curindex = rbuf;
 				rbuf += length;
-				unsigned numrecx = reverse_byte_order(*(unsigned int*)rbuf);
+				unsigned numrecx = reverse_byte_order(*(uint32_t*)rbuf);
 				rbuf += 4;
-				uint64_t blockx = reverse_byte_order(*(unsigned int*)rbuf);
+				uint64_t blockx = reverse_byte_order(*(uint32_t*)rbuf);
 				if(version >= ver8_3_8_0) blockx *= pagesize;
 				rbuf += 4;
 
@@ -2107,7 +2107,7 @@ void index::dump_recursive(v8object* file_index, TFileStream* f, int level, uint
 #endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
-unsigned int index::get_rootblock()
+uint32_t index::get_rootblock()
 {
 	if(!start) return 0;
 
@@ -2115,15 +2115,15 @@ unsigned int index::get_rootblock()
 	{
 		char buf[8];
 		tbase->file_index->getdata(buf, start, 8);
-		rootblock = *(unsigned int*)buf;
+		rootblock = *(uint32_t*)buf;
 		if(version >= ver8_3_8_0) rootblock *= pagesize;
-		length = *(short int*)(buf + 4);
+		length = *(int16_t*)(buf + 4);
 	}
 	return rootblock;
 }
 
 //---------------------------------------------------------------------------
-unsigned int index::get_length()
+uint32_t index::get_length()
 {
 	if(!start) return 0;
 
@@ -2131,9 +2131,9 @@ unsigned int index::get_length()
 	{
 		char buf[8];
 		tbase->file_index->getdata(buf, start, 8);
-		rootblock = *(unsigned int*)buf;
+		rootblock = *(uint32_t*)buf;
 		if(version >= ver8_3_8_0) rootblock *= pagesize;
-		length = *(short int*)(buf + 4);
+		length = *(int16_t*)(buf + 4);
 	}
 	return length;
 }
@@ -2159,9 +2159,9 @@ void index::dump(String _filename)
 	{
 		char buf[8];
 		file_index->getdata(buf, start, 8);
-		rootblock = *(unsigned int*)buf;
+		rootblock = *(uint32_t*)buf;
 		if(version >= ver8_3_8_0) rootblock *= pagesize;
-		length = *(short int*)(buf + 4);
+		length = *(int16_t*)(buf + 4);
 	}
 
 	s = "Index length ";
@@ -2176,7 +2176,7 @@ void index::dump(String _filename)
 #endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
-char* index::unpack_leafpage(uint64_t page_offset, unsigned int& number_indexes)
+char* index::unpack_leafpage(uint64_t page_offset, uint32_t& number_indexes)
 {
 	char* buf;
 	char* ret;
@@ -2191,7 +2191,7 @@ char* index::unpack_leafpage(uint64_t page_offset, unsigned int& number_indexes)
 }
 
 //---------------------------------------------------------------------------
-char* index::unpack_leafpage(char* page, unsigned int& number_indexes)
+char* index::unpack_leafpage(char* page, uint32_t& number_indexes)
 {
 	char* outbuf;
 	char* rbuf;
@@ -2199,7 +2199,7 @@ char* index::unpack_leafpage(char* page, unsigned int& number_indexes)
 	char* obuf;
 	leaf_page_header* header;
 
-	unsigned int i, j, step;
+	uint32_t i, j, step;
 
 	if(length == 0)
 	{
@@ -2254,7 +2254,7 @@ char* index::unpack_leafpage(char* page, unsigned int& number_indexes)
 		j = length - left - right;
 		ibuf -= j;
 
-		*(unsigned int*)obuf = numrec;
+		*(uint32_t*)obuf = numrec;
 		obuf += 4;
 
 		if(left) memcpy(obuf, obuf - step, left);
@@ -2268,31 +2268,31 @@ char* index::unpack_leafpage(char* page, unsigned int& number_indexes)
 }
 
 //---------------------------------------------------------------------------
-bool index::pack_leafpage(char* unpack_index, unsigned int number_indexes, char* page_buf)
+bool index::pack_leafpage(char* unpack_index, uint32_t number_indexes, char* page_buf)
 {
-	unsigned int min_numrec_bits;
-	unsigned int min_bits;
-	unsigned int max_numrec;
+	uint32_t min_numrec_bits;
+	uint32_t min_bits;
+	uint32_t max_numrec;
 
 	leaf_page_header* header;
-	unsigned int freebytes;
-	unsigned int numrecmask;
-	unsigned int leftmask;
-	unsigned int rightmask;
-	unsigned int numrecbits;
-	unsigned int leftbits;
-	unsigned int rightbits;
-	unsigned int recbytes;
+	uint32_t freebytes;
+	uint32_t numrecmask;
+	uint32_t leftmask;
+	uint32_t rightmask;
+	uint32_t numrecbits;
+	uint32_t leftbits;
+	uint32_t rightbits;
+	uint32_t recbytes;
 
-	unsigned int i, j;
-	unsigned int step;
-	unsigned int pack_index_len;
-	unsigned int left, right;
-	unsigned int numrec;
+	uint32_t i, j;
+	uint32_t step;
+	uint32_t pack_index_len;
+	uint32_t left, right;
+	uint32_t numrec;
 	char* cur;
 	char* curp;
 	int64_t indrec;
-	unsigned int datasize;
+	uint32_t datasize;
 
 	datasize = pagesize - 30;
 	for(i = length, rightbits = 0; i; i >>= 1, rightbits++);
@@ -2310,7 +2310,7 @@ bool index::pack_leafpage(char* unpack_index, unsigned int number_indexes, char*
 
 	for(i = 0; i < number_indexes; i++)
 	{
-		numrec = *(unsigned int*)cur;
+		numrec = *(uint32_t*)cur;
 		cur += 4;
 
 		if(i)
@@ -2408,7 +2408,7 @@ bool index::pack_leafpage(char* unpack_index, unsigned int number_indexes, char*
 #ifndef PublicRelease
 void index::calcRecordIndex(const char* rec, char* indexBuf)
 {
-	int i, j, k;
+	int32_t i, j, k;
 
 	j = length;
 	for(i = 0; i < num_records; i++)
@@ -2421,7 +2421,7 @@ void index::calcRecordIndex(const char* rec, char* indexBuf)
 }
 
 //---------------------------------------------------------------------------
-void index::delete_index(const char* rec, const unsigned int phys_numrec)
+void index::delete_index(const char* rec, const uint32_t phys_numrec)
 {
 	char* index_buf;
 	index_buf = new char[length];
@@ -2431,31 +2431,31 @@ void index::delete_index(const char* rec, const unsigned int phys_numrec)
 }
 
 //---------------------------------------------------------------------------
-void index::delete_index_record(const char* index_buf, const unsigned int phys_numrec)
+void index::delete_index_record(const char* index_buf, const uint32_t phys_numrec)
 {
 	bool is_last_record, page_is_empty; // заглушки для вызова рекурсивной функции
-	unsigned int new_last_phys_num; // заглушки для вызова рекурсивной функции
+	uint32_t new_last_phys_num; // заглушки для вызова рекурсивной функции
 	char* new_last_index_buf = new char[length]; // заглушки для вызова рекурсивной функции
 	delete_index_record(index_buf, phys_numrec, rootblock, is_last_record, page_is_empty, new_last_index_buf, new_last_phys_num);
 	delete[] new_last_index_buf;
 }
 
 //---------------------------------------------------------------------------
-void index::delete_index_record(const char* index_buf, const unsigned int phys_numrec, uint64_t block, bool& is_last_record, bool& page_is_empty, char* new_last_index_buf, unsigned int& new_last_phys_num)
+void index::delete_index_record(const char* index_buf, const uint32_t phys_numrec, uint64_t block, bool& is_last_record, bool& page_is_empty, char* new_last_index_buf, uint32_t& new_last_phys_num)
 {
 	char* page;
 	branch_page_header* bph;
 	leaf_page_header* lph;
 	branch_page_header* bph2;
 	bool _is_last_record, _page_is_empty;
-	unsigned int _new_last_phys_num;
-	unsigned int number_indexes;
+	uint32_t _new_last_phys_num;
+	uint32_t number_indexes;
 	char* unpack_indexes_buf;
-	short int flags;
+	int16_t flags;
 	uint64_t _block_;
 
 	char* cur_index;
-	int i, j, k, delta;
+	int32_t i, j, k, delta;
 
 	page = new char[pagesize];
 	tbase->file_index->getdata(page, block, pagesize);
@@ -2474,7 +2474,7 @@ void index::delete_index_record(const char* index_buf, const unsigned int phys_n
 		for(i = 0; i < lph->number_indexes; i++, cur_index += delta)
 		{
 			j = memcmp(index_buf, cur_index + 4, length);
-			if(j == 0 && *(unsigned int*)cur_index == phys_numrec)
+			if(j == 0 && *(uint32_t*)cur_index == phys_numrec)
 			{
 				if(i == lph->number_indexes - 1) is_last_record = true;
 
@@ -2495,7 +2495,7 @@ void index::delete_index_record(const char* index_buf, const unsigned int phys_n
 					// TODO проверить, надо ли номера свободных страниц преобразовывать в смещения для версий от 8.0 до 8.2.14
 					tbase->file_index->getdata(&k, 0, 4);
 					memset(page, 0, pagesize);
-					*(unsigned int*)page = k;
+					*(uint32_t*)page = k;
 					//k = block >> 12;
 					k = block / pagesize;
 					tbase->file_index->setdata(&k, 0, 4);
@@ -2506,7 +2506,7 @@ void index::delete_index_record(const char* index_buf, const unsigned int phys_n
 					{
 						cur_index = unpack_indexes_buf + (lph->number_indexes - 1) * delta;
 						memcpy(new_last_index_buf, cur_index + 4, length);
-						new_last_phys_num = *(unsigned int*)cur_index;
+						new_last_phys_num = *(uint32_t*)cur_index;
 					}
 					pack_leafpage(unpack_indexes_buf, lph->number_indexes, page);
 					lph->flags = flags;
@@ -2532,7 +2532,7 @@ void index::delete_index_record(const char* index_buf, const unsigned int phys_n
 			{
 				if(i == bph->number_indexes - 1 && j==0) is_last_record = true;
 
-				_block_ = reverse_byte_order(*(unsigned int*)(cur_index + length + 4));
+				_block_ = reverse_byte_order(*(uint32_t*)(cur_index + length + 4));
 				if(version >= ver8_3_8_0) _block_ *= pagesize;
 				delete_index_record(index_buf, phys_numrec, _block_, _is_last_record, _page_is_empty, new_last_index_buf, _new_last_phys_num);
 
@@ -2546,7 +2546,7 @@ void index::delete_index_record(const char* index_buf, const unsigned int phys_n
 				else if(_is_last_record)
 				{
 					memcpy(cur_index, new_last_index_buf, length);
-					*(unsigned int*)(cur_index + length) = reverse_byte_order(_new_last_phys_num);
+					*(uint32_t*)(cur_index + length) = reverse_byte_order(_new_last_phys_num);
 				}
 
 				if(bph->number_indexes == 0)
@@ -2562,7 +2562,7 @@ void index::delete_index_record(const char* index_buf, const unsigned int phys_n
 					}
 					tbase->file_index->getdata(&k, 0, 4);
 					memset(page, 0, pagesize);
-					*(unsigned int*)page = k;
+					*(uint32_t*)page = k;
 					k = block / pagesize;
 					tbase->file_index->setdata(&k, 0, 4);
 				}
@@ -2572,7 +2572,7 @@ void index::delete_index_record(const char* index_buf, const unsigned int phys_n
 					{
 						cur_index = page + 12 + (bph->number_indexes - 1) * delta;
 						memcpy(new_last_index_buf, cur_index, length);
-						new_last_phys_num = reverse_byte_order(*(unsigned int*)(cur_index + length));
+						new_last_phys_num = reverse_byte_order(*(uint32_t*)(cur_index + length));
 					}
 				}
 				if(_page_is_empty || _is_last_record || page_is_empty || is_last_record) tbase->file_index->setdata(page, block, pagesize);
@@ -2586,7 +2586,7 @@ void index::delete_index_record(const char* index_buf, const unsigned int phys_n
 }
 
 //---------------------------------------------------------------------------
-void index::write_index(const unsigned int phys_numrecord, const char* rec)
+void index::write_index(const uint32_t phys_numrecord, const char* rec)
 {
 	char* index_buf;
 	index_buf = new char[length];
@@ -2597,19 +2597,19 @@ void index::write_index(const unsigned int phys_numrecord, const char* rec)
 }
 
 //---------------------------------------------------------------------------
-void index::write_index_record(const unsigned int phys_numrecord, const char* index_buf)
+void index::write_index_record(const uint32_t phys_numrecord, const char* index_buf)
 {
-	int result;
+	int32_t result;
 	char* new_last_index_buf = new char[length];
-	unsigned int new_last_phys_num;
+	uint32_t new_last_phys_num;
 	char* new_last_index_buf2 = new char[length];
-	unsigned int new_last_phys_num2;
+	uint32_t new_last_phys_num2;
 	uint64_t new_last_block2;
 
 	char* page;
 	branch_page_header* bph;
 	uint64_t block;
-	unsigned int k;
+	uint32_t k;
 	char* cur_index;
 
 	write_index_record(phys_numrecord, index_buf, rootblock, result, new_last_index_buf, new_last_phys_num, new_last_index_buf2, new_last_phys_num2, new_last_block2);
@@ -2637,16 +2637,16 @@ void index::write_index_record(const unsigned int phys_numrecord, const char* in
 		cur_index = page + 12;
 		memcpy(cur_index, new_last_index_buf, length);
 		cur_index += length;
-		*(unsigned int*)cur_index = reverse_byte_order(new_last_phys_num);
+		*(uint32_t*)cur_index = reverse_byte_order(new_last_phys_num);
 		cur_index += 4;
-		*(unsigned int*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? rootblock : rootblock / pagesize);
+		*(uint32_t*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? rootblock : rootblock / pagesize);
 		cur_index += 4;
 
 		memcpy(cur_index, new_last_index_buf2, length);
 		cur_index += length;
-		*(unsigned int*)cur_index = reverse_byte_order(new_last_phys_num2);
+		*(uint32_t*)cur_index = reverse_byte_order(new_last_phys_num2);
 		cur_index += 4;
-		*(unsigned int*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? new_last_block2 : new_last_block2 / pagesize);
+		*(uint32_t*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? new_last_block2 : new_last_block2 / pagesize);
 		//cur_index += 4;
 
 		tbase->file_index->setdata(page, block, pagesize);
@@ -2662,7 +2662,7 @@ void index::write_index_record(const unsigned int phys_numrecord, const char* in
 }
 
 //---------------------------------------------------------------------------
-void index::write_index_record(const unsigned int phys_numrecord, const char* index_buf, uint64_t block, int& result, char* new_last_index_buf, unsigned int& new_last_phys_num, char* new_last_index_buf2, unsigned int& new_last_phys_num2, uint64_t& new_last_block2)
+void index::write_index_record(const uint32_t phys_numrecord, const char* index_buf, uint64_t block, int32_t& result, char* new_last_index_buf, uint32_t& new_last_phys_num, char* new_last_index_buf2, uint32_t& new_last_phys_num2, uint64_t& new_last_block2)
 {
 	// result - результат добавления.
 	// 0 - ничего делать не надо.
@@ -2673,31 +2673,31 @@ void index::write_index_record(const unsigned int phys_numrecord, const char* in
 	branch_page_header* bph;
 	leaf_page_header* lph;
 
-	int _result;
-	unsigned int _new_last_phys_num;
-	unsigned int _new_last_phys_num2;
+	int32_t _result;
+	uint32_t _new_last_phys_num;
+	uint32_t _new_last_phys_num2;
 	uint64_t _new_last_block2;
 
 	char* unpack_indexes_buf;
 	char* unpack_indexes_buf_new;
 
-	short int flags;
-	unsigned int number_indexes;
+	int16_t flags;
+	uint32_t number_indexes;
 	uint64_t prev_page;
 	uint64_t next_page;
 
 	char* page2;
 	branch_page_header* bph2;
 	leaf_page_header* lph2;
-	unsigned int number_indexes1;
-	unsigned int number_indexes2;
+	uint32_t number_indexes1;
+	uint32_t number_indexes2;
 	uint64_t block1;
-	unsigned int max_num_indexes;
+	uint32_t max_num_indexes;
 
 	char* cur_index;
 	char* cur_index2;
-	unsigned int i, k;
-	int j, delta;
+	uint32_t i, k;
+	int32_t j, delta;
 	bool ok;
 
 	page = new char[pagesize];
@@ -2725,12 +2725,12 @@ void index::write_index_record(const unsigned int phys_numrecord, const char* in
 
 			if(j == 0)
 			{
-				if(is_primary || *(unsigned int*)cur_index == phys_numrecord)
+				if(is_primary || *(uint32_t*)cur_index == phys_numrecord)
 				{
 					error("Ошибка записи индекса. Индекс уже существует.",
 						"Таблица", tbase->name,
 						"Индекс", name,
-						"Физический номер существующий", *(unsigned int*)cur_index,
+						"Физический номер существующий", *(uint32_t*)cur_index,
 						"Физический номер записываемый", phys_numrecord);
 					ok = false;
 				}
@@ -2746,7 +2746,7 @@ void index::write_index_record(const unsigned int phys_numrecord, const char* in
 			unpack_indexes_buf_new = new char[delta * number_indexes];
 
 			if(i) memcpy(unpack_indexes_buf_new, unpack_indexes_buf, delta * i);
-			*(unsigned int*)(unpack_indexes_buf_new + i * delta) = phys_numrecord;
+			*(uint32_t*)(unpack_indexes_buf_new + i * delta) = phys_numrecord;
 			memcpy(unpack_indexes_buf_new + i * delta + 4, index_buf, length);
 			if(number_indexes - i - 1) memcpy(unpack_indexes_buf_new + (i + 1) * delta, unpack_indexes_buf + i * delta, delta * (number_indexes - i - 1));
 
@@ -2756,7 +2756,7 @@ void index::write_index_record(const unsigned int phys_numrecord, const char* in
 				{
 					cur_index = unpack_indexes_buf_new + (number_indexes - 1) * delta;
 					memcpy(new_last_index_buf, cur_index + 4, length);
-					new_last_phys_num = *(unsigned int*)cur_index;
+					new_last_phys_num = *(uint32_t*)cur_index;
 				}
 				lph->flags = flags;
 				lph->prev_page = prev_page;
@@ -2793,10 +2793,10 @@ void index::write_index_record(const unsigned int phys_numrecord, const char* in
 
 				cur_index = unpack_indexes_buf_new + (number_indexes1 - 1) * delta;
 				memcpy(new_last_index_buf, cur_index + 4, length);
-				new_last_phys_num = *(unsigned int*)cur_index;
+				new_last_phys_num = *(uint32_t*)cur_index;
 				cur_index = unpack_indexes_buf_new + (number_indexes - 1) * delta;
 				memcpy(new_last_index_buf2, cur_index + 4, length);
-				new_last_phys_num2 = *(unsigned int*)cur_index;
+				new_last_phys_num2 = *(uint32_t*)cur_index;
 
 				delete[] page2;
 			}
@@ -2827,7 +2827,7 @@ void index::write_index_record(const unsigned int phys_numrecord, const char* in
 					error("Ошибка записи индекса. Индекс уже существует.",
 						"Таблица", tbase->name,
 						"Индекс", name,
-						"Физический номер существующий", reverse_byte_order(*(unsigned int*)(cur_index + length)),
+						"Физический номер существующий", reverse_byte_order(*(uint32_t*)(cur_index + length)),
 						"Физический номер записываемый", phys_numrecord);
 					ok = false;
 				}
@@ -2844,14 +2844,14 @@ void index::write_index_record(const unsigned int phys_numrecord, const char* in
 
 		if(ok)
 		{
-			block1 = reverse_byte_order(*(unsigned int*)(cur_index + length + 4));
+			block1 = reverse_byte_order(*(uint32_t*)(cur_index + length + 4));
 			if(version >= ver8_3_8_0) block1 *= pagesize;
 			write_index_record(phys_numrecord, index_buf, block1, _result, new_last_index_buf, _new_last_phys_num, new_last_index_buf2, _new_last_phys_num2, _new_last_block2);
 
 			if(_result == 1)
 			{
 				memcpy(cur_index, new_last_index_buf, length);
-				*(unsigned int*)(cur_index + length) = reverse_byte_order(_new_last_phys_num);
+				*(uint32_t*)(cur_index + length) = reverse_byte_order(_new_last_phys_num);
 				if(i == number_indexes - 1)
 				{
 					result = 1;
@@ -2888,16 +2888,16 @@ void index::write_index_record(const unsigned int phys_numrecord, const char* in
 
 					memcpy(cur_index, new_last_index_buf, length);
 					cur_index += length;
-					*(unsigned int*)cur_index = reverse_byte_order(_new_last_phys_num);
+					*(uint32_t*)cur_index = reverse_byte_order(_new_last_phys_num);
 					cur_index += 4;
-					*(unsigned int*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? block1 : block1 / pagesize);
+					*(uint32_t*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? block1 : block1 / pagesize);
 					cur_index += 4;
 
 					memcpy(cur_index, new_last_index_buf2, length);
 					cur_index += length;
-					*(unsigned int*)cur_index = reverse_byte_order(_new_last_phys_num2);
+					*(uint32_t*)cur_index = reverse_byte_order(_new_last_phys_num2);
 					cur_index += 4;
-					*(unsigned int*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? _new_last_block2 : _new_last_block2 / pagesize);
+					*(uint32_t*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? _new_last_block2 : _new_last_block2 / pagesize);
 					cur_index += 4;
 
 					k = (number_indexes - i - 2) * delta;
@@ -2928,11 +2928,11 @@ void index::write_index_record(const unsigned int phys_numrecord, const char* in
 					cur_index = unpack_indexes_buf + (number_indexes1 - 1) * delta;
 					memcpy(new_last_index_buf, cur_index, length);
 					cur_index += length;
-					new_last_phys_num = reverse_byte_order(*(unsigned int*)cur_index);
+					new_last_phys_num = reverse_byte_order(*(uint32_t*)cur_index);
 					cur_index = unpack_indexes_buf + (number_indexes - 1) * delta;
 					memcpy(new_last_index_buf2, cur_index + 4, length);
 					cur_index += length;
-					new_last_phys_num2 = reverse_byte_order(*(unsigned int*)cur_index);
+					new_last_phys_num2 = reverse_byte_order(*(uint32_t*)cur_index);
 
 					delete[] unpack_indexes_buf;
 					delete[] page2;
@@ -2951,16 +2951,16 @@ void index::write_index_record(const unsigned int phys_numrecord, const char* in
 					cur_index = page + 12 + (i * delta);
 					memcpy(cur_index, new_last_index_buf, length);
 					cur_index += length;
-					*(unsigned int*)cur_index = reverse_byte_order(_new_last_phys_num);
+					*(uint32_t*)cur_index = reverse_byte_order(_new_last_phys_num);
 					cur_index += 4;
-					*(unsigned int*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? block1 : block1 / pagesize);
+					*(uint32_t*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? block1 : block1 / pagesize);
 					cur_index += 4;
 
 					memcpy(cur_index, new_last_index_buf2, length);
 					cur_index += length;
-					*(unsigned int*)cur_index = reverse_byte_order(_new_last_phys_num2);
+					*(uint32_t*)cur_index = reverse_byte_order(_new_last_phys_num2);
 					cur_index += 4;
-					*(unsigned int*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? _new_last_block2 : _new_last_block2 / pagesize);
+					*(uint32_t*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? _new_last_block2 : _new_last_block2 / pagesize);
 
 					if(i == number_indexes - 2)
 					{
@@ -3015,7 +3015,7 @@ String Field::getname()
 }
 
 //---------------------------------------------------------------------------
-int Field::getlen() // возвращает длину поля в байтах
+int32_t Field::getlen() // возвращает длину поля в байтах
 {
 	if(len) return len;
 
@@ -3043,7 +3043,7 @@ int Field::getlen() // возвращает длину поля в байтах
 String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed)
 {
 	char sym;
-	int i, j, m;
+	int32_t i, j, m;
 	bool k;
 
 	unsigned char* fr = (unsigned char*)rec + offset;
@@ -3106,24 +3106,24 @@ String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimite
 		case tf_char:
 			return String((WCHART*)fr, length);
 		case tf_varchar:
-			i = *(short int*)fr;
+			i = *(int16_t*)fr;
 			return String((WCHART*)(fr + 2), i);
 		case tf_version:
-			return String(*(int*)fr) + ":" + *(int*)(fr + 4) + ":" + *(int*)(fr + 8) + ":" + *(int*)(fr + 12);
+			return String(*(int32_t*)fr) + ":" + *(int32_t*)(fr + 4) + ":" + *(int32_t*)(fr + 8) + ":" + *(int32_t*)(fr + 12);
 		case tf_version8:
-			return String(*(int*)fr) + ":" + *(int*)(fr + 4);
+			return String(*(int32_t*)fr) + ":" + *(int32_t*)(fr + 4);
 		case tf_string:
 			//return "{MEMO}";
-			return detailed ? String("{MEMO} [") + tohex(*(int*)fr) + "][" + tohex(*(int*)(fr + 4)) + "]" : String("{MEMO}");
+			return detailed ? String("{MEMO} [") + tohex(*(int32_t*)fr) + "][" + tohex(*(int32_t*)(fr + 4)) + "]" : String("{MEMO}");
 		case tf_text:
 			//return "{TEXT}";
-			return detailed ? String("{TEXT} [") + tohex(*(int*)fr) + "][" + tohex(*(int*)(fr + 4)) + "]" : String("{TEXT}");
+			return detailed ? String("{TEXT} [") + tohex(*(int32_t*)fr) + "][" + tohex(*(int32_t*)(fr + 4)) + "]" : String("{TEXT}");
 		case tf_image:
-			return detailed ? String("{IMAGE} [") + tohex(*(int*)fr) + "][" + tohex(*(int*)(fr + 4)) + "]" : String("{IMAGE}");
+			return detailed ? String("{IMAGE} [") + tohex(*(int32_t*)fr) + "][" + tohex(*(int32_t*)(fr + 4)) + "]" : String("{IMAGE}");
 		case tf_datetime:
 			return date_to_string(fr);
 		case tf_varbinary:
-			m = *(short int*)fr; // длина + смещение
+			m = *(int16_t*)fr; // длина + смещение
 			for(i = 0; i < m; i++)
 			{
 				sym = '0' + (fr[i + 2] >> 4);
@@ -3144,7 +3144,7 @@ String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimite
 bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 {
 	wchar_t sym;
-	int i, j, m, l, p, q;
+	int32_t i, j, m, l, p, q;
 	bool k, n;
 	unsigned char* b;
 
@@ -3273,16 +3273,16 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 		case tf_varchar:
 			l = value.GetLength();
 			i = MIN(l, length);
-			*(short int*)fr = i;
+			*(int16_t*)fr = i;
 			memcpy(fr + 2, value.c_str(), i * 2);
 			while(i < length) ((WCHART*)(fr + 2))[i++] = L' ';
 			break;
 		case tf_version:
 			return false;
-//			return String(*(int*)fr) + ":" + *(int*)(fr + 4) + ":" + *(int*)(fr + 8) + ":" + *(int*)(fr + 12);
+//			return String(*(int32_t*)fr) + ":" + *(int32_t*)(fr + 4) + ":" + *(int32_t*)(fr + 8) + ":" + *(int32_t*)(fr + 12);
 		case tf_version8:
 			return false;
-//			return String(*(int*)fr) + ":" + *(int*)(fr + 4);
+//			return String(*(int32_t*)fr) + ":" + *(int32_t*)(fr + 4);
 		case tf_string:
 			return false;
 //			return "{MEMO}";
@@ -3470,7 +3470,7 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 			break;
 		case tf_varbinary:
 			return false;
-//			m = *(short int*)fr; // длина + смещение
+//			m = *(int16_t*)fr; // длина + смещение
 //			for(i = 0; i < m; i++)
 //			{
 //				sym = '0' + (fr[i + 2] >> 4);
@@ -3491,7 +3491,7 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 String Field::get_XML_presentation(char* rec, bool ignore_showGUID)
 {
 	char sym;
-	int i, j, m;
+	int32_t i, j, m;
 	bool k;
 
 	TMemoryStream* in;
@@ -3554,33 +3554,43 @@ String Field::get_XML_presentation(char* rec, bool ignore_showGUID)
 		case tf_char:
 			return toXML(String((WCHART*)fr, length));
 		case tf_varchar:
-			i = *(short int*)fr;
-			return toXML(String((WCHART*)(fr + 2), i));
-		case tf_version:
-			return String(*(int*)fr) + ":" + *(int*)(fr + 4) + ":" + *(int*)(fr + 8) + ":" + *(int*)(fr + 12);
-		case tf_version8:
-			return String(*(int*)fr) + ":" + *(int*)(fr + 4);
-		case tf_string:
+			i = *(int16_t*)fr;
+			return toXML(String(((WCHART*)fr) + 1, i));
+		case tf_version: {
+			int32_t *retyped = (int32_t*)fr;
+			return String(*(int32_t*)fr) + ":" + retyped[1] + ":" + retyped[2] + ":" + retyped[3];
+		}
+		case tf_version8: {
+			int32_t *retyped = (int32_t*)fr;
+			return String(retyped[0] + ":" + retyped[1]);
+		}
+		case tf_string: {
+			uint32_t *retyped = (uint32_t*)fr;
 			out = new TMemoryStream();
-			parent->readBlob(out, *(unsigned int*)fr, *(unsigned int*)(fr + 4));
+			parent->readBlob(out, retyped[0], retyped[1]);
 			s = toXML(String((WCHART*)(out->GetMemory()), out->GetSize() / 2));
 			delete out;
 			return s;
-		case tf_text:
+		}
+		case tf_text: {
+			uint32_t *retyped = (uint32_t*)fr;
 			out = new TMemoryStream();
-			parent->readBlob(out, *(unsigned int*)fr, *(unsigned int*)(fr + 4));
+			parent->readBlob(out, retyped[0], retyped[1]);
 			s = toXML(String((char*)(out->GetMemory()), out->GetSize()));
 			delete out;
 			return s;
-		case tf_image:
+		}
+		case tf_image: {
+			uint32_t *retyped = (uint32_t*)fr;
 			in = new TMemoryStream();
 			out = new TMemoryStream();
-			parent->readBlob(in, *(unsigned int*)fr, *(unsigned int*)(fr + 4));
+			parent->readBlob(in, retyped[0], retyped[1]);
 			base64_encode(in, out, 72);
 			s = String((WCHART*)(out->GetMemory()), out->GetSize() / 2);
 			delete in;
 			delete out;
 			return s;
+		}
 		case tf_datetime:
 			buf[0] = '0' + (fr[0] >> 4);
 			buf[1] = '0' + (fr[0] & 0xf);
@@ -3604,7 +3614,7 @@ String Field::get_XML_presentation(char* rec, bool ignore_showGUID)
 			buf[19] = 0;
 			return buf;
 		case tf_varbinary:
-			m = *(short int*)fr; // длина + смещение
+			m = *(int16_t*)fr; // длина + смещение
 			for(i = 0; i < m; i++)
 			{
 				sym = '0' + (fr[i + 2] >> 4);
@@ -3640,13 +3650,13 @@ bool Field::getnull_exists()
 }
 
 //---------------------------------------------------------------------------
-int Field::getlength()
+int32_t Field::getlength()
 {
 	return length;
 }
 
 //---------------------------------------------------------------------------
-int Field::getprecision()
+int32_t Field::getprecision()
 {
 	return precision;
 }
@@ -3658,7 +3668,7 @@ bool Field::getcase_sensitive()
 }
 
 //---------------------------------------------------------------------------
-int Field::getoffset()
+int32_t Field::getoffset()
 {
 	return offset;
 }
@@ -3704,14 +3714,14 @@ String TrimSpacesRight(String s)
 
 //---------------------------------------------------------------------------
 #ifndef PublicRelease
-unsigned int Field::getSortKey(const char* rec, unsigned char* SortKey, int maxlen)
+uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen)
 {
 	T_1CD* base;
 	// ICU_Result res;
-	int i, j, m;
+	int32_t i, j, m;
 	bool k;
-	unsigned int addlen = 0;
-	int maxl = maxlen;
+	uint32_t addlen = 0;
+	int32_t maxl = maxlen;
 	bool isnull = false;
 	String s;
 	unsigned char c;
@@ -3883,7 +3893,7 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 	TStream* _sx2;
 	int64_t len1C;
 	bool is_users_usr;
-	unsigned int i, j, k, l;
+	uint32_t i, j, k, l;
 	char* _xor_mask;
 	char* _xor_buf;
 	Table* tab;
@@ -3905,20 +3915,20 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 		rec++;
 	}
 
-	if(*(unsigned int*)rec == 0 || *(unsigned int*)(rec + 4) == 0) return false;
+	if(*(uint32_t*)rec == 0 || *(uint32_t*)(rec + 4) == 0) return false;
 
 	if(!unpack)
 	{
 		temp_stream = new TFileStream(_filename, fmCreate);
-		parent->readBlob(temp_stream, *(unsigned int*)rec, *(unsigned int*)(rec + 4));
+		parent->readBlob(temp_stream, *(uint32_t*)rec, *(uint32_t*)(rec + 4));
 		delete temp_stream;
 		return true;
 	}
 
-	usetemporaryfiles = *(unsigned int*)(rec + 4) > 10 * 1024 * 1024;
+	usetemporaryfiles = *(uint32_t*)(rec + 4) > 10 * 1024 * 1024;
 	if(usetemporaryfiles) blob_stream = new TTempStream;
 	else blob_stream = new TMemoryStream;
-	parent->readBlob(blob_stream, *(unsigned int*)rec, *(unsigned int*)(rec + 4));
+	parent->readBlob(blob_stream, *(uint32_t*)rec, *(uint32_t*)(rec + 4));
 	if(blob_stream->GetSize() == 0)
 	{
 		delete blob_stream;
@@ -4122,7 +4132,7 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 // Класс changed_rec
 
 //---------------------------------------------------------------------------
-changed_rec::changed_rec(Table* _parent, changed_rec_type crt, unsigned int phys_numrecord)
+changed_rec::changed_rec(Table* _parent, changed_rec_type crt, uint32_t phys_numrecord)
 {
 	parent = _parent;
 	numrec = phys_numrecord;
@@ -4153,7 +4163,7 @@ changed_rec::~changed_rec()
 //---------------------------------------------------------------------------
 void changed_rec::clear()
 {
-	int i;
+	int32_t i;
 	Field* f;
 	type_fields tf;
 	TStream* b;
@@ -4183,22 +4193,22 @@ bool Table::get_issystem()
 }
 
 //---------------------------------------------------------------------------
-void Table::init(int block_descr)
+void Table::init(int32_t block_descr)
 {
 	tree* t;
 	tree* f;
 	tree* ff;
 	tree* in;
 	tree* rt;
-	int i, j, k;
-	unsigned int m;
+	int32_t i, j, k;
+	uint32_t m;
 	uint64_t s;
 	String ws;
 	class index* ind;
-	int numrec;
-	int blockfile[3];
+	int32_t numrec;
+	int32_t blockfile[3];
 	Field* fld;
-	unsigned int* buf;
+	uint32_t* buf;
 
 	num_fields = 0;
 	fields = NULL;
@@ -4877,9 +4887,9 @@ void Table::init(int block_descr)
 		}
 		else
 		{
-			int buflen = num_indexes * 4 + 4;
-//			buf = new unsigned int[buflen];
-			buf = new unsigned int[num_indexes + 1];
+			int32_t buflen = num_indexes * 4 + 4;
+//			buf = new uint32_t[buflen];
+			buf = new uint32_t[num_indexes + 1];
 			file_index->getdata(buf, 0, buflen);
 
 //			// Временно, для отладки >>
@@ -4995,7 +5005,7 @@ void Table::init(int block_descr)
 }
 
 //---------------------------------------------------------------------------
-Table::Table(T_1CD* _base, int block_descr)
+Table::Table(T_1CD* _base, int32_t block_descr)
 {
 
 	base = _base;
@@ -5008,7 +5018,7 @@ Table::Table(T_1CD* _base, int block_descr)
 }
 
 //---------------------------------------------------------------------------
-Table::Table(T_1CD* _base, String _descr, int block_descr)
+Table::Table(T_1CD* _base, String _descr, int32_t block_descr)
 {
 
 	base = _base;
@@ -5028,7 +5038,7 @@ Table::Table()
 //---------------------------------------------------------------------------
 void Table::deletefields()
 {
-	int i;
+	int32_t i;
 	if(fields)
 	{
 		for(i = 0; i < num_fields2; i++) delete fields[i];
@@ -5039,7 +5049,7 @@ void Table::deletefields()
 //---------------------------------------------------------------------------
 void Table::deleteindexes()
 {
-	int i;
+	int32_t i;
 	if(indexes)
 	{
 		for(i = 0; i < num_indexes; i++) delete indexes[i];
@@ -5099,19 +5109,19 @@ String Table::getdescription()
 }
 
 //---------------------------------------------------------------------------
-int Table::get_numfields()
+int32_t Table::get_numfields()
 {
 	return num_fields;
 }
 
 //---------------------------------------------------------------------------
-int Table::get_numindexes()
+int32_t Table::get_numindexes()
 {
 	return num_indexes;
 }
 
 //---------------------------------------------------------------------------
-Field* Table::getfield(int numfield)
+Field* Table::getfield(int32_t numfield)
 {
 	if(numfield >= num_fields)
 	{
@@ -5125,7 +5135,7 @@ Field* Table::getfield(int numfield)
 }
 
 //---------------------------------------------------------------------------
-class index* Table::getindex(int numindex)
+class index* Table::getindex(int32_t numindex)
 {
 	if(numindex >= num_indexes)
 	{
@@ -5139,31 +5149,31 @@ class index* Table::getindex(int numindex)
 }
 
 //---------------------------------------------------------------------------
-unsigned int Table::get_phys_numrecords()
+uint32_t Table::get_phys_numrecords()
 {
 	return phys_numrecords;
 }
 
 //---------------------------------------------------------------------------
-unsigned int Table::get_log_numrecords()
+uint32_t Table::get_log_numrecords()
 {
 	return log_numrecords;
 }
 
 //---------------------------------------------------------------------------
-void Table::set_log_numrecords(unsigned int _log_numrecords)
+void Table::set_log_numrecords(uint32_t _log_numrecords)
 {
 	log_numrecords = _log_numrecords;
 }
 
 //---------------------------------------------------------------------------
-unsigned int Table::get_added_numrecords()
+uint32_t Table::get_added_numrecords()
 {
 	return added_numrecords;
 }
 
 //---------------------------------------------------------------------------
-char* Table::getrecord(unsigned int phys_numrecord, char* buf)
+char* Table::getrecord(uint32_t phys_numrecord, char* buf)
 {
 	#ifndef console
 	#ifndef getcfname
@@ -5180,7 +5190,7 @@ char* Table::getrecord(unsigned int phys_numrecord, char* buf)
 }
 
 //---------------------------------------------------------------------------
-int Table::get_recordlen()
+int32_t Table::get_recordlen()
 {
 	return recordlen;
 }
@@ -5235,14 +5245,14 @@ void Table::set_lockinmemory(bool _lock)
 
 //---------------------------------------------------------------------------
 // rewrite - перезаписывать поток _str. Истина - перезаписывать (по умолчанию), Ложь - дописывать
-TStream* Table::readBlob(TStream* _str, unsigned int _startblock, unsigned int _length, bool rewrite)
+TStream* Table::readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, bool rewrite)
 {
 //	char* _b;
-	unsigned int _curblock;
+	uint32_t _curblock;
 	char* _curb;
-	unsigned short int _curlen;
-	unsigned int _filelen, _numblock;
-	unsigned int startlen;
+	uint16_t _curlen;
+	uint32_t _filelen, _numblock;
+	uint32_t startlen;
 
 	if(rewrite) _str->SetSize(0);
 	startlen = _str->GetPosition();
@@ -5278,8 +5288,8 @@ TStream* Table::readBlob(TStream* _str, unsigned int _startblock, unsigned int _
 			}
 //			_curb = _b + (_curblock << 8);
 			file_blob->getdata(_curb, _curblock << 8, 0x100);
-			_curblock = *(unsigned int*)_curb;
-			_curlen = *(unsigned short int*)(_curb + 4);
+			_curblock = *(uint32_t*)_curb;
+			_curlen = *(uint16_t*)(_curb + 4);
 			if(_curlen > 0xfa)
 			{
 				error("Попытка чтения из блока файла Blob более 0xfa байт",
@@ -5313,14 +5323,14 @@ TStream* Table::readBlob(TStream* _str, unsigned int _startblock, unsigned int _
 }
 
 //---------------------------------------------------------------------------
-unsigned int Table::readBlob(void* buf, unsigned int _startblock, unsigned int _length)
+uint32_t Table::readBlob(void* buf, uint32_t _startblock, uint32_t _length)
 {
-	unsigned int _curblock;
+	uint32_t _curblock;
 	char* _curb;
 	char* _buf;
-	unsigned short int _curlen;
-	unsigned int _filelen, _numblock;
-	unsigned int readed;
+	uint16_t _curlen;
+	uint32_t _filelen, _numblock;
+	uint32_t readed;
 
 	if(!_startblock && _length)
 	{
@@ -5355,8 +5365,8 @@ unsigned int Table::readBlob(void* buf, unsigned int _startblock, unsigned int _
 			}
 //			_curb = _b + (_curblock << 8);
 			file_blob->getdata(_curb, _curblock << 8, 0x100);
-			_curblock = *(unsigned int*)_curb;
-			_curlen = *(unsigned short int*)(_curb + 4);
+			_curblock = *(uint32_t*)_curb;
+			_curlen = *(uint16_t*)(_curb + 4);
 			if(_curlen > 0xfa)
 			{
 				error("Попытка чтения из блока файла Blob более 250 байт",
@@ -5399,15 +5409,15 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 	String s;
 	String recname;
 	//String fieldname;
-	int i;
-	unsigned int j, numr, nr;
+	int32_t i;
+	uint32_t j, numr, nr;
 	char* rec;
 	bool dircreated = false;
 	bool canwriteblob = false;
 	String dir;
 	class index* curindex;
-	int ic; // image count, количество полей с типом image
-	int rc; // repeat count, количество повторов имени записи подряд (для случая, если индекс не уникальный)
+	int32_t ic; // image count, количество полей с типом image
+	int32_t rc; // repeat count, количество повторов имени записи подряд (для случая, если индекс не уникальный)
 
 	char UnicodeHeader[3] = {'\xef', '\xbb', '\xbf'};
 	String part1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!--Файл сформирован программой Tool_1CD-->\r\n<Table Name=\"";
@@ -5564,9 +5574,9 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 }
 
 //---------------------------------------------------------------------------
-int64_t Table::get_fileoffset(unsigned int phys_numrecord)
+int64_t Table::get_fileoffset(uint32_t phys_numrecord)
 {
-	unsigned int _offset = phys_numrecord * recordlen;
+	uint32_t _offset = phys_numrecord * recordlen;
 	return file_data->get_fileoffset(_offset);
 }
 
@@ -5595,7 +5605,7 @@ void Table::begin_edit()
 }
 
 //---------------------------------------------------------------------------
-changed_rec_type Table::get_rec_type(unsigned int phys_numrecord)
+changed_rec_type Table::get_rec_type(uint32_t phys_numrecord)
 {
 	changed_rec* cr;
 	if(!edit) return crt_not_changed;
@@ -5609,7 +5619,7 @@ changed_rec_type Table::get_rec_type(unsigned int phys_numrecord)
 }
 
 //---------------------------------------------------------------------------
-changed_rec_type Table::get_rec_type(unsigned int phys_numrecord, int numfield)
+changed_rec_type Table::get_rec_type(uint32_t phys_numrecord, int32_t numfield)
 {
 	changed_rec* cr;
 	if(!edit) return crt_not_changed;
@@ -5718,7 +5728,7 @@ void Table::import_table2(String path)
 
 	String str;
 	char* buf;
-	unsigned int i;
+	uint32_t i;
 
 	bool descr_changed = false;
 
@@ -5888,7 +5898,7 @@ void Table::import_table2(String path)
 }
 
 //---------------------------------------------------------------------------
-void Table::set_edit_value(unsigned int phys_numrecord, int numfield, bool null, String value, TStream* st)
+void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null, String value, TStream* st)
 {
 	Field* fld;
 	char* rec;
@@ -5899,7 +5909,7 @@ void Table::set_edit_value(unsigned int phys_numrecord, int numfield, bool null,
 	bool changed;
 	changed_rec* cr;
 	changed_rec* cr2;
-	int i, j;
+	int32_t i, j;
 	TStream** ost;
 
 	if(!edit) return;
@@ -5986,13 +5996,13 @@ void Table::set_edit_value(unsigned int phys_numrecord, int numfield, bool null,
 }
 
 //---------------------------------------------------------------------------
-void Table::restore_edit_value(unsigned int phys_numrecord, int numfield)
+void Table::restore_edit_value(uint32_t phys_numrecord, int32_t numfield)
 {
 	Field* fld;
 	char* rec;
 	changed_rec* cr;
 	changed_rec* cr2;
-	int i, j;
+	int32_t i, j;
 	type_fields tf;
 	TStream** ost;
 
@@ -6038,7 +6048,7 @@ void Table::restore_edit_value(unsigned int phys_numrecord, int numfield)
 }
 
 //---------------------------------------------------------------------------
-void Table::set_rec_type(unsigned int phys_numrecord, changed_rec_type crt)
+void Table::set_rec_type(uint32_t phys_numrecord, changed_rec_type crt)
 {
 	changed_rec* cr;
 	changed_rec* cr2;
@@ -6134,7 +6144,7 @@ void Table::set_rec_type(unsigned int phys_numrecord, changed_rec_type crt)
 #endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
-char* Table::get_edit_record(unsigned int phys_numrecord, char* rec)
+char* Table::get_edit_record(uint32_t phys_numrecord, char* rec)
 {
 	changed_rec* cr;
 	for(cr = ch_rec; cr; cr = cr->next) if(phys_numrecord == cr->numrec)
@@ -6150,9 +6160,9 @@ char* Table::get_edit_record(unsigned int phys_numrecord, char* rec)
 }
 
 //---------------------------------------------------------------------------
-unsigned int Table::get_phys_numrec(int ARow, class index* cur_index)
+uint32_t Table::get_phys_numrec(int32_t ARow, class index* cur_index)
 {
-	unsigned int numrec;
+	uint32_t numrec;
 
 	if(ARow == 0)
 	{
@@ -6167,7 +6177,7 @@ unsigned int Table::get_phys_numrec(int ARow, class index* cur_index)
 #ifndef PublicRelease
 	if(edit)
 	{
-		if((unsigned int)ARow > log_numrecords + added_numrecords)
+		if((uint32_t)ARow > log_numrecords + added_numrecords)
 		{
 			error("Попытка получения номера физической записи по номеру строки, превышающему количество записей",
 				"Таблица", name,
@@ -6176,11 +6186,11 @@ unsigned int Table::get_phys_numrec(int ARow, class index* cur_index)
 				"Номер строки", ARow);
 			return 0;
 		}
-		if((unsigned int)ARow > log_numrecords) return ARow - 1 - log_numrecords + phys_numrecords;
+		if((uint32_t)ARow > log_numrecords) return ARow - 1 - log_numrecords + phys_numrecords;
 	}
 #endif //#ifdef PublicRelease
 
-	if((unsigned int)ARow > log_numrecords)
+	if((uint32_t)ARow > log_numrecords)
 	{
 		error("Попытка получения номера физической записи по номеру строки, превышающему количество записей",
 			"Таблица", name,
@@ -6246,10 +6256,10 @@ void Table::refresh_descr_table()
 
 #ifndef PublicRelease
 //---------------------------------------------------------------------------
-void Table::delete_data_record(unsigned int phys_numrecord)
+void Table::delete_data_record(uint32_t phys_numrecord)
 {
 	char* rec;
-	int first_empty_rec;
+	int32_t first_empty_rec;
 
 	if(!edit)
 	{
@@ -6294,7 +6304,7 @@ void Table::delete_data_record(unsigned int phys_numrecord)
 		rec = new char[recordlen];
 		memset(rec, 0, recordlen);
 		file_data->getdata(&first_empty_rec, 0, 4);
-		*((int*)rec) = first_empty_rec;
+		*((int32_t*)rec) = first_empty_rec;
 		file_data->setdata(&first_empty_rec, 0, 4);
 		write_data_record(phys_numrecord, rec);
 		delete[] rec;
@@ -6303,10 +6313,10 @@ void Table::delete_data_record(unsigned int phys_numrecord)
 }
 
 //---------------------------------------------------------------------------
-void Table::delete_blob_record(unsigned int blob_numrecord)
+void Table::delete_blob_record(uint32_t blob_numrecord)
 {
-	int prev_free_first;
-	int i, j;
+	int32_t prev_free_first;
+	int32_t i, j;
 
 	if(!edit)
 	{
@@ -6348,7 +6358,7 @@ void Table::delete_blob_record(unsigned int blob_numrecord)
 }
 
 //---------------------------------------------------------------------------
-void Table::delete_index_record(unsigned int phys_numrecord)
+void Table::delete_index_record(uint32_t phys_numrecord)
 {
 	char* rec;
 
@@ -6359,10 +6369,10 @@ void Table::delete_index_record(unsigned int phys_numrecord)
 }
 
 //---------------------------------------------------------------------------
-void Table::delete_index_record(unsigned int phys_numrecord, char* rec)
+void Table::delete_index_record(uint32_t phys_numrecord, char* rec)
 {
 	class index* ind;
-	int i;
+	int32_t i;
 
 	if(*rec)
 	{
@@ -6376,7 +6386,7 @@ void Table::delete_index_record(unsigned int phys_numrecord, char* rec)
 }
 
 //---------------------------------------------------------------------------
-void Table::write_data_record(unsigned int phys_numrecord, char* rec)
+void Table::write_data_record(uint32_t phys_numrecord, char* rec)
 {
 	char* b;
 
@@ -6419,11 +6429,11 @@ void Table::write_data_record(unsigned int phys_numrecord, char* rec)
 }
 
 //---------------------------------------------------------------------------
-unsigned int Table::write_blob_record(char* blob_record, unsigned int blob_len)
+uint32_t Table::write_blob_record(char* blob_record, uint32_t blob_len)
 {
-	unsigned int cur_block, cur_offset, prev_offset, first_block, next_block;
-	unsigned short int cur_len;
-	unsigned int zero;
+	uint32_t cur_block, cur_offset, prev_offset, first_block, next_block;
+	uint16_t cur_len;
+	uint32_t zero;
 
 	if(!edit)
 	{
@@ -6472,12 +6482,12 @@ unsigned int Table::write_blob_record(char* blob_record, unsigned int blob_len)
 }
 
 //---------------------------------------------------------------------------
-unsigned int Table::write_blob_record(TStream* bstr)
+uint32_t Table::write_blob_record(TStream* bstr)
 {
-	unsigned int cur_block, cur_offset, prev_offset, first_block, next_block;
-	unsigned short int cur_len;
-	unsigned int blob_len;
-	unsigned int zero;
+	uint32_t cur_block, cur_offset, prev_offset, first_block, next_block;
+	uint16_t cur_len;
+	uint32_t blob_len;
+	uint32_t zero;
 	char blob_record[256];
 
 	if(!edit)
@@ -6530,11 +6540,11 @@ unsigned int Table::write_blob_record(TStream* bstr)
 
 //---------------------------------------------------------------------------
 
-void Table::write_index_record(const unsigned int phys_numrecord, const char* rec)
+void Table::write_index_record(const uint32_t phys_numrecord, const char* rec)
 {
 	char* index_buf;
 	class index* ind;
-	int i;
+	int32_t i;
 
 	if(*rec)
 	{
@@ -6583,10 +6593,10 @@ void Table::end_edit()
 }
 
 //---------------------------------------------------------------------------
-void Table::delete_record(unsigned int phys_numrecord)
+void Table::delete_record(uint32_t phys_numrecord)
 {
-	int i;
-	unsigned int j;
+	int32_t i;
+	uint32_t j;
 	Field* f;
 	type_fields tf;
 	char* rec;
@@ -6602,7 +6612,7 @@ void Table::delete_record(unsigned int phys_numrecord)
 		tf = f->type;
 		if(tf == tf_image || tf == tf_string || tf == tf_text)
 		{
-			j = *(unsigned int*)(rec + f->offset);
+			j = *(uint32_t*)(rec + f->offset);
 			if(j) delete_blob_record(j);
 		}
 	}
@@ -6615,12 +6625,12 @@ void Table::delete_record(unsigned int phys_numrecord)
 //---------------------------------------------------------------------------
 void Table::insert_record(char* rec)
 {
-	int i, offset;
+	int32_t i, offset;
 	char* j;
 	Field* f;
 	type_fields tf;
-	unsigned int phys_numrecord;
-	unsigned int k, l;
+	uint32_t phys_numrecord;
+	uint32_t k, l;
 	_version ver;
 	TStream** st;
 
@@ -6648,8 +6658,8 @@ void Table::insert_record(char* rec)
 					k = 0;
 					l = 0;
 				}
-				*(unsigned int*)(rec + offset) = k;
-				*(unsigned int*)(rec + offset + 4) = l;
+				*(uint32_t*)(rec + offset) = k;
+				*(uint32_t*)(rec + offset + 4) = l;
 				if(f->getnull_exists()) *(rec + f->offset) = l ? 1 : 0;
 			case tf_version:
 				file_data->get_version_rec_and_increase(&ver);
@@ -6689,13 +6699,13 @@ void Table::insert_record(char* rec)
 }
 
 //---------------------------------------------------------------------------
-void Table::update_record(unsigned int phys_numrecord, char* rec, char* changed_fields)
+void Table::update_record(uint32_t phys_numrecord, char* rec, char* changed_fields)
 {
 	char* orec;
-	int i, offset;
+	int32_t i, offset;
 	Field* f;
 	type_fields tf;
-	unsigned int k, l;
+	uint32_t k, l;
 	_version ver;
 	TStream** st;
 
@@ -6715,7 +6725,7 @@ void Table::update_record(unsigned int phys_numrecord, char* rec, char* changed_
 				{
 					if(*(orec + f->offset))
 					{
-						k = *(unsigned int*)(orec + offset);
+						k = *(uint32_t*)(orec + offset);
 						if(k) delete_blob_record(k);
 					}
 					if(*(rec + f->offset))
@@ -6743,7 +6753,7 @@ void Table::update_record(unsigned int phys_numrecord, char* rec, char* changed_
 				}
 				else
 				{
-					k = *(unsigned int*)(orec + offset);
+					k = *(uint32_t*)(orec + offset);
 					if(k) delete_blob_record(k);
 
 					st = (TStream**)(rec + offset);
@@ -6759,8 +6769,8 @@ void Table::update_record(unsigned int phys_numrecord, char* rec, char* changed_
 						l = 0;
 					}
 				}
-				*(unsigned int*)(orec + offset) = k;
-				*(unsigned int*)(orec + offset + 4) = l;
+				*(uint32_t*)(orec + offset) = k;
+				*(uint32_t*)(orec + offset + 4) = l;
 			}
 			else memcpy(orec + f->offset, rec + f->offset, f->len);
 		}
@@ -6790,10 +6800,10 @@ void Table::update_record(unsigned int phys_numrecord, char* rec, char* changed_
 // получить шаблон проверки записи (массив, содержащий для каждого байта массив из 256 байт, содержащий 0, если значение не допусимо и 1, если допустимо)
 char* Table::get_record_template_test()
 {
-	int len;
+	int32_t len;
 	char* res;
 	char* curp;
-	int i, j, l;
+	int32_t i, j, l;
 	Field* f;
 	bool required;
 
@@ -6846,7 +6856,7 @@ char* Table::get_record_template_test()
 				curp += 256;
 				memset(curp, 1, 256 * 2 * l);
 				break;
-			case tf_version: // RV // 16, 8 версия создания и 8 версия модификации ? каждая версия int(изменения) + int(реструктуризация)
+			case tf_version: // RV // 16, 8 версия создания и 8 версия модификации ? каждая версия int32_t(изменения) + int32_t(реструктуризация)
 				memset(curp, 1, 256 * 16);
 				break;
 			case tf_string: // NT // 8 (unicode text)
@@ -6907,12 +6917,12 @@ char* Table::get_record_template_test()
 // заполнить recordsindex не динамически
 void Table::fillrecordsindex()
 {
-	unsigned int i;
-	int j;
+	uint32_t i;
+	int32_t j;
 	char* rec;
 
     if(recordsindex_complete) return;
-    recordsindex = new unsigned int [phys_numrecords];
+    recordsindex = new uint32_t [phys_numrecords];
 	rec = new char[recordlen];
 
 	j = 0;
@@ -6930,10 +6940,10 @@ void Table::fillrecordsindex()
 	delete[] rec;
 }
 
-String Table::get_file_name_for_field(int num_field, char* rec, unsigned int numrec)
+String Table::get_file_name_for_field(int32_t num_field, char* rec, uint32_t numrec)
 {
 	String s("");
-	int i;
+	int32_t i;
 	class index* ind;
 
 	if(num_indexes)
@@ -6966,7 +6976,7 @@ String Table::get_file_name_for_field(int num_field, char* rec, unsigned int num
 String Table::get_file_name_for_record(char* rec)
 {
 	String s("");
-	int i;
+	int32_t i;
 	class index* ind;
 
 	if(num_indexes)
@@ -6993,9 +7003,9 @@ String Table::get_file_name_for_record(char* rec)
 // Класс table_file
 
 //---------------------------------------------------------------------------
-table_file::table_file(Table* _t, const String& _name, unsigned int _maxpartno)
+table_file::table_file(Table* _t, const String& _name, uint32_t _maxpartno)
 {
-	unsigned int i;
+	uint32_t i;
 
 	t = _t;
 	name = _name;
@@ -7027,17 +7037,17 @@ TableFiles::TableFiles(Table* t)
 	Field* filename;
 	Field* f;
 	Field* partno;
-	int* start;
-	int* length;
+	int32_t* start;
+	int32_t* length;
 	unsigned char* create;
 	unsigned char* modify;
-	unsigned int i;
+	uint32_t i;
 	size_t j;
 	String s;
 	table_rec tr, *ptr;
 	std::vector<table_rec> allrec;
-	std::map<String,int> maxpartnos;
-	std::map<String,int>::iterator pmaxpartno;
+	std::map<String,int32_t> maxpartnos;
+	std::map<String,int32_t>::iterator pmaxpartno;
 	table_file* tf;
 	std::map<String,table_file*>::iterator pfilesmap;
 
@@ -7054,7 +7064,7 @@ TableFiles::TableFiles(Table* t)
 	f = tab->getfield(2);
 	modify = (unsigned char*)(rec + f->getoffset());
 	f = tab->getfield(5);
-	start = (int*)(rec + f->getoffset());
+	start = (int32_t*)(rec + f->getoffset());
 	length = start + 1;
 
 	if(tab->get_numfields() > 6) partno = tab->getfield(6);
@@ -7222,25 +7232,25 @@ TableFileStream::TableFileStream(table_file* tf)
 	curoffset = 0;
 	tablefile = tf;
 	streams = new TStream*[tablefile->maxpartno + 1];
-	for(unsigned int i = 0; i <= tablefile->maxpartno; ++i) streams[i] = NULL;
+	for(uint32_t i = 0; i <= tablefile->maxpartno; ++i) streams[i] = NULL;
 }
 
 //---------------------------------------------------------------------------
 TableFileStream::~TableFileStream()
 {
-	for(unsigned int i = 0; i <= tablefile->maxpartno; ++i) delete streams[i];
+	for(uint32_t i = 0; i <= tablefile->maxpartno; ++i) delete streams[i];
 	delete[] streams;
 }
 
 //---------------------------------------------------------------------------
-int TableFileStream::Read(void *Buffer, int Count)
+int32_t TableFileStream::Read(void *Buffer, int32_t Count)
 {
-	unsigned int nbf; // индекс текущего table_blob_file в tablefile->addr
-	unsigned int ibf; // индекс внутри table_blob_file
-	unsigned int curoff; // curoffset
+	uint32_t nbf; // индекс текущего table_blob_file в tablefile->addr
+	uint32_t ibf; // индекс внутри table_blob_file
+	uint32_t curoff; // curoffset
 	table_blob_file* addr;
 	TStream* str;
-	int curlen;
+	int32_t curlen;
 	char* buf;
 
 	buf = (char*)Buffer;
@@ -7258,7 +7268,7 @@ int TableFileStream::Read(void *Buffer, int Count)
 
 	while(Count)
 	{
-		curlen = MIN(Count, (int)(addr[nbf].blob_length - ibf));
+		curlen = MIN(Count, (int32_t)(addr[nbf].blob_length - ibf));
 		str = streams[nbf];
 		if(!str)
 		{
@@ -7286,14 +7296,14 @@ int TableFileStream::Read(void *Buffer, int Count)
 }
 
 //---------------------------------------------------------------------------
-int TableFileStream::Read(System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count)
+int32_t TableFileStream::Read(System::DynamicArray<System::t::Byte> Buffer, int32_t Offset, int32_t Count)
 {
 	// TODO
 	return 0;
 }
 
 //---------------------------------------------------------------------------
-int TableFileStream::Seek(int Offset, System::Word Origin)
+int32_t TableFileStream::Seek(int32_t Offset, System::Word Origin)
 {
 	// TODO
 	return 0;
@@ -7312,7 +7322,7 @@ int64_t TableFileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
 // Класс T_1CD
 
 //---------------------------------------------------------------------------
-bool T_1CD::getblock(void* buf, unsigned int block_number, int blocklen)
+bool T_1CD::getblock(void* buf, uint32_t block_number, int32_t blocklen)
 {
 	if(!fs) return false;
 	if(blocklen < 0) blocklen = pagesize;
@@ -7329,7 +7339,7 @@ bool T_1CD::getblock(void* buf, unsigned int block_number, int blocklen)
 }
 
 //---------------------------------------------------------------------------
-char*  T_1CD::getblock(unsigned int block_number)
+char*  T_1CD::getblock(uint32_t block_number)
 {
 	if(!fs) return NULL;
 	if(block_number >= length)
@@ -7344,7 +7354,7 @@ char*  T_1CD::getblock(unsigned int block_number)
 }
 
 //---------------------------------------------------------------------------
-char*  T_1CD::getblock_for_write(unsigned int block_number, bool read)
+char*  T_1CD::getblock_for_write(uint32_t block_number, bool read)
 {
 	v8con* bc;
 
@@ -7370,13 +7380,13 @@ char*  T_1CD::getblock_for_write(unsigned int block_number, bool read)
 }
 
 //---------------------------------------------------------------------------
-int T_1CD::get_numtables()
+int32_t T_1CD::get_numtables()
 {
 	return num_tables;
 }
 
 //---------------------------------------------------------------------------
-Table* T_1CD::gettable(int numtable)
+Table* T_1CD::gettable(int32_t numtable)
 {
 	if(numtable >= num_tables)
 	{
@@ -7472,7 +7482,7 @@ T_1CD::~T_1CD()
 
 	if(tables)
 	{
-		for(int i = 0; i < num_tables; i++) delete tables[i];
+		for(int32_t i = 0; i < num_tables; i++) delete tables[i];
 		delete[] tables;
 		tables = NULL;
 	}
@@ -7496,8 +7506,8 @@ T_1CD::~T_1CD()
 T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 {
 	char* b;
-	unsigned int* table_blocks;
-	int i, j;
+	uint32_t* table_blocks;
+	int32_t i, j;
 	TMemoryStream* tstr;
 	root_80* root80;
 	root_81* root81;
@@ -7802,7 +7812,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 {
 	container_file* f;
 	TStream* s;
-	int i;
+	int32_t i;
 	v8catalog* cat = NULL;
 	v8catalog* cat2;
 	v8file* file;
@@ -7923,7 +7933,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		#endif
 
 		tr = get_treeFromV8file(file);
-		int numnode = (*tr)[0][2].get_value().ToInt();
+		int32_t numnode = (*tr)[0][2].get_value().ToInt();
 		for(i = 0; i < numnode; i++)
 		{
 			tree& node = (*tr)[0][3 + i];
@@ -7931,7 +7941,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 			if(nodetype.CompareIC("9cd510cd-abfc-11d4-9434-004095e12fc7") == 0) // узел "Общие"
 			{
 				tree& confinfo = node[1][1];
-				int verconfinfo = confinfo[0].get_value().ToInt();
+				int32_t verconfinfo = confinfo[0].get_value().ToInt();
 				switch(verconfinfo)
 				{
 					case 15:
@@ -8013,7 +8023,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::save_supplier_configs(unsigned int numcon, const String& _filename)
+bool T_1CD::save_supplier_configs(uint32_t numcon, const String& _filename)
 {
 	TFileStream* _fs;
 	container_file* f;
@@ -8065,13 +8075,13 @@ bool T_1CD::get_readonly()
 }
 
 //---------------------------------------------------------------------------
-void T_1CD::set_block_as_free(unsigned int block_number)
+void T_1CD::set_block_as_free(uint32_t block_number)
 {
 	free_blocks->set_block_as_free(block_number);
 }
 
 //---------------------------------------------------------------------------
-unsigned int T_1CD::get_free_block()
+uint32_t T_1CD::get_free_block()
 {
 	return free_blocks->get_free_block();
 }
@@ -8087,7 +8097,7 @@ void T_1CD::flush()
 #ifndef PublicRelease
 void T_1CD::find_lost_objects()
 {
-	unsigned int i;
+	uint32_t i;
 	char buf[8];
 	v8object* v8obj;
 	bool block_is_find;
@@ -8116,7 +8126,7 @@ void T_1CD::find_lost_objects()
 //---------------------------------------------------------------------------
 bool T_1CD::test_stream_format()
 {
-	unsigned int i;
+	uint32_t i;
 	bool result;
 	bool res;
 
@@ -8478,9 +8488,9 @@ bool T_1CD::test_stream_format()
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::recursive_test_stream_format(Table* t, unsigned int nrec)
+bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 {
-	int j;
+	int32_t j;
 	char* rec;
 	char* orec;
 	Field* f_name;
@@ -8508,9 +8518,9 @@ bool T_1CD::recursive_test_stream_format(Table* t, unsigned int nrec)
 	path = t->getname() + "/" + f_name->get_presentation(rec);
 
 	orec = rec + f_binary_data->getoffset();
-	if(*(unsigned int*)(orec + 4) > 10 * 1024 * 1024) str = new TTempStream;
+	if(*(uint32_t*)(orec + 4) > 10 * 1024 * 1024) str = new TTempStream;
 	else str = new TMemoryStream();
-	t->readBlob(str, *(unsigned int*)orec, *(unsigned int*)(orec + 4));
+	t->readBlob(str, *(uint32_t*)orec, *(uint32_t*)(orec + 4));
 
 	result = true;
 	slen = f_data_size->get_presentation(rec, true);
@@ -8545,9 +8555,9 @@ bool T_1CD::recursive_test_stream_format(Table* t, unsigned int nrec)
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::recursive_test_stream_format2(Table* t, unsigned int nrec)
+bool T_1CD::recursive_test_stream_format2(Table* t, uint32_t nrec)
 {
-	int j;
+	int32_t j;
 	char* rec;
 	char* orec;
 	Field* f_sd;
@@ -8569,7 +8579,7 @@ bool T_1CD::recursive_test_stream_format2(Table* t, unsigned int nrec)
 
 	orec = rec + f_sd->getoffset();
 	str = new TMemoryStream();
-	t->readBlob(str, *(unsigned int*)orec, *(unsigned int*)(orec + 4));
+	t->readBlob(str, *(uint32_t*)orec, *(uint32_t*)(orec + 4));
 
 	result = recursive_test_stream_format(str, path);
 
@@ -8594,10 +8604,10 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 	TBytes bytes1;
 	TBytes bytes2;
 	v8catalog* cat;
-	int offset;
+	int32_t offset;
 	String sf;
 	wchar_t first_symbol;
-	int i, j;
+	int32_t i, j;
 	bool usetempfile;
 
 	msreg->Status(path);
@@ -8803,8 +8813,8 @@ bool T_1CD::create_table(String path)
 	String dir;
 	String str;
 	char* buf;
-	unsigned int i;
-	int j;
+	uint32_t i;
+	int32_t j;
 	export_import_table_root* root;
 	v8ob* ob;
 	v8object* descr_table;
@@ -9050,9 +9060,9 @@ bool T_1CD::test_list_of_tables()
 	TBytes bytes1;
 	TBytes bytes2;
 	wchar_t first_symbol;
-	int i, j, l, l2;
-	unsigned int k;
-	int offset;
+	int32_t i, j, l, l2;
+	uint32_t k;
+	int32_t offset;
 	tree* t;
 	tree* firstt;
 
@@ -9153,7 +9163,7 @@ bool T_1CD::test_list_of_tables()
 
 		orec = rec + f_binary_data->getoffset();
 		str = new TMemoryStream();
-		table_params->readBlob(str, *(unsigned int*)orec, *(unsigned int*)(orec + 4));
+		table_params->readBlob(str, *(uint32_t*)orec, *(uint32_t*)(orec + 4));
 
 		slen = f_data_size->get_presentation(rec, true);
 		try
@@ -9345,10 +9355,10 @@ bool T_1CD::test_list_of_tables()
 //---------------------------------------------------------------------------
 bool T_1CD::replaceTREF(String mapfile)
 {
-	DynamicArray<int> map; // динамический массив соответствия номеров
-	int i,j,m;
-	int k, l;
-	unsigned int ii, jj, kk;
+	DynamicArray<int32_t> map; // динамический массив соответствия номеров
+	int32_t i,j,m;
+	int32_t k, l;
+	uint32_t ii, jj, kk;
 	char* rec;
 	String str;
 	TStringList* list;
@@ -9405,10 +9415,10 @@ bool T_1CD::replaceTREF(String mapfile)
 				{
 					t->getrecord(kk, rec);
 					if(*rec) continue;
-					ii = reverse_byte_order(*((unsigned int*)(rec + k)));
+					ii = reverse_byte_order(*((uint32_t*)(rec + k)));
 					if(ii == 0) continue;
 					ii = map[ii];
-					*((int*)(rec + k)) = reverse_byte_order(ii);
+					*((int32_t*)(rec + k)) = reverse_byte_order(ii);
 					t->write_data_record(kk, rec);
 				}
 				t->edit = editsave;
@@ -9427,9 +9437,9 @@ bool T_1CD::replaceTREF(String mapfile)
 //---------------------------------------------------------------------------
 bool T_1CD::delete_table(Table* tab)
 {
-	int i;
-	unsigned int j;
-	unsigned int bl;
+	int32_t i;
+	uint32_t j;
+	uint32_t bl;
 	char* buf;
 	bool res = num_tables > 0;
 
@@ -9483,8 +9493,8 @@ bool T_1CD::delete_table(Table* tab)
 bool T_1CD::delete_object(v8object* ob)
 {
 	objtab* b;
-	unsigned int i;
-	int j;
+	uint32_t i;
+	int32_t j;
 
 	if(!ob) return true;
 
@@ -9519,12 +9529,12 @@ bool T_1CD::delete_object(v8object* ob)
 //---------------------------------------------------------------------------
 void T_1CD::find_and_create_lost_tables()
 {
-	unsigned int i, k;
-	int j, numlosttables;
+	uint32_t i, k;
+	int32_t j, numlosttables;
 	char buf[8];
 	v8object* v8obj;
 	bool block_is_find;
-	DynamicArray<unsigned int> losttables;
+	DynamicArray<uint32_t> losttables;
 	char* b;
 
 	numlosttables = 0;
@@ -9597,7 +9607,7 @@ void T_1CD::find_and_create_lost_tables()
 //---------------------------------------------------------------------------
 void T_1CD::find_and_save_lost_objects()
 {
-	unsigned int i;
+	uint32_t i;
 	char buf[8];
 	v8object* v8obj;
 	bool block_is_find;
@@ -9644,13 +9654,13 @@ void T_1CD::find_and_save_lost_objects()
 
 //---------------------------------------------------------------------------
 // Если не удалось получить версию, возвращается 0, иначе возвращается положительное число
-int T_1CD::get_ver_depot_config(int ver) // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
+int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
 {
 	char* rec;
 	class index* ind;
 	Field* fld;
-	unsigned int i;
-	int v;
+	uint32_t i;
+	int32_t v;
 	String s;
 
 	if(!is_open()) return 0;
@@ -9677,7 +9687,7 @@ int T_1CD::get_ver_depot_config(int ver) // Получение номера ве
 	if(!ind) return 0;
 
 	i = ind->get_numrecords();
-	if(i <= (unsigned int)(-ver))
+	if(i <= (uint32_t)(-ver))
 	{
 		msreg->AddMessage_("Запрошенной версии конфигурации не существует", msError,
 			"Всего версий в хранилище", i,
@@ -9703,7 +9713,7 @@ int T_1CD::get_ver_depot_config(int ver) // Получение номера ве
 
 Field* T_1CD::get_field(Table* tab, String fieldname)
 {
-	int j;
+	int32_t j;
 	Field* fld;
 	String s;
 
@@ -9726,7 +9736,7 @@ Field* T_1CD::get_field(Table* tab, String fieldname)
 
 class index* T_1CD::get_index(Table* tab, String indexname)
 {
-	int j;
+	int32_t j;
 	class index* ind;
 	String s;
 
@@ -9752,7 +9762,7 @@ class index* T_1CD::get_index(Table* tab, String indexname)
 // ver - номер версии сохраняемой конфигурации
 // ver > 0 - используется переданный номер версии
 // ver <= 0 - номер версии от последней конфигурации. 0 - последняя конфигурация, -1 - предпоследняя и т.д., т.е. Номер версии определяется как номер последней + ver
-bool T_1CD::save_depot_config(const String& _filename, int ver)
+bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 {
 	char* rec;
 	char* frec;
@@ -9778,7 +9788,7 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 
 	char rootobj[16];
 	char curobj[16];
-	unsigned int ih, nh;
+	uint32_t ih, nh;
 
 	Field* flde_objid;
 	Field* flde_vernum;
@@ -9791,8 +9801,8 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 	char* rece;
 	DynamicArray<char*> reces;
 	DynamicArray<String> extnames;
-	int nreces;
-	unsigned int ie, ne;
+	int32_t nreces;
+	uint32_t ie, ne;
 
 	bool ok;
 	bool lastremoved;
@@ -9800,11 +9810,11 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 	bool datapacked;
 	bool deletesobj;
 	char emptyimage[8];
-	unsigned int i, k, _crc;
-	int v, j, res, lastver, n;
+	uint32_t i, k, _crc;
+	int32_t v, j, res, lastver, n;
 	String sn;
 	depot_ver depotVer;
-	unsigned int configVerMajor, configVerMinor;
+	uint32_t configVerMajor, configVerMinor;
 	//char VerDate[7];
 	TStream* in;
 	TStream* out;
@@ -9948,7 +9958,7 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 	// Проверяем, нет ли снэпшота нужной версии конфигурации
 	if(*(rec + fldv_snapshotcrc->offset)) if(*(rec + fldv_snapshotmaker->offset)) if(memcmp(rootobj, rec + fldv_snapshotmaker->offset + 1, 16) == 0)
 	{
-		_crc = *(unsigned int*)(rec + fldv_snapshotcrc->offset + 1);
+		_crc = *(uint32_t*)(rec + fldv_snapshotcrc->offset + 1);
 
 		//s = System.IOUtils.TPath::GetDirectoryName(filename);
 		s = filename.SubString(1, filename.LastDelimiter("\\"));
@@ -10253,11 +10263,11 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 					out = new TTempStream;
 					if(oldformat)
 					{
-						table_history->readBlob(in, *(unsigned int*)rec, *(unsigned int*)(rec + 4));
+						table_history->readBlob(in, *(uint32_t*)rec, *(uint32_t*)(rec + 4));
 						in->Seek(0, soFromBeginning);
 						ZInflateStream(in, out);
 					}
-					else table_history->readBlob(out, *(unsigned int*)rec, *(unsigned int*)(rec + 4));
+					else table_history->readBlob(out, *(uint32_t*)rec, *(uint32_t*)(rec + 4));
 					out->Close();
 					ok = true;
 				}
@@ -10387,7 +10397,7 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 						if(memcmp(emptyimage, frec, 8))
 						{
 							out = new TTempStream;
-							table_externals->readBlob(out, *(unsigned int*)frec, *(unsigned int*)(frec + 4));
+							table_externals->readBlob(out, *(uint32_t*)frec, *(uint32_t*)(frec + 4));
 							out->Close();
 							ok = true;
 						}
@@ -10598,7 +10608,7 @@ bool T_1CD::save_depot_config(const String& _filename, int ver)
 // ver_end - конечный номер диапазона версий сохраняемых файлов конфигурации
 // ver_begin > 0, ver_end > 0 - используется переданный номер версии
 // ver_begin <= 0, ver_end <= 0 - номер версии от последней конфигурации. 0 - последняя конфигурация, -1 - предпоследняя и т.д., т.е. Номер версии определяется как номер последней + ver
-bool T_1CD::save_part_depot_config(const String& _filename, int ver_begin, int ver_end)
+bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, int32_t ver_end)
 {
 	char* rec;
 	char* frec;
@@ -10626,7 +10636,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int ver_begin, int v
 
 	char rootobj[16];
 	char curobj[16];
-	unsigned int ih, nh;
+	uint32_t ih, nh;
 
 	Field* flde_objid;
 	Field* flde_vernum;
@@ -10637,7 +10647,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int ver_begin, int v
 	Field* flde_datahash;
 	class index* inde;
 	char* rece;
-	unsigned int ie, ne, je;
+	uint32_t ie, ne, je;
 
 	bool ok;
 	bool removed;
@@ -10649,11 +10659,11 @@ bool T_1CD::save_part_depot_config(const String& _filename, int ver_begin, int v
 	bool hasext;
 	char emptyimage[8];
 	char verid[16];
-	unsigned int i, k, _crc;
-	int v, j, res, lastver, n;
+	uint32_t i, k, _crc;
+	int32_t v, j, res, lastver, n;
 	String s, ss, sp, sn, se;
 	depot_ver depotVer;
-	unsigned int configVerMajor, configVerMinor;
+	uint32_t configVerMajor, configVerMinor;
 	//char VerDate[7];
 	TMemoryStream* in;
 	TMemoryStream* out;
@@ -10987,11 +10997,11 @@ bool T_1CD::save_part_depot_config(const String& _filename, int ver_begin, int v
 								rec = rech1 + fldh_objdata->offset + 1;
 								if(*(rech1 + fldh_objdata->offset) && memcmp(emptyimage, rec, 8))
 								{
-									table_history->readBlob(out, *(unsigned int*)rec, *(unsigned int*)(rec + 4));
+									table_history->readBlob(out, *(uint32_t*)rec, *(uint32_t*)(rec + 4));
 									rec = rech2 + fldh_objdata->offset + 1;
 									if(*(rech2 + fldh_objdata->offset) && memcmp(emptyimage, rec, 8))
 									{
-										table_history->readBlob(in, *(unsigned int*)rec, *(unsigned int*)(rec + 4));
+										table_history->readBlob(in, *(uint32_t*)rec, *(uint32_t*)(rec + 4));
 										inreaded = true;
 										if(in->GetSize() == out->GetSize()) if(memcmp(in->GetMemory(), out->GetMemory(), in->GetSize()) == 0) changed = false;
 									}
@@ -11018,7 +11028,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int ver_begin, int v
 							}
 							else if(*(rech2 + fldh_objdata->offset) && memcmp(emptyimage, rec, 8))
 							{
-								table_history->readBlob(in, *(unsigned int*)rec, *(unsigned int*)(rec + 4));
+								table_history->readBlob(in, *(uint32_t*)rec, *(uint32_t*)(rec + 4));
 								sobj = in;
 								ok = true;
 							}
@@ -11147,7 +11157,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int ver_begin, int v
 									frec = rece + flde_extdata->offset;
 									if(memcmp(emptyimage, frec, 8))
 									{
-										table_externals->readBlob(in, *(unsigned int*)frec, *(unsigned int*)(frec + 4));
+										table_externals->readBlob(in, *(uint32_t*)frec, *(uint32_t*)(frec + 4));
 										sobj = in;
 										ok = true;
 									}
@@ -11309,14 +11319,14 @@ bool T_1CD::save_part_depot_config(const String& _filename, int ver_begin, int v
 void T_1CD::restore_DATA_allocation_table(Table* tab)
 {
 	char* rectt;
-	unsigned int block;
+	uint32_t block;
 	v8ob* rootobj;
 	objtab* ca;
 	char* cd;
-	unsigned int i, l, cl, a, d, r;
-	int j, k, m, n, rl;
+	uint32_t i, l, cl, a, d, r;
+	int32_t j, k, m, n, rl;
 	bool ok;
-	std::vector<unsigned int> bk;
+	std::vector<uint32_t> bk;
 	String s;
 
 	block = tab->get_file_data()->get_block_number();
@@ -11490,11 +11500,11 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 
 //---------------------------------------------------------------------------
 // Проверка блока таблицы по шаблону
-bool T_1CD::test_block_by_template(unsigned int testblock, char* tt, unsigned int num, int rlen, int len)
+bool T_1CD::test_block_by_template(uint32_t testblock, char* tt, uint32_t num, int32_t rlen, int32_t len)
 {
 	unsigned char b[0x1000]; // TODO pagesize
 	bool ok;
-	int i, j;
+	int32_t i, j;
 
 	ok = true;
 	fs->Seek((int64_t)testblock << 12, (TSeekOrigin)soFromBeginning);
@@ -11636,7 +11646,7 @@ String T_1CD::pagemaprec_presentation(pagemaprec& pmr)
 	}
 }
 
-std::map<String,table_file*> TableFiles::files()
+std::map<String,table_file*> &TableFiles::files()
 {
 	return allfiles;
 }
