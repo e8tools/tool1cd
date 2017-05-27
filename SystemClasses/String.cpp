@@ -107,7 +107,7 @@ String String::Replace(const String &sub, const String &replace) const
 
 String String::SubString(int StartIndex, int Count) const
 {
-	if (StartIndex > Length()) {
+	if (StartIndex > Length() || StartIndex <= 0) {
 		return String("");
 	}
 	return String(substr(StartIndex - 1, Count));
