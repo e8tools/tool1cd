@@ -143,6 +143,12 @@ int main(int argc, char* argv[])
 
 	boost::filesystem::path dbpath(static_cast<string>(f));
 	dbpath = boost::filesystem::absolute(dbpath);
+	if (!boost::filesystem::exists(dbpath))
+	{
+		mess.AddMessage("Указанный файл базы 1CD не существует", msError);
+		return 3;
+	}
+
 	T_1CD base1CD(dbpath.string(), &mess, !ActionOpenBaseNotMonopolyChecked);
 	if (base1CD.is_open())
 	{
