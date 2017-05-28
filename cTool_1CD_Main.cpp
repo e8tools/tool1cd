@@ -17,6 +17,7 @@
 
 #include "cTool_1CD_Main.h"
 #include "ParseCommandLine.h"
+#include "ErrorCode.h"
 
 using namespace std;
 
@@ -78,7 +79,6 @@ int main(int argc, char* argv[])
 {
 	Messager mess; // регистратор сообщений
 	int i, j, k, m;
-	int ret;
 	unsigned int n;
 	Table* t;
 	String f, v;
@@ -138,11 +138,17 @@ int main(int argc, char* argv[])
 	if(f.IsEmpty())
 	{
 		mess.AddMessage("В командной строке не найден файл базы 1CD", msError);
-		return 3;
+		return CTOOL_1CD_INVALID_ARGUMENT;
 	}
 
 	boost::filesystem::path dbpath(static_cast<string>(f));
 	dbpath = boost::filesystem::absolute(dbpath);
+	if (!boost::filesystem::exists(dbpath))
+	{
+		mess.AddMessage("Указанный файл базы 1CD не существует", msError);
+		return CTOOL_1CD_FILE_NOT_EXISTS;
+	}
+
 	T_1CD base1CD(dbpath.string(), &mess, !ActionOpenBaseNotMonopolyChecked);
 	if (base1CD.is_open())
 	{
@@ -154,7 +160,7 @@ int main(int argc, char* argv[])
 			"Количество таблиц", base1CD.get_numtables());
 	}
 	else {
-		return 2;
+		return CTOOL_1CD_FILE_NOT_OPEN;
 	}
 
 	for(i = 0; i < commands.get_length(); i++)
@@ -468,8 +474,11 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if(mess.has_error) ret = 1;
-	else ret = 0;
-	return ret;
+	if(mess.has_error)
+	{
+		return CTOOL_1CD_ERROR;
+	}
+
+	return 0;
 }
 
