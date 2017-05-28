@@ -23,7 +23,7 @@ if (MSVC)
 endif()
 
 set (TOOL_SOURCES cTool_1CD_Main.cpp ParseCommandLine.cpp MessageRegistration.cpp Class_1CD.cpp
-	Common.cpp ConfigStorage.cpp Parse_tree.cpp APIcfBase.cpp TempStream.cpp Base64.cpp UZLib.cpp)
+	Common.cpp ConfigStorage.cpp Parse_tree.cpp APIcfBase.cpp TempStream.cpp Base64.cpp UZLib.cpp Messenger.cpp)
 
 set (CMAKE_CXX_STANDARD 11)
 
