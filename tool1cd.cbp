@@ -55,6 +55,8 @@
 		<Unit filename="ErrorCode.h" />
 		<Unit filename="MessageRegistration.cpp" />
 		<Unit filename="MessageRegistration.h" />
+		<Unit filename="Messenger.cpp" />
+		<Unit filename="Messenger.h" />
 		<Unit filename="NodeTypes.h" />
 		<Unit filename="ParseCommandLine.cpp" />
 		<Unit filename="ParseCommandLine.h" />
