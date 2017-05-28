@@ -18,6 +18,7 @@
 #include "cTool_1CD_Main.h"
 #include "ParseCommandLine.h"
 #include "ErrorCode.h"
+#include "Messenger.h"
 
 using namespace std;
 
@@ -29,44 +30,6 @@ const int TEMP_BUFFER_SIZE = 4096;
 char temp[TEMP_BUFFER_SIZE];
 
 //---------------------------------------------------------------------------
-Messager::Messager()
-{
-	has_error = false;
-	logfile = "";
-	noverbose = false;
-
-}
-
-//---------------------------------------------------------------------------
-void Messager::Status(const String& message)
-{
-	cout << message << endl;
-	AddMessage(message, msEmpty, nullptr);
-}
-
-//---------------------------------------------------------------------------
-void Messager::AddMessage(const String& message, const MessageState mstate, TStringList* param)
-{
-	shared_ptr<ostream> output (&cerr, [](...){} );
-
-	if (!logfile.IsEmpty()) {
-		output = make_shared<boost::filesystem::ofstream>(boost::filesystem::path(static_cast<string>(logfile)), std::ios_base::app);
-	}
-	*output << message << endl;
-	if (param) {
-		for (auto it : *param) {
-			*output << "\t" << it << endl;
-		}
-	}
-	output->flush();
-}
-
-//---------------------------------------------------------------------------
-void Messager::setlogfile(String _logfile)
-{
-	logfile = System::Ioutils::TPath::GetFullPath(_logfile);
-	if(FileExists(logfile)) DeleteFile(logfile);
-}
 
 bool IsTrueString(const String &str)
 {
@@ -77,7 +40,7 @@ bool IsTrueString(const String &str)
 //---------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-	Messager mess; // регистратор сообщений
+	Messenger mess; // регистратор сообщений
 	int i, j, k, m;
 	unsigned int n;
 	Table* t;
