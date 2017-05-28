@@ -79,7 +79,6 @@ int main(int argc, char* argv[])
 {
 	Messager mess; // регистратор сообщений
 	int i, j, k, m;
-	int ret;
 	unsigned int n;
 	Table* t;
 	String f, v;
@@ -475,8 +474,11 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if(mess.has_error) ret = 1;
-	else ret = 0;
-	return ret;
+	if(mess.has_error)
+	{
+		return CTOOL_1CD_ERROR;
+	}
+
+	return 0;
 }
 
