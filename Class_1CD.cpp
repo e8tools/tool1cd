@@ -2869,11 +2869,13 @@ void index::write_index_record(const uint32_t phys_numrecord, const char* index_
 			}
 			else if(_result == 2)
 			{
+			    char* page2 = new char[pagesize];
+
 				number_indexes++;
 				if(number_indexes > max_num_indexes)
 				{
 					result = 2;
-					char* page2 = new char[pagesize];
+
 
 					tbase->file_index->getdata(&k, 0, 4);
 					if(k)
