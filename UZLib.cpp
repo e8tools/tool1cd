@@ -7,9 +7,13 @@
 #include "UZLib.h"
 
 //---------------------------------------------------------------------------
+// warning C4068: unknown pragma in VC++
+#if !define(_WIN32)
 #pragma package(smart_init)
+#endif
 
 const int CHUNKSIZE = 16384;
+
 #ifndef DEF_MEM_LEVEL
 #	if MAX_MEM_LEVEL >= 8
 		const int DEF_MEM_LEVEL = 8;
