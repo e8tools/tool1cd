@@ -8,7 +8,8 @@
 
 //---------------------------------------------------------------------------
 // warning C4068: unknown pragma in VC++
-#if !define(_WIN32)
+
+#if !defined(_WIN32)
 #pragma package(smart_init)
 #endif
 
