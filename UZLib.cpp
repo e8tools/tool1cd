@@ -22,7 +22,8 @@ const int CHUNKSIZE = 16384;
 void ZInflateStream_Old(TStream* src, TStream* dst)
 {
 	z_stream strm;
-	int ret, srcSize, dstSize;
+	//int ret, srcSize, dstSize;
+	int ret, srcSize;
 
 	unsigned char srcBuf[CHUNKSIZE] = {0};
 	unsigned char dstBuf[CHUNKSIZE] = {0};
@@ -110,7 +111,8 @@ void ZDeflateStream(TStream* src, TStream* dst)
 void ZInflateStream(TStream* src, TStream* dst)
 {
 	z_stream strm;
-	int ret, srcSize, dstSize;
+	//int ret, srcSize, dstSize;
+	int ret, srcSize;
 	unsigned have;
 
 	unsigned char srcBuf[CHUNKSIZE] = {0};
