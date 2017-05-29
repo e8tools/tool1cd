@@ -25,7 +25,8 @@ void ZInflateStream_Old(TStream* src, TStream* dst)
 	//int ret, srcSize, dstSize;
 	//int ret, srcSize;
 	int ret;
-	uint64_t srcSize;
+	//uint64_t srcSize;
+	uintmax_t srcSize;
 
 	unsigned char srcBuf[CHUNKSIZE] = {0};
 	unsigned char dstBuf[CHUNKSIZE] = {0};
@@ -116,7 +117,8 @@ void ZInflateStream(TStream* src, TStream* dst)
 	//int ret, srcSize, dstSize;
 	//int ret, srcSize;
 	int ret;
-	int64_t srcSize;
+	//int64_t srcSize;
+	uintmax_t srcSize;
 
 	unsigned have;
 
