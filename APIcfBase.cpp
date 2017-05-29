@@ -991,7 +991,7 @@ void v8catalog::initialize()
 {
 	is_destructed = false;
 	catalog_header _ch;
-	int _temp;
+	//int _temp;
 	String _name;
 	fat_item _fi;
 	char* _temp_buf;
