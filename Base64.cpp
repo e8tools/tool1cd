@@ -6,8 +6,9 @@
 #include "Base64.h"
 
 //---------------------------------------------------------------------------
-
+#if !defined(_WIN32)
 #pragma package(smart_init)
+#endif
 
 // Куски исходного кода взяты с http://base64.sourceforge.net/
 
