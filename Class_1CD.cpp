@@ -2870,6 +2870,7 @@ void index::write_index_record(const uint32_t phys_numrecord, const char* index_
 			else if(_result == 2)
 			{
 			    char* page2 = new char[pagesize];
+			    unpack_indexes_buf = new char[delta * number_indexes];
 
 				number_indexes++;
 				if(number_indexes > max_num_indexes)
@@ -2888,7 +2889,7 @@ void index::write_index_record(const uint32_t phys_numrecord, const char* index_
 
 					flags &= ~indexpage_is_root;
 
-					unpack_indexes_buf = new char[delta * number_indexes];
+					//unpack_indexes_buf = new char[delta * number_indexes];
 
 					cur_index = unpack_indexes_buf;
 					cur_index2 = page + 12;
