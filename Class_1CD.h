@@ -693,7 +693,8 @@ friend T_1CD;
 private:
 	char* buf; // указатель на блок в памяти
 	static uint32_t pagesize; // размер одной стрницы (до версии 8.2.14 всегда 0x1000 (4K), начиная с версии 8.3.8 от 0x1000 (4K) до 0x10000 (64K))
-	uint32_t numblock;
+	//uint32_t numblock;
+	uint64_t numblock;
 	memblock* next;
 	memblock* prev;
 	TFileStream* file; // файл, которому принадлежит блок
