@@ -8,7 +8,7 @@
 //#include <windows.h>
 
 #pragma hdrstop
-#pragma argsused
+//#pragma argsused /* остатки от борланда */
 
 //#include <tchar.h>
 #include <stdio.h>
