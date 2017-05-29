@@ -15,9 +15,9 @@ install:
 - cmd: >-
     appveyor DownloadFile https://github.com/madler/zlib/archive/v1.2.11.zip -FileName zlib-1.2.11.zip
 
-    7z x zlib-1.2.8.zip > NUL
+    7z x zlib-1.2.11.zip > NUL
 
-    cd zlib-1.2.8
+    cd zlib-1.2.11
 
     md build
 
