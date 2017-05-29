@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <iomanip>
 #include <sstream>
+#include <string>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem.hpp>
 #include "System.SysUtils.hpp"
@@ -16,23 +17,20 @@ String::String()
 {
 }
 
-String::String(const string &src)
-	 : string(src)
+String::String(const string &src) : string(src)
 {
 }
 
-String::String(const char *src)
-	 : string(src)
+String::String(const char *src) : string(src)
 {
 }
 
-String::String(const char *src, int limit_size)
-	 : string(src, limit_size)
+String::String(const char *src, int limit_size) : string(src, limit_size)
 {
 }
 
-String::String(const DynamicArray<t::Byte> &bytes)
-	: string(reinterpret_cast<const char *>(bytes.data()), bytes.size()) {
+String::String(const DynamicArray<t::Byte> &bytes) : string(reinterpret_cast<const char *>(bytes.data()), bytes.size())
+{
 }
 
 String::String(const WCHART *w_src, int limit_size)
@@ -41,10 +39,14 @@ String::String(const WCHART *w_src, int limit_size)
 	DynamicArray<t::Byte> tmpdata;
 	const WCHART *p = w_src;
 	bool limit_exceeded = false;
+
 	while (!limit_exceeded && *p) {
+
 		tmpdata.push_back((uint16_t)(*p) & 0xFF);
 		tmpdata.push_back((uint16_t)(*p) >> 8);
+
 		++p;
+
 		if (limit_size) {
 			limit_exceeded = --limit_size == 0;
 		}
@@ -97,19 +99,27 @@ int String::Compare(const String &b) const
 String String::Replace(const String &sub, const String &replace) const
 {
 	string _copy(*this);
+
 	auto pos = _copy.find(sub);
+
 	while (pos != string::npos) {
+
 		_copy.replace(pos, sub.size(), replace);
 		pos = _copy.find(sub);
+
 	}
+
 	return _copy;
 }
 
 String String::SubString(int StartIndex, int Count) const
 {
 	if (StartIndex > Length() || StartIndex <= 0) {
+
 		return String("");
+
 	}
+
 	return String(substr(StartIndex - 1, Count));
 }
 
@@ -186,9 +196,6 @@ WCHART *String::WideChar(WCHART *wbuf, int destSize) const
 	return wbuf;
 }
 
-
-
-
 void TStringList::Add(const String &item)
 {
 	push_back(item);
@@ -223,7 +230,6 @@ void TStringList::LoadFromFile(const String &filename)
 		push_back(line);
 	}
 }
-
 
 String String::IntToStr(int n)
 {
