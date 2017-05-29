@@ -4,11 +4,14 @@ project (SystemClasses)
 set (SYSTEM_SOURCES String.cpp System.Classes.cpp System.cpp
 	System.IOUtils.cpp TFileStream.cpp TMemoryStream.cpp TStream.cpp
 	TStreamReader.cpp TStreamWriter.cpp System.SysUtils.cpp)
+set (SYSTEM_HEADERS String.hpp System.Classes.hpp System.hpp
+	System.IOUtils.hpp TFileStream.hpp TMemoryStream.hpp TStream.hpp
+	TStreamReader.hpp TStreamWriter.hpp System.SysUtils.hpp)
 
 set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_CXX_STANDARD_REQUIRED YES)
 set (CMAKE_CXX_EXTENSIONS OFF)
-add_library (SystemClasses STATIC ${SYSTEM_SOURCES})
+add_library (SystemClasses STATIC ${SYSTEM_SOURCES} ${SYSTEM_HEADERS})
 
 add_definitions (-DBOOST_ALL_NO_LIB)
 set (Boost_USE_STATIC_LIBS ON)
