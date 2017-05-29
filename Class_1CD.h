@@ -725,7 +725,8 @@ public:
 	static char* getblock_for_write(TFileStream* fs, uint32_t _numblock, bool read);
 	static void create_memblocks(uint32_t _numblocks);
 	static void delete_memblocks();
-	static uint32_t get_numblocks();
+	//static uint32_t get_numblocks();
+	static uint64_t get_numblocks();
 	static void flush();
 };
 

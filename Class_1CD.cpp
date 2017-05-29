@@ -391,6 +391,7 @@ void memblock::add_block()
 }
 
 //---------------------------------------------------------------------------
+//uint32_t memblock::get_numblocks()
 uint32_t memblock::get_numblocks()
 {
 	return numblocks;
