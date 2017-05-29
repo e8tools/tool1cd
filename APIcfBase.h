@@ -14,14 +14,14 @@
 #ifndef _DELPHI_STRING_UNICODE
 	const char str_cfu[] = ".cfu";
 	const char str_cfe[] = ".cfe";
-	const char str_cf[] = ".cf";
+	const char str_cf[]  = ".cf";
 	const char str_epf[] = ".epf";
 	const char str_erf[] = ".erf";
 	const char str_backslash[] = "\\";
 #else
 	const wchar_t str_cfu[] = L".cfu";
 	const wchar_t str_cfe[] = L".cfe";
-	const wchar_t str_cf[] = L".cf";
+	const wchar_t str_cf[]  = L".cf";
 	const wchar_t str_epf[] = L".epf";
 	const wchar_t str_erf[] = L".erf";
 	const wchar_t str_backslash[] = L"\\";
@@ -39,15 +39,15 @@ struct v8header_struct{
 struct fat_item{
 	int32_t header_start;
 	int32_t data_start;
-	int32_t ff; // всегда 7fffffff
+	int32_t ff;            // всегда 7fffffff
 };
 
 //---------------------------------------------------------------------------
 struct catalog_header{
 	int32_t start_empty; // начало первого пустого блока
-	int32_t page_size; // размер страницы по умолчанию
-	int32_t version; // версия
-	int32_t zero; // всегда ноль?
+	int32_t page_size;   // размер страницы по умолчанию
+	int32_t version;     // версия
+	int32_t zero;        // всегда ноль?
 };
 
 //---------------------------------------------------------------------------
@@ -73,21 +73,24 @@ class v8file{
 	TStream* data;
 	v8catalog* parent;
 	FileIsCatalog iscatalog;
-	v8catalog* self; // указатель на каталог, если файл является каталогом
 
-	v8file* next; // следующий файл в каталоге
-	v8file* previous; // предыдущий файл в каталоге
-	bool is_opened; // признак открытого файла (инициализирован поток data)
+	v8catalog* self;        // указатель на каталог, если файл является каталогом
 
-	int start_data; // начало блока данных файла в каталоге (0 означает, что файл в каталоге не записан)
-	int start_header; // начало блока заголовка файла в каталоге
-	bool is_datamodified; // признак модифицированности данных файла (требуется запись в каталог при закрытии)
+	v8file* next;           // следующий файл в каталоге
+
+	v8file* previous;       // предыдущий файл в каталоге
+
+	bool is_opened;         // признак открытого файла (инициализирован поток data)
+
+	int start_data;         // начало блока данных файла в каталоге (0 означает, что файл в каталоге не записан)
+	int start_header;       // начало блока заголовка файла в каталоге
+	bool is_datamodified;   // признак модифицированности данных файла (требуется запись в каталог при закрытии)
 	bool is_headermodified; // признак модифицированности заголовка файла (требуется запись в каталог при закрытии)
 
-	bool is_destructed; // признак, что работает деструктор
-	bool flushed; // признак, что происходит сброс
+	bool is_destructed;     // признак, что работает деструктор
+	bool flushed;           // признак, что происходит сброс
 //	bool readonly;
-	bool selfzipped; // Признак, что файл является запакованным независимо от признака zipped каталога
+	bool selfzipped;        // Признак, что файл является запакованным независимо от признака zipped каталога
 	std::set<TV8FileStream*> streams;
 
   public:
@@ -98,15 +101,19 @@ class v8file{
 	v8catalog* GetCatalog();
 	int GetFileLength();
 	int64_t GetFileLength64();
+
 	int Read(void* Buffer, int Start, int Length);
 	int Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length);
-	int Write(const void* Buffer, int Start, int Length); // дозапись/перезапись частично
+
+	int Write(const void* Buffer, int Start, int Length);                           // дозапись/перезапись частично
 	int Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length); // дозапись/перезапись частично
-	int Write(const void* Buffer, int Length); // перезапись целиком
-	int Write(TStream* Stream, int Start, int Length); // дозапись/перезапись частично
-	int Write(TStream* Stream); // перезапись целиком
+	int Write(const void* Buffer, int Length);                                      // перезапись целиком
+	int Write(TStream* Stream, int Start, int Length);                              // дозапись/перезапись частично
+	int Write(TStream* Stream);                                                     // перезапись целиком
+
 	String GetFileName();
 	String GetFullName();
+
 	void SetFileName(const String& _name);
 	v8catalog* GetParentCatalog();
 	void DeleteFile();
@@ -130,18 +137,18 @@ class v8catalog{
   private:
 	friend v8file;
 	TCriticalSection *Lock;
-	v8file* file; // файл, которым является каталог. Для корневого каталога NULL
+	v8file* file;  // файл, которым является каталог. Для корневого каталога NULL
 	TStream* data; // поток каталога. Если file не NULL (каталог не корневой), совпадает с file->data
-	TStream* cfu; // поток файла cfu. Существует только при is_cfu == true
+	TStream* cfu;  // поток файла cfu. Существует только при is_cfu == true
 	void initialize();
 	v8file* first; // первый файл в каталоге
-	v8file* last; // последний файл в каталоге
+	v8file* last;  // последний файл в каталоге
 	std::map<String,v8file*> files; // Соответствие имен и файлов
 	int start_empty; // начало первого пустого блока
-	int page_size; // размер страницы по умолчанию
-	int version; // версия
-	bool zipped; // признак зазипованности файлов каталога
-	bool is_cfu; // признак файла cfu (файл запакован deflate'ом)
+	int page_size;   // размер страницы по умолчанию
+	int version;     // версия
+	bool zipped;     // признак зазипованности файлов каталога
+	bool is_cfu;     // признак файла cfu (файл запакован deflate'ом)
 	bool iscatalog;
 	bool iscatalogdefined;
 
@@ -150,23 +157,29 @@ class v8catalog{
 	bool is_modified;
 
 	void free_block(int start);
-	int write_block(TStream* block, int start, bool use_page_size, int len = -1); // возвращает адрес начала блока
+
+	int write_block(TStream* block, int start, bool use_page_size, int len = -1);       // возвращает адрес начала блока
 	int write_datablock(TStream* block, int start, bool _zipped = false, int len = -1); // возвращает адрес начала блока
+
 	TStream* read_datablock(int start);
 	int get_nextblock(int start);
 
 	bool is_destructed; // признак, что работает деструктор
-	bool flushed; // признак, что происходит сброс
-	bool leave_data; // признак, что не нужно удалять основной поток (data) при уничтожении объекта
+	bool flushed;       // признак, что происходит сброс
+	bool leave_data;    // признак, что не нужно удалять основной поток (data) при уничтожении объекта
 
   public:
 //	bool readonly;
-	v8catalog(v8file* f); // создать каталог из файла
+
+	v8catalog(v8file* f);   // создать каталог из файла
 	v8catalog(String name); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
 	v8catalog(String name, bool _zipped); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
-	bool IsCatalog();
 	v8catalog(TStream* stream, bool _zipped, bool leave_stream = false); // создать каталог из потока
+
+	bool IsCatalog();
+
 	~v8catalog();
+
 	v8file* GetFile(const String& FileName);
 	v8file* GetFirst();
 	v8file* createFile(const String& FileName, bool _selfzipped = false); // CreateFile в win64 определяется как CreateFileW, пришлось заменить на маленькую букву
