@@ -4,7 +4,9 @@
 
 #include "Common.h"
 //---------------------------------------------------------------------------
+#if !defined(_WIN32)
 #pragma package(smart_init)
+#endif
 
 wchar_t hexdecode[] = L"0123456789abcdef";
 
