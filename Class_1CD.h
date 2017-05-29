@@ -706,7 +706,8 @@ private:
 	//static uint32_t numblocks; // количество значащих элементов в массиве memblocks (равно количеству блоков в файле *.1CD)
 	static uint64_t numblocks;   // количество значащих элементов в массиве memblocks (равно количеству блоков в файле *.1CD)
 
-	static uint32_t array_numblocks; // количество элементов в массиве memblocks (больше или равно количеству блоков в файле *.1CD)
+	//static uint32_t array_numblocks; // количество элементов в массиве memblocks (больше или равно количеству блоков в файле *.1CD)
+	static uint64_t array_numblocks;   // количество элементов в массиве memblocks (больше или равно количеству блоков в файле *.1CD)
 	static uint32_t delta; // шаг увеличения массива memblocks
 	static memblock** memblocks; // указатель на массив указателей memblock (количество равно количеству блоков в файле *.1CD)
 
@@ -723,7 +724,9 @@ public:
 	static void garbage();
 	static char* getblock(TFileStream* fs, uint32_t _numblock);
 	static char* getblock_for_write(TFileStream* fs, uint32_t _numblock, bool read);
-	static void create_memblocks(uint32_t _numblocks);
+	//static void create_memblocks(uint32_t _numblocks);
+	static void create_memblocks(uint64_t _numblocks);
+
 	static void delete_memblocks();
 	//static uint32_t get_numblocks();
 	static uint64_t get_numblocks();

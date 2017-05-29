@@ -173,7 +173,9 @@ memblock** memblock::memblocks = NULL;
 //uint32_t memblock::numblocks = 0;
 uint64_t memblock::numblocks = 0;
 
-uint32_t memblock::array_numblocks = 0;
+//uint32_t memblock::array_numblocks = 0;
+uint64_t memblock::array_numblocks = 0;
+
 uint32_t memblock::delta = 128;
 uint32_t memblock::pagesize;
 
@@ -356,7 +358,8 @@ char* memblock::getblock_for_write(TFileStream* fs, uint32_t _numblock, bool rea
 }
 
 //---------------------------------------------------------------------------
-void memblock::create_memblocks(uint32_t _numblocks)
+//void memblock::create_memblocks(uint32_t _numblocks)
+void memblock::create_memblocks(uint64_t _numblocks)
 {
 	numblocks = _numblocks;
 	array_numblocks = (numblocks / delta + 1) * delta;
