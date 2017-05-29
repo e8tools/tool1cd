@@ -24,10 +24,12 @@ endif()
 
 set (TOOL_SOURCES cTool_1CD_Main.cpp ParseCommandLine.cpp MessageRegistration.cpp Class_1CD.cpp
 	Common.cpp ConfigStorage.cpp Parse_tree.cpp APIcfBase.cpp TempStream.cpp Base64.cpp UZLib.cpp Messenger.cpp)
+set (TOOL_HEADERS cTool_1CD_Main.h ParseCommandLine.h MessageRegistration.h Class_1CD.h
+	Common.h ConfigStorage.h Parse_tree.h APIcfBase.h TempStream.h Base64.h UZLib.h Messenger.h ErrorCode.h)
 
 set (CMAKE_CXX_STANDARD 11)
 
-add_executable (ctool1cd ${TOOL_SOURCES})
+add_executable (ctool1cd ${TOOL_SOURCES} ${TOOL_HEADERS})
 
 add_subdirectory (SystemClasses)
 include_directories (SystemClasses)
