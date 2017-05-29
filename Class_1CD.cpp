@@ -2873,6 +2873,7 @@ void index::write_index_record(const uint32_t phys_numrecord, const char* index_
 				if(number_indexes > max_num_indexes)
 				{
 					result = 2;
+					char* page2 = new char[pagesize];
 
 					tbase->file_index->getdata(&k, 0, 4);
 					if(k)
@@ -2915,7 +2916,7 @@ void index::write_index_record(const uint32_t phys_numrecord, const char* index_
 					number_indexes2 = number_indexes - number_indexes1;
 
 					//page2 = new char[pagesize];
-					char* page2 = new char[pagesize];
+					//char* page2 = new char[pagesize];
 					bph2 = (branch_page_header*)page2;
 					memset(page, 0, pagesize);
 					memset(page2, 0, pagesize);
