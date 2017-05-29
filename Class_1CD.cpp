@@ -2693,7 +2693,7 @@ void index::write_index_record(const uint32_t phys_numrecord, const char* index_
 	uint64_t prev_page;
 	uint64_t next_page;
 
-	char* page2;
+	//char* page2;
 	branch_page_header* bph2;
 	leaf_page_header* lph2;
 	uint32_t number_indexes1;
@@ -2772,7 +2772,8 @@ void index::write_index_record(const uint32_t phys_numrecord, const char* index_
 			else
 			{
 				result = 2;
-				page2 = new char[pagesize];
+				//page2 = new char[pagesize];
+				char* page2 = new char[pagesize];
 				number_indexes1 = number_indexes >> 1;
 				number_indexes2 = number_indexes - number_indexes1;
 				pack_leafpage(unpack_indexes_buf_new, number_indexes1, page);
@@ -2913,7 +2914,8 @@ void index::write_index_record(const uint32_t phys_numrecord, const char* index_
 					number_indexes1 = number_indexes >> 1;
 					number_indexes2 = number_indexes - number_indexes1;
 
-					page2 = new char[pagesize];
+					//page2 = new char[pagesize];
+					char* page2 = new char[pagesize];
 					bph2 = (branch_page_header*)page2;
 					memset(page, 0, pagesize);
 					memset(page2, 0, pagesize);

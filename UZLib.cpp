@@ -23,7 +23,9 @@ void ZInflateStream_Old(TStream* src, TStream* dst)
 {
 	z_stream strm;
 	//int ret, srcSize, dstSize;
-	int ret, srcSize;
+	//int ret, srcSize;
+	int ret;
+	uint64_t srcSize;
 
 	unsigned char srcBuf[CHUNKSIZE] = {0};
 	unsigned char dstBuf[CHUNKSIZE] = {0};
