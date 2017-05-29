@@ -169,7 +169,10 @@ uint32_t memblock::maxcount;
 //uint32_t memblock::maxcount = 0x10000; // 256 мегабайт ()
 //uint32_t memblock::maxcount = 0x8000; // 128 мегабайт ()
 memblock** memblock::memblocks = NULL;
-uint32_t memblock::numblocks = 0;
+
+//uint32_t memblock::numblocks = 0;
+uint64_t memblock::numblocks = 0;
+
 uint32_t memblock::array_numblocks = 0;
 uint32_t memblock::delta = 128;
 uint32_t memblock::pagesize;
