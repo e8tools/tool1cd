@@ -2693,7 +2693,7 @@ void index::write_index_record(const uint32_t phys_numrecord, const char* index_
 	uint64_t prev_page;
 	uint64_t next_page;
 
-	//char* page2;
+	char* page2;
 	branch_page_header* bph2;
 	leaf_page_header* lph2;
 	uint32_t number_indexes1;
