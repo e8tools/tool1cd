@@ -2,6 +2,7 @@
 //#pragma argsused // остатки от борланда
 
 //#include <tchar.h>
+/*тест*/
 #include <stdio.h>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
@@ -39,7 +40,7 @@ bool IsTrueString(const String &str)
 
 //---------------------------------------------------------------------------
 //cmd_export_all_to_xml
-void T1CD_cmd_export_all_to_xml(T_1CD &base1CD, ParsedCommand& pc, Messenger mess)
+void T1CD_cmd_export_all_to_xml(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
 {
 	Table* tbl;
 	
@@ -71,7 +72,7 @@ void T1CD_cmd_export_all_to_xml(T_1CD &base1CD, ParsedCommand& pc, Messenger mes
 
 //---------------------------------------------------------------------------
 //cmd_export_to_xml
-void T1CD_cmd_export_to_xml(T_1CD &base1CD, ParsedCommand& pc, Messenger mess)
+void T1CD_cmd_export_to_xml(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
 {
 	boost::regex* expr;
 	Table* tbl;
@@ -149,7 +150,7 @@ void T1CD_cmd_export_to_xml(T_1CD &base1CD, ParsedCommand& pc, Messenger mess)
 
 //---------------------------------------------------------------------------
 //cmd_save_config
-void T1CD_cmd_save_config(T_1CD &base1CD, ParsedCommand& pc, Messenger mess)
+void T1CD_cmd_save_config(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
 {
 	if (base1CD.is_open())
 	{
@@ -181,7 +182,7 @@ void T1CD_cmd_save_config(T_1CD &base1CD, ParsedCommand& pc, Messenger mess)
 
 //---------------------------------------------------------------------------
 //cmd_save_configsave
-void T1CD_cmd_save_configsave(T_1CD &base1CD, ParsedCommand& pc, Messenger mess)
+void T1CD_cmd_save_configsave(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
 {
 	if (base1CD.is_open())
 	{
@@ -207,7 +208,7 @@ void T1CD_cmd_save_configsave(T_1CD &base1CD, ParsedCommand& pc, Messenger mess)
 
 //---------------------------------------------------------------------------
 //cmd_save_vendors_configs
-void T1CD_cmd_save_vendors_configs(T_1CD &base1CD, ParsedCommand& pc, Messenger mess)
+void T1CD_cmd_save_vendors_configs(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
 {
 	if (base1CD.is_open())
 	{
@@ -227,7 +228,7 @@ void T1CD_cmd_save_vendors_configs(T_1CD &base1CD, ParsedCommand& pc, Messenger 
 
 //---------------------------------------------------------------------------
 //cmd_save_all_configs
-void T1CD_cmd_save_all_configs(T_1CD &base1CD, ParsedCommand& pc, Messenger mess)
+void T1CD_cmd_save_all_configs(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
 {
 	if (base1CD.is_open())
 	{
@@ -261,7 +262,7 @@ void T1CD_cmd_save_all_configs(T_1CD &base1CD, ParsedCommand& pc, Messenger mess
 
 //---------------------------------------------------------------------------
 //cmd_save_depot_config
-void T1CD_cmd_save_depot_config(T_1CD &base1CD, ParsedCommand& pc, Messenger mess)
+void T1CD_cmd_save_depot_config(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
 {
 	if (!base1CD.is_open())
 	{
@@ -314,7 +315,7 @@ void T1CD_cmd_save_depot_config(T_1CD &base1CD, ParsedCommand& pc, Messenger mes
 
 //---------------------------------------------------------------------------
 // cmd_save_depot_config_part
-void T1CD_cmd_save_depot_config_part(T_1CD &base1CD, ParsedCommand& pc, Messenger mess)
+void T1CD_cmd_save_depot_config_part(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
 {
 	if (!base1CD.is_open())
 	{

@@ -13,7 +13,7 @@ environment:
   BOOST_INCLUDEDIR: C:\Libraries\boost_1_63_0
 install:
 - cmd: >-
-    appveyor DownloadFile https://github.com/madler/zlib/archive/v1.2.11.zip -FileName zlib-1.2.8.zip
+    appveyor DownloadFile https://github.com/madler/zlib/archive/v1.2.8.zip -FileName zlib-1.2.8.zip
 
     7z x zlib-1.2.8.zip > NUL
 
