@@ -327,9 +327,10 @@ void T1CD_cmd_save_depot_config_part(T_1CD &base1CD, ParsedCommand& pc, Messenge
 		return;
 	}
 	String f = pc.param1;
-	int v, j, k;
+	String v;
+	int j, k;
 
-	int k = f.Pos(":");
+	k = f.Pos(":");
 	if (k)
 	{
 		v = f.SubString(k + 1, f.Length() - k);
@@ -497,7 +498,7 @@ int main(int argc, char* argv[])
 					break;
 				}
 				case cmd_save_depot_config_part:{
-					T1CD_cmd_save_depot_config_part(base1CD, ps, mess);
+					T1CD_cmd_save_depot_config_part(base1CD, pc, mess);
 					break;
 				}	
 			}
