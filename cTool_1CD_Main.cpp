@@ -69,6 +69,88 @@ void T1CD_cmd_export_all_to_xml(T_1CD &base1CD, ParsedCommand& pc, Messenger mes
 		mess.AddError("Попытка выгрузки всех таблиц в XML без открытой базы.");
 }
 
+//---------------------------------------------------------------------------
+//cmd_export_to_xml
+void T1CD_cmd_export_to_xml(T_1CD &base1CD, ParsedCommand& pc, Messenger mess)
+{
+	boost::regex* expr;
+	Table* tbl;
+
+	if (base1CD.is_open())
+	{
+		boost::filesystem::path root_path(static_cast<string>(pc.param1));
+
+		Sysutils::TStringBuilder filter(pc.param2);
+		filter.Replace("*", ".*");
+		filter.Replace("?", ".");
+		filter.Replace(" ", "\n");
+		filter.Replace("\t", "\n");
+		filter.Replace(",", "\n");
+		filter.Replace(";", "\n");
+
+		TStringList filters;
+		filters.SetText(filter.ToString());
+		for (int m = filters.Count() - 1; m >= 0; m--)
+		{
+			if (filters[m].Length() == 0)
+				filters.Delete(m);
+			else
+				filters[m] = String("^") + filters[m].UpperCase() + "$";
+		}
+
+		int k = filters.Count();
+		if (k == 0)
+		{
+			mess.AddError("Список таблиц для выгрузки в XML пуст.");
+			break;
+		}
+
+		expr = new boost::regex[k];
+		for (int m = 0; m < k; m++)
+			expr[m] = boost::regex(static_cast<string>(filters[m]));
+
+		for (int j = 0; j < base1CD.get_numtables(); j++)
+		{
+			tbl = base1CD.gettable(j);
+
+			bool b = false;
+
+			for (int m = 0; m < k; m++)
+			{
+				if (regex_match(static_cast<string>(tbl->getname().UpperCase()), expr[m]))
+				{
+					b = true;
+					break;
+				}
+			}
+
+			if (b)
+			{
+				if (!tbl->get_numindexes())
+				{
+					tbl->fillrecordsindex();
+				}
+
+				boost::filesystem::path filetable = root_path / static_cast<string>(tbl->getname() + ".xml");
+
+				bool ActionXMLSaveBLOBToFileChecked = IsTrueString(pc.param1);
+				bool ActionXMLUnpackBLOBChecked     = IsTrueString(pc.param1);
+
+				tbl->export_to_xml(filetable.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
+				mess.AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull, "Таблица", tbl->getname(), "Файл", filetable.string());
+			}
+		}
+
+		delete[] expr;
+	}
+	else
+		mess.AddError("Попытка выгрузки таблиц в XML без открытой базы.");
+}
+
+
+
+
+
 
 //---------------------------------------------------------------------------
 // основная точка входа утилиты
@@ -193,73 +275,73 @@ int main(int argc, char* argv[])
 					break;
 				}
 				case cmd_export_to_xml: {
-					if(base1CD.is_open())
-					{
-						boost::filesystem::path root_path(static_cast<string>(pc.param1));
+					// if(base1CD.is_open())
+					// {
+					// 	boost::filesystem::path root_path(static_cast<string>(pc.param1));
 
-						Sysutils::TStringBuilder filter(pc.param2);
-						filter.Replace("*", ".*");
-						filter.Replace("?", ".");
-						filter.Replace(" ", "\n");
-						filter.Replace("\t", "\n");
-						filter.Replace(",", "\n");
-						filter.Replace(";", "\n");
+					// 	Sysutils::TStringBuilder filter(pc.param2);
+					// 	filter.Replace("*", ".*");
+					// 	filter.Replace("?", ".");
+					// 	filter.Replace(" ", "\n");
+					// 	filter.Replace("\t", "\n");
+					// 	filter.Replace(",", "\n");
+					// 	filter.Replace(";", "\n");
 
-						TStringList filters;
-						filters.SetText(filter.ToString());
-						for(m = filters.Count() - 1; m >= 0; m--)
-						{
-							if(filters[m].Length() == 0) filters.Delete(m);
-							else filters[m] = String("^") + filters[m].UpperCase() + "$";
-						}
+					// 	TStringList filters;
+					// 	filters.SetText(filter.ToString());
+					// 	for(m = filters.Count() - 1; m >= 0; m--)
+					// 	{
+					// 		if(filters[m].Length() == 0) filters.Delete(m);
+					// 		else filters[m] = String("^") + filters[m].UpperCase() + "$";
+					// 	}
 
-						k = filters.Count();
-						if(k == 0)
-						{
-							mess.AddError("Список таблиц для выгрузки в XML пуст.");
-							break;
-						}
+					// 	k = filters.Count();
+					// 	if(k == 0)
+					// 	{
+					// 		mess.AddError("Список таблиц для выгрузки в XML пуст.");
+					// 		break;
+					// 	}
 
-						expr = new boost::regex[k];
-						for(m = 0; m < k; m++) expr[m] = boost::regex(static_cast<string>(filters[m]));
+					// 	expr = new boost::regex[k];
+					// 	for(m = 0; m < k; m++) expr[m] = boost::regex(static_cast<string>(filters[m]));
 
-						for(j = 0; j < base1CD.get_numtables(); j++)
-						{
-							t = base1CD.gettable(j);
+					// 	for(j = 0; j < base1CD.get_numtables(); j++)
+					// 	{
+					// 		t = base1CD.gettable(j);
 
-							b = false;
+					// 		b = false;
 
-							for(m = 0; m < k; m++)
-							{
-								if(regex_match(static_cast<string>(t->getname().UpperCase()), expr[m]))
-								{
-									b = true;
-									break;
-								}
-							}
+					// 		for(m = 0; m < k; m++)
+					// 		{
+					// 			if(regex_match(static_cast<string>(t->getname().UpperCase()), expr[m]))
+					// 			{
+					// 				b = true;
+					// 				break;
+					// 			}
+					// 		}
 
-							if(b)
-							{
-								if(!t->get_numindexes())
-								{
-									t->fillrecordsindex();
-								}
+					// 		if(b)
+					// 		{
+					// 			if(!t->get_numindexes())
+					// 			{
+					// 				t->fillrecordsindex();
+					// 			}
 
-								boost::filesystem::path f = root_path / static_cast<string>(t->getname() + ".xml");
+					// 			boost::filesystem::path f = root_path / static_cast<string>(t->getname() + ".xml");
 
-								t->export_to_xml(f.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
-								mess.AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull,
-									"Таблица", t->getname(),
-									"Файл", f.string());
-							}
+					// 			t->export_to_xml(f.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
+					// 			mess.AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull,
+					// 				"Таблица", t->getname(),
+					// 				"Файл", f.string());
+					// 		}
 
-						}
+					// 	}
 
-						delete[] expr;
+					// 	delete[] expr;
 
-					}
-					else mess.AddError("Попытка выгрузки таблиц в XML без открытой базы.");
-
+					// }
+					// else mess.AddError("Попытка выгрузки таблиц в XML без открытой базы.");
+					T1CD_cmd_export_to_xml(base1CD, pc, mess);	
 					break;
 				}
 				case cmd_save_config: {
