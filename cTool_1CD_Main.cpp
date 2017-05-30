@@ -39,7 +39,7 @@ bool IsTrueString(const String &str)
 
 //---------------------------------------------------------------------------
 //cmd_export_all_to_xml
-void cmd_export_all_to_xml(T_1CD &base1CD, ParsedCommand& pc, Messenger mess)
+void T1CD_cmd_export_all_to_xml(T_1CD &base1CD, ParsedCommand& pc, Messenger mess)
 {
 	Table* tbl;
 	
@@ -185,7 +185,7 @@ int main(int argc, char* argv[])
 					// 	}
 					// }
 					// else mess.AddError("Попытка выгрузки всех таблиц в XML без открытой базы.");
-					cmd_export_all_to_xml(base1CD, pc, mess);
+					T1CD_cmd_export_all_to_xml(base1CD, pc, mess);
 					break;
 				}
 				case cmd_export_to_xml: {
