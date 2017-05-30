@@ -16,12 +16,12 @@ namespace Classes {
 
 typedef std::ios_base::seekdir TSeekOrigin;
 
-const TSeekOrigin soBeginning = std::ios_base::beg;
-const TSeekOrigin soCurrent = std::ios_base::cur;
-const TSeekOrigin soEnd = std::ios_base::end;
+const TSeekOrigin soBeginning     = std::ios_base::beg;
+const TSeekOrigin soCurrent       = std::ios_base::cur;
+const TSeekOrigin soEnd           = std::ios_base::end;
 const TSeekOrigin soFromBeginning = soBeginning;
-const TSeekOrigin soFromCurrent = std::ios_base::cur;
-const TSeekOrigin soFromEnd = std::ios_base::end;
+const TSeekOrigin soFromCurrent   = std::ios_base::cur;
+const TSeekOrigin soFromEnd       = std::ios_base::end;
 
 class TStream
 {
