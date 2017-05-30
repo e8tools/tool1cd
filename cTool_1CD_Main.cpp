@@ -102,7 +102,7 @@ void T1CD_cmd_export_to_xml(T_1CD &base1CD, ParsedCommand& pc, Messenger mess)
 		if (k == 0)
 		{
 			mess.AddError("Список таблиц для выгрузки в XML пуст.");
-			break;
+			return;
 		}
 
 		expr = new boost::regex[k];
