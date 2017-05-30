@@ -110,6 +110,7 @@ void V8timeToFileTime(const int64_t* v8t, FILETIME* ft){
 }
 
 //---------------------------------------------------------------------------
+// обратное преобразование времени
 void FileTimeToV8time(const FILETIME* ft, int64_t* v8t){
 	FILETIME lft;
 	FileTimeToLocalFileTime(ft, &lft);
@@ -120,6 +121,7 @@ void FileTimeToV8time(const FILETIME* ft, int64_t* v8t){
 }
 
 //---------------------------------------------------------------------------
+// установка текущего времени
 void setCurrentTime(int64_t* v8t)
 {
 	SYSTEMTIME st;
@@ -135,6 +137,7 @@ void setCurrentTime(int64_t* v8t)
 // Класс v8file
 
 //---------------------------------------------------------------------------
+// конструктор
 v8file::v8file(v8catalog* _parent, const String& _name, v8file* _previous, int _start_data, int _start_header, int64_t* _time_create, int64_t* _time_modify)
 {
 	Lock = new TCriticalSection();
@@ -161,30 +164,35 @@ v8file::v8file(v8catalog* _parent, const String& _name, v8file* _previous, int _
 }
 
 //---------------------------------------------------------------------------
+// получить время создания
 void v8file::GetTimeCreate(FILETIME* ft)
 {
 	V8timeToFileTime(&time_create, ft);
 }
 
 //---------------------------------------------------------------------------
+// получить время модификации
 void v8file::GetTimeModify(FILETIME* ft)
 {
 	V8timeToFileTime(&time_modify, ft);
 }
 
 //---------------------------------------------------------------------------
+// установить время создания
 void v8file::SetTimeCreate(FILETIME* ft)
 {
 	FileTimeToV8time(ft, &time_create);
 }
 
 //---------------------------------------------------------------------------
+// установить время модификации
 void v8file::SetTimeModify(FILETIME* ft)
 {
 	FileTimeToV8time(ft, &time_modify);
 }
 
 //---------------------------------------------------------------------------
+// сохранить в файл
 void v8file::SaveToFile(const String& FileName)
 {
 	FILETIME create, modify;
@@ -200,6 +208,7 @@ void v8file::SaveToFile(const String& FileName)
 }
 
 //---------------------------------------------------------------------------
+// сохранить в поток
 void v8file::SaveToStream(TStream* stream)
 {
 	Lock->Acquire();
@@ -209,6 +218,7 @@ void v8file::SaveToStream(TStream* stream)
 }
 
 //---------------------------------------------------------------------------
+// определить размер файла
 int v8file::GetFileLength()
 {
 	int ret;
@@ -220,6 +230,7 @@ int v8file::GetFileLength()
 }
 
 //---------------------------------------------------------------------------
+// определить размер файла
 int64_t v8file::GetFileLength64()
 {
 	int64_t ret;
@@ -231,6 +242,7 @@ int64_t v8file::GetFileLength64()
 }
 
 //---------------------------------------------------------------------------
+// чтение
 int v8file::Read(void* Buffer, int Start, int Length)
 {
 	int ret;
@@ -243,6 +255,7 @@ int v8file::Read(void* Buffer, int Start, int Length)
 }
 
 //---------------------------------------------------------------------------
+// чтение
 int v8file::Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length)
 {
 	int ret;
@@ -262,12 +275,14 @@ int v8file::Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Le
 //}
 
 //---------------------------------------------------------------------------
+// получить поток
 TV8FileStream* v8file::get_stream(bool own)
 {
 	return new TV8FileStream(this, own);
 }
 
 //---------------------------------------------------------------------------
+// записать
 int v8file::Write(const void* Buffer, int Start, int Length) // дозапись/перезапись частично
 {
 	int ret;
@@ -284,6 +299,7 @@ int v8file::Write(const void* Buffer, int Start, int Length) // дозапись
 }
 
 //---------------------------------------------------------------------------
+// записать
 int v8file::Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length) // дозапись/перезапись частично
 {
 	int ret;
@@ -300,6 +316,7 @@ int v8file::Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int L
 }
 
 //---------------------------------------------------------------------------
+// записать
 int v8file::Write(const void* Buffer, int Length) // перезапись целиком
 {
 	int ret;
@@ -317,6 +334,7 @@ int v8file::Write(const void* Buffer, int Length) // перезапись цел
 }
 
 //---------------------------------------------------------------------------
+// записать
 int v8file::Write(TStream* Stream, int Start, int Length) // дозапись/перезапись частично
 {
 	int ret;
@@ -333,6 +351,7 @@ int v8file::Write(TStream* Stream, int Start, int Length) // дозапись/п
 }
 
 //---------------------------------------------------------------------------
+// записать
 int v8file::Write(TStream* Stream) // перезапись целиком
 {
 	int ret;
@@ -350,12 +369,14 @@ int v8file::Write(TStream* Stream) // перезапись целиком
 }
 
 //---------------------------------------------------------------------------
+// возвращает имя
 String v8file::GetFileName()
 {
 	return name;
 }
 
 //---------------------------------------------------------------------------
+// возвращает полное имя
 String v8file::GetFullName()
 {
 	if(parent) if(parent->file)
@@ -372,6 +393,7 @@ String v8file::GetFullName()
 }
 
 //---------------------------------------------------------------------------
+// устанавливает имя
 void v8file::SetFileName(const String& _name)
 {
 	name = _name;
@@ -379,6 +401,7 @@ void v8file::SetFileName(const String& _name)
 }
 
 //---------------------------------------------------------------------------
+// определение "каталога"
 bool v8file::IsCatalog()
 {
 	int _filelen;
@@ -449,6 +472,7 @@ bool v8file::IsCatalog()
 }
 
 //---------------------------------------------------------------------------
+// получение "каталога"
 v8catalog* v8file::GetCatalog(){
 	v8catalog* ret;
 
@@ -467,12 +491,14 @@ v8catalog* v8file::GetCatalog(){
 }
 
 //---------------------------------------------------------------------------
+// получение родительского контейнера
 v8catalog* v8file::GetParentCatalog()
 {
 	return parent;
 }
 
 //---------------------------------------------------------------------------
+// удалить файл
 void v8file::DeleteFile()
 {
 //	if(readonly) return;
@@ -522,12 +548,14 @@ void v8file::DeleteFile()
 }
 
 //---------------------------------------------------------------------------
+// получить следующий
 v8file* v8file::GetNext()
 {
 	return next;
 }
 
 //---------------------------------------------------------------------------
+// открыть файл
 bool v8file::Open(){
 	if(!parent) return false;
 	Lock->Acquire();
@@ -543,6 +571,7 @@ bool v8file::Open(){
 }
 
 //---------------------------------------------------------------------------
+// закрыть файл
 void v8file::Close(){
 	int _t = 0;
 
@@ -600,6 +629,7 @@ void v8file::Close(){
 }
 
 //---------------------------------------------------------------------------
+// записать и закрыть
 int v8file::WriteAndClose(TStream* Stream, int Length)
 {
 	int32_t _4bzero = 0;
@@ -652,6 +682,7 @@ int v8file::WriteAndClose(TStream* Stream, int Length)
 }
 
 //---------------------------------------------------------------------------
+// деструктор
 v8file::~v8file()
 {
 	std::set<TV8FileStream*>::iterator istreams;
@@ -694,6 +725,7 @@ v8file::~v8file()
 }
 
 //---------------------------------------------------------------------------
+// сброс
 void v8file::Flush()
 {
 	int _t = 0;
@@ -763,6 +795,7 @@ void v8file::Flush()
 // Класс v8catalog
 
 //---------------------------------------------------------------------------
+// определение каталога
 bool v8catalog::IsCatalog()
 {
 	int _filelen;
@@ -831,6 +864,7 @@ bool v8catalog::IsCatalog()
 }
 
 //---------------------------------------------------------------------------
+// конструктор
 v8catalog::v8catalog(String name) // создать каталог из физического файла .cf
 {
 	Lock = new TCriticalSection();
@@ -889,6 +923,7 @@ v8catalog::v8catalog(String name) // создать каталог из физи
 }
 
 //---------------------------------------------------------------------------
+// конструктор
 v8catalog::v8catalog(String name, bool _zipped) // создать каталог из физического файла
 {
 	Lock = new TCriticalSection();
@@ -924,6 +959,7 @@ v8catalog::v8catalog(String name, bool _zipped) // создать каталог
 }
 
 //---------------------------------------------------------------------------
+// конструктор
 v8catalog::v8catalog(TStream* stream, bool _zipped, bool leave_stream) // создать каталог из потока
 {
 	Lock = new TCriticalSection();
@@ -955,6 +991,7 @@ v8catalog::v8catalog(TStream* stream, bool _zipped, bool leave_stream) // соз
 }
 
 //---------------------------------------------------------------------------
+// конструктор
 v8catalog::v8catalog(v8file* f) // создать каталог из файла
 {
 	is_cfu = false;
@@ -1069,6 +1106,7 @@ void v8catalog::initialize()
 }
 
 //---------------------------------------------------------------------------
+// удалить файл
 void v8catalog::DeleteFile(const String& FileName)
 {
 	Lock->Acquire();
@@ -1086,6 +1124,7 @@ void v8catalog::DeleteFile(const String& FileName)
 }
 
 //---------------------------------------------------------------------------
+// получить файл
 v8file* v8catalog::GetFile(const String& FileName)
 {
 	v8file* ret;
@@ -1099,11 +1138,13 @@ v8file* v8catalog::GetFile(const String& FileName)
 }
 
 //---------------------------------------------------------------------------
+// получить первого
 v8file* v8catalog::GetFirst(){
 	return first;
 }
 
 //---------------------------------------------------------------------------
+// создать файл
 v8file* v8catalog::createFile(const String& FileName, bool _selfzipped){
 	int64_t v8t;
 	v8file* f;
@@ -1123,6 +1164,7 @@ v8file* v8catalog::createFile(const String& FileName, bool _selfzipped){
 }
 
 //---------------------------------------------------------------------------
+// получить родительский каталог
 v8catalog* v8catalog::GetParentCatalog()
 {
 	if(!file) return NULL;
@@ -1130,6 +1172,7 @@ v8catalog* v8catalog::GetParentCatalog()
 }
 
 //---------------------------------------------------------------------------
+// чтение блока данных
 TStream* v8catalog::read_datablock(int start)
 {
 	TStream* stream;
@@ -1152,6 +1195,7 @@ TStream* v8catalog::read_datablock(int start)
 }
 
 //---------------------------------------------------------------------------
+// освобождение блока
 void v8catalog::free_block(int start){
 	char temp_buf[32];
 	int nextstart;
@@ -1183,6 +1227,7 @@ void v8catalog::free_block(int start){
 }
 
 //---------------------------------------------------------------------------
+// запись блока данных
 int v8catalog::write_datablock(TStream* block, int start, bool _zipped, int len)
 {
 	TMemoryStream* stream2;
@@ -1229,6 +1274,7 @@ int v8catalog::write_datablock(TStream* block, int start, bool _zipped, int len)
 }
 
 //---------------------------------------------------------------------------
+// получить следующий блок
 int v8catalog::get_nextblock(int start)
 {
 	int ret;
@@ -1245,6 +1291,7 @@ int v8catalog::get_nextblock(int start)
 }
 
 //---------------------------------------------------------------------------
+// записать блок
 int v8catalog::write_block(TStream* block, int start, bool use_page_size, int len)
 {
 	char temp_buf[32];
@@ -1331,6 +1378,7 @@ int v8catalog::write_block(TStream* block, int start, bool use_page_size, int le
 }
 
 //---------------------------------------------------------------------------
+// деструктор
 v8catalog::~v8catalog()
 {
 	fat_item fi;
@@ -1425,12 +1473,14 @@ v8catalog::~v8catalog()
 }
 
 //---------------------------------------------------------------------------
+// получить файл собственный
 v8file* v8catalog::GetSelfFile()
 {
 	return file;
 }
 
 //---------------------------------------------------------------------------
+// создать каталог
 v8catalog* v8catalog::CreateCatalog(const String& FileName, bool _selfzipped)
 {
 	v8catalog* ret;
@@ -1451,6 +1501,7 @@ v8catalog* v8catalog::CreateCatalog(const String& FileName, bool _selfzipped)
 }
 
 //---------------------------------------------------------------------------
+// сохранить в файловую систему
 void v8catalog::SaveToDir(String DirName)
 {
 	CreateDir(DirName);
@@ -1468,12 +1519,14 @@ void v8catalog::SaveToDir(String DirName)
 }
 
 //---------------------------------------------------------------------------
+// возвращает признак открытости
 bool v8catalog::isOpen()
 {
 	return IsCatalog();
 }
 
 //---------------------------------------------------------------------------
+// сбросить
 void v8catalog::Flush()
 {
 	fat_item fi;
@@ -1553,6 +1606,7 @@ void v8catalog::Flush()
 }
 
 //---------------------------------------------------------------------------
+// закрыть наполовину
 void v8catalog::HalfClose()
 {
 	Lock->Acquire();
@@ -1571,6 +1625,7 @@ void v8catalog::HalfClose()
 }
 
 //---------------------------------------------------------------------------
+// половину открыть
 void v8catalog::HalfOpen(const String& name)
 {
 	Lock->Acquire();
@@ -1590,6 +1645,7 @@ void v8catalog::HalfOpen(const String& name)
 // Класс TV8FileStream
 
 //---------------------------------------------------------------------------
+// конструктор
 TV8FileStream::TV8FileStream(v8file* f, bool ownfile) : TStream(), file(f), own(ownfile)
 {
 	pos = 0l;
@@ -1597,6 +1653,7 @@ TV8FileStream::TV8FileStream(v8file* f, bool ownfile) : TStream(), file(f), own(
 }
 
 //---------------------------------------------------------------------------
+// декструктор
 TV8FileStream::~TV8FileStream()
 {
 	if(own) delete file;
@@ -1604,6 +1661,7 @@ TV8FileStream::~TV8FileStream()
 }
 
 //---------------------------------------------------------------------------
+// чтение буфера
 int TV8FileStream::Read(void *Buffer, int Count)
 {
 	int r = file->Read(Buffer, pos, Count);
@@ -1612,6 +1670,7 @@ int TV8FileStream::Read(void *Buffer, int Count)
 }
 
 //---------------------------------------------------------------------------
+// чтение буфера
 int TV8FileStream::Read(System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count)
 {
 	int r = file->Read(Buffer, pos, Count);
@@ -1620,6 +1679,7 @@ int TV8FileStream::Read(System::DynamicArray<System::t::Byte> Buffer, int Offset
 }
 
 //---------------------------------------------------------------------------
+// запись буфера
 int TV8FileStream::Write(const void *Buffer, int Count)
 {
 	int r = file->Write(Buffer, pos, Count);
@@ -1628,6 +1688,7 @@ int TV8FileStream::Write(const void *Buffer, int Count)
 }
 
 //---------------------------------------------------------------------------
+// запись буфера
 int TV8FileStream::Write(const System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count)
 {
 	int r = file->Write(Buffer, pos, Count);
@@ -1636,6 +1697,7 @@ int TV8FileStream::Write(const System::DynamicArray<System::t::Byte> Buffer, int
 }
 
 //---------------------------------------------------------------------------
+// позиционирование
 int TV8FileStream::Seek(int Offset, System::Word Origin)
 {
 	int l = file->GetFileLength();
@@ -1664,6 +1726,7 @@ int TV8FileStream::Seek(int Offset, System::Word Origin)
 }
 
 //---------------------------------------------------------------------------
+// позиционирование
 int64_t TV8FileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
 {
 	int64_t l = file->GetFileLength64();
