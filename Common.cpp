@@ -423,7 +423,6 @@ String tohex64(int64_t n)
 //---------------------------------------------------------------------------
 String hexstring(TStream* str)
 {
-	int i;
 	String s = "";
 	wchar_t b;
 	unsigned char c, d;

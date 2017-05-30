@@ -28,6 +28,7 @@ private:
 
 public:
 	MessageRegistrator();
+	virtual ~MessageRegistrator();
 	void setDebugMode(bool dstate);
 	bool getDebugMode();
 	virtual void AddMessage(const String& description, const MessageState mstate, TStringList* param = NULL) = 0;

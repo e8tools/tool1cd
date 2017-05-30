@@ -752,7 +752,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 	tree* tt;
 	tree* ct;
 	TGUID* dynup;
-	int ndynup;
+	int ndynup = 0;
 	TGUID g;
 	Table* tab;
 	int dynno;

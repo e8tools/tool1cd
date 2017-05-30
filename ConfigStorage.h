@@ -109,7 +109,7 @@ private:
 	T_1CD* base; // установлена, если база принадлежит адаптеру конфигурации
 protected:
 	std::map<String,container_file*> files;
-	bool ready;
+	bool ready{false};
 public:
 	ConfigStorageTable(T_1CD* _base = NULL) : base(_base){};
 	virtual ~ConfigStorageTable();

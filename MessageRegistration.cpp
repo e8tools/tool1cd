@@ -13,6 +13,9 @@ MessageRegistrator::MessageRegistrator()
 	DebugMessage = false;
 }
 
+MessageRegistrator::~MessageRegistrator()
+{}
+
 //---------------------------------------------------------------------------
 void MessageRegistrator::setDebugMode(bool dstate)
 {
