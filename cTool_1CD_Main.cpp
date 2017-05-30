@@ -57,7 +57,11 @@ void T1CD_cmd_export_all_to_xml(T_1CD &base1CD, ParsedCommand& pc, Messenger mes
 			boost::filesystem::path root_path(static_cast<string>(pc.param1));
 			boost::filesystem::path filetable = root_path / static_cast<string>(tbl->getname() + ".xml");
 
+			bool ActionXMLSaveBLOBToFileChecked = IsTrueString(pc.param1);
+			bool ActionXMLUnpackBLOBChecked     = IsTrueString(pc.param1);	
+
 			tbl->export_to_xml(filetable.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
+			
 			mess.AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull, "Таблица", tbl->getname(), "Файл", filetable.string());
 		}
 	}
