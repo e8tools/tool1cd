@@ -30,7 +30,7 @@ const int TEMP_BUFFER_SIZE = 4096;
 char temp[TEMP_BUFFER_SIZE];
 
 //---------------------------------------------------------------------------
-
+// это "тру-не-тру" строка :)
 bool IsTrueString(const String &str)
 {
 	String s = str.LowerCase();
@@ -38,6 +38,36 @@ bool IsTrueString(const String &str)
 }
 
 //---------------------------------------------------------------------------
+//cmd_export_all_to_xml
+void cmd_export_all_to_xml(T_1CD &base1CD, ParsedCommand& pc, Messenger mess)
+{
+	Table* tbl;
+	
+	if (base1CD.is_open())
+	{
+		for (int j = 0; j < base1CD.get_numtables(); j++)
+		{
+			tbl = base1CD.gettable(j);
+
+			if (!tbl->get_numindexes())
+			{
+				tbl->fillrecordsindex();
+			}
+
+			boost::filesystem::path root_path(static_cast<string>(pc.param1));
+			boost::filesystem::path filetable = root_path / static_cast<string>(tbl->getname() + ".xml");
+
+			tbl->export_to_xml(filetable.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
+			mess.AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull, "Таблица", tbl->getname(), "Файл", filetable.string());
+		}
+	}
+	else
+		mess.AddError("Попытка выгрузки всех таблиц в XML без открытой базы.");
+}
+
+
+//---------------------------------------------------------------------------
+// основная точка входа утилиты
 int main(int argc, char* argv[])
 {
 	Messenger mess; // регистратор сообщений
@@ -49,8 +79,8 @@ int main(int argc, char* argv[])
 	boost::regex* expr;
 
 	bool ActionOpenBaseNotMonopolyChecked = false;
-	bool ActionXMLSaveBLOBToFileChecked = false;
-	bool ActionXMLUnpackBLOBChecked = true;
+	bool ActionXMLSaveBLOBToFileChecked   = false;
+	bool ActionXMLUnpackBLOBChecked       = true;
 
 	msreg = &mess;
 
@@ -60,7 +90,7 @@ int main(int argc, char* argv[])
 
 	if(commands.get_length() == 0)
 	{
-		cout << "cTool_1CD (c) awa 2009 - 2016" << endl << "Запусти cTool_1CD -h для справки" << endl;
+		cout << "cTool_1CD (c) awa 2009 - 2017" << endl << "Запусти cTool_1CD -h для справки" << endl;
 		return 0;
 	}
 
@@ -134,27 +164,28 @@ int main(int argc, char* argv[])
 			switch(pc.command)
 			{
 				case cmd_export_all_to_xml: {
-					if(base1CD.is_open())
-					{
-						for(j = 0; j < base1CD.get_numtables(); j++)
-						{
-							t = base1CD.gettable(j);
+					// if(base1CD.is_open())
+					// {
+					// 	for(j = 0; j < base1CD.get_numtables(); j++)
+					// 	{
+					// 		t = base1CD.gettable(j);
 
-							if(!t->get_numindexes())
-							{
-								t->fillrecordsindex();
-							}
+					// 		if(!t->get_numindexes())
+					// 		{
+					// 			t->fillrecordsindex();
+					// 		}
 
-							boost::filesystem::path root_path(static_cast<string>(pc.param1));
-							boost::filesystem::path f = root_path / static_cast<string>(t->getname() + ".xml");
+					// 		boost::filesystem::path root_path(static_cast<string>(pc.param1));
+					// 		boost::filesystem::path f = root_path / static_cast<string>(t->getname() + ".xml");
 
-							t->export_to_xml(f.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
-							mess.AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull,
-								"Таблица", t->getname(),
-								"Файл", f.string());
-						}
-					}
-					else mess.AddError("Попытка выгрузки всех таблиц в XML без открытой базы.");
+					// 		t->export_to_xml(f.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
+					// 		mess.AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull,
+					// 			"Таблица", t->getname(),
+					// 			"Файл", f.string());
+					// 	}
+					// }
+					// else mess.AddError("Попытка выгрузки всех таблиц в XML без открытой базы.");
+					cmd_export_all_to_xml(base1CD, pc, mess);
 					break;
 				}
 				case cmd_export_to_xml: {
