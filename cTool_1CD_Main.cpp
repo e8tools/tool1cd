@@ -2,6 +2,7 @@
 //#pragma argsused // остатки от борланда
 
 //#include <tchar.h>
+/*тест*/
 #include <stdio.h>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
