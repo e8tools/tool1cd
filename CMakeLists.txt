@@ -27,7 +27,13 @@ set (TOOL_SOURCES cTool_1CD_Main.cpp ParseCommandLine.cpp MessageRegistration.cp
 set (TOOL_HEADERS cTool_1CD_Main.h ParseCommandLine.h MessageRegistration.h Class_1CD.h
 	Common.h ConfigStorage.h Parse_tree.h APIcfBase.h TempStream.h Base64.h UZLib.h Messenger.h ErrorCode.h)
 
-set (CMAKE_CXX_STANDARD 11)
+if (CMAKE_VERSION VERSION_LESS "3.1")
+	if(CMAKE_COMPILER_IS_GNUCXX)
+		set (CMAKE_CXX_FLAGS "--std=gnu++11 ${CMAKE_CXX_FLAGS}")
+	endif()
+else()
+	set (CMAKE_CXX_STANDARD 11)
+endif()
 
 add_executable (ctool1cd ${TOOL_SOURCES} ${TOOL_HEADERS})
 
