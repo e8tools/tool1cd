@@ -1828,17 +1828,17 @@ TStream* v8object::readBlob(TStream* _str, uint32_t _startblock, uint32_t _lengt
 //---------------------------------------------------------------------------
 index::index(Table* _base)
 {
-	tbase = _base;
-
-	is_primary = false;
+	tbase       = _base;
+    err         = nullptr;
+	is_primary  = false;
 	num_records = 0;
-	records = NULL;
-	start = 0;
-	rootblock = 0;
-	length = 0;
+	records     = NULL;
+	start       = 0;
+	rootblock   = 0;
+	length      = 0;
 	recordsindex_complete = false;
 	pagesize = tbase->base->pagesize;
-	version = tbase->base->version;
+	version  = tbase->base->version;
 }
 
 //---------------------------------------------------------------------------
@@ -6446,7 +6446,7 @@ uint32_t Table::write_blob_record(char* blob_record, uint32_t blob_len)
 {
 	uint32_t cur_block, cur_offset, prev_offset, first_block, next_block;
 	uint16_t cur_len;
-	uint32_t zero;
+	uint32_t zero = 0;
 
 	if(!edit)
 	{
@@ -7414,51 +7414,56 @@ Table* T_1CD::gettable(int32_t numtable)
 //---------------------------------------------------------------------------
 void T_1CD::init()
 {
-	filename = "";
-	fs = nullptr;
+	filename    = "";
+	fs          = nullptr;
 	free_blocks = nullptr;
 	root_object = nullptr;
-	tables = nullptr;
-	num_tables = 0;
+	tables      = nullptr;
+	num_tables  = 0;
 //	ibtype = tt_unknown;
-	table_config = nullptr;
+	table_config     = nullptr;
 	table_configsave = nullptr;
-	table_params = nullptr;
-	table_files = nullptr;
-	table_dbschema = nullptr;
-	table_configcas = nullptr;
-	table_configcassave = nullptr;
+	table_params     = nullptr;
+	table_files      = nullptr;
+	table_dbschema   = nullptr;
+	table_configcas  = nullptr;
+	table_configcassave   = nullptr;
 	table__extensionsinfo = nullptr;
 
-	_files_config = nullptr;
+	_files_config     = nullptr;
 	_files_configsave = nullptr;
-	_files_params = nullptr;
-	_files_files = nullptr;
-	_files_configcas = nullptr;
+	_files_params     = nullptr;
+	_files_files      = nullptr;
+	_files_configcas  = nullptr;
 	_files_configcassave = nullptr;
 
-	cs_config = nullptr;
+	cs_config     = nullptr;
 	cs_configsave = nullptr;
 
-	table_depot = nullptr;
-	table_users = nullptr;
-	table_objects = nullptr;
+	table_depot    = nullptr;
+	table_users    = nullptr;
+	table_objects  = nullptr;
 	table_versions = nullptr;
-	table_labels = nullptr;
-	table_history = nullptr;
+	table_labels   = nullptr;
+	table_history  = nullptr;
 	table_lastestversions = nullptr;
 	table_externals = nullptr;
-	table_selfrefs = nullptr;
-	table_outrefs = nullptr;
+	table_selfrefs  = nullptr;
+	table_outrefs   = nullptr;
 
 	supplier_configs_defined = false;
-	locale = nullptr;
+	locale                   = nullptr;
 
 	is_infobase = false;
-	is_depot = false;
+	is_depot    = false;
 	Field::showGUIDasMS = false;
 
-	pagemap = nullptr;
+	pagemap  = nullptr;
+	version  = ver8_2_14_0;
+	pagesize = 0x1000;
+	err      = nullptr;
+	length   = 0;
+	readonly = true;
 }
 
 //---------------------------------------------------------------------------
@@ -10152,6 +10157,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				}
 				catch(...)
 				{
+				    delete pd.pack;
 					if(msreg) msreg->AddMessage_("Ошибка открытия файла", msError,
 						"Файл", pack_item.string());
 					return false;
@@ -10909,6 +10915,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 				}
 				catch(...)
 				{
+				    delete pd.pack;
 					if(msreg) msreg->AddMessage_("Ошибка открытия файла", msError,
 						"Файл", s);
 					FindClose(srec);

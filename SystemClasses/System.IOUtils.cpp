@@ -55,7 +55,7 @@ String GetTempPath()
 	return boost::filesystem::temp_directory_path().string();
 }
 
-#if defined(_WIN32)
+#if defined(_MSC_EXTENSIONS)
 void GetTempPath(int bufSize, char *buf)
 {
 	strncpy_s(buf, bufSize, GetTempPath().c_str(), bufSize);
