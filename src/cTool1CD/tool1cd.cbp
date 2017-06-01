@@ -11,6 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option parameters="-eax ~/dev-pro/testxml ~/dev-pro/1Cv8.1CD" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -31,7 +32,7 @@
 		<Compiler>
 			<Add option="-std=c++11" />
 			<Add option="-Dconsole" />
-			<Add directory="SystemClasses" />
+			<Add directory="../SystemClasses" />
 		</Compiler>
 		<Linker>
 			<Add library="dmpassystem" />
@@ -39,7 +40,7 @@
 			<Add library="boost_filesystem" />
 			<Add library="boost_system" />
 			<Add library="z" />
-			<Add directory="SystemClasses/bin/Debug" />
+			<Add directory="../SystemClasses/bin/Debug" />
 		</Linker>
 		<Unit filename="APIcfBase.cpp" />
 		<Unit filename="APIcfBase.h" />
