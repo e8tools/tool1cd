@@ -37,7 +37,7 @@ endif()
 
 add_executable (ctool1cd ${TOOL_SOURCES} ${TOOL_HEADERS})
 
-include_directories (../SystemClasses)
+include_directories (${SOURCE_DIR}/SystemClasses)
 target_link_libraries (ctool1cd SystemClasses)
 
 add_definitions (-DBOOST_ALL_NO_LIB)
