@@ -8,8 +8,8 @@
 //#include <windows.h>
 
 #pragma hdrstop
-#pragma argsused
-
+//#pragma argsused /* пережитки борланда */
+// Тестовая строка 
 //#include <tchar.h>
 #include <stdio.h>
 //#include <windows.h>

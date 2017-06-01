@@ -169,8 +169,13 @@ uint32_t memblock::maxcount;
 //uint32_t memblock::maxcount = 0x10000; // 256 мегабайт ()
 //uint32_t memblock::maxcount = 0x8000; // 128 мегабайт ()
 memblock** memblock::memblocks = NULL;
-uint32_t memblock::numblocks = 0;
-uint32_t memblock::array_numblocks = 0;
+
+//uint32_t memblock::numblocks = 0;
+uint64_t memblock::numblocks = 0;
+
+//uint32_t memblock::array_numblocks = 0;
+uint64_t memblock::array_numblocks = 0;
+
 uint32_t memblock::delta = 128;
 uint32_t memblock::pagesize;
 
@@ -353,7 +358,8 @@ char* memblock::getblock_for_write(TFileStream* fs, uint32_t _numblock, bool rea
 }
 
 //---------------------------------------------------------------------------
-void memblock::create_memblocks(uint32_t _numblocks)
+//void memblock::create_memblocks(uint32_t _numblocks)
+void memblock::create_memblocks(uint64_t _numblocks)
 {
 	numblocks = _numblocks;
 	array_numblocks = (numblocks / delta + 1) * delta;
@@ -388,7 +394,8 @@ void memblock::add_block()
 }
 
 //---------------------------------------------------------------------------
-uint32_t memblock::get_numblocks()
+//uint32_t memblock::get_numblocks()
+uint64_t memblock::get_numblocks()
 {
 	return numblocks;
 }
@@ -1821,17 +1828,17 @@ TStream* v8object::readBlob(TStream* _str, uint32_t _startblock, uint32_t _lengt
 //---------------------------------------------------------------------------
 index::index(Table* _base)
 {
-	tbase = _base;
-
-	is_primary = false;
+	tbase       = _base;
+    err         = nullptr;
+	is_primary  = false;
 	num_records = 0;
-	records = NULL;
-	start = 0;
-	rootblock = 0;
-	length = 0;
+	records     = NULL;
+	start       = 0;
+	rootblock   = 0;
+	length      = 0;
 	recordsindex_complete = false;
 	pagesize = tbase->base->pagesize;
-	version = tbase->base->version;
+	version  = tbase->base->version;
 }
 
 //---------------------------------------------------------------------------
@@ -2765,7 +2772,8 @@ void index::write_index_record(const uint32_t phys_numrecord, const char* index_
 			else
 			{
 				result = 2;
-				page2 = new char[pagesize];
+				//page2 = new char[pagesize];
+				char* page2 = new char[pagesize];
 				number_indexes1 = number_indexes >> 1;
 				number_indexes2 = number_indexes - number_indexes1;
 				pack_leafpage(unpack_indexes_buf_new, number_indexes1, page);
@@ -2861,10 +2869,14 @@ void index::write_index_record(const uint32_t phys_numrecord, const char* index_
 			}
 			else if(_result == 2)
 			{
+			    char* page2 = new char[pagesize];
+			    unpack_indexes_buf = new char[delta * number_indexes];
+
 				number_indexes++;
 				if(number_indexes > max_num_indexes)
 				{
 					result = 2;
+
 
 					tbase->file_index->getdata(&k, 0, 4);
 					if(k)
@@ -2877,7 +2889,7 @@ void index::write_index_record(const uint32_t phys_numrecord, const char* index_
 
 					flags &= ~indexpage_is_root;
 
-					unpack_indexes_buf = new char[delta * number_indexes];
+					//unpack_indexes_buf = new char[delta * number_indexes];
 
 					cur_index = unpack_indexes_buf;
 					cur_index2 = page + 12;
@@ -2906,7 +2918,8 @@ void index::write_index_record(const uint32_t phys_numrecord, const char* index_
 					number_indexes1 = number_indexes >> 1;
 					number_indexes2 = number_indexes - number_indexes1;
 
-					page2 = new char[pagesize];
+					//page2 = new char[pagesize];
+					//char* page2 = new char[pagesize];
 					bph2 = (branch_page_header*)page2;
 					memset(page, 0, pagesize);
 					memset(page2, 0, pagesize);
@@ -6433,7 +6446,7 @@ uint32_t Table::write_blob_record(char* blob_record, uint32_t blob_len)
 {
 	uint32_t cur_block, cur_offset, prev_offset, first_block, next_block;
 	uint16_t cur_len;
-	uint32_t zero;
+	uint32_t zero = 0;
 
 	if(!edit)
 	{
@@ -7401,51 +7414,56 @@ Table* T_1CD::gettable(int32_t numtable)
 //---------------------------------------------------------------------------
 void T_1CD::init()
 {
-	filename = "";
-	fs = nullptr;
+	filename    = "";
+	fs          = nullptr;
 	free_blocks = nullptr;
 	root_object = nullptr;
-	tables = nullptr;
-	num_tables = 0;
+	tables      = nullptr;
+	num_tables  = 0;
 //	ibtype = tt_unknown;
-	table_config = nullptr;
+	table_config     = nullptr;
 	table_configsave = nullptr;
-	table_params = nullptr;
-	table_files = nullptr;
-	table_dbschema = nullptr;
-	table_configcas = nullptr;
-	table_configcassave = nullptr;
+	table_params     = nullptr;
+	table_files      = nullptr;
+	table_dbschema   = nullptr;
+	table_configcas  = nullptr;
+	table_configcassave   = nullptr;
 	table__extensionsinfo = nullptr;
 
-	_files_config = nullptr;
+	_files_config     = nullptr;
 	_files_configsave = nullptr;
-	_files_params = nullptr;
-	_files_files = nullptr;
-	_files_configcas = nullptr;
+	_files_params     = nullptr;
+	_files_files      = nullptr;
+	_files_configcas  = nullptr;
 	_files_configcassave = nullptr;
 
-	cs_config = nullptr;
+	cs_config     = nullptr;
 	cs_configsave = nullptr;
 
-	table_depot = nullptr;
-	table_users = nullptr;
-	table_objects = nullptr;
+	table_depot    = nullptr;
+	table_users    = nullptr;
+	table_objects  = nullptr;
 	table_versions = nullptr;
-	table_labels = nullptr;
-	table_history = nullptr;
+	table_labels   = nullptr;
+	table_history  = nullptr;
 	table_lastestversions = nullptr;
 	table_externals = nullptr;
-	table_selfrefs = nullptr;
-	table_outrefs = nullptr;
+	table_selfrefs  = nullptr;
+	table_outrefs   = nullptr;
 
 	supplier_configs_defined = false;
-	locale = nullptr;
+	locale                   = nullptr;
 
 	is_infobase = false;
-	is_depot = false;
+	is_depot    = false;
 	Field::showGUIDasMS = false;
 
-	pagemap = nullptr;
+	pagemap  = nullptr;
+	version  = ver8_2_14_0;
+	pagesize = 0x1000;
+	err      = nullptr;
+	length   = 0;
+	readonly = true;
 }
 
 //---------------------------------------------------------------------------
@@ -10139,6 +10157,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				}
 				catch(...)
 				{
+				    delete pd.pack;
 					if(msreg) msreg->AddMessage_("Ошибка открытия файла", msError,
 						"Файл", pack_item.string());
 					return false;
@@ -10896,6 +10915,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 				}
 				catch(...)
 				{
+				    delete pd.pack;
 					if(msreg) msreg->AddMessage_("Ошибка открытия файла", msError,
 						"Файл", s);
 					FindClose(srec);
