@@ -5,7 +5,9 @@
 #include "TempStream.h"
 #include <boost/filesystem.hpp>
 //---------------------------------------------------------------------------
+#if !defined(_WIN32)
 #pragma package(smart_init)
+#endif
 
 String TTempStream::tempcat;
 long TTempStream::tempno = 0;

@@ -121,10 +121,10 @@ struct v838ob_free
 enum v8objtype
 {
 	v8ot_unknown = 0, // тип неизвестен
-	v8ot_data80 = 1, // файл данных формата 8.0 (до 8.2.14 включительно)
-	v8ot_free80 = 2, // файл свободных страниц формата 8.0 (до 8.2.14 включительно)
+	v8ot_data80  = 1, // файл данных формата 8.0 (до 8.2.14 включительно)
+	v8ot_free80  = 2, // файл свободных страниц формата 8.0 (до 8.2.14 включительно)
 	v8ot_data838 = 3, // файл данных формата 8.3.8
-	v8ot_free838 = 4 // файл свободных страниц формата 8.3.8
+	v8ot_free838 = 4  // файл свободных страниц формата 8.3.8
 };
 
 class v8object
@@ -135,19 +135,20 @@ private:
 	MessageRegistrator* err;
 	T_1CD* base;
 
-	uint64_t len; // длина объекта. Для типа таблицы свободных страниц - количество свободных блоков
-	_version version; // текущая версия объекта
-	_version_rec version_rec; // текущая версия записи
-	bool new_version_recorded; // признак, что новая версия объекта записана
-//	uint32_t version_restr; // версия реструктуризации
-//	uint32_t version_edit; // версия изменения
-	v8objtype type; // тип и формат файла
-	int32_t fatlevel; // Количество промежуточных уровней в таблице размещения
-	uint32_t numblocks; // кол-во страниц в корневой таблице размещения объекта
-	uint32_t real_numblocks; // реальное кол-во страниц в корневой таблице (только для файлов свободных страниц, может быть больше numblocks)
-	uint32_t* blocks; // таблица страниц корневой таблицы размещения объекта (т.е. уровня 0)
-	uint32_t block; // номер блока объекта
-	char* data; // данные, представляемые объектом, NULL если не прочитаны или len = 0
+	uint64_t len;               // длина объекта. Для типа таблицы свободных страниц - количество свободных блоков
+	_version version;           // текущая версия объекта
+	_version_rec version_rec;   // текущая версия записи
+	bool new_version_recorded;  // признак, что новая версия объекта записана
+//	uint32_t version_restr;     // версия реструктуризации
+//	uint32_t version_edit;      // версия изменения
+	v8objtype type;             // тип и формат файла
+	int32_t fatlevel;           // Количество промежуточных уровней в таблице размещения
+	//uint32_t numblocks;         // кол-во страниц в корневой таблице размещения объекта
+	uint64_t numblocks;         // кол-во страниц в корневой таблице размещения объекта
+	uint32_t real_numblocks;    // реальное кол-во страниц в корневой таблице (только для файлов свободных страниц, может быть больше numblocks)
+	uint32_t* blocks;           // таблица страниц корневой таблицы размещения объекта (т.е. уровня 0)
+	uint32_t block;             // номер блока объекта
+	char* data;                 // данные, представляемые объектом, NULL если не прочитаны или len = 0
 
 	static v8object* first;
 	static v8object* last;
@@ -694,6 +695,7 @@ private:
 	char* buf; // указатель на блок в памяти
 	static uint32_t pagesize; // размер одной стрницы (до версии 8.2.14 всегда 0x1000 (4K), начиная с версии 8.3.8 от 0x1000 (4K) до 0x10000 (64K))
 	uint32_t numblock;
+	//uint64_t numblock;
 	memblock* next;
 	memblock* prev;
 	TFileStream* file; // файл, которому принадлежит блок
@@ -702,8 +704,11 @@ private:
 	static memblock* first;
 	static memblock* last;
 	static uint32_t maxcount; // максимальное количество кешированных блоков
-	static uint32_t numblocks; // количество значащих элементов в массиве memblocks (равно количеству блоков в файле *.1CD)
-	static uint32_t array_numblocks; // количество элементов в массиве memblocks (больше или равно количеству блоков в файле *.1CD)
+	//static uint32_t numblocks; // количество значащих элементов в массиве memblocks (равно количеству блоков в файле *.1CD)
+	static uint64_t numblocks;   // количество значащих элементов в массиве memblocks (равно количеству блоков в файле *.1CD)
+
+	//static uint32_t array_numblocks; // количество элементов в массиве memblocks (больше или равно количеству блоков в файле *.1CD)
+	static uint64_t array_numblocks;   // количество элементов в массиве memblocks (больше или равно количеству блоков в файле *.1CD)
 	static uint32_t delta; // шаг увеличения массива memblocks
 	static memblock** memblocks; // указатель на массив указателей memblock (количество равно количеству блоков в файле *.1CD)
 
@@ -720,9 +725,12 @@ public:
 	static void garbage();
 	static char* getblock(TFileStream* fs, uint32_t _numblock);
 	static char* getblock_for_write(TFileStream* fs, uint32_t _numblock, bool read);
-	static void create_memblocks(uint32_t _numblocks);
+	//static void create_memblocks(uint32_t _numblocks);
+	static void create_memblocks(uint64_t _numblocks);
+
 	static void delete_memblocks();
-	static uint32_t get_numblocks();
+	//static uint32_t get_numblocks();
+	static uint64_t get_numblocks();
 	static void flush();
 };
 

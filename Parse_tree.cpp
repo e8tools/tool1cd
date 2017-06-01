@@ -173,7 +173,7 @@ tree& tree::operator [](int _index)
 void tree::outtext(String& text)
 {
 	node_type lt;
-	TReplaceFlags _ReplaceAll;
+	TReplaceFlags _ReplaceAll = TReplaceFlags::rfReplaceAll;
 
 	if(num_subnode)
 	{

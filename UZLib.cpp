@@ -7,9 +7,14 @@
 #include "UZLib.h"
 
 //---------------------------------------------------------------------------
+// warning C4068: unknown pragma in VC++
+
+#if !defined(_WIN32)
 #pragma package(smart_init)
+#endif
 
 const int CHUNKSIZE = 16384;
+
 #ifndef DEF_MEM_LEVEL
 #	if MAX_MEM_LEVEL >= 8
 		const int DEF_MEM_LEVEL = 8;
@@ -22,7 +27,8 @@ const int CHUNKSIZE = 16384;
 void ZInflateStream_Old(TStream* src, TStream* dst)
 {
 	z_stream strm;
-	int ret, srcSize, dstSize;
+	int ret;
+	uintmax_t srcSize;
 
 	unsigned char srcBuf[CHUNKSIZE] = {0};
 	unsigned char dstBuf[CHUNKSIZE] = {0};
@@ -110,7 +116,9 @@ void ZDeflateStream(TStream* src, TStream* dst)
 void ZInflateStream(TStream* src, TStream* dst)
 {
 	z_stream strm;
-	int ret, srcSize, dstSize;
+	int ret;
+	uintmax_t srcSize;
+
 	unsigned have;
 
 	unsigned char srcBuf[CHUNKSIZE] = {0};

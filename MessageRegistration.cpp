@@ -5,7 +5,9 @@
 #include "MessageRegistration.h"
 
 //---------------------------------------------------------------------------
+#if !defined(_WIN32)
 #pragma package(smart_init)
+#endif
 
 //---------------------------------------------------------------------------
 MessageRegistrator::MessageRegistrator()

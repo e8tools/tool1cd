@@ -5,7 +5,9 @@
 #include "ParseCommandLine.h"
 
 //---------------------------------------------------------------------------
+#if !defined(_WIN32)
 #pragma package(smart_init)
+#endif
 
 CommandDefinition CommandParse::definitions[] =
 {
