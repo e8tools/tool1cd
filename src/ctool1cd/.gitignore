@@ -10,4 +10,4 @@ Debug/*
 
 *.a
 *.out
-
+.VS
