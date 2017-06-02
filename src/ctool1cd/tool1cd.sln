@@ -8,7 +8,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tool1cd", "tool1cd.vcxproj"
 		{7A634FA8-B3A8-4EAD-A23A-AC5B2AB88457} = {7A634FA8-B3A8-4EAD-A23A-AC5B2AB88457}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SystemClasses", "SystemClasses\SystemClasses.vcxproj", "{7A634FA8-B3A8-4EAD-A23A-AC5B2AB88457}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SystemClasses", "..\SystemClasses\SystemClasses.vcxproj", "{7A634FA8-B3A8-4EAD-A23A-AC5B2AB88457}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

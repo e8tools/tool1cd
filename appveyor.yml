@@ -48,7 +48,7 @@ after_build:
     light -out tool1cd-%APPVEYOR_BUILD_VERSION%.msi tool1cd.wixobj
 
 artifacts:
-- path: Release\*.exe
+- path: bin\Release\*.exe
   name: ctool1cd.exe
 - path: tool1cd-*.msi
   name: installer

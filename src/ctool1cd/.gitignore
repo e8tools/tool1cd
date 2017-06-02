@@ -1,0 +1,13 @@
+
+*.o
+bin/*
+obj/*
+build/*
+Debug/*
+
+*.layout
+*.depend
+
+*.a
+*.out
+

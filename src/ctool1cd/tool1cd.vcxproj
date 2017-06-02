@@ -90,7 +90,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\tool1cd\SystemClasses;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\SystemClasses;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -184,7 +184,7 @@
     <ClCompile Include="Zip.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="SystemClasses\SystemClasses.vcxproj">
+    <ProjectReference Include="..\SystemClasses\SystemClasses.vcxproj">
       <Project>{7a634fa8-b3a8-4ead-a23a-ac5b2ab88457}</Project>
     </ProjectReference>
   </ItemGroup>
