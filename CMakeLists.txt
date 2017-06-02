@@ -27,4 +27,4 @@ if (MSVC)
 endif()
 
 add_subdirectory(${SOURCE_DIR}/SystemClasses)
-add_subdirectory(${SOURCE_DIR}/cTool1CD)
+add_subdirectory(${SOURCE_DIR}/ctool1cd)
