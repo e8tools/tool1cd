@@ -1,10 +1,8 @@
-//---------------------------------------------------------------------------
 
 #ifndef Base64H
 #define Base64H
 
 #include <System.Classes.hpp>
-//---------------------------------------------------------------------------
 
 void base64_encode(TStream* infile, TStream* outfile, int linesize);
 void base64_decode(TStream* infile, TStream* outfile);

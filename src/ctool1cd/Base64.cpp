@@ -1,11 +1,8 @@
-//---------------------------------------------------------------------------
-
 
 #pragma hdrstop
 
 #include "Base64.h"
 
-//---------------------------------------------------------------------------
 #if !defined(_WIN32)
 #pragma package(smart_init)
 #endif
@@ -71,7 +68,6 @@ void base64_decode(TStream* infile, TStream* outfile)
 	WCHART s;
 	int i, len;
 
-//	infile->Seek(0i64, soBeginning);
 	while(infile->GetPosition() < infile->GetSize())
 	{
 		for(len = 0, i = 0; i < 4 && infile->GetPosition() < infile->GetSize(); i++ )
@@ -88,11 +84,6 @@ void base64_decode(TStream* infile, TStream* outfile)
 				in[i] = (unsigned char)(v - 1);
 				len++;
 			}
-//			if(infile->Position < infile->GetSize())
-//			{
-//				len++;
-//				if(v) in[i] = (unsigned char)(v - 1);
-//			}
 			else in[i] = 0;
 		}
 		if(len)
