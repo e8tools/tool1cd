@@ -1,8 +1,5 @@
 ﻿#pragma hdrstop
-//#pragma argsused // остатки от борланда
 
-//#include <tchar.h>
-/*тест*/
 #include <stdio.h>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
@@ -10,8 +7,6 @@
 #include <boost/filesystem/fstream.hpp>
 
 #include <iostream>
-//#include <vcl.h>
-//#include <windows.h>
 #include <System.IOUtils.hpp>
 #include "Zip.h"
 
@@ -31,7 +26,6 @@ const int TEMP_BUFFER_SIZE = 4096;
 char temp[TEMP_BUFFER_SIZE];
 
 //---------------------------------------------------------------------------
-// это "тру-не-тру" строка :)
 bool IsTrueString(const String &str)
 {
 	String s = str.LowerCase();

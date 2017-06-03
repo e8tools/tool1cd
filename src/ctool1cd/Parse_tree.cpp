@@ -1,16 +1,11 @@
-//---------------------------------------------------------------------------
 
 #include "Parse_tree.h"
 #include "Common.h"
 
 #include <boost/regex.hpp>
 
-//---------------------------------------------------------------------------
-
 #pragma package(smart_init)
 
-//const boost::regex exp_number("^-?[0-9]+\\.?[0-9]*$");
-//const boost::regex exp_number_exp("^-?[0-9]+\\.?[0-9]*e-?[0-9]+$");
 const boost::regex exp_number("^-?\\d+$");
 const boost::regex exp_number_exp("^-?\\d+(\\.?\\d*)?((e|E)-?\\d+)?$");
 const boost::regex exp_guid("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
@@ -211,7 +206,6 @@ void tree::outtext(String& text)
 				text += value;
 				break;
 			default:
-				//if(msreg) msreg->AddError("Ошибка вывода потока. Пустой или неизвестный узел.");
 				break;
 		}
 	}
@@ -271,13 +265,11 @@ tree* parse_1Cstream(TStream* str, const String& path)
 	ret = new tree("", nd_list, NULL);
 	t = ret;
 
-	//str->Seek(0l, soBeginning);
 	reader = new TStreamReader(str, true);
 
 	for(i = 1, _sym = reader->Read(); _sym >= 0; i++, _sym = reader->Read())
 	{
 		sym = _sym;
-		//if(i % 0x100000 == 0) if(msreg) msreg->Status(String(i/0x100000) + " MB");
 
 		switch(state)
 		{
@@ -314,7 +306,6 @@ tree* parse_1Cstream(TStream* str, const String& path)
 						t->add_child("", nd_empty);
 						break;
 					default:
-						//curvalue = String(sym);
 						__curvalue__->Clear();
 						__curvalue__->Append(sym);
 						state = s_nonstring;
@@ -342,7 +333,6 @@ tree* parse_1Cstream(TStream* str, const String& path)
 							delete ret;
 							return NULL;
 						}
-						//state = s_delimitier;
 						break;
 					default:
 						if(msreg) msreg->AddError("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
@@ -357,19 +347,16 @@ tree* parse_1Cstream(TStream* str, const String& path)
 				if(sym == L'"'){
 					state = s_quote_or_endstring;
 				}
-				//else curvalue += String(sym);
 				else __curvalue__->Append(sym);
 				break;
 			case s_quote_or_endstring:
 				if(sym == L'"')
 				{
-					//curvalue += String(sym);
 					__curvalue__->Append(sym);
 					state = s_string;
 				}
 				else
 				{
-					//t->add_child(curvalue, nd_string);
 					t->add_child(__curvalue__->ToString(), nd_string);
 					switch(sym)
 					{
@@ -435,7 +422,6 @@ tree* parse_1Cstream(TStream* str, const String& path)
 						state = s_delimitier;
 						break;
 					default:
-						//curvalue += String(sym);
 						__curvalue__->Append(sym);
 						break;
 				}
@@ -459,7 +445,6 @@ tree* parse_1Cstream(TStream* str, const String& path)
 			"Путь", path);
 		t->add_child(curvalue, nt);
 	}
-	//else if(state == s_quote_or_endstring) t->add_child(curvalue, nd_string);
 	else if(state == s_quote_or_endstring) t->add_child(__curvalue__->ToString(), nd_string);
 	else if(state != s_delimitier)
 	{
@@ -524,7 +509,6 @@ tree* parse_1Ctext(const String& text, const String& path)
 					case '\n':
 						break;
 					case '"':
-						//curvalue = "";
 						__curvalue__->Clear();
 						state = s_string;
 						break;
@@ -548,7 +532,6 @@ tree* parse_1Ctext(const String& text, const String& path)
 						t->add_child("", nd_empty);
 						break;
 					default:
-						//curvalue = String(sym);
 						__curvalue__->Clear();
 						__curvalue__->Append(sym);
 						state = s_nonstring;
@@ -576,7 +559,6 @@ tree* parse_1Ctext(const String& text, const String& path)
 							delete ret;
 							return NULL;
 						}
-						//state = s_delimitier;
 						break;
 					default:
 						if(msreg) msreg->AddError("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
@@ -591,19 +573,16 @@ tree* parse_1Ctext(const String& text, const String& path)
 				if(sym == '"'){
 					state = s_quote_or_endstring;
 				}
-				//else curvalue += String(sym);
 				else __curvalue__->Append(sym);
 				break;
 			case s_quote_or_endstring:
 				if(sym == '"')
 				{
-					//curvalue += String(sym);
 					__curvalue__->Append(sym);
 					state = s_string;
 				}
 				else
 				{
-					//t->add_child(curvalue, nd_string);
 					t->add_child(__curvalue__->ToString(), nd_string);
 					switch(sym)
 					{
@@ -669,7 +648,6 @@ tree* parse_1Ctext(const String& text, const String& path)
 						state = s_delimitier;
 						break;
 					default:
-						//curvalue += String(sym);
 						__curvalue__->Append(sym);
 						break;
 				}
@@ -693,7 +671,6 @@ tree* parse_1Ctext(const String& text, const String& path)
 			"Путь", path);
 		t->add_child(curvalue, nt);
 	}
-	//else if(state == s_quote_or_endstring) t->add_child(curvalue, nd_string);
 	else if(state == s_quote_or_endstring) t->add_child(__curvalue__->ToString(), nd_string);
 	else if(state != s_delimitier)
 	{
@@ -744,11 +721,9 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 	reader = new TStreamReader(str, true);
 	level = 0;
 
-	//for(i = 1, _sym = reader->Read(); _sym >= 0; i++, _sym = reader->Read())
 	for(i = 1, _sym = reader->Read(); _sym > 0; i++, _sym = reader->Read())
 	{
 		sym = _sym;
-		//if(i % 0x100000 == 0) if(msreg) msreg->Status(String(i/0x100000) + " MB");
 
 		switch(state)
 		{
@@ -761,7 +736,6 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 					case L'\n':
 						break;
 					case L'"':
-						//curvalue = "";
 						__curvalue__->Clear();
 						state = s_string;
 						break;
@@ -780,7 +754,6 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 						level--;
 						break;
 					default:
-						//curvalue = String(sym);
 						__curvalue__->Clear();
 						__curvalue__->Append(sym);
 						state = s_nonstring;
@@ -813,7 +786,6 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 							"Символ", sym,
 							"Код символа", tohex(sym),
 							"Путь", path);
-						//msreg->Status("");
 						delete reader;
 						return ret;
 				}
@@ -822,13 +794,11 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 				if(sym == L'"'){
 					state = s_quote_or_endstring;
 				}
-				//else curvalue += String(sym);
 				else __curvalue__->Append(sym);
 				break;
 			case s_quote_or_endstring:
 				if(sym == L'"')
 				{
-					//curvalue += String(sym);
 					__curvalue__->Append(sym);
 					state = s_string;
 				}
@@ -861,7 +831,6 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 								"Символ", sym,
 								"Код символа", tohex(sym),
 								"Путь", path);
-							//msreg->Status("");
 							delete reader;
 							return ret;
 					}
@@ -903,7 +872,6 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 						state = s_delimitier;
 						break;
 					default:
-						//curvalue += String(sym);
 						__curvalue__->Append(sym);
 						break;
 				}
@@ -948,7 +916,6 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 		ret = false;
 	}
 
-	//msreg->Status("");
 	delete reader;
 	return ret;
 
