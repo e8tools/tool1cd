@@ -158,8 +158,9 @@ void ZInflateStream(TStream* src, TStream* dst)
 				ret = Z_DATA_ERROR;     /* and fall through */
 			case Z_DATA_ERROR:
 			case Z_MEM_ERROR:
+			case Z_STREAM_ERROR:
 				(void)inflateEnd(&strm);
-				//return ret;
+				return;
 			}
 
 			have = CHUNKSIZE - strm.avail_out;
