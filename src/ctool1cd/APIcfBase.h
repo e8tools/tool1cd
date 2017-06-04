@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------
 
 #ifndef APIcfBaseH
 #define APIcfBaseH
@@ -32,7 +31,6 @@ struct v8header_struct{
 	int64_t time_create;
 	int64_t time_modify;
 	int32_t zero;
-	//wchar_t* name;
 };
 
 //---------------------------------------------------------------------------
@@ -89,7 +87,6 @@ class v8file{
 
 	bool is_destructed;     // признак, что работает деструктор
 	bool flushed;           // признак, что происходит сброс
-//	bool readonly;
 	bool selfzipped;        // Признак, что файл является запакованным независимо от признака zipped каталога
 	std::set<TV8FileStream*> streams;
 
@@ -127,7 +124,6 @@ class v8file{
 	void SetTimeModify(FILETIME* ft);
 	void SaveToFile(const String& FileName);
 	void SaveToStream(TStream* stream);
-	//TStream* get_data();
 	TV8FileStream* get_stream(bool own = false);
 	void Flush();
 };
@@ -169,7 +165,6 @@ class v8catalog{
 	bool leave_data;    // признак, что не нужно удалять основной поток (data) при уничтожении объекта
 
   public:
-//	bool readonly;
 
 	v8catalog(v8file* f);   // создать каталог из файла
 	v8catalog(String name); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
@@ -186,14 +181,12 @@ class v8catalog{
 	v8catalog* CreateCatalog(const String& FileName, bool _selfzipped = false);
 	void DeleteFile(const String& FileName);
 	v8catalog* GetParentCatalog();
-	//void Defrag(bool Recursively);
 	v8file* GetSelfFile();
 	void SaveToDir(String DirName);
 	bool isOpen();
 	void Flush();
 	void HalfClose();
 	void HalfOpen(const String& name);
-	//void set_leave_data(bool ld);
 };
 
 //---------------------------------------------------------------------------

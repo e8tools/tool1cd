@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------
 
 #pragma hdrstop
 
@@ -94,7 +93,6 @@ String GUIDas1C(const unsigned char* fr)
 		buf[j++] = sym;
 	}
 	buf[j] = 0;
-	//return buf;
 	return String(buf);
 }
 
@@ -217,9 +215,6 @@ bool string_to_GUID(const String& str, TGUID* guid)
 
 	}
 
-//	if(!res) if(BaseValue::err) BaseValue::err->AddError("Ошибка преобразования строки в GUID.",
-//		"Строка", str);
-
 	return res;
 }
 
@@ -267,9 +262,6 @@ bool string_to_GUID_flat(const String& str, TGUID* guid)
 			res = res || two_hex_digits_to_byte(hi, lo, g[i]);
 		}
 	}
-
-//	if(!res) if(BaseValue::err) BaseValue::err->AddError("Ошибка преобразования плоской строки в GUID.",
-//		"Строка", str);
 
 	return res;
 }

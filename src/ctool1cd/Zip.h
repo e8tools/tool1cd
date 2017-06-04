@@ -5,10 +5,6 @@
 
 #include <System.Classes.hpp>
 
-//---------------------------------------------------------------------------
-//void InflateStream(TStream* CompressedStream, TStream* UnCompressedStream);
-//void DeflateStream(TStream* UncompressedStream, TStream* CompressedStream);
-
 namespace Abunzprc
 {
 void InflateStream(Classes::TStream* CompressedStream, Classes::TStream* UnCompressedStream);

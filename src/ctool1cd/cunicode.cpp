@@ -1,5 +1,3 @@
-//#include "stdafx.h"
-//#include "fsplugin.h"
 #include "cunicode.h"
 
 char* walcopy(char* outname,wchar_t* inname,int maxlen)
