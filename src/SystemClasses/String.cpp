@@ -63,15 +63,18 @@ String::String(const WCHART *w_src, int limit_size)
 	const WCHART *p = w_src;
 	bool limit_exceeded = false;
 
-	while (p != nullptr && *p != '\0' && !limit_exceeded) {
+	if( limit_size > 0 && p != nullptr ) {
 
-		tmpdata.push_back((uint16_t)(*p) & 0xFF);
-		tmpdata.push_back((uint16_t)(*p) >> 8);
+		while ( !limit_exceeded && *p != '\0' ) {
 
-		++p;
+			tmpdata.push_back((uint16_t)(*p) & 0xFF);
+			tmpdata.push_back((uint16_t)(*p) >> 8);
 
-		if (limit_size) {
-			limit_exceeded = --limit_size == 0;
+			++p;
+
+			if (limit_size) {
+				limit_exceeded = --limit_size == 0;
+			}
 		}
 	}
 	string tmp(SysUtils::TEncoding::Unicode->toUtf8(tmpdata));
