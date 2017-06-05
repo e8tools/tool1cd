@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------
 
 #pragma hdrstop
 
@@ -8,14 +7,9 @@
 #include "Base64.h"
 #include "TempStream.h"
 
-//#pragma package(smart_init)
-
 #include "UZLib.h"
 #pragma comment (lib, "zlibstatic.lib")
 
-#define CHUNK 65536
-
-//---------------------------------------------------------------------------
 #define error if(msreg) msreg->AddError
 #define status if(msreg) msreg->Status
 extern MessageRegistrator* msreg;
@@ -41,8 +35,6 @@ ConfigFile* ConfigStorageDirectory::readfile(const String& path)
 
 	filename = fdir + TStringBuilder(path).Replace('/', '\\')->ToString();
 
-	//status(path);
-
 	if(FileExists(filename))
 	{
 		cf = new ConfigFile;
@@ -54,7 +46,7 @@ ConfigFile* ConfigStorageDirectory::readfile(const String& path)
 		}
 		catch(...)
 		{
-			// Здесь надо бы что-нибудь сообщить об ошибке
+			// TODO Здесь надо бы что-нибудь сообщить об ошибке
 			delete cf;
 			return NULL;
 		}
@@ -89,7 +81,6 @@ bool ConfigStorageDirectory::fileexists(const String& path)
 	return FileExists(filename);
 }
 
-//---------------------------------------------------------------------------
 
 //********************************************************
 // Класс ConfigStorageCFFile
@@ -113,12 +104,9 @@ ConfigFile* ConfigStorageCFFile::readfile(const String& path)
 	v8catalog* c;
 	v8file* f;
 	int i;
-	//TStream* s;
 	ConfigFile* cf;
 
 	if(!cat->isOpen()) return NULL;
-
-	//status(path);
 
 	String fname = TStringBuilder(path).Replace('/', '\\')->ToString();
 	c = cat;
@@ -134,7 +122,6 @@ ConfigFile* ConfigStorageCFFile::readfile(const String& path)
 	if(!f) return NULL;
 	if(!f->Open()) return NULL;
 	cf = new ConfigFile;
-	//cf->str = f->get_data();
 	cf->str = f->get_stream();
 	cf->str->Seek(0l, soBeginning);
 	cf->addin = f;
@@ -199,7 +186,6 @@ bool ConfigStorageCFFile::fileexists(const String& path)
 	return true;
 }
 
-//---------------------------------------------------------------------------
 
 //********************************************************
 // Класс container_file
@@ -296,8 +282,6 @@ bool container_file::ropen()
 	table_blob_file* addr;
 	unsigned int maxpartno;
 
-	//status(name);
-
 	if(rstream)
 	{
 		rstream->Seek(0l, soBeginning);
@@ -362,7 +346,6 @@ bool container_file::isPacked()
 
 }
 
-//---------------------------------------------------------------------------
 
 //********************************************************
 // Структура дополнительных данных открытого файла класса ConfigStorageTable
@@ -411,13 +394,10 @@ ConfigFile* ConfigStorageTable::readfile(const String& path)
 	int i;
 	String fname;
 	String r_name;
-	//TStream* s;
 	ConfigFile* cf;
 	ConfigStorageTable_addin* cfa;
 
 	if(!ready) return NULL;
-
-	//status(path);
 
 	fname = TStringBuilder(path).Replace('/', '\\')->ToString();
 	i = fname.Pos("\\");
@@ -456,7 +436,6 @@ ConfigFile* ConfigStorageTable::readfile(const String& path)
 		cfa = new ConfigStorageTable_addin;
 		cfa->variant = cstav_v8file;
 		cfa->f = f;
-		//cf->str = f->get_data();
 		cf->str = f->get_stream();
 		cf->str->Seek(0l, soBeginning);
 		cf->addin = cfa;
@@ -479,7 +458,7 @@ ConfigFile* ConfigStorageTable::readfile(const String& path)
 //---------------------------------------------------------------------------
 bool ConfigStorageTable::writefile(const String& path, TStream* str)
 {
-	return false; // Запись в таблицы пока не поддерживается
+	return false; // TODO Запись в таблицы пока не поддерживается
 }
 
 //---------------------------------------------------------------------------
@@ -564,7 +543,6 @@ bool ConfigStorageTable::fileexists(const String& path)
 	return true;
 }
 
-//---------------------------------------------------------------------------
 
 //********************************************************
 // Класс ConfigStorageTableConfig
@@ -1312,7 +1290,3 @@ String ConfigStorageTableConfigCasSave::presentation()
 {
 	return present;
 }
-
-
-//---------------------------------------------------------------------------
-

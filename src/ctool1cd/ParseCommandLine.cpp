@@ -144,7 +144,6 @@ String dequote(String str)
 //---------------------------------------------------------------------------
 
 CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mess)
-//CommandParse::CommandParse(LPWSTR _CommandLine, MessageRegistrator* _mess)
 {
 	int numdef = sizeof(definitions) / sizeof(CommandDefinition);
 	String k, p;

@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------
 
 #ifndef ConfigStorageH
 #define ConfigStorageH
@@ -10,10 +9,6 @@
 
 #include "APIcfBase.h"
 #include "Class_1CD.h"
-//---------------------------------------------------------------------------
-
-//class T_1CD;
-//class table;
 
 //---------------------------------------------------------------------------
 // Структура открытого файла адаптера контейнера конфигурации
@@ -45,7 +40,6 @@ private:
 	String fdir;
 public:
 	ConfigStorageDirectory(const String& _dir);
-//	__property String dir = {read = fdir};
 	virtual ConfigFile* readfile(const String& path);
 	virtual bool writefile(const String& path, TStream* str);
 	virtual String presentation();
@@ -91,7 +85,6 @@ struct container_file
 	v8catalog* cat;
 	table_file_packed packed;
 	int dynno; // Номер (индекс) динамического обновления (0, 1 и т.д.). Если без динамического обновления, то -1, если UID динамического обновления не найден, то -2. Для пропускаемых файлов -3.
-	//static wchar_t temppath[MAX_PATH];
 
 	container_file(table_file* _f, const String& _name);
 	~container_file();

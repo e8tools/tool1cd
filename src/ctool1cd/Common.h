@@ -1,12 +1,9 @@
-//---------------------------------------------------------------------------
 
 #ifndef CommonH
 #define CommonH
 
-//#include <vcl.h>
 #include <System.Classes.hpp>
 
-//---------------------------------------------------------------------------
 void time1CD_to_FileTime(FILETIME* ft, unsigned char* time1CD);
 unsigned int reverse_byte_order(unsigned int value);
 String GUIDas1C(const unsigned char* fr);
@@ -25,6 +22,5 @@ String tohex64(int64_t n);
 String hexstring(char* buf, int n);
 String hexstring(TStream* str);
 
-//---------------------------------------------------------------------------
 #endif
 

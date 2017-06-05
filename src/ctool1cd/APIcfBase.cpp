@@ -3,8 +3,6 @@
 #include "UZLib.h"
 #pragma comment (lib, "zlibstatic.lib")
 
-#define CHUNK 65536
-
 // массив для преобразования числа в шестнадцатиричную строку
 const char _bufhex[] = "0123456789abcdef";
 
@@ -267,13 +265,6 @@ int v8file::Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Le
 	return ret;
 }
 
-////---------------------------------------------------------------------------
-//// Потоконебезопасная функция!
-//TStream* v8file::get_data()
-//{
-//	return data;
-//}
-
 //---------------------------------------------------------------------------
 // получить поток
 TV8FileStream* v8file::get_stream(bool own)
@@ -286,7 +277,6 @@ TV8FileStream* v8file::get_stream(bool own)
 int v8file::Write(const void* Buffer, int Start, int Length) // дозапись/перезапись частично
 {
 	int ret;
-//	if(readonly) return 0;
 	Lock->Acquire();
 	if(!is_opened) if(!Open()) return 0;
 	setCurrentTime(&time_modify);
@@ -303,7 +293,6 @@ int v8file::Write(const void* Buffer, int Start, int Length) // дозапись
 int v8file::Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length) // дозапись/перезапись частично
 {
 	int ret;
-//	if(readonly) return 0;
 	Lock->Acquire();
 	if(!is_opened) if(!Open()) return 0;
 	setCurrentTime(&time_modify);
@@ -320,7 +309,6 @@ int v8file::Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int L
 int v8file::Write(const void* Buffer, int Length) // перезапись целиком
 {
 	int ret;
-//	if(readonly) return 0;
 	Lock->Acquire();
 	if(!is_opened) if(!Open()) return 0;
 	setCurrentTime(&time_modify);
@@ -338,7 +326,6 @@ int v8file::Write(const void* Buffer, int Length) // перезапись цел
 int v8file::Write(TStream* Stream, int Start, int Length) // дозапись/перезапись частично
 {
 	int ret;
-//	if(readonly) return 0;
 	Lock->Acquire();
 	if(!is_opened) if(!Open()) return 0;
 	setCurrentTime(&time_modify);
@@ -355,7 +342,6 @@ int v8file::Write(TStream* Stream, int Start, int Length) // дозапись/п
 int v8file::Write(TStream* Stream) // перезапись целиком
 {
 	int ret;
-//	if(readonly) return 0;
 	Lock->Acquire();
 	if(!is_opened) if(!Open()) return 0;
 	setCurrentTime(&time_modify);
@@ -501,7 +487,6 @@ v8catalog* v8file::GetParentCatalog()
 // удалить файл
 void v8file::DeleteFile()
 {
-//	if(readonly) return;
 	Lock->Acquire();
 	if(parent)
 	{
@@ -543,8 +528,6 @@ void v8file::DeleteFile()
 	start_header = 0;
 	is_datamodified = false;
 	is_headermodified = false;
-	//Lock->Release();
-	//delete this; // суицид
 }
 
 //---------------------------------------------------------------------------
@@ -581,12 +564,10 @@ void v8file::Close(){
 
 	if(self) if(!self->is_destructed)
 	{
-//		self->readonly = readonly;
 		delete self;
 	}
 	self = NULL;
 
-//	if(parent->data && !readonly)
 	if(parent->data)
 	{
 		if(is_datamodified || is_headermodified)
@@ -750,7 +731,6 @@ void v8file::Flush()
 	flushed = true;
 	if(self) self->Flush();
 
-//	if(parent->data && !readonly)
 	if(parent->data)
 	{
 		if(is_datamodified || is_headermodified)
@@ -789,7 +769,6 @@ void v8file::Flush()
 	Lock->Release();
 }
 
-//---------------------------------------------------------------------------
 
 //********************************************************
 // Класс v8catalog
@@ -966,8 +945,6 @@ v8catalog::v8catalog(TStream* stream, bool _zipped, bool leave_stream) // соз
 	is_cfu = false;
 	iscatalogdefined = false;
 	zipped = _zipped;
-	//data = new TMemoryStream;
-	//data->CopyFrom(stream, 0);
 	data = stream;
 	file = NULL;
 	if(!data->GetSize()) data->WriteBuffer(_empty_catalog_template, 16);
@@ -1028,7 +1005,6 @@ void v8catalog::initialize()
 {
 	is_destructed = false;
 	catalog_header _ch;
-	//int _temp;
 	String _name;
 	fat_item _fi;
 	char* _temp_buf;
@@ -1077,7 +1053,6 @@ void v8catalog::initialize()
 		f = first;
 		while(f)
 		{
-	//		f->readonly = readonly;
 			f->Close();
 			f = f->next;
 		}
@@ -1234,7 +1209,6 @@ int v8catalog::write_datablock(TStream* block, int start, bool _zipped, int len)
 	TMemoryStream* stream;
 	int ret;
 
-	//if(!file)
 	if(zipped || _zipped)
 	{
 		if(len == -1)
@@ -1322,7 +1296,6 @@ int v8catalog::write_block(TStream* block, int start, bool use_page_size, int le
 			data->ReadBuffer(temp_buf, 31);
 			blocklen = hex_to_int(&temp_buf[11]);
 			nextstart = hex_to_int(&temp_buf[20]);
-			//start_empty = len <= blocklen ? 0x7fffffff : nextstart;
 			start_empty = nextstart;
 			is_emptymodified = true;
 		}
@@ -1391,7 +1364,6 @@ v8catalog::~v8catalog()
 	f = first;
 	while(f)
 	{
-//		f->readonly = readonly;
 		f->Close();
 		f = f->next;
 	}
@@ -1584,7 +1556,6 @@ void v8catalog::Flush()
 		{
 			file->is_datamodified = true;
 		}
-		//if(!file->is_destructed) file->Close();
 		file->Flush();
 	}
 	else
@@ -1634,12 +1605,6 @@ void v8catalog::HalfOpen(const String& name)
 	Lock->Release();
 }
 
-//void v8catalog::set_leave_data(bool ld)
-//{
-//    leave_data = ld;
-//}
-
-//---------------------------------------------------------------------------
 
 //********************************************************
 // Класс TV8FileStream
@@ -1753,6 +1718,3 @@ int64_t TV8FileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
 	}
 	return pos;
 }
-
-//---------------------------------------------------------------------------
-

@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------
 
 #ifndef Parse_treeH
 #define Parse_treeH
@@ -9,7 +8,6 @@
 #include "NodeTypes.h"
 #include "MessageRegistration.h"
 
-//---------------------------------------------------------------------------
 class tree
 {
 private:
@@ -47,8 +45,6 @@ public:
 typedef tree* treeptr;
 
 
-
-//tree* parse_1Ctext_old(String& text, String path);
 tree* parse_1Ctext(const String& text, const String& path);
 tree* parse_1Cstream(TStream* str, const String& path);
 bool test_parse_1Ctext(TStream* str, const String& path);

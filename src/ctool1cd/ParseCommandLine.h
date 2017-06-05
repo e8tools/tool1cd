@@ -52,7 +52,6 @@ private:
 	MessageRegistrator* mess; // регистратор сообщений
 public:
 	CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mess = NULL);
-	//CommandParse(LPWSTR CommandLine, MessageRegistrator* _mess = NULL);
 	DynamicArray<ParsedCommand>& getcommands();
 	String& getfilename();
 	static String& gethelpstring();
