@@ -1,6 +1,5 @@
 //---------------------------------------------------------------------------
 
-//#include <vcl.h>
 #include <vector>
 #include <System.IOUtils.hpp>
 
