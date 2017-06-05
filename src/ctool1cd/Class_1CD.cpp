@@ -6,9 +6,6 @@
 
 #include "Class_1CD.h"
 #include "Base64.h"
-#ifndef getcfname
-#include "CRC32.h"
-#endif
 #include "Common.h"
 #include "TempStream.h"
 #include "ConfigStorage.h"
@@ -17,7 +14,7 @@
 
 #include "UZLib.h"
 
-const uint LIVE_CASH = 5; // время жизни кешированных данных в минутах
+const unsigned int LIVE_CASH = 5; // время жизни кешированных данных в минутах
 extern MessageRegistrator* msreg;
 #define error if(msreg) msreg->AddError
 
@@ -9964,88 +9961,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		return false;
 	}
 
-	//__filename = System::Ioutils::TPath::GetFullPath(_filename);
 	boost::filesystem::path filepath = boost::filesystem::path(static_cast<std::string>(_filename));
-/*
-	// Проверяем, нет ли снэпшота нужной версии конфигурации
-	if(*(rec + fldv_snapshotcrc->offset)) if(*(rec + fldv_snapshotmaker->offset)) if(memcmp(rootobj, rec + fldv_snapshotmaker->offset + 1, 16) == 0)
-	{
-		_crc = *(uint32_t*)(rec + fldv_snapshotcrc->offset + 1);
 
-		//s = System.IOUtils.TPath::GetDirectoryName(filename);
-		s = filename.SubString(1, filename.LastDelimiter("\\"));
-		s += "cache\\ddb";
-		ss = "00000";
-		ss += ver;
-		s += ss.SubString(ss.GetLength() - 4, 5);
-		s += ".snp";
-		if(FileExists(s))
-		{
-			try
-			{
-				in = new TFileStream(s, fmOpenRead | fmShareDenyNone);
-			}
-			catch(...)
-			{
-				if(msreg) msreg->AddMessage_("Не удалось открыть файл снэпшота", msWarning,
-					"Имя файла", s,
-					"Требуемая версия", ver);
-				in = NULL;
-			}
-			try
-			{
-				//if(FileExists(__filename)) DeleteFile(__filename);
-				out = new TFileStream(__filename, fmCreate | fmShareDenyWrite);
-			}
-			catch(...)
-			{
-				if(msreg) msreg->AddMessage_("Не удалось создать файл конфигурации", msWarning,
-					"Имя файла", __filename);
-				delete[] rec;
-				return false;
-			}
-			if(in)
-			{
-				try
-				{
-					InflateStream(in, out);
-				}
-				catch(...)
-				{
-					if(msreg) msreg->AddMessage_("Не удалось распаковать файл снэпшота", msWarning,
-						"Имя файла", s,
-						"Требуемая версия", ver);
-					delete out;
-					out = NULL;
-				}
-				delete in;
-				in = NULL;
-				if(out)
-				{
-					k = _crc32(out);
-					if(k == _crc)
-					{
-						delete out;
-						delete[] rec;
-						return true;
-					}
-					if(msreg) msreg->AddMessage_("Файл снэпшота испорчен (не совпала контрольная сумма)", msWarning,
-						"Имя файла", s,
-						"Требуемая версия", ver,
-						"Должен быть CRC32", tohex(_crc),
-						"Получился CRC32", tohex(k));
-					delete out;
-				}
-			}
-		}
-		else
-		{
-			if(msreg) msreg->AddMessage_("Не найден файл снэпшота", msWarning,
-				"Имя файла", s,
-				"Требуемая версия", ver);
-		}
-	}
-*/
 	// Определяем версию структуры конфигурации (для файла version)
 	if(depotVer >= depotVer5)
 	{
