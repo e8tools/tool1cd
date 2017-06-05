@@ -10,8 +10,6 @@
 #include "UZLib.h"
 #pragma comment (lib, "zlibstatic.lib")
 
-#define CHUNK 65536
-
 #define error if(msreg) msreg->AddError
 #define status if(msreg) msreg->Status
 extern MessageRegistrator* msreg;

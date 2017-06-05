@@ -3,8 +3,6 @@
 #include "UZLib.h"
 #pragma comment (lib, "zlibstatic.lib")
 
-#define CHUNK 65536
-
 // массив для преобразования числа в шестнадцатиричную строку
 const char _bufhex[] = "0123456789abcdef";
 

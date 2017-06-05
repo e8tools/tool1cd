@@ -17,13 +17,7 @@
 
 #include "UZLib.h"
 
-#define CHUNK 65536
-
-//---------------------------------------------------------------------------
-//#pragma package(smart_init)
-//---------------------------------------------------------------------------
-
-#define live_cash 5 // время жизни кешированных данных в минутах
+const uint LIVE_CASH = 5; // время жизни кешированных данных в минутах
 extern MessageRegistrator* msreg;
 #define error if(msreg) msreg->AddError
 
@@ -334,7 +328,7 @@ void memblock::garbage()
 	uint32_t curt = GetTickCount();
 	while(first)
 	{
-		if(curt - first->lastdataget > live_cash * 60 * 1000) delete first;
+		if(curt - first->lastdataget > LIVE_CASH * 60 * 1000) delete first;
 		else break;
 	}
 }
@@ -429,7 +423,7 @@ void v8object::garbage()
 
 	while(ob)
 	{
-		if(!ob->lockinmemory) if(ob->data) if(curt - ob->lastdataget > live_cash * 60 * 1000)
+		if(!ob->lockinmemory) if(ob->data) if(curt - ob->lastdataget > LIVE_CASH * 60 * 1000)
 		{
 			delete[] ob->data;
 			ob->data = NULL;
