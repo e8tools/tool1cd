@@ -7,9 +7,6 @@
 
 #include "MessageRegistration.h"
 #include "APIcfBase.h"
-//#ifndef getcfname
-//#include "ICU.h"
-//#endif
 #include "db_ver.h"
 #include "Parse_tree.h"
 
@@ -18,20 +15,12 @@
 #ifndef MIN
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif // MIN
-#ifndef MAX
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#endif // MAX
-
-//String GUIDas1C(const unsigned char* fr);
-//String GUIDasMS(const unsigned char* fr);
 
 class T_1CD;
 class Table;
 
 class ConfigStorageTableConfig;
 class ConfigStorageTableConfigSave;
-
-//uint32_t reverse_byte_order(uint32_t value);
 
 #pragma pack(push)
 #pragma pack(1)
@@ -139,11 +128,8 @@ private:
 	_version version;           // текущая версия объекта
 	_version_rec version_rec;   // текущая версия записи
 	bool new_version_recorded;  // признак, что новая версия объекта записана
-//	uint32_t version_restr;     // версия реструктуризации
-//	uint32_t version_edit;      // версия изменения
 	v8objtype type;             // тип и формат файла
 	int32_t fatlevel;           // Количество промежуточных уровней в таблице размещения
-	//uint32_t numblocks;         // кол-во страниц в корневой таблице размещения объекта
 	uint64_t numblocks;         // кол-во страниц в корневой таблице размещения объекта
 	uint32_t real_numblocks;    // реальное кол-во страниц в корневой таблице (только для файлов свободных страниц, может быть больше numblocks)
 	uint32_t* blocks;           // таблица страниц корневой таблицы размещения объекта (т.е. уровня 0)
@@ -173,7 +159,6 @@ public:
 	bool setdata(TStream* stream); // записывает поток целиком в объект, поддерживает кеширование блоков.
 	bool setdata(TStream* stream, uint64_t _start, uint64_t _length); // запись части потока в объект, поддерживает кеширование блоков.
 	uint64_t getlen();
-	//void savetofile();
 	void savetofile(String filename);
 	void set_lockinmemory(bool _lock);
 	static void garbage();
@@ -535,7 +520,6 @@ private:
 
 public:
 	//--> поддержка динамического построения таблицы записей
-	//DynamicArray<uint32_t> recordsindex; // динамический массив индексов записей по номеру (только не пустые записи)
 	uint32_t* recordsindex; // массив индексов записей по номеру (только не пустые записи)
 	bool recordsindex_complete; // признак заполнености recordsindex
 	uint32_t numrecords_review; // количество просмотренных записей всего в поиске не пустых
@@ -569,7 +553,6 @@ public:
 	TStream* readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, bool rewrite = true);
 	uint32_t readBlob(void* _buf, uint32_t _startblock, uint32_t _length);
 	void set_lockinmemory(bool _lock);
-	//bool export_to_xml(String filename, index* curindex, bool blob_to_file, bool unpack);
 	bool export_to_xml(String filename, bool blob_to_file, bool unpack);
 
 	v8object* get_file_data();
@@ -695,7 +678,6 @@ private:
 	char* buf; // указатель на блок в памяти
 	static uint32_t pagesize; // размер одной стрницы (до версии 8.2.14 всегда 0x1000 (4K), начиная с версии 8.3.8 от 0x1000 (4K) до 0x10000 (64K))
 	uint32_t numblock;
-	//uint64_t numblock;
 	memblock* next;
 	memblock* prev;
 	TFileStream* file; // файл, которому принадлежит блок
@@ -704,10 +686,8 @@ private:
 	static memblock* first;
 	static memblock* last;
 	static uint32_t maxcount; // максимальное количество кешированных блоков
-	//static uint32_t numblocks; // количество значащих элементов в массиве memblocks (равно количеству блоков в файле *.1CD)
 	static uint64_t numblocks;   // количество значащих элементов в массиве memblocks (равно количеству блоков в файле *.1CD)
 
-	//static uint32_t array_numblocks; // количество элементов в массиве memblocks (больше или равно количеству блоков в файле *.1CD)
 	static uint64_t array_numblocks;   // количество элементов в массиве memblocks (больше или равно количеству блоков в файле *.1CD)
 	static uint32_t delta; // шаг увеличения массива memblocks
 	static memblock** memblocks; // указатель на массив указателей memblock (количество равно количеству блоков в файле *.1CD)
@@ -725,11 +705,9 @@ public:
 	static void garbage();
 	static char* getblock(TFileStream* fs, uint32_t _numblock);
 	static char* getblock_for_write(TFileStream* fs, uint32_t _numblock, bool read);
-	//static void create_memblocks(uint32_t _numblocks);
 	static void create_memblocks(uint64_t _numblocks);
 
 	static void delete_memblocks();
-	//static uint32_t get_numblocks();
 	static uint64_t get_numblocks();
 	static void flush();
 };
@@ -820,9 +798,6 @@ private:
 	int32_t num_tables; // количество таблиц
 	Table** tables; // таблицы базы
 	bool readonly;
-//#ifndef PublicRelease
-//	ICU* icu;
-//#endif //#ifdef PublicRelease
 	pagemaprec* pagemap; // Массив длиной length
 
 	TableFiles* _files_config;
@@ -869,13 +844,6 @@ public:
 	Table* table_configcas;
 	Table* table_configcassave;
 	Table* table__extensionsinfo;
-
-//	__property TableFiles* files_config = {read = get_files_config};
-//	__property TableFiles* files_configsave = {read = get_files_configsave};
-//	__property TableFiles* files_params = {read = get_files_params};
-//	__property TableFiles* files_files = {read = get_files_files};
-//	__property TableFiles* files_configcas = {read = get_files_configcas};
-//	__property TableFiles* files_configcassave = {read = get_files_configcassave};
 
 	// таблицы - хранилища файлов
 	ConfigStorageTableConfig* cs_config;
