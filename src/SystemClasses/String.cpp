@@ -14,9 +14,9 @@ namespace System {
 
 /** Конструктор (C strings).
  *      @param - без параметров
- *                 
- *                 
- *                 
+ *
+ *
+ *
  */
 String::String()
 {
@@ -63,15 +63,18 @@ String::String(const WCHART *w_src, int limit_size)
 	const WCHART *p = w_src;
 	bool limit_exceeded = false;
 
-	while (!limit_exceeded && *p) {
+	if( limit_size > 0 && p != nullptr ) {
 
-		tmpdata.push_back((uint16_t)(*p) & 0xFF);
-		tmpdata.push_back((uint16_t)(*p) >> 8);
+		while ( !limit_exceeded && *p != '\0' ) {
 
-		++p;
+			tmpdata.push_back((uint16_t)(*p) & 0xFF);
+			tmpdata.push_back((uint16_t)(*p) >> 8);
 
-		if (limit_size) {
-			limit_exceeded = --limit_size == 0;
+			++p;
+
+			if (limit_size) {
+				limit_exceeded = --limit_size == 0;
+			}
 		}
 	}
 	string tmp(SysUtils::TEncoding::Unicode->toUtf8(tmpdata));
@@ -109,7 +112,7 @@ String String::LowerCase() const
 
 /** Функция определяет пустая строка или нет.
  *      @param        - нет
- *      
+ *
  */
 bool String::IsEmpty() const
 {
@@ -118,7 +121,7 @@ bool String::IsEmpty() const
 
 /** Функция возвращает длину строки.
  *      @param        - нет
- *      
+ *
  */
 int String::Length() const
 {
@@ -127,7 +130,7 @@ int String::Length() const
 
 /** Функция сравнивает строки.
  *      @const String &b - строка для сравнения
- *      
+ *
  */
 int String::CompareIC(const String &b) const
 {
@@ -136,7 +139,7 @@ int String::CompareIC(const String &b) const
 
 /** Функция сравнивает строки.
  *      @const String &b - строка для сравнения
- *      
+ *
  */
 int String::Compare(const String &b) const
 {
@@ -145,7 +148,7 @@ int String::Compare(const String &b) const
 
 /** Функция заменяет подстроки в строке.
  *      @const String &b - строка для сравнения
- *      
+ *
  */
 String String::Replace(const String &sub, const String &replace) const
 {
@@ -166,7 +169,7 @@ String String::Replace(const String &sub, const String &replace) const
 /** Функция выделяет подстроку в строке.
  *      @int StartIndex - начальный индекс
  *      @int Count      - количество символов
- *      
+ *
  */
 String String::SubString(int StartIndex, int Count) const
 {
@@ -181,7 +184,7 @@ String String::SubString(int StartIndex, int Count) const
 
 /** Функция позволяет обращаться со строкой как с массивом, доступ по индексу.
  *      @int index - индекс символа
- *      
+ *
  */
 char &String::operator[] (int index)
 {
@@ -190,7 +193,7 @@ char &String::operator[] (int index)
 
 /** Функция позволяет обращаться со строкой как с массивом, доступ по индексу.
  *      @int index - индекс символа
- *      
+ *
  */
 const char &String::operator[] (int index) const
 {
@@ -199,7 +202,7 @@ const char &String::operator[] (int index) const
 
 /** Функция позволяет преобразовать строку в число int.
  *      @param - нет
- *      
+ *
  */
 int String::ToInt() const
 {
@@ -208,7 +211,7 @@ int String::ToInt() const
 
 /** Функция позволяет преобразовать строку в число int.
  *      @int default_value - значение по умолчанию
- *      
+ *
  */
 int String::ToIntDef(int default_value) const
 {
@@ -221,7 +224,7 @@ int String::ToIntDef(int default_value) const
 
 /** Функция ищет подстроку в строке.
  *      @const String &substr - подстрока поиска
- *      
+ *
  */
 int String::Pos(const String &substr)
 {
@@ -234,7 +237,7 @@ int String::Pos(const String &substr)
 
 /** Функция возвращает длину строки.
  *      @params - нет
- *      
+ *
  */
 int String::GetLength() const
 {
@@ -243,7 +246,7 @@ int String::GetLength() const
 
 /** Функция устанавливает длину строки.
  *      @int NewLength - новая длина строки
- *      
+ *
  */
 void String::SetLength(int NewLength)
 {
@@ -252,7 +255,7 @@ void String::SetLength(int NewLength)
 
 /** Функция ищет вхождение последнего разделителя в строке.
  *      @const String &delimiters - разделитель который ищем
- *      
+ *
  */
 int String::LastDelimiter(const String &delimiters) const
 {
@@ -261,7 +264,7 @@ int String::LastDelimiter(const String &delimiters) const
 
 /** Функция ищет вхождение последнего символа в строке.
  *      @params - нет
- *      
+ *
  */
 const char *String::LastChar() const
 {
@@ -273,7 +276,7 @@ const char *String::LastChar() const
 
 /** Функция возвращает размер широких символов юникод.
  *      @params - нет
- *      
+ *
  */
 int String::WideCharBufSize() const
 {
@@ -283,7 +286,7 @@ int String::WideCharBufSize() const
 /** Функция возвращает широкую строку символов юникод.
  *      @WCHART *wbuf - буфер
  *      @int destsize - размер
- *      
+ *
  */
 WCHART *String::WideChar(WCHART *wbuf, int destSize) const
 {
@@ -299,7 +302,7 @@ WCHART *String::WideChar(WCHART *wbuf, int destSize) const
 
 /** Метод добавляющий в списко строк данные.
  *      @const String &item - строка для добавления
- *      
+ *
  */
 void TStringList::Add(const String &item)
 {
@@ -308,7 +311,7 @@ void TStringList::Add(const String &item)
 
 /** Метод устанавливает значение в списке строк.
  *      @const String &text - строка для добавления
- *      
+ *
  */
 void TStringList::SetText(const String &text)
 {
@@ -322,7 +325,7 @@ void TStringList::SetText(const String &text)
 
 /** Метод возвращает размер списка строк.
  *      @params - нет
- *      
+ *
  */
 int TStringList::Count() const
 {
@@ -331,7 +334,7 @@ int TStringList::Count() const
 
 /** Метод удаляет элемент списка по индексу.
  *      @int index - индекс удаляемого элемента
- *      
+ *
  */
 void TStringList::Delete(int index)
 {
@@ -340,7 +343,7 @@ void TStringList::Delete(int index)
 
 /** Метод загружает данные из файла в список строк.
  *      @const String &filename - имя файла для загрузки строк
- *      
+ *
  */
 void TStringList::LoadFromFile(const String &filename)
 {
@@ -354,7 +357,7 @@ void TStringList::LoadFromFile(const String &filename)
 
 /** Метод возвращает строку преобразования из числа.
  *      @int n - число для преобразования
- *      
+ *
  */
 String String::IntToStr(int n)
 {
@@ -363,7 +366,7 @@ String String::IntToStr(int n)
 
 /** Метод возвращает строку преобразования из числа.
  *      @unsigned int n - число для преобразования
- *      
+ *
  */
 String String::UIntToStr(unsigned int n)
 {
@@ -372,7 +375,7 @@ String String::UIntToStr(unsigned int n)
 
 /** Метод возвращает строку преобразования из числа.
  *      @unsigned long n - число для преобразования
- *      
+ *
  */
 String String::ULongToStr(unsigned long n)
 {
@@ -381,7 +384,7 @@ String String::ULongToStr(unsigned long n)
 
 /** Метод возвращает строку преобразования из числа.
  *      @long n - число для преобразования
- *      
+ *
  */
 String String::LongToStr(long n)
 {
@@ -390,7 +393,7 @@ String String::LongToStr(long n)
 
 /** Метод возвращает строку преобразования из числа.
  *      @unsigned long long n - число для преобразования
- *      
+ *
  */
 String String::ULongLongToStr(unsigned long long n)
 {
@@ -399,7 +402,7 @@ String String::ULongLongToStr(unsigned long long n)
 
 /** Метод возвращает строку преобразования из числа.
  *      @long long n - число для преобразования
- *      
+ *
  */
 String String::LongLongToStr(long long n)
 {
@@ -408,7 +411,7 @@ String String::LongLongToStr(long long n)
 
 /** Метод возвращает строку преобразования из числа.
  *      @int n - число для преобразования
- *      
+ *
  */
 String String::ToString(int n)
 {
@@ -416,7 +419,7 @@ String String::ToString(int n)
 }
 /** Метод возвращает строку преобразования из числа.
  *      @unsigned int n - число для преобразования
- *      
+ *
  */
 String String::ToString(unsigned int n)
 {
@@ -425,7 +428,7 @@ String String::ToString(unsigned int n)
 
 /** Метод возвращает строку преобразования из числа.
  *      unsigned long n - число для преобразования
- *      
+ *
  */
 String String::ToString(unsigned long n)
 {
@@ -434,7 +437,7 @@ String String::ToString(unsigned long n)
 
 /** Метод возвращает строку преобразования из числа.
  *      @long n - число для преобразования
- *      
+ *
  */
 String String::ToString(long n)
 {
@@ -443,7 +446,7 @@ String String::ToString(long n)
 
 /** Метод возвращает строку преобразования из числа.
  *      @unsigned long long n - число для преобразования
- *      
+ *
  */
 String String::ToString(unsigned long long n)
 {
@@ -452,14 +455,14 @@ String String::ToString(unsigned long long n)
 
 /** Метод возвращает строку преобразования из числа.
  *      @long long n - число для преобразования
- *      
+ *
  */
 String String::ToString(long long n)
 {
 	return LongLongToStr(n);
 }
 
-/** Метод возвращает строку преобразования из числа 
+/** Метод возвращает строку преобразования из числа
  *    десятичного в число шестнадцатеричное
  *      @int n - число для преобразования
  *      @int digits - число цифр
