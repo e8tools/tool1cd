@@ -498,7 +498,7 @@ int main(int argc, char* argv[])
 				}	
 			}
 		}
-		catch(String s)
+		catch(String& s)
 		{
 			mess.AddError(s);
 		}
