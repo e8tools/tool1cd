@@ -232,6 +232,7 @@ unsigned char from_hex_digit(char digit)
 memblock::memblock(TFileStream* fs, uint32_t _numblock, bool for_write, bool read)
 {
 	numblock = _numblock;
+	lastdataget = 0;
 	if(count >= maxcount) delete first; // если количество кешированных блоков превышает максимальное, удаляем последний, к которому было обращение
 	count++;
 	prev = last;
@@ -2974,6 +2975,7 @@ Field::Field(Table* _parent)
 	parent = _parent;
 	len = 0;
 	offset = 0;
+	err = nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -4251,7 +4253,7 @@ void Table::init(int32_t block_descr)
 	}
 	if(t->get_num_subnode() < 2)
 	{
-		error("Ошибка получения полей таблицы. Нет узлов описаня полей.",
+		error("Ошибка получения полей таблицы. Нет узлов описания полей.",
 			"Блок", tohex(block_descr),
 			"Таблица", name);
 		init();
@@ -5981,6 +5983,7 @@ void Table::set_rec_type(uint32_t phys_numrecord, changed_rec_type crt)
 				error("Попытка прямой установки признака \"Добавлена\" существующей записи таблицы",
 					"Таблица", name,
 					"Физический номер записи", phys_numrecord);
+				break;
 			case crt_delete:
 				if(cr)
 				{
