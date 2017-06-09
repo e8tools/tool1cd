@@ -8,7 +8,7 @@
 
 #include "Zip.h"
 
-#pragma package(smart_init)
+//#pragma package(smart_init)
 
 #ifndef _DELPHI_STRING_UNICODE
 	const char str_cfu[] = ".cfu";
@@ -96,17 +96,28 @@ class v8file{
 	~v8file();
 	bool IsCatalog();
 	v8catalog* GetCatalog();
-	int GetFileLength();
+	//int GetFileLength();
+	int64_t GetFileLength();
 	int64_t GetFileLength64();
 
-	int Read(void* Buffer, int Start, int Length);
-	int Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length);
+	//int Read(void* Buffer, int Start, int Length);
+	int64_t Read(void* Buffer, int Start, int Length);
+	//int Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length);
+	int64_t Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length);
 
-	int Write(const void* Buffer, int Start, int Length);                           // дозапись/перезапись частично
-	int Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length); // дозапись/перезапись частично
-	int Write(const void* Buffer, int Length);                                      // перезапись целиком
-	int Write(TStream* Stream, int Start, int Length);                              // дозапись/перезапись частично
-	int Write(TStream* Stream);                                                     // перезапись целиком
+    //int Write(const void* Buffer, int Start, int Length);                           // дозапись/перезапись частично
+    //int Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length); // дозапись/перезапись частично
+	//int Write(const void* Buffer, int Length);                                      // перезапись целиком
+	//int Write(TStream* Stream, int Start, int Length);                              // дозапись/перезапись частично
+	//int Write(TStream* Stream);                                                     // перезапись целиком
+
+	int64_t Write(const void* Buffer, int Start, int Length);                           // дозапись/перезапись частично
+	int64_t Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length); // дозапись/перезапись частично
+	int64_t Write(const void* Buffer, int Length);                                      // перезапись целиком
+	int64_t Write(TStream* Stream, int Start, int Length);                              // дозапись/перезапись частично
+	int64_t Write(TStream* Stream);                                                     // перезапись целиком
+
+
 
 	String GetFileName();
 	String GetFullName();
@@ -117,7 +128,10 @@ class v8file{
 	v8file* GetNext();
 	bool Open();
 	void Close();
-	int WriteAndClose(TStream* Stream, int Length = -1); // перезапись целиком и закрытие файла (для экономии памяти не используется data файла)
+	
+	//int WriteAndClose(TStream* Stream, int Length = -1); // перезапись целиком и закрытие файла (для экономии памяти не используется data файла)
+	int64_t WriteAndClose(TStream* Stream, int Length = -1); // перезапись целиком и закрытие файла (для экономии памяти не используется data файла)
+	
 	void GetTimeCreate(FILETIME* ft);
 	void GetTimeModify(FILETIME* ft);
 	void SetTimeCreate(FILETIME* ft);
@@ -140,7 +154,7 @@ class v8catalog{
 	v8file* first; // первый файл в каталоге
 	v8file* last;  // последний файл в каталоге
 	std::map<String,v8file*> files; // Соответствие имен и файлов
-	int start_empty; // начало первого пустого блока
+	int64_t start_empty; // начало первого пустого блока
 	int page_size;   // размер страницы по умолчанию
 	int version;     // версия
 	bool zipped;     // признак зазипованности файлов каталога
@@ -158,7 +172,8 @@ class v8catalog{
 	int write_datablock(TStream* block, int start, bool _zipped = false, int len = -1); // возвращает адрес начала блока
 
 	TStream* read_datablock(int start);
-	int get_nextblock(int start);
+	//int get_nextblock(int start);
+	int64_t get_nextblock(int64_t start);
 
 	bool is_destructed; // признак, что работает деструктор
 	bool flushed;       // признак, что происходит сброс

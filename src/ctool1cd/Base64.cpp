@@ -23,7 +23,9 @@ void base64_encode(TStream* infile, TStream* outfile, int linesize)
 	unsigned char in[3];
 	WCHART out[4];
 	int64_t i;
-	int len, blocksout = 0;
+	//int len, blocksout = 0;
+	int blocksout = 0;
+	int64_t len;
 	int64_t inlenblock = infile->GetSize() / 3;
 
 	infile->Seek(0, soBeginning);

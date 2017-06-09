@@ -4,7 +4,7 @@
 
 #include <boost/regex.hpp>
 
-#pragma package(smart_init)
+//#pragma package(smart_init)
 
 const boost::regex exp_number("^-?\\d+$");
 const boost::regex exp_number_exp("^-?\\d+(\\.?\\d*)?((e|E)-?\\d+)?$");
@@ -191,7 +191,8 @@ void tree::outtext(String& text)
 		{
 			case nd_string:
 				text += "\"";
-				_ReplaceAll << rfReplaceAll;
+				//_ReplaceAll << rfReplaceAll;
+				(_ReplaceAll << rfReplaceAll);
 				text += StringReplace(value, "\"", "\"\"", _ReplaceAll);
 				text += "\"";
 				break;

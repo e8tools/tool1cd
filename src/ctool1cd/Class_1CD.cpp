@@ -319,9 +319,9 @@ char* memblock::getblock(bool for_write)
 void memblock::garbage()
 {
 	uint32_t curt = GetTickCount();
-	while(first)
+	while(memblock::first)
 	{
-		if(curt - first->lastdataget > LIVE_CASH * 60 * 1000) delete first;
+		if(curt - first->lastdataget > LIVE_CASH * 60 * 1000) delete memblock::first;
 		else break;
 	}
 }
@@ -356,7 +356,8 @@ void memblock::create_memblocks(uint64_t _numblocks)
 //---------------------------------------------------------------------------
 void memblock::delete_memblocks()
 {
-	while(first) delete first;
+	//while(first) delete first;
+	while (memblock::first) delete memblock::first;
 	delete[] memblocks;
 	numblocks = 0;
 	array_numblocks = 0;
@@ -679,7 +680,7 @@ char* v8object::getdata()
 	uint32_t i, l;
 	int32_t j, pagesize, blocksperpage;
 	uint64_t ll;
-	uint32_t curlen;
+	uint32_t curlen = 0;
 
 	lastdataget = GetTickCount();
 	if(!len) return NULL;
@@ -1105,7 +1106,7 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 //---------------------------------------------------------------------------
 bool v8object::setdata(const void* _buf, uint64_t _length)
 {
-	uint32_t curlen;
+	uint32_t curlen = 0;
 	char* buf;
 	uint32_t offsperpage;
 	uint32_t curblock;
@@ -1935,7 +1936,7 @@ void index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 	char* buf;
 	char* rbuf;
 	uint32_t curlen;
-	uint32_t lastnumrec;
+	
 	String s;
 
 	char* curindex;
@@ -2417,7 +2418,7 @@ void index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 	char* page;
 	branch_page_header* bph;
 	leaf_page_header* lph;
-	branch_page_header* bph2;
+	
 	bool _is_last_record, _page_is_empty;
 	uint32_t _new_last_phys_num;
 	uint32_t number_indexes;
@@ -2654,7 +2655,7 @@ void index::write_index_record(const uint32_t phys_numrecord, const char* index_
 	uint64_t prev_page;
 	uint64_t next_page;
 
-	char* page2;
+	
 	branch_page_header* bph2;
 	leaf_page_header* lph2;
 	uint32_t number_indexes1;
@@ -3653,8 +3654,8 @@ String TrimSpacesRight(String s)
 #ifndef PublicRelease
 uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen)
 {
-	T_1CD* base;
-	int32_t i, j, m;
+	
+	int32_t i, j;
 	bool k;
 	uint32_t addlen = 0;
 	int32_t maxl = maxlen;
@@ -3951,6 +3952,7 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 					ZInflateStream(_sx, _s2);
 					zippedContainer = true;
 					_sx2 = _s2;
+					
 					_s2 = NULL;
 					delete _sx;
 					_sx = NULL;
@@ -3969,6 +3971,10 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 			{
 				temp_stream = new TFileStream(_filename, fmCreate);
 				temp_stream->CopyFrom(_sx2, 0);
+				// попытка записи в файл
+				temp_stream->WriteBuffer(_sx2, sizeof(_sx2));
+				//cat->SaveToDir(_filename);
+				// конец попытки записи в файл
 				delete temp_stream;
 			}
 			else cat->SaveToDir(_filename);
@@ -5339,7 +5345,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 	int32_t ic; // image count, количество полей с типом image
 	int32_t rc; // repeat count, количество повторов имени записи подряд (для случая, если индекс не уникальный)
 
-	char UnicodeHeader[3] = {'\xef', '\xbb', '\xbf'};
+	char UnicodeHeader[3] = {'\xef', '\xbb', '\xbf'}; // BOM UTF-8
 	String part1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!--Файл сформирован программой Tool_1CD-->\r\n<Table Name=\"";
 	String part2 = "\">\r\n\t<Fields>\r\n";
 	String part3 = "\t</Fields>\r\n\t<Records>\r\n";
@@ -6280,9 +6286,6 @@ void Table::delete_index_record(uint32_t phys_numrecord)
 //---------------------------------------------------------------------------
 void Table::delete_index_record(uint32_t phys_numrecord, char* rec)
 {
-	class index* ind;
-	int32_t i;
-
 	if(*rec)
 	{
 		error("Попытка удаления индекса удаленной записи.",
@@ -6291,7 +6294,7 @@ void Table::delete_index_record(uint32_t phys_numrecord, char* rec)
 		return;
 	}
 
-	for(i = 0; i < num_indexes; i++) indexes[i]->delete_index(rec, phys_numrecord);
+	for(int32_t i = 0; i < num_indexes; i++) indexes[i]->delete_index(rec, phys_numrecord);
 }
 
 //---------------------------------------------------------------------------
@@ -6451,10 +6454,6 @@ uint32_t Table::write_blob_record(TStream* bstr)
 
 void Table::write_index_record(const uint32_t phys_numrecord, const char* rec)
 {
-	char* index_buf;
-	class index* ind;
-	int32_t i;
-
 	if(*rec)
 	{
 		error("Попытка записи индексов помеченной на удаление записи.",
@@ -6462,7 +6461,7 @@ void Table::write_index_record(const uint32_t phys_numrecord, const char* rec)
 		return;
 	}
 
-	for(i = 0; i < num_indexes; i++) indexes[i]->write_index(phys_numrecord, rec);
+	for(int32_t i = 0; i < num_indexes; i++) indexes[i]->write_index(phys_numrecord, rec);
 
 }
 
@@ -7540,7 +7539,14 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 		root80 = (root_80*)root_object->getdata();
 
 		locale = new char[strlen(root80->lang) + 1];
+
+#if defined (_MSC_VER)
 		strcpy(locale, root80->lang);
+#else
+		strcpy(locale, root80->lang);
+#endif
+
+		
 
 		num_tables = root80->numblocks;
 		table_blocks = &(root80->blocks[0]);
@@ -7561,7 +7567,13 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 		}
 
 		locale = new char[strlen(root81->lang) + 1];
+#if defined (_MSC_VER)
 		strcpy(locale, root81->lang);
+#else
+		strcpy(locale, root81->lang);
+#endif
+
+		
 
 		num_tables = root81->numblocks;
 		table_blocks = &(root81->blocks[0]);
@@ -8392,7 +8404,7 @@ bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 	TStream* str;
 	bool result;
 	bool res;
-	wchar_t tempfile[MAX_PATH];
+	
 
 	rec = new char[t->get_recordlen()];
 	t->getrecord(nrec, rec);
@@ -8448,7 +8460,6 @@ bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 //---------------------------------------------------------------------------
 bool T_1CD::recursive_test_stream_format2(Table* t, uint32_t nrec)
 {
-	int32_t j;
 	char* rec;
 	char* orec;
 	Field* f_sd;
@@ -8498,7 +8509,7 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 	int32_t offset;
 	String sf;
 	wchar_t first_symbol;
-	int32_t i, j;
+	int32_t i;
 	bool usetempfile;
 
 	msreg->Status(path);
@@ -8651,7 +8662,7 @@ bool T_1CD::recursive_test_stream_format(v8catalog* cat, String path)
 {
 	v8catalog* c;
 	bool result;
-	bool res;
+	
 	v8file* v8f;
 	v8file* v8fp;
 	String fname;
@@ -9231,7 +9242,7 @@ bool T_1CD::replaceTREF(String mapfile)
 	DynamicArray<int32_t> map; // динамический массив соответствия номеров
 	int32_t i,j,m;
 	int32_t k, l;
-	uint32_t ii, jj, kk;
+	uint32_t ii, kk;
 	char* rec;
 	String str;
 	TStringList* list;
@@ -9681,7 +9692,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	bool datapacked;
 	bool deletesobj;
 	char emptyimage[8];
-	uint32_t i, k, _crc;
+	uint32_t i, k;
 	int32_t v, j, res, lastver, n;
 	String sn;
 	depot_ver depotVer;
@@ -10422,7 +10433,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	char* rech2; // запись с версией <= ver_end
 	bool hasrech2;
 
-	char rootobj[16];
+	//char rootobj[16];
 	char curobj[16];
 	uint32_t ih, nh;
 
@@ -10447,8 +10458,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	bool hasext;
 	char emptyimage[8];
 	char verid[16];
-	uint32_t i, k, _crc;
-	int32_t v, j, res, lastver, n;
+	uint32_t i, k;
+	int32_t v, res, lastver, n;
 	String s, ss, sp, sn, se;
 	depot_ver depotVer;
 	uint32_t configVerMajor, configVerMinor;
@@ -11108,7 +11119,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 	uint32_t block;
 	v8ob* rootobj;
 	objtab* ca;
-	char* cd;
+	
 	uint32_t i, l, cl, a, d, r;
 	int32_t j, k, m, n, rl;
 	bool ok;

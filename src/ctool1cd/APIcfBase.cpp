@@ -215,6 +215,7 @@ void v8file::SaveToStream(TStream* stream)
 	Lock->Release();
 }
 
+/*
 //---------------------------------------------------------------------------
 // определить размер файла
 int v8file::GetFileLength()
@@ -226,6 +227,18 @@ int v8file::GetFileLength()
 	Lock->Release();
 	return ret;
 }
+*/
+
+int64_t v8file::GetFileLength()
+{
+	int64_t ret;
+	Lock->Acquire();
+	if (!is_opened) if (!Open()) return 0;
+	ret = data->GetSize();
+	Lock->Release();
+	return ret;
+}
+
 
 //---------------------------------------------------------------------------
 // определить размер файла
@@ -241,6 +254,7 @@ int64_t v8file::GetFileLength64()
 
 //---------------------------------------------------------------------------
 // чтение
+/*
 int v8file::Read(void* Buffer, int Start, int Length)
 {
 	int ret;
@@ -251,7 +265,21 @@ int v8file::Read(void* Buffer, int Start, int Length)
 	Lock->Release();
 	return ret;
 }
+*/
 
+int64_t v8file::Read(void* Buffer, int Start, int Length)
+{
+	int64_t ret;
+	Lock->Acquire();
+	if (!is_opened) if (!Open()) return 0;
+	data->Seek(Start, soFromBeginning);
+	ret = data->Read(Buffer, Length);
+	Lock->Release();
+	return ret;
+}
+
+
+/*
 //---------------------------------------------------------------------------
 // чтение
 int v8file::Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length)
@@ -264,6 +292,21 @@ int v8file::Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Le
 	Lock->Release();
 	return ret;
 }
+*/
+
+//---------------------------------------------------------------------------
+// чтение
+int64_t v8file::Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length)
+{
+	int64_t ret;
+	Lock->Acquire();
+	if (!is_opened) if (!Open()) return 0;
+	data->Seek(Start, soFromBeginning);
+	ret = data->Read(Buffer, Length);
+	Lock->Release();
+	return ret;
+}
+
 
 //---------------------------------------------------------------------------
 // получить поток
@@ -272,6 +315,7 @@ TV8FileStream* v8file::get_stream(bool own)
 	return new TV8FileStream(this, own);
 }
 
+/*
 //---------------------------------------------------------------------------
 // записать
 int v8file::Write(const void* Buffer, int Start, int Length) // дозапись/перезапись частично
@@ -287,7 +331,29 @@ int v8file::Write(const void* Buffer, int Start, int Length) // дозапись
 	Lock->Release();
 	return ret;
 }
+*/
 
+
+//---------------------------------------------------------------------------
+// записать
+int64_t v8file::Write(const void* Buffer, int Start, int Length) // дозапись/перезапись частично
+{
+	int64_t ret;
+	Lock->Acquire();
+	if (!is_opened) if (!Open()) return 0;
+	setCurrentTime(&time_modify);
+	is_headermodified = true;
+	is_datamodified   = true;
+	data->Seek(Start, soFromBeginning);
+	ret = data->Write(Buffer, Length);
+	Lock->Release();
+	
+	return ret;
+}
+
+
+
+/*
 //---------------------------------------------------------------------------
 // записать
 int v8file::Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length) // дозапись/перезапись частично
@@ -303,7 +369,27 @@ int v8file::Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int L
 	Lock->Release();
 	return ret;
 }
+*/
 
+//---------------------------------------------------------------------------
+// записать
+int64_t v8file::Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length) // дозапись/перезапись частично
+{
+	int64_t ret;
+	Lock->Acquire();
+	if (!is_opened) if (!Open()) return 0;
+	setCurrentTime(&time_modify);
+	is_headermodified = true;
+	is_datamodified   = true;
+	data->Seek(Start, soFromBeginning);
+	ret = data->Write(Buffer, Length);
+	Lock->Release();
+
+	return ret;
+}
+
+
+/*
 //---------------------------------------------------------------------------
 // записать
 int v8file::Write(const void* Buffer, int Length) // перезапись целиком
@@ -320,7 +406,27 @@ int v8file::Write(const void* Buffer, int Length) // перезапись цел
 	Lock->Release();
 	return ret;
 }
+*/
 
+//---------------------------------------------------------------------------
+// записать
+int64_t v8file::Write(const void* Buffer, int Length) // перезапись целиком
+{
+	int64_t ret;
+	Lock->Acquire();
+	if (!is_opened) if (!Open()) return 0;
+	setCurrentTime(&time_modify);
+	is_headermodified = true;
+	is_datamodified = true;
+	if (data->GetSize() > Length) data->SetSize(Length);
+	data->Seek(0, soFromBeginning);
+	ret = data->Write(Buffer, Length);
+	Lock->Release();
+
+	return ret;
+}
+
+/*
 //---------------------------------------------------------------------------
 // записать
 int v8file::Write(TStream* Stream, int Start, int Length) // дозапись/перезапись частично
@@ -337,6 +443,27 @@ int v8file::Write(TStream* Stream, int Start, int Length) // дозапись/п
 	return ret;
 }
 
+*/
+
+//---------------------------------------------------------------------------
+// записать
+int64_t v8file::Write(TStream* Stream, int Start, int Length) // дозапись/перезапись частично
+{
+	int64_t ret;
+	Lock->Acquire();
+	if (!is_opened) if (!Open()) return 0;
+	setCurrentTime(&time_modify);
+	is_headermodified = true;
+	is_datamodified   = true;
+	data->Seek(Start, soFromBeginning);
+	ret = data->CopyFrom(Stream, Length);
+	Lock->Release();
+
+	return ret;
+}
+
+
+/*
 //---------------------------------------------------------------------------
 // записать
 int v8file::Write(TStream* Stream) // перезапись целиком
@@ -353,6 +480,26 @@ int v8file::Write(TStream* Stream) // перезапись целиком
 	Lock->Release();
 	return ret;
 }
+*/
+
+//---------------------------------------------------------------------------
+// записать
+int64_t v8file::Write(TStream* Stream) // перезапись целиком
+{
+	int64_t ret;
+	Lock->Acquire();
+	if (!is_opened) if (!Open()) return 0;
+	setCurrentTime(&time_modify);
+	is_headermodified = true;
+	is_datamodified   = true;
+	if (data->GetSize() > Stream->GetSize()) data->SetSize(Stream->GetSize());
+	data->Seek(0, soFromBeginning);
+	ret = data->CopyFrom(Stream, 0);
+	Lock->Release();
+
+	return ret;
+}
+
 
 //---------------------------------------------------------------------------
 // возвращает имя
@@ -390,7 +537,7 @@ void v8file::SetFileName(const String& _name)
 // определение "каталога"
 bool v8file::IsCatalog()
 {
-	int _filelen;
+	int64_t _filelen;
 	int _startempty = -1;
 	char _t[32];
 
@@ -609,6 +756,7 @@ void v8file::Close(){
 	Lock->Release();
 }
 
+/*
 //---------------------------------------------------------------------------
 // записать и закрыть
 int v8file::WriteAndClose(TStream* Stream, int Length)
@@ -661,6 +809,62 @@ int v8file::WriteAndClose(TStream* Stream, int Length)
 	if(Length == -1) return Stream->GetSize();
 	return Length;
 }
+*/
+
+//---------------------------------------------------------------------------
+// записать и закрыть
+int64_t v8file::WriteAndClose(TStream* Stream, int Length)
+{
+	int32_t _4bzero = 0;
+
+	Lock->Acquire();
+	if (!is_opened) if (!Open())
+	{
+		Lock->Release();
+		return 0;
+	}
+
+	if (!parent)
+	{
+		Lock->Release();
+		return 0;
+	}
+
+	if (self) delete self;
+	self = NULL;
+
+	delete data;
+	data = NULL;
+
+	if (parent->data)
+	{
+		int name_size = name.WideCharBufSize();
+		WCHART *wname = new WCHART[name_size];
+		name.WideChar(wname, name.Length());
+
+		parent->Lock->Acquire();
+		start_data = parent->write_datablock(Stream, start_data, selfzipped, Length);
+		TMemoryStream hs;
+		hs.Write(&time_create, 8);
+		hs.Write(&time_modify, 8);
+		hs.Write(&_4bzero, 4);
+		hs.Write(wname, name.Length() * sizeof(WCHART));
+		hs.Write(&_4bzero, 4);
+		start_header = parent->write_block(&hs, start_header, false);
+		parent->Lock->Release();
+		delete[]wname;
+	}
+	iscatalog = iscatalog_unknown;
+	is_opened = false;
+	is_datamodified = false;
+	is_headermodified = false;
+	Lock->Release();
+
+	if (Length == -1) return Stream->GetSize();
+	return Length;
+}
+
+
 
 //---------------------------------------------------------------------------
 // деструктор
@@ -777,7 +981,7 @@ void v8file::Flush()
 // определение каталога
 bool v8catalog::IsCatalog()
 {
-	int _filelen;
+	int64_t _filelen;
 	int _startempty = -1;
 	char _t[32];
 
@@ -1013,7 +1217,7 @@ void v8catalog::initialize()
 	v8file* _prev;
 	v8file* _file;
 	v8file* f;
-	int _countfiles;
+	int64_t _countfiles;
 
 	data->Seek(0, soFromBeginning);
 	data->ReadBuffer(&_ch, 16);
@@ -1249,9 +1453,9 @@ int v8catalog::write_datablock(TStream* block, int start, bool _zipped, int len)
 
 //---------------------------------------------------------------------------
 // получить следующий блок
-int v8catalog::get_nextblock(int start)
+int64_t v8catalog::get_nextblock(int64_t start)
 {
-	int ret;
+	int64_t ret;
 
 	Lock->Acquire();
 	if(start == 0 || start == 0x7fffffff)

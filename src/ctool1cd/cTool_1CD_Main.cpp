@@ -56,6 +56,7 @@ void T1CD_cmd_export_all_to_xml(T_1CD& base1CD, ParsedCommand& pc, Messenger& me
 			bool ActionXMLUnpackBLOBChecked     = IsTrueString(pc.param1);	
 
 			tbl->export_to_xml(filetable.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
+			//tbl->export_to_xml(filetable.string(), false, false);
 			
 			mess.AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull, "Таблица", tbl->getname(), "Файл", filetable.string());
 		}
@@ -207,7 +208,7 @@ void T1CD_cmd_save_vendors_configs(T_1CD& base1CD, ParsedCommand& pc, Messenger&
 	if (base1CD.is_open())
 	{
 		base1CD.find_supplier_configs();
-		for (int n = 0; n < base1CD.supplier_configs.size(); n++)
+		for (size_t n = 0; n < base1CD.supplier_configs.size(); n++)
 		{
 			String f = pc.param1 + "\\" + base1CD.supplier_configs[n].name + " " + base1CD.supplier_configs[n].version + ".cf";
 			if (base1CD.save_supplier_configs(n, f))
@@ -240,7 +241,7 @@ void T1CD_cmd_save_all_configs(T_1CD& base1CD, ParsedCommand& pc, Messenger& mes
 			mess.AddMessage_("Не удалось сохранить основную конфигурацию.", msError, "Файл", f);
 
 		base1CD.find_supplier_configs();
-		for (int n = 0; n < base1CD.supplier_configs.size(); n++)
+		for (size_t n = 0; n < base1CD.supplier_configs.size(); n++)
 		{
 			f = pc.param1 + "\\" + base1CD.supplier_configs[n].name + " " + base1CD.supplier_configs[n].version + ".cf";
 			if (base1CD.save_supplier_configs(n, f))
@@ -372,12 +373,12 @@ void T1CD_cmd_save_depot_config_part(T_1CD& base1CD, ParsedCommand& pc, Messenge
 int main(int argc, char* argv[])
 {
 	Messenger mess; // регистратор сообщений
-	int i, j, k, m;
-	unsigned int n;
-	Table* t;
+	int i;
+	
+	
 	String f, v;
-	bool b;
-	boost::regex* expr;
+	
+	
 
 	bool ActionOpenBaseNotMonopolyChecked = false;
 	bool ActionXMLSaveBLOBToFileChecked   = false;
