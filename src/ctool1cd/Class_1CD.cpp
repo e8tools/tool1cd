@@ -3949,10 +3949,11 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 				try
 				{
 					_sx->Seek(0, soFromBeginning);
-					ZInflateStream(_sx, _s2);
+					if (!ZInflateStream(_sx, _s2)){
+						_s2->CopyFrom(_sx, 0);
+					}
 					zippedContainer = true;
 					_sx2 = _s2;
-					
 					_s2 = NULL;
 					delete _sx;
 					_sx = NULL;
@@ -3971,10 +3972,6 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 			{
 				temp_stream = new TFileStream(_filename, fmCreate);
 				temp_stream->CopyFrom(_sx2, 0);
-				// попытка записи в файл
-				temp_stream->WriteBuffer(_sx2, sizeof(_sx2));
-				//cat->SaveToDir(_filename);
-				// конец попытки записи в файл
 				delete temp_stream;
 			}
 			else cat->SaveToDir(_filename);

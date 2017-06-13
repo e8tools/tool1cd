@@ -66,7 +66,7 @@ void ZInflateStream_Old(TStream* src, TStream* dst)
 */
 
 //---------------------------------------------------------------------------
-void ZDeflateStream(TStream* src, TStream* dst)
+bool ZDeflateStream(TStream* src, TStream* dst)
 {
 	int ret, flush;
 	unsigned have;
@@ -82,14 +82,14 @@ void ZDeflateStream(TStream* src, TStream* dst)
 	ret = deflateInit2(&strm, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY);
 
 	if (ret != Z_OK) {
-		return;
+		return false;
 	}
 
 	// compress until end of file
 	do {
 		strm.avail_in = src->Read(in, CHUNKSIZE);
 		if (strm.avail_in == 0) {
-			return;
+			return false;
 		}
 		/* TODO: Check error */
 
@@ -109,7 +109,7 @@ void ZDeflateStream(TStream* src, TStream* dst)
 
 			if (data_written < have) {
 				(void)deflateEnd(&strm);
-				return; //  Z_ERRNO
+				return false; //  Z_ERRNO
 			}
 		} while (strm.avail_out == 0);
 		assert(strm.avail_in == 0);     // all input will be used
@@ -191,7 +191,7 @@ void _ZInflateStream_(TStream* src, TStream* dst)
 }
 
 //---------------------------------------------------------------------------
-void ZInflateStream(TStream* src, TStream* dst)
+bool ZInflateStream(TStream* src, TStream* dst)
 {
 	z_stream strm;
 	int ret;
@@ -199,8 +199,6 @@ void ZInflateStream(TStream* src, TStream* dst)
 
 	unsigned have;
 
-	//unsigned char srcBuf[CHUNKSIZE] = { 0 };
-	//unsigned char dstBuf[CHUNKSIZE] = { 0 };
 	unsigned char *srcBuf;
 	unsigned char *dstBuf;
 
@@ -236,14 +234,20 @@ void ZInflateStream(TStream* src, TStream* dst)
 
 			switch (ret) {
 			case Z_NEED_DICT:
+			{
 				ret = Z_DATA_ERROR;     /* and fall through */
+				free(srcBuf);
+				free(dstBuf);
+			}
 			case Z_DATA_ERROR:
 			case Z_MEM_ERROR:
 			case Z_STREAM_ERROR:
+			{
 				(void)inflateEnd(&strm);
-				// пусть пока так
-				dst->CopyFrom(src, src->GetSize());
-				return;
+				free(srcBuf);
+				free(dstBuf);
+				return false;
+			}
 			}
 
 			have = CHUNKSIZE - strm.avail_out;
@@ -259,7 +263,6 @@ void ZInflateStream(TStream* src, TStream* dst)
 
 	free(srcBuf);
 	free(dstBuf);
-
 }
 
 
