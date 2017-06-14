@@ -96,28 +96,17 @@ class v8file{
 	~v8file();
 	bool IsCatalog();
 	v8catalog* GetCatalog();
-	//int GetFileLength();
 	int64_t GetFileLength();
 	int64_t GetFileLength64();
 
-	//int Read(void* Buffer, int Start, int Length);
 	int64_t Read(void* Buffer, int Start, int Length);
-	//int Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length);
 	int64_t Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length);
-
-    //int Write(const void* Buffer, int Start, int Length);                           // дозапись/перезапись частично
-    //int Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length); // дозапись/перезапись частично
-	//int Write(const void* Buffer, int Length);                                      // перезапись целиком
-	//int Write(TStream* Stream, int Start, int Length);                              // дозапись/перезапись частично
-	//int Write(TStream* Stream);                                                     // перезапись целиком
 
 	int64_t Write(const void* Buffer, int Start, int Length);                           // дозапись/перезапись частично
 	int64_t Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length); // дозапись/перезапись частично
 	int64_t Write(const void* Buffer, int Length);                                      // перезапись целиком
 	int64_t Write(TStream* Stream, int Start, int Length);                              // дозапись/перезапись частично
 	int64_t Write(TStream* Stream);                                                     // перезапись целиком
-
-
 
 	String GetFileName();
 	String GetFullName();
@@ -129,7 +118,6 @@ class v8file{
 	bool Open();
 	void Close();
 	
-	//int WriteAndClose(TStream* Stream, int Length = -1); // перезапись целиком и закрытие файла (для экономии памяти не используется data файла)
 	int64_t WriteAndClose(TStream* Stream, int Length = -1); // перезапись целиком и закрытие файла (для экономии памяти не используется data файла)
 	
 	void GetTimeCreate(FILETIME* ft);
@@ -172,7 +160,6 @@ class v8catalog{
 	int write_datablock(TStream* block, int start, bool _zipped = false, int len = -1); // возвращает адрес начала блока
 
 	TStream* read_datablock(int start);
-	//int get_nextblock(int start);
 	int64_t get_nextblock(int64_t start);
 
 	bool is_destructed; // признак, что работает деструктор
