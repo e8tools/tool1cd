@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <malloc.h>
 #include "UZLib.h"
 
 //---------------------------------------------------------------------------
@@ -13,7 +14,13 @@
 #pragma package(smart_init)
 #endif
 
+//const int CHUNKSIZE = 8192;
 const int CHUNKSIZE = 16384;
+//const int CHUNKSIZE = 32768;
+//const int CHUNKSIZE = 65536;
+//const int CHUNKSIZE = 131072;
+//const int CHUNKSIZE = 262144;
+//const int CHUNKSIZE = 524288;
 
 #ifndef DEF_MEM_LEVEL
 #	if MAX_MEM_LEVEL >= 8
@@ -23,7 +30,7 @@ const int CHUNKSIZE = 16384;
 #	endif
 #endif
 
-
+/*
 void ZInflateStream_Old(TStream* src, TStream* dst)
 {
 	z_stream strm;
@@ -56,8 +63,10 @@ void ZInflateStream_Old(TStream* src, TStream* dst)
 	dst->Write(dstBuf, strm.total_out);
 
 }
+*/
 
-void ZDeflateStream(TStream* src, TStream* dst)
+//---------------------------------------------------------------------------
+bool ZDeflateStream(TStream* src, TStream* dst)
 {
 	int ret, flush;
 	unsigned have;
@@ -73,14 +82,14 @@ void ZDeflateStream(TStream* src, TStream* dst)
 	ret = deflateInit2(&strm, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY);
 
 	if (ret != Z_OK) {
-		return;
+		return false;
 	}
 
 	// compress until end of file
 	do {
 		strm.avail_in = src->Read(in, CHUNKSIZE);
 		if (strm.avail_in == 0) {
-			return;
+			return false;
 		}
 		/* TODO: Check error */
 
@@ -100,7 +109,7 @@ void ZDeflateStream(TStream* src, TStream* dst)
 
 			if (data_written < have) {
 				(void)deflateEnd(&strm);
-				return; //  Z_ERRNO
+				return false; //  Z_ERRNO
 			}
 		} while (strm.avail_out == 0);
 		assert(strm.avail_in == 0);     // all input will be used
@@ -113,7 +122,8 @@ void ZDeflateStream(TStream* src, TStream* dst)
 	(void)deflateEnd(&strm);
 }
 
-void ZInflateStream(TStream* src, TStream* dst)
+//---------------------------------------------------------------------------
+void _ZInflateStream_(TStream* src, TStream* dst)
 {
 	z_stream strm;
 	int ret;
@@ -157,7 +167,11 @@ void ZInflateStream(TStream* src, TStream* dst)
 			case Z_NEED_DICT:
 				ret = Z_DATA_ERROR;     /* and fall through */
 			case Z_DATA_ERROR:
+				(void)inflateEnd(&strm);
+				return;
 			case Z_MEM_ERROR:
+				(void)inflateEnd(&strm);
+				return;
 			case Z_STREAM_ERROR:
 				(void)inflateEnd(&strm);
 				return;
@@ -174,6 +188,81 @@ void ZInflateStream(TStream* src, TStream* dst)
 	/* clean up and return */
 	(void)inflateEnd(&strm);
 
+}
+
+//---------------------------------------------------------------------------
+bool ZInflateStream(TStream* src, TStream* dst)
+{
+	z_stream strm;
+	int ret;
+	uintmax_t srcSize;
+
+	unsigned have;
+
+	unsigned char *srcBuf;
+	unsigned char *dstBuf;
+
+	srcBuf = (unsigned char *)malloc(CHUNKSIZE);
+	dstBuf = (unsigned char *)malloc(CHUNKSIZE);
+
+	/* allocate inflate state */
+	strm.zalloc   = Z_NULL;
+	strm.zfree    = Z_NULL;
+	strm.opaque   = Z_NULL;
+	strm.avail_in = 0;
+	strm.next_in  = Z_NULL;
+
+	ret = inflateInit2(&strm, -MAX_WBITS);
+
+	/* decompress until deflate stream ends or end of file */
+	do {
+		//strm.avail_in = fread(in, 1, CHUNKSIZE, source);
+
+		srcSize = src->GetSize();    // определяем размер данных
+		src->Read(srcBuf, srcSize);  // читаем из потока в буфер данные
+		strm.avail_in = srcSize;
+
+		if (strm.avail_in == 0) break;
+
+		strm.next_in = srcBuf;
+
+		/* run inflate() on input until output buffer not full */
+		do {
+			strm.avail_out = CHUNKSIZE;
+			strm.next_out = dstBuf;
+			ret = inflate(&strm, Z_NO_FLUSH);
+
+			switch (ret) {
+			case Z_NEED_DICT:
+			{
+				ret = Z_DATA_ERROR;     /* and fall through */
+				free(srcBuf);
+				free(dstBuf);
+			}
+			case Z_DATA_ERROR:
+			case Z_MEM_ERROR:
+			case Z_STREAM_ERROR:
+			{
+				(void)inflateEnd(&strm);
+				free(srcBuf);
+				free(dstBuf);
+				return false;
+			}
+			}
+
+			have = CHUNKSIZE - strm.avail_out;
+			dst->Write(dstBuf, have);
+
+		} while (strm.avail_out == 0);
+
+		/* done when inflate() says it's done */
+	} while (ret != Z_STREAM_END);
+
+	/* clean up and return */
+	(void)inflateEnd(&strm);
+
+	free(srcBuf);
+	free(dstBuf);
 }
 
 

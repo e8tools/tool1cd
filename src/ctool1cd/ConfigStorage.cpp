@@ -193,15 +193,15 @@ bool ConfigStorageCFFile::fileexists(const String& path)
 //---------------------------------------------------------------------------
 container_file::container_file(table_file* _f, const String& _name)
 {
-	unsigned int i;
+	
 
-	file = _f;
-	name = _name;
-	stream = NULL;
+	file    = _f;
+	name    = _name;
+	stream  = NULL;
 	rstream = NULL;
-	cat = NULL;
-	packed = tfp_unknown;
-	dynno = -3;
+	cat     = NULL;
+	packed  = tfp_unknown;
+	dynno   = -3;
 }
 
 //---------------------------------------------------------------------------
@@ -215,7 +215,7 @@ bool container_file::open()
 {
 	TStream* ts;
 	String tn;
-	wchar_t tempfile[MAX_PATH];
+	
 	unsigned int i;
 	Table* t;
 	table_blob_file* addr;
@@ -276,7 +276,7 @@ bool container_file::open()
 //---------------------------------------------------------------------------
 bool container_file::ropen()
 {
-	wchar_t tempfile[MAX_PATH];
+	
 	unsigned int i;
 	Table* t;
 	table_blob_file* addr;
