@@ -56,7 +56,6 @@ void T1CD_cmd_export_all_to_xml(T_1CD& base1CD, ParsedCommand& pc, Messenger& me
 			bool ActionXMLUnpackBLOBChecked     = IsTrueString(pc.param1);	
 
 			tbl->export_to_xml(filetable.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
-			//tbl->export_to_xml(filetable.string(), false, false);
 			
 			mess.AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull, "Таблица", tbl->getname(), "Файл", filetable.string());
 		}
