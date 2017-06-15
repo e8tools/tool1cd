@@ -5568,7 +5568,7 @@ void Table::export_table(const String &path) const
 
 	boost::filesystem::path dir(static_cast<string>(path));
 
-	dir /= name;
+	dir /= static_cast<string>(name);
 	if (!boost::filesystem::exists(dir)) {
 		boost::filesystem::create_directories(dir);
 		// TODO: Throw error
@@ -5630,7 +5630,7 @@ void Table::export_table(const String &path) const
 void Table::import_table(const String &path)
 {
 	boost::filesystem::path dir(static_cast<string>(path));
-	dir /= name;
+	dir /= static_cast<string>(name);
 	if (!boost::filesystem::exists(dir)) {
 		return;
 	}

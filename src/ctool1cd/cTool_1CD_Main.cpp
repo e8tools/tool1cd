@@ -176,7 +176,7 @@ void T1CD_cmd_export_to_binary(T_1CD& base1CD, ParsedCommand& pc, Messenger& mes
 		return;
 	}
 
-	boost::regex expr[k];
+	vector<boost::regex> expr(k);
 	for (int m = 0; m < k; m++) {
 		expr[m] = boost::regex(static_cast<string>(filters[m]));
 	}
@@ -239,7 +239,7 @@ void T1CD_cmd_import_from_binary(T_1CD& base1CD, ParsedCommand& pc, Messenger& m
 		return;
 	}
 
-	boost::regex expr[k];
+	vector<boost::regex> expr(k);
 	for (int m = 0; m < k; m++) {
 		expr[m] = boost::regex(static_cast<string>(filters[m]));
 	}
