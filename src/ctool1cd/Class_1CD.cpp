@@ -13,6 +13,8 @@
 
 #include "UZLib.h"
 
+using namespace std;
+
 const unsigned int LIVE_CASH = 5; // время жизни кешированных данных в минутах
 extern MessageRegistrator* msreg;
 #define error if(msreg) msreg->AddError
@@ -1936,7 +1938,7 @@ void index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 	char* buf;
 	char* rbuf;
 	uint32_t curlen;
-	
+
 	String s;
 
 	char* curindex;
@@ -2418,7 +2420,7 @@ void index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 	char* page;
 	branch_page_header* bph;
 	leaf_page_header* lph;
-	
+
 	bool _is_last_record, _page_is_empty;
 	uint32_t _new_last_phys_num;
 	uint32_t number_indexes;
@@ -2655,7 +2657,7 @@ void index::write_index_record(const uint32_t phys_numrecord, const char* index_
 	uint64_t prev_page;
 	uint64_t next_page;
 
-	
+
 	branch_page_header* bph2;
 	leaf_page_header* lph2;
 	uint32_t number_indexes1;
@@ -3655,7 +3657,7 @@ String TrimSpacesRight(String s)
 #ifndef PublicRelease
 uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen)
 {
-	
+
 	int32_t i, j;
 	bool k;
 	uint32_t addlen = 0;
@@ -5561,67 +5563,66 @@ changed_rec_type Table::get_rec_type(uint32_t phys_numrecord, int32_t numfield)
 }
 
 //---------------------------------------------------------------------------
-void Table::export_table(String path)
+void Table::export_table(const String &path) const
 {
-	TFileStream* f;
-	String dir;
-	export_import_table_root* root;
 
-	dir = path + "\\" + name;
-	CreateDir(dir);
-	dir += "\\";
+	boost::filesystem::path dir(static_cast<string>(path));
 
-	root = new export_import_table_root;
-
-	if(file_data)
-	{
-		root->has_data = true;
-		root->data_version_1 = file_data->version.version_1;
-		root->data_version_2 = file_data->version.version_2;
+	dir /= name;
+	if (!boost::filesystem::exists(dir)) {
+		boost::filesystem::create_directories(dir);
+		// TODO: Throw error
+	} else if (!boost::filesystem::is_directory(dir)) {
+		// TODO: Throw error
 	}
-	else root->has_data = false;
 
-	if(file_blob)
-	{
-		root->has_blob = true;
-		root->blob_version_1 = file_blob->version.version_1;
-		root->blob_version_2 = file_blob->version.version_2;
+	export_import_table_root root;
+	if(file_data) {
+		root.has_data = true;
+		root.data_version_1 = file_data->version.version_1;
+		root.data_version_2 = file_data->version.version_2;
 	}
-	else root->has_blob = false;
+	else root.has_data = false;
 
-	if(file_index)
-	{
-		root->has_index = true;
-		root->index_version_1 = file_index->version.version_1;
-		root->index_version_2 = file_index->version.version_2;
+	if(file_blob) {
+		root.has_blob = true;
+		root.blob_version_1 = file_blob->version.version_1;
+		root.blob_version_2 = file_blob->version.version_2;
 	}
-	else root->has_index = false;
+	else root.has_blob = false;
 
-	if(descr_table)
-	{
-		root->has_descr = true;
-		root->descr_version_1 = descr_table->version.version_1;
-		root->descr_version_2 = descr_table->version.version_2;
+	if(file_index) {
+		root.has_index = true;
+		root.index_version_1 = file_index->version.version_1;
+		root.index_version_2 = file_index->version.version_2;
 	}
-	else root->has_descr = false;
+	else root.has_index = false;
 
-	f = NULL;
-	try
-	{
-		f = new TFileStream(dir + "root", fmCreate|fmShareDenyNone);
-		f->Write(root, sizeof(export_import_table_root));
+	if(descr_table) {
+		root.has_descr = true;
+		root.descr_version_1 = descr_table->version.version_1;
+		root.descr_version_2 = descr_table->version.version_2;
 	}
-	catch(...)
-	{
+	else root.has_descr = false;
 
+	try {
+		TFileStream f((dir / "root").string(), fmCreate|fmShareDenyNone);
+		f.Write(&root, sizeof(export_import_table_root));
+	} catch(...) {
 	}
-	delete f;
-	delete root;
 
-	if(file_data) file_data->savetofile(dir + "data");
-	if(file_blob) file_blob->savetofile(dir + "blob");
-	if(file_index) file_index->savetofile(dir + "index");
-	if(descr_table) descr_table->savetofile(dir + "descr");
+	if (file_data) {
+		file_data->savetofile((dir / "data").string());
+	}
+	if (file_blob) {
+		file_blob->savetofile((dir / "blob").string());
+	}
+	if (file_index) {
+		file_index->savetofile((dir / "index").string());
+	}
+	if (descr_table) {
+		descr_table->savetofile((dir / "descr").string());
+	}
 
 }
 
@@ -7545,7 +7546,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 		strcpy(locale, root80->lang);
 #endif
 
-		
+
 
 		num_tables = root80->numblocks;
 		table_blocks = &(root80->blocks[0]);
@@ -7572,7 +7573,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 		strcpy(locale, root81->lang);
 #endif
 
-		
+
 
 		num_tables = root81->numblocks;
 		table_blocks = &(root81->blocks[0]);
@@ -8403,7 +8404,7 @@ bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 	TStream* str;
 	bool result;
 	bool res;
-	
+
 
 	rec = new char[t->get_recordlen()];
 	t->getrecord(nrec, rec);
@@ -8661,7 +8662,7 @@ bool T_1CD::recursive_test_stream_format(v8catalog* cat, String path)
 {
 	v8catalog* c;
 	bool result;
-	
+
 	v8file* v8f;
 	v8file* v8fp;
 	String fname;
@@ -11118,7 +11119,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 	uint32_t block;
 	v8ob* rootobj;
 	objtab* ca;
-	
+
 	uint32_t i, l, cl, a, d, r;
 	int32_t j, k, m, n, rl;
 	bool ok;

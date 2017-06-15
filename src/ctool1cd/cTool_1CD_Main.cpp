@@ -37,7 +37,7 @@ bool IsTrueString(const String &str)
 void T1CD_cmd_export_all_to_xml(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
 {
 	Table* tbl;
-	
+
 	if (base1CD.is_open())
 	{
 		for (int j = 0; j < base1CD.get_numtables(); j++)
@@ -53,10 +53,10 @@ void T1CD_cmd_export_all_to_xml(T_1CD& base1CD, ParsedCommand& pc, Messenger& me
 			boost::filesystem::path filetable = root_path / static_cast<string>(tbl->getname() + ".xml");
 
 			bool ActionXMLSaveBLOBToFileChecked = IsTrueString(pc.param1);
-			bool ActionXMLUnpackBLOBChecked     = IsTrueString(pc.param1);	
+			bool ActionXMLUnpackBLOBChecked     = IsTrueString(pc.param1);
 
 			tbl->export_to_xml(filetable.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
-			
+
 			mess.AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull, "Таблица", tbl->getname(), "Файл", filetable.string());
 		}
 	}
@@ -141,6 +141,69 @@ void T1CD_cmd_export_to_xml(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
 	else
 		mess.AddError("Попытка выгрузки таблиц в XML без открытой базы.");
 } //T1CD_cmd_export_to_xml
+
+void T1CD_cmd_export_to_binary(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
+{
+	if (!base1CD.is_open()) {
+		mess.AddError("Попытка выгрузки таблиц в XML без открытой базы.");
+		return;
+	}
+
+	boost::filesystem::path root_path(static_cast<string>(pc.param1));
+
+	Sysutils::TStringBuilder filter(pc.param2);
+	filter.Replace("*", ".*");
+	filter.Replace("?", ".");
+	filter.Replace(" ", "\n");
+	filter.Replace("\t", "\n");
+	filter.Replace(",", "\n");
+	filter.Replace(";", "\n");
+
+	TStringList filters;
+	filters.SetText(filter.ToString());
+
+	for (int m = filters.Count() - 1; m >= 0; m--) {
+		if (filters[m].Length() == 0) {
+			filters.Delete(m);
+		} else {
+			filters[m] = String("^") + filters[m].UpperCase() + "$";
+		}
+	}
+
+	int k = filters.Count();
+	if (k == 0) {
+		mess.AddError("Список таблиц для выгрузки в XML пуст.");
+		return;
+	}
+
+	boost::regex expr[k];
+	for (int m = 0; m < k; m++) {
+		expr[m] = boost::regex(static_cast<string>(filters[m]));
+	}
+
+	for (int j = 0; j < base1CD.get_numtables(); j++) {
+
+		Table *tbl = base1CD.gettable(j);
+
+		bool found = false;
+
+		for (int m = 0; m < k; m++) {
+			if (regex_match(static_cast<string>(tbl->getname().UpperCase()), expr[m])) {
+				found = true;
+				break;
+			}
+		}
+
+		if (found) {
+			if (!tbl->get_numindexes()) {
+				tbl->fillrecordsindex();
+			}
+			tbl->export_table(root_path.string());
+			mess.AddMessage_("Выполнен экспорт таблицы в файл.", msSuccesfull, "Таблица", tbl->getname(), "Каталог", root_path.string());
+		}
+	}
+
+} // T1CD_cmd_export_to_binary
 
 //---------------------------------------------------------------------------
 //cmd_save_config
@@ -227,7 +290,7 @@ void T1CD_cmd_save_all_configs(T_1CD& base1CD, ParsedCommand& pc, Messenger& mes
 	if (base1CD.is_open())
 	{
 		String f = pc.param1 + "\\dbcf.cf";
-		
+
 		if (base1CD.save_config(f))
 			mess.AddMessage_("Сохранение конфигурации базы данных завершено.", msSuccesfull, "Файл", f);
 		else
@@ -270,7 +333,7 @@ void T1CD_cmd_save_depot_config(T_1CD& base1CD, ParsedCommand& pc, Messenger& me
 	}
 	int version_number;
 	String version_number_param = pc.param1;
-	
+
 	if (version_number_param.Compare("0") == 0)
 	{
 		version_number = 0;
@@ -338,14 +401,14 @@ void T1CD_cmd_save_depot_config_part(T_1CD& base1CD, ParsedCommand& pc, Messenge
 		j = f.ToIntDef(0);
 		k = j;
 	}
-	
+
 	j = base1CD.get_ver_depot_config(j);
 	if (!j)
 	{
 		mess.AddError("Запрошенной версии конфигурации нет в хранилище конфигурации.", "Версия", j);
 		return;
 	}
-	
+
 	k = base1CD.get_ver_depot_config(k);
 	if (!k)
 	{
@@ -373,11 +436,11 @@ int main(int argc, char* argv[])
 {
 	Messenger mess; // регистратор сообщений
 	int i;
-	
-	
+
+
 	String f, v;
-	
-	
+
+
 
 	bool ActionOpenBaseNotMonopolyChecked = false;
 	bool ActionXMLSaveBLOBToFileChecked   = false;
@@ -469,7 +532,7 @@ int main(int argc, char* argv[])
 					break;
 				}
 				case cmd_export_to_xml: {
-					T1CD_cmd_export_to_xml(base1CD, pc, mess);	
+					T1CD_cmd_export_to_xml(base1CD, pc, mess);
 					break;
 				}
 				case cmd_save_config: {
@@ -483,19 +546,23 @@ int main(int argc, char* argv[])
 				case cmd_save_vendors_configs: {
 					T1CD_cmd_save_vendors_configs(base1CD, pc, mess);
 					break;
-				}	
+				}
 				case cmd_save_all_configs: {
 					T1CD_cmd_save_all_configs(base1CD, pc, mess);
 					break;
-				}	
+				}
 				case cmd_save_depot_config: {
-					T1CD_cmd_save_depot_config(base1CD, pc, mess);		
+					T1CD_cmd_save_depot_config(base1CD, pc, mess);
 					break;
 				}
 				case cmd_save_depot_config_part:{
 					T1CD_cmd_save_depot_config_part(base1CD, pc, mess);
 					break;
-				}	
+				}
+				case cmd_export_to_binary: {
+					T1CD_cmd_export_to_binary(base1CD, pc, mess);
+					break;
+				}
 			}
 		}
 		catch(String& s)

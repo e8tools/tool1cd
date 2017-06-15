@@ -41,7 +41,9 @@ CommandDefinition CommandParse::definitions[] =
 	{"dpc",                cmd_save_depot_config_part, 2, ""}, // 28
 	{"dumppartdepotconfig",cmd_save_depot_config_part, 2, ""}, // 29
 	{"l",                  cmd_logfile,                1, ""}, // 30
-	{"logfile",            cmd_logfile,                1, ""} // 31
+	{"logfile",            cmd_logfile,                1, ""}, // 31
+	{"eb",                 cmd_export_to_binary,       2, ""}, // 32
+	{"exporttobinary",     cmd_export_to_binary,       2, ""}, // 33
 };
 
 
