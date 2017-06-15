@@ -25,6 +25,7 @@ enum Command
 	cmd_save_depot_config_part, // частично сохранить конфигурацию хранилища в каталог
 	cmd_logfile,                // записывать лог-файл
 	cmd_export_to_binary,       // выгрузить таблицы в двоичные файлы по заданному фильтру
+	cmd_import_from_binary,     // загрузить таблицы из двоичных файлов, выгруженных экспортом
 };
 
 struct CommandDefinition

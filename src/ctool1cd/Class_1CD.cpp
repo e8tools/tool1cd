@@ -5627,67 +5627,50 @@ void Table::export_table(const String &path) const
 }
 
 //---------------------------------------------------------------------------
-void Table::import_table(String path)
+void Table::import_table(const String &path)
 {
-	String dir;
-
-	dir = path + "\\" + name;
-	if(!DirectoryExists(dir))
-	{
+	boost::filesystem::path dir(static_cast<string>(path));
+	dir /= name;
+	if (!boost::filesystem::exists(dir)) {
 		return;
 	}
-	import_table2(dir);
-}
+	if (!boost::filesystem::is_directory(dir)) {
+		return;
+	}
 
-//---------------------------------------------------------------------------
-void Table::import_table2(String path)
-{
 	TFileStream* f;
 	bool fopen;
-	String dir;
-	export_import_table_root* root;
 	v8ob* ob;
-
-	String str;
-	char* buf;
-	uint32_t i;
 
 	bool descr_changed = false;
 
-	if(!DirectoryExists(path))
-	{
-		return;
-	}
-	dir = path + "\\";
-
 	try
 	{
-		f = new TFileStream(dir + "root", fmOpenRead);
+		f = new TFileStream((dir / "root").string(), fmOpenRead);
 	}
 	catch(...)
 	{
 		if(msreg) msreg->AddMessage_("Ошибка открытия файла импорта таблицы root", msWarning,
 			"Таблица", name,
-			"Файл", dir + "root");
+			"Файл", (dir / "root").string());
 		return;
 	}
-	root = new export_import_table_root;
-	f->Read(root, sizeof(export_import_table_root));
+	export_import_table_root root;
+	f->Read(&root, sizeof(export_import_table_root));
 	delete f;
 
-	if(root->has_data)
-	{
+	if(root.has_data) {
 		fopen = false;
 		try
 		{
-			f = new TFileStream(dir + "data", fmOpenRead);
+			f = new TFileStream((dir / "data").string(), fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
 		{
 			if(msreg) msreg->AddMessage_("Ошибка открытия файла импорта таблицы data", msWarning,
 				"Таблица", name,
-				"Файл", dir + "data");
+				"Файл", (dir / "data").string());
 		}
 		if(fopen)
 		{
@@ -5697,25 +5680,24 @@ void Table::import_table2(String path)
 			}
 			file_data->setdata(f);
 			ob = (v8ob*)base->getblock_for_write(file_data->block, true);
-			ob->version.version_1 = root->data_version_1;
-			ob->version.version_2 = root->data_version_2;
+			ob->version.version_1 = root.data_version_1;
+			ob->version.version_2 = root.data_version_2;
 			delete f;
 		}
 	}
 
-	if(root->has_blob)
-	{
+	if(root.has_blob) {
 		fopen = false;
 		try
 		{
-			f = new TFileStream(dir + "blob", fmOpenRead);
+			f = new TFileStream((dir / "blob").string(), fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
 		{
 			if(msreg) msreg->AddMessage_("Ошибка открытия файла импорта таблицы blob", msWarning,
 				"Таблица", name,
-				"Файл", dir + "blob");
+				"Файл", (dir / "blob").string());
 		}
 		if(fopen)
 		{
@@ -5725,25 +5707,24 @@ void Table::import_table2(String path)
 			}
 			file_blob->setdata(f);
 			ob = (v8ob*)base->getblock_for_write(file_blob->block, true);
-			ob->version.version_1 = root->blob_version_1;
-			ob->version.version_2 = root->blob_version_2;
+			ob->version.version_1 = root.blob_version_1;
+			ob->version.version_2 = root.blob_version_2;
 			delete f;
 		}
 	}
 
-	if(root->has_index)
-	{
+	if(root.has_index) {
 		fopen = false;
 		try
 		{
-			f = new TFileStream(dir + "index", fmOpenRead);
+			f = new TFileStream((dir / "index").string(), fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
 		{
 			if(msreg) msreg->AddMessage_("Ошибка открытия файла импорта таблицы index", msWarning,
 				"Таблица", name,
-				"Файл", dir + "index");
+				"Файл", (dir / "index").string());
 		}
 		if(fopen)
 		{
@@ -5753,38 +5734,38 @@ void Table::import_table2(String path)
 			}
 			file_index->setdata(f);
 			ob = (v8ob*)base->getblock_for_write(file_index->block, true);
-			ob->version.version_1 = root->index_version_1;
-			ob->version.version_2 = root->index_version_2;
+			ob->version.version_1 = root.index_version_1;
+			ob->version.version_2 = root.index_version_2;
 			delete f;
 		}
 	}
 
-	if(descr_changed) if(root->has_descr)
+	if (descr_changed && root.has_descr)
 	{
 		fopen = false;
 		try
 		{
-			f = new TFileStream(dir + "descr", fmOpenRead);
+			f = new TFileStream((dir / "descr").string(), fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
 		{
 			if(msreg) msreg->AddMessage_("Ошибка открытия файла импорта таблицы descr", msWarning,
-				"Файл", dir + "descr");
+				"Файл", (dir / "descr").string());
 		}
 		if(fopen)
 		{
 			if(!descr_table) descr_table = new v8object(base); // вообще, если descr_table == NULL, то это огромная ошибка!
 			ob = (v8ob*)base->getblock_for_write(descr_table->get_block_number(), true);
-			ob->version.version_1 = root->descr_version_1;
-			ob->version.version_2 = root->descr_version_2;
+			ob->version.version_1 = root.descr_version_1;
+			ob->version.version_2 = root.descr_version_2;
 
-			i = f->GetSize();
-			buf = new char[i + 2];
+			auto i = f->GetSize();
+			char *buf = new char[i + 2];
 			f->Read(buf, i);
 			buf[i] =0;
 			buf[i + 1] =0;
-			str = String((WCHART*)buf);
+			String str((WCHART*)buf);
 			delete[] buf;
 			delete f;
 
@@ -5792,8 +5773,7 @@ void Table::import_table2(String path)
 			if(i == 0)
 			{
 				if(msreg) msreg->AddMessage_("Ошибка поиска раздела Files в файле импорта таблицы descr", msWarning,
-					"Файл", dir + "descr");
-				delete root;
+					"Файл", (dir / "descr").string());
 				return;
 			}
 			str.SetLength(i - 1);
@@ -5808,12 +5788,10 @@ void Table::import_table2(String path)
 
 		}
 
-
 	}
 
 	base->flush();
 
-	delete root;
 }
 
 //---------------------------------------------------------------------------

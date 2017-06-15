@@ -44,6 +44,8 @@ CommandDefinition CommandParse::definitions[] =
 	{"logfile",            cmd_logfile,                1, ""}, // 31
 	{"eb",                 cmd_export_to_binary,       2, ""}, // 32
 	{"exporttobinary",     cmd_export_to_binary,       2, ""}, // 33
+	{"ib",                 cmd_import_from_binary,     2, ""}, // 34
+	{"importfrombinary",   cmd_import_from_binary,     2, ""}, // 35
 };
 
 

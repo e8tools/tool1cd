@@ -145,7 +145,7 @@ void T1CD_cmd_export_to_xml(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
 void T1CD_cmd_export_to_binary(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
 {
 	if (!base1CD.is_open()) {
-		mess.AddError("Попытка выгрузки таблиц в XML без открытой базы.");
+		mess.AddError("Попытка выгрузки таблиц без открытой базы.");
 		return;
 	}
 
@@ -172,7 +172,7 @@ void T1CD_cmd_export_to_binary(T_1CD& base1CD, ParsedCommand& pc, Messenger& mes
 
 	int k = filters.Count();
 	if (k == 0) {
-		mess.AddError("Список таблиц для выгрузки в XML пуст.");
+		mess.AddError("Список таблиц для выгрузки пуст.");
 		return;
 	}
 
@@ -204,6 +204,70 @@ void T1CD_cmd_export_to_binary(T_1CD& base1CD, ParsedCommand& pc, Messenger& mes
 	}
 
 } // T1CD_cmd_export_to_binary
+
+void T1CD_cmd_import_from_binary(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
+{
+	if (!base1CD.is_open()) {
+		mess.AddError("Попытка загрузки таблиц без открытой базы.");
+		return;
+	}
+
+	boost::filesystem::path root_path(static_cast<string>(pc.param1));
+
+	Sysutils::TStringBuilder filter(pc.param2);
+	filter.Replace("*", ".*");
+	filter.Replace("?", ".");
+	filter.Replace(" ", "\n");
+	filter.Replace("\t", "\n");
+	filter.Replace(",", "\n");
+	filter.Replace(";", "\n");
+
+	TStringList filters;
+	filters.SetText(filter.ToString());
+
+	for (int m = filters.Count() - 1; m >= 0; m--) {
+		if (filters[m].Length() == 0) {
+			filters.Delete(m);
+		} else {
+			filters[m] = String("^") + filters[m].UpperCase() + "$";
+		}
+	}
+
+	int k = filters.Count();
+	if (k == 0) {
+		mess.AddError("Список таблиц для загрузки пуст.");
+		return;
+	}
+
+	boost::regex expr[k];
+	for (int m = 0; m < k; m++) {
+		expr[m] = boost::regex(static_cast<string>(filters[m]));
+	}
+
+	for (int j = 0; j < base1CD.get_numtables(); j++) {
+
+		Table *tbl = base1CD.gettable(j);
+
+		bool found = false;
+
+		for (int m = 0; m < k; m++) {
+			if (regex_match(static_cast<string>(tbl->getname().UpperCase()), expr[m])) {
+				found = true;
+				break;
+			}
+		}
+
+		if (found) {
+			if (!tbl->get_numindexes()) {
+				tbl->fillrecordsindex();
+			}
+			tbl->import_table(root_path.string());
+			mess.AddMessage_("Выполнен импорт таблицы из файла.", msSuccesfull, "Таблица", tbl->getname(), "Каталог", root_path.string());
+		}
+	}
+
+} // T1CD_cmd_export_to_binary
+
 
 //---------------------------------------------------------------------------
 //cmd_save_config
@@ -561,6 +625,10 @@ int main(int argc, char* argv[])
 				}
 				case cmd_export_to_binary: {
 					T1CD_cmd_export_to_binary(base1CD, pc, mess);
+					break;
+				}
+				case cmd_import_from_binary: {
+					T1CD_cmd_import_from_binary(base1CD, pc, mess);
 					break;
 				}
 			}
