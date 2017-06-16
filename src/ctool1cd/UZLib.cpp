@@ -8,19 +8,12 @@
 #include "UZLib.h"
 
 //---------------------------------------------------------------------------
-// warning C4068: unknown pragma in VC++
 
 #if !defined(_WIN32)
 #pragma package(smart_init)
 #endif
 
-//const int CHUNKSIZE = 8192;
 const int CHUNKSIZE = 16384;
-//const int CHUNKSIZE = 32768;
-//const int CHUNKSIZE = 65536;
-//const int CHUNKSIZE = 131072;
-//const int CHUNKSIZE = 262144;
-//const int CHUNKSIZE = 524288;
 
 #ifndef DEF_MEM_LEVEL
 #	if MAX_MEM_LEVEL >= 8
@@ -29,41 +22,6 @@ const int CHUNKSIZE = 16384;
 		const int DEF_MEM_LEVEL = MAX_MEM_LEVEL
 #	endif
 #endif
-
-/*
-void ZInflateStream_Old(TStream* src, TStream* dst)
-{
-	z_stream strm;
-	int ret;
-	uintmax_t srcSize;
-
-	unsigned char srcBuf[CHUNKSIZE] = {0};
-	unsigned char dstBuf[CHUNKSIZE] = {0};
-
-	strm.zalloc   = Z_NULL;
-	strm.zfree    = Z_NULL;
-	strm.opaque   = Z_NULL;
-	strm.avail_in = 0;
-	strm.next_in  = Z_NULL;
-
-	ret = inflateInit2(&strm, -MAX_WBITS);
-
-	srcSize = src->GetSize();
-
-	src->Read(srcBuf, srcSize);
-	strm.avail_in  = srcSize;
-	strm.avail_out = CHUNKSIZE;
-	strm.next_in   = srcBuf;
-	strm.next_out  = dstBuf;
-
-	ret = inflate(&strm, Z_NO_FLUSH);
-
-	(void)inflateEnd(&strm);
-
-	dst->Write(dstBuf, strm.total_out);
-
-}
-*/
 
 //---------------------------------------------------------------------------
 bool ZDeflateStream(TStream* src, TStream* dst)
@@ -120,6 +78,8 @@ bool ZDeflateStream(TStream* src, TStream* dst)
 
 	// clean up and return
 	(void)deflateEnd(&strm);
+
+	return true;
 }
 
 //---------------------------------------------------------------------------
@@ -236,8 +196,6 @@ bool ZInflateStream(TStream* src, TStream* dst)
 			case Z_NEED_DICT:
 			{
 				ret = Z_DATA_ERROR;     /* and fall through */
-				free(srcBuf);
-				free(dstBuf);
 			}
 			case Z_DATA_ERROR:
 			case Z_MEM_ERROR:
@@ -263,6 +221,8 @@ bool ZInflateStream(TStream* src, TStream* dst)
 
 	free(srcBuf);
 	free(dstBuf);
+
+	return true;
 }
 
 
