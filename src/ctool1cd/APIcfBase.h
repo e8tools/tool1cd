@@ -5,10 +5,13 @@
 #include <System.Classes.hpp>
 #include <map>
 #include <set>
+#include <limits>
 
 #include "Zip.h"
+#include "UZLib.h"
 
-//#pragma package(smart_init)
+#pragma comment (lib, "zlibstatic.lib")
+
 
 #ifndef _DELPHI_STRING_UNICODE
 	const char str_cfu[] = ".cfu";
@@ -25,6 +28,15 @@
 	const wchar_t str_erf[] = L".erf";
 	const wchar_t str_backslash[] = L"\\";
 #endif
+
+// массив для преобразования числа в шестнадцатиричную строку
+const char _BUFHEX[] = "0123456789abcdef";
+
+// шаблон заголовка блока
+const char _BLOCK_HEADER_TEMPLATE[] = "\r\n00000000 00000000 00000000 \r\n";
+const char _EMPTY_CATALOG_TEMPLATE[16] = {'\xff','\xff','\xff','\x7f',0,2,0,0,0,0,0,0,0,0,0,0};
+
+const int32_t LAST_BLOCK = std::numeric_limits<int>::max();
 
 //---------------------------------------------------------------------------
 struct v8header_struct{
