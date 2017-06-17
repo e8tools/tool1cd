@@ -42,5 +42,24 @@ void Messenger::AddMessage(const String& message, const MessageState mstate, TSt
 void Messenger::setlogfile(String _logfile)
 {
 	logfile = System::Ioutils::TPath::GetFullPath(_logfile);
-	if(FileExists(logfile)) DeleteFile(logfile);
+	if(FileExists(logfile)) {
+		DeleteFile(logfile);
+	}
+}
+
+Messenger& CurrentMessageRegistrator(Messenger* messageregistrator)
+{
+	static Messenger* messreg = nullptr;
+
+	if(!messageregistrator)	{
+		if(!messreg) {
+			messreg = new Messenger();
+		}
+	}
+	else {
+		delete messreg;
+		messreg = messageregistrator;
+	}
+
+	return *messreg;
 }

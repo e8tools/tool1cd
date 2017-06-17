@@ -5,7 +5,7 @@
 
 #include "vector"
 
-#include "MessageRegistration.h"
+#include "Messenger.h"
 #include "APIcfBase.h"
 #include "db_ver.h"
 #include "Parse_tree.h"
@@ -121,7 +121,6 @@ class v8object
 friend Table;
 friend T_1CD;
 private:
-	MessageRegistrator* err;
 	T_1CD* base;
 
 	uint64_t len;               // длина объекта. Для типа таблицы свободных страниц - количество свободных блоков
