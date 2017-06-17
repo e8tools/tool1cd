@@ -579,9 +579,8 @@ public:
 	void restore_edit_value(uint32_t phys_numrecord, int32_t numfield);
 	void set_rec_type(uint32_t phys_numrecord, changed_rec_type crt);
 
-	void export_table(String path);
-	void import_table(String path);
-	void import_table2(String path);
+	void export_table(const String &path) const;
+	void import_table(const String &path);
 
 	void delete_record(uint32_t phys_numrecord); // удаление записи
 	void insert_record(char* rec); // добавление записи
