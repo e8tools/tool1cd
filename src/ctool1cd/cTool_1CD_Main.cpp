@@ -21,7 +21,6 @@ using namespace std;
 TMultiReadExclusiveWriteSynchronizer* tr_syn = new TMultiReadExclusiveWriteSynchronizer();
 
 //---------------------------------------------------------------------------
-MessageRegistrator* msreg;
 const int TEMP_BUFFER_SIZE = 4096;
 char temp[TEMP_BUFFER_SIZE];
 
@@ -371,19 +370,16 @@ void T1CD_cmd_save_depot_config_part(T_1CD& base1CD, ParsedCommand& pc, Messenge
 // основная точка входа утилиты
 int main(int argc, char* argv[])
 {
-	Messenger mess; // регистратор сообщений
+	Messenger& mess = CurrentMessageRegistrator(); // регистратор сообщений
 	int i;
-	
-	
+
 	String f, v;
 	
-	
-
 	bool ActionOpenBaseNotMonopolyChecked = false;
 	bool ActionXMLSaveBLOBToFileChecked   = false;
 	bool ActionXMLUnpackBLOBChecked       = true;
 
-	msreg = &mess;
+	//msreg = &mess;
 
 	CommandParse comm(argv, argc, &mess);
 

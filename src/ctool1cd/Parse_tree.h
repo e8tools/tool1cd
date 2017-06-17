@@ -6,7 +6,7 @@
 #pragma hdrstop
 
 #include "NodeTypes.h"
-#include "MessageRegistration.h"
+#include "Messenger.h"
 
 class tree
 {

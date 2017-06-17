@@ -17,4 +17,6 @@ public:
 	void setnoverbose(bool nv){noverbose = nv;};
 };
 
+Messenger& CurrentMessageRegistrator(Messenger* messageregistrator = nullptr);
+
 #endif // MESSENGER_H_INCLUDED
