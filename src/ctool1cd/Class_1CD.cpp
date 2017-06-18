@@ -7592,7 +7592,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 		if(!tables[j]->getname().CompareIC("SELFREFS")) table_selfrefs = tables[j];
 		if(!tables[j]->getname().CompareIC("OUTREFS")) table_outrefs = tables[j];
 
-		if(j % 10 == 0) if(msreg) msreg->Status(String("Чтение таблиц ") + j);
+		if(j % 10 == 0) msreg_m.Status(String("Чтение таблиц ") + j);
 		j++;
 	}
 	msreg_m.Status(String("Чтение таблиц ") + j);
@@ -7618,7 +7618,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	{
 		if(!table_depot && !table_users && !table_objects && !table_versions && !table_labels && !table_history && !table_lastestversions && !table_externals && !table_selfrefs && !table_outrefs)
 		{
-			if(msreg) msreg->AddMessage("База не является информационной базой 1С", msInfo);
+			msreg_m.AddMessage("База не является информационной базой 1С", msInfo);
 		}
 		else
 		{
@@ -7757,7 +7757,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		tr = NULL;
 
 		#ifdef _DEBUG
-		if(msreg) msreg->AddDebugMessage("Найдена версия контейнера конфигурации поставщика", msInfo,
+		msreg_m.AddDebugMessage("Найдена версия контейнера конфигурации поставщика", msInfo,
 			"Таблица", tf->t->getname(),
 			"Имя файла", tf->name,
 			"Версия", i);
@@ -8361,7 +8361,7 @@ bool T_1CD::test_stream_format()
 		result = result && res;
 	}
 
-	msreg->Status("");
+	msreg_m.Status("");
 	return result;
 }
 
@@ -9168,7 +9168,7 @@ bool T_1CD::test_list_of_tables()
 
 								if(!table_found)
 								{
-									if(msreg) msreg->AddMessage_("Отсутствует таблица", msWarning,
+									msreg_m.AddMessage_("Отсутствует таблица", msWarning,
 										"Имя таблицы", _tabname);
 									result = false;
 								}
@@ -9751,7 +9751,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	else if(s.CompareIC("0700000000000000") == 0) depotVer = depotVer7;
 	else
 	{
-		msreg->AddMessage_("Неизвестная версия хранилища", msError,
+		msreg_m.AddMessage_("Неизвестная версия хранилища", msError,
 			"Версия хранилища", s);
 		delete[] rec;
 		return false;
@@ -10508,7 +10508,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	else if(s.CompareIC("0600000000000000") == 0) depotVer = depotVer6;
 	else
 	{
-		msreg->AddMessage_("Неизвестная версия хранилища", msError,
+		msreg_m.AddMessage_("Неизвестная версия хранилища", msError,
 			"Версия хранилища", s);
 		delete[] rec;
 		return false;
@@ -10560,7 +10560,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 	if(n < 2)
 	{
-		if(msreg) msreg->AddMessage_("В хранилище не найдены запрошенные версии конфигурации", msError
+		msreg_m.AddMessage_("В хранилище не найдены запрошенные версии конфигурации", msError
 			, "Версия с", ver_begin
 			, "Версия по", ver_end);
 		delete[] rec;
