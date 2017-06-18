@@ -165,7 +165,7 @@ CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mes
 	int numdef = sizeof(definitions) / sizeof(CommandDefinition);
 	String k, p;
 
-	mess = _mess;
+	mess.AddMessageRegistrator(_mess);
 
 	filename = "";
 	for (int i = 1; i < nArgs; i++)
@@ -209,7 +209,7 @@ CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mes
 					}
 					else
 					{
-						mess->AddMessage_("Недостаточно параметров ключа командной строки.", msError,
+						mess.AddMessage_("Недостаточно параметров ключа командной строки.", msError,
 							"Ключ", k);
 						// Ошибка! Недостаточно параметров ключа!
 					}
@@ -236,7 +236,7 @@ CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mes
 			else
 			{
 				// Ошибка! Неизвестный ключ!
-				mess->AddMessage_("Неизвестный ключ командной строки.", msError,
+				mess.AddMessage_("Неизвестный ключ командной строки.", msError,
 					"Ключ", k);
 			}
 
@@ -246,7 +246,7 @@ CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mes
 			if(filename.Length() > 0)
 			{
 				// Ошибка! Имя файла базы уже было в командной строке!
-				mess->AddMessage_("Повторное имя файла базы в командной строке.", msError,
+				mess.AddMessage_("Повторное имя файла базы в командной строке.", msError,
 					"Имя файла", filename,
 					"Повторное имя файла", p);
 			}
@@ -269,5 +269,13 @@ String& CommandParse::getfilename()
 String& CommandParse::gethelpstring()
 {
 	return helpstring;
+}
+
+void CommandParse::AddMessageRegistrator(MessageRegistrator* messageregistrator) {
+	mess.AddMessageRegistrator(messageregistrator);
+}
+
+void CommandParse::RemoveMessageRegistrator() {
+	mess.RemoveMessageRegistrator();
 }
 
