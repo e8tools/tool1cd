@@ -784,8 +784,83 @@ friend class index;
 friend Field;
 public:
 	static bool recoveryMode;
+	char* locale; // код языка базы
+	bool is_infobase; // признак информационной базы
+	bool is_depot; // признак хранилища конфигурации
+
+	// Таблицы информационной базы
+	Table* table_config;
+	Table* table_configsave;
+	Table* table_params;
+	Table* table_files;
+	Table* table_dbschema;
+	Table* table_configcas;
+	Table* table_configcassave;
+	Table* table__extensionsinfo;
+
+	// таблицы - хранилища файлов
+	ConfigStorageTableConfig* cs_config;
+	ConfigStorageTableConfigSave* cs_configsave;
+
+	// Таблицы хранилища конфигураций
+	Table* table_depot;
+	Table* table_users;
+	Table* table_objects;
+	Table* table_versions;
+	Table* table_labels;
+	Table* table_history;
+	Table* table_lastestversions;
+	Table* table_externals;
+	Table* table_selfrefs;
+	Table* table_outrefs;
+
+	String ver;
+
+	std::vector<SupplierConfig> supplier_configs; // конфигурации поставщика
+	bool supplier_configs_defined; // признак, что был произведен поиск конфигураций поставщика
+
+	T_1CD(String _filename, MessageRegistrator* mess = nullptr, bool monopoly = true);
+	T_1CD();
+	~T_1CD();
+	bool is_open();
+	int32_t get_numtables();
+	Table* gettable(int32_t numtable);
+	db_ver getversion();
+
+	bool save_config(String filename);
+	bool save_configsave(String filename);
+	void find_supplier_configs();
+	bool save_supplier_configs(uint32_t numcon, const String& filename);
+	bool save_depot_config(const String& _filename, int32_t ver = 0);
+	bool save_part_depot_config(const String& _filename, int32_t ver_begin, int32_t ver_end);
+	int32_t get_ver_depot_config(int32_t ver); // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
+	bool save_config_ext(const String& _filename, const TGUID& uid, const String& hashname);
+	bool save_config_ext_db(const String& _filename, const String& hashname);
+
+	Field* get_field(Table* tab, String fieldname);
+	class index* get_index(Table* tab, String indexname);
+
+	bool get_readonly();
+	void set_readonly(bool ro);
+	void flush();
+
+	bool test_stream_format();
+	bool test_list_of_tables(); // проверка списка таблиц (по DBNames)
+#ifndef PublicRelease
+	void find_lost_objects();
+	void find_and_save_lost_objects();
+	bool create_table(String path); // создание таблицы из файлов импорта таблиц
+	bool delete_table(Table* tab);
+	bool delete_object(v8object* ob);
+	bool replaceTREF(String mapfile); // замена значений полей ...TREF во всех таблицах базы
+	void find_and_create_lost_tables();
+	void restore_DATA_allocation_table(Table* tab);
+	bool test_block_by_template(uint32_t testblock, char* tt, uint32_t num, int32_t rlen, int32_t len);
+#endif //#ifdef PublicRelease
+	String& getfilename(){return filename;};
+	uint32_t getpagesize(){return pagesize;};
 private:
-	MessageRegistrator* err;
+	Registrator msreg_m;
 	String filename;
 	TFileStream* fs;
 
@@ -829,83 +904,6 @@ private:
 
 	void pagemapfill();
 	String pagemaprec_presentation(pagemaprec& pmr);
-public:
-	char* locale; // код языка базы
-	bool is_infobase; // признак информационной базы
-	bool is_depot; // признак хранилища конфигурации
-
-	// Таблицы информационной базы
-	Table* table_config;
-	Table* table_configsave;
-	Table* table_params;
-	Table* table_files;
-	Table* table_dbschema;
-	Table* table_configcas;
-	Table* table_configcassave;
-	Table* table__extensionsinfo;
-
-	// таблицы - хранилища файлов
-	ConfigStorageTableConfig* cs_config;
-	ConfigStorageTableConfigSave* cs_configsave;
-
-	// Таблицы хранилища конфигураций
-	Table* table_depot;
-	Table* table_users;
-	Table* table_objects;
-	Table* table_versions;
-	Table* table_labels;
-	Table* table_history;
-	Table* table_lastestversions;
-	Table* table_externals;
-	Table* table_selfrefs;
-	Table* table_outrefs;
-
-	String ver;
-
-	std::vector<SupplierConfig> supplier_configs; // конфигурации поставщика
-	bool supplier_configs_defined; // признак, что был произведен поиск конфигураций поставщика
-
-	T_1CD(String _filename, MessageRegistrator* _err = NULL, bool monopoly = true);
-	T_1CD();
-	~T_1CD();
-	bool is_open();
-	int32_t get_numtables();
-	Table* gettable(int32_t numtable);
-	db_ver getversion();
-
-	bool save_config(String filename);
-	bool save_configsave(String filename);
-	void find_supplier_configs();
-	bool save_supplier_configs(uint32_t numcon, const String& filename);
-	bool save_depot_config(const String& _filename, int32_t ver = 0);
-	bool save_part_depot_config(const String& _filename, int32_t ver_begin, int32_t ver_end);
-	int32_t get_ver_depot_config(int32_t ver); // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
-	bool save_config_ext(const String& _filename, const TGUID& uid, const String& hashname);
-	bool save_config_ext_db(const String& _filename, const String& hashname);
-
-	Field* get_field(Table* tab, String fieldname);
-	class index* get_index(Table* tab, String indexname);
-
-	bool get_readonly();
-	void set_readonly(bool ro);
-	void flush();
-
-	bool test_stream_format();
-	bool test_list_of_tables(); // проверка списка таблиц (по DBNames)
-#ifndef PublicRelease
-	void find_lost_objects();
-	void find_and_save_lost_objects();
-	bool create_table(String path); // создание таблицы из файлов импорта таблиц
-	bool delete_table(Table* tab);
-	bool delete_object(v8object* ob);
-	bool replaceTREF(String mapfile); // замена значений полей ...TREF во всех таблицах базы
-	void find_and_create_lost_tables();
-	void restore_DATA_allocation_table(Table* tab);
-	bool test_block_by_template(uint32_t testblock, char* tt, uint32_t num, int32_t rlen, int32_t len);
-#endif //#ifdef PublicRelease
-	String& getfilename(){return filename;};
-	uint32_t getpagesize(){return pagesize;};
-
 };
 //---------------------------------------------------------------------------
 // Известные версии хранилища конфигурации
