@@ -3460,8 +3460,10 @@ String Field::get_XML_presentation(char* rec, bool ignore_showGUID)
 		case tf_binary:
 			if(length == 16 && (showGUID || ignore_showGUID))
 			{
-				if(showGUIDasMS) return GUIDasMS(fr);
-				else return GUIDas1C(fr);
+				if(showGUIDasMS) 
+					return GUIDasMS(fr);
+				else 
+					return GUIDas1C(fr);
 			}
 			else
 			{
@@ -6881,21 +6883,34 @@ String Table::get_file_name_for_field(int32_t num_field, char* rec, uint32_t num
 String Table::get_file_name_for_record(char* rec)
 {
 	String s("");
+	String tmp_str("");
 	int32_t i;
+	int32_t num_rec;
+	Field* tmp_field;
 	class index* ind;
 
 	if(num_indexes)
 	{
 		ind = indexes[0];
-		for(i = 0; i < num_indexes; i++) if(indexes[i]->is_primary)
+		for(i = 0; i < num_indexes; i++) 
+			if(indexes[i]->is_primary)
+			{
+				ind = indexes[i];
+				break;
+			}
+		
+		num_rec = ind->num_records;
+
+		for(i = 0; i < num_rec; i++)
 		{
-			ind = indexes[i];
-			break;
-		}
-		for(i = 0; i < ind->num_records; i++)
-		{
-			if(s.GetLength()) s += "_";
-			s += ind->records[i].field->get_XML_presentation(rec);
+			if(s.GetLength()) 
+				s += "_";
+
+			tmp_field = ind->records[i].field;
+			tmp_str = tmp_field->get_XML_presentation(rec);
+
+			s += tmp_str;
+
 		}
 	}
 

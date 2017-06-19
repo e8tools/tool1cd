@@ -14,13 +14,7 @@
 #pragma package(smart_init)
 #endif
 
-//const int CHUNKSIZE = 8192;
 const int CHUNKSIZE = 16384;
-//const int CHUNKSIZE = 32768;
-//const int CHUNKSIZE = 65536;
-//const int CHUNKSIZE = 131072;
-//const int CHUNKSIZE = 262144;
-//const int CHUNKSIZE = 524288;
 
 #ifndef DEF_MEM_LEVEL
 #	if MAX_MEM_LEVEL >= 8
@@ -120,6 +114,7 @@ bool ZDeflateStream(TStream* src, TStream* dst)
 
 	// clean up and return
 	(void)deflateEnd(&strm);
+	return true;
 }
 
 //---------------------------------------------------------------------------
@@ -216,11 +211,7 @@ bool ZInflateStream(TStream* src, TStream* dst)
 
 	/* decompress until deflate stream ends or end of file */
 	do {
-		//strm.avail_in = fread(in, 1, CHUNKSIZE, source);
-
-		srcSize = src->GetSize();    // определяем размер данных
-		src->Read(srcBuf, srcSize);  // читаем из потока в буфер данные
-		strm.avail_in = srcSize;
+		strm.avail_in = src->Read(static_cast<unsigned char *>(srcBuf), CHUNKSIZE);
 
 		if (strm.avail_in == 0) break;
 
@@ -236,8 +227,7 @@ bool ZInflateStream(TStream* src, TStream* dst)
 			case Z_NEED_DICT:
 			{
 				ret = Z_DATA_ERROR;     /* and fall through */
-				free(srcBuf);
-				free(dstBuf);
+				return false;
 			}
 			case Z_DATA_ERROR:
 			case Z_MEM_ERROR:
@@ -251,7 +241,7 @@ bool ZInflateStream(TStream* src, TStream* dst)
 			}
 
 			have = CHUNKSIZE - strm.avail_out;
-			dst->Write(dstBuf, have);
+			dst->Write(static_cast<unsigned char *>(dstBuf), have);
 
 		} while (strm.avail_out == 0);
 
@@ -263,6 +253,7 @@ bool ZInflateStream(TStream* src, TStream* dst)
 
 	free(srcBuf);
 	free(dstBuf);
+	return true;
 }
 
 

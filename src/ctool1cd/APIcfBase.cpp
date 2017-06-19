@@ -951,8 +951,12 @@ v8catalog::v8catalog(TStream* stream, bool _zipped, bool leave_stream) // соз
 	zipped = _zipped;
 	data = stream;
 	file = NULL;
-	if(!data->GetSize()) data->WriteBuffer(_empty_catalog_template, 16);
-	if(IsCatalog()) initialize();
+
+	if(!data->GetSize()) 
+		data->WriteBuffer(_empty_catalog_template, 16);
+
+	if(IsCatalog()) 
+		initialize();
 	else
 	{
 		first = NULL;
