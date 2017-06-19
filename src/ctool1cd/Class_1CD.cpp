@@ -7212,7 +7212,7 @@ bool T_1CD::getblock(void* buf, uint32_t block_number, int32_t blocklen)
 	if(blocklen < 0) blocklen = pagesize;
 	if(block_number >= length)
 	{
-		error("Попытка чтения блока за пределами файла.",
+		msreg_m.AddError("Попытка чтения блока за пределами файла.",
 			"Индекс блока", tohex(block_number),
 			"Всего блоков", tohex(length));
 		return false;
@@ -7228,7 +7228,7 @@ char*  T_1CD::getblock(uint32_t block_number)
 	if(!fs) return NULL;
 	if(block_number >= length)
 	{
-		error("Попытка чтения блока за пределами файла.",
+		msreg_m.AddError("Попытка чтения блока за пределами файла.",
 			"Индекс блока", tohex(block_number),
 			"Всего блоков", tohex(length));
 		return NULL;
@@ -7246,7 +7246,7 @@ char*  T_1CD::getblock_for_write(uint32_t block_number, bool read)
 	if(!fs) return NULL;
 	if(block_number > length)
 	{
-		error("Попытка получения блока за пределами файла базы.",
+		msreg_m.AddError("Попытка получения блока за пределами файла базы.",
 			"Индекс блока", tohex(block_number),
 			"Всего блоков", tohex(length));
 		return NULL;
@@ -7274,7 +7274,7 @@ Table* T_1CD::gettable(int32_t numtable)
 {
 	if(numtable >= num_tables)
 	{
-		error("Попытка получения таблицы по номеру, превышающему количество таблиц",
+		msreg_m.AddError("Попытка получения таблицы по номеру, превышающему количество таблиц",
 			"Количество таблиц", num_tables,
 			"Номер таблицы", numtable + 1);
 		return NULL;
@@ -7331,7 +7331,6 @@ void T_1CD::init()
 	pagemap  = nullptr;
 	version  = ver8_2_14_0;
 	pagesize = 0x1000;
-	err      = nullptr;
 	length   = 0;
 	readonly = true;
 }
@@ -7390,7 +7389,7 @@ T_1CD::~T_1CD()
 }
 
 //---------------------------------------------------------------------------
-T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
+T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 {
 	char* b;
 	uint32_t* table_blocks;
@@ -7398,6 +7397,8 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 	TMemoryStream* tstr;
 	root_80* root80;
 	root_81* root81;
+
+	msreg_m.AddMessageRegistrator(mess);
 
 	init();
 
@@ -7410,7 +7411,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 	}
 	catch(...)
 	{
-		error("Ошибка открытия файла базы (файл открыт другой программой?)");
+		msreg_m.AddError("Ошибка открытия файла базы (файл открыт другой программой?)");
 		fs = NULL;
 		return;
 	}
@@ -7420,7 +7421,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 
 	if(memcmp(&(cont->sig), SIG_CON, 8) != 0)
 	{
-		error("Файл не является базой 1С (сигнатура не равна \"1CDBMSV8\")");
+		msreg_m.AddError("Файл не является базой 1С (сигнатура не равна \"1CDBMSV8\")");
 		delete fs;
 		fs = NULL;
 		delete cont;
@@ -7479,7 +7480,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 	}
 	else
 	{
-		error("Неподдерживаемая версия базы 1С",
+		msreg_m.AddError("Неподдерживаемая версия базы 1С",
 			"Версия базы", ver);
 		delete fs;
 		fs = NULL;
@@ -7490,7 +7491,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 	length = fs->GetSize() / pagesize;
 	if((int64_t)length * pagesize != fs->GetSize())
 	{
-		error(String("Длина файла базы не кратна длине страницы (" + tohex(pagesize) + ")"),
+		msreg_m.AddError(String("Длина файла базы не кратна длине страницы (" + tohex(pagesize) + ")"),
 			"Длина файла", tohex(fs->GetSize()));
 		delete fs;
 		fs = NULL;
@@ -7503,7 +7504,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 
 	if(length != cont->length)
 	{
-		error("Длина файла в блоках и количество блоков в заголовке не равны",
+		msreg_m.AddError("Длина файла в блоках и количество блоков в заголовке не равны",
 			"Длина файла в блоках", length,
 			"Блоков в заголовке", cont->length);
 	}
@@ -7523,8 +7524,6 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 #else
 		strcpy(locale, root80->lang);
 #endif
-
-
 
 		num_tables = root80->numblocks;
 		table_blocks = &(root80->blocks[0]);
@@ -7550,8 +7549,6 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 #else
 		strcpy(locale, root81->lang);
 #endif
-
-
 
 		num_tables = root81->numblocks;
 		table_blocks = &(root81->blocks[0]);
@@ -7595,10 +7592,10 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 		if(!tables[j]->getname().CompareIC("SELFREFS")) table_selfrefs = tables[j];
 		if(!tables[j]->getname().CompareIC("OUTREFS")) table_outrefs = tables[j];
 
-		if(j % 10 == 0) if(msreg) msreg->Status(String("Чтение таблиц ") + j);
+		if(j % 10 == 0) msreg_m.Status(String("Чтение таблиц ") + j);
 		j++;
 	}
-	if(msreg) msreg->Status(String("Чтение таблиц ") + j);
+	msreg_m.Status(String("Чтение таблиц ") + j);
 	num_tables = j;
 
 	if(version >= ver8_3_8_0)
@@ -7608,45 +7605,45 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* _err, bool _monopoly)
 	}
 
 #ifdef getcfname
-	if(!table_config) error("Отсутствует таблица CONFIG");
+	if(!table_config) msreg_m.AddError("Отсутствует таблица CONFIG");
 #else
 #ifdef delic
-	if(!table_params) error("Отсутствует таблица PARAMS");
+	if(!table_params) msreg_m.AddError("Отсутствует таблица PARAMS");
 #ifdef delicfiles
-	if(!table_config) error("Отсутствует таблица FILES");
-	if(!table_config) error("Отсутствует таблица CONFIG");
+	if(!table_config) msreg_m.AddError("Отсутствует таблица FILES");
+	if(!table_config) msreg_m.AddError("Отсутствует таблица CONFIG");
 #endif
 #else
 	if(!table_config && !table_configsave && !table_params && !table_files && !table_dbschema)
 	{
 		if(!table_depot && !table_users && !table_objects && !table_versions && !table_labels && !table_history && !table_lastestversions && !table_externals && !table_selfrefs && !table_outrefs)
 		{
-			if(msreg) msreg->AddMessage("База не является информационной базой 1С", msInfo);
+			msreg_m.AddMessage("База не является информационной базой 1С", msInfo);
 		}
 		else
 		{
 			is_depot = true;
-			if(!table_depot) error("Отсутствует таблица DEPOT");
-			if(!table_users) error("Отсутствует таблица USERS");
-			if(!table_objects) error("Отсутствует таблица OBJECTS");
-			if(!table_versions) error("Отсутствует таблица VERSIONS");
-			if(!table_labels) error("Отсутствует таблица LABELS");
-			if(!table_history) error("Отсутствует таблица HISTORY");
-			if(!table_lastestversions) error("Отсутствует таблица LASTESTVERSIONS");
-			if(!table_externals) error("Отсутствует таблица EXTERNALS");
-			if(!table_selfrefs) error("Отсутствует таблица SELFREFS");
-			if(!table_outrefs) error("Отсутствует таблица OUTREFS");
+			if(!table_depot) msreg_m.AddError("Отсутствует таблица DEPOT");
+			if(!table_users) msreg_m.AddError("Отсутствует таблица USERS");
+			if(!table_objects) msreg_m.AddError("Отсутствует таблица OBJECTS");
+			if(!table_versions) msreg_m.AddError("Отсутствует таблица VERSIONS");
+			if(!table_labels) msreg_m.AddError("Отсутствует таблица LABELS");
+			if(!table_history) msreg_m.AddError("Отсутствует таблица HISTORY");
+			if(!table_lastestversions) msreg_m.AddError("Отсутствует таблица LASTESTVERSIONS");
+			if(!table_externals) msreg_m.AddError("Отсутствует таблица EXTERNALS");
+			if(!table_selfrefs) msreg_m.AddError("Отсутствует таблица SELFREFS");
+			if(!table_outrefs) msreg_m.AddError("Отсутствует таблица OUTREFS");
 			Field::showGUIDasMS = true;
 		}
 	}
 	else
 	{
 		is_infobase = true;
-		if(!table_config) error("Отсутствует таблица CONFIG");
-		if(!table_configsave) error("Отсутствует таблица CONFIGSAVE");
-		if(!table_params) error("Отсутствует таблица PARAMS");
-		if(!table_files) error("Отсутствует таблица FILES");
-		if(!table_dbschema) error("Отсутствует таблица DBSCHEMA");
+		if(!table_config) msreg_m.AddError("Отсутствует таблица CONFIG");
+		if(!table_configsave) msreg_m.AddError("Отсутствует таблица CONFIGSAVE");
+		if(!table_params) msreg_m.AddError("Отсутствует таблица PARAMS");
+		if(!table_files) msreg_m.AddError("Отсутствует таблица FILES");
+		if(!table_dbschema) msreg_m.AddError("Отсутствует таблица DBSCHEMA");
 	}
 #endif //#ifdef delic
 #endif //#ifdef getcfname
@@ -7732,7 +7729,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		}
 		catch(...)
 		{
-			error("Ошибка распаковки конфигурации поставщика",
+			msreg_m.AddError("Ошибка распаковки конфигурации поставщика",
 				"Таблица", tf->t->getname(),
 				"Имя", tf->name);
 			delete s;
@@ -7747,7 +7744,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		file = cat->GetFile("version");
 		if(!file)
 		{
-			error("Не найден файл version в конфигурации поставщика",
+			msreg_m.AddError("Не найден файл version в конфигурации поставщика",
 				"Таблица", tf->t->getname(),
 				"Имя файла", tf->name);
 			delete cat;
@@ -7760,7 +7757,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		tr = NULL;
 
 		#ifdef _DEBUG
-		if(msreg) msreg->AddDebugMessage("Найдена версия контейнера конфигурации поставщика", msInfo,
+		msreg_m.AddDebugMessage("Найдена версия контейнера конфигурации поставщика", msInfo,
 			"Таблица", tf->t->getname(),
 			"Имя файла", tf->name,
 			"Версия", i);
@@ -7771,7 +7768,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 			file = cat->GetFile("metadata");
 			if(!file)
 			{
-				error("Не найден каталог metadata в конфигурации поставщика",
+				msreg_m.AddError("Не найден каталог metadata в конфигурации поставщика",
 					"Таблица", tf->t->getname(),
 					"Имя файла", tf->name);
 				delete cat;
@@ -7780,7 +7777,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 			cat2 = file->GetCatalog();
 			if(!cat2)
 			{
-				error("Файл metadata неявляется каталогом в конфигурации поставщика",
+				msreg_m.AddError("Файл metadata неявляется каталогом в конфигурации поставщика",
 					"Таблица", tf->t->getname(),
 					"Имя файла", tf->name);
 				delete cat;
@@ -7793,7 +7790,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		file = cat2->GetFile("root");
 		if(!file)
 		{
-			error("Не найден файл root в конфигурации поставщика",
+			msreg_m.AddError("Не найден файл root в конфигурации поставщика",
 				"Таблица", tf->t->getname(),
 				"Имя файла", tf->name);
 			delete cat;
@@ -7808,7 +7805,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		file = cat2->GetFile(filenamemeta);
 		if(!file)
 		{
-			error("Не найден файл метаданных в конфигурации поставщика",
+			msreg_m.AddError("Не найден файл метаданных в конфигурации поставщика",
 				"Таблица", tf->t->getname(),
 				"Имя файла", tf->name,
 				"Имя мета", filenamemeta);
@@ -7817,7 +7814,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		}
 
 		#ifdef _DEBUG
-		if(msreg) msreg->AddDebugMessage("Найден файл метаданных в конфигурации поставщика", msInfo,
+		msreg_m.AddDebugMessage("Найден файл метаданных в конфигурации поставщика", msInfo,
 			"Таблица", tf->t->getname(),
 			"Имя файла", tf->name,
 			"Имя мета", filenamemeta);
@@ -7854,7 +7851,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 						_supplier = confinfo[14].get_value();
 						_version = confinfo[15].get_value();
 						#ifdef _DEBUG
-						if(msreg) msreg->AddDebugMessage("Неизвестная версия свойств конфигурации поставщика", msInfo,
+						msreg_m.AddDebugMessage("Неизвестная версия свойств конфигурации поставщика", msInfo,
 							"Таблица", tf->t->getname(),
 							"Имя файла", tf->name,
 							"Имя мета", filenamemeta,
@@ -7870,7 +7867,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 
 		if(i >= numnode)
 		{
-			error("Не найден узел Общие в метаданных конфигурации поставщика",
+			msreg_m.AddError("Не найден узел Общие в метаданных конфигурации поставщика",
 				"Таблица", tf->t->getname(),
 				"Имя файла", tf->name,
 				"Имя мета", filenamemeta);
@@ -7880,7 +7877,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		#ifdef _DEBUG
 		else
 		{
-			if(msreg) msreg->AddDebugMessage("Найдена конфигурация поставщика", msInfo,
+			msreg_m.AddDebugMessage("Найдена конфигурация поставщика", msInfo,
 				"Таблица", tf->t->getname(),
 				"Имя файла", tf->name,
 				"Имя", _name,
@@ -7901,7 +7898,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 	}
 	catch(...)
 	{
-		error("Произошла ошибка при разборе конфигурации поставщика",
+		msreg_m.AddError("Произошла ошибка при разборе конфигурации поставщика",
 			"Таблица", tf->t->getname(),
 			"Имя файла", tf->name);
 		delete cat;
@@ -7933,7 +7930,7 @@ bool T_1CD::save_supplier_configs(uint32_t numcon, const String& _filename)
 	}
 	catch(...)
 	{
-		error("Ошибка открытия файла конфигурации поставщика",
+		msreg_m.AddError("Ошибка открытия файла конфигурации поставщика",
 			"Имя файла", _filename);
 		delete f;
 		return false;
@@ -7945,7 +7942,7 @@ bool T_1CD::save_supplier_configs(uint32_t numcon, const String& _filename)
 	}
 	catch(...)
 	{
-		error("Ошибка распаковки файла конфигурации поставщика",
+		msreg_m.AddError("Ошибка распаковки файла конфигурации поставщика",
 			"Имя файла", _filename);
 		delete f;
 		delete _fs;
@@ -8005,10 +8002,10 @@ void T_1CD::find_lost_objects()
 					break;
 				}
 			}
-			if(!block_is_find) msreg->AddMessage_("Найден потерянный объект", msInfo, "Номер блока", tohex(i));
+			if(!block_is_find) msreg_m.AddMessage_("Найден потерянный объект", msInfo, "Номер блока", tohex(i));
 		}
 	}
-	msreg->AddMessage("Поиск потерянных объектов завершен", msSuccesfull);
+	msreg_m.AddMessage("Поиск потерянных объектов завершен", msSuccesfull);
 }
 #endif //#ifdef PublicRelease
 
@@ -8022,62 +8019,62 @@ bool T_1CD::test_stream_format()
 	// CONFIGSAVE
 	if(!table_config)
 	{
-		error("Ошибка тестирования. В базе нет таблицы CONFIG");
+		msreg_m.AddError("Ошибка тестирования. В базе нет таблицы CONFIG");
 		return false;
 	}
 
 	if(table_config->get_numfields() < 6)
 	{
-		error("Ошибка тестирования. В таблице CONFIG меньше 6 полей",
+		msreg_m.AddError("Ошибка тестирования. В таблице CONFIG меньше 6 полей",
 			"Кол-во полей", table_config->get_numfields());
 		return false;
 	}
 
 	if(table_config->get_numfields() > 7)
 	{
-		error("Ошибка тестирования. В таблице CONFIG больше 7 полей",
+		msreg_m.AddError("Ошибка тестирования. В таблице CONFIG больше 7 полей",
 			"Кол-во полей", table_config->get_numfields());
 		return false;
 	}
 
 	if(table_config->getfield(0)->getname().CompareIC("FILENAME"))
 	{
-		error("Ошибка тестирования. Первое поле таблицы CONFIG не FILENAME",
+		msreg_m.AddError("Ошибка тестирования. Первое поле таблицы CONFIG не FILENAME",
 			"Поле", table_config->getfield(0)->getname());
 		return false;
 	}
 
 	if(table_config->getfield(1)->getname().CompareIC("CREATION"))
 	{
-		error("Ошибка тестирования. Второе поле таблицы CONFIG не CREATION",
+		msreg_m.AddError("Ошибка тестирования. Второе поле таблицы CONFIG не CREATION",
 			"Поле", table_config->getfield(1)->getname());
 		return false;
 	}
 
 	if(table_config->getfield(2)->getname().CompareIC("MODIFIED"))
 	{
-		error("Ошибка тестирования. Третье поле таблицы CONFIG не MODIFIED",
+		msreg_m.AddError("Ошибка тестирования. Третье поле таблицы CONFIG не MODIFIED",
 			"Поле", table_config->getfield(2)->getname());
 		return false;
 	}
 
 	if(table_config->getfield(3)->getname().CompareIC("ATTRIBUTES"))
 	{
-		error("Ошибка тестирования. Четвертое поле таблицы CONFIG не ATTRIBUTES",
+		msreg_m.AddError("Ошибка тестирования. Четвертое поле таблицы CONFIG не ATTRIBUTES",
 			"Поле", table_config->getfield(3)->getname());
 		return false;
 	}
 
 	if(table_config->getfield(4)->getname().CompareIC("DATASIZE"))
 	{
-		error("Ошибка тестирования. Пятое поле таблицы CONFIG не DATASIZE",
+		msreg_m.AddError("Ошибка тестирования. Пятое поле таблицы CONFIG не DATASIZE",
 			"Поле", table_config->getfield(4)->getname());
 		return false;
 	}
 
 	if(table_config->getfield(5)->getname().CompareIC("BINARYDATA"))
 	{
-		error("Ошибка тестирования. Шестое поле таблицы CONFIG не BINARYDATA",
+		msreg_m.AddError("Ошибка тестирования. Шестое поле таблицы CONFIG не BINARYDATA",
 			"Поле", table_config->getfield(5)->getname());
 		return false;
 	}
@@ -8086,7 +8083,7 @@ bool T_1CD::test_stream_format()
 	{
 		if(table_config->getfield(6)->getname().CompareIC("PARTNO"))
 		{
-			error("Ошибка тестирования. Седьмое поле таблицы CONFIG не PARTNO",
+			msreg_m.AddError("Ошибка тестирования. Седьмое поле таблицы CONFIG не PARTNO",
 				"Поле", table_config->getfield(6)->getname());
 			return false;
 		}
@@ -8095,62 +8092,62 @@ bool T_1CD::test_stream_format()
 	// CONFIGSAVE
 	if(!table_configsave)
 	{
-		error("Ошибка тестирования. В базе нет таблицы CONFIGSAVE");
+		msreg_m.AddError("Ошибка тестирования. В базе нет таблицы CONFIGSAVE");
 		return false;
 	}
 
 	if(table_configsave->get_numfields() < 6)
 	{
-		error("Ошибка тестирования. В таблице CONFIGSAVE меньше 6 полей",
+		msreg_m.AddError("Ошибка тестирования. В таблице CONFIGSAVE меньше 6 полей",
 			"Кол-во полей", table_configsave->get_numfields());
 		return false;
 	}
 
 	if(table_configsave->get_numfields() > 7)
 	{
-		error("Ошибка тестирования. В таблице CONFIGSAVE больше 7 полей",
+		msreg_m.AddError("Ошибка тестирования. В таблице CONFIGSAVE больше 7 полей",
 			"Кол-во полей", table_configsave->get_numfields());
 		return false;
 	}
 
 	if(table_configsave->getfield(0)->getname().CompareIC("FILENAME"))
 	{
-		error("Ошибка тестирования. Первое поле таблицы CONFIGSAVE не FILENAME",
+		msreg_m.AddError("Ошибка тестирования. Первое поле таблицы CONFIGSAVE не FILENAME",
 			"Поле", table_configsave->getfield(0)->getname());
 		return false;
 	}
 
 	if(table_configsave->getfield(1)->getname().CompareIC("CREATION"))
 	{
-		error("Ошибка тестирования. Второе поле таблицы CONFIGSAVE не CREATION",
+		msreg_m.AddError("Ошибка тестирования. Второе поле таблицы CONFIGSAVE не CREATION",
 			"Поле", table_configsave->getfield(1)->getname());
 		return false;
 	}
 
 	if(table_configsave->getfield(2)->getname().CompareIC("MODIFIED"))
 	{
-		error("Ошибка тестирования. Третье поле таблицы CONFIGSAVE не MODIFIED",
+		msreg_m.AddError("Ошибка тестирования. Третье поле таблицы CONFIGSAVE не MODIFIED",
 			"Поле", table_configsave->getfield(2)->getname());
 		return false;
 	}
 
 	if(table_configsave->getfield(3)->getname().CompareIC("ATTRIBUTES"))
 	{
-		error("Ошибка тестирования. Четвертое поле таблицы CONFIGSAVE не ATTRIBUTES",
+		msreg_m.AddError("Ошибка тестирования. Четвертое поле таблицы CONFIGSAVE не ATTRIBUTES",
 			"Поле", table_configsave->getfield(3)->getname());
 		return false;
 	}
 
 	if(table_configsave->getfield(4)->getname().CompareIC("DATASIZE"))
 	{
-		error("Ошибка тестирования. Пятое поле таблицы CONFIGSAVE не DATASIZE",
+		msreg_m.AddError("Ошибка тестирования. Пятое поле таблицы CONFIGSAVE не DATASIZE",
 			"Поле", table_configsave->getfield(4)->getname());
 		return false;
 	}
 
 	if(table_configsave->getfield(5)->getname().CompareIC("BINARYDATA"))
 	{
-		error("Ошибка тестирования. Шестое поле таблицы CONFIGSAVE не BINARYDATA",
+		msreg_m.AddError("Ошибка тестирования. Шестое поле таблицы CONFIGSAVE не BINARYDATA",
 			"Поле", table_configsave->getfield(5)->getname());
 		return false;
 	}
@@ -8159,7 +8156,7 @@ bool T_1CD::test_stream_format()
 	{
 		if(table_configsave->getfield(6)->getname().CompareIC("PARTNO"))
 		{
-			error("Ошибка тестирования. Седьмое поле таблицы CONFIGSAVE не PARTNO",
+			msreg_m.AddError("Ошибка тестирования. Седьмое поле таблицы CONFIGSAVE не PARTNO",
 				"Поле", table_configsave->getfield(6)->getname());
 			return false;
 		}
@@ -8168,62 +8165,62 @@ bool T_1CD::test_stream_format()
 	// PARAMS
 	if(!table_params)
 	{
-		error("Ошибка тестирования. В базе нет таблицы PARAMS");
+		msreg_m.AddError("Ошибка тестирования. В базе нет таблицы PARAMS");
 		return false;
 	}
 
 	if(table_params->get_numfields() < 6)
 	{
-		error("Ошибка тестирования. В таблице PARAMS меньше 6 полей",
+		msreg_m.AddError("Ошибка тестирования. В таблице PARAMS меньше 6 полей",
 			"Кол-во полей", table_params->get_numfields());
 		return false;
 	}
 
 	if(table_params->get_numfields() > 7)
 	{
-		error("Ошибка тестирования. В таблице PARAMS больше 7 полей",
+		msreg_m.AddError("Ошибка тестирования. В таблице PARAMS больше 7 полей",
 			"Кол-во полей", table_params->get_numfields());
 		return false;
 	}
 
 	if(table_params->getfield(0)->getname().CompareIC("FILENAME"))
 	{
-		error("Ошибка тестирования. Первое поле таблицы PARAMS не FILENAME",
+		msreg_m.AddError("Ошибка тестирования. Первое поле таблицы PARAMS не FILENAME",
 			"Поле", table_params->getfield(0)->getname());
 		return false;
 	}
 
 	if(table_params->getfield(1)->getname().CompareIC("CREATION"))
 	{
-		error("Ошибка тестирования. Второе поле таблицы PARAMS не CREATION",
+		msreg_m.AddError("Ошибка тестирования. Второе поле таблицы PARAMS не CREATION",
 			"Поле", table_params->getfield(1)->getname());
 		return false;
 	}
 
 	if(table_params->getfield(2)->getname().CompareIC("MODIFIED"))
 	{
-		error("Ошибка тестирования. Третье поле таблицы PARAMS не MODIFIED",
+		msreg_m.AddError("Ошибка тестирования. Третье поле таблицы PARAMS не MODIFIED",
 			"Поле", table_params->getfield(2)->getname());
 		return false;
 	}
 
 	if(table_params->getfield(3)->getname().CompareIC("ATTRIBUTES"))
 	{
-		error("Ошибка тестирования. Четвертое поле таблицы PARAMS не ATTRIBUTES",
+		msreg_m.AddError("Ошибка тестирования. Четвертое поле таблицы PARAMS не ATTRIBUTES",
 			"Поле", table_params->getfield(3)->getname());
 		return false;
 	}
 
 	if(table_params->getfield(4)->getname().CompareIC("DATASIZE"))
 	{
-		error("Ошибка тестирования. Пятое поле таблицы PARAMS не DATASIZE",
+		msreg_m.AddError("Ошибка тестирования. Пятое поле таблицы PARAMS не DATASIZE",
 			"Поле", table_params->getfield(4)->getname());
 		return false;
 	}
 
 	if(table_params->getfield(5)->getname().CompareIC("BINARYDATA"))
 	{
-		error("Ошибка тестирования. Шестое поле таблицы PARAMS не BINARYDATA",
+		msreg_m.AddError("Ошибка тестирования. Шестое поле таблицы PARAMS не BINARYDATA",
 			"Поле", table_params->getfield(5)->getname());
 		return false;
 	}
@@ -8232,7 +8229,7 @@ bool T_1CD::test_stream_format()
 	{
 		if(table_params->getfield(6)->getname().CompareIC("PARTNO"))
 		{
-			error("Ошибка тестирования. Седьмое поле таблицы PARAMS не PARTNO",
+			msreg_m.AddError("Ошибка тестирования. Седьмое поле таблицы PARAMS не PARTNO",
 				"Поле", table_params->getfield(6)->getname());
 			return false;
 		}
@@ -8241,62 +8238,62 @@ bool T_1CD::test_stream_format()
 	// FILES
 	if(!table_files)
 	{
-		error("Ошибка тестирования. В базе нет таблицы FILES");
+		msreg_m.AddError("Ошибка тестирования. В базе нет таблицы FILES");
 		return false;
 	}
 
 	if(table_files->get_numfields() < 6)
 	{
-		error("Ошибка тестирования. В таблице FILES меньше 6 полей",
+		msreg_m.AddError("Ошибка тестирования. В таблице FILES меньше 6 полей",
 			"Кол-во полей", table_files->get_numfields());
 		return false;
 	}
 
 	if(table_files->get_numfields() > 7)
 	{
-		error("Ошибка тестирования. В таблице FILES больше 7 полей",
+		msreg_m.AddError("Ошибка тестирования. В таблице FILES больше 7 полей",
 			"Кол-во полей", table_files->get_numfields());
 		return false;
 	}
 
 	if(table_files->getfield(0)->getname().CompareIC("FILENAME"))
 	{
-		error("Ошибка тестирования. Первое поле таблицы FILES не FILENAME",
+		msreg_m.AddError("Ошибка тестирования. Первое поле таблицы FILES не FILENAME",
 			"Поле", table_files->getfield(0)->getname());
 		return false;
 	}
 
 	if(table_files->getfield(1)->getname().CompareIC("CREATION"))
 	{
-		error("Ошибка тестирования. Второе поле таблицы FILES не CREATION",
+		msreg_m.AddError("Ошибка тестирования. Второе поле таблицы FILES не CREATION",
 			"Поле", table_files->getfield(1)->getname());
 		return false;
 	}
 
 	if(table_files->getfield(2)->getname().CompareIC("MODIFIED"))
 	{
-		error("Ошибка тестирования. Третье поле таблицы FILES не MODIFIED",
+		msreg_m.AddError("Ошибка тестирования. Третье поле таблицы FILES не MODIFIED",
 			"Поле", table_files->getfield(2)->getname());
 		return false;
 	}
 
 	if(table_files->getfield(3)->getname().CompareIC("ATTRIBUTES"))
 	{
-		error("Ошибка тестирования. Четвертое поле таблицы FILES не ATTRIBUTES",
+		msreg_m.AddError("Ошибка тестирования. Четвертое поле таблицы FILES не ATTRIBUTES",
 			"Поле", table_files->getfield(3)->getname());
 		return false;
 	}
 
 	if(table_files->getfield(4)->getname().CompareIC("DATASIZE"))
 	{
-		error("Ошибка тестирования. Пятое поле таблицы FILES не DATASIZE",
+		msreg_m.AddError("Ошибка тестирования. Пятое поле таблицы FILES не DATASIZE",
 			"Поле", table_files->getfield(4)->getname());
 		return false;
 	}
 
 	if(table_files->getfield(5)->getname().CompareIC("BINARYDATA"))
 	{
-		error("Ошибка тестирования. Шестое поле таблицы FILES не BINARYDATA",
+		msreg_m.AddError("Ошибка тестирования. Шестое поле таблицы FILES не BINARYDATA",
 			"Поле", table_files->getfield(5)->getname());
 		return false;
 	}
@@ -8305,7 +8302,7 @@ bool T_1CD::test_stream_format()
 	{
 		if(table_files->getfield(6)->getname().CompareIC("PARTNO"))
 		{
-			error("Ошибка тестирования. Седьмое поле таблицы FILES не PARTNO",
+			msreg_m.AddError("Ошибка тестирования. Седьмое поле таблицы FILES не PARTNO",
 				"Поле", table_files->getfield(6)->getname());
 			return false;
 		}
@@ -8314,20 +8311,20 @@ bool T_1CD::test_stream_format()
 	// DBSCHEMA
 	if(!table_dbschema)
 	{
-		error("Ошибка тестирования. В базе нет таблицы DBSCHEMA");
+		msreg_m.AddError("Ошибка тестирования. В базе нет таблицы DBSCHEMA");
 		return false;
 	}
 
 	if(table_dbschema->get_numfields() != 1)
 	{
-		error("Ошибка тестирования. В таблице DBSCHEMA не 1 поле",
+		msreg_m.AddError("Ошибка тестирования. В таблице DBSCHEMA не 1 поле",
 			"Кол-во полей", table_dbschema->get_numfields());
 		return false;
 	}
 
 	if(table_dbschema->getfield(0)->getname().CompareIC("SERIALIZEDDATA"))
 	{
-		error("Ошибка тестирования. Первое поле таблицы DBSCHEMA не SERIALIZEDDATA",
+		msreg_m.AddError("Ошибка тестирования. Первое поле таблицы DBSCHEMA не SERIALIZEDDATA",
 			"Поле", table_dbschema->getfield(0)->getname());
 		return false;
 	}
@@ -8355,7 +8352,7 @@ bool T_1CD::test_stream_format()
 
 	if(table_dbschema->get_phys_numrecords() < 2)
 	{
-		error("Ошибка тестирования. В таблице DBSCHEMA нет записей");
+		msreg_m.AddError("Ошибка тестирования. В таблице DBSCHEMA нет записей");
 		result = false;
 	}
 	for(i = 0; i < table_dbschema->get_phys_numrecords(); i++)
@@ -8364,7 +8361,7 @@ bool T_1CD::test_stream_format()
 		result = result && res;
 	}
 
-	msreg->Status("");
+	msreg_m.Status("");
 	return result;
 }
 
@@ -8411,14 +8408,14 @@ bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 	}
 	catch(...)
 	{
-		if(msreg) msreg->AddMessage_("Ошибка чтения длины файла", msWarning,
+		msreg_m.AddMessage_("Ошибка чтения длины файла", msWarning,
 			"Путь", path,
 			"Длина файла", slen);
 		result = false;
 	}
 	if(result) if((int64_t)j != str->GetSize())
 	{
-		if(msreg) msreg->AddMessage_("Фактическая длина файла отличается от указанной в таблице", msWarning,
+		msreg_m.AddMessage_("Фактическая длина файла отличается от указанной в таблице", msWarning,
 			"Путь", path,
 			"Фактическая длина файла", str->GetSize(),
 			"Указанная длина файла", slen);
@@ -8490,7 +8487,7 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 	int32_t i;
 	bool usetempfile;
 
-	msreg->Status(path);
+	msreg_m.Status(path);
 
 	if(path == "PARAMS/users.usr") return true;
 
@@ -8544,7 +8541,7 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 	}
 	catch (...)
 	{
-		error("Ошибка тестирования. Ошибка чтения формата.",
+		msreg_m.AddError("Ошибка тестирования. Ошибка чтения формата.",
 			"Путь", path);
 		cat = NULL;
 
@@ -8582,7 +8579,7 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 		offset = TEncoding::GetBufferEncoding(_sb->GetBytes(), enc);
 		if(offset == 0)
 		{
-			error("Ошибка тестирования. Ошибка определения кодировки файла",
+			msreg_m.AddError("Ошибка тестирования. Ошибка определения кодировки файла",
 				"Путь", path);
 			result = false;
 		}
@@ -8593,7 +8590,7 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 				bytes2 = TEncoding::Convert(enc, TEncoding::Unicode, _sb->GetBytes(), offset, _sb->GetSize()-offset);
 				if(bytes2.GetLength() == 0)
 				{
-					error("Ошибка тестирования. Ошибка конвертации",
+					msreg_m.AddError("Ошибка тестирования. Ошибка конвертации",
 						"Путь", path);
 					result = false;
 				}
@@ -8657,7 +8654,7 @@ bool T_1CD::recursive_test_stream_format(v8catalog* cat, String path)
 		}
 		catch(...)
 		{
-			error("Ошибка тестирования. Ошибка чтения формата.",
+			msreg_m.AddError("Ошибка тестирования. Ошибка чтения формата.",
 				"Путь", path);
 			c = NULL;
 		}
@@ -8701,7 +8698,7 @@ bool T_1CD::create_table(String path)
 
 	if(!DirectoryExists(path))
 	{
-		if(msreg) msreg->AddMessage_("Директория импорта таблицы не найдена", msWarning,
+		msreg_m.AddMessage_("Директория импорта таблицы не найдена", msWarning,
 			"Директория", path);
 		return false;
 	}
@@ -8713,7 +8710,7 @@ bool T_1CD::create_table(String path)
 	}
 	catch(...)
 	{
-		if(msreg) msreg->AddMessage_("Ошибка открытия файла импорта таблицы root", msWarning,
+		msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы root", msWarning,
 			"Файл", dir + "root");
 		return false;
 	}
@@ -8728,7 +8725,7 @@ bool T_1CD::create_table(String path)
 	}
 	catch(...)
 	{
-		if(msreg) msreg->AddMessage_("Ошибка открытия файла импорта таблицы descr", msWarning,
+		msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы descr", msWarning,
 			"Файл", dir + "descr");
 		return false;
 	}
@@ -8764,7 +8761,7 @@ bool T_1CD::create_table(String path)
 		}
 		catch(...)
 		{
-			if(msreg) msreg->AddMessage_("Ошибка открытия файла импорта таблицы data", msWarning,
+			msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы data", msWarning,
 				"Файл", dir + "data");
 		}
 		if(fopen)
@@ -8788,7 +8785,7 @@ bool T_1CD::create_table(String path)
 		}
 		catch(...)
 		{
-			if(msreg) msreg->AddMessage_("Ошибка открытия файла импорта таблицы blob", msWarning,
+			msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы blob", msWarning,
 				"Файл", dir + "blob");
 		}
 		if(fopen)
@@ -8812,7 +8809,7 @@ bool T_1CD::create_table(String path)
 		}
 		catch(...)
 		{
-			if(msreg) msreg->AddMessage_("Ошибка открытия файла импорта таблицы index", msWarning,
+			msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы index", msWarning,
 				"Файл", dir + "index");
 		}
 		if(fopen)
@@ -8836,7 +8833,7 @@ bool T_1CD::create_table(String path)
 		}
 		catch(...)
 		{
-			if(msreg) msreg->AddMessage_("Ошибка открытия файла импорта таблицы descr", msWarning,
+			msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы descr", msWarning,
 				"Файл", dir + "descr");
 		}
 		if(fopen)
@@ -8858,7 +8855,7 @@ bool T_1CD::create_table(String path)
 			i = str.Pos("{\"Files\",");
 			if(i == 0)
 			{
-				if(msreg) msreg->AddMessage_("Ошибка поиска раздела Files в файле импорта таблицы descr", msWarning,
+				msreg_m.AddMessage_("Ошибка поиска раздела Files в файле импорта таблицы descr", msWarning,
 					"Файл", dir + "descr");
 				delete root;
 				return false;
@@ -8900,7 +8897,7 @@ bool T_1CD::create_table(String path)
 
 	flush();
 
-	if(msreg) msreg->AddMessage_("Таблица создана и импортирована", msSuccesfull,
+	msreg_m.AddMessage_("Таблица создана и импортирована", msSuccesfull,
 		"Путь", dir);
 
 	delete root;
@@ -8946,62 +8943,62 @@ bool T_1CD::test_list_of_tables()
 
 	if(!table_params)
 	{
-		error("Ошибка тестирования. В базе нет таблицы PARAMS");
+		msreg_m.AddError("Ошибка тестирования. В базе нет таблицы PARAMS");
 		return false;
 	}
 
 	if(table_params->get_numfields() < 6)
 	{
-		error("Ошибка тестирования. В таблице PARAMS меньше 6 полей",
+		msreg_m.AddError("Ошибка тестирования. В таблице PARAMS меньше 6 полей",
 			"Кол-во полей", table_params->get_numfields());
 		return false;
 	}
 
 	if(table_params->get_numfields() > 7)
 	{
-		error("Ошибка тестирования. В таблице PARAMS больше 7 полей",
+		msreg_m.AddError("Ошибка тестирования. В таблице PARAMS больше 7 полей",
 			"Кол-во полей", table_params->get_numfields());
 		return false;
 	}
 
 	if(table_params->getfield(0)->getname().CompareIC("FILENAME"))
 	{
-		error("Ошибка тестирования. Первое поле таблицы PARAMS не FILENAME",
+		msreg_m.AddError("Ошибка тестирования. Первое поле таблицы PARAMS не FILENAME",
 			"Поле", table_params->getfield(0)->getname());
 		return false;
 	}
 
 	if(table_params->getfield(1)->getname().CompareIC("CREATION"))
 	{
-		error("Ошибка тестирования. Второе поле таблицы PARAMS не CREATION",
+		msreg_m.AddError("Ошибка тестирования. Второе поле таблицы PARAMS не CREATION",
 			"Поле", table_params->getfield(1)->getname());
 		return false;
 	}
 
 	if(table_params->getfield(2)->getname().CompareIC("MODIFIED"))
 	{
-		error("Ошибка тестирования. Третье поле таблицы PARAMS не MODIFIED",
+		msreg_m.AddError("Ошибка тестирования. Третье поле таблицы PARAMS не MODIFIED",
 			"Поле", table_params->getfield(2)->getname());
 		return false;
 	}
 
 	if(table_params->getfield(3)->getname().CompareIC("ATTRIBUTES"))
 	{
-		error("Ошибка тестирования. Четвертое поле таблицы PARAMS не ATTRIBUTES",
+		msreg_m.AddError("Ошибка тестирования. Четвертое поле таблицы PARAMS не ATTRIBUTES",
 			"Поле", table_params->getfield(3)->getname());
 		return false;
 	}
 
 	if(table_params->getfield(4)->getname().CompareIC("DATASIZE"))
 	{
-		error("Ошибка тестирования. Пятое поле таблицы PARAMS не DATASIZE",
+		msreg_m.AddError("Ошибка тестирования. Пятое поле таблицы PARAMS не DATASIZE",
 			"Поле", table_params->getfield(4)->getname());
 		return false;
 	}
 
 	if(table_params->getfield(5)->getname().CompareIC("BINARYDATA"))
 	{
-		error("Ошибка тестирования. Шестое поле таблицы PARAMS не BINARYDATA",
+		msreg_m.AddError("Ошибка тестирования. Шестое поле таблицы PARAMS не BINARYDATA",
 			"Поле", table_params->getfield(5)->getname());
 		return false;
 	}
@@ -9010,7 +9007,7 @@ bool T_1CD::test_list_of_tables()
 	{
 		if(table_params->getfield(6)->getname().CompareIC("PARTNO"))
 		{
-			error("Ошибка тестирования. Седьмое поле таблицы PARAMS не PARTNO",
+			msreg_m.AddError("Ошибка тестирования. Седьмое поле таблицы PARAMS не PARTNO",
 				"Поле", table_params->getfield(6)->getname());
 			return false;
 		}
@@ -9045,7 +9042,7 @@ bool T_1CD::test_list_of_tables()
 		}
 		catch(...)
 		{
-			if(msreg) msreg->AddMessage_("Ошибка чтения длины файла", msWarning,
+			msreg_m.AddMessage_("Ошибка чтения длины файла", msWarning,
 				"Путь", "PARAMS/DBNames",
 				"Длина файла", slen);
 			result = false;
@@ -9053,7 +9050,7 @@ bool T_1CD::test_list_of_tables()
 		}
 		if((int64_t)j != str->GetSize())
 		{
-			if(msreg) msreg->AddMessage_("Фактическая длина файла отличается от указанной в таблице", msWarning,
+			msreg_m.AddMessage_("Фактическая длина файла отличается от указанной в таблице", msWarning,
 				"Путь", "PARAMS/DBNames",
 				"Фактическая длина файла", str->GetSize(),
 				"Указанная длина файла", slen);
@@ -9076,7 +9073,7 @@ bool T_1CD::test_list_of_tables()
 			}
 			catch (...)
 			{
-				if(msreg) msreg->AddMessage("Ошибка распаковки данных файла PARAMS/DBNames", msError);
+				msreg_m.AddMessage("Ошибка распаковки данных файла PARAMS/DBNames", msError);
 				result = false;
 				break;
 			}
@@ -9087,7 +9084,7 @@ bool T_1CD::test_list_of_tables()
 		offset = TEncoding::GetBufferEncoding(_sb->GetBytes(), enc);
 		if(offset == 0)
 		{
-			error("Ошибка тестирования. Ошибка определения кодировки файла PARAMS/DBNames");
+			msreg_m.AddError("Ошибка тестирования. Ошибка определения кодировки файла PARAMS/DBNames");
 			result = false;
 		}
 		else
@@ -9097,7 +9094,7 @@ bool T_1CD::test_list_of_tables()
 				bytes2 = TEncoding::Convert(enc, TEncoding::Unicode, _sb->GetBytes(), offset, _sb->GetSize()-offset);
 				if(bytes2.GetLength() == 0)
 				{
-					error("Ошибка тестирования. Ошибка конвертации файла PARAMS/DBNames");
+					msreg_m.AddError("Ошибка тестирования. Ошибка конвертации файла PARAMS/DBNames");
 					result = false;
 				}
 				else
@@ -9171,7 +9168,7 @@ bool T_1CD::test_list_of_tables()
 
 								if(!table_found)
 								{
-									if(msreg) msreg->AddMessage_("Отсутствует таблица", msWarning,
+									msreg_m.AddMessage_("Отсутствует таблица", msWarning,
 										"Имя таблицы", _tabname);
 									result = false;
 								}
@@ -9183,14 +9180,14 @@ bool T_1CD::test_list_of_tables()
 					}
 					else
 					{
-						error("Ошибка тестирования. Ошибка разбора файла PARAMS/DBNames. Первый символ не \"{\".");
+						msreg_m.AddError("Ошибка тестирования. Ошибка разбора файла PARAMS/DBNames. Первый символ не \"{\".");
 						result = false;
 					}
 				}
 			}
 			else
 			{
-				error("Ошибка тестирования. Ошибка определения кодировки файла PARAMS/DBNames");
+				msreg_m.AddError("Ошибка тестирования. Ошибка определения кодировки файла PARAMS/DBNames");
 				result = false;
 			}
 		}
@@ -9204,7 +9201,7 @@ bool T_1CD::test_list_of_tables()
 
 	if(!hasDBNames)
 	{
-		error("Ошибка тестирования. В таблице PARAMS не найдена запись DBNames.");
+		msreg_m.AddError("Ошибка тестирования. В таблице PARAMS не найдена запись DBNames.");
 		result = false;
 	}
 
@@ -9267,7 +9264,7 @@ bool T_1CD::replaceTREF(String mapfile)
 			if(f->gettype() == tf_binary)
 			if(f->getlength() == 4)
 			{
-				if(msreg) msreg->Status(t->getname() + " : " + f->getname());
+				msreg_m.Status(t->getname() + " : " + f->getname());
 				k = f->getoffset();
 				if(f->getnull_exists()) k++;
 				rec = new char[t->get_recordlen()];
@@ -9289,7 +9286,7 @@ bool T_1CD::replaceTREF(String mapfile)
 			}
 		}
 	}
-	if(msreg) msreg->Status("");
+	msreg_m.Status("");
 
 	flush();
 
@@ -9362,14 +9359,14 @@ bool T_1CD::delete_object(v8object* ob)
 
 	if(ob->block == 1)
 	{
-		msreg->AddMessage_("Попытка удаления объекта таблицы свободных блоков", msWarning,
+		msreg_m.AddMessage_("Попытка удаления объекта таблицы свободных блоков", msWarning,
 			"Номер блока объекта", ob->block);
 			return false;
 	}
 
 	if(ob->block == 2)
 	{
-		msreg->AddMessage_("Попытка удаления корневого объекта", msWarning,
+		msreg_m.AddMessage_("Попытка удаления корневого объекта", msWarning,
 			"Номер блока объекта", ob->block);
 			return false;
 	}
@@ -9461,7 +9458,7 @@ void T_1CD::find_and_create_lost_tables()
 
 	}
 
-	msreg->AddMessage_("Поиск и восстановление потерянных таблиц завершены", msSuccesfull,
+	msreg_m.AddMessage_("Поиск и восстановление потерянных таблиц завершены", msSuccesfull,
 	"Количество восстановленных таблиц", numlosttables);
 
 }
@@ -9507,7 +9504,7 @@ void T_1CD::find_and_save_lost_objects()
 			}
 		}
 	}
-	msreg->AddMessage("Поиск и сохранение потерянных объектов завершен", msSuccesfull);
+	msreg_m.AddMessage("Поиск и сохранение потерянных объектов завершен", msSuccesfull);
 
 }
 
@@ -9528,7 +9525,7 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 
 	if(!is_depot)
 	{
-		error("База не является хранилищем конфигурации.");
+		msreg_m.AddError("База не является хранилищем конфигурации.");
 		return 0;
 	}
 
@@ -9537,7 +9534,7 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 	// Определяем номер последней версии конфигурации
 	if(!table_versions)
 	{
-		error("В базе хранилища отсутствует таблица VERSIONS.");
+		msreg_m.AddError("В базе хранилища отсутствует таблица VERSIONS.");
 		return 0;
 	}
 
@@ -9550,7 +9547,7 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 	i = ind->get_numrecords();
 	if(i <= (uint32_t)(-ver))
 	{
-		msreg->AddMessage_("Запрошенной версии конфигурации не существует", msError,
+		msreg_m.AddMessage_("Запрошенной версии конфигурации не существует", msError,
 			"Всего версий в хранилище", i,
 			"Запрошенный номер версии", ver);
 		return 0;
@@ -9564,7 +9561,7 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 	v = s.ToIntDef(0);
 	if(!v)
 	{
-		if(msreg) msreg->AddMessage_("Не удалось получить реальный номер версии запрошенной конфигурации.", msError,
+		msreg_m.AddMessage_("Не удалось получить реальный номер версии запрошенной конфигурации.", msError,
 			"Запрошенный номер версии", ver);
 		return 0;
 	}
@@ -9583,15 +9580,14 @@ Field* T_1CD::get_field(Table* tab, String fieldname)
 		fld = tab->fields[j];
 		if(fld->getname().CompareIC(fieldname) == 0) return fld;
 	}
-	if(msreg)
-	{
-		s ="В таблице ";
-		s += tab->name;
-		s += " не найдено поле ";
-		s += fieldname;
-		s += ".";
-		error(s);
-	}
+
+	s ="В таблице ";
+	s += tab->name;
+	s += " не найдено поле ";
+	s += fieldname;
+	s += ".";
+	msreg_m.AddError(s);
+
 	return NULL;
 }
 
@@ -9606,15 +9602,14 @@ class index* T_1CD::get_index(Table* tab, String indexname)
 		ind = tab->indexes[j];
 		if(ind->getname().CompareIC(indexname) == 0) return ind;
 	}
-	if(msreg)
-	{
-		s ="В таблице ";
-		s += tab->name;
-		s += " не найден индекс ";
-		s += indexname;
-		s += ".";
-		error(s);
-	}
+
+	s ="В таблице ";
+	s += tab->name;
+	s += " не найден индекс ";
+	s += indexname;
+	s += ".";
+	msreg_m.AddError(s);
+
 	return NULL;
 }
 
@@ -9713,14 +9708,14 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	if(!is_depot)
 	{
-		error("База не является хранилищем конфигурации.");
+		msreg_m.AddError("База не является хранилищем конфигурации.");
 		return false;
 	}
 
 	// Получаем версию хранилища
 	if(!table_depot)
 	{
-		error("В базе хранилища отсутствует таблица DEPOT.");
+		msreg_m.AddError("В базе хранилища отсутствует таблица DEPOT.");
 		return false;
 	}
 
@@ -9742,7 +9737,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	}
 	if(!ok)
 	{
-		error("Не удалось прочитать запись в таблице DEPOT.");
+		msreg_m.AddError("Не удалось прочитать запись в таблице DEPOT.");
 		delete[] rec;
 		return false;
 	}
@@ -9756,7 +9751,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	else if(s.CompareIC("0700000000000000") == 0) depotVer = depotVer7;
 	else
 	{
-		msreg->AddMessage_("Неизвестная версия хранилища", msError,
+		msreg_m.AddMessage_("Неизвестная версия хранилища", msError,
 			"Версия хранилища", s);
 		delete[] rec;
 		return false;
@@ -9772,7 +9767,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	// Ищем строку с номером версии конфигурации
 	if(!table_versions)
 	{
-		error("В базе хранилища отсутствует таблица VERSIONS.");
+		msreg_m.AddError("В базе хранилища отсутствует таблица VERSIONS.");
 		return false;
 	}
 
@@ -9805,7 +9800,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	if(!ok)
 	{
-		if(msreg) msreg->AddMessage_("В хранилище не найдена версия конфигурации", msError,
+		msreg_m.AddMessage_("В хранилище не найдена версия конфигурации", msError,
 			"Требуемая версия", ver);
 		delete[] rec;
 		return false;
@@ -9838,13 +9833,13 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	// Инициализируем таблицы HISTORY и EXTERNALS
 	if(!table_history)
 	{
-		error("В базе хранилища отсутствует таблица HISTORY.");
+		msreg_m.AddError("В базе хранилища отсутствует таблица HISTORY.");
 		return false;
 	}
 
 	if(!table_externals)
 	{
-		error("В базе хранилища отсутствует таблица EXTERNALS.");
+		msreg_m.AddError("В базе хранилища отсутствует таблица EXTERNALS.");
 		return false;
 	}
 
@@ -9899,7 +9894,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				}
 				catch(...)
 				{
-					if(msreg) msreg->AddMessage_("Ошибка открытия файла", msError,
+					msreg_m.AddMessage_("Ошибка открытия файла", msError,
 						"Файл", current_path.string());
 					return false;
 				}
@@ -9919,7 +9914,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				catch(...)
 				{
 				    delete pd.pack;
-					if(msreg) msreg->AddMessage_("Ошибка открытия файла", msError,
+				    msreg_m.AddMessage_("Ошибка открытия файла", msError,
 						"Файл", pack_item.string());
 					return false;
 				}
@@ -10083,7 +10078,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 							}
 							catch(...)
 							{
-								if(msreg) msreg->AddMessage_("Ошибка открытия файла", msError,
+								msreg_m.AddMessage_("Ошибка открытия файла", msError,
 									"Файл", current_object_path.string(),
 									"Таблица", "HISTORY",
 									"Объект", fldh_objid->get_presentation(rech1, false, L'.', true),
@@ -10092,7 +10087,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						}
 						else
 						{
-							if(msreg) msreg->AddMessage_("Не найден файл", msError,
+							msreg_m.AddMessage_("Не найден файл", msError,
 								"Файл", current_object_path.string(),
 								"Таблица", "HISTORY",
 								"Объект", fldh_objid->get_presentation(rech1, false, L'.', true),
@@ -10103,7 +10098,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				String s = fldh_objid->get_presentation(rech1, false, L'.', true);
 				if(!ok)
 				{
-					if(msreg) msreg->AddMessage_("Ошибка чтения объекта конфигурации", msError,
+					msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", msError,
 						"Таблица", "HISTORY",
 						"Объект", s,
 						"Версия", fldh_vernum->get_presentation(rech1, false));
@@ -10213,7 +10208,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 									}
 									catch(...)
 									{
-										if(msreg) msreg->AddMessage_("Ошибка открытия файла", msError,
+										msreg_m.AddMessage_("Ошибка открытия файла", msError,
 											"Файл", current_object_path.string(),
 											"Таблица", "EXTERNALS",
 											"Объект", flde_extname->get_presentation(rec),
@@ -10222,7 +10217,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 								}
 								else
 								{
-									if(msreg) msreg->AddMessage_("Не найден файл", msError,
+									msreg_m.AddMessage_("Не найден файл", msError,
 										"Файл", current_object_path.string(),
 										"Таблица", "EXTERNALS",
 										"Объект", flde_extname->get_presentation(rec),
@@ -10232,7 +10227,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						}
 						if(!ok)
 						{
-							if(msreg) msreg->AddMessage_("Ошибка чтения объекта конфигурации", msError,
+							msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", msError,
 								"Таблица", "EXTERNALS",
 								"Объект", sn,
 								"Версия", flde_vernum->get_presentation(rec));
@@ -10474,14 +10469,14 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 	if(!is_depot)
 	{
-		error("База не является хранилищем конфигурации.");
+		msreg_m.AddError("База не является хранилищем конфигурации.");
 		return false;
 	}
 
 	// Получаем версию хранилища
 	if(!table_depot)
 	{
-		error("В базе хранилища отсутствует таблица DEPOT.");
+		msreg_m.AddError("В базе хранилища отсутствует таблица DEPOT.");
 		return false;
 	}
 
@@ -10501,7 +10496,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	}
 	if(!ok)
 	{
-		error("Не удалось прочитать запись в таблице DEPOT.");
+		msreg_m.AddError("Не удалось прочитать запись в таблице DEPOT.");
 		delete[] rec;
 		return false;
 	}
@@ -10513,7 +10508,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	else if(s.CompareIC("0600000000000000") == 0) depotVer = depotVer6;
 	else
 	{
-		msreg->AddMessage_("Неизвестная версия хранилища", msError,
+		msreg_m.AddMessage_("Неизвестная версия хранилища", msError,
 			"Версия хранилища", s);
 		delete[] rec;
 		return false;
@@ -10534,7 +10529,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	// Ищем строку с номером версии конфигурации
 	if(!table_versions)
 	{
-		error("В базе хранилища отсутствует таблица VERSIONS.");
+		msreg_m.AddError("В базе хранилища отсутствует таблица VERSIONS.");
 		return false;
 	}
 
@@ -10565,7 +10560,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 	if(n < 2)
 	{
-		if(msreg) msreg->AddMessage_("В хранилище не найдены запрошенные версии конфигурации", msError
+		msreg_m.AddMessage_("В хранилище не найдены запрошенные версии конфигурации", msError
 			, "Версия с", ver_begin
 			, "Версия по", ver_end);
 		delete[] rec;
@@ -10599,13 +10594,13 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	// Инициализируем таблицы HISTORY и EXTERNALS
 	if(!table_history)
 	{
-		error("В базе хранилища отсутствует таблица HISTORY.");
+		msreg_m.AddError("В базе хранилища отсутствует таблица HISTORY.");
 		return false;
 	}
 
 	if(!table_externals)
 	{
-		error("В базе хранилища отсутствует таблица EXTERNALS.");
+		msreg_m.AddError("В базе хранилища отсутствует таблица EXTERNALS.");
 		return false;
 	}
 
@@ -10654,7 +10649,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 				}
 				catch(...)
 				{
-					if(msreg) msreg->AddMessage_("Ошибка открытия файла", msError,
+					msreg_m.AddMessage_("Ошибка открытия файла", msError,
 						"Файл", srec.Name);
 					FindClose(srec);
 					return false;
@@ -10673,7 +10668,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 				catch(...)
 				{
 				    delete pd.pack;
-					if(msreg) msreg->AddMessage_("Ошибка открытия файла", msError,
+				    msreg_m.AddMessage_("Ошибка открытия файла", msError,
 						"Файл", s);
 					FindClose(srec);
 					return false;
@@ -10842,7 +10837,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 										}
 										catch(...)
 										{
-											if(msreg) msreg->AddMessage_("Ошибка открытия файла", msError,
+											msreg_m.AddMessage_("Ошибка открытия файла", msError,
 												"Файл", s,
 												"Таблица", "HISTORY",
 												"Объект", sn,
@@ -10851,7 +10846,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 									}
 									else
 									{
-										if(msreg) msreg->AddMessage_("Не найден файл", msError,
+										msreg_m.AddMessage_("Не найден файл", msError,
 											"Файл", s,
 											"Таблица", "HISTORY",
 											"Объект", sn,
@@ -10862,7 +10857,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 							if(!ok)
 							{
-								if(msreg) msreg->AddMessage_("Ошибка чтения объекта конфигурации", msError,
+								msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", msError,
 									"Таблица", "HISTORY",
 									"Объект", sn,
 									"Версия", lastver);
@@ -10971,7 +10966,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 												}
 												catch(...)
 												{
-													if(msreg) msreg->AddMessage_("Ошибка открытия файла", msError,
+													msreg_m.AddMessage_("Ошибка открытия файла", msError,
 														"Файл", s,
 														"Таблица", "EXTERNALS",
 														"Объект", sn,
@@ -10981,7 +10976,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 											}
 											else
 											{
-												if(msreg) msreg->AddMessage_("Не найден файл", msError,
+												msreg_m.AddMessage_("Не найден файл", msError,
 													"Файл", s,
 													"Таблица", "EXTERNALS",
 													"Объект", sn,
@@ -10992,7 +10987,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 									}
 									if(!ok)
 									{
-										if(msreg) msreg->AddMessage_("Ошибка чтения объекта конфигурации", msError,
+										msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", msError,
 											"Таблица", "EXTERNALS",
 											"Объект", sn,
 											"Файл конфигурации", se,
@@ -11108,7 +11103,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 
 	if(block < 5 || block >= length)
 	{
-		if(msreg) msreg->AddMessage_("Номер корневого блока файла DATA некорректный", msError
+		msreg_m.AddMessage_("Номер корневого блока файла DATA некорректный", msError
 			,"Таблица", tab->getname()
 			,"Номер блока", block
 		);
@@ -11119,7 +11114,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 
 	if(memcmp(rootobj->sig, SIG_OBJ, 8))
 	{
-		if(msreg) msreg->AddMessage_("Сигнатура корневого блока файла DATA некорректная.", msError
+		msreg_m.AddMessage_("Сигнатура корневого блока файла DATA некорректная.", msError
 			,"Таблица", tab->getname()
 			,"Номер блока (dec)", block
 			,"Номер блока (hex)", tohex(block)
@@ -11131,7 +11126,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 	rl = tab->get_recordlen();
 	if(l / rl * rl != l)
 	{
-		if(msreg) msreg->AddMessage_("Длина файла DATA не кратна длине одной записи.", msError
+		msreg_m.AddMessage_("Длина файла DATA не кратна длине одной записи.", msError
 			,"Таблица", tab->getname()
 			,"Номер блока (dec)", block
 			,"Номер блока (hex)", tohex(block)
@@ -11152,7 +11147,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 			a = rootobj->blocks[k];
 			if(a < 5 || a >= length)
 			{
-				if(msreg) msreg->AddMessage_("Некорректный номер блока таблицы размещения файла DATA. Создана новая страница размещения", msWarning
+				msreg_m.AddMessage_("Некорректный номер блока таблицы размещения файла DATA. Создана новая страница размещения", msWarning
 					,"Таблица", tab->getname()
 					,"Индекс страницы", k
 					,"Номер блока", a
@@ -11168,7 +11163,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 
 			if(n != m)
 			{
-				if(msreg) msreg->AddMessage_("Некорректное число блоков на странице размещения файла DATA. Исправлено.", msWarning
+				msreg_m.AddMessage_("Некорректное число блоков на странице размещения файла DATA. Исправлено.", msWarning
 					,"Таблица", tab->getname()
 					,"Номер блока", a
 					,"Индекс страницы", k
@@ -11185,7 +11180,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 		ok = true;
 		if(d < 5 || d >= length)
 		{
-			if(msreg) msreg->AddMessage_("Некорректный номер страницы данных файла DATA.", msWarning
+			msreg_m.AddMessage_("Некорректный номер страницы данных файла DATA.", msWarning
 				,"Таблица", tab->getname()
 				,"Номер блока", a
 				,"Индекс страницы размещения", k - 1
@@ -11199,7 +11194,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 			ok = test_block_by_template(d, rectt, i, rl, cl);
 			if(!ok)
 			{
-			if(msreg) msreg->AddMessage_("Cтраница данных файла DATA не подходит по шаблону.", msWarning
+				msreg_m.AddMessage_("Cтраница данных файла DATA не подходит по шаблону.", msWarning
 				,"Таблица", tab->getname()
 				,"Номер блока", d
 				,"Индекс страницы размещения", k - 1
@@ -11218,7 +11213,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 			}
 			if(bk.size() == 0)
 			{
-				if(msreg) msreg->AddMessage_("Не удалось найти подходящую страницу данных файла DATA по шаблону.", msError
+				msreg_m.AddMessage_("Не удалось найти подходящую страницу данных файла DATA по шаблону.", msError
 					,"Таблица", tab->getname()
 					,"Индекс страницы размещения", k - 1
 					,"Индекс блока на странице", j
@@ -11229,7 +11224,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 			{
 				d = bk[0];
 				ca->blocks[j] = d;
-				if(msreg) msreg->AddMessage_("Найдена подходящая страница данных файла DATA. Страница восстановлена", msInfo
+				msreg_m.AddMessage_("Найдена подходящая страница данных файла DATA. Страница восстановлена", msInfo
 					,"Таблица", tab->getname()
 					,"Номер блока", d
 					,"Индекс страницы размещения", k - 1
@@ -11246,7 +11241,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 					if(d > 0) s += ", ";
 					s += tohex(bk[d]);
 				}
-				if(msreg) msreg->AddMessage_("Найдено несколько подходящих страниц данных файла DATA.", msHint
+				msreg_m.AddMessage_("Найдено несколько подходящих страниц данных файла DATA.", msHint
 					,"Таблица", tab->getname()
 					,"Список подходящих блоков", s
 					,"Индекс страницы размещения", k - 1

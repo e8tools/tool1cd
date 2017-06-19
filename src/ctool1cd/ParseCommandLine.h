@@ -44,19 +44,22 @@ struct ParsedCommand
 	String param3;        // значение третьего доп. параметра
 };
 
-class CommandParse
+class CommandParse: public IControlMessageRegistration
 {
+public:
+	CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mess = nullptr);
+	DynamicArray<ParsedCommand>& getcommands();
+	String& getfilename();
+	static String& gethelpstring();
+
+	void AddMessageRegistrator(MessageRegistrator* messageregistrator);
+	void RemoveMessageRegistrator();
 private:
 	static CommandDefinition definitions[];
 	static String helpstring;
 	String filename;
 	DynamicArray<ParsedCommand> commands;
-	MessageRegistrator* mess; // регистратор сообщений
-public:
-	CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mess = NULL);
-	DynamicArray<ParsedCommand>& getcommands();
-	String& getfilename();
-	static String& gethelpstring();
+	Registrator mess; // регистратор сообщений
 };
 
 //---------------------------------------------------------------------------
