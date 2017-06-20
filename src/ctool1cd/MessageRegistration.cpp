@@ -358,4 +358,3 @@ void MessageRegistrator::AddDebugMessage(const String& description, const Messag
 		parname6, par6,
 		parname7, par7);
 }
-

@@ -161,7 +161,8 @@ String String::Replace(const String &sub, const String &replace) const
 	while (pos != string::npos) {
 
 		_copy.replace(pos, sub.size(), replace);
-		pos = _copy.find(sub);
+		pos += replace.size();
+		pos = _copy.find(sub, pos);
 
 	}
 

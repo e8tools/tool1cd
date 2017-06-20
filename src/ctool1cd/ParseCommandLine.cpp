@@ -41,7 +41,11 @@ CommandDefinition CommandParse::definitions[] =
 	{"dpc",                cmd_save_depot_config_part, 2, ""}, // 28
 	{"dumppartdepotconfig",cmd_save_depot_config_part, 2, ""}, // 29
 	{"l",                  cmd_logfile,                1, ""}, // 30
-	{"logfile",            cmd_logfile,                1, ""} // 31
+	{"logfile",            cmd_logfile,                1, ""}, // 31
+	{"eb",                 cmd_export_to_binary,       2, ""}, // 32
+	{"exporttobinary",     cmd_export_to_binary,       2, ""}, // 33
+	{"ib",                 cmd_import_from_binary,     2, ""}, // 34
+	{"importfrombinary",   cmd_import_from_binary,     2, ""}, // 35
 };
 
 
@@ -127,6 +131,19 @@ String CommandParse::helpstring =
    Выгрузить частично файлы конфигурации хранилища заданной версии (или заданного диапазона версий) по указанному пути.\r\n\
    Номер версии - это целое число. 1, 2, 3 и т.д. - выгрузить файлы указанной версии, 0 - выгрузить файлы последней версии, -1 - предпоследней и т.д.\r\n\
 \r\n\
+ -eb\r\n\
+ -ExportToBinary <путь> <список>\r\n\
+   Экспортировать по указанному пути указанные таблицы.\r\n\
+   В списке через запятую, точку с запятой или пробел указывается список имён экспортируемых таблиц. Можно использовать знаки подстановки * и ?\r\n\
+   Если в списке содержатся пробелы, список необходимо заключать в кавычки.\r\n\
+\r\n\
+ -ib\r\n\
+ -ImportFromBinary <путь> <список>\r\n\
+   Импортировать по указанному пути указанные таблицы.\r\n\
+   В списке через запятую, точку с запятой или пробел указывается список имён импортируемых таблиц. Можно использовать знаки подстановки * и ?\r\n\
+   Если в списке содержатся пробелы, список необходимо заключать в кавычки.\r\n\
+   Таблицы должны существовать в базе, новые таблицы не создаются.\r\n\
+\r\n\
 Если в пути содержатся пробелы, его необходимо заключать в кавычки. Пути следует указывать без завершающего бэкслеша \"\\\".\r\n\
 Для команд -dc, -ddc, -drc вместо пути можно указывать имя файла конфигурации (имя файла должно заканчиваться на \".cf\").\r\n\
 ";
@@ -148,7 +165,7 @@ CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mes
 	int numdef = sizeof(definitions) / sizeof(CommandDefinition);
 	String k, p;
 
-	mess = _mess;
+	mess.AddMessageRegistrator(_mess);
 
 	filename = "";
 	for (int i = 1; i < nArgs; i++)
@@ -192,7 +209,7 @@ CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mes
 					}
 					else
 					{
-						mess->AddMessage_("Недостаточно параметров ключа командной строки.", msError,
+						mess.AddMessage_("Недостаточно параметров ключа командной строки.", msError,
 							"Ключ", k);
 						// Ошибка! Недостаточно параметров ключа!
 					}
@@ -219,7 +236,7 @@ CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mes
 			else
 			{
 				// Ошибка! Неизвестный ключ!
-				mess->AddMessage_("Неизвестный ключ командной строки.", msError,
+				mess.AddMessage_("Неизвестный ключ командной строки.", msError,
 					"Ключ", k);
 			}
 
@@ -229,7 +246,7 @@ CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mes
 			if(filename.Length() > 0)
 			{
 				// Ошибка! Имя файла базы уже было в командной строке!
-				mess->AddMessage_("Повторное имя файла базы в командной строке.", msError,
+				mess.AddMessage_("Повторное имя файла базы в командной строке.", msError,
 					"Имя файла", filename,
 					"Повторное имя файла", p);
 			}
@@ -252,5 +269,13 @@ String& CommandParse::getfilename()
 String& CommandParse::gethelpstring()
 {
 	return helpstring;
+}
+
+void CommandParse::AddMessageRegistrator(MessageRegistrator* messageregistrator) {
+	mess.AddMessageRegistrator(messageregistrator);
+}
+
+void CommandParse::RemoveMessageRegistrator() {
+	mess.RemoveMessageRegistrator();
 }
 

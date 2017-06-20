@@ -9,6 +9,8 @@
 
 #include "APIcfBase.h"
 #include "Class_1CD.h"
+#include "MessageRegistration.h"
+
 
 //---------------------------------------------------------------------------
 // Структура открытого файла адаптера контейнера конфигурации
@@ -96,13 +98,8 @@ struct container_file
 
 //---------------------------------------------------------------------------
 // Базовый класс адаптера таблицы - контейнера конфигурации (CONFIG, CONFICAS, CONFIGSAVE, CONFICASSAVE)
-class ConfigStorageTable : public ConfigStorage
+class ConfigStorageTable : public ConfigStorage, public IControlMessageRegistration
 {
-private:
-	T_1CD* base; // установлена, если база принадлежит адаптеру конфигурации
-protected:
-	std::map<String,container_file*> files;
-	bool ready{false};
 public:
 	ConfigStorageTable(T_1CD* _base = NULL) : base(_base){};
 	virtual ~ConfigStorageTable();
@@ -112,54 +109,80 @@ public:
 	bool save_config(String _filename); // сохранение конфигурации в файл
 	bool getready(){return ready;};
 	virtual bool fileexists(const String& path);
+
+	virtual void AddMessageRegistrator(MessageRegistrator* messageregistrator);
+	virtual void RemoveMessageRegistrator();
+protected:
+	std::map<String,container_file*> files;
+	bool ready{false};
+private:
+	T_1CD* base; // установлена, если база принадлежит адаптеру конфигурации
+	Registrator msreg_m;
+
 };
 
 //---------------------------------------------------------------------------
 // Класс адаптера таблицы - контейнера конфигурации CONFIG (конфигурации базы данных)
 class ConfigStorageTableConfig : public ConfigStorageTable
 {
-private:
-	String present;
 public:
 	ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _base = NULL);
 	virtual String presentation();
 	virtual ~ConfigStorageTableConfig() {}
+
+	void AddMessageRegistrator(MessageRegistrator* messageregistrator);
+	void RemoveMessageRegistrator();
+private:
+	String present;
+	Registrator msreg_m;
 };
 
 //---------------------------------------------------------------------------
 // Класс адаптера таблицы - контейнера конфигурации CONFIGSAVE (основной конфигурации)
 class ConfigStorageTableConfigSave : public ConfigStorageTable
 {
-private:
-	String present;
 public:
 	ConfigStorageTableConfigSave(TableFiles* tabc, TableFiles* tabcs, T_1CD* _base = NULL);
 	virtual String presentation();
 	virtual ~ConfigStorageTableConfigSave() {}
+
+	void AddMessageRegistrator(MessageRegistrator* messageregistrator);
+	void RemoveMessageRegistrator();
+private:
+	String present;
+	Registrator msreg_m;
 };
 
 //---------------------------------------------------------------------------
 // Класс адаптера таблицы - контейнера конфигурации CONFIGCAS (расширения конфигурации базы данных)
 class ConfigStorageTableConfigCas : public ConfigStorageTable
 {
-private:
-	String present;
 public:
 	ConfigStorageTableConfigCas(TableFiles* tabc, const String& configver, T_1CD* _base = NULL);
 	virtual String presentation();
 	virtual ~ConfigStorageTableConfigCas() {}
+
+	void AddMessageRegistrator(MessageRegistrator* messageregistrator);
+	void RemoveMessageRegistrator();
+private:
+	String present;
+	Registrator msreg_m;
 };
 
 //---------------------------------------------------------------------------
 // Класс адаптера таблицы - контейнера конфигурации CONFIGCASSAVE (расширения основной конфигурации)
 class ConfigStorageTableConfigCasSave : public ConfigStorageTable
 {
-private:
-	String present;
 public:
 	ConfigStorageTableConfigCasSave(TableFiles* tabc, TableFiles* tabcs, const TGUID& uid, const String& configver, T_1CD* _base = NULL);
 	virtual String presentation();
 	virtual ~ConfigStorageTableConfigCasSave() {}
+
+	void AddMessageRegistrator(MessageRegistrator* messageregistrator);
+	void RemoveMessageRegistrator();
+private:
+	String present;
+	Registrator msreg_m;
 };
 
 
