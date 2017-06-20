@@ -17,13 +17,15 @@ public:
 	TMemoryStream();
 	virtual ~TMemoryStream();
 
-	virtual int64_t GetSize() const;
+	//virtual int64_t GetSize() const;
+	virtual size_t GetSize() const;
 
-	virtual void    SetSize(int64_t NewSize);
+	//virtual void   SetSize(int64_t NewSize);
+	virtual void   SetSize(size_t NewSize);
 
-	virtual int64_t Read(void *Buffer, int64_t Count);
+	virtual size_t Read(void *Buffer, size_t Count);
 
-	virtual int64_t Write(const void *Buffer, int64_t Count);
+	virtual size_t Write(const void *Buffer, size_t Count);
 
 	const DynamicArray<t::Byte>  &GetBytes() const;
 

@@ -8,6 +8,7 @@
 #include "UZLib.h"
 
 //---------------------------------------------------------------------------
+// warning C4068: unknown pragma in VC++
 
 #if !defined(_WIN32)
 #pragma package(smart_init)
@@ -23,11 +24,47 @@ const int CHUNKSIZE = 16384;
 #	endif
 #endif
 
+/*
+void ZInflateStream_Old(TStream* src, TStream* dst)
+{
+	z_stream strm;
+	int ret;
+	uintmax_t srcSize;
+
+	unsigned char srcBuf[CHUNKSIZE] = {0};
+	unsigned char dstBuf[CHUNKSIZE] = {0};
+
+	strm.zalloc   = Z_NULL;
+	strm.zfree    = Z_NULL;
+	strm.opaque   = Z_NULL;
+	strm.avail_in = 0;
+	strm.next_in  = Z_NULL;
+
+	ret = inflateInit2(&strm, -MAX_WBITS);
+
+	srcSize = src->GetSize();
+
+	src->Read(srcBuf, srcSize);
+	strm.avail_in  = srcSize;
+	strm.avail_out = CHUNKSIZE;
+	strm.next_in   = srcBuf;
+	strm.next_out  = dstBuf;
+
+	ret = inflate(&strm, Z_NO_FLUSH);
+
+	(void)inflateEnd(&strm);
+
+	dst->Write(dstBuf, strm.total_out);
+
+}
+*/
+
 //---------------------------------------------------------------------------
 bool ZDeflateStream(TStream* src, TStream* dst)
 {
 	int ret, flush;
-	unsigned have;
+	//unsigned have;
+	size_t have;
 	z_stream strm;
 	unsigned char in[CHUNKSIZE];
 	unsigned char out[CHUNKSIZE];
@@ -63,7 +100,7 @@ bool ZDeflateStream(TStream* src, TStream* dst)
 			assert(ret != Z_STREAM_ERROR);  // state not clobbered
 			have = CHUNKSIZE - strm.avail_out;
 
-			int data_written = dst->Write(out, have);
+			size_t data_written = dst->Write(out, have);
 
 			if (data_written < have) {
 				(void)deflateEnd(&strm);
@@ -78,7 +115,6 @@ bool ZDeflateStream(TStream* src, TStream* dst)
 
 	// clean up and return
 	(void)deflateEnd(&strm);
-
 	return true;
 }
 
@@ -87,7 +123,7 @@ void _ZInflateStream_(TStream* src, TStream* dst)
 {
 	z_stream strm;
 	int ret;
-	uintmax_t srcSize;
+	size_t srcSize;
 
 	unsigned have;
 
@@ -155,7 +191,7 @@ bool ZInflateStream(TStream* src, TStream* dst)
 {
 	z_stream strm;
 	int ret;
-	uintmax_t srcSize;
+	//uintmax_t srcSize;
 
 	unsigned have;
 
@@ -176,11 +212,7 @@ bool ZInflateStream(TStream* src, TStream* dst)
 
 	/* decompress until deflate stream ends or end of file */
 	do {
-		//strm.avail_in = fread(in, 1, CHUNKSIZE, source);
-
-		srcSize = src->GetSize();    // определяем размер данных
-		src->Read(srcBuf, srcSize);  // читаем из потока в буфер данные
-		strm.avail_in = srcSize;
+		strm.avail_in = src->Read(static_cast<unsigned char *>(srcBuf), CHUNKSIZE);
 
 		if (strm.avail_in == 0) break;
 
@@ -196,6 +228,7 @@ bool ZInflateStream(TStream* src, TStream* dst)
 			case Z_NEED_DICT:
 			{
 				ret = Z_DATA_ERROR;     /* and fall through */
+				return false;
 			}
 			case Z_DATA_ERROR:
 			case Z_MEM_ERROR:
@@ -209,7 +242,7 @@ bool ZInflateStream(TStream* src, TStream* dst)
 			}
 
 			have = CHUNKSIZE - strm.avail_out;
-			dst->Write(dstBuf, have);
+			dst->Write(static_cast<unsigned char *>(dstBuf), have);
 
 		} while (strm.avail_out == 0);
 
@@ -221,7 +254,6 @@ bool ZInflateStream(TStream* src, TStream* dst)
 
 	free(srcBuf);
 	free(dstBuf);
-
 	return true;
 }
 
