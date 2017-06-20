@@ -26,14 +26,14 @@ wchar_t* wcslcpy(wchar_t *str1,const wchar_t *str2,int imaxlen)
 {
 	if ((int)wcslen(str2)>=imaxlen-1) {
 #if defined (_MSC_VER)
-		wcsncpy(str1, str2, imaxlen - 1);
+		wcsncpy_s(str1, imaxlen - 1, str2, imaxlen - 1);
 #else
 		wcsncpy(str1,str2,imaxlen-1);
 #endif
 		str1[imaxlen-1]=0;
 	} else
 #if defined (_MSC_VER)
-		wcscpy(str1, str2);
+		wcscpy_s(str1, imaxlen - 1, str2);
 #else
 		wcscpy(str1,str2);
 #endif
@@ -46,7 +46,7 @@ wchar_t* wcslcat(wchar_t *str1,const wchar_t *str2,int imaxlen)
 	int l1=(int)wcslen(str1);
 	if ((int)wcslen(str2)+l1>=imaxlen-1) {
 #if defined (_MSC_VER)
-		wcsncpy(str1 + l1, str2, imaxlen - 1 - l1);
+		wcsncpy_s(str1 + l1, imaxlen - 1 - l1,str2, imaxlen - 1 - l1);
 #else
 		wcsncpy(str1 + l1, str2, imaxlen - 1 - l1);
 #endif
@@ -55,7 +55,7 @@ wchar_t* wcslcat(wchar_t *str1,const wchar_t *str2,int imaxlen)
 		str1[imaxlen-1]=0;
 	} else
 #if defined (_MSC_VER)
-		wcscat(str1, str2);
+		wcscat_s(str1, imaxlen - 1, str2);
 #else
 		wcscat(str1, str2);
 #endif
