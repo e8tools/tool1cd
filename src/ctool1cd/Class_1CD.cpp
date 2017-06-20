@@ -7535,7 +7535,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 		locale = new char[strlen(root80->lang) + 1];
 
 #if defined (_MSC_VER)
-		strcpy(locale, root80->lang);
+		strcpy_s(locale, strlen(root80->lang) + 1, root80->lang);
 #else
 		strcpy(locale, root80->lang);
 #endif
@@ -7560,7 +7560,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 
 		locale = new char[strlen(root81->lang) + 1];
 #if defined (_MSC_VER)
-		strcpy(locale, root81->lang);
+		strcpy_s(locale, strlen(root81->lang) + 1, root81->lang);
 #else
 		strcpy(locale, root81->lang);
 #endif
