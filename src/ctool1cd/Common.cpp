@@ -155,7 +155,7 @@ String GUIDasMS(const unsigned char* fr)
 	}
 	buf[j] = 0;
 	//return buf;
-	return String::String(buf, 37);
+	return ::String(buf, 37);
 }
 
 //---------------------------------------------------------------------------
