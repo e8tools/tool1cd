@@ -25,6 +25,8 @@ MessageRegistrator* msreg;
 const int TEMP_BUFFER_SIZE = 4096;
 char temp[TEMP_BUFFER_SIZE];
 
+Registrator msreg_g;
+
 //---------------------------------------------------------------------------
 bool IsTrueString(const String &str)
 {
@@ -511,6 +513,7 @@ int main(int argc, char* argv[])
 	bool ActionXMLUnpackBLOBChecked       = true;
 
 	msreg = &mess;
+	msreg_g.AddMessageRegistrator(&mess);
 
 	CommandParse comm(argv, argc, &mess);
 
