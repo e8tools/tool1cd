@@ -63,7 +63,8 @@ void ZInflateStream_Old(TStream* src, TStream* dst)
 bool ZDeflateStream(TStream* src, TStream* dst)
 {
 	int ret, flush;
-	unsigned have;
+	//unsigned have;
+	size_t have;
 	z_stream strm;
 	unsigned char in[CHUNKSIZE];
 	unsigned char out[CHUNKSIZE];
@@ -99,7 +100,7 @@ bool ZDeflateStream(TStream* src, TStream* dst)
 			assert(ret != Z_STREAM_ERROR);  // state not clobbered
 			have = CHUNKSIZE - strm.avail_out;
 
-			int data_written = dst->Write(out, have);
+			size_t data_written = dst->Write(out, have);
 
 			if (data_written < have) {
 				(void)deflateEnd(&strm);
@@ -122,7 +123,7 @@ void _ZInflateStream_(TStream* src, TStream* dst)
 {
 	z_stream strm;
 	int ret;
-	uintmax_t srcSize;
+	size_t srcSize;
 
 	unsigned have;
 
@@ -190,7 +191,7 @@ bool ZInflateStream(TStream* src, TStream* dst)
 {
 	z_stream strm;
 	int ret;
-	uintmax_t srcSize;
+	//uintmax_t srcSize;
 
 	unsigned have;
 

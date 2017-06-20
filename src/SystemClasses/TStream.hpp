@@ -26,40 +26,42 @@ const TSeekOrigin soFromEnd       = std::ios_base::end;
 class TStream
 {
 protected:
-	int64_t m_position;
-	int64_t m_size;
+	size_t m_position;
+	size_t m_size;
 
 public:
 
 	TStream();
 
-	virtual int64_t GetSize() const;
+	//virtual int64_t GetSize() const;
+	virtual size_t GetSize() const;
 
-	virtual void SetSize(int64_t NewSize);
+	//virtual void SetSize(int64_t NewSize);
+	virtual void SetSize(size_t NewSize);
 
-	virtual int64_t GetPosition() const;
+	virtual size_t GetPosition() const;
 
-	virtual void SetPosition(int64_t NewPosition);
+	virtual void SetPosition(size_t NewPosition);
 
 public:
 
-	virtual int64_t Read(void *Buffer, int64_t Count);
+	virtual size_t Read(void *Buffer, size_t Count);
 
-	virtual int64_t Seek(const int64_t offset, const TSeekOrigin Origin);
+	virtual size_t Seek(const size_t offset, const TSeekOrigin Origin);
 
-	virtual int64_t Write(const void *Buffer, int64_t Count);
+	virtual size_t Write(const void *Buffer, size_t Count);
 
-	virtual int64_t ReadBuffer(void *Buffer, int64_t Count);
+	virtual size_t ReadBuffer(void *Buffer, size_t Count);
 
-	virtual int64_t Read(System::DynamicArray<System::t::Byte> &Buffer, int64_t Count);
+	virtual size_t Read(System::DynamicArray<System::t::Byte> &Buffer, size_t Count);
 
-	virtual int64_t CopyFrom(TStream *Source, const int64_t Count);
+	virtual size_t CopyFrom(TStream *Source, const size_t Count);
 
-	virtual int64_t WriteBuffer(const void *Buffer, const int64_t Count);
+	virtual size_t WriteBuffer(const void *Buffer, const size_t Count);
 
-	virtual int64_t Write(const System::DynamicArray<System::t::Byte> &Buffer, const int64_t Count);
+	virtual size_t Write(const System::DynamicArray<System::t::Byte> &Buffer, const size_t Count);
 
-	virtual void    Close();
+	virtual void   Close();
 
 	virtual ~TStream();
 };
@@ -86,9 +88,9 @@ protected:
 
 public:
 
-	virtual int64_t Read(void *Buffer, int64_t Count);
+	virtual size_t Read(void *Buffer, size_t Count);
 
-	virtual int64_t Write(const void *Buffer, int64_t Count);
+	virtual size_t Write(const void *Buffer, size_t Count);
 
 	virtual ~TWrapperStream();
 

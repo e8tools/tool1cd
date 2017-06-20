@@ -2995,18 +2995,18 @@ int32_t Field::getlen() // возвращает длину поля в байт�
 	len = null_exists ? 1 : 0;
 	switch(type)
 	{
-		case tf_binary: len += length; break;
-		case tf_bool: len += 1; break;
-		case tf_numeric: len += (length + 2) >> 1; break;
-		case tf_char: len += length * 2; break;
-		case tf_varchar: len += length * 2 + 2; break;
-		case tf_version: len += 16; break;
-		case tf_string: len += 8; break;
-		case tf_text: len += 8; break;
-		case tf_image: len += 8; break;
-		case tf_datetime: len += 7; break;
-		case tf_version8: len += 8; break;
-		case tf_varbinary: len += length + 2; break;
+		case tf_binary:    len += length;            break;
+		case tf_bool:      len += 1;                 break;
+		case tf_numeric:   len += (length + 2) >> 1; break;
+		case tf_char:      len += length * 2;        break;
+		case tf_varchar:   len += length * 2 + 2;    break;
+		case tf_version:   len += 16;                break;
+		case tf_string:    len += 8;                 break;
+		case tf_text:      len += 8;                 break;
+		case tf_image:     len += 8;                 break;
+		case tf_datetime:  len += 7;                 break;
+		case tf_version8:  len += 8;                 break;
+		case tf_varbinary: len += length + 2;        break;
 	}
 	return len;
 }
@@ -3632,17 +3632,17 @@ String Field::get_presentation_type()
 {
 	switch(type)
 	{
-		case tf_binary: return "binary";
-		case tf_bool: return "bool";
-		case tf_numeric: return "number";
-		case tf_char: return "fixed string";
-		case tf_varchar: return "string";
-		case tf_version: return "version";
-		case tf_string: return "memo";
-		case tf_text: return "text";
-		case tf_image: return "image";
-		case tf_datetime: return "datetime";
-		case tf_version8: return "hidden version";
+		case tf_binary:    return "binary";
+		case tf_bool:      return "bool";
+		case tf_numeric:   return "number";
+		case tf_char:      return "fixed string";
+		case tf_varchar:   return "string";
+		case tf_version:   return "version";
+		case tf_string:    return "memo";
+		case tf_text:      return "text";
+		case tf_image:     return "image";
+		case tf_datetime:  return "datetime";
+		case tf_version8:  return "hidden version";
 		case tf_varbinary: return "var binary";
 	}
 	return "{?}";
@@ -7535,7 +7535,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 		locale = new char[strlen(root80->lang) + 1];
 
 #if defined (_MSC_VER)
-		strcpy(locale, root80->lang);
+		strcpy_s(locale, strlen(root80->lang) + 1, root80->lang);
 #else
 		strcpy(locale, root80->lang);
 #endif
@@ -7560,7 +7560,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 
 		locale = new char[strlen(root81->lang) + 1];
 #if defined (_MSC_VER)
-		strcpy(locale, root81->lang);
+		strcpy_s(locale, strlen(root81->lang) + 1, root81->lang);
 #else
 		strcpy(locale, root81->lang);
 #endif

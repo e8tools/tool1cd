@@ -108,15 +108,15 @@ class v8file{
 	~v8file();
 	bool IsCatalog();
 	v8catalog* GetCatalog();
-	int64_t GetFileLength();
-	int64_t GetFileLength64();
+	size_t GetFileLength();
+	size_t GetFileLength64();
 
-	int64_t Read(void* Buffer, int Start, int Length);
-	int64_t Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length);
+	size_t Read(void* Buffer, size_t Start, size_t Length);
+	size_t Read(System::DynamicArray<System::t::Byte> Buffer, size_t Start, size_t Length);
 
-	int64_t Write(const void* Buffer, int Start, int Length);                           // дозапись/перезапись частично
-	int64_t Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length); // дозапись/перезапись частично
-	int64_t Write(const void* Buffer, int Length);                                      // перезапись целиком
+	size_t Write(const void* Buffer, size_t Start, size_t Length);                           // дозапись/перезапись частично
+	size_t Write(System::DynamicArray<System::t::Byte> Buffer, size_t Start, size_t Length); // дозапись/перезапись частично
+	int64_t Write(const void* Buffer, size_t Length);                                  // перезапись целиком
 	int64_t Write(TStream* Stream, int Start, int Length);                              // дозапись/перезапись частично
 	int64_t Write(TStream* Stream);                                                     // перезапись целиком
 
@@ -154,8 +154,8 @@ class v8catalog{
 	v8file* first; // первый файл в каталоге
 	v8file* last;  // последний файл в каталоге
 	std::map<String,v8file*> files; // Соответствие имен и файлов
-	int64_t start_empty; // начало первого пустого блока
-	int page_size;   // размер страницы по умолчанию
+	size_t start_empty; // начало первого пустого блока
+	size_t page_size;   // размер страницы по умолчанию
 	int version;     // версия
 	bool zipped;     // признак зазипованности файлов каталога
 	bool is_cfu;     // признак файла cfu (файл запакован deflate'ом)
@@ -166,13 +166,15 @@ class v8catalog{
 	bool is_emptymodified;
 	bool is_modified;
 
-	void free_block(int start);
+	void free_block(size_t start);
 
-	int write_block(TStream* block, int start, bool use_page_size, int len = -1);       // возвращает адрес начала блока
-	int write_datablock(TStream* block, int start, bool _zipped = false, int len = -1); // возвращает адрес начала блока
+	//size_t write_block(TStream* block, size_t start, bool use_page_size, size_t len = -1);       // возвращает адрес начала блока
+	size_t write_block(TStream* block, size_t start, bool use_page_size, size_t len = 0);       // возвращает адрес начала блока
+	size_t write_datablock(TStream* block, size_t start, bool _zipped = false, size_t len = 0); // возвращает адрес начала блока
 
 	TStream* read_datablock(int start);
-	int64_t get_nextblock(int64_t start);
+	//int64_t get_nextblock(int64_t start);
+	size_t get_nextblock(size_t start);
 
 	bool is_destructed; // признак, что работает деструктор
 	bool flushed;       // признак, что происходит сброс
@@ -209,16 +211,16 @@ class TV8FileStream : public TStream
 protected:
 	v8file* file;
 	bool own;
-	int64_t pos;
+	size_t pos;
 public:
 	TV8FileStream(v8file* f, bool ownfile = false);
 	virtual ~TV8FileStream();
-	virtual int Read(void *Buffer, int Count);
-	virtual int Read(System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count);
-	virtual int Write(const void *Buffer, int Count);
-	virtual int Write(const System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count);
-	virtual int Seek(int Offset, System::Word Origin);
-	virtual int64_t Seek(const int64_t Offset, TSeekOrigin Origin);
+	virtual size_t Read(void *Buffer, size_t Count);
+	virtual size_t Read(System::DynamicArray<System::t::Byte> Buffer, size_t Offset, size_t Count);
+	virtual size_t Write(const void *Buffer, size_t Count);
+	virtual size_t Write(const System::DynamicArray<System::t::Byte> Buffer, size_t Offset, size_t Count);
+	virtual size_t Seek(size_t Offset, System::Word Origin);
+	virtual size_t Seek(const size_t Offset, const TSeekOrigin Origin);
 };
 
 #endif

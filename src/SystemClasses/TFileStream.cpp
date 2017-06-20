@@ -47,13 +47,13 @@ void TFileStream::Close()
 	_stream.reset();
 }
 
-int64_t TFileStream::Read(void *Buffer, int64_t Count)
+size_t TFileStream::Read(void *Buffer, size_t Count)
 {
 	Reopen();
 	return TWrapperStream::Read(Buffer, Count);
 }
 
-int64_t TFileStream::Write(const void *Buffer, int64_t Count)
+size_t TFileStream::Write(const void *Buffer, size_t Count)
 {
 	Reopen();
 	return TWrapperStream::Write(Buffer, Count);
