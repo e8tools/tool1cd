@@ -7,7 +7,7 @@
 #pragma package(smart_init)
 #endif
 
-const size_t GUID_LEN = 37;
+const size_t GUID_LEN = 36;
 const wchar_t hexdecode[] = L"0123456789abcdef";
 
 //---------------------------------------------------------------------------
@@ -40,7 +40,7 @@ unsigned int reverse_byte_order(unsigned int value)
 String GUIDas1C(const unsigned char* fr)
 {
 	int i, j;
-	WCHART buf[GUID_LEN];
+	WCHART buf[GUID_LEN+1];
 	WCHART sym;
 
 	j = 0;
@@ -95,14 +95,14 @@ String GUIDas1C(const unsigned char* fr)
 	}
 	buf[j] = 0;
 
-	return String(buf, GUID_LEN);
+	return String(buf, GUID_LEN+1);
 }
 
 //---------------------------------------------------------------------------
 String GUIDasMS(const unsigned char* fr)
 {
 	int i, j;
-	WCHART buf[GUID_LEN];
+	WCHART buf[GUID_LEN+1];
 	WCHART sym;
 
 	j = 0;
@@ -157,7 +157,7 @@ String GUIDasMS(const unsigned char* fr)
 	}
 	buf[j] = 0;
 
-	return String(buf, GUID_LEN);
+	return String(buf, GUID_LEN+1);
 }
 
 //---------------------------------------------------------------------------

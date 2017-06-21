@@ -24,41 +24,6 @@ const int CHUNKSIZE = 16384;
 #	endif
 #endif
 
-/*
-void ZInflateStream_Old(TStream* src, TStream* dst)
-{
-	z_stream strm;
-	int ret;
-	uintmax_t srcSize;
-
-	unsigned char srcBuf[CHUNKSIZE] = {0};
-	unsigned char dstBuf[CHUNKSIZE] = {0};
-
-	strm.zalloc   = Z_NULL;
-	strm.zfree    = Z_NULL;
-	strm.opaque   = Z_NULL;
-	strm.avail_in = 0;
-	strm.next_in  = Z_NULL;
-
-	ret = inflateInit2(&strm, -MAX_WBITS);
-
-	srcSize = src->GetSize();
-
-	src->Read(srcBuf, srcSize);
-	strm.avail_in  = srcSize;
-	strm.avail_out = CHUNKSIZE;
-	strm.next_in   = srcBuf;
-	strm.next_out  = dstBuf;
-
-	ret = inflate(&strm, Z_NO_FLUSH);
-
-	(void)inflateEnd(&strm);
-
-	dst->Write(dstBuf, strm.total_out);
-
-}
-*/
-
 //---------------------------------------------------------------------------
 bool ZDeflateStream(TStream* src, TStream* dst)
 {
