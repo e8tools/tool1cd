@@ -6862,10 +6862,10 @@ String Table::get_file_name_for_field(int32_t num_field, char* rec, uint32_t num
 String Table::get_file_name_for_record(char* rec)
 {
 	String s("");
-	String tmp_str("");
+	
 	int32_t i;
 	int32_t num_rec;
-	Field* tmp_field;
+	
 	class index* ind;
 
 	if(num_indexes)
@@ -6887,8 +6887,8 @@ String Table::get_file_name_for_record(char* rec)
 			if(s.GetLength()){
 				s += "_";
 			}
-			tmp_field = ind->records[i].field;
-			tmp_str = tmp_field->get_XML_presentation(rec);
+			Field* tmp_field = ind->records[i].field;
+			String tmp_str = tmp_field->get_XML_presentation(rec);
 
 			s += tmp_str;
 
