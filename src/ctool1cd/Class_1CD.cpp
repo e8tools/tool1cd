@@ -6871,8 +6871,8 @@ String Table::get_file_name_for_record(char* rec)
 	if(num_indexes)
 	{
 		ind = indexes[0];
-		//for(i = 0; i < num_indexes; i++) 
-		for (i = 0; i < ind->num_records; i++) // как должно быть правильно?
+		for(i = 0; i < num_indexes; i++) 
+		
 			if(indexes[i]->is_primary)
 			{
 				ind = indexes[i];
