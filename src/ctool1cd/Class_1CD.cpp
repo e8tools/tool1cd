@@ -6883,9 +6883,9 @@ String Table::get_file_name_for_record(char* rec)
 
 		for(i = 0; i < num_rec; i++)
 		{
-			if(s.GetLength()) 
+			if(s.GetLength()){
 				s += "_";
-
+			}
 			tmp_field = ind->records[i].field;
 			tmp_str = tmp_field->get_XML_presentation(rec);
 
