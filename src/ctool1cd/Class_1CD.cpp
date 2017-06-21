@@ -3462,8 +3462,10 @@ String Field::get_XML_presentation(char* rec, bool ignore_showGUID)
 		case tf_binary:
 			if(length == 16 && (showGUID || ignore_showGUID))
 			{
-				if(showGUIDasMS) return GUIDasMS(fr);
-				else return GUIDas1C(fr);
+				if(showGUIDasMS) 
+					return GUIDasMS(fr);
+				else 
+					return GUIDas1C(fr);
 			}
 			else
 			{
@@ -6860,21 +6862,36 @@ String Table::get_file_name_for_field(int32_t num_field, char* rec, uint32_t num
 String Table::get_file_name_for_record(char* rec)
 {
 	String s("");
+	
 	int32_t i;
+	int32_t num_rec;
+	
 	class index* ind;
 
 	if(num_indexes)
 	{
 		ind = indexes[0];
-		for(i = 0; i < num_indexes; i++) if(indexes[i]->is_primary)
+		for(i = 0; i < num_indexes; i++)
 		{
-			ind = indexes[i];
-			break;
+		
+			if(indexes[i]->is_primary)
+			{
+				ind = indexes[i];
+				break;
+			}
 		}
-		for(i = 0; i < ind->num_records; i++)
+		num_rec = ind->num_records;
+
+		for(i = 0; i < num_rec; i++)
 		{
-			if(s.GetLength()) s += "_";
-			s += ind->records[i].field->get_XML_presentation(rec);
+			if(s.GetLength()){
+				s += "_";
+			}
+			Field* tmp_field = ind->records[i].field;
+			String tmp_str = tmp_field->get_XML_presentation(rec);
+
+			s += tmp_str;
+
 		}
 	}
 
@@ -7520,7 +7537,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 		locale = new char[strlen(root80->lang) + 1];
 
 #if defined (_MSC_VER)
-		strcpy(locale, root80->lang);
+		strcpy_s(locale, strlen(root80->lang) + 1, root80->lang);
 #else
 		strcpy(locale, root80->lang);
 #endif
@@ -7545,7 +7562,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 
 		locale = new char[strlen(root81->lang) + 1];
 #if defined (_MSC_VER)
-		strcpy(locale, root81->lang);
+		strcpy_s(locale, strlen(root81->lang) + 1, root81->lang);
 #else
 		strcpy(locale, root81->lang);
 #endif

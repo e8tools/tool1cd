@@ -8,6 +8,7 @@
 #include "UZLib.h"
 
 //---------------------------------------------------------------------------
+// warning C4068: unknown pragma in VC++
 
 #if !defined(_WIN32)
 #pragma package(smart_init)
@@ -78,7 +79,6 @@ bool ZDeflateStream(TStream* src, TStream* dst)
 
 	// clean up and return
 	(void)deflateEnd(&strm);
-
 	return true;
 }
 
@@ -176,11 +176,8 @@ bool ZInflateStream(TStream* src, TStream* dst)
 
 	/* decompress until deflate stream ends or end of file */
 	do {
-		//strm.avail_in = fread(in, 1, CHUNKSIZE, source);
-
-		srcSize = src->GetSize();    // определяем размер данных
-		src->Read(srcBuf, srcSize);  // читаем из потока в буфер данные
-		strm.avail_in = srcSize;
+		
+		strm.avail_in = src->Read(srcBuf, CHUNKSIZE);
 
 		if (strm.avail_in == 0) break;
 
@@ -196,6 +193,7 @@ bool ZInflateStream(TStream* src, TStream* dst)
 			case Z_NEED_DICT:
 			{
 				ret = Z_DATA_ERROR;     /* and fall through */
+				return false;
 			}
 			case Z_DATA_ERROR:
 			case Z_MEM_ERROR:
@@ -221,7 +219,6 @@ bool ZInflateStream(TStream* src, TStream* dst)
 
 	free(srcBuf);
 	free(dstBuf);
-
 	return true;
 }
 

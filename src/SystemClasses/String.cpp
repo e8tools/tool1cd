@@ -63,7 +63,7 @@ String::String(const WCHART *w_src, int limit_size)
 	const WCHART *p = w_src;
 	bool limit_exceeded = false;
 
-	if( limit_size > 0 && p != nullptr ) {
+	if( limit_size > 0 && p != nullptr ) { 
 
 		while ( !limit_exceeded && *p != '\0' ) {
 
