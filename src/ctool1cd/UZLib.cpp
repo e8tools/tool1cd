@@ -176,7 +176,8 @@ bool ZInflateStream(TStream* src, TStream* dst)
 
 	/* decompress until deflate stream ends or end of file */
 	do {
-		strm.avail_in = src->Read(static_cast<unsigned char *>(srcBuf), CHUNKSIZE);
+		
+		strm.avail_in = src->Read(srcBuf, CHUNKSIZE);
 
 		if (strm.avail_in == 0) break;
 
@@ -206,7 +207,7 @@ bool ZInflateStream(TStream* src, TStream* dst)
 			}
 
 			have = CHUNKSIZE - strm.avail_out;
-			dst->Write(static_cast<unsigned char *>(dstBuf), have);
+			dst->Write(dstBuf, have);
 
 		} while (strm.avail_out == 0);
 
