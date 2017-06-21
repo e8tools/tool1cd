@@ -10,17 +10,6 @@
 
 class tree
 {
-private:
-	String value;
-	node_type type;
-	int num_subnode; // количество подчиненных
-	tree* parent; // +1
-	tree* next; // 0
-	tree* prev; // 0
-	tree* first; // -1
-	tree* last; // -1
-	unsigned int index;
-
 public:
 	tree(const String& _value, const node_type _type, tree* _parent);
 	~tree();
@@ -40,6 +29,17 @@ public:
 	void set_value(const String& v, const node_type t);
 	void outtext(String& text);
 	String path();
+
+private:
+	String value;
+	node_type type;
+	int num_subnode; // количество подчиненных
+	tree* parent; // +1
+	tree* next; // 0
+	tree* prev; // 0
+	tree* first; // -1
+	tree* last; // -1
+	unsigned int index;
 };
 
 typedef tree* treeptr;
