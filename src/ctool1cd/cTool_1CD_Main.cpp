@@ -21,7 +21,6 @@ using namespace std;
 TMultiReadExclusiveWriteSynchronizer* tr_syn = new TMultiReadExclusiveWriteSynchronizer();
 
 //---------------------------------------------------------------------------
-MessageRegistrator* msreg;
 const int TEMP_BUFFER_SIZE = 4096;
 char temp[TEMP_BUFFER_SIZE];
 
@@ -512,7 +511,6 @@ int main(int argc, char* argv[])
 	bool ActionXMLSaveBLOBToFileChecked   = false;
 	bool ActionXMLUnpackBLOBChecked       = true;
 
-	msreg = &mess;
 	msreg_g.AddMessageRegistrator(&mess);
 
 	CommandParse comm(argv, argc, &mess);

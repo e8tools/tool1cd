@@ -121,7 +121,6 @@ class v8object
 friend Table;
 friend T_1CD;
 private:
-	MessageRegistrator* err;
 	T_1CD* base;
 
 	uint64_t len;               // длина объекта. Для типа таблицы свободных страниц - количество свободных блоков
@@ -235,24 +234,7 @@ friend Table;
 friend T_1CD;
 public:
 	static bool showGUID;
-private:
-	MessageRegistrator* err;
-	String name;
-	type_fields type;
-	bool null_exists;
-	int32_t length;
-	int32_t precision;
-	bool case_sensitive;
 
-	Table* parent;
-	int32_t len; // длина поля в байтах
-	int32_t offset; // смещение поля в записи
-	static bool showGUIDasMS; // Признак, что GUID надо преобразовывать по стилю MS (иначе по стилю 1С)
-	static char buf[];
-	static char null_index[];
-	static bool null_index_initialized;
-
-public:
 	Field(Table* _parent);
 
 	int32_t getlen(); // возвращает длину поля в байтах
@@ -272,6 +254,21 @@ public:
 #ifndef PublicRelease
 	uint32_t getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen);
 #endif //#ifdef PublicRelease
+private:
+	String name;
+	type_fields type;
+	bool null_exists;
+	int32_t length;
+	int32_t precision;
+	bool case_sensitive;
+
+	Table* parent;
+	int32_t len; // длина поля в байтах
+	int32_t offset; // смещение поля в записи
+	static bool showGUIDasMS; // Признак, что GUID надо преобразовывать по стилю MS (иначе по стилю 1С)
+	static char buf[];
+	static char null_index[];
+	static bool null_index_initialized;
 };
 
 struct index_record
@@ -333,7 +330,6 @@ class index
 {
 friend Table;
 private:
-	MessageRegistrator* err;
 	Table* tbase;
 	db_ver version; // версия базы
 	uint32_t pagesize; // размер одной стрницы (до версии 8.2.14 всегда 0x1000 (4K), начиная с версии 8.3.8 от 0x1000 (4K) до 0x10000 (64K))
@@ -470,7 +466,6 @@ friend class index;
 friend changed_rec;
 friend T_1CD;
 private:
-	MessageRegistrator* err;
 	T_1CD* base;
 
 	v8object* descr_table; // объект с описанием структуры таблицы (только для версий с 8.0 до 8.2.14)
