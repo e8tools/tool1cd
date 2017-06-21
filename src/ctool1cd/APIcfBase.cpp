@@ -3,12 +3,6 @@
 #include "UZLib.h"
 #pragma comment (lib, "zlibstatic.lib")
 
-// массив для преобразования числа в шестнадцатиричную строку
-const char _bufhex[] = "0123456789abcdef";
-
-// шаблон заголовка блока
-const char _block_header_template[] = "\r\n00000000 00000000 00000000 \r\n";
-const char _empty_catalog_template[16] = {'\xff','\xff','\xff','\x7f',0,2,0,0,0,0,0,0,0,0,0,0};
 
 #ifdef __cplusplus
 int max(int value1, int value2)
@@ -48,7 +42,7 @@ char* int_to_hex(char* hexstr, int dec)
 	for(int i = 7; i >= 0; i--)
 	{
 		_t2 = _t1 & 0xf;
-		hexstr[i] = _bufhex[_t2];
+		hexstr[i] = _BUFHEX[_t2];
 		_t1 >>= 4;
 	}
 	return hexstr;
@@ -65,7 +59,7 @@ TStream* read_block(TStream* stream_from, int start, TStream* stream_to = NULL)
 	stream_to->Seek(0, soFromBeginning);
 	stream_to->SetSize(0);
 
-	if(start < 0 || start == 0x7fffffff || start > stream_from->GetSize()) return stream_to;
+	if(start < 0 || start == LAST_BLOCK || start > stream_from->GetSize()) return stream_to;
 
 	stream_from->Seek(start, soFromBeginning);
 	stream_from->Read(temp_buf, 31);
@@ -80,7 +74,7 @@ TStream* read_block(TStream* stream_from, int start, TStream* stream_to = NULL)
 
 	pos = readlen;
 
-	while(start != 0x7fffffff){
+	while(start != LAST_BLOCK){
 		stream_from->Seek(start, soFromBeginning);
 		stream_from->Read(temp_buf, 31);
 
@@ -411,7 +405,7 @@ bool v8file::IsCatalog()
 		{
 			data->Seek(0, soFromBeginning);
 			data->Read(_t, 16);
-			if(memcmp(_t, _empty_catalog_template, 16) != 0)
+			if(memcmp(_t, _EMPTY_CATALOG_TEMPLATE, 16) != 0)
 			{
 				iscatalog = iscatalog_false;
 				Lock->Release();
@@ -427,7 +421,7 @@ bool v8file::IsCatalog()
 
 		data->Seek(0, soFromBeginning);
 		data->Read(&_startempty, 4);
-		if(_startempty != 0x7fffffff){
+		if(_startempty != LAST_BLOCK){
 			if(_startempty + 31 >= _filelen){
 				iscatalog = iscatalog_false;
 				Lock->Release();
@@ -800,7 +794,7 @@ bool v8catalog::IsCatalog()
 	{
 		data->Seek(0, soFromBeginning);
 		data->Read(_t, 16);
-		if(memcmp(_t, _empty_catalog_template, 16) != 0)
+		if(memcmp(_t, _EMPTY_CATALOG_TEMPLATE, 16) != 0)
 		{
 			Lock->Release();
 			return false;
@@ -815,7 +809,7 @@ bool v8catalog::IsCatalog()
 
 	data->Seek(0, soFromBeginning);
 	data->Read(&_startempty, 4);
-	if(_startempty != 0x7fffffff){
+	if(_startempty != LAST_BLOCK){
 		if(_startempty + 31 >= _filelen)
 		{
 			Lock->Release();
@@ -862,7 +856,7 @@ v8catalog::v8catalog(String name) // создать каталог из физи
 
 		if(!FileExists(name))
 		{
-			data->WriteBuffer(_empty_catalog_template, 16);
+			data->WriteBuffer(_EMPTY_CATALOG_TEMPLATE, 16);
 			cfu = new TFileStream(name, fmCreate);
 		}
 		else
@@ -879,7 +873,7 @@ v8catalog::v8catalog(String name) // создать каталог из физи
 		if(!FileExists(name))
 		{
 			data = new TFileStream(name, fmCreate);
-			data->WriteBuffer(_empty_catalog_template, 16);
+			data->WriteBuffer(_EMPTY_CATALOG_TEMPLATE, 16);
 			delete data;
 		}
 		data = new TFileStream(name, fmOpenReadWrite);
@@ -917,7 +911,7 @@ v8catalog::v8catalog(String name, bool _zipped) // создать каталог
 	if(!FileExists(name))
 	{
 		data = new TFileStream(name, fmCreate);
-		data->WriteBuffer(_empty_catalog_template, 16);
+		data->WriteBuffer(_EMPTY_CATALOG_TEMPLATE, 16);
 		delete data;
 	}
 	data = new TFileStream(name, fmOpenReadWrite);
@@ -953,7 +947,7 @@ v8catalog::v8catalog(TStream* stream, bool _zipped, bool leave_stream) // соз
 	file = NULL;
 
 	if(!data->GetSize()) 
-		data->WriteBuffer(_empty_catalog_template, 16);
+		data->WriteBuffer(_EMPTY_CATALOG_TEMPLATE, 16);
 
 	if(IsCatalog()) 
 		initialize();
@@ -1185,7 +1179,7 @@ void v8catalog::free_block(int start){
 	int prevempty;
 
 	if(!start) return;
-	if(start == 0x7fffffff) return;
+	if(start == LAST_BLOCK) return;
 
 	Lock->Acquire();
 	prevempty = start_empty;
@@ -1196,13 +1190,13 @@ void v8catalog::free_block(int start){
 		data->Seek(start, soFromBeginning);
 		data->ReadBuffer(temp_buf, 31);
 		nextstart = hex_to_int(&temp_buf[20]);
-		int_to_hex(&temp_buf[2], 0x7fffffff);
-		if(nextstart == 0x7fffffff) int_to_hex(&temp_buf[20], prevempty);
+		int_to_hex(&temp_buf[2], LAST_BLOCK);
+		if(nextstart == LAST_BLOCK) int_to_hex(&temp_buf[20], prevempty);
 		data->Seek(start, soFromBeginning);
 		data->WriteBuffer(temp_buf, 31);
 		start = nextstart;
 	}
-	while(start != 0x7fffffff);
+	while(start != LAST_BLOCK);
 
 	is_emptymodified = true;
 	is_modified = true;
@@ -1262,10 +1256,10 @@ int64_t v8catalog::get_nextblock(int64_t start)
 	int64_t ret;
 
 	Lock->Acquire();
-	if(start == 0 || start == 0x7fffffff)
+	if(start == 0 || start == LAST_BLOCK)
 	{
 		start = start_empty;
-		if(start == 0x7fffffff) start = data->GetSize();
+		if(start == LAST_BLOCK) start = data->GetSize();
 	}
 	ret = start;
 	Lock->Release();
@@ -1309,7 +1303,7 @@ int v8catalog::write_block(TStream* block, int start, bool use_page_size, int le
 		}
 		else if(start == data->GetSize())
 		{// пишем в новый блок
-			memcpy(temp_buf, _block_header_template, 31);
+			memcpy(temp_buf, _BLOCK_HEADER_TEMPLATE, 31);
 			blocklen = use_page_size ? len > page_size ? len : page_size : len;
 			int_to_hex(&temp_buf[11], blocklen);
 			nextstart = 0;
@@ -1327,7 +1321,7 @@ int v8catalog::write_block(TStream* block, int start, bool use_page_size, int le
 		curlen = min(blocklen, len);
 		if(!nextstart) nextstart = data->GetSize() + 31 + blocklen;
 		else nextstart = get_nextblock(nextstart);
-		int_to_hex(&temp_buf[20], len <= blocklen ? 0x7fffffff : nextstart);
+		int_to_hex(&temp_buf[20], len <= blocklen ? LAST_BLOCK : nextstart);
 
 		data->Seek(start, soFromBeginning);
 		data->WriteBuffer(temp_buf, 31);
@@ -1383,7 +1377,7 @@ v8catalog::~v8catalog()
 			try
 			{
 				fat = new TMemoryStream;
-				fi.ff = 0x7fffffff;
+				fi.ff = LAST_BLOCK;
 				f = first;
 				while(f)
 				{
@@ -1473,7 +1467,7 @@ v8catalog* v8catalog::CreateCatalog(const String& FileName, bool _selfzipped)
 	}
 	else
 	{
-		f->Write(_empty_catalog_template, 16);
+		f->Write(_EMPTY_CATALOG_TEMPLATE, 16);
 		ret = f->GetCatalog();
 	}
 	Lock->Release();
@@ -1532,7 +1526,7 @@ void v8catalog::Flush()
 		if(is_fatmodified)
 		{
 			TMemoryStream* fat = new TMemoryStream;
-			fi.ff = 0x7fffffff;
+			fi.ff = LAST_BLOCK;
 			f = first;
 			while(f)
 			{
