@@ -3111,17 +3111,6 @@ String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimite
 //---------------------------------------------------------------------------
 bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 {
-	wchar_t sym;
-	int32_t i;
-	int32_t j;
-	int32_t m;
-	int32_t l;
-	int32_t p;
-	int32_t q;
-	bool k;
-	bool n;
-	unsigned char* b;
-
 	unsigned char* fr = (unsigned char*)binary_value;
 	memset(fr, 0, len);
 
@@ -3136,46 +3125,47 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 	}
 	switch(type)
 	{
-		case tf_binary:
+		case tf_binary: {
 			if(value.GetLength() == 0) {
 				break;
 			}
-			j = 1;
+			int32_t j = 1;
 			if(length == 16 && showGUID) // TODO Надо доделать для showGUIDasMS
 			{
 				if(value.GetLength() < 36) {
 					break;
 				}
-				for(i = 12; i < 16; i++) {
-					fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				for(int32_t ind = 12; ind < 16; ind++) {
+					fr[ind] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
 				}
 				j++;
-				for(i = 10; i < 12; i++) {
-					fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				for(int32_t ind = 10; ind < 12; ind++) {
+					fr[ind] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
 				}
 				j++;
-				for(i = 8; i < 10; i++) {
-					fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				for(int32_t ind = 8; ind < 10; ind++) {
+					fr[ind] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
 				}
 				j++;
-				for(i = 0; i < 2; i++) {
-					fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				for(int32_t ind = 0; ind < 2; ind++) {
+					fr[ind] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
 				}
 				j++;
-				for(i = 2; i < 8; i++) {
-					fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				for(int32_t ind = 2; ind < 8; ind++) {
+					fr[ind] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
 				}
 			}
 			else {
 				if(value.GetLength() < length * 2) {
 					break;
 				}
-				for(i = 0; i < length; i++) {
-					fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				for(int32_t ind = 0; ind < length; ind++) {
+					fr[ind] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
 				}
 			}
 			break;
-		case tf_bool:
+		}
+		case tf_bool: {
 			if(value == "true") {
 				*fr = 1;
 			}
@@ -3183,20 +3173,22 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 				*fr = 0;
 			}
 			break;
-		case tf_numeric:
-			l = value.GetLength();
+		}
+		case tf_numeric: {
+			int32_t l = value.GetLength();
 			if(!l) {
 				break;
 			}
 
-			b = new unsigned char[l];
-			k = false; // знак минус
-			m = -1; // позиция точки
-			n = false; // признак наличия значащих цифр в начале
+			unsigned char* b = new unsigned char[l];
+			bool k = false; // знак минус
+			int32_t m = -1; // позиция точки
+			bool n = false; // признак наличия значащих цифр в начале
+			int32_t j = 0;
 
-			for(i = 0, j = 0; i < l; i++)
+			for(int32_t ind = 0; ind < l; ind++)
 			{
-				sym = value[i + 1];
+				wchar_t sym = value[ind + 1];
 				if(sym == L'-')
 				{
 					k = true;
@@ -3240,35 +3232,36 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 			if(m > l)
 			{
 				// значение превышает максимально допустимое, заменяем на все 9ки
-				for(i = 0; i < length; i++)
+				for(int32_t ind = 0; ind < length; ind++)
 				{
-					if(i & 1) {
-						fr[(i + 1) >> 1] |= 0x90;
+					if(ind & 1) {
+						fr[(ind + 1) >> 1] |= 0x90;
 					}
 					else {
-						fr[(i + 1) >> 1] |= 0x9;
+						fr[(ind + 1) >> 1] |= 0x9;
 					}
 				}
 			}
 			else
 			{
-				for(i = l - 1, p = m - 1; p >= 0; i--, p--)
+				int32_t p = 0;
+				for(int32_t ind = l - 1, p = m - 1; p >= 0; ind--, p--)
 				{
-					if(i & 1) {
-						fr[(i + 1) >> 1] |= b[p] << 4;
+					if(ind & 1) {
+						fr[(ind + 1) >> 1] |= b[p] << 4;
 					}
 					else {
-						fr[(i + 1) >> 1] |= b[p];
+						fr[(ind + 1) >> 1] |= b[p];
 					}
 				}
-				q = std::min(j - m, precision); // количество цифр после запятой
-				for(i = l, p = m; p < m + q; i++, p++)
+				int32_t q = std::min(j - m, precision); // количество цифр после запятой
+				for(int32_t ind = l, p = m; p < m + q; ind++, p++)
 				{
-					if(i & 1) {
-						fr[(i + 1) >> 1] |= b[p] << 4;
+					if(ind & 1) {
+						fr[(ind + 1) >> 1] |= b[p] << 4;
 					}
 					else {
-						fr[(i + 1) >> 1] |= b[p];
+						fr[(ind + 1) >> 1] |= b[p];
 					}
 				}
 			}
@@ -3280,34 +3273,40 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 			delete[] b;
 
 			break;
-		case tf_char:
-			l = value.GetLength();
-			i = std::min(l, length);
+		}
+		case tf_char: {
+			int32_t i = std::min(value.GetLength(), length);
 			memcpy(fr, value.c_str(), i << 1);
 			while(i < length) {
 				((WCHART*)fr)[i++] = L' ';
 			}
 			break;
-		case tf_varchar:
-			l = value.GetLength();
-			i = std::min(l, length);
+		}
+		case tf_varchar: {
+			int32_t i = std::min(value.GetLength(), length);
 			*(int16_t*)fr = i;
 			memcpy(fr + 2, value.c_str(), i * 2);
 			while(i < length) {
 				((WCHART*)(fr + 2))[i++] = L' ';
 			}
 			break;
-		case tf_version:
+		}
+		case tf_version: {
 			return false;
-		case tf_version8:
+		}
+		case tf_version8: {
 			return false;
-		case tf_string:
+		}
+		case tf_string: {
 			return false;
-		case tf_text:
+		}
+		case tf_text: {
 			return false;
-		case tf_image:
+		}
+		case tf_image: {
 			return false;
-		case tf_datetime:
+		}
+		case tf_datetime: {
 			if(value.GetLength() < 19)
 			{
 				fr[1] = 1;
@@ -3331,7 +3330,7 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 				correct_spaces(15,16) // корректируем минуты
 				correct_spaces(18,19) // корректируем секунды
 
-				i = 0;
+				int32_t i = 0;
 				// корректируем год
 				while(value[10] == L' ')
 				{
@@ -3376,38 +3375,38 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 				}
 
 				// исправляем день, месяц, год
-				i = (value[1] - L'0') * 10 + (value[2] - L'0'); // день
-				m = (value[4] - L'0') * 10 + (value[5] - L'0'); // месяц
-				j = (value[7] - L'0') * 1000 + (value[8] - L'0') * 100 + (value[9] - L'0') * 10 + (value[10] - L'0'); // год
+				int32_t day = (value[1] - L'0') * 10 + (value[2] - L'0'); // день
+				int32_t month = (value[4] - L'0') * 10 + (value[5] - L'0'); // месяц
+				int32_t year = (value[7] - L'0') * 1000 + (value[8] - L'0') * 100 + (value[9] - L'0') * 10 + (value[10] - L'0'); // год
 
-				if(m > 12)
+				if(month > 12)
 				{
-					m = 12;
+					month = 12;
 					value[4] = L'1';
 					value[5] = L'2';
 				}
-				else if(m == 0)
+				else if(month == 0)
 				{
-					m = 1;
+					month = 1;
 					value[4] = L'0';
 					value[5] = L'1';
 				}
 
-				if(j == 0)
+				if(year == 0)
 				{
-					j = 1;
+					year = 1;
 					value[7] = L'0'; //-V525
 					value[8] = L'0';
 					value[9] = L'0';
 					value[10] = L'1';
 				}
 
-				if(i == 0)
+				if(day == 0)
 				{
 					value[1] = L'0';
 					value[2] = L'1';
 				}
-				else if(i > 28) switch(m)
+				else if(day > 28) switch(month)
 				{
 					case 1:
 					case 3:
@@ -3416,7 +3415,7 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 					case 8:
 					case 10:
 					case 12:
-						if(i > 31)
+						if(day > 31)
 						{
 							value[1] = L'3';
 							value[2] = L'1';
@@ -3426,16 +3425,16 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 					case 6:
 					case 9:
 					case 11:
-						if(i > 30)
+						if(day > 30)
 						{
 							value[1] = L'3';
 							value[2] = L'0';
 						}
 						break;
 					case 2:
-						if(j % 4 == 0 && (j % 100 != 0 || j % 400 == 0))
+						if(year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))
 						{
-							if(i > 29)
+							if(day > 29)
 							{
 								value[1] = L'2';
 								value[2] = L'9';
@@ -3443,7 +3442,7 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 						}
 						else
 						{
-							if(i > 28)
+							if(day > 28)
 							{
 								value[1] = L'2';
 								value[2] = L'8';
@@ -3453,22 +3452,22 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 				}
 
 				// исправляем часы, минуты, секунды
-				i = (value[12] - L'0') * 10 + (value[13] - L'0'); // часы
-				if(i > 23)
+				int32_t hours = (value[12] - L'0') * 10 + (value[13] - L'0'); // часы
+				if(hours > 23)
 				{
 					value[12] = L'2';
 					value[13] = L'3';
 				}
 
-				i = (value[15] - L'0') * 10 + (value[16] - L'0'); // минуты
-				if(i > 59)
+				int32_t minutes = (value[15] - L'0') * 10 + (value[16] - L'0'); // минуты
+				if(minutes > 59)
 				{
 					value[15] = L'5';
 					value[16] = L'9';
 				}
 
-				i = (value[18] - L'0') * 10 + (value[19] - L'0'); // секунды
-				if(i > 59)
+				int32_t seconds = (value[18] - L'0') * 10 + (value[19] - L'0'); // секунды
+				if(seconds > 59)
 				{
 					value[18] = L'5';
 					value[19] = L'9';
@@ -3483,8 +3482,10 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 				fr[6] = ((value[18] - L'0') << 4) + (value[19] - L'0');
 			}
 			break;
-		case tf_varbinary:
+		}
+		case tf_varbinary: {
 			return false;
+		}
 	}
 
 	return true;
