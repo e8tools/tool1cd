@@ -3112,8 +3112,14 @@ String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimite
 bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 {
 	wchar_t sym;
-	int32_t i, j, m, l, p, q;
-	bool k, n;
+	int32_t i;
+	int32_t j;
+	int32_t m;
+	int32_t l;
+	int32_t p;
+	int32_t q;
+	bool k;
+	bool n;
 	unsigned char* b;
 
 	unsigned char* fr = (unsigned char*)binary_value;
@@ -3135,29 +3141,51 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 			j = 1;
 			if(length == 16 && showGUID) // TODO Надо доделать для showGUIDasMS
 			{
-				if(value.GetLength() < 36) break;
-				for(i = 12; i < 16; i++) fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				if(value.GetLength() < 36) {
+					break;
+				}
+				for(i = 12; i < 16; i++) {
+					fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				}
 				j++;
-				for(i = 10; i < 12; i++) fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				for(i = 10; i < 12; i++) {
+					fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				}
 				j++;
-				for(i = 8; i < 10; i++) fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				for(i = 8; i < 10; i++) {
+					fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				}
 				j++;
-				for(i = 0; i < 2; i++) fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				for(i = 0; i < 2; i++) {
+					fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				}
 				j++;
-				for(i = 2; i < 8; i++) fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				for(i = 2; i < 8; i++) {
+					fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				}
 			}
-			else{
-				if(value.GetLength() < length * 2) break;
-				for(i = 0; i < length; i++) fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+			else {
+				if(value.GetLength() < length * 2) {
+					break;
+				}
+				for(i = 0; i < length; i++) {
+					fr[i] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
+				}
 			}
 			break;
 		case tf_bool:
-			if(value == "true") *fr = 1;
-			else *fr = 0;
+			if(value == "true") {
+				*fr = 1;
+			}
+			else {
+				*fr = 0;
+			}
 			break;
 		case tf_numeric:
 			l = value.GetLength();
-			if(!l) break;
+			if(!l) {
+				break;
+			}
 
 			b = new unsigned char[l];
 			k = false; // знак минус
@@ -3188,7 +3216,9 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 					n = true;
 				}
 			}
-			if(m == -1) m = j;
+			if(m == -1) {
+				m = j;
+			}
 
 			// тут имеем:
 			// в b значащие цифры
@@ -3216,34 +3246,48 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 			{
 				for(i = l - 1, p = m - 1; p >= 0; i--, p--)
 				{
-					if(i & 1) fr[(i + 1) >> 1] |= b[p] << 4;
-					else fr[(i + 1) >> 1] |= b[p];
+					if(i & 1) {
+						fr[(i + 1) >> 1] |= b[p] << 4;
+					}
+					else {
+						fr[(i + 1) >> 1] |= b[p];
+					}
 				}
-				q = MIN(j - m, precision); // количество цифр после запятой
+				q = std::min(j - m, precision); // количество цифр после запятой
 				for(i = l, p = m; p < m + q; i++, p++)
 				{
-					if(i & 1) fr[(i + 1) >> 1] |= b[p] << 4;
-					else fr[(i + 1) >> 1] |= b[p];
+					if(i & 1) {
+						fr[(i + 1) >> 1] |= b[p] << 4;
+					}
+					else {
+						fr[(i + 1) >> 1] |= b[p];
+					}
 				}
 			}
 
-			if(!k) *fr |= 0x10; // Знак
+			if(!k) {
+				*fr |= 0x10; // Знак
+			}
 
 			delete[] b;
 
 			break;
 		case tf_char:
 			l = value.GetLength();
-			i = MIN(l, length);
+			i = std::min(l, length);
 			memcpy(fr, value.c_str(), i << 1);
-			while(i < length) ((WCHART*)fr)[i++] = L' ';
+			while(i < length) {
+				((WCHART*)fr)[i++] = L' ';
+			}
 			break;
 		case tf_varchar:
 			l = value.GetLength();
-			i = MIN(l, length);
+			i = std::min(l, length);
 			*(int16_t*)fr = i;
 			memcpy(fr + 2, value.c_str(), i * 2);
-			while(i < length) ((WCHART*)(fr + 2))[i++] = L' ';
+			while(i < length) {
+				((WCHART*)(fr + 2))[i++] = L' ';
+			}
 			break;
 		case tf_version:
 			return false;
@@ -3302,7 +3346,9 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 					value[7] = L'0';
 					i++;
 				}
-				if(value[7] == L' ') value[7] = L'0';
+				if(value[7] == L' ') {
+					value[7] = L'0';
+				}
 
 				// дополняем год при необходимости
 				switch(i)
@@ -3419,7 +3465,6 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 					value[18] = L'5';
 					value[19] = L'9';
 				}
-
 
 				fr[3] = ((value[1] - L'0') << 4) + (value[2] - L'0');
 				fr[2] = ((value[4] - L'0') << 4) + (value[5] - L'0');
