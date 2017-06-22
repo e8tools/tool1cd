@@ -3137,7 +3137,9 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 	switch(type)
 	{
 		case tf_binary:
-			if(value.GetLength() == 0) break;
+			if(value.GetLength() == 0) {
+				break;
+			}
 			j = 1;
 			if(length == 16 && showGUID) // TODO Надо доделать для showGUIDasMS
 			{
@@ -3206,9 +3208,11 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 					n = true;
 					continue;
 				}
-				if(!n) if(sym == L'0')
-				{
-					continue;
+				if(!n) {
+					if(sym == L'0')
+					{
+						continue;
+					}
 				}
 				if(sym >= L'0' || sym <= L'9')
 				{
@@ -3238,8 +3242,12 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 				// значение превышает максимально допустимое, заменяем на все 9ки
 				for(i = 0; i < length; i++)
 				{
-					if(i & 1) fr[(i + 1) >> 1] |= 0x90;
-					else fr[(i + 1) >> 1] |= 0x9;
+					if(i & 1) {
+						fr[(i + 1) >> 1] |= 0x90;
+					}
+					else {
+						fr[(i + 1) >> 1] |= 0x9;
+					}
 				}
 			}
 			else
