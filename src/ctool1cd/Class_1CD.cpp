@@ -19,20 +19,6 @@ extern Registrator msreg_g;
 
 bool T_1CD::recoveryMode = false;
 
-memblock* memblock::first = NULL;
-memblock* memblock::last = NULL;
-uint32_t memblock::count = 0;
-uint32_t memblock::maxcount;
-memblock** memblock::memblocks = NULL;
-
-uint64_t memblock::numblocks = 0;
-
-uint64_t memblock::array_numblocks = 0;
-
-uint32_t memblock::delta = 128;
-uint32_t memblock::pagesize;
-
-
 //********************************************************
 // Функции
 
@@ -64,182 +50,6 @@ tree* get_treeFromV8file(v8file* f)
 	return rt;
 }
 
-//********************************************************
-// Класс memblock
-
-//---------------------------------------------------------------------------
-memblock::memblock(TFileStream* fs, uint32_t _numblock, bool for_write, bool read)
-{
-	numblock = _numblock;
-	lastdataget = 0;
-	if(count >= maxcount) delete first; // если количество кешированных блоков превышает максимальное, удаляем последний, к которому было обращение
-	count++;
-	prev = last;
-	next = NULL;
-	if(last) last->next = this;
-	else first = this;
-	last = this;
-
-	buf = new char[pagesize];
-	if(for_write)
-	{
-		uint32_t fnumblocks = fs->GetSize() / pagesize;
-		if(fnumblocks <= numblock)
-		{
-			memset(buf, 0, pagesize);
-			fs->Seek((int64_t)numblock * pagesize, (TSeekOrigin)soFromBeginning);
-			fs->WriteBuffer(buf, pagesize);
-			fs->Seek(12, (TSeekOrigin)soFromBeginning);
-			fs->WriteBuffer(&numblock, 4);
-		}
-		else
-		{
-			if(read)
-			{
-				fs->Seek((int64_t)numblock * pagesize, (TSeekOrigin)soFromBeginning);
-				fs->ReadBuffer(buf, pagesize);
-			}
-			else memset(buf, 0, pagesize);
-		}
-	}
-	else
-	{
-		fs->Seek((int64_t)numblock * pagesize, (TSeekOrigin)soFromBeginning);
-		fs->ReadBuffer(buf, pagesize);
-	}
-
-	is_changed = for_write;
-	file = fs;
-
-	// регистрируем себя в в массиве блоков
-	memblocks[numblock] = this;
-}
-
-//---------------------------------------------------------------------------
-memblock::~memblock()
-{
-	if(is_changed) write();
-
-	// удаляем себя из цепочки...
-	if(prev) prev->next = next;
-	else first = next;
-	if(next) next->prev = prev;
-	else last = prev;
-
-	// удаляем себя из массива блоков
-	memblocks[numblock] = NULL;
-
-	count--;
-	delete[] buf;
-}
-
-//---------------------------------------------------------------------------
-char* memblock::getblock(bool for_write)
-{
-	lastdataget = GetTickCount();
-	// удаляем себя из текущего положения цепочки...
-	if(prev) prev->next = next;
-	else first = next;
-	if(next) next->prev = prev;
-	else last = prev;
-	// ... и записываем себя в конец цепочки
-	prev = last;
-	next = NULL;
-	if(last) last->next = this;
-	else first = this;
-	last = this;
-
-	if(for_write) is_changed = true;
-
-	return buf;
-}
-
-//---------------------------------------------------------------------------
-void memblock::garbage()
-{
-	uint32_t curt = GetTickCount();
-	while(memblock::first)
-	{
-		if(curt - first->lastdataget > LIVE_CASH * 60 * 1000) delete memblock::first;
-		else break;
-	}
-}
-
-//---------------------------------------------------------------------------
-char* memblock::getblock(TFileStream* fs, uint32_t _numblock)
-{
-	if(_numblock >= numblocks) return NULL;
-	if(!memblocks[_numblock]) new memblock(fs, _numblock, false, true);
-	return memblocks[_numblock]->getblock(false);
-}
-
-//---------------------------------------------------------------------------
-char* memblock::getblock_for_write(TFileStream* fs, uint32_t _numblock, bool read)
-{
-	if(_numblock > numblocks) return NULL;
-	if(_numblock == numblocks) add_block();
-	if(!memblocks[_numblock]) new memblock(fs, _numblock, true, read);
-	else memblocks[_numblock]->is_changed = true;
-	return memblocks[_numblock]->getblock(true);
-}
-
-//---------------------------------------------------------------------------
-void memblock::create_memblocks(uint64_t _numblocks)
-{
-	numblocks = _numblocks;
-	array_numblocks = (numblocks / delta + 1) * delta;
-	memblocks = new memblock*[array_numblocks];
-	memset(memblocks, 0, array_numblocks * sizeof(memblock *));
-}
-
-//---------------------------------------------------------------------------
-void memblock::delete_memblocks()
-{
-	//while(first) delete first;
-	while (memblock::first) delete memblock::first;
-	delete[] memblocks;
-	numblocks = 0;
-	array_numblocks = 0;
-}
-
-//---------------------------------------------------------------------------
-void memblock::add_block()
-{
-	memblock** mb;
-
-	if(numblocks < array_numblocks) memblocks[numblocks++] = NULL;
-	else
-	{
-		mb = new memblock*[array_numblocks + delta];
-		for(unsigned i = 0; i < array_numblocks; i++) mb[i] = memblocks[i];
-		for(unsigned i = array_numblocks; i < array_numblocks + delta; i++) mb[i] = NULL;
-		array_numblocks += delta;
-		delete[] memblocks;
-		memblocks = mb;
-	}
-}
-
-//---------------------------------------------------------------------------
-uint64_t memblock::get_numblocks()
-{
-	return numblocks;
-}
-
-//---------------------------------------------------------------------------
-void memblock::flush()
-{
-	memblock* cur;
-	for(cur = first; cur; cur = cur->next) if(cur->is_changed) cur->write();
-}
-
-//---------------------------------------------------------------------------
-void memblock::write()
-{
-	if(!is_changed) return;
-	file->Seek((int64_t)numblock * pagesize, (TSeekOrigin)soFromBeginning);
-	file->WriteBuffer(buf, pagesize);
-	is_changed = false;
-}
 
 //********************************************************
 // Класс T_1CD
@@ -257,7 +67,7 @@ bool T_1CD::getblock(void* buf, uint32_t block_number, int32_t blocklen)
 		return false;
 	}
 
-	memcpy(buf, memblock::getblock(fs, block_number), blocklen);
+	memcpy(buf, MemBlock::getblock(fs, block_number), blocklen);
 	return true;
 }
 
@@ -273,7 +83,7 @@ char*  T_1CD::getblock(uint32_t block_number)
 		return NULL;
 	}
 
-	return memblock::getblock(fs, block_number);
+	return MemBlock::getblock(fs, block_number);
 }
 
 //---------------------------------------------------------------------------
@@ -299,7 +109,7 @@ char*  T_1CD::getblock_for_write(uint32_t block_number, bool read)
 		bc->length = length;
 	}
 
-	return memblock::getblock_for_write(fs, block_number, read);
+	return MemBlock::getblock_for_write(fs, block_number, read);
 }
 
 //---------------------------------------------------------------------------
@@ -414,7 +224,7 @@ T_1CD::~T_1CD()
 	num_tables = 0;
 
 	// сначала закрываем кэшированные блоки (измененные блоки записывают себя в файл) ...
-	memblock::delete_memblocks();
+	MemBlock::delete_memblocks();
 
 	// ... и только затем закрываем файл базы.
 	if(fs)
@@ -537,9 +347,9 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 		return;
 	}
 
-	memblock::pagesize = pagesize;
-	memblock::maxcount = 0x40000000 / pagesize; // гигабайт
-	memblock::create_memblocks(length);
+	MemBlock::pagesize = pagesize;
+	MemBlock::maxcount = 0x40000000 / pagesize; // гигабайт
+	MemBlock::create_memblocks(length);
 
 	if(length != cont->length)
 	{
@@ -1014,7 +824,7 @@ uint32_t T_1CD::get_free_block()
 //---------------------------------------------------------------------------
 void T_1CD::flush()
 {
-	memblock::flush();
+	MemBlock::flush();
 }
 
 //---------------------------------------------------------------------------

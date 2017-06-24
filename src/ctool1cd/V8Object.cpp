@@ -1272,7 +1272,7 @@ uint32_t v8object::get_free_block()
 	}
 	else
 	{
-		unsigned i = memblock::get_numblocks();
+		unsigned i = MemBlock::get_numblocks();
 		base->getblock_for_write(i, false);
 		return i;
 	}

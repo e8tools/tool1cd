@@ -59,6 +59,8 @@
 		<Unit filename="Field.h" />
 		<Unit filename="Index.cpp" />
 		<Unit filename="Index.h" />
+		<Unit filename="MemBlock.cpp" />
+		<Unit filename="MemBlock.h" />
 		<Unit filename="MessageRegistration.cpp" />
 		<Unit filename="MessageRegistration.h" />
 		<Unit filename="Messenger.cpp" />

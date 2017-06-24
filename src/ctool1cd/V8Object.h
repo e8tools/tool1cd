@@ -3,6 +3,7 @@
 
 #include <System.Classes.hpp>
 
+#include "MemBlock.h"
 #include "Class_1CD.h"
 #include "db_ver.h"
 
