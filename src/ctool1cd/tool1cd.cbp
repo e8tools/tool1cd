@@ -11,7 +11,6 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-eax ~/dev-pro/testxml ~/dev-pro/1Cv8.1CD" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -33,6 +32,7 @@
 			<Add option="-std=c++11" />
 			<Add option="-Dconsole" />
 			<Add directory="../SystemClasses" />
+			<Add directory="/usr/include" />
 		</Compiler>
 		<Linker>
 			<Add library="dmpassystem" />
@@ -52,6 +52,7 @@
 		<Unit filename="Common.h" />
 		<Unit filename="ConfigStorage.cpp" />
 		<Unit filename="ConfigStorage.h" />
+		<Unit filename="Constants.h" />
 		<Unit filename="DTshkaPCH1.h" />
 		<Unit filename="ErrorCode.h" />
 		<Unit filename="MessageRegistration.cpp" />
@@ -68,6 +69,8 @@
 		<Unit filename="TempStream.h" />
 		<Unit filename="UZLib.cpp" />
 		<Unit filename="UZLib.h" />
+		<Unit filename="V8Object.cpp" />
+		<Unit filename="V8Object.h" />
 		<Unit filename="Zip.cpp" />
 		<Unit filename="Zip.h" />
 		<Unit filename="cTool_1CD_Main.cpp" />
@@ -78,7 +81,9 @@
 		<Extensions>
 			<code_completion />
 			<envvars />
-			<lib_finder disable_auto="1" />
+			<lib_finder disable_auto="1">
+				<lib name="zlib" />
+			</lib_finder>
 			<debugger />
 		</Extensions>
 	</Project>

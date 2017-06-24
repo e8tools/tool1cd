@@ -22,5 +22,10 @@ String tohex64(int64_t n);
 String hexstring(char* buf, int n);
 String hexstring(TStream* str);
 
+
+#ifndef MIN
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif // MIN
+
 #endif
 

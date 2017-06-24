@@ -11,3 +11,4 @@ Debug/*
 *.a
 *.out
 
+/build/
