@@ -71,12 +71,12 @@ struct _pack_index_record
 const int16_t indexpage_is_root = 1; // Установленный флаг означает, что страница является корневой
 const int16_t indexpage_is_leaf = 2; // Установленный флаг означает, что страница является листом, иначе веткой
 
-class index
+class Index
 {
 friend Table;
 public:
-	index(Table* _base);
-	~index();
+	Index(Table* _base);
+	~Index();
 
 	String getname();
 	bool get_is_primary();

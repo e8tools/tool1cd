@@ -330,7 +330,7 @@ void Table::init(int32_t block_descr)
 	uint32_t m;
 	uint64_t s;
 	String ws;
-	class index* ind;
+	class Index* ind;
 	int32_t numrec;
 	int32_t blockfile[3];
 	Field* fld;
@@ -670,8 +670,8 @@ void Table::init(int32_t block_descr)
 	num_indexes = t->get_num_subnode() - 1;
 	if(num_indexes)
 	{
-		indexes = new class index*[num_indexes];
-		for(i = 0; i < num_indexes; i++) indexes[i] = new class index(this);
+		indexes = new class Index*[num_indexes];
+		for(i = 0; i < num_indexes; i++) indexes[i] = new class Index(this);
 
 		f = t->get_first();
 		if(f->get_type() != nd_string)
@@ -1259,7 +1259,7 @@ Field* Table::getfield(int32_t numfield)
 }
 
 //---------------------------------------------------------------------------
-class index* Table::getindex(int32_t numindex)
+class Index* Table::getindex(int32_t numindex)
 {
 	if(numindex >= num_indexes)
 	{
@@ -1533,7 +1533,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 	bool dircreated = false;
 	bool canwriteblob = false;
 	String dir;
-	class index* curindex;
+	class Index* curindex;
 	int32_t ic; // image count, количество полей с типом image
 	int32_t rc; // repeat count, количество повторов имени записи подряд (для случая, если индекс не уникальный)
 
@@ -2250,7 +2250,7 @@ char* Table::get_edit_record(uint32_t phys_numrecord, char* rec)
 }
 
 //---------------------------------------------------------------------------
-uint32_t Table::get_phys_numrec(int32_t ARow, class index* cur_index)
+uint32_t Table::get_phys_numrec(int32_t ARow, class Index* cur_index)
 {
 	uint32_t numrec;
 
@@ -3020,7 +3020,7 @@ String Table::get_file_name_for_field(int32_t num_field, char* rec, uint32_t num
 {
 	String s("");
 	int32_t i;
-	class index* ind;
+	class Index* ind;
 
 	if(num_indexes)
 	{
@@ -3056,7 +3056,7 @@ String Table::get_file_name_for_record(char* rec)
 	int32_t i;
 	int32_t num_rec;
 	
-	class index* ind;
+	class Index* ind;
 
 	if(num_indexes)
 	{
@@ -5722,7 +5722,7 @@ void T_1CD::find_and_save_lost_objects()
 int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
 {
 	char* rec;
-	class index* ind;
+	class Index* ind;
 	Field* fld;
 	uint32_t i;
 	int32_t v;
@@ -5798,10 +5798,10 @@ Field* T_1CD::get_field(Table* tab, String fieldname)
 	return NULL;
 }
 
-class index* T_1CD::get_index(Table* tab, String indexname)
+class Index* T_1CD::get_index(Table* tab, String indexname)
 {
 	int32_t j;
-	class index* ind;
+	class Index* ind;
 	String s;
 
 	for(j = 0; j < tab->num_indexes; j++)
@@ -5844,7 +5844,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	Field* fldh_datapacked;
 	Field* fldh_objdata;
 	Field* fldh_datahash;
-	class index* indh;
+	class Index* indh;
 	char* rech1;
 	char* rech2;
 
@@ -5859,7 +5859,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	Field* flde_datapacked;
 	Field* flde_extdata;
 	Field* flde_datahash;
-	class index* inde;
+	class Index* inde;
 	char* rece;
 	DynamicArray<char*> reces;
 	DynamicArray<String> extnames;
@@ -6606,7 +6606,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	Field* fldh_datapacked;
 	Field* fldh_objdata;
 	Field* fldh_datahash;
-	class index* indh;
+	class Index* indh;
 	char* rech; // текущая запись HISTORY
 	char* rech1; // запись с версией < ver_begin
 	bool hasrech1;
@@ -6624,7 +6624,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	Field* flde_datapacked;
 	Field* flde_extdata;
 	Field* flde_datahash;
-	class index* inde;
+	class Index* inde;
 	char* rece;
 	uint32_t ie, ne, je;
 

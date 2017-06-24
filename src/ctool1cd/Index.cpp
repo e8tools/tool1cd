@@ -10,7 +10,7 @@
 extern Registrator msreg_g;
 
 //---------------------------------------------------------------------------
-index::index(Table* _base)
+Index::Index(Table* _base)
 {
 	tbase       = _base;
     is_primary  = false;
@@ -25,37 +25,37 @@ index::index(Table* _base)
 }
 
 //---------------------------------------------------------------------------
-index::~index()
+Index::~Index()
 {
 	delete[] records;
 }
 
 //---------------------------------------------------------------------------
-String index::getname()
+String Index::getname()
 {
 	return name;
 }
 
 //---------------------------------------------------------------------------
-bool index::get_is_primary()
+bool Index::get_is_primary()
 {
 	return is_primary;
 }
 
 //---------------------------------------------------------------------------
-int32_t index::get_num_records()
+int32_t Index::get_num_records()
 {
 	return num_records;
 }
 
 //---------------------------------------------------------------------------
-index_record* index::get_records()
+index_record* Index::get_records()
 {
 	return records;
 }
 
 //---------------------------------------------------------------------------
-uint32_t index::get_numrecords()
+uint32_t Index::get_numrecords()
 {
 	if(!start) return 0;
 	if(!recordsindex_complete) create_recordsindex();
@@ -63,7 +63,7 @@ uint32_t index::get_numrecords()
 }
 
 //---------------------------------------------------------------------------
-uint32_t index::get_numrec(uint32_t num_record)
+uint32_t Index::get_numrec(uint32_t num_record)
 {
 	if(!start) return 0;
 	if(!recordsindex_complete) create_recordsindex();
@@ -71,7 +71,7 @@ uint32_t index::get_numrec(uint32_t num_record)
 }
 
 //---------------------------------------------------------------------------
-void index::create_recordsindex()
+void Index::create_recordsindex()
 {
 	char* buf;
 	int32_t curlen;
@@ -139,7 +139,7 @@ void index::create_recordsindex()
 
 //---------------------------------------------------------------------------
 #ifndef PublicRelease
-void index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, uint64_t curblock)
+void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, uint64_t curblock)
 {
 	unsigned char bf[3];
 	char* buf;
@@ -295,7 +295,7 @@ void index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 #endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
-uint32_t index::get_rootblock()
+uint32_t Index::get_rootblock()
 {
 	if(!start) return 0;
 
@@ -311,7 +311,7 @@ uint32_t index::get_rootblock()
 }
 
 //---------------------------------------------------------------------------
-uint32_t index::get_length()
+uint32_t Index::get_length()
 {
 	if(!start) return 0;
 
@@ -328,7 +328,7 @@ uint32_t index::get_length()
 
 //---------------------------------------------------------------------------
 #ifndef PublicRelease
-void index::dump(String _filename)
+void Index::dump(String _filename)
 {
 	TFileStream* f;
 	v8object* file_index;
@@ -364,7 +364,7 @@ void index::dump(String _filename)
 #endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
-char* index::unpack_leafpage(uint64_t page_offset, uint32_t& number_indexes)
+char* Index::unpack_leafpage(uint64_t page_offset, uint32_t& number_indexes)
 {
 	char* buf;
 	char* ret;
@@ -379,7 +379,7 @@ char* index::unpack_leafpage(uint64_t page_offset, uint32_t& number_indexes)
 }
 
 //---------------------------------------------------------------------------
-char* index::unpack_leafpage(char* page, uint32_t& number_indexes)
+char* Index::unpack_leafpage(char* page, uint32_t& number_indexes)
 {
 	char* outbuf;
 	char* rbuf;
@@ -452,7 +452,7 @@ char* index::unpack_leafpage(char* page, uint32_t& number_indexes)
 }
 
 //---------------------------------------------------------------------------
-bool index::pack_leafpage(char* unpack_index, uint32_t number_indexes, char* page_buf)
+bool Index::pack_leafpage(char* unpack_index, uint32_t number_indexes, char* page_buf)
 {
 	uint32_t min_numrec_bits;
 	uint32_t min_bits;
@@ -587,7 +587,7 @@ bool index::pack_leafpage(char* unpack_index, uint32_t number_indexes, char* pag
 
 //---------------------------------------------------------------------------
 #ifndef PublicRelease
-void index::calcRecordIndex(const char* rec, char* indexBuf)
+void Index::calcRecordIndex(const char* rec, char* indexBuf)
 {
 	int32_t i, j, k;
 
@@ -602,7 +602,7 @@ void index::calcRecordIndex(const char* rec, char* indexBuf)
 }
 
 //---------------------------------------------------------------------------
-void index::delete_index(const char* rec, const uint32_t phys_numrec)
+void Index::delete_index(const char* rec, const uint32_t phys_numrec)
 {
 	char* index_buf;
 	index_buf = new char[length];
@@ -612,7 +612,7 @@ void index::delete_index(const char* rec, const uint32_t phys_numrec)
 }
 
 //---------------------------------------------------------------------------
-void index::delete_index_record(const char* index_buf, const uint32_t phys_numrec)
+void Index::delete_index_record(const char* index_buf, const uint32_t phys_numrec)
 {
 	bool is_last_record, page_is_empty; // заглушки для вызова рекурсивной функции
 	uint32_t new_last_phys_num; // заглушки для вызова рекурсивной функции
@@ -622,7 +622,7 @@ void index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 }
 
 //---------------------------------------------------------------------------
-void index::delete_index_record(const char* index_buf, const uint32_t phys_numrec, uint64_t block, bool& is_last_record, bool& page_is_empty, char* new_last_index_buf, uint32_t& new_last_phys_num)
+void Index::delete_index_record(const char* index_buf, const uint32_t phys_numrec, uint64_t block, bool& is_last_record, bool& page_is_empty, char* new_last_index_buf, uint32_t& new_last_phys_num)
 {
 	char* page;
 	branch_page_header* bph;
@@ -765,7 +765,7 @@ void index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 }
 
 //---------------------------------------------------------------------------
-void index::write_index(const uint32_t phys_numrecord, const char* rec)
+void Index::write_index(const uint32_t phys_numrecord, const char* rec)
 {
 	char* index_buf;
 	index_buf = new char[length];
@@ -776,7 +776,7 @@ void index::write_index(const uint32_t phys_numrecord, const char* rec)
 }
 
 //---------------------------------------------------------------------------
-void index::write_index_record(const uint32_t phys_numrecord, const char* index_buf)
+void Index::write_index_record(const uint32_t phys_numrecord, const char* index_buf)
 {
 	int32_t result;
 	char* new_last_index_buf = new char[length];
@@ -840,7 +840,7 @@ void index::write_index_record(const uint32_t phys_numrecord, const char* index_
 }
 
 //---------------------------------------------------------------------------
-void index::write_index_record(const uint32_t phys_numrecord, const char* index_buf, uint64_t block, int32_t& result, char* new_last_index_buf, uint32_t& new_last_phys_num, char* new_last_index_buf2, uint32_t& new_last_phys_num2, uint64_t& new_last_block2)
+void Index::write_index_record(const uint32_t phys_numrecord, const char* index_buf, uint64_t block, int32_t& result, char* new_last_index_buf, uint32_t& new_last_phys_num, char* new_last_index_buf2, uint32_t& new_last_phys_num2, uint64_t& new_last_block2)
 {
 	// result - результат добавления.
 	// 0 - ничего делать не надо.

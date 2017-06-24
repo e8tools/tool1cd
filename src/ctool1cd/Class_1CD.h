@@ -156,7 +156,7 @@ struct export_import_table_root
 
 class Table{
 friend Field;
-friend class index;
+friend class Index;
 friend changed_rec;
 friend T_1CD;
 private:
@@ -169,7 +169,7 @@ private:
 	int32_t num_fields2; // количество элементов в массиве fields
 	Field** fields;
 	int32_t num_indexes;
-	class index** indexes;
+	class Index** indexes;
 	bool recordlock;
 	v8object* file_data;
 	v8object* file_blob;
@@ -228,7 +228,7 @@ public:
 	int32_t get_numfields();
 	int32_t get_numindexes();
 	Field* getfield(int32_t numfield);
-	class index* getindex(int32_t numindex);
+	class Index* getindex(int32_t numindex);
 	bool get_issystem();
 	int32_t get_recordlen();
 	bool get_recordlock();
@@ -253,7 +253,7 @@ public:
 	char* get_edit_record(uint32_t phys_numrecord, char* buf); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
 	bool get_edit();
 
-	uint32_t get_phys_numrec(int32_t ARow, class index* cur_index); // получить физический индекс записи по номеру строки по указанному индексу
+	uint32_t get_phys_numrec(int32_t ARow, class Index* cur_index); // получить физический индекс записи по номеру строки по указанному индексу
 	String get_file_name_for_field(int32_t num_field, char* rec, uint32_t numrec = 0); // получить имя файла по-умолчанию конкретного поля конкретной записи
 	String get_file_name_for_record(char* rec); // получить имя файла по-умолчанию конкретной записи
 	T_1CD* getbase(){return base;};
@@ -469,7 +469,7 @@ class T_1CD
 {
 friend v8object;
 friend Table;
-friend class index;
+friend class Index;
 friend Field;
 public:
 	static bool recoveryMode;
@@ -527,7 +527,7 @@ public:
 	bool save_config_ext_db(const String& _filename, const String& hashname);
 
 	Field* get_field(Table* tab, String fieldname);
-	class index* get_index(Table* tab, String indexname);
+	class Index* get_index(Table* tab, String indexname);
 
 	bool get_readonly();
 	void set_readonly(bool ro);
