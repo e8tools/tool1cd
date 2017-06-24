@@ -2364,7 +2364,7 @@ void T_1CD::find_and_save_lost_objects()
 int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
 {
 	char* rec;
-	class Index* ind;
+	Index* ind;
 	Field* fld;
 	uint32_t i;
 	int32_t v;
@@ -2440,10 +2440,10 @@ Field* T_1CD::get_field(Table* tab, String fieldname)
 	return NULL;
 }
 
-class Index* T_1CD::get_index(Table* tab, String indexname)
+Index* T_1CD::get_index(Table* tab, String indexname)
 {
 	int32_t j;
-	class Index* ind;
+	Index* ind;
 	String s;
 
 	for(j = 0; j < tab->num_indexes; j++)
@@ -2486,7 +2486,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	Field* fldh_datapacked;
 	Field* fldh_objdata;
 	Field* fldh_datahash;
-	class Index* indh;
+	Index* indh;
 	char* rech1;
 	char* rech2;
 
@@ -2501,7 +2501,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	Field* flde_datapacked;
 	Field* flde_extdata;
 	Field* flde_datahash;
-	class Index* inde;
+	Index* inde;
 	char* rece;
 	DynamicArray<char*> reces;
 	DynamicArray<String> extnames;
@@ -3248,7 +3248,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	Field* fldh_datapacked;
 	Field* fldh_objdata;
 	Field* fldh_datahash;
-	class Index* indh;
+	Index* indh;
 	char* rech; // текущая запись HISTORY
 	char* rech1; // запись с версией < ver_begin
 	bool hasrech1;
@@ -3266,7 +3266,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	Field* flde_datapacked;
 	Field* flde_extdata;
 	Field* flde_datahash;
-	class Index* inde;
+	Index* inde;
 	char* rece;
 	uint32_t ie, ne, je;
 

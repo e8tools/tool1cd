@@ -158,7 +158,7 @@ class T_1CD
 {
 friend v8object;
 friend Table;
-friend class Index;
+friend Index;
 friend Field;
 public:
 	static bool recoveryMode;
@@ -216,7 +216,7 @@ public:
 	bool save_config_ext_db(const String& _filename, const String& hashname);
 
 	Field* get_field(Table* tab, String fieldname);
-	class Index* get_index(Table* tab, String indexname);
+	Index* get_index(Table* tab, String indexname);
 
 	bool get_readonly();
 	void set_readonly(bool ro);

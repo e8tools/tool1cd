@@ -93,7 +93,7 @@ void Table::init(int32_t block_descr)
 	uint32_t m;
 	uint64_t s;
 	String ws;
-	class Index* ind;
+	Index* ind;
 	int32_t numrec;
 	int32_t blockfile[3];
 	Field* fld;
@@ -433,8 +433,8 @@ void Table::init(int32_t block_descr)
 	num_indexes = t->get_num_subnode() - 1;
 	if(num_indexes)
 	{
-		indexes = new class Index*[num_indexes];
-		for(i = 0; i < num_indexes; i++) indexes[i] = new class Index(this);
+		indexes = new Index*[num_indexes];
+		for(i = 0; i < num_indexes; i++) indexes[i] = new Index(this);
 
 		f = t->get_first();
 		if(f->get_type() != nd_string)
@@ -1022,7 +1022,7 @@ Field* Table::getfield(int32_t numfield)
 }
 
 //---------------------------------------------------------------------------
-class Index* Table::getindex(int32_t numindex)
+Index* Table::getindex(int32_t numindex)
 {
 	if(numindex >= num_indexes)
 	{
@@ -1296,7 +1296,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 	bool dircreated = false;
 	bool canwriteblob = false;
 	String dir;
-	class Index* curindex;
+	Index* curindex;
 	int32_t ic; // image count, количество полей с типом image
 	int32_t rc; // repeat count, количество повторов имени записи подряд (для случая, если индекс не уникальный)
 
@@ -2013,7 +2013,7 @@ char* Table::get_edit_record(uint32_t phys_numrecord, char* rec)
 }
 
 //---------------------------------------------------------------------------
-uint32_t Table::get_phys_numrec(int32_t ARow, class Index* cur_index)
+uint32_t Table::get_phys_numrec(int32_t ARow, Index* cur_index)
 {
 	uint32_t numrec;
 
@@ -2783,7 +2783,7 @@ String Table::get_file_name_for_field(int32_t num_field, char* rec, uint32_t num
 {
 	String s("");
 	int32_t i;
-	class Index* ind;
+	Index* ind;
 
 	if(num_indexes)
 	{
@@ -2819,7 +2819,7 @@ String Table::get_file_name_for_record(char* rec)
 	int32_t i;
 	int32_t num_rec;
 
-	class Index* ind;
+	Index* ind;
 
 	if(num_indexes)
 	{

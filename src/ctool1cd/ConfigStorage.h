@@ -8,6 +8,7 @@
 #include <set>
 
 #include "APIcfBase.h"
+#include "TableFiles.h"
 #include "Class_1CD.h"
 #include "MessageRegistration.h"
 
