@@ -69,6 +69,8 @@
 		<Unit filename="Parse_tree.cpp" />
 		<Unit filename="Parse_tree.h" />
 		<Unit filename="PrecompiledHeaders.h" />
+		<Unit filename="Table.cpp" />
+		<Unit filename="Table.h" />
 		<Unit filename="TempStream.cpp" />
 		<Unit filename="TempStream.h" />
 		<Unit filename="UZLib.cpp" />
