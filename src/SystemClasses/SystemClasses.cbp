@@ -12,7 +12,6 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="2" />
 				<Option compiler="gcc" />
-				<Option parameters="-eax /home/andreevlex/dev-pro/testctool1cd /home/andreevlex/dev-pro/testctool1cd/1Cv8.1CD" />
 				<Option createDefFile="1" />
 				<Compiler>
 					<Add option="-Wall" />

@@ -57,6 +57,8 @@
 		<Unit filename="ErrorCode.h" />
 		<Unit filename="Field.cpp" />
 		<Unit filename="Field.h" />
+		<Unit filename="Index.cpp" />
+		<Unit filename="Index.h" />
 		<Unit filename="MessageRegistration.cpp" />
 		<Unit filename="MessageRegistration.h" />
 		<Unit filename="Messenger.cpp" />
