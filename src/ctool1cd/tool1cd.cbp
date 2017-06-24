@@ -71,6 +71,8 @@
 		<Unit filename="PrecompiledHeaders.h" />
 		<Unit filename="Table.cpp" />
 		<Unit filename="Table.h" />
+		<Unit filename="TableFiles.cpp" />
+		<Unit filename="TableFiles.h" />
 		<Unit filename="TempStream.cpp" />
 		<Unit filename="TempStream.h" />
 		<Unit filename="UZLib.cpp" />
