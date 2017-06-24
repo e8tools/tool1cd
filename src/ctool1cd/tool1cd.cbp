@@ -55,6 +55,8 @@
 		<Unit filename="Constants.h" />
 		<Unit filename="DTshkaPCH1.h" />
 		<Unit filename="ErrorCode.h" />
+		<Unit filename="Field.cpp" />
+		<Unit filename="Field.h" />
 		<Unit filename="MessageRegistration.cpp" />
 		<Unit filename="MessageRegistration.h" />
 		<Unit filename="Messenger.cpp" />

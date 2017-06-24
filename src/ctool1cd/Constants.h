@@ -125,4 +125,33 @@ const char DATE67_TEST_TEMPLATE[256] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
+enum type_fields
+{
+	tf_binary, // B // длина = length
+	tf_bool, // L // длина = 1
+	tf_numeric, // N // длина = (length + 2) / 2
+	tf_char, // NC // длина = length * 2
+	tf_varchar, // NVC // длина = length * 2 + 2
+	tf_version, // RV // 16, 8 версия создания и 8 версия модификации ? каждая версия int32_t(изменения) + int32_t(реструктуризация)
+	tf_string, // NT // 8 (unicode text)
+	tf_text, // T // 8 (ascii text)
+	tf_image, // I // 8 (image = bynary data)
+	tf_datetime, // DT //7
+	tf_version8, // 8, скрытое поле при recordlock == false и отсутствии поля типа tf_version
+	tf_varbinary // VB // длина = length + 2
+};
+
+// Стили преобразования bynary16 в GUID
+//
+// Исходное значение
+// 00112233445566778899aabbccddeeff
+//
+// 1С style
+// ccddeeff-aabb-8899-0011-223344556677
+//
+// MS style
+// 33221100-5544-7766-8899-aabbccddeeff
+//
+
+
 #endif

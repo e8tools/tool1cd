@@ -21,7 +21,8 @@ String tohex(int n);
 String tohex64(int64_t n);
 String hexstring(char* buf, int n);
 String hexstring(TStream* str);
-
+String toXML(String in);
+unsigned char from_hex_digit(char digit);
 
 #ifndef MIN
 #define MIN(a, b) ((a) < (b) ? (a) : (b))

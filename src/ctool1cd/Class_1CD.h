@@ -10,12 +10,14 @@
 #include "db_ver.h"
 #include "Parse_tree.h"
 #include "V8Object.h"
+#include "Field.h"
 
 //---------------------------------------------------------------------------
 
 class T_1CD;
 class Table;
 class v8object;
+class Field;
 
 class ConfigStorageTableConfig;
 class ConfigStorageTableConfigSave;
@@ -79,78 +81,6 @@ union root
 {
 	root_80 root80;
 	root_81 root81;
-};
-
-enum type_fields
-{
-	tf_binary, // B // длина = length
-	tf_bool, // L // длина = 1
-	tf_numeric, // N // длина = (length + 2) / 2
-	tf_char, // NC // длина = length * 2
-	tf_varchar, // NVC // длина = length * 2 + 2
-	tf_version, // RV // 16, 8 версия создания и 8 версия модификации ? каждая версия int32_t(изменения) + int32_t(реструктуризация)
-	tf_string, // NT // 8 (unicode text)
-	tf_text, // T // 8 (ascii text)
-	tf_image, // I // 8 (image = bynary data)
-	tf_datetime, // DT //7
-	tf_version8, // 8, скрытое поле при recordlock == false и отсутствии поля типа tf_version
-	tf_varbinary // VB // длина = length + 2
-};
-
-// Стили преобразования bynary16 в GUID
-//
-// Исходное значение
-// 00112233445566778899aabbccddeeff
-//
-// 1С style
-// ccddeeff-aabb-8899-0011-223344556677
-//
-// MS style
-// 33221100-5544-7766-8899-aabbccddeeff
-//
-
-
-class Field
-{
-friend Table;
-friend T_1CD;
-public:
-	static bool showGUID;
-
-	Field(Table* _parent);
-
-	int32_t getlen(); // возвращает длину поля в байтах
-	String getname();
-	String get_presentation(const char* rec, bool EmptyNull = false, wchar_t Delimiter = 0, bool ignore_showGUID = false, bool detailed = false);
-	String get_XML_presentation(char* rec, bool ignore_showGUID = false);
-	bool get_bynary_value(char* buf, bool null, String& value);
-	type_fields gettype();
-	Table* getparent();
-	bool getnull_exists();
-	int32_t getlength();
-	int32_t getprecision();
-	bool getcase_sensitive();
-	int32_t getoffset();
-	String get_presentation_type();
-	bool save_blob_to_file(char* rec, String filename, bool unpack);
-#ifndef PublicRelease
-	uint32_t getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen);
-#endif //#ifdef PublicRelease
-private:
-	String name;
-	type_fields type;
-	bool null_exists;
-	int32_t length;
-	int32_t precision;
-	bool case_sensitive;
-
-	Table* parent;
-	int32_t len; // длина поля в байтах
-	int32_t offset; // смещение поля в записи
-	static bool showGUIDasMS; // Признак, что GUID надо преобразовывать по стилю MS (иначе по стилю 1С)
-	static char buf[];
-	static char null_index[];
-	static bool null_index_initialized;
 };
 
 struct index_record

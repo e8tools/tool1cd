@@ -437,3 +437,24 @@ String hexstring(TStream* str)
 	return s;
 }
 
+//---------------------------------------------------------------------------
+String toXML(String in)
+{
+	return TStringBuilder(in)
+		.Replace("&", "&amp;")
+		->Replace("<", "&lt;")
+		->Replace(">", "&gt;")
+		->Replace("'", "&apos;")
+		->Replace("\"", "&quot;")
+		->ToString();
+}
+
+//---------------------------------------------------------------------------
+unsigned char from_hex_digit(char digit)
+{
+	if(digit >= '0' && digit <= '9') return digit - '0';
+	if(digit >= 'a' && digit <= 'f') return digit - 'a' + 10;
+	if(digit >= 'A' && digit <= 'F') return digit - 'A' + 10;
+	return 0;
+}
+
