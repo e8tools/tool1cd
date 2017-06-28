@@ -5,7 +5,24 @@
 
 
 #include <System.Classes.hpp>
+
 #include "zlib.h"
+#include "BaseException.h"
+
+class ZError: public BaseException
+{
+public:
+	explicit ZError(const char* message):
+			BaseException(message)
+	{}
+	explicit ZError(const wchar_t* message):
+			BaseException(message)
+	{}
+	explicit ZError(const std::string& message):
+		BaseException(message)
+	{}
+	~ZError() throw() {}
+};
 
 //---------------------------------------------------------------------------
 /*!
@@ -116,7 +133,7 @@ class ZInflateStream : ZStreamBase
 };
 
 
-bool ZInflateStream(TStream* src, TStream* dst);
+void ZInflateStream(TStream* src, TStream* dst);
 bool ZDeflateStream(TStream* src, TStream* dst);
 
 int inf(FILE *source, FILE *dest);
