@@ -161,8 +161,8 @@ void ZInflateStream(TStream* src, TStream* dst)
 
 	unsigned have;
 
-	std::unique_ptr<unsigned char> srcBuf(new unsigned char[CHUNKSIZE]);
-	std::unique_ptr<unsigned char> dstBuf(new unsigned char[CHUNKSIZE]);
+	std::unique_ptr<unsigned char[]> srcBuf(new unsigned char[CHUNKSIZE]);
+	std::unique_ptr<unsigned char[]> dstBuf(new unsigned char[CHUNKSIZE]);
 
 	/* allocate inflate state */
 	strm.zalloc   = Z_NULL;
