@@ -17,6 +17,9 @@ extern TMultiReadExclusiveWriteSynchronizer* tr_syn;
 #endif
 #endif
 
+const uint32_t BLOB_RECORD_LEN = 256;
+const uint32_t BLOB_RECORD_DATA_LEN = 250;
+
 //********************************************************
 // Класс changed_rec
 
@@ -421,7 +424,7 @@ void Table::init(int32_t block_descr)
 	}
 	if(t->get_num_subnode() < 1)
 	{
-		msreg_g.AddError("Ошибка получения индексов таблицы. Нет узлов описаня индексов.",
+		msreg_g.AddError("Ошибка получения индексов таблицы. Нет узлов описания индексов.",
 			"Блок", tohex(block_descr),
 			"Таблица", name);
 		deletefields();
@@ -1171,12 +1174,12 @@ TStream* Table::readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, 
 					"Читаемый блок", _curblock);
 				return _str;
 			}
-			file_blob->getdata(_curb, _curblock << 8, 0x100);
+			file_blob->getdata(_curb, _curblock << 8, BLOB_RECORD_LEN);
 			_curblock = *(uint32_t*)_curb;
 			_curlen = *(uint16_t*)(_curb + 4);
-			if(_curlen > 0xfa)
+			if(_curlen > BLOB_RECORD_DATA_LEN)
 			{
-				msreg_g.AddError("Попытка чтения из блока файла Blob более 0xfa байт",
+				msreg_g.AddError("Попытка чтения из блока файла Blob более 250 байт",
 					"Таблица", name,
 					"Индекс блока", _curblock,
 					"Читаемых байт", _curlen);
@@ -1246,10 +1249,10 @@ uint32_t Table::readBlob(void* buf, uint32_t _startblock, uint32_t _length)
 					"Читаемый блок", _curblock);
 				return readed;
 			}
-			file_blob->getdata(_curb, _curblock << 8, 0x100);
+			file_blob->getdata(_curb, _curblock << 8, BLOB_RECORD_LEN);
 			_curblock = *(uint32_t*)_curb;
 			_curlen = *(uint16_t*)(_curb + 4);
-			if(_curlen > 0xfa)
+			if(_curlen > BLOB_RECORD_DATA_LEN)
 			{
 				msreg_g.AddError("Попытка чтения из блока файла Blob более 250 байт",
 					"Таблица", name,
@@ -2292,9 +2295,9 @@ uint32_t Table::write_blob_record(char* blob_record, uint32_t blob_len)
 	if(!file_blob)
 	{
 		create_file_blob();
-		char* b = new char[256];
-		memset(b, 0, 256);
-		file_blob->setdata(b, 0, 256);
+		char* b = new char[BLOB_RECORD_LEN];
+		memset(b, 0, BLOB_RECORD_LEN);
+		file_blob->setdata(b, 0, BLOB_RECORD_LEN);
 		delete[] b;
 	}
 
@@ -2304,8 +2307,8 @@ uint32_t Table::write_blob_record(char* blob_record, uint32_t blob_len)
 
 	for(cur_block = first_block; blob_len; blob_len -= cur_len, cur_block = next_block, blob_record += cur_len)
 	{
-		cur_len = MIN(blob_len, 250);
-		if(cur_len < 250) memset(blob_record, 0, 250);
+		cur_len = std::min(blob_len, BLOB_RECORD_DATA_LEN);
+		if(cur_len < BLOB_RECORD_DATA_LEN) memset(blob_record, 0, BLOB_RECORD_DATA_LEN);
 
 		if(prev_offset) file_blob->setdata(&cur_block, prev_offset, 4);
 
@@ -2315,7 +2318,7 @@ uint32_t Table::write_blob_record(char* blob_record, uint32_t blob_len)
 
 		file_blob->setdata(&zero, cur_offset, 4);
 		file_blob->setdata(&cur_len, cur_offset + 4, 2);
-		file_blob->setdata(blob_record, cur_offset + 6, 250);
+		file_blob->setdata(blob_record, cur_offset + 6, BLOB_RECORD_DATA_LEN);
 
 		if(!next_block) next_block = file_blob->getlen() >> 8;
 		prev_offset = cur_offset;
@@ -2333,7 +2336,7 @@ uint32_t Table::write_blob_record(TStream* bstr)
 	uint16_t cur_len;
 	uint32_t blob_len;
 	uint32_t zero;
-	char blob_record[256];
+	char blob_record[BLOB_RECORD_LEN];
 
 	if(!edit)
 	{
@@ -2350,8 +2353,8 @@ uint32_t Table::write_blob_record(TStream* bstr)
 	if(!file_blob)
 	{
 		create_file_blob();
-		memset(blob_record, 0, 256);
-		file_blob->setdata(blob_record, 0, 256);
+		memset(blob_record, 0, BLOB_RECORD_LEN);
+		file_blob->setdata(blob_record, 0, BLOB_RECORD_LEN);
 	}
 
 	file_blob->getdata(&first_block, 0, 4);
@@ -2360,8 +2363,8 @@ uint32_t Table::write_blob_record(TStream* bstr)
 
 	for(cur_block = first_block; blob_len; blob_len -= cur_len, cur_block = next_block)
 	{
-		cur_len = MIN(blob_len, 250);
-		if(cur_len < 250) memset(blob_record, 0, 250); //-V512
+		cur_len = std::min(blob_len, BLOB_RECORD_DATA_LEN);
+		if(cur_len < BLOB_RECORD_DATA_LEN) memset(blob_record, 0, BLOB_RECORD_DATA_LEN); //-V512
 		bstr->Read(blob_record, cur_len);
 
 		if(prev_offset) file_blob->setdata(&cur_block, prev_offset, 4);
@@ -2372,7 +2375,7 @@ uint32_t Table::write_blob_record(TStream* bstr)
 
 		file_blob->setdata(&zero, cur_offset, 4);
 		file_blob->setdata(&cur_len, cur_offset + 4, 2);
-		file_blob->setdata(blob_record, cur_offset + 6, 250);
+		file_blob->setdata(blob_record, cur_offset + 6, BLOB_RECORD_DATA_LEN);
 
 		if(!next_block) next_block = file_blob->getlen() >> 8;
 		prev_offset = cur_offset;
@@ -2662,14 +2665,14 @@ char* Table::get_record_template_test()
 		{
 			curp[0] = 1;
 			curp[1] = 1;
-			curp += 256;
+			curp += BLOB_RECORD_LEN;
 		}
 
 		l = f->getlength();
 		switch(f->gettype())
 		{
 			case tf_binary: // B // длина = length
-				memset(curp, 1, 256 * l);
+				memset(curp, 1, BLOB_RECORD_LEN * l);
 				break;
 			case tf_bool: // L // длина = 1
 				curp[0] = 1;
@@ -2679,68 +2682,68 @@ char* Table::get_record_template_test()
 				j = (l + 2) / 2;
 				for(; j > 0; --j)
 				{
-					memcpy(curp, NUM_TEST_TEMPLATE, 256);
-					curp += 256;
+					memcpy(curp, NUM_TEST_TEMPLATE, BLOB_RECORD_LEN);
+					curp += BLOB_RECORD_LEN;
 				}
 				break;
 			case tf_char: // NC // длина = length * 2
-				memset(curp, 1, 256 * 2 * l);
+				memset(curp, 1, BLOB_RECORD_LEN * 2 * l);
 				break;
 			case tf_varchar: // NVC // длина = length * 2 + 2
-				if(l > 255) j = 256;
+				if(l > 255) j = BLOB_RECORD_LEN;
 				else j = l + 1;
 				memset(curp, 1, j);
 				//curp[0x20] = 1;
-				curp += 256;
+				curp += BLOB_RECORD_LEN;
 				j = (l >> 8) + 1;
 				memset(curp, 1, j);
-				curp += 256;
-				memset(curp, 1, 256 * 2 * l);
+				curp += BLOB_RECORD_LEN;
+				memset(curp, 1, BLOB_RECORD_LEN * 2 * l);
 				break;
 			case tf_version: // RV // 16, 8 версия создания и 8 версия модификации ? каждая версия int32_t(изменения) + int32_t(реструктуризация)
-				memset(curp, 1, 256 * 16);
+				memset(curp, 1, BLOB_RECORD_LEN * 16);
 				break;
 			case tf_string: // NT // 8 (unicode text)
-				memset(curp, 1, 256 * 8);
+				memset(curp, 1, BLOB_RECORD_LEN * 8);
 				break;
 			case tf_text: // T // 8 (ascii text)
-				memset(curp, 1, 256 * 8);
+				memset(curp, 1, BLOB_RECORD_LEN * 8);
 				break;
 			case tf_image: // I // 8 (image = bynary data)
-				memset(curp, 1, 256 * 8);
+				memset(curp, 1, BLOB_RECORD_LEN * 8);
 				break;
 			case tf_datetime: // DT //7
 				if(f->getname().CompareIC("_DATE_TIME") == 0) required = true;
 				else if(f->getname().CompareIC("_NUMBERPREFIX") == 0) required = true;
 
-				memcpy(curp, DATE1_TEST_TEMPLATE, 256);
-				curp += 256;
-				memcpy(curp, NUM_TEST_TEMPLATE, 256);
-				curp += 256;
-				memcpy(curp, DATE3_TEST_TEMPLATE, 256);
+				memcpy(curp, DATE1_TEST_TEMPLATE, BLOB_RECORD_LEN);
+				curp += BLOB_RECORD_LEN;
+				memcpy(curp, NUM_TEST_TEMPLATE, BLOB_RECORD_LEN);
+				curp += BLOB_RECORD_LEN;
+				memcpy(curp, DATE3_TEST_TEMPLATE, BLOB_RECORD_LEN);
 				if(required) curp[0] = 0;
-				curp += 256;
-				memcpy(curp, DATE4_TEST_TEMPLATE, 256);
+				curp += BLOB_RECORD_LEN;
+				memcpy(curp, DATE4_TEST_TEMPLATE, BLOB_RECORD_LEN);
 				if(required) curp[0] = 0;
-				curp += 256;
-				memcpy(curp, DATE5_TEST_TEMPLATE, 256);
-				curp += 256;
-				memcpy(curp, DATE67_TEST_TEMPLATE, 256);
-				curp += 256;
-				memcpy(curp, DATE67_TEST_TEMPLATE, 256);
+				curp += BLOB_RECORD_LEN;
+				memcpy(curp, DATE5_TEST_TEMPLATE, BLOB_RECORD_LEN);
+				curp += BLOB_RECORD_LEN;
+				memcpy(curp, DATE67_TEST_TEMPLATE, BLOB_RECORD_LEN);
+				curp += BLOB_RECORD_LEN;
+				memcpy(curp, DATE67_TEST_TEMPLATE, BLOB_RECORD_LEN);
 				break;
 			case tf_version8: // 8, скрытое поле при recordlock == false и отсутствии поля типа tf_version
-				memset(curp, 1, 256 * 8);
+				memset(curp, 1, BLOB_RECORD_LEN * 8);
 				break;
 			case tf_varbinary: // VB // длина = length + 2
-				if(l > 255) j = 256;
+				if(l > 255) j = BLOB_RECORD_LEN;
 				else j = l + 1;
 				memset(curp, 1, j);
-				curp += 256;
+				curp += BLOB_RECORD_LEN;
 				j = (l >> 8) + 1;
 				memset(curp, 1, j);
-				curp += 256;
-				memset(curp, 1, 256 * l);
+				curp += BLOB_RECORD_LEN;
+				memset(curp, 1, BLOB_RECORD_LEN * l);
 				break;
 		}
 	}
