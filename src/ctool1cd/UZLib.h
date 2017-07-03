@@ -6,22 +6,36 @@
 
 #include <System.Classes.hpp>
 
-#include "zlib.h"
-#include "BaseException.h"
+#include <string>
+#include <exception>
 
-class ZError: public BaseException
+#include "zlib.h"
+
+class ZError: public std::exception
 {
 public:
-	explicit ZError(const char* message):
-			BaseException(message)
-	{}
-	explicit ZError(const wchar_t* message):
-			BaseException(message)
-	{}
-	explicit ZError(const std::string& message):
-		BaseException(message)
-	{}
-	~ZError() throw() {}
+    explicit ZError(const char* message):
+      msg_m(message)
+      {
+      }
+
+    explicit ZError(const wchar_t* message):
+      msg_m("")
+      {
+      }
+
+    explicit ZError(const std::string& message):
+      msg_m(message)
+      {}
+
+    virtual ~ZError() noexcept {}
+
+    virtual const char* what() const noexcept {
+       return msg_m.c_str();
+    }
+
+private:
+    std::string msg_m;
 };
 
 //---------------------------------------------------------------------------
