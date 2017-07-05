@@ -49,7 +49,7 @@ int32_t TableFileStream::Read(void *Buffer, int32_t Count)
 
 	while(Count)
 	{
-		curlen = MIN(Count, (int32_t)(addr[nbf].blob_length - ibf));
+		curlen = std::min(Count, (int32_t)(addr[nbf].blob_length - ibf));
 		str = streams[nbf];
 		if(!str)
 		{
