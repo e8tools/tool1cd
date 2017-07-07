@@ -153,5 +153,7 @@ enum type_fields
 // 33221100-5544-7766-8899-aabbccddeeff
 //
 
+const uint32_t PAGE_SIZE_4K  = 4096;  // 0x1000
+const uint32_t PAGE_SIZE_64K = 65536; // 0x10000;
 
 #endif

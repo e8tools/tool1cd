@@ -297,11 +297,11 @@ char* v8object::getdata()
 		data = new char[l];
 		tt = data;
 		i = 0;
-		while(l > 0x1000)
+		while(l > PAGE_SIZE_4K)
 		{
 			base->getblock(tt, blocks[i++]);
-			tt += 0x1000;
-			l -= 0x1000;
+			tt += PAGE_SIZE_4K;
+			l -= PAGE_SIZE_4K;
 		}
 		base->getblock(tt, blocks[i], l);
 	}
@@ -315,11 +315,11 @@ char* v8object::getdata()
 			b = (objtab*)base->getblock(blocks[i]);
 			for(j = 0; j < b->numblocks; j++)
 			{
-				curlen = l > 0x1000 ? 0x1000 : l;
+				curlen = l > PAGE_SIZE_4K ? PAGE_SIZE_4K : l;
 				base->getblock(tt, b->blocks[j], curlen);
 				if(l <= curlen) break;
 				l -= curlen;
-				tt += 0x1000;
+				tt += PAGE_SIZE_4K;
 			}
 			if(l <= curlen) break;
 		}
@@ -401,7 +401,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 			curblock = _start >> 12;
 			_buf = (char*)buf;
 			curoffblock = _start - (curblock << 12);
-			curlen = MIN(0x1000 - curoffblock, _length);
+			curlen = MIN(PAGE_SIZE_4K - curoffblock, _length);
 
 			while(_length)
 			{
@@ -411,7 +411,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 				_buf += curlen;
 				_length -= curlen;
 				curoffblock = 0;
-				curlen = MIN(0x1000, _length);
+				curlen = MIN(PAGE_SIZE_4K, _length);
 			}
 
 		}
@@ -430,7 +430,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 			curblock = _start >> 12;
 			_buf = (char*)buf;
 			curoffblock = _start - (curblock << 12);
-			curlen = MIN(0x1000 - curoffblock, _length);
+			curlen = MIN(PAGE_SIZE_4K - curoffblock, _length);
 
 			curobjblock = curblock / 1023;
 			curoffobjblock = curblock - curobjblock * 1023;
@@ -445,7 +445,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 				_buf += curlen;
 				_length -= curlen;
 				curoffblock = 0;
-				curlen = MIN(0x1000, _length);
+				curlen = MIN(PAGE_SIZE_4K, _length);
 				if(_length > 0) if(curoffobjblock >= 1023)
 				{
 					curoffobjblock = 0;
@@ -638,7 +638,7 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 		curblock = _start >> 12;
 		_buf = (char*)buf;
 		curoffblock = _start - (curblock << 12);
-		curlen = MIN(0x1000 - curoffblock, _length);
+		curlen = MIN(PAGE_SIZE_4K - curoffblock, _length);
 
 		curobjblock = curblock / 1023;
 		curoffobjblock = curblock - curobjblock * 1023;
@@ -646,11 +646,11 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 		objtab *b = (objtab*) base->getblock(blocks[curobjblock++]);
 		while(_length)
 		{
-			memcpy((char*)(base->getblock_for_write(b->blocks[curoffobjblock++], curlen != 0x1000)) + curoffblock, _buf, curlen);
+			memcpy((char*)(base->getblock_for_write(b->blocks[curoffobjblock++], curlen != PAGE_SIZE_4K)) + curoffblock, _buf, curlen);
 			_buf += curlen;
 			_length -= curlen;
 			curoffblock = 0;
-			curlen = MIN(0x1000, _length);
+			curlen = MIN(PAGE_SIZE_4K, _length);
 			if(_length > 0) if(curoffobjblock >= 1023)
 			{
 				curoffobjblock = 0;
@@ -745,10 +745,10 @@ bool v8object::setdata(const void* _buf, uint64_t _length)
 			objtab *b = (objtab*)base->getblock(blocks[i]);
 			for(int32_t j = 0; j < b->numblocks; j++)
 			{
-				curlen = _length > 0x1000 ? 0x1000 : _length;
+				curlen = _length > PAGE_SIZE_4K ? PAGE_SIZE_4K : _length;
 				char *tt = base->getblock_for_write(b->blocks[j], false);
 				memcpy(tt, buf, curlen);
-				buf += 0x1000;
+				buf += PAGE_SIZE_4K;
 				if(_length <= curlen) break;
 				_length -= curlen;
 			}
@@ -839,7 +839,7 @@ bool v8object::setdata(TStream* stream)
 			objtab *b = (objtab*)base->getblock(blocks[i]);
 			for(int32_t j = 0; j < b->numblocks; j++)
 			{
-				curlen = _length > 0x1000 ? 0x1000 : _length;
+				curlen = _length > PAGE_SIZE_4K ? PAGE_SIZE_4K : _length;
 				char *tt = base->getblock_for_write(b->blocks[j], false);
 				stream->ReadBuffer(tt, curlen);
 				if(_length <= curlen) break;
@@ -928,7 +928,7 @@ bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 	{
 		curblock = _start >> 12;
 		curoffblock = _start - (curblock << 12);
-		curlen = MIN(0x1000 - curoffblock, _length);
+		curlen = MIN(PAGE_SIZE_4K - curoffblock, _length);
 
 		curobjblock = curblock / 1023;
 		curoffobjblock = curblock - curobjblock * 1023;
@@ -936,10 +936,10 @@ bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 		objtab *b = (objtab*) base->getblock(blocks[curobjblock++]);
 		while(_length)
 		{
-			stream->ReadBuffer((char*)(base->getblock_for_write(b->blocks[curoffobjblock++], curlen != 0x1000)) + curoffblock, curlen);
+			stream->ReadBuffer((char*)(base->getblock_for_write(b->blocks[curoffobjblock++], curlen != PAGE_SIZE_4K)) + curoffblock, curlen);
 			_length -= curlen;
 			curoffblock = 0;
-			curlen = MIN(0x1000, _length);
+			curlen = MIN(PAGE_SIZE_4K, _length);
 			if(_length > 0) if(curoffobjblock >= 1023)
 			{
 				curoffobjblock = 0;

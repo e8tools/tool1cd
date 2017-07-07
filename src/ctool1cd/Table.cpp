@@ -808,7 +808,7 @@ void Table::init(int32_t block_descr)
 						}
 						else if(buf[i] & 0xfff)
 						{
-							msreg_g.AddError("Ошибка чтения индексов. Указанное смещение индекса не кратно 0x1000",
+							msreg_g.AddError("Ошибка чтения индексов. Указанное смещение индекса не кратно 4 Кб",
 								"Таблица", name,
 								"Длина файла индексов", tohex(file_index->getlen()),
 								"Номер индекса", i,

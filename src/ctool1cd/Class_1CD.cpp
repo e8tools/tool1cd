@@ -179,7 +179,7 @@ void T_1CD::init()
 
 	pagemap  = nullptr;
 	version  = ver8_2_14_0;
-	pagesize = 0x1000;
+	pagesize = PAGE_SIZE_4K;
 	length   = 0;
 	readonly = true;
 }
@@ -277,7 +277,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 		return;
 	}
 
-	pagesize = 0x1000;
+	pagesize = PAGE_SIZE_4K;
 	ver = cont->getver();
 #ifndef delic
 	if(ver == "8.0.3.0"){
@@ -3989,7 +3989,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 
 	for(i = 0, j = 0, k = 0; l; ++i)
 	{
-		cl = l > 0x1000 ? 0x1000 : l; // TODO pagesize
+		cl = l > PAGE_SIZE_4K ? PAGE_SIZE_4K : l; // TODO pagesize
 
 		if(!j)
 		{
@@ -4105,8 +4105,8 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 			j = 0;
 			++a;
 		}
-		if(l < 0x1000) l = 0; // TODO pagesize
-		else l-=0x1000; // TODO pagesize
+		if(l < PAGE_SIZE_4K) l = 0; // TODO pagesize
+		else l-=PAGE_SIZE_4K; // TODO pagesize
 	}
 
 
@@ -4119,7 +4119,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 // Проверка блока таблицы по шаблону
 bool T_1CD::test_block_by_template(uint32_t testblock, char* tt, uint32_t num, int32_t rlen, int32_t len)
 {
-	unsigned char b[0x1000]; // TODO pagesize
+	unsigned char b[PAGE_SIZE_4K]; // TODO pagesize
 	bool ok;
 	int32_t i, j;
 
@@ -4145,7 +4145,7 @@ bool T_1CD::test_block_by_template(uint32_t testblock, char* tt, uint32_t num, i
 		if(tt[(j << 8) + b[i]] == 0) return false;
 		if(++j >= rlen) j = 0;
 	}
-	for(i = len; i < 0x1000; ++i) if(b[i]) return false; // TODO pagesize
+	for(i = len; i < PAGE_SIZE_4K; ++i) if(b[i]) return false; // TODO pagesize
 	return true;
 }
 
