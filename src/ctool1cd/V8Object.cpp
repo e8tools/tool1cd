@@ -315,7 +315,7 @@ char* v8object::getdata()
 			b = (objtab*)base->getblock(blocks[i]);
 			for(j = 0; j < b->numblocks; j++)
 			{
-				curlen = l > DEFAULT_PAGE_SIZE ? DEFAULT_PAGE_SIZE : l;
+				curlen = std::min(DEFAULT_PAGE_SIZE, l);
 				base->getblock(tt, b->blocks[j], curlen);
 				if(l <= curlen) break;
 				l -= curlen;
@@ -765,7 +765,7 @@ bool v8object::setdata(const void* _buf, uint64_t _length)
 			objtab *b = (objtab*)base->getblock(blocks[i]);
 			for(int32_t j = 0; j < b->numblocks; j++)
 			{
-				curlen = _length > DEFAULT_PAGE_SIZE ? DEFAULT_PAGE_SIZE : _length;
+				curlen = std::min(static_cast<uint64_t>(DEFAULT_PAGE_SIZE),_length);
 				char *tt = base->getblock_for_write(b->blocks[j], false);
 				memcpy(tt, buf, curlen);
 				buf += DEFAULT_PAGE_SIZE;
@@ -865,7 +865,7 @@ bool v8object::setdata(TStream* stream)
 			objtab *b = (objtab*)base->getblock(blocks[i]);
 			for(int32_t j = 0; j < b->numblocks; j++)
 			{
-				curlen = _length > DEFAULT_PAGE_SIZE ? DEFAULT_PAGE_SIZE : _length;
+				curlen = std::min(static_cast<uint64_t>(DEFAULT_PAGE_SIZE),_length);
 				char *tt = base->getblock_for_write(b->blocks[j], false);
 				stream->ReadBuffer(tt, curlen);
 				if(_length <= curlen) {

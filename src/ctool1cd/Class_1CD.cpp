@@ -3989,7 +3989,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 
 	for(i = 0, j = 0, k = 0; l; ++i)
 	{
-		cl = l > DEFAULT_PAGE_SIZE ? DEFAULT_PAGE_SIZE : l; // TODO pagesize
+		cl = std::min(DEFAULT_PAGE_SIZE, l); // TODO pagesize
 
 		if(!j)
 		{
