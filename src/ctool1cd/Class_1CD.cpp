@@ -4105,8 +4105,12 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 			j = 0;
 			++a;
 		}
-		if(l < PAGE_SIZE_4K) l = 0; // TODO pagesize
-		else l-=PAGE_SIZE_4K; // TODO pagesize
+		if(l < PAGE_SIZE_4K) {
+			l = 0; // TODO pagesize
+		}
+		else {
+			l-=PAGE_SIZE_4K; // TODO pagesize
+		}
 	}
 
 
@@ -4129,8 +4133,14 @@ bool T_1CD::test_block_by_template(uint32_t testblock, char* tt, uint32_t num, i
 
 	if(!num)
 	{
-		if(b[0] != 1) return false;
-		for(i = 1; i < 5; ++i) if(b[i] != 0) return false;
+		if(b[0] != 1) {
+			return false;
+		}
+		for(i = 1; i < 5; ++i) {
+			if(b[i] != 0) {
+				return false;
+			}
+		}
 		j = 0;
 		i = rlen;
 	}
@@ -4142,10 +4152,18 @@ bool T_1CD::test_block_by_template(uint32_t testblock, char* tt, uint32_t num, i
 	}
 	for(; i < len; ++i)
 	{
-		if(tt[(j << 8) + b[i]] == 0) return false;
-		if(++j >= rlen) j = 0;
+		if(tt[(j << 8) + b[i]] == 0) {
+			return false;
+		}
+		if(++j >= rlen) {
+			j = 0;
+		}
 	}
-	for(i = len; i < PAGE_SIZE_4K; ++i) if(b[i]) return false; // TODO pagesize
+	for(i = len; i < PAGE_SIZE_4K; ++i) {
+		if(b[i]) {
+			return false; // TODO pagesize
+		}
+	}
 	return true;
 }
 
@@ -4154,42 +4172,54 @@ bool T_1CD::test_block_by_template(uint32_t testblock, char* tt, uint32_t num, i
 //---------------------------------------------------------------------------
 TableFiles* T_1CD::get_files_config()
 {
-	if(!_files_config) _files_config = new TableFiles(table_config);
+	if(!_files_config) {
+		_files_config = new TableFiles(table_config);
+	}
 	return _files_config;
 }
 
 //---------------------------------------------------------------------------
 TableFiles* T_1CD::get_files_configsave()
 {
-	if(!_files_configsave) _files_configsave = new TableFiles(table_configsave);
+	if(!_files_configsave) {
+		_files_configsave = new TableFiles(table_configsave);
+	}
 	return _files_configsave;
 }
 
 //---------------------------------------------------------------------------
 TableFiles* T_1CD::get_files_params()
 {
-	if(!_files_params) _files_params = new TableFiles(table_params);
+	if(!_files_params) {
+		_files_params = new TableFiles(table_params);
+	}
 	return _files_params;
 }
 
 //---------------------------------------------------------------------------
 TableFiles* T_1CD::get_files_files()
 {
-	if(!_files_files) _files_files = new TableFiles(table_files);
+	if(!_files_files) {
+		_files_files = new TableFiles(table_files);
+	}
 	return _files_files;
 }
 
 //---------------------------------------------------------------------------
 TableFiles* T_1CD::get_files_configcas()
 {
-	if(!_files_configcas) _files_configcas = new TableFiles(table_configcas);
+	if(!_files_configcas) {
+		_files_configcas = new TableFiles(table_configcas);
+	}
 	return _files_configcas;
 }
 
 //---------------------------------------------------------------------------
 TableFiles* T_1CD::get_files_configcassave()
 {
-	if(!_files_configcassave) _files_configcassave = new TableFiles(table_configcassave);
+	if(!_files_configcassave) {
+		_files_configcassave = new TableFiles(table_configcassave);
+	}
 	return _files_configcassave;
 }
 
@@ -4200,8 +4230,12 @@ bool T_1CD::save_config_ext(const String& _filename, const TGUID& uid, const Str
 	bool res;
 
 	cs = new ConfigStorageTableConfigCasSave(get_files_configcas(), get_files_configcassave(), uid, hashname);
-	if(!cs->getready()) res = false;
-	else res = cs->save_config(_filename);
+	if(!cs->getready()) {
+		res = false;
+	}
+	else {
+		res = cs->save_config(_filename);
+	}
 	delete cs;
 	return res;
 }
