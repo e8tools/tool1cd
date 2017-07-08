@@ -143,6 +143,7 @@ enum type_fields
 
 const uint32_t PAGE_SIZE_4K  = 4096;  // 0x1000
 const uint32_t PAGE_SIZE_64K = 65536; // 0x10000;
+const uint32_t DEFAULT_PAGE_SIZE = PAGE_SIZE_4K;
 
 // Стили преобразования bynary16 в GUID
 //

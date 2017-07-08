@@ -18,7 +18,7 @@ uint64_t MemBlock::numblocks = 0;
 uint64_t MemBlock::array_numblocks = 0;
 
 uint32_t MemBlock::delta = 128;
-uint32_t MemBlock::pagesize = PAGE_SIZE_4K;
+uint32_t MemBlock::pagesize = DEFAULT_PAGE_SIZE;
 
 //---------------------------------------------------------------------------
 MemBlock::MemBlock(TFileStream* fs, uint32_t _numblock, bool for_write, bool read)
