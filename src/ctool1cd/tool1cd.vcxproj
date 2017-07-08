@@ -150,20 +150,28 @@
     <ClInclude Include="Class_1CD.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="ConfigStorage.h" />
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="cTool_1CD_Main.h" />
     <ClInclude Include="cTool_1CD_PCH.h" />
     <ClInclude Include="cunicode.h" />
     <ClInclude Include="db_ver.h" />
     <ClInclude Include="DTshkaPCH1.h" />
     <ClInclude Include="ErrorCode.h" />
+    <ClInclude Include="Field.h" />
+    <ClInclude Include="Index.h" />
+    <ClInclude Include="MemBlock.h" />
     <ClInclude Include="MessageRegistration.h" />
     <ClInclude Include="Messenger.h" />
     <ClInclude Include="NodeTypes.h" />
     <ClInclude Include="ParseCommandLine.h" />
     <ClInclude Include="Parse_tree.h" />
     <ClInclude Include="PrecompiledHeaders.h" />
+    <ClInclude Include="Table.h" />
+    <ClInclude Include="TableFiles.h" />
+    <ClInclude Include="TableFileStream.h" />
     <ClInclude Include="TempStream.h" />
     <ClInclude Include="UZLib.h" />
+    <ClInclude Include="V8Object.h" />
     <ClInclude Include="wcxhead.h" />
     <ClInclude Include="Zip.h" />
   </ItemGroup>
@@ -175,12 +183,19 @@
     <ClCompile Include="ConfigStorage.cpp" />
     <ClCompile Include="cTool_1CD_Main.cpp" />
     <ClCompile Include="cunicode.cpp" />
+    <ClCompile Include="Field.cpp" />
+    <ClCompile Include="Index.cpp" />
+    <ClCompile Include="MemBlock.cpp" />
     <ClCompile Include="MessageRegistration.cpp" />
     <ClCompile Include="Messenger.cpp" />
     <ClCompile Include="ParseCommandLine.cpp" />
     <ClCompile Include="Parse_tree.cpp" />
+    <ClCompile Include="Table.cpp" />
+    <ClCompile Include="TableFiles.cpp" />
+    <ClCompile Include="TableFileStream.cpp" />
     <ClCompile Include="TempStream.cpp" />
     <ClCompile Include="UZLib.cpp" />
+    <ClCompile Include="V8Object.cpp" />
     <ClCompile Include="Zip.cpp" />
   </ItemGroup>
   <ItemGroup>
