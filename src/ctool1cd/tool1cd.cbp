@@ -32,7 +32,6 @@
 			<Add option="-std=c++11" />
 			<Add option="-Dconsole" />
 			<Add directory="../SystemClasses" />
-			<Add directory="/usr/include" />
 		</Compiler>
 		<Linker>
 			<Add library="dmpassystem" />

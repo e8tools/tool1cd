@@ -1065,9 +1065,7 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 				try
 				{
 					_sx->Seek(0, soFromBeginning);
-					if (!ZInflateStream(_sx, _s2)){
-						_s2->CopyFrom(_sx, 0);
-					}
+					ZInflateStream(_sx, _s2);
 					zippedContainer = true;
 					_sx2 = _s2;
 					_s2 = NULL;

@@ -5,7 +5,38 @@
 
 
 #include <System.Classes.hpp>
+
+#include <string>
+#include <exception>
+
 #include "zlib.h"
+
+class ZError: public std::exception
+{
+public:
+    explicit ZError(const char* message):
+      msg_m(message)
+      {
+      }
+
+    explicit ZError(const wchar_t* message):
+      msg_m("")
+      {
+      }
+
+    explicit ZError(const std::string& message):
+      msg_m(message)
+      {}
+
+    virtual ~ZError() noexcept {}
+
+    virtual const char* what() const noexcept {
+       return msg_m.c_str();
+    }
+
+private:
+    std::string msg_m;
+};
 
 //---------------------------------------------------------------------------
 /*!
@@ -116,7 +147,7 @@ class ZInflateStream : ZStreamBase
 };
 
 
-bool ZInflateStream(TStream* src, TStream* dst);
+void ZInflateStream(TStream* src, TStream* dst);
 bool ZDeflateStream(TStream* src, TStream* dst);
 
 int inf(FILE *source, FILE *dest);
