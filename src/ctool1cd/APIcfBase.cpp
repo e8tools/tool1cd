@@ -4,18 +4,6 @@
 #pragma comment (lib, "zlibstatic.lib")
 
 
-#ifdef __cplusplus
-int max(int value1, int value2)
-{
-	return ( (value1 > value2) ? value1 : value2);
-}
-
-int min(int value1, int value2)
-{
-	return ( (value1 < value2) ? value1 : value2);
-}
-#endif
-
 //---------------------------------------------------------------------------
 // преобразует шестнадцатиричную восьмисимвольную строку в число
 int hex_to_int(char* hexstr)
@@ -69,7 +57,7 @@ TStream* read_block(TStream* stream_from, int start, TStream* stream_to = NULL)
 	curlen = hex_to_int(&temp_buf[11]);
 	start = hex_to_int(&temp_buf[20]);
 
-	readlen = min(len, curlen);
+	readlen = std::min(len, curlen);
 	stream_to->CopyFrom(stream_from, readlen);
 
 	pos = readlen;
@@ -81,7 +69,7 @@ TStream* read_block(TStream* stream_from, int start, TStream* stream_to = NULL)
 		curlen = hex_to_int(&temp_buf[11]);
 		start = hex_to_int(&temp_buf[20]);
 
-		readlen = min(len - pos, curlen);
+		readlen = std::min(len - pos, curlen);
 		stream_to->CopyFrom(stream_from, readlen);
 		pos += readlen;
 
@@ -1318,7 +1306,7 @@ int v8catalog::write_block(TStream* block, int start, bool use_page_size, int le
 		}
 
 		int_to_hex(&temp_buf[2], isfirstblock ? len : 0);
-		curlen = min(blocklen, len);
+		curlen = std::min(blocklen, len);
 		if(!nextstart) nextstart = data->GetSize() + 31 + blocklen;
 		else nextstart = get_nextblock(nextstart);
 		int_to_hex(&temp_buf[20], len <= blocklen ? LAST_BLOCK : nextstart);
