@@ -24,9 +24,5 @@ String hexstring(TStream* str);
 String toXML(String in);
 unsigned char from_hex_digit(char digit);
 
-#ifndef MIN
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#endif // MIN
-
 #endif
 
