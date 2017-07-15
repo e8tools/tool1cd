@@ -30,7 +30,7 @@ Registrator msreg_g;
 bool IsTrueString(const String &str)
 {
 	String s = str.LowerCase();
-	return s.Compare("1") == 0 || s.Compare("y") == 0 || s.Compare("yes") || s.Compare("д") || s.Compare("да") == 0;
+	return s.Compare("1") == 0 || s.Compare("y") == 0 || s.Compare("yes") == 0 || s.Compare("д") == 0 || s.Compare("да") == 0;
 }
 
 //---------------------------------------------------------------------------
