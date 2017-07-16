@@ -83,7 +83,6 @@ int64_t TStream::Read(System::DynamicArray<System::t::Byte> &Buffer, int64_t Cou
 	if (Buffer.size() < CountToRead) {
 		Buffer.resize(CountToRead);
 	}
-	Seek(0, soFromBeginning);
 	return Read(Buffer.data(), CountToRead);
 }
 
