@@ -938,43 +938,29 @@ uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxl
 bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 {
 	TStream* blob_stream;
-	bool zippedContainer;
-	char _buf[16];
 	TStream* _s;
 	TStream* _s2;
 	TStream* _sx;
 	TStream* _sx2;
-	int64_t len1C;
-	bool is_users_usr;
 	uint32_t i, j, k, l;
-	char* _xor_mask;
-	char* _xor_buf;
-	Table* tab;
-	TStream* temp_stream;
-	bool zipped;
-	Field* _f;
-	char* _bb;
-	v8catalog* cat;
-	char* orec;
-	bool maybezipped2;
-
 	bool usetemporaryfiles = false;
 
-	orec = rec;
+	char *orec = rec;
 	rec += offset;
-	if(null_exists)
-	{
-		if(*rec == 0) return false;
+	if (null_exists) {
+		if(*rec == 0) {
+			return false;
+		}
 		rec++;
 	}
 
-	if(*(uint32_t*)rec == 0 || *(uint32_t*)(rec + 4) == 0) return false;
+	if (*(uint32_t*)rec == 0 || *(uint32_t*)(rec + 4) == 0) {
+		return false;
+	}
 
-	if(!unpack)
-	{
-		temp_stream = new TFileStream(_filename, fmCreate);
-		parent->readBlob(temp_stream, *(uint32_t*)rec, *(uint32_t*)(rec + 4));
-		delete temp_stream;
+	if(!unpack) {
+		TFileStream temp_stream(_filename, fmCreate);
+		parent->readBlob(&temp_stream, *(uint32_t*)rec, *(uint32_t*)(rec + 4));
 		return true;
 	}
 
@@ -988,7 +974,7 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 		return false;
 	}
 
-	tab = parent;
+	Table *tab = parent;
 	if(usetemporaryfiles) _s = new TTempStream;
 	else _s = new TMemoryStream;
 
@@ -997,53 +983,55 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 
 		// спецобработка для users.usr
 		String tabname = tab->getname();
-		is_users_usr = false;
+		bool is_users_usr = false;
 		if(tabname.CompareIC("PARAMS") == 0)
 		{
-			_f = tab->getfield(0);
+			Field *_f = tab->getfield(0);
 			if(_f->get_presentation(orec).CompareIC("users.usr") == 0) is_users_usr = true;
 		}
 		else if(tabname.CompareIC("V8USERS") == 0) is_users_usr = true;
 
-		maybezipped2 = true;
+		bool maybezipped_twice = true;
 		if(tabname.CompareIC("CONFIG") == 0 || tabname.CompareIC("CONFIGSAVE") == 0)
 		{
-			_f = tab->getfield(0);
-			maybezipped2 = _f->get_presentation(orec).GetLength() > 72;
+			Field *_f = tab->getfield(0);
+			maybezipped_twice = _f->get_presentation(orec).GetLength() > 72;
 		}
 
 		if(is_users_usr)
 		{
 
-			i = blob_stream->GetSize();
-			_bb = new char[i];
+			size_t stream_size = blob_stream->GetSize();
+			char *_bb = new char[stream_size];
 			blob_stream->Seek(0, soFromBeginning);
-			blob_stream->Read(_bb, i);
+			blob_stream->Read(_bb, stream_size);
 
-			j = _bb[0];
-			_xor_mask = _bb + 1;
-			_xor_buf = _xor_mask + j;
-			l = i - j - 1;
-			for(i = 0, k = 0; i < l; i++, k++)
+			size_t xor_mask_size = _bb[0];
+			char *_xor_mask = &_bb[1];
+			char *_xor_buf = &_xor_mask[xor_mask_size];
+			size_t data_size = stream_size - xor_mask_size - 1;
+			for(i = 0, k = 0; i < data_size; i++, k++)
 			{
-				if(k >= j) k = 0;
+				if (k >= xor_mask_size) {
+					k = 0;
+				}
 				_xor_buf[i] ^= _xor_mask[k];
 			}
-			temp_stream = new TFileStream(_filename, fmCreate);
-			temp_stream->SetSize(0);
-			temp_stream->WriteBuffer(_xor_buf, l);
-			delete temp_stream;
+			TFileStream temp_stream(_filename, fmCreate);
+			temp_stream.SetSize(0);
+			temp_stream.WriteBuffer(_xor_buf, data_size);
 			delete[] _bb;
 		}
 		else
 		{
-			zippedContainer = false;
+			bool zippedContainer = false;
+			bool zipped = false;
 			try
 			{
 				blob_stream->Seek(0, soFromBeginning);
 				ZInflateStream(blob_stream, _s);
 				zipped = true;
-				if(maybezipped2) _sx = _s;
+				if(maybezipped_twice) _sx = _s;
 				else _sx2 = _s;
 				_s = NULL;
 				delete blob_stream;
@@ -1058,7 +1046,7 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 				zipped = false;
 			}
 
-			if(zipped && maybezipped2)
+			if(zipped && maybezipped_twice)
 			{
 				if(usetemporaryfiles) _s2 = new TTempStream;
 				else _s2 = new TMemoryStream;
@@ -1081,13 +1069,12 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 				}
 			}
 
-			cat = new v8catalog(_sx2, zippedContainer, true);
+			v8catalog *cat = new v8catalog(_sx2, zippedContainer, true);
 			if(!cat->GetFirst())
 			{
 				_sx2->Seek(0, soFromBeginning);
-				temp_stream = new TFileStream(_filename, fmCreate);
-				temp_stream->CopyFrom(_sx2, 0);
-				delete temp_stream;
+				TFileStream temp_stream(_filename, fmCreate);
+				temp_stream.CopyFrom(_sx2, 0);
 			}
 			else cat->SaveToDir(_filename);
 			delete cat;
@@ -1097,6 +1084,7 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 	}
 	else /*if(tab->get_issystem())*/
 	{
+		char _buf[16];
 		_s->CopyFrom(blob_stream, 0);
 		blob_stream->Seek(0, soFromBeginning);
 		if(blob_stream->Read(_buf, 2) >= 2) if((_buf[0] == 1 || _buf[0] == 2) && _buf[1] == 1)
@@ -1141,7 +1129,7 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 
 			if(isOK)
 			{
-				len1C = *(int64_t*)_buf;
+				int64_t len1C = *(int64_t*)_buf;
 				if(_s->GetSize() > len1C)
 				{
 					_s->Seek(len1C, (TSeekOrigin)soFromBeginning);
@@ -1162,9 +1150,8 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 			delete _s2;
 		}
 
-		temp_stream = new TFileStream(_filename, fmCreate);
-		temp_stream->CopyFrom(_s, 0);
-		delete temp_stream;
+		TFileStream temp_stream(_filename, fmCreate);
+		temp_stream.CopyFrom(_s, 0);
 	}
 
 	delete _s;

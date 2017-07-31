@@ -765,7 +765,7 @@ void v8file::Flush()
 bool v8catalog::IsCatalog()
 {
 	int64_t _filelen;
-	int _startempty = -1;
+	uint32_t _startempty = (uint32_t)(-1);
 	char _t[32];
 
 	Lock->Acquire();
