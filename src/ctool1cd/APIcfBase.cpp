@@ -179,7 +179,6 @@ void v8file::SaveToFile(const String& FileName)
 	if(!is_opened) if(!Open()) return;
 	TFileStream* fs = new TFileStream(FileName, fmCreate);
 	Lock->Acquire();
-	data->Seek(0, soFromBeginning);
 	fs->CopyFrom(data, 0);
 	Lock->Release();
 	GetTimeCreate(&create);
