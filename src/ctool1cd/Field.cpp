@@ -1084,6 +1084,7 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 			cat = new v8catalog(_sx2, zippedContainer, true);
 			if(!cat->GetFirst())
 			{
+				_sx2->Seek(0, soFromBeginning);
 				temp_stream = new TFileStream(_filename, fmCreate);
 				temp_stream->CopyFrom(_sx2, 0);
 				delete temp_stream;
