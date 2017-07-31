@@ -63,7 +63,7 @@ String::String(const WCHART *w_src, int limit_size)
 	const WCHART *p = w_src;
 	bool limit_exceeded = false;
 
-	if( limit_size > 0 && p != nullptr ) { 
+	if( limit_size > 0 && p != nullptr ) {
 
 		while ( !limit_exceeded && *p != '\0' ) {
 
@@ -80,6 +80,31 @@ String::String(const WCHART *w_src, int limit_size)
 	string tmp(SysUtils::TEncoding::Unicode->toUtf8(tmpdata));
 	append(tmp);
 }
+
+/** Конструктор (C strings).
+ *      @w_src        - входная строка
+ */
+String::String(const WCHART *w_src)
+{
+	// Костыль
+	DynamicArray<t::Byte> tmpdata;
+	const WCHART *p = w_src;
+
+	if( p != nullptr ) {
+
+		while ( *p != u'\0' ) {
+
+			tmpdata.push_back((uint16_t)(*p) & 0xFF);
+			tmpdata.push_back((uint16_t)(*p) >> 8);
+
+			++p;
+
+		}
+	}
+	string tmp(SysUtils::TEncoding::Unicode->toUtf8(tmpdata));
+	append(tmp);
+}
+
 
 String::String(int                value) : string(ToString(value)) {}
 String::String(unsigned int       value) : string(ToString(value)) {}
