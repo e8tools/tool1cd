@@ -1421,7 +1421,6 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 		}
 
 		_sb = new TBytesStream(bytes1);
-		_s->Seek(0, soFromBeginning);
 		_sb->CopyFrom(_s, 0);
 
 		enc = NULL;

@@ -89,6 +89,7 @@ int64_t TStream::Read(System::DynamicArray<System::t::Byte> &Buffer, int64_t Cou
 int64_t TStream::CopyFrom(TStream *Source, const int64_t Count)
 {
 	if (Count == 0) {
+		Source->Seek(0, soFromBeginning);
 		auto data_size = Source->GetSize();
 		if (data_size != 0) {
 			return CopyFrom(Source, data_size);
@@ -198,7 +199,7 @@ int64_t TWrapperStream::Write(const void *Buffer, int64_t Count)
 		std::cerr << err << std::endl;
 		throw Exception(err);
 	}
-	
+
 	m_position += Count;
 	if (m_position > m_size) {
 		m_size = m_position;

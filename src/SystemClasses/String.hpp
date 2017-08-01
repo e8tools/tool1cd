@@ -24,7 +24,9 @@ public:
 
 	explicit String(const DynamicArray<t::Byte> &bytes);
 
-	String(const WCHART *w_src, int limit_size = 0);
+	String(const WCHART *w_src, int limit_size);
+
+	String(const WCHART *w_src);
 
 
 	String(int value);

@@ -265,7 +265,7 @@ int64_t v8file::Write(const void* Buffer, int Start, int Length) // дозапи
 	data->Seek(Start, soFromBeginning);
 	ret = data->Write(Buffer, Length);
 	Lock->Release();
-	
+
 	return ret;
 }
 
@@ -377,7 +377,7 @@ void v8file::SetFileName(const String& _name)
 bool v8file::IsCatalog()
 {
 	int64_t _filelen;
-	int _startempty = -1;
+	uint32_t _startempty = (uint32_t)(-1);
 	char _t[32];
 
 	Lock->Acquire();
@@ -764,7 +764,7 @@ void v8file::Flush()
 bool v8catalog::IsCatalog()
 {
 	int64_t _filelen;
-	int _startempty = -1;
+	uint32_t _startempty = (uint32_t)(-1);
 	char _t[32];
 
 	Lock->Acquire();
@@ -934,10 +934,10 @@ v8catalog::v8catalog(TStream* stream, bool _zipped, bool leave_stream) // соз
 	data = stream;
 	file = NULL;
 
-	if(!data->GetSize()) 
+	if(!data->GetSize())
 		data->WriteBuffer(_EMPTY_CATALOG_TEMPLATE, 16);
 
-	if(IsCatalog()) 
+	if(IsCatalog())
 		initialize();
 	else
 	{
