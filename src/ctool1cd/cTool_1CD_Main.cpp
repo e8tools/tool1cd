@@ -1,4 +1,4 @@
-﻿#pragma hdrstop
+#pragma hdrstop
 
 #include <stdio.h>
 #include <clocale>
@@ -514,10 +514,6 @@ int main(int argc, char* argv[])
 
 	if(commands.get_length() == 0)
 	{
-		#if defined (_MSC_VER)
-			std::setlocale(LC_ALL, "Russian");
-		#endif
-		
 		cout << "cTool_1CD (c) awa 2009 - 2017" << endl << "Запусти cTool_1CD -h для справки" << endl;
 		return 0;
 	}
