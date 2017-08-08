@@ -1,7 +1,6 @@
 #pragma hdrstop
 
 #include <stdio.h>
-#include <clocale>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
