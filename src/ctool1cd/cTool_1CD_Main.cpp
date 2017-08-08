@@ -1,4 +1,4 @@
-﻿#pragma hdrstop
+#pragma hdrstop
 
 #include <stdio.h>
 #include <boost/regex.hpp>
