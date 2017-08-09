@@ -26,7 +26,7 @@ enum table_info
 };
 
 // типы измененных записей
-enum changed_rec_type
+enum class changed_rec_type
 {
 	crt_not_changed,
 	crt_changed,
