@@ -2109,7 +2109,7 @@ bool T_1CD::replaceTREF(String mapfile)
 			str = f->getname();
 			if(str.GetLength() > 3)
 			if(str.SubString(str.GetLength() - 3, 4).CompareIC("TREF") == 0)
-			if(f->gettype() == tf_binary)
+			if(f->gettype() == type_fields::tf_binary)
 			if(f->getlength() == 4)
 			{
 				msreg_m.Status(t->getname() + " : " + f->getname());

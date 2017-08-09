@@ -35,7 +35,7 @@ Field::Field(Table* _parent)
 	parent = _parent;
 	len = 0;
 	offset = 0;
-	type = tf_binary;
+	type = type_fields::tf_binary;
 }
 
 //---------------------------------------------------------------------------
@@ -52,18 +52,18 @@ int32_t Field::getlen() // возвращает длину поля в байт�
 	len = null_exists ? 1 : 0;
 	switch(type)
 	{
-		case tf_binary: len += length; break;
-		case tf_bool: len += 1; break;
-		case tf_numeric: len += (length + 2) >> 1; break;
-		case tf_char: len += length * 2; break;
-		case tf_varchar: len += length * 2 + 2; break;
-		case tf_version: len += 16; break;
-		case tf_string: len += 8; break;
-		case tf_text: len += 8; break;
-		case tf_image: len += 8; break;
-		case tf_datetime: len += 7; break;
-		case tf_version8: len += 8; break;
-		case tf_varbinary: len += length + 2; break;
+		case type_fields::tf_binary: len += length; break;
+		case type_fields::tf_bool: len += 1; break;
+		case type_fields::tf_numeric: len += (length + 2) >> 1; break;
+		case type_fields::tf_char: len += length * 2; break;
+		case type_fields::tf_varchar: len += length * 2 + 2; break;
+		case type_fields::tf_version: len += 16; break;
+		case type_fields::tf_string: len += 8; break;
+		case type_fields::tf_text: len += 8; break;
+		case type_fields::tf_image: len += 8; break;
+		case type_fields::tf_datetime: len += 7; break;
+		case type_fields::tf_version8: len += 8; break;
+		case type_fields::tf_varbinary: len += length + 2; break;
 	}
 	return len;
 }
@@ -85,7 +85,7 @@ String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimite
 	}
 	switch(type)
 	{
-		case tf_binary:
+		case type_fields::tf_binary:
 			if(length == 16 && (showGUID || ignore_showGUID))
 			{
 				if(showGUIDasMS) return GUIDasMS(fr);
@@ -105,10 +105,10 @@ String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimite
 				buf[length << 1] = 0;
 			}
 			return buf;
-		case tf_bool:
+		case type_fields::tf_bool:
 			if(fr[0]) return "true";
 			return "false";
-		case tf_numeric:
+		case type_fields::tf_numeric:
 			i = 0; // текущий индекс в buf
 			k = true; // признак, что значащие цифры еще не начались
 			m = length - precision; // позиция десятичной точки слева
@@ -132,24 +132,24 @@ String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimite
 
 			buf[i] = 0;
 			return buf;
-		case tf_char:
+		case type_fields::tf_char:
 			return String((WCHART*)fr, length);
-		case tf_varchar:
+		case type_fields::tf_varchar:
 			i = *(int16_t*)fr;
 			return String((WCHART*)(fr + 2), i);
-		case tf_version:
+		case type_fields::tf_version:
 			return String(*(int32_t*)fr) + ":" + *(int32_t*)(fr + 4) + ":" + *(int32_t*)(fr + 8) + ":" + *(int32_t*)(fr + 12);
-		case tf_version8:
+		case type_fields::tf_version8:
 			return String(*(int32_t*)fr) + ":" + *(int32_t*)(fr + 4);
-		case tf_string:
+		case type_fields::tf_string:
 			return detailed ? String("{MEMO} [") + tohex(*(int32_t*)fr) + "][" + tohex(*(int32_t*)(fr + 4)) + "]" : String("{MEMO}");
-		case tf_text:
+		case type_fields::tf_text:
 			return detailed ? String("{TEXT} [") + tohex(*(int32_t*)fr) + "][" + tohex(*(int32_t*)(fr + 4)) + "]" : String("{TEXT}");
-		case tf_image:
+		case type_fields::tf_image:
 			return detailed ? String("{IMAGE} [") + tohex(*(int32_t*)fr) + "][" + tohex(*(int32_t*)(fr + 4)) + "]" : String("{IMAGE}");
-		case tf_datetime:
+		case type_fields::tf_datetime:
 			return date_to_string(fr);
-		case tf_varbinary:
+		case type_fields::tf_varbinary:
 			m = *(int16_t*)fr; // длина + смещение
 			for(i = 0; i < m; i++)
 			{
@@ -184,7 +184,7 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 	}
 	switch(type)
 	{
-		case tf_binary: {
+		case type_fields::tf_binary: {
 			if(value.GetLength() == 0) {
 				break;
 			}
@@ -224,7 +224,7 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 			}
 			break;
 		}
-		case tf_bool: {
+		case type_fields::tf_bool: {
 			if(value == "true") {
 				*fr = 1;
 			}
@@ -233,7 +233,7 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 			}
 			break;
 		}
-		case tf_numeric: {
+		case type_fields::tf_numeric: {
 			int32_t l = value.GetLength();
 			if(!l) {
 				break;
@@ -333,7 +333,7 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 
 			break;
 		}
-		case tf_char: {
+		case type_fields::tf_char: {
 			int32_t i = std::min(value.GetLength(), length);
 			memcpy(fr, value.c_str(), i << 1);
 			while(i < length) {
@@ -341,7 +341,7 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 			}
 			break;
 		}
-		case tf_varchar: {
+		case type_fields::tf_varchar: {
 			int32_t i = std::min(value.GetLength(), length);
 			*(int16_t*)fr = i;
 			memcpy(fr + 2, value.c_str(), i * 2);
@@ -350,22 +350,22 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 			}
 			break;
 		}
-		case tf_version: {
+		case type_fields::tf_version: {
 			return false;
 		}
-		case tf_version8: {
+		case type_fields::tf_version8: {
 			return false;
 		}
-		case tf_string: {
+		case type_fields::tf_string: {
 			return false;
 		}
-		case tf_text: {
+		case type_fields::tf_text: {
 			return false;
 		}
-		case tf_image: {
+		case type_fields::tf_image: {
 			return false;
 		}
-		case tf_datetime: {
+		case type_fields::tf_datetime: {
 			if(value.GetLength() < 19)
 			{
 				fr[1] = 1;
@@ -542,7 +542,7 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 			}
 			break;
 		}
-		case tf_varbinary: {
+		case type_fields::tf_varbinary: {
 			return false;
 		}
 	}
@@ -570,7 +570,7 @@ String Field::get_XML_presentation(char* rec, bool ignore_showGUID)
 	}
 	switch(type)
 	{
-		case tf_binary:
+		case type_fields::tf_binary:
 			if(length == 16 && (showGUID || ignore_showGUID))
 			{
 				if(showGUIDasMS)
@@ -592,10 +592,10 @@ String Field::get_XML_presentation(char* rec, bool ignore_showGUID)
 				buf[length << 1] = 0;
 			}
 			return buf;
-		case tf_bool:
+		case type_fields::tf_bool:
 			if(fr[0]) return "true";
 			return "false";
-		case tf_numeric:
+		case type_fields::tf_numeric:
 			i = 0; // текущий индекс в buf
 			k = true; // признак, что значащие цифры еще не начались
 			m = length - precision; // позиция десятичной точки слева
@@ -616,20 +616,20 @@ String Field::get_XML_presentation(char* rec, bool ignore_showGUID)
 			if(k) return "0";
 			buf[i] = 0;
 			return buf;
-		case tf_char:
+		case type_fields::tf_char:
 			return toXML(String((WCHART*)fr, length));
-		case tf_varchar:
+		case type_fields::tf_varchar:
 			i = *(int16_t*)fr;
 			return toXML(String(((WCHART*)fr) + 1, i));
-		case tf_version: {
+		case type_fields::tf_version: {
 			int32_t *retyped = (int32_t*)fr;
 			return String(*(int32_t*)fr) + ":" + retyped[1] + ":" + retyped[2] + ":" + retyped[3];
 		}
-		case tf_version8: {
+		case type_fields::tf_version8: {
 			int32_t *retyped = (int32_t*)fr;
 			return String(retyped[0] + ":" + retyped[1]);
 		}
-		case tf_string: {
+		case type_fields::tf_string: {
 			uint32_t *retyped = (uint32_t*)fr;
 			out = new TMemoryStream();
 			parent->readBlob(out, retyped[0], retyped[1]);
@@ -637,7 +637,7 @@ String Field::get_XML_presentation(char* rec, bool ignore_showGUID)
 			delete out;
 			return s;
 		}
-		case tf_text: {
+		case type_fields::tf_text: {
 			uint32_t *retyped = (uint32_t*)fr;
 			out = new TMemoryStream();
 			parent->readBlob(out, retyped[0], retyped[1]);
@@ -645,7 +645,7 @@ String Field::get_XML_presentation(char* rec, bool ignore_showGUID)
 			delete out;
 			return s;
 		}
-		case tf_image: {
+		case type_fields::tf_image: {
 			uint32_t *retyped = (uint32_t*)fr;
 			in = new TMemoryStream();
 			out = new TMemoryStream();
@@ -656,7 +656,7 @@ String Field::get_XML_presentation(char* rec, bool ignore_showGUID)
 			delete out;
 			return s;
 		}
-		case tf_datetime:
+		case type_fields::tf_datetime:
 			buf[0] = '0' + (fr[0] >> 4);
 			buf[1] = '0' + (fr[0] & 0xf);
 			buf[2] = '0' + (fr[1] >> 4);
@@ -678,7 +678,7 @@ String Field::get_XML_presentation(char* rec, bool ignore_showGUID)
 			buf[18] = '0' + (fr[6] & 0xf);
 			buf[19] = 0;
 			return buf;
-		case tf_varbinary:
+		case type_fields::tf_varbinary:
 			m = *(int16_t*)fr; // длина + смещение
 			for(i = 0; i < m; i++)
 			{
@@ -743,18 +743,18 @@ String Field::get_presentation_type()
 {
 	switch(type)
 	{
-		case tf_binary: return "binary";
-		case tf_bool: return "bool";
-		case tf_numeric: return "number";
-		case tf_char: return "fixed string";
-		case tf_varchar: return "string";
-		case tf_version: return "version";
-		case tf_string: return "memo";
-		case tf_text: return "text";
-		case tf_image: return "image";
-		case tf_datetime: return "datetime";
-		case tf_version8: return "hidden version";
-		case tf_varbinary: return "var binary";
+		case type_fields::tf_binary: return "binary";
+		case type_fields::tf_bool: return "bool";
+		case type_fields::tf_numeric: return "number";
+		case type_fields::tf_char: return "fixed string";
+		case type_fields::tf_varchar: return "string";
+		case type_fields::tf_version: return "version";
+		case type_fields::tf_string: return "memo";
+		case type_fields::tf_text: return "text";
+		case type_fields::tf_image: return "image";
+		case type_fields::tf_datetime: return "datetime";
+		case type_fields::tf_version8: return "hidden version";
+		case type_fields::tf_varbinary: return "var binary";
 	}
 	return "{?}";
 }
@@ -809,9 +809,9 @@ uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxl
 
 	switch(type)
 	{
-		case tf_binary:
-		case tf_datetime:
-		case tf_bool:
+		case type_fields::tf_binary:
+		case type_fields::tf_datetime:
+		case type_fields::tf_bool:
 			if(len > maxlen)
 			{
 				msreg_g.AddError("Ошибка получения ключа сортировки поля. Длина буфера меньше необходимой.",
@@ -827,7 +827,7 @@ uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxl
 			memcpy(SortKey, isnull ? (void *)null_index : (void*)fr, len - addlen);
 			return len;
 
-		case tf_numeric:
+		case type_fields::tf_numeric:
 
 			if(isnull)
 			{
@@ -902,26 +902,26 @@ uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxl
 			memcpy(SortKey, nbuf, len - addlen);
 			return len;
 
-		case tf_char:
+		case type_fields::tf_char:
 					msreg_g.AddError("Ошибка получения ключа сортировки поля. Неизвестный код возврата.",
 						"Таблица", parent->name,
 						"Поле", name,
 						"Значение поля", get_presentation(rec));
 					return addlen;
 
-		case tf_varchar:
+		case type_fields::tf_varchar:
 					msreg_g.AddError("Ошибка получения ключа сортировки поля. Неизвестный код возврата.",
 						"Таблица", parent->name,
 						"Поле", name,
 						"Значение поля", get_presentation(rec));
 					return addlen;
 
-		case tf_version:
-		case tf_version8:
-		case tf_string:
-		case tf_text:
-		case tf_image:
-		case tf_varbinary:
+		case type_fields::tf_version:
+		case type_fields::tf_version8:
+		case type_fields::tf_string:
+		case type_fields::tf_text:
+		case type_fields::tf_image:
+		case type_fields::tf_varbinary:
 			msreg_g.AddError("Попытка получения ключа сортировки неподдерживаемого типа поля.",
 				"Таблица", parent->name,
 				"Поле", name,

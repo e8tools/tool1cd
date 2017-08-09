@@ -64,7 +64,7 @@ void changed_rec::clear()
 	{
 		f = parent->fields[i];
 		tf = f->gettype();
-		if(tf == tf_image || tf == tf_string || tf == tf_text)
+		if(tf == type_fields::tf_image || tf == type_fields::tf_string || tf == type_fields::tf_text)
 		{
 			b = *(TStream**)(rec + f->getoffset() + (f->getnull_exists() ? 1 : 0));
 			delete b;
@@ -297,21 +297,21 @@ void Table::init(int32_t block_descr)
 			return;
 		}
 		ws = ff->get_value();
-		if(ws == "B") fld->type = tf_binary;
-		else if(ws == "L") fld->type = tf_bool;
-		else if(ws == "N") fld->type = tf_numeric;
-		else if(ws == "NC") fld->type = tf_char;
-		else if(ws == "NVC") fld->type = tf_varchar;
+		if(ws == "B") fld->type = type_fields::tf_binary;
+		else if(ws == "L") fld->type = type_fields::tf_bool;
+		else if(ws == "N") fld->type = type_fields::tf_numeric;
+		else if(ws == "NC") fld->type = type_fields::tf_char;
+		else if(ws == "NVC") fld->type = type_fields::tf_varchar;
 		else if(ws == "RV")
 		{
-			fld->type = tf_version;
+			fld->type = type_fields::tf_version;
 			has_version = true;
 		}
-		else if(ws == "NT") fld->type = tf_string;
-		else if(ws == "T") fld->type = tf_text;
-		else if(ws == "I") fld->type = tf_image;
-		else if(ws == "DT") fld->type = tf_datetime;
-		else if(ws == "VB") fld->type = tf_varbinary;
+		else if(ws == "NT") fld->type = type_fields::tf_string;
+		else if(ws == "T") fld->type = type_fields::tf_text;
+		else if(ws == "I") fld->type = type_fields::tf_image;
+		else if(ws == "DT") fld->type = type_fields::tf_datetime;
+		else if(ws == "VB") fld->type = type_fields::tf_varbinary;
 		else
 		{
 			msreg_g.AddError("Неизвестный тип поля таблицы.",
@@ -688,7 +688,7 @@ void Table::init(int32_t block_descr)
 	{// добавляем скрытое поле версии
 		fld = fields[num_fields++];
 		fld->name = "VERSION";
-		fld->type = tf_version8;
+		fld->type = type_fields::tf_version8;
 	}
 
 	t = t->get_next();
@@ -845,13 +845,13 @@ void Table::init(int32_t block_descr)
 	// вычисляем длину записи таблицы как сумму длинн полей и проставим смещения полей в записи
 	recordlen = 1; // первый байт записи - признак удаленности
 	// сначала идут поля (поле) с типом "версия"
-	for(i = 0; i < num_fields; i++) if(fields[i]->type == tf_version || fields[i]->type == tf_version8)
+	for(i = 0; i < num_fields; i++) if(fields[i]->type == type_fields::tf_version || fields[i]->type == type_fields::tf_version8)
 	{
 		fields[i]->offset = recordlen;
 		recordlen += fields[i]->getlen();
 	}
 	// затем идут все остальные поля
-	for(i = 0; i < num_fields; i++) if(fields[i]->type != tf_version && fields[i]->type != tf_version8)
+	for(i = 0; i < num_fields; i++) if(fields[i]->type != type_fields::tf_version && fields[i]->type != type_fields::tf_version8)
 	{
 		fields[i]->offset = recordlen;
 		recordlen += fields[i]->getlen();
@@ -1356,7 +1356,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 		s = fields[i]->getprecision();
 		f->Write(s.c_str(), s.GetLength());
 		f->Write(fpart5.c_str(), fpart5.GetLength());
-		if(fields[i]->type == tf_image) ic++;
+		if(fields[i]->type == type_fields::tf_image) ic++;
 	}
 
 	f->Write(part3.c_str(), part3.GetLength());
@@ -1394,7 +1394,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 			f->Write(us->c_str(), us->Length());
 			f->Write(">", 1);
 
-			if(blob_to_file && fields[i]->type == tf_image)
+			if(blob_to_file && fields[i]->type == type_fields::tf_image)
 			{
 				if(!dircreated)
 				{
@@ -1775,13 +1775,13 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 
 	fld = fields[numfield];
 	tf = fld->gettype();
-	if(tf == tf_version || tf == tf_version8) return;
+	if(tf == type_fields::tf_version || tf == type_fields::tf_version8) return;
 	if(null && !fld->null_exists) return;
 
 	rec = new char[recordlen];
 	fldvalue = new char[fld->getlen()];
 
-	if(tf == tf_string || tf == tf_text || tf == tf_image)
+	if(tf == type_fields::tf_string || tf == type_fields::tf_text || tf == type_fields::tf_image)
 	{
 		memset(fldvalue, 0, fld->getlen());
 		k = fldvalue;
@@ -1816,7 +1816,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 
 	editrec = cr->rec;
 
-	if(cr->fields[numfield]) if(tf == tf_string || tf == tf_text || tf == tf_image)
+	if(cr->fields[numfield]) if(tf == type_fields::tf_string || tf == type_fields::tf_text || tf == type_fields::tf_image)
 	{
 		ost = (TStream**)(editrec + fld->offset + (fld->getnull_exists() ? 1 : 0));
 		if(*ost != st)
@@ -1875,7 +1875,7 @@ void Table::restore_edit_value(uint32_t phys_numrecord, int32_t numfield)
 	tf = fld->gettype();
 	if(cr->fields[numfield])
 	{
-		if(tf == tf_string || tf == tf_text || tf == tf_image)
+		if(tf == type_fields::tf_string || tf == type_fields::tf_text || tf == type_fields::tf_image)
 		{
 			ost = (TStream**)(cr->rec + fld->offset + (fld->getnull_exists() ? 1 : 0));
 			delete *ost;
@@ -2470,7 +2470,7 @@ void Table::delete_record(uint32_t phys_numrecord)
 	{
 		f = fields[i];
 		tf = f->type;
-		if(tf == tf_image || tf == tf_string || tf == tf_text)
+		if(tf == type_fields::tf_image || tf == type_fields::tf_string || tf == type_fields::tf_text)
 		{
 			j = *(uint32_t*)(rec + f->offset);
 			if(j) delete_blob_record(j);
@@ -2503,9 +2503,9 @@ void Table::insert_record(char* rec)
 		offset = f->offset + (f->getnull_exists() ? 1 : 0);
 		switch(tf)
 		{
-			case tf_image:
-			case tf_string:
-			case tf_text:
+			case type_fields::tf_image:
+			case type_fields::tf_string:
+			case type_fields::tf_text:
 				st = (TStream**)(rec + offset);
 				if(*st)
 				{
@@ -2521,12 +2521,12 @@ void Table::insert_record(char* rec)
 				*(uint32_t*)(rec + offset) = k;
 				*(uint32_t*)(rec + offset + 4) = l;
 				if(f->getnull_exists()) *(rec + f->offset) = l ? 1 : 0;
-			case tf_version:
+			case type_fields::tf_version:
 				file_data->get_version_rec_and_increase(&ver);
 				memcpy(rec + offset, &ver, 8);
 				memcpy(rec + offset + 8, &ver, 8);
 				break;
-			case tf_version8:
+			case type_fields::tf_version8:
 				file_data->get_version_rec_and_increase(&ver);
 				memcpy(rec + offset, &ver, 8);
 				break;
@@ -2579,7 +2579,7 @@ void Table::update_record(uint32_t phys_numrecord, char* rec, char* changed_fiel
 		offset = f->offset + (f->getnull_exists() ? 1 : 0);
 		if(changed_fields[i])
 		{
-			if(tf == tf_image || tf == tf_string || tf == tf_text)
+			if(tf == type_fields::tf_image || tf == type_fields::tf_string || tf == type_fields::tf_text)
 			{
 				if(f->getnull_exists())
 				{
@@ -2636,12 +2636,12 @@ void Table::update_record(uint32_t phys_numrecord, char* rec, char* changed_fiel
 		}
 		else
 		{
-			if(tf == tf_version)
+			if(tf == type_fields::tf_version)
 			{
 				file_data->get_version_rec_and_increase(&ver);
 				memcpy(orec + offset + 8, &ver, 8);
 			}
-			else if(tf == tf_version8)
+			else if(tf == type_fields::tf_version8)
 			{
 				file_data->get_version_rec_and_increase(&ver);
 				memcpy(orec + offset, &ver, 8);
@@ -2687,14 +2687,14 @@ char* Table::get_record_template_test()
 		l = f->getlength();
 		switch(f->gettype())
 		{
-			case tf_binary: // B // длина = length
+			case type_fields::tf_binary: // B // длина = length
 				memset(curp, 1, BLOB_RECORD_LEN * l);
 				break;
-			case tf_bool: // L // длина = 1
+			case type_fields::tf_bool: // L // длина = 1
 				curp[0] = 1;
 				curp[1] = 1;
 				break;
-			case tf_numeric: // N // длина = (length + 2) / 2
+			case type_fields::tf_numeric: // N // длина = (length + 2) / 2
 				j = (l + 2) / 2;
 				for(; j > 0; --j)
 				{
@@ -2702,10 +2702,10 @@ char* Table::get_record_template_test()
 					curp += BLOB_RECORD_LEN;
 				}
 				break;
-			case tf_char: // NC // длина = length * 2
+			case type_fields::tf_char: // NC // длина = length * 2
 				memset(curp, 1, BLOB_RECORD_LEN * 2 * l);
 				break;
-			case tf_varchar: // NVC // длина = length * 2 + 2
+			case type_fields::tf_varchar: // NVC // длина = length * 2 + 2
 				if(l > 255) j = BLOB_RECORD_LEN;
 				else j = l + 1;
 				memset(curp, 1, j);
@@ -2716,19 +2716,19 @@ char* Table::get_record_template_test()
 				curp += BLOB_RECORD_LEN;
 				memset(curp, 1, BLOB_RECORD_LEN * 2 * l);
 				break;
-			case tf_version: // RV // 16, 8 версия создания и 8 версия модификации ? каждая версия int32_t(изменения) + int32_t(реструктуризация)
+			case type_fields::tf_version: // RV // 16, 8 версия создания и 8 версия модификации ? каждая версия int32_t(изменения) + int32_t(реструктуризация)
 				memset(curp, 1, BLOB_RECORD_LEN * 16);
 				break;
-			case tf_string: // NT // 8 (unicode text)
+			case type_fields::tf_string: // NT // 8 (unicode text)
 				memset(curp, 1, BLOB_RECORD_LEN * 8);
 				break;
-			case tf_text: // T // 8 (ascii text)
+			case type_fields::tf_text: // T // 8 (ascii text)
 				memset(curp, 1, BLOB_RECORD_LEN * 8);
 				break;
-			case tf_image: // I // 8 (image = bynary data)
+			case type_fields::tf_image: // I // 8 (image = bynary data)
 				memset(curp, 1, BLOB_RECORD_LEN * 8);
 				break;
-			case tf_datetime: // DT //7
+			case type_fields::tf_datetime: // DT //7
 				if(f->getname().CompareIC("_DATE_TIME") == 0) required = true;
 				else if(f->getname().CompareIC("_NUMBERPREFIX") == 0) required = true;
 
@@ -2748,10 +2748,10 @@ char* Table::get_record_template_test()
 				curp += BLOB_RECORD_LEN;
 				memcpy(curp, DATE67_TEST_TEMPLATE, BLOB_RECORD_LEN);
 				break;
-			case tf_version8: // 8, скрытое поле при recordlock == false и отсутствии поля типа tf_version
+			case type_fields::tf_version8: // 8, скрытое поле при recordlock == false и отсутствии поля типа tf_version
 				memset(curp, 1, BLOB_RECORD_LEN * 8);
 				break;
-			case tf_varbinary: // VB // длина = length + 2
+			case type_fields::tf_varbinary: // VB // длина = length + 2
 				if(l > 255) j = BLOB_RECORD_LEN;
 				else j = l + 1;
 				memset(curp, 1, j);
