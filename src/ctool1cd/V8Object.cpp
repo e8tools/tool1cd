@@ -69,12 +69,12 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 
 	if(blockNum == 1)
 	{
-		if(base->version < ver8_3_8_0) type = v8objtype::free80;
+		if(base->version < db_ver::ver8_3_8_0) type = v8objtype::free80;
 		else type = v8objtype::free838;
 	}
 	else
 	{
-		if(base->version < ver8_3_8_0) type = v8objtype::data80;
+		if(base->version < db_ver::ver8_3_8_0) type = v8objtype::data80;
 		else type = v8objtype::data838;
 	}
 
@@ -254,7 +254,7 @@ v8object::v8object(T_1CD* _base)
 	blockNum = _base->get_free_block();
 	b = _base->getblock_for_write(blockNum, false);
 	memset(b, 0, _base->pagesize);
-	if(_base->version < ver8_3_8_0)	memcpy(((v8ob*)b)->sig, SIG_OBJ, 8);
+	if(_base->version < db_ver::ver8_3_8_0)	memcpy(((v8ob*)b)->sig, SIG_OBJ, 8);
 	else
 	{
 		b[0] = 0x1c;

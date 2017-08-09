@@ -799,7 +799,7 @@ void Table::init(int32_t block_descr)
 			{
 				for(i = 1; i <= num_indexes; i++)
 				{
-					if(base->version < ver8_3_8_0)
+					if(base->version < db_ver::ver8_3_8_0)
 					{
 						if(buf[i] >= file_index->getlen())
 						{

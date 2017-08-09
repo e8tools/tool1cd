@@ -90,7 +90,7 @@ void Index::create_recordsindex()
 	file_index->getdata(buf, start, 8);
 
 	rootblock = *(uint32_t*)buf;
-	if(version >= ver8_3_8_0) rootblock *= pagesize;
+	if(version >= db_ver::ver8_3_8_0) rootblock *= pagesize;
 	length = *(int16_t*)(buf + 4);
 
 	curblock = rootblock;
@@ -105,7 +105,7 @@ void Index::create_recordsindex()
 		{
 			curblock = *(uint32_t*)(buf + 16 + length);
 			curblock = 	reverse_byte_order(curblock);
-			if(version >= ver8_3_8_0) curblock *= pagesize;
+			if(version >= db_ver::ver8_3_8_0) curblock *= pagesize;
 			file_index->getdata(buf, curblock, pagesize);
 			is_leaf = buf[0] & 0x2;
 		}
@@ -125,7 +125,7 @@ void Index::create_recordsindex()
 				if(curindex % 10000 == 0) msreg_g.Status(readindex + curindex);
 			}
 			if(curblock == 0xffffffff) break;
-			if(version >= ver8_3_8_0) curblock *= pagesize;
+			if(version >= db_ver::ver8_3_8_0) curblock *= pagesize;
 			file_index->getdata(buf, curblock, pagesize);
 		}
 		recordsindex.SetLength(curindex);
@@ -257,7 +257,7 @@ void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 				unsigned numrecx = reverse_byte_order(*(uint32_t*)rbuf);
 				rbuf += 4;
 				uint64_t blockx = reverse_byte_order(*(uint32_t*)rbuf);
-				if(version >= ver8_3_8_0) blockx *= pagesize;
+				if(version >= db_ver::ver8_3_8_0) blockx *= pagesize;
 				rbuf += 4;
 
 				dump_recursive(file_index, f, level + 1, blockx);
@@ -304,7 +304,7 @@ uint32_t Index::get_rootblock()
 		char buf[8];
 		tbase->file_index->getdata(buf, start, 8);
 		rootblock = *(uint32_t*)buf;
-		if(version >= ver8_3_8_0) rootblock *= pagesize;
+		if(version >= db_ver::ver8_3_8_0) rootblock *= pagesize;
 		length = *(int16_t*)(buf + 4);
 	}
 	return rootblock;
@@ -320,7 +320,7 @@ uint32_t Index::get_length()
 		char buf[8];
 		tbase->file_index->getdata(buf, start, 8);
 		rootblock = *(uint32_t*)buf;
-		if(version >= ver8_3_8_0) rootblock *= pagesize;
+		if(version >= db_ver::ver8_3_8_0) rootblock *= pagesize;
 		length = *(int16_t*)(buf + 4);
 	}
 	return length;
@@ -348,7 +348,7 @@ void Index::dump(String _filename)
 		char buf[8];
 		file_index->getdata(buf, start, 8);
 		rootblock = *(uint32_t*)buf;
-		if(version >= ver8_3_8_0) rootblock *= pagesize;
+		if(version >= db_ver::ver8_3_8_0) rootblock *= pagesize;
 		length = *(int16_t*)(buf + 4);
 	}
 
@@ -667,11 +667,11 @@ void Index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 					page_is_empty = true;
 					if(lph->prev_page != 0xffffffff)
 					{
-						tbase->file_index->setdata(&(lph->next_page), (version < ver8_3_8_0 ? lph->prev_page : lph->prev_page * pagesize) + 8, 4);
+						tbase->file_index->setdata(&(lph->next_page), (version < db_ver::ver8_3_8_0 ? lph->prev_page : lph->prev_page * pagesize) + 8, 4);
 					}
 					if(lph->next_page != 0xffffffff)
 					{
-						tbase->file_index->setdata(&(lph->prev_page), (version < ver8_3_8_0 ? lph->next_page : lph->next_page * pagesize) + 4, 4);
+						tbase->file_index->setdata(&(lph->prev_page), (version < db_ver::ver8_3_8_0 ? lph->next_page : lph->next_page * pagesize) + 4, 4);
 					}
 					// TODO проверить, надо ли номера свободных страниц преобразовывать в смещения для версий от 8.0 до 8.2.14
 					tbase->file_index->getdata(&k, 0, 4);
@@ -713,7 +713,7 @@ void Index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 				if(i == bph->number_indexes - 1 && j==0) is_last_record = true;
 
 				_block_ = reverse_byte_order(*(uint32_t*)(cur_index + length + 4));
-				if(version >= ver8_3_8_0) _block_ *= pagesize;
+				if(version >= db_ver::ver8_3_8_0) _block_ *= pagesize;
 				delete_index_record(index_buf, phys_numrec, _block_, _is_last_record, _page_is_empty, new_last_index_buf, _new_last_phys_num);
 
 				if(_page_is_empty)
@@ -733,11 +733,11 @@ void Index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 					page_is_empty = true;
 					if(bph->prev_page != 0xffffffff)
 					{
-						tbase->file_index->setdata(&(bph->next_page), (version < ver8_3_8_0 ? bph->prev_page : bph->prev_page * pagesize) + 8, 4);
+						tbase->file_index->setdata(&(bph->next_page), (version < db_ver::ver8_3_8_0 ? bph->prev_page : bph->prev_page * pagesize) + 8, 4);
 					}
 					if(bph->next_page != 0xffffffff)
 					{
-						tbase->file_index->setdata(&(bph->prev_page), (version < ver8_3_8_0 ? bph->next_page : bph->next_page * pagesize) + 4, 4);
+						tbase->file_index->setdata(&(bph->prev_page), (version < db_ver::ver8_3_8_0 ? bph->next_page : bph->next_page * pagesize) + 4, 4);
 					}
 					tbase->file_index->getdata(&k, 0, 4);
 					memset(page, 0, pagesize);
@@ -818,14 +818,14 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 		cur_index += length;
 		*(uint32_t*)cur_index = reverse_byte_order(new_last_phys_num);
 		cur_index += 4;
-		*(uint32_t*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? rootblock : rootblock / pagesize);
+		*(uint32_t*)cur_index = reverse_byte_order(version < db_ver::ver8_3_8_0 ? rootblock : rootblock / pagesize);
 		cur_index += 4;
 
 		memcpy(cur_index, new_last_index_buf2, length);
 		cur_index += length;
 		*(uint32_t*)cur_index = reverse_byte_order(new_last_phys_num2);
 		cur_index += 4;
-		*(uint32_t*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? new_last_block2 : new_last_block2 / pagesize);
+		*(uint32_t*)cur_index = reverse_byte_order(version < db_ver::ver8_3_8_0 ? new_last_block2 : new_last_block2 / pagesize);
 
 		tbase->file_index->setdata(page, block, pagesize);
 
@@ -962,9 +962,9 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 				flags &= ~indexpage_is_root;
 				lph->flags = flags;
 				lph->prev_page = prev_page;
-				lph->next_page = version < ver8_3_8_0 ? new_last_block2 : new_last_block2 / pagesize;
+				lph->next_page = version < db_ver::ver8_3_8_0 ? new_last_block2 : new_last_block2 / pagesize;
 				lph2->flags = flags;
-				lph2->prev_page = version < ver8_3_8_0 ? block : block / pagesize;
+				lph2->prev_page = version < db_ver::ver8_3_8_0 ? block : block / pagesize;
 				lph2->next_page = next_page;
 
 				tbase->file_index->setdata(page2, new_last_block2, pagesize);
@@ -1023,7 +1023,7 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 		if(ok)
 		{
 			block1 = reverse_byte_order(*(uint32_t*)(cur_index + length + 4));
-			if(version >= ver8_3_8_0) block1 *= pagesize;
+			if(version >= db_ver::ver8_3_8_0) block1 *= pagesize;
 			write_index_record(phys_numrecord, index_buf, block1, _result, new_last_index_buf, _new_last_phys_num, new_last_index_buf2, _new_last_phys_num2, _new_last_block2);
 
 			if(_result == 1)
@@ -1070,14 +1070,14 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 					cur_index += length;
 					*(uint32_t*)cur_index = reverse_byte_order(_new_last_phys_num);
 					cur_index += 4;
-					*(uint32_t*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? block1 : block1 / pagesize);
+					*(uint32_t*)cur_index = reverse_byte_order(version < db_ver::ver8_3_8_0 ? block1 : block1 / pagesize);
 					cur_index += 4;
 
 					memcpy(cur_index, new_last_index_buf2, length);
 					cur_index += length;
 					*(uint32_t*)cur_index = reverse_byte_order(_new_last_phys_num2);
 					cur_index += 4;
-					*(uint32_t*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? _new_last_block2 : _new_last_block2 / pagesize);
+					*(uint32_t*)cur_index = reverse_byte_order(version < db_ver::ver8_3_8_0 ? _new_last_block2 : _new_last_block2 / pagesize);
 					cur_index += 4;
 
 					k = (number_indexes - i - 2) * delta;
@@ -1093,10 +1093,10 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 					bph->flags = flags;
 					bph->number_indexes = number_indexes1;
 					bph->prev_page = prev_page;
-					bph->next_page = version < ver8_3_8_0 ? new_last_block2 : new_last_block2 / pagesize;
+					bph->next_page = version < db_ver::ver8_3_8_0 ? new_last_block2 : new_last_block2 / pagesize;
 					bph2->flags = flags;
 					bph2->number_indexes = number_indexes2;
-					bph2->prev_page = version < ver8_3_8_0 ? block : block / pagesize;
+					bph2->prev_page = version < db_ver::ver8_3_8_0 ? block : block / pagesize;
 					bph2->next_page = next_page;
 
 					memcpy(page + 12, unpack_indexes_buf, number_indexes1 * delta);
@@ -1132,14 +1132,14 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 					cur_index += length;
 					*(uint32_t*)cur_index = reverse_byte_order(_new_last_phys_num);
 					cur_index += 4;
-					*(uint32_t*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? block1 : block1 / pagesize);
+					*(uint32_t*)cur_index = reverse_byte_order(version < db_ver::ver8_3_8_0 ? block1 : block1 / pagesize);
 					cur_index += 4;
 
 					memcpy(cur_index, new_last_index_buf2, length);
 					cur_index += length;
 					*(uint32_t*)cur_index = reverse_byte_order(_new_last_phys_num2);
 					cur_index += 4;
-					*(uint32_t*)cur_index = reverse_byte_order(version < ver8_3_8_0 ? _new_last_block2 : _new_last_block2 / pagesize);
+					*(uint32_t*)cur_index = reverse_byte_order(version < db_ver::ver8_3_8_0 ? _new_last_block2 : _new_last_block2 / pagesize);
 
 					if(i == number_indexes - 2)
 					{

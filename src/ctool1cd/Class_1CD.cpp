@@ -178,7 +178,7 @@ void T_1CD::init()
 	Field::showGUIDasMS = false;
 
 	pagemap  = nullptr;
-	version  = ver8_2_14_0;
+	version  = db_ver::ver8_2_14_0;
 	pagesize = DEFAULT_PAGE_SIZE;
 	length   = 0;
 	readonly = true;
@@ -281,16 +281,16 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	ver = cont->getver();
 #ifndef delic
 	if(ver == "8.0.3.0"){
-		version = ver8_0_3_0;
+		version = db_ver::ver8_0_3_0;
 		readonly = true;
 	}
 	else if(ver == "8.0.5.0"){
-		version = ver8_0_5_0;
+		version = db_ver::ver8_0_5_0;
 		readonly = true;
 	}
 	else if(ver == "8.1.0.0")
 	{
-		version = ver8_1_0_0;
+		version = db_ver::ver8_1_0_0;
 		#ifdef PublicRelease
 		readonly = true;
 		#else
@@ -299,7 +299,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	}
 	else if(ver == "8.2.0.0")
 	{
-		version = ver8_2_0_0;
+		version = db_ver::ver8_2_0_0;
 		#ifdef PublicRelease
 		readonly = true;
 		#else
@@ -310,7 +310,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 #endif
 		 if(ver == "8.2.14.0")
 	{
-		version = ver8_2_14_0;
+		version = db_ver::ver8_2_14_0;
 		#ifdef PublicRelease
 		readonly = true;
 		#else
@@ -319,7 +319,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	}
 	else if(ver == "8.3.8.0")
 	{
-		version = ver8_3_8_0;
+		version = db_ver::ver8_3_8_0;
 		#ifdef PublicRelease
 		readonly = true;
 		#else
@@ -362,7 +362,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	root_object = new v8object(this, 2);
 
 
-	if(version == ver8_0_3_0 || version == ver8_0_5_0)
+	if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0)
 	{
 		root80 = (root_80*)root_object->getdata();
 
@@ -379,7 +379,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	}
 	else
 	{
-		if(version >= ver8_3_8_0)
+		if(version >= db_ver::ver8_3_8_0)
 		{
 			tstr = new TMemoryStream;
 			root_object->readBlob(tstr, 1);
@@ -407,7 +407,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	tables = new Table*[num_tables];
 	for(i = 0, j = 0; i < num_tables; i++)
 	{
-		if(version < ver8_3_8_0)
+		if(version < db_ver::ver8_3_8_0)
 		{
 			tables[j] = new Table(this, table_blocks[i]);
 		}
@@ -447,7 +447,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	msreg_m.Status(String("Чтение таблиц ") + j);
 	num_tables = j;
 
-	if(version >= ver8_3_8_0)
+	if(version >= db_ver::ver8_3_8_0)
 	{
 		delete[] b;
 		delete tstr;
@@ -1722,7 +1722,7 @@ bool T_1CD::create_table(String path)
 			buf = new char[i + 4];
 			root_object->getdata(buf, 0, i);
 
-			if(version == ver8_0_3_0 || version == ver8_0_5_0)
+			if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0)
 			{
 				root_80* root80 = (root_80*)buf;
 				root80->blocks[root80->numblocks] = descr_table->get_block_number();
@@ -1909,7 +1909,7 @@ bool T_1CD::test_list_of_tables()
 		str->Seek(0, soFromBeginning);
 		_sb = new TBytesStream(bytes1);
 
-		if(version == ver8_0_3_0 || version == ver8_0_5_0)
+		if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0)
 		{
 			_sb->CopyFrom(str, 0);
 		}
@@ -2174,7 +2174,7 @@ bool T_1CD::delete_table(Table* tab)
 		buf = new char[j];
 		root_object->getdata(buf, 0, j);
 
-		if(version == ver8_0_3_0 || version == ver8_0_5_0)
+		if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0)
 		{
 			root_80* root80 = (root_80*)buf;
 			for(i = 0; i < root80->numblocks; i++) if(root80->blocks[i] == bl) break;
@@ -2289,7 +2289,7 @@ void T_1CD::find_and_create_lost_tables()
 		b = new char[i + numlosttables * 4];
 		root_object->getdata(b, 0, i);
 
-		if(version == ver8_0_3_0 || version == ver8_0_5_0)
+		if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0)
 		{
 			root_80* root80 = (root_80*)b;
 			for(j = 0, k = root80->numblocks; j < numlosttables; j++, k++) root80->blocks[k] = losttables[j];
@@ -2671,8 +2671,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	else
 	{
 		configVerMinor = 0;
-		if(version == ver8_0_3_0 || version == ver8_0_5_0) configVerMajor = 6;
-		else if(version == ver8_1_0_0) configVerMajor = 106;
+		if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0) configVerMajor = 6;
+		else if(version == db_ver::ver8_1_0_0) configVerMajor = 106;
 		else configVerMajor = 216;
 	}
 
@@ -3432,8 +3432,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	else
 	{
 		configVerMinor = 0;
-		if(version == ver8_0_3_0 || version == ver8_0_5_0) configVerMajor = 6;
-		else if(version == ver8_1_0_0) configVerMajor = 106;
+		if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0) configVerMajor = 6;
+		else if(version == db_ver::ver8_1_0_0) configVerMajor = 106;
 		else configVerMajor = 216;
 	}
 
