@@ -783,7 +783,7 @@ void Table::init(int32_t block_descr)
 			file_index->getdata(buf, 0, buflen);
 
 //			// Временно, для отладки >>
-//			if(buf[0]) msreg_g.AddMessage_("Существуют свободные страницы в файле индексов", msHint,
+//			if(buf[0]) msreg_g.AddMessage_("Существуют свободные страницы в файле индексов", MessageState::Hint,
 //					"Таблица", name,
 //					"Индекс свободной страницы", tohex(buf[0]));
 //			// Временно, для олтладки <<
@@ -884,7 +884,7 @@ void Table::init(int32_t block_descr)
 	for(i = 0; i < num_indexes; i++) indexes[i]->get_length();
 
 	#ifdef _DEBUG
-	msreg_g.AddDebugMessage("Создана таблица.", msInfo,
+	msreg_g.AddDebugMessage("Создана таблица.", MessageState::Info,
 		"Таблица", name,
 		"Длина таблицы", file_data->getlen(),
 		"Длина записи", recordlen);
@@ -1410,7 +1410,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 						}
 						catch(...)
 						{
-							msreg_g.AddMessage_("Не удалось создать каталог blob", msWarning,
+							msreg_g.AddMessage_("Не удалось создать каталог blob", MessageState::Warning,
 								"Таблица", name,
 								"Путь", dir);
 						}
@@ -1481,7 +1481,7 @@ void Table::begin_edit()
 	if(edit) return;
 	if(base->readonly)
 	{
-		msreg_g.AddMessage_("Попытка входа в режим редактирования в режиме \"Только чтение\"", msWarning,
+		msreg_g.AddMessage_("Попытка входа в режим редактирования в режиме \"Только чтение\"", MessageState::Warning,
 			"Таблица", name);
 		return;
 	}
@@ -1612,7 +1612,7 @@ void Table::import_table(const String &path)
 	}
 	catch(...)
 	{
-		msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы root", msWarning,
+		msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы root", MessageState::Warning,
 			"Таблица", name,
 			"Файл", (dir / "root").string());
 		return;
@@ -1630,7 +1630,7 @@ void Table::import_table(const String &path)
 		}
 		catch(...)
 		{
-			msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы data", msWarning,
+			msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы data", MessageState::Warning,
 				"Таблица", name,
 				"Файл", (dir / "data").string());
 		}
@@ -1657,7 +1657,7 @@ void Table::import_table(const String &path)
 		}
 		catch(...)
 		{
-			msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы blob", msWarning,
+			msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы blob", MessageState::Warning,
 				"Таблица", name,
 				"Файл", (dir / "blob").string());
 		}
@@ -1684,7 +1684,7 @@ void Table::import_table(const String &path)
 		}
 		catch(...)
 		{
-			msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы index", msWarning,
+			msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы index", MessageState::Warning,
 				"Таблица", name,
 				"Файл", (dir / "index").string());
 		}
@@ -1712,7 +1712,7 @@ void Table::import_table(const String &path)
 		}
 		catch(...)
 		{
-			msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы descr", msWarning,
+			msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы descr", MessageState::Warning,
 				"Файл", (dir / "descr").string());
 		}
 		if(fopen)
@@ -1734,7 +1734,7 @@ void Table::import_table(const String &path)
 			i = str.Pos("{\"Files\",");
 			if(i == 0)
 			{
-				msreg_g.AddMessage_("Ошибка поиска раздела Files в файле импорта таблицы descr", msWarning,
+				msreg_g.AddMessage_("Ошибка поиска раздела Files в файле импорта таблицы descr", MessageState::Warning,
 					"Файл", (dir / "descr").string());
 				return;
 			}

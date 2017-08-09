@@ -232,7 +232,7 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 
 
 	#ifdef _DEBUG
-	msreg_g.AddDebugMessage("Создан объект", msInfo,
+	msreg_g.AddDebugMessage("Создан объект", MessageState::Info,
 		"Номер блока", tohex(blockNum),
 		"Длина", len,
 		"Версия данных", String(version.version_1) + ":" + version.version_2);

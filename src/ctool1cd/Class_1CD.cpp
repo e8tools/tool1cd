@@ -467,7 +467,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	{
 		if(!table_depot && !table_users && !table_objects && !table_versions && !table_labels && !table_history && !table_lastestversions && !table_externals && !table_selfrefs && !table_outrefs)
 		{
-			msreg_m.AddMessage("База не является информационной базой 1С", msInfo);
+			msreg_m.AddMessage("База не является информационной базой 1С", MessageState::Info);
 		}
 		else
 		{
@@ -606,7 +606,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		tr = NULL;
 
 		#ifdef _DEBUG
-		msreg_m.AddDebugMessage("Найдена версия контейнера конфигурации поставщика", msInfo,
+		msreg_m.AddDebugMessage("Найдена версия контейнера конфигурации поставщика", MessageState::Info,
 			"Таблица", tf->t->getname(),
 			"Имя файла", tf->name,
 			"Версия", i);
@@ -663,7 +663,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		}
 
 		#ifdef _DEBUG
-		msreg_m.AddDebugMessage("Найден файл метаданных в конфигурации поставщика", msInfo,
+		msreg_m.AddDebugMessage("Найден файл метаданных в конфигурации поставщика", MessageState::Info,
 			"Таблица", tf->t->getname(),
 			"Имя файла", tf->name,
 			"Имя мета", filenamemeta);
@@ -700,7 +700,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 						_supplier = confinfo[14].get_value();
 						_version = confinfo[15].get_value();
 						#ifdef _DEBUG
-						msreg_m.AddDebugMessage("Неизвестная версия свойств конфигурации поставщика", msInfo,
+						msreg_m.AddDebugMessage("Неизвестная версия свойств конфигурации поставщика", MessageState::Info,
 							"Таблица", tf->t->getname(),
 							"Имя файла", tf->name,
 							"Имя мета", filenamemeta,
@@ -726,7 +726,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		#ifdef _DEBUG
 		else
 		{
-			msreg_m.AddDebugMessage("Найдена конфигурация поставщика", msInfo,
+			msreg_m.AddDebugMessage("Найдена конфигурация поставщика", MessageState::Info,
 				"Таблица", tf->t->getname(),
 				"Имя файла", tf->name,
 				"Имя", _name,
@@ -851,10 +851,10 @@ void T_1CD::find_lost_objects()
 					break;
 				}
 			}
-			if(!block_is_find) msreg_m.AddMessage_("Найден потерянный объект", msInfo, "Номер блока", tohex(i));
+			if(!block_is_find) msreg_m.AddMessage_("Найден потерянный объект", MessageState::Info, "Номер блока", tohex(i));
 		}
 	}
-	msreg_m.AddMessage("Поиск потерянных объектов завершен", msSuccesfull);
+	msreg_m.AddMessage("Поиск потерянных объектов завершен", MessageState::Succesfull);
 }
 #endif //#ifdef PublicRelease
 
@@ -1257,14 +1257,14 @@ bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 	}
 	catch(...)
 	{
-		msreg_m.AddMessage_("Ошибка чтения длины файла", msWarning,
+		msreg_m.AddMessage_("Ошибка чтения длины файла", MessageState::Warning,
 			"Путь", path,
 			"Длина файла", slen);
 		result = false;
 	}
 	if(result) if((int64_t)j != str->GetSize())
 	{
-		msreg_m.AddMessage_("Фактическая длина файла отличается от указанной в таблице", msWarning,
+		msreg_m.AddMessage_("Фактическая длина файла отличается от указанной в таблице", MessageState::Warning,
 			"Путь", path,
 			"Фактическая длина файла", str->GetSize(),
 			"Указанная длина файла", slen);
@@ -1546,7 +1546,7 @@ bool T_1CD::create_table(String path)
 
 	if(!DirectoryExists(path))
 	{
-		msreg_m.AddMessage_("Директория импорта таблицы не найдена", msWarning,
+		msreg_m.AddMessage_("Директория импорта таблицы не найдена", MessageState::Warning,
 			"Директория", path);
 		return false;
 	}
@@ -1558,7 +1558,7 @@ bool T_1CD::create_table(String path)
 	}
 	catch(...)
 	{
-		msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы root", msWarning,
+		msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы root", MessageState::Warning,
 			"Файл", dir + "root");
 		return false;
 	}
@@ -1573,7 +1573,7 @@ bool T_1CD::create_table(String path)
 	}
 	catch(...)
 	{
-		msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы descr", msWarning,
+		msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы descr", MessageState::Warning,
 			"Файл", dir + "descr");
 		return false;
 	}
@@ -1609,7 +1609,7 @@ bool T_1CD::create_table(String path)
 		}
 		catch(...)
 		{
-			msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы data", msWarning,
+			msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы data", MessageState::Warning,
 				"Файл", dir + "data");
 		}
 		if(fopen)
@@ -1633,7 +1633,7 @@ bool T_1CD::create_table(String path)
 		}
 		catch(...)
 		{
-			msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы blob", msWarning,
+			msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы blob", MessageState::Warning,
 				"Файл", dir + "blob");
 		}
 		if(fopen)
@@ -1657,7 +1657,7 @@ bool T_1CD::create_table(String path)
 		}
 		catch(...)
 		{
-			msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы index", msWarning,
+			msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы index", MessageState::Warning,
 				"Файл", dir + "index");
 		}
 		if(fopen)
@@ -1681,7 +1681,7 @@ bool T_1CD::create_table(String path)
 		}
 		catch(...)
 		{
-			msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы descr", msWarning,
+			msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы descr", MessageState::Warning,
 				"Файл", dir + "descr");
 		}
 		if(fopen)
@@ -1703,7 +1703,7 @@ bool T_1CD::create_table(String path)
 			i = str.Pos("{\"Files\",");
 			if(i == 0)
 			{
-				msreg_m.AddMessage_("Ошибка поиска раздела Files в файле импорта таблицы descr", msWarning,
+				msreg_m.AddMessage_("Ошибка поиска раздела Files в файле импорта таблицы descr", MessageState::Warning,
 					"Файл", dir + "descr");
 				delete root;
 				return false;
@@ -1745,7 +1745,7 @@ bool T_1CD::create_table(String path)
 
 	flush();
 
-	msreg_m.AddMessage_("Таблица создана и импортирована", msSuccesfull,
+	msreg_m.AddMessage_("Таблица создана и импортирована", MessageState::Succesfull,
 		"Путь", dir);
 
 	delete root;
@@ -1890,7 +1890,7 @@ bool T_1CD::test_list_of_tables()
 		}
 		catch(...)
 		{
-			msreg_m.AddMessage_("Ошибка чтения длины файла", msWarning,
+			msreg_m.AddMessage_("Ошибка чтения длины файла", MessageState::Warning,
 				"Путь", "PARAMS/DBNames",
 				"Длина файла", slen);
 			result = false;
@@ -1898,7 +1898,7 @@ bool T_1CD::test_list_of_tables()
 		}
 		if((int64_t)j != str->GetSize())
 		{
-			msreg_m.AddMessage_("Фактическая длина файла отличается от указанной в таблице", msWarning,
+			msreg_m.AddMessage_("Фактическая длина файла отличается от указанной в таблице", MessageState::Warning,
 				"Путь", "PARAMS/DBNames",
 				"Фактическая длина файла", str->GetSize(),
 				"Указанная длина файла", slen);
@@ -1921,7 +1921,7 @@ bool T_1CD::test_list_of_tables()
 			}
 			catch (...)
 			{
-				msreg_m.AddMessage("Ошибка распаковки данных файла PARAMS/DBNames", msError);
+				msreg_m.AddMessage("Ошибка распаковки данных файла PARAMS/DBNames", MessageState::Error);
 				result = false;
 				break;
 			}
@@ -2016,7 +2016,7 @@ bool T_1CD::test_list_of_tables()
 
 								if(!table_found)
 								{
-									msreg_m.AddMessage_("Отсутствует таблица", msWarning,
+									msreg_m.AddMessage_("Отсутствует таблица", MessageState::Warning,
 										"Имя таблицы", _tabname);
 									result = false;
 								}
@@ -2207,14 +2207,14 @@ bool T_1CD::delete_object(v8object* ob)
 
 	if(ob->block == 1)
 	{
-		msreg_m.AddMessage_("Попытка удаления объекта таблицы свободных блоков", msWarning,
+		msreg_m.AddMessage_("Попытка удаления объекта таблицы свободных блоков", MessageState::Warning,
 			"Номер блока объекта", ob->block);
 			return false;
 	}
 
 	if(ob->block == 2)
 	{
-		msreg_m.AddMessage_("Попытка удаления корневого объекта", msWarning,
+		msreg_m.AddMessage_("Попытка удаления корневого объекта", MessageState::Warning,
 			"Номер блока объекта", ob->block);
 			return false;
 	}
@@ -2306,7 +2306,7 @@ void T_1CD::find_and_create_lost_tables()
 
 	}
 
-	msreg_m.AddMessage_("Поиск и восстановление потерянных таблиц завершены", msSuccesfull,
+	msreg_m.AddMessage_("Поиск и восстановление потерянных таблиц завершены", MessageState::Succesfull,
 	"Количество восстановленных таблиц", numlosttables);
 
 }
@@ -2352,7 +2352,7 @@ void T_1CD::find_and_save_lost_objects()
 			}
 		}
 	}
-	msreg_m.AddMessage("Поиск и сохранение потерянных объектов завершен", msSuccesfull);
+	msreg_m.AddMessage("Поиск и сохранение потерянных объектов завершен", MessageState::Succesfull);
 
 }
 
@@ -2395,7 +2395,7 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 	i = ind->get_numrecords();
 	if(i <= (uint32_t)(-ver))
 	{
-		msreg_m.AddMessage_("Запрошенной версии конфигурации не существует", msError,
+		msreg_m.AddMessage_("Запрошенной версии конфигурации не существует", MessageState::Error,
 			"Всего версий в хранилище", i,
 			"Запрошенный номер версии", ver);
 		return 0;
@@ -2409,7 +2409,7 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 	v = s.ToIntDef(0);
 	if(!v)
 	{
-		msreg_m.AddMessage_("Не удалось получить реальный номер версии запрошенной конфигурации.", msError,
+		msreg_m.AddMessage_("Не удалось получить реальный номер версии запрошенной конфигурации.", MessageState::Error,
 			"Запрошенный номер версии", ver);
 		return 0;
 	}
@@ -2599,7 +2599,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	else if(s.CompareIC("0700000000000000") == 0) depotVer = depotVer7;
 	else
 	{
-		msreg_m.AddMessage_("Неизвестная версия хранилища", msError,
+		msreg_m.AddMessage_("Неизвестная версия хранилища", MessageState::Error,
 			"Версия хранилища", s);
 		delete[] rec;
 		return false;
@@ -2648,7 +2648,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	if(!ok)
 	{
-		msreg_m.AddMessage_("В хранилище не найдена версия конфигурации", msError,
+		msreg_m.AddMessage_("В хранилище не найдена версия конфигурации", MessageState::Error,
 			"Требуемая версия", ver);
 		delete[] rec;
 		return false;
@@ -2742,7 +2742,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				}
 				catch(...)
 				{
-					msreg_m.AddMessage_("Ошибка открытия файла", msError,
+					msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
 						"Файл", current_path.string());
 					return false;
 				}
@@ -2762,7 +2762,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				catch(...)
 				{
 				    delete pd.pack;
-				    msreg_m.AddMessage_("Ошибка открытия файла", msError,
+				    msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
 						"Файл", pack_item.string());
 					return false;
 				}
@@ -2926,7 +2926,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 							}
 							catch(...)
 							{
-								msreg_m.AddMessage_("Ошибка открытия файла", msError,
+								msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
 									"Файл", current_object_path.string(),
 									"Таблица", "HISTORY",
 									"Объект", fldh_objid->get_presentation(rech1, false, L'.', true),
@@ -2935,7 +2935,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						}
 						else
 						{
-							msreg_m.AddMessage_("Не найден файл", msError,
+							msreg_m.AddMessage_("Не найден файл", MessageState::Error,
 								"Файл", current_object_path.string(),
 								"Таблица", "HISTORY",
 								"Объект", fldh_objid->get_presentation(rech1, false, L'.', true),
@@ -2946,7 +2946,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				String s = fldh_objid->get_presentation(rech1, false, L'.', true);
 				if(!ok)
 				{
-					msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", msError,
+					msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
 						"Таблица", "HISTORY",
 						"Объект", s,
 						"Версия", fldh_vernum->get_presentation(rech1, false));
@@ -3056,7 +3056,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 									}
 									catch(...)
 									{
-										msreg_m.AddMessage_("Ошибка открытия файла", msError,
+										msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
 											"Файл", current_object_path.string(),
 											"Таблица", "EXTERNALS",
 											"Объект", flde_extname->get_presentation(rec),
@@ -3065,7 +3065,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 								}
 								else
 								{
-									msreg_m.AddMessage_("Не найден файл", msError,
+									msreg_m.AddMessage_("Не найден файл", MessageState::Error,
 										"Файл", current_object_path.string(),
 										"Таблица", "EXTERNALS",
 										"Объект", flde_extname->get_presentation(rec),
@@ -3075,7 +3075,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						}
 						if(!ok)
 						{
-							msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", msError,
+							msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
 								"Таблица", "EXTERNALS",
 								"Объект", sn,
 								"Версия", flde_vernum->get_presentation(rec));
@@ -3356,7 +3356,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	else if(s.CompareIC("0600000000000000") == 0) depotVer = depotVer6;
 	else
 	{
-		msreg_m.AddMessage_("Неизвестная версия хранилища", msError,
+		msreg_m.AddMessage_("Неизвестная версия хранилища", MessageState::Error,
 			"Версия хранилища", s);
 		delete[] rec;
 		return false;
@@ -3408,7 +3408,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 	if(n < 2)
 	{
-		msreg_m.AddMessage_("В хранилище не найдены запрошенные версии конфигурации", msError
+		msreg_m.AddMessage_("В хранилище не найдены запрошенные версии конфигурации", MessageState::Error
 			, "Версия с", ver_begin
 			, "Версия по", ver_end);
 		delete[] rec;
@@ -3497,7 +3497,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 				}
 				catch(...)
 				{
-					msreg_m.AddMessage_("Ошибка открытия файла", msError,
+					msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
 						"Файл", srec.Name);
 					FindClose(srec);
 					return false;
@@ -3516,7 +3516,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 				catch(...)
 				{
 				    delete pd.pack;
-				    msreg_m.AddMessage_("Ошибка открытия файла", msError,
+				    msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
 						"Файл", s);
 					FindClose(srec);
 					return false;
@@ -3685,7 +3685,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 										}
 										catch(...)
 										{
-											msreg_m.AddMessage_("Ошибка открытия файла", msError,
+											msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
 												"Файл", s,
 												"Таблица", "HISTORY",
 												"Объект", sn,
@@ -3694,7 +3694,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 									}
 									else
 									{
-										msreg_m.AddMessage_("Не найден файл", msError,
+										msreg_m.AddMessage_("Не найден файл", MessageState::Error,
 											"Файл", s,
 											"Таблица", "HISTORY",
 											"Объект", sn,
@@ -3705,7 +3705,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 							if(!ok)
 							{
-								msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", msError,
+								msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
 									"Таблица", "HISTORY",
 									"Объект", sn,
 									"Версия", lastver);
@@ -3814,7 +3814,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 												}
 												catch(...)
 												{
-													msreg_m.AddMessage_("Ошибка открытия файла", msError,
+													msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
 														"Файл", s,
 														"Таблица", "EXTERNALS",
 														"Объект", sn,
@@ -3824,7 +3824,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 											}
 											else
 											{
-												msreg_m.AddMessage_("Не найден файл", msError,
+												msreg_m.AddMessage_("Не найден файл", MessageState::Error,
 													"Файл", s,
 													"Таблица", "EXTERNALS",
 													"Объект", sn,
@@ -3835,7 +3835,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 									}
 									if(!ok)
 									{
-										msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", msError,
+										msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
 											"Таблица", "EXTERNALS",
 											"Объект", sn,
 											"Файл конфигурации", se,
@@ -3951,7 +3951,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 
 	if(block < 5 || block >= length)
 	{
-		msreg_m.AddMessage_("Номер корневого блока файла DATA некорректный", msError
+		msreg_m.AddMessage_("Номер корневого блока файла DATA некорректный", MessageState::Error
 			,"Таблица", tab->getname()
 			,"Номер блока", block
 		);
@@ -3962,7 +3962,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 
 	if(memcmp(rootobj->sig, SIG_OBJ, 8))
 	{
-		msreg_m.AddMessage_("Сигнатура корневого блока файла DATA некорректная.", msError
+		msreg_m.AddMessage_("Сигнатура корневого блока файла DATA некорректная.", MessageState::Error
 			,"Таблица", tab->getname()
 			,"Номер блока (dec)", block
 			,"Номер блока (hex)", tohex(block)
@@ -3974,7 +3974,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 	rl = tab->get_recordlen();
 	if(l / rl * rl != l)
 	{
-		msreg_m.AddMessage_("Длина файла DATA не кратна длине одной записи.", msError
+		msreg_m.AddMessage_("Длина файла DATA не кратна длине одной записи.", MessageState::Error
 			,"Таблица", tab->getname()
 			,"Номер блока (dec)", block
 			,"Номер блока (hex)", tohex(block)
@@ -3995,7 +3995,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 			a = rootobj->blocks[k];
 			if(a < 5 || a >= length)
 			{
-				msreg_m.AddMessage_("Некорректный номер блока таблицы размещения файла DATA. Создана новая страница размещения", msWarning
+				msreg_m.AddMessage_("Некорректный номер блока таблицы размещения файла DATA. Создана новая страница размещения", MessageState::Warning
 					,"Таблица", tab->getname()
 					,"Индекс страницы", k
 					,"Номер блока", a
@@ -4011,7 +4011,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 
 			if(n != m)
 			{
-				msreg_m.AddMessage_("Некорректное число блоков на странице размещения файла DATA. Исправлено.", msWarning
+				msreg_m.AddMessage_("Некорректное число блоков на странице размещения файла DATA. Исправлено.", MessageState::Warning
 					,"Таблица", tab->getname()
 					,"Номер блока", a
 					,"Индекс страницы", k
@@ -4028,7 +4028,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 		ok = true;
 		if(d < 5 || d >= length)
 		{
-			msreg_m.AddMessage_("Некорректный номер страницы данных файла DATA.", msWarning
+			msreg_m.AddMessage_("Некорректный номер страницы данных файла DATA.", MessageState::Warning
 				,"Таблица", tab->getname()
 				,"Номер блока", a
 				,"Индекс страницы размещения", k - 1
@@ -4042,7 +4042,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 			ok = test_block_by_template(d, rectt, i, rl, cl);
 			if(!ok)
 			{
-				msreg_m.AddMessage_("Cтраница данных файла DATA не подходит по шаблону.", msWarning
+				msreg_m.AddMessage_("Cтраница данных файла DATA не подходит по шаблону.", MessageState::Warning
 				,"Таблица", tab->getname()
 				,"Номер блока", d
 				,"Индекс страницы размещения", k - 1
@@ -4061,7 +4061,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 			}
 			if(bk.size() == 0)
 			{
-				msreg_m.AddMessage_("Не удалось найти подходящую страницу данных файла DATA по шаблону.", msError
+				msreg_m.AddMessage_("Не удалось найти подходящую страницу данных файла DATA по шаблону.", MessageState::Error
 					,"Таблица", tab->getname()
 					,"Индекс страницы размещения", k - 1
 					,"Индекс блока на странице", j
@@ -4072,7 +4072,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 			{
 				d = bk[0];
 				ca->blocks[j] = d;
-				msreg_m.AddMessage_("Найдена подходящая страница данных файла DATA. Страница восстановлена", msInfo
+				msreg_m.AddMessage_("Найдена подходящая страница данных файла DATA. Страница восстановлена", MessageState::Info
 					,"Таблица", tab->getname()
 					,"Номер блока", d
 					,"Индекс страницы размещения", k - 1
@@ -4089,7 +4089,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 					if(d > 0) s += ", ";
 					s += tohex(bk[d]);
 				}
-				msreg_m.AddMessage_("Найдено несколько подходящих страниц данных файла DATA.", msHint
+				msreg_m.AddMessage_("Найдено несколько подходящих страниц данных файла DATA.", MessageState::Hint
 					,"Таблица", tab->getname()
 					,"Список подходящих блоков", s
 					,"Индекс страницы размещения", k - 1

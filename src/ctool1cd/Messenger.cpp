@@ -18,7 +18,7 @@ Messenger::Messenger()
 void Messenger::Status(const String& message)
 {
 	cout << message << endl;
-	AddMessage(message, msEmpty, nullptr);
+	AddMessage(message, MessageState::Empty, nullptr);
 }
 
 //---------------------------------------------------------------------------

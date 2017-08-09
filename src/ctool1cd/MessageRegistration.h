@@ -6,15 +6,15 @@
 #pragma hdrstop
 
 //---------------------------------------------------------------------------
-enum MessageState
+enum class MessageState
 {
-	msEmpty = -1,
-	msSuccesfull = 0,
-	msWarning = 1,
-	msInfo = 2,
-	msError = 3,
-	msWait = 4,
-	msHint = 5
+	Empty = -1,
+	Succesfull = 0,
+	Warning = 1,
+	Info = 2,
+	Error = 3,
+	Wait = 4,
+	Hint = 5
 };
 
 class IMessageRegistration

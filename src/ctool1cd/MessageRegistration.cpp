@@ -33,7 +33,7 @@ bool MessageRegistrator::getDebugMode()
 //---------------------------------------------------------------------------
 void MessageRegistrator::AddError(const String& description)
 {
-	AddMessage(description, msError);
+	AddMessage(description, MessageState::Error);
 }
 
 //---------------------------------------------------------------------------
@@ -42,7 +42,7 @@ void MessageRegistrator::AddError(const String& description,
 {
 	TStringList* ts = new TStringList;
 	ts->Add(parname1 + " = " + par1);
-	AddMessage(description, msError, ts);
+	AddMessage(description, MessageState::Error, ts);
 }
 
 //---------------------------------------------------------------------------
@@ -53,7 +53,7 @@ void MessageRegistrator::AddError(const String& description,
 	TStringList* ts = new TStringList;
 	ts->Add(parname1 + " = " + par1);
 	ts->Add(parname2 + " = " + par2);
-	AddMessage(description, msError, ts);
+	AddMessage(description, MessageState::Error, ts);
 }
 
 //---------------------------------------------------------------------------
@@ -66,7 +66,7 @@ void MessageRegistrator::AddError(const String& description,
 	ts->Add(parname1 + " = " + par1);
 	ts->Add(parname2 + " = " + par2);
 	ts->Add(parname3 + " = " + par3);
-	AddMessage(description, msError, ts);
+	AddMessage(description, MessageState::Error, ts);
 }
 
 //---------------------------------------------------------------------------
@@ -81,7 +81,7 @@ void MessageRegistrator::AddError(const String& description,
 	ts->Add(parname2 + " = " + par2);
 	ts->Add(parname3 + " = " + par3);
 	ts->Add(parname4 + " = " + par4);
-	AddMessage(description, msError, ts);
+	AddMessage(description, MessageState::Error, ts);
 }
 
 //---------------------------------------------------------------------------
@@ -98,7 +98,7 @@ void MessageRegistrator::AddError(const String& description,
 	ts->Add(parname3 + " = " + par3);
 	ts->Add(parname4 + " = " + par4);
 	ts->Add(parname5 + " = " + par5);
-	AddMessage(description, msError, ts);
+	AddMessage(description, MessageState::Error, ts);
 }
 
 //---------------------------------------------------------------------------
@@ -117,7 +117,7 @@ void MessageRegistrator::AddError(const String& description,
 	ts->Add(parname4 + " = " + par4);
 	ts->Add(parname5 + " = " + par5);
 	ts->Add(parname6 + " = " + par6);
-	AddMessage(description, msError, ts);
+	AddMessage(description, MessageState::Error, ts);
 }
 
 //---------------------------------------------------------------------------
@@ -138,7 +138,7 @@ void MessageRegistrator::AddError(const String& description,
 	ts->Add(parname5 + " = " + par5);
 	ts->Add(parname6 + " = " + par6);
 	ts->Add(parname7 + " = " + par7);
-	AddMessage(description, msError, ts);
+	AddMessage(description, MessageState::Error, ts);
 }
 
 //---------------------------------------------------------------------------
