@@ -4259,9 +4259,9 @@ void T_1CD::pagemapfill()
 	if(pagemap) delete[] pagemap;
 	pagemap = new pagemaprec[length];
 
-	pagemap[0].type = pt_root;
-	pagemap[1].type = pt_freeroot;
-	pagemap[2].type = pt_rootfileroot;
+	pagemap[0].type = pagetype::pt_root;
+	pagemap[1].type = pagetype::pt_freeroot;
+	pagemap[2].type = pagetype::pt_rootfileroot;
 
 }
 
@@ -4270,26 +4270,26 @@ String T_1CD::pagemaprec_presentation(pagemaprec& pmr)
 {
 	switch(pmr.type)
 	{
-		case pt_lost: return String("потерянная страница");
-		case pt_root: return String("корневая страница базы");
-		case pt_freeroot: return String("корневая страница таблицы свободных блоков");
-		case pt_freealloc: return String("страница размещения таблицы свободных блоков номер ") + pmr.number;
-		case pt_free: return String("свободная страница номер ") + pmr.number;
-		case pt_rootfileroot: return String("корневая страница корневого файла");
-		case pt_rootfilealloc: return String("страница размещения корневого файла номер ") + pmr.number;
-		case pt_rootfile: return String("страница данных корневого файла номер ") + pmr.number;
-		case pt_descrroot: return String("корневая страница файла descr таблицы ") + tables[pmr.tab]->getname();
-		case pt_descralloc: return String("страница размещения файла descr таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
-		case pt_descr: return String("страница данных файла descr таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
-		case pt_dataroot: return String("корневая страница файла data таблицы ") + tables[pmr.tab]->getname();
-		case pt_dataalloc: return String("страница размещения файла data таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
-		case pt_data: return String("страница данных файла data таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
-		case pt_indexroot: return String("корневая страница файла index таблицы ") + tables[pmr.tab]->getname();
-		case pt_indexalloc: return String("страница размещения файла index таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
-		case pt_index: return String("страница данных файла index таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
-		case pt_blobroot: return String("корневая страница файла blob таблицы ") + tables[pmr.tab]->getname();
-		case pt_bloballoc: return String("страница размещения файла blob таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
-		case pt_blob: return String("страница данных файла blob таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
+		case pagetype::pt_lost: return String("потерянная страница");
+		case pagetype::pt_root: return String("корневая страница базы");
+		case pagetype::pt_freeroot: return String("корневая страница таблицы свободных блоков");
+		case pagetype::pt_freealloc: return String("страница размещения таблицы свободных блоков номер ") + pmr.number;
+		case pagetype::pt_free: return String("свободная страница номер ") + pmr.number;
+		case pagetype::pt_rootfileroot: return String("корневая страница корневого файла");
+		case pagetype::pt_rootfilealloc: return String("страница размещения корневого файла номер ") + pmr.number;
+		case pagetype::pt_rootfile: return String("страница данных корневого файла номер ") + pmr.number;
+		case pagetype::pt_descrroot: return String("корневая страница файла descr таблицы ") + tables[pmr.tab]->getname();
+		case pagetype::pt_descralloc: return String("страница размещения файла descr таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
+		case pagetype::pt_descr: return String("страница данных файла descr таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
+		case pagetype::pt_dataroot: return String("корневая страница файла data таблицы ") + tables[pmr.tab]->getname();
+		case pagetype::pt_dataalloc: return String("страница размещения файла data таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
+		case pagetype::pt_data: return String("страница данных файла data таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
+		case pagetype::pt_indexroot: return String("корневая страница файла index таблицы ") + tables[pmr.tab]->getname();
+		case pagetype::pt_indexalloc: return String("страница размещения файла index таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
+		case pagetype::pt_index: return String("страница данных файла index таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
+		case pagetype::pt_blobroot: return String("корневая страница файла blob таблицы ") + tables[pmr.tab]->getname();
+		case pagetype::pt_bloballoc: return String("страница размещения файла blob таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
+		case pagetype::pt_blob: return String("страница данных файла blob таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
 
 		default: return String("??? неизвестный тип страницы ???");
 	}

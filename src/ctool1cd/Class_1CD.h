@@ -119,7 +119,7 @@ struct _packdata
 };
 
 // Типы страниц
-enum pagetype
+enum class pagetype
 {
 	pt_lost, // потерянная страница (не относится ни к одному объекту)
 	pt_root, // корневая страница (страница 0)
@@ -149,7 +149,7 @@ struct pagemaprec
 	int32_t tab; // Индекс в T_1CD::tables, -1 - страница не относится к таблицам
 	pagetype type; // тип страницы
 	uint32_t number; // номер страницы в своем типе
-	pagemaprec(){tab = -1; type = pt_lost; number = 0;};
+	pagemaprec(){tab = -1; type = pagetype::pt_lost; number = 0;};
 };
 
 
