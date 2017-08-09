@@ -2593,10 +2593,10 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	{
 	String s = fldd_depotver->get_presentation(rec, true);
 
-	if(s.CompareIC("0300000000000000") == 0) depotVer = depotVer3;
-	else if(s.CompareIC("0500000000000000") == 0) depotVer = depotVer5;
-	else if(s.CompareIC("0600000000000000") == 0) depotVer = depotVer6;
-	else if(s.CompareIC("0700000000000000") == 0) depotVer = depotVer7;
+	if(s.CompareIC("0300000000000000") == 0) depotVer = depot_ver::Ver3;
+	else if(s.CompareIC("0500000000000000") == 0) depotVer = depot_ver::Ver5;
+	else if(s.CompareIC("0600000000000000") == 0) depotVer = depot_ver::Ver6;
+	else if(s.CompareIC("0700000000000000") == 0) depotVer = depot_ver::Ver7;
 	else
 	{
 		msreg_m.AddMessage_("Неизвестная версия хранилища", MessageState::Error,
@@ -2621,7 +2621,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	fldv_vernum = get_field(table_versions, "VERNUM");
 	if(!fldv_vernum) return false;
-	if(depotVer >= depotVer5)
+	if(depotVer >= depot_ver::Ver5)
 	{
 		fldv_cversion = get_field(table_versions, "CVERSION");
 		if(!fldv_cversion) return false;
@@ -2657,7 +2657,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	boost::filesystem::path filepath = boost::filesystem::path(static_cast<std::string>(_filename));
 
 	// Определяем версию структуры конфигурации (для файла version)
-	if(depotVer >= depotVer5)
+	if(depotVer >= depot_ver::Ver5)
 	{
 		frec = rec + fldv_cversion->offset;
 		cv_b[0] = frec[1];
@@ -2720,7 +2720,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	boost::filesystem::path root_path(static_cast<std::string>(filename)); // путь к 1cd
 	boost::filesystem::path objects_path;
 
-	if(depotVer >= depotVer6)
+	if(depotVer >= depot_ver::Ver6)
 	{
 		fldh_datahash = get_field(table_history, "DATAHASH");
 		if(!fldh_datahash) return false;
@@ -2893,7 +2893,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 					out->Close();
 					ok = true;
 				}
-				else if(depotVer >= depotVer6)
+				else if(depotVer >= depot_ver::Ver6)
 				{
 					rec = rech1 + fldh_datahash->offset + (fldh_datahash->null_exists ? 1 : 0);
 					for(i = 0; i < packdates.size(); i++)
@@ -3023,7 +3023,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 							out->Close();
 							ok = true;
 						}
-						else if(depotVer >= depotVer6)
+						else if(depotVer >= depot_ver::Ver6)
 						{
 							frec = rec + flde_datahash->offset + (flde_datahash->null_exists ? 1 : 0);
 							for(i = 0; i < packdates.size(); i++)
@@ -3351,9 +3351,9 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 	s = fldd_depotver->get_presentation(rec, true);
 
-	if(s.CompareIC("0300000000000000") == 0) depotVer = depotVer3;
-	else if(s.CompareIC("0500000000000000") == 0) depotVer = depotVer5;
-	else if(s.CompareIC("0600000000000000") == 0) depotVer = depotVer6;
+	if(s.CompareIC("0300000000000000") == 0) depotVer = depot_ver::Ver3;
+	else if(s.CompareIC("0500000000000000") == 0) depotVer = depot_ver::Ver5;
+	else if(s.CompareIC("0600000000000000") == 0) depotVer = depot_ver::Ver6;
 	else
 	{
 		msreg_m.AddMessage_("Неизвестная версия хранилища", MessageState::Error,
@@ -3383,7 +3383,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 	fldv_vernum = get_field(table_versions, "VERNUM");
 	if(!fldv_vernum) return false;
-	if(depotVer >= depotVer5)
+	if(depotVer >= depot_ver::Ver5)
 	{
 		fldv_cversion = get_field(table_versions, "CVERSION");
 		if(!fldv_cversion) return false;
@@ -3418,7 +3418,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	__filename = System::Ioutils::TPath::GetFullPath(_filename);
 
 	// Определяем версию структуры конфигурации (для файла version)
-	if(depotVer >= depotVer5)
+	if(depotVer >= depot_ver::Ver5)
 	{
 		frec = rec + fldv_cversion->offset;
 		cv_b[0] = frec[1];
@@ -3478,7 +3478,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	flde_extdata = get_field(table_externals, "EXTDATA");
 	if(!flde_extdata) return false;
 
-	if(depotVer >= depotVer6)
+	if(depotVer >= depot_ver::Ver6)
 	{
 		fldh_datahash = get_field(table_history, "DATAHASH");
 		if(!fldh_datahash) return false;
@@ -3625,7 +3625,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 										if(in->GetSize() == out->GetSize()) if(memcmp(in->GetMemory(), out->GetMemory(), in->GetSize()) == 0) changed = false;
 									}
 								}
-								else if(depotVer >= depotVer6)
+								else if(depotVer >= depot_ver::Ver6)
 								{
 									if(memcmp(rech2 + fldh_datahash->offset + (fldh_datahash->null_exists ? 1 : 0)
 											, rech1 + fldh_datahash->offset + (fldh_datahash->null_exists ? 1 : 0)
@@ -3651,7 +3651,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 								sobj = in;
 								ok = true;
 							}
-							else if(depotVer >= depotVer6)
+							else if(depotVer >= depot_ver::Ver6)
 							{
 								rec = rech2 + fldh_datahash->offset + (fldh_datahash->null_exists ? 1 : 0);
 								for(i = 0; i < packdates.size(); i++)
@@ -3780,7 +3780,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 										sobj = in;
 										ok = true;
 									}
-									else if(depotVer >= depotVer6)
+									else if(depotVer >= depot_ver::Ver6)
 									{
 										frec = rece + flde_datahash->offset + (flde_datahash->null_exists ? 1 : 0);
 										for(i = 0; i < packdates.size(); i++)
