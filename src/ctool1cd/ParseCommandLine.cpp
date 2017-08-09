@@ -11,41 +11,41 @@
 
 CommandDefinition CommandParse::definitions[] =
 {
-	{"h",                  cmd_help,                   0, ""}, // 1
-	{"help",               cmd_help,                   0, ""}, // 2
-	{"?",                  cmd_help,                   0, ""}, // 3
-	{"nv",                 cmd_no_verbose,             0, ""}, // 4
-	{"noverbose",          cmd_no_verbose,             0, ""}, // 5
-	{"q",                  cmd_quit,                   0, ""}, // 6
-	{"quit",               cmd_quit,                   0, ""}, // 7
-	{"eax",                cmd_export_all_to_xml,      1, ""}, // 8
-	{"exportalltoxml",     cmd_export_all_to_xml,      1, ""}, // 9
-	{"bf",                 cmd_xml_blob_to_file,       1, "0"}, // 10
-	{"blobtofile",         cmd_xml_blob_to_file,       1, "0"}, // 11
-	{"pb",                 cmd_xml_parse_blob,         1, "1"}, // 12
-	{"parseblob",          cmd_xml_parse_blob,         1, "1"}, // 13
-	{"ex",                 cmd_export_to_xml,          2, ""}, // 14
-	{"exporttoxml",        cmd_export_to_xml,          2, ""}, // 15
-	{"ne",                 cmd_not_exclusively,        0, ""}, // 16
-	{"notexclusively",     cmd_not_exclusively,        0, ""}, // 17
-	{"ddc",                cmd_save_config,            1, ""}, // 18
-	{"dumpdbconfig",       cmd_save_config,            1, ""}, // 29
-	{"dc",                 cmd_save_configsave,        1, ""}, // 20
-	{"dumpconfig",         cmd_save_configsave,        1, ""}, // 21
-	{"dvc",                cmd_save_vendors_configs,   1, ""}, // 22
-	{"dumpvendorsconfigs", cmd_save_vendors_configs,   1, ""}, // 23
-	{"dac",                cmd_save_all_configs,       1, ""}, // 24
-	{"dumpallconfigs",     cmd_save_all_configs,       1, ""}, // 25
-	{"drc",                cmd_save_depot_config,      2, ""}, // 26
-	{"dumpdepotconfig",    cmd_save_depot_config,      2, ""}, // 27
-	{"dpc",                cmd_save_depot_config_part, 2, ""}, // 28
-	{"dumppartdepotconfig",cmd_save_depot_config_part, 2, ""}, // 29
-	{"l",                  cmd_logfile,                1, ""}, // 30
-	{"logfile",            cmd_logfile,                1, ""}, // 31
-	{"eb",                 cmd_export_to_binary,       2, ""}, // 32
-	{"exporttobinary",     cmd_export_to_binary,       2, ""}, // 33
-	{"ib",                 cmd_import_from_binary,     2, ""}, // 34
-	{"importfrombinary",   cmd_import_from_binary,     2, ""}, // 35
+	{"h",                  Command::help,                   0, ""}, // 1
+	{"help",               Command::help,                   0, ""}, // 2
+	{"?",                  Command::help,                   0, ""}, // 3
+	{"nv",                 Command::no_verbose,             0, ""}, // 4
+	{"noverbose",          Command::no_verbose,             0, ""}, // 5
+	{"q",                  Command::quit,                   0, ""}, // 6
+	{"quit",               Command::quit,                   0, ""}, // 7
+	{"eax",                Command::export_all_to_xml,      1, ""}, // 8
+	{"exportalltoxml",     Command::export_all_to_xml,      1, ""}, // 9
+	{"bf",                 Command::xml_blob_to_file,       1, "0"}, // 10
+	{"blobtofile",         Command::xml_blob_to_file,       1, "0"}, // 11
+	{"pb",                 Command::xml_parse_blob,         1, "1"}, // 12
+	{"parseblob",          Command::xml_parse_blob,         1, "1"}, // 13
+	{"ex",                 Command::export_to_xml,          2, ""}, // 14
+	{"exporttoxml",        Command::export_to_xml,          2, ""}, // 15
+	{"ne",                 Command::not_exclusively,        0, ""}, // 16
+	{"notexclusively",     Command::not_exclusively,        0, ""}, // 17
+	{"ddc",                Command::save_config,            1, ""}, // 18
+	{"dumpdbconfig",       Command::save_config,            1, ""}, // 29
+	{"dc",                 Command::save_configsave,        1, ""}, // 20
+	{"dumpconfig",         Command::save_configsave,        1, ""}, // 21
+	{"dvc",                Command::save_vendors_configs,   1, ""}, // 22
+	{"dumpvendorsconfigs", Command::save_vendors_configs,   1, ""}, // 23
+	{"dac",                Command::save_all_configs,       1, ""}, // 24
+	{"dumpallconfigs",     Command::save_all_configs,       1, ""}, // 25
+	{"drc",                Command::save_depot_config,      2, ""}, // 26
+	{"dumpdepotconfig",    Command::save_depot_config,      2, ""}, // 27
+	{"dpc",                Command::save_depot_config_part, 2, ""}, // 28
+	{"dumppartdepotconfig",Command::save_depot_config_part, 2, ""}, // 29
+	{"l",                  Command::logfile,                1, ""}, // 30
+	{"logfile",            Command::logfile,                1, ""}, // 31
+	{"eb",                 Command::export_to_binary,       2, ""}, // 32
+	{"exporttobinary",     Command::export_to_binary,       2, ""}, // 33
+	{"ib",                 Command::import_from_binary,     2, ""}, // 34
+	{"importfrombinary",   Command::import_from_binary,     2, ""}, // 35
 };
 
 

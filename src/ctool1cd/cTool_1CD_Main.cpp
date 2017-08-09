@@ -525,26 +525,26 @@ int main(int argc, char* argv[])
 		ParsedCommand& pc = commands[i];
 		switch(pc.command)
 		{
-			case cmd_help:
+			case Command::help:
 				cout << comm.gethelpstring() << endl;
 				return 0;
 				break;
-			case cmd_no_verbose:
+			case Command::no_verbose:
 				mess.setnoverbose(true);
 				break;
-			case cmd_quit:
+			case Command::quit:
 				//quit = true;
 				break;
-			case cmd_logfile:
+			case Command::logfile:
 				mess.setlogfile(pc.param1);
 				break;
-			case cmd_not_exclusively:
+			case Command::not_exclusively:
 				ActionOpenBaseNotMonopolyChecked = true;
 				break;
-			case cmd_xml_blob_to_file:
+			case Command::xml_blob_to_file:
 				ActionXMLSaveBLOBToFileChecked = IsTrueString(pc.param1);
 				break;
-			case cmd_xml_parse_blob:
+			case Command::xml_parse_blob:
 				ActionXMLUnpackBLOBChecked = IsTrueString(pc.param1);
 				break;
 		}
@@ -586,43 +586,43 @@ int main(int argc, char* argv[])
 		{
 			switch(pc.command)
 			{
-				case cmd_export_all_to_xml: {
+				case Command::export_all_to_xml: {
 					T1CD_cmd_export_all_to_xml(base1CD, pc, mess, ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
 					break;
 				}
-				case cmd_export_to_xml: {
+				case Command::export_to_xml: {
 					T1CD_cmd_export_to_xml(base1CD, pc, mess, ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
 					break;
 				}
-				case cmd_save_config: {
+				case Command::save_config: {
 					T1CD_cmd_save_config(base1CD, pc, mess);
 					break;
 				}
-				case cmd_save_configsave: {
+				case Command::save_configsave: {
 					T1CD_cmd_save_configsave(base1CD, pc, mess);
 					break;
 				}
-				case cmd_save_vendors_configs: {
+				case Command::save_vendors_configs: {
 					T1CD_cmd_save_vendors_configs(base1CD, pc, mess);
 					break;
 				}
-				case cmd_save_all_configs: {
+				case Command::save_all_configs: {
 					T1CD_cmd_save_all_configs(base1CD, pc, mess);
 					break;
 				}
-				case cmd_save_depot_config: {
+				case Command::save_depot_config: {
 					T1CD_cmd_save_depot_config(base1CD, pc, mess);
 					break;
 				}
-				case cmd_save_depot_config_part:{
+				case Command::save_depot_config_part:{
 					T1CD_cmd_save_depot_config_part(base1CD, pc, mess);
 					break;
 				}
-				case cmd_export_to_binary: {
+				case Command::export_to_binary: {
 					T1CD_cmd_export_to_binary(base1CD, pc, mess);
 					break;
 				}
-				case cmd_import_from_binary: {
+				case Command::import_from_binary: {
 					T1CD_cmd_import_from_binary(base1CD, pc, mess);
 					break;
 				}
