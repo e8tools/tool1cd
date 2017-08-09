@@ -347,10 +347,10 @@ bool container_file::isPacked()
 // Структура дополнительных данных открытого файла класса ConfigStorageTable
 
 //---------------------------------------------------------------------------
-enum ConfigStorageTableAddinVariant
+enum class ConfigStorageTableAddinVariant
 {
-	cstav_container_file,
-	cstav_v8file
+	container_file,
+	v8file
 };
 
 //---------------------------------------------------------------------------
@@ -430,7 +430,7 @@ ConfigFile* ConfigStorageTable::readfile(const String& path)
 		if(!f->Open()) return NULL;
 		cf = new ConfigFile;
 		cfa = new ConfigStorageTable_addin;
-		cfa->variant = cstav_v8file;
+		cfa->variant = ConfigStorageTableAddinVariant::v8file;
 		cfa->f = f;
 		cf->str = f->get_stream();
 		cf->str->Seek(0l, soBeginning);
@@ -440,7 +440,7 @@ ConfigFile* ConfigStorageTable::readfile(const String& path)
 	{
 		cf = new ConfigFile;
 		cfa = new ConfigStorageTable_addin;
-		cfa->variant = cstav_container_file;
+		cfa->variant = ConfigStorageTableAddinVariant::container_file;
 		cfa->tf = tf;
 		cf->str = tf->stream;
 		cf->str->Seek(0l, soBeginning);
@@ -463,11 +463,11 @@ void ConfigStorageTable::close(ConfigFile* cf)
 	ConfigStorageTable_addin* cfa;
 
 	cfa = (ConfigStorageTable_addin*)cf->addin;
-	if(cfa->variant == cstav_container_file)
+	if(cfa->variant == ConfigStorageTableAddinVariant::container_file)
 	{
 		cfa->tf->close();
 	}
-	else if(cfa->variant == cstav_v8file)
+	else if(cfa->variant == ConfigStorageTableAddinVariant::v8file)
 	{
 		cfa->f->Close();
 	}
