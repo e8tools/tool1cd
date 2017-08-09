@@ -51,7 +51,7 @@ void v8object::init()
 	block = -1;
 	data = NULL;
 	lockinmemory = false;
-	type = v8ot_unknown;
+	type = v8objtype::v8ot_unknown;
 	fatlevel = 0;
 }
 
@@ -69,16 +69,16 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 
 	if(blockNum == 1)
 	{
-		if(base->version < ver8_3_8_0) type = v8ot_free80;
-		else type = v8ot_free838;
+		if(base->version < ver8_3_8_0) type = v8objtype::v8ot_free80;
+		else type = v8objtype::v8ot_free838;
 	}
 	else
 	{
-		if(base->version < ver8_3_8_0) type = v8ot_data80;
-		else type = v8ot_data838;
+		if(base->version < ver8_3_8_0) type = v8objtype::v8ot_data80;
+		else type = v8objtype::v8ot_data838;
 	}
 
-	if(type == v8ot_data80 || type == v8ot_free80)
+	if(type == v8objtype::v8ot_data80 || type == v8objtype::v8ot_free80)
 	{
 		fatlevel = 1;
 		v8ob* t = new v8ob;
@@ -103,7 +103,7 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 		real_numblocks = 0;
 		data = NULL;
 
-		if(type == v8ot_free80)
+		if(type == v8objtype::v8ot_free80)
 		{
 			if(len) numblocks = (len - 1) / 0x400 + 1;
 			else numblocks = 0;
@@ -133,7 +133,7 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 
 		delete t;
 	}
-	else if(type == v8ot_data838)
+	else if(type == v8objtype::v8ot_data838)
 	{
 		char* b = new char[base->pagesize];
 		v838ob_data* t = (v838ob_data*)b;
@@ -291,7 +291,7 @@ char* v8object::getdata()
 	if(!len) return NULL;
 	if(data) return data;
 
-	if(type == v8ot_free80)
+	if(type == v8objtype::v8ot_free80)
 	{
 		l = len * 4;
 		data = new char[l];
@@ -305,7 +305,7 @@ char* v8object::getdata()
 		}
 		base->getblock(tt, blocks[i], l);
 	}
-	else if(type == v8ot_data80)
+	else if(type == v8objtype::v8ot_data80)
 	{
 		l = len;
 		data = new char[l];
@@ -324,7 +324,7 @@ char* v8object::getdata()
 			if(l <= curlen) break;
 		}
 	}
-	else if(type == v8ot_data838)
+	else if(type == v8objtype::v8ot_data838)
 	{
 		pagesize = base->pagesize;
 		blocksperpage = pagesize / 4;
@@ -359,7 +359,7 @@ char* v8object::getdata()
 			}
 		}
 	}
-	else if(type == v8ot_free838)
+	else if(type == v8objtype::v8ot_free838)
 	{
 		// TODO
 	}
@@ -386,7 +386,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 	if(data) memcpy(buf, data + _start, _length);
 	else
 	{
-		if(type == v8ot_free80)
+		if(type == v8objtype::v8ot_free80)
 		{
 			if(_start + _length > len * 4)
 			{
@@ -417,7 +417,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 			}
 
 		}
-		else if(type == v8ot_data80)
+		else if(type == v8objtype::v8ot_data80)
 		{
 			if(_start + _length > len)
 			{
@@ -461,7 +461,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 				}
 			}
 		}
-		else if(type == v8ot_data838)
+		else if(type == v8objtype::v8ot_data838)
 		{
 			if(_start + _length > len)
 			{
@@ -523,7 +523,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 				}
 			}
 		}
-		else if(type == v8ot_free838)
+		else if(type == v8objtype::v8ot_free838)
 		{
 			// TODO
 		}
@@ -535,7 +535,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 //---------------------------------------------------------------------------
 uint64_t v8object::getlen()
 {
-	if(type == v8ot_free80) return len * 4;
+	if(type == v8objtype::v8ot_free80) return len * 4;
 	else return len;
 }
 
@@ -569,13 +569,13 @@ uint64_t v8object::get_fileoffset(uint64_t offset)
 	uint32_t curoffobjblock;
 	uint32_t offsperpage;
 
-	if(type == v8ot_free80)
+	if(type == v8objtype::v8ot_free80)
 	{
 		curblock = _start >> 12;
 		curoffblock = _start - (curblock << 12);
 		return (((uint64_t)(blocks[curblock])) << 12) + curoffblock;
 	}
-	else if(type == v8ot_data80)
+	else if(type == v8objtype::v8ot_data80)
 	{
 		curblock = _start >> 12;
 		curoffblock = _start - (curblock << 12);
@@ -587,7 +587,7 @@ uint64_t v8object::get_fileoffset(uint64_t offset)
 
 		return (((uint64_t)(b->blocks[curoffobjblock])) << 12) + curoffblock;
 	}
-	else if(type == v8ot_data838)
+	else if(type == v8objtype::v8ot_data838)
 	{
 		curblock = _start / base->pagesize;
 		curoffblock = _start - (curblock * base->pagesize);
@@ -605,7 +605,7 @@ uint64_t v8object::get_fileoffset(uint64_t offset)
 		}
 	}
 
-	else if(type == v8ot_free838)
+	else if(type == v8objtype::v8ot_free838)
 	{
 		// TODO
 		return 0;
@@ -634,7 +634,7 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 		return false;
 	}
 
-	if(type == v8ot_free80 || type == v8ot_free838)
+	if(type == v8objtype::v8ot_free80 || type == v8objtype::v8ot_free838)
 	{
 		msreg_g.AddError("Попытка прямой записи в файл свободных страниц",
 			"Номер страницы файла", tohex(block));
@@ -649,7 +649,7 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 		set_len(_start + _length);
 	}
 
-	if(type == v8ot_data80)
+	if(type == v8objtype::v8ot_data80)
 	{
 		curblock = _start >> 12;
 		_buf = (char*)buf;
@@ -679,7 +679,7 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 		write_new_version();
 		return true;
 	}
-	else if(type == v8ot_data838)
+	else if(type == v8objtype::v8ot_data838)
 	{
 		curblock = _start / base->pagesize;
 		_buf = (char*)buf;
@@ -745,7 +745,7 @@ bool v8object::setdata(const void* _buf, uint64_t _length)
 		return false;
 	}
 
-	if(type == v8ot_free80 || type == v8ot_free838)
+	if(type == v8objtype::v8ot_free80 || type == v8objtype::v8ot_free838)
 	{
 		msreg_g.AddError("Попытка прямой записи в файл свободных страниц",
 			"Номер страницы файла", tohex(block));
@@ -758,7 +758,7 @@ bool v8object::setdata(const void* _buf, uint64_t _length)
 
 	buf = (char*)_buf;
 
-	if(type == v8ot_data80)
+	if(type == v8objtype::v8ot_data80)
 	{
 		for (unsigned i = 0; i < numblocks; i++)
 		{
@@ -782,7 +782,7 @@ bool v8object::setdata(const void* _buf, uint64_t _length)
 		write_new_version();
 		return true;
 	}
-	else if(type == v8ot_data838)
+	else if(type == v8objtype::v8ot_data838)
 	{
 		curblock = 0;
 		curlen = std::min(static_cast<uint64_t>(base->pagesize), _length);
@@ -844,7 +844,7 @@ bool v8object::setdata(TStream* stream)
 		return false;
 	}
 
-	if(type == v8ot_free80 || type == v8ot_free838)
+	if(type == v8objtype::v8ot_free80 || type == v8objtype::v8ot_free838)
 	{
 		msreg_g.AddError("Попытка прямой записи в файл свободных страниц",
 			"Номер страницы файла", tohex(block));
@@ -858,7 +858,7 @@ bool v8object::setdata(TStream* stream)
 
 	stream->Seek(0, soFromBeginning);
 
-	if(type == v8ot_data80)
+	if(type == v8objtype::v8ot_data80)
 	{
 		for (unsigned i = 0; i < numblocks; i++)
 		{
@@ -881,7 +881,7 @@ bool v8object::setdata(TStream* stream)
 		write_new_version();
 		return true;
 	}
-	else if(type == v8ot_data838)
+	else if(type == v8objtype::v8ot_data838)
 	{
 		curblock = 0;
 		curlen = std::min(static_cast<uint64_t>(base->pagesize), _length);
@@ -943,7 +943,7 @@ bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 		return false;
 	}
 
-	if(type == v8ot_free80 || type == v8ot_free838)
+	if(type == v8objtype::v8ot_free80 || type == v8objtype::v8ot_free838)
 	{
 		msreg_g.AddError("Попытка прямой записи в файл свободных страниц",
 			"Номер страницы файла", tohex(block));
@@ -956,7 +956,7 @@ bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 	data = nullptr;
 	if(_start + _length > len) set_len(_start + _length);
 
-	if(type == v8ot_data80)
+	if(type == v8objtype::v8ot_data80)
 	{
 		curblock = _start >> 12;
 		curoffblock = _start - (curblock << 12);
@@ -984,7 +984,7 @@ bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 		write_new_version();
 		return true;
 	}
-	else if(type == v8ot_data838)
+	else if(type == v8objtype::v8ot_data838)
 	{
 		curblock = _start / base->pagesize;
 		curoffblock = _start - (curblock * base->pagesize);
@@ -1049,7 +1049,7 @@ void v8object::set_len(uint64_t _len)
 
 	if(len == _len) return;
 
-	if(type == v8ot_free80 || type == v8ot_free838)
+	if(type == v8objtype::v8ot_free80 || type == v8objtype::v8ot_free838)
 	{
 		// Таблица свободных блоков
 		msreg_g.AddError("Попытка установки длины в файле свободных страниц");
@@ -1059,7 +1059,7 @@ void v8object::set_len(uint64_t _len)
 	delete[] data;
 	data = NULL;
 
-	if(type == v8ot_data80)
+	if(type == v8objtype::v8ot_data80)
 	{
 		b = (v8ob*)base->getblock_for_write(block, true);
 		b->len = _len;
@@ -1121,7 +1121,7 @@ void v8object::set_len(uint64_t _len)
 
 		write_new_version();
 	}
-	else if(type == v8ot_data838)
+	else if(type == v8objtype::v8ot_data838)
 	{
 		offsperpage = base->pagesize / 4;
 		maxlen = base->pagesize * offsperpage * (offsperpage - 6);
@@ -1336,7 +1336,7 @@ void v8object::write_new_version()
 {
 	_version new_ver;
 	if(new_version_recorded) return;
-	int32_t veroffset = type == v8ot_data80 || type == v8ot_free80 ? 12 : 4;
+	int32_t veroffset = type == v8objtype::v8ot_data80 || type == v8objtype::v8ot_free80 ? 12 : 4;
 
 	new_ver.version_1 = version.version_1 + 1;
 	new_ver.version_2 = version.version_2;

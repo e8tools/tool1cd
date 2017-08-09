@@ -63,7 +63,7 @@ class T_1CD;
 class Table;
 
 // типы внутренних файлов
-enum v8objtype
+enum class v8objtype
 {
 	v8ot_unknown = 0, // тип неизвестен
 	v8ot_data80  = 1, // файл данных формата 8.0 (до 8.2.14 включительно)
