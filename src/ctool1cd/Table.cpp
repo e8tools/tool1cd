@@ -29,7 +29,7 @@ changed_rec::changed_rec(Table* _parent, changed_rec_type crt, uint32_t phys_num
 	parent = _parent;
 	numrec = phys_numrecord;
 	changed_type = crt;
-	if(crt == changed_rec_type::crt_delete)
+	if(crt == changed_rec_type::deleted)
 	{
 		fields = NULL;
 		rec = NULL;
@@ -1493,7 +1493,7 @@ changed_rec_type Table::get_rec_type(uint32_t phys_numrecord)
 {
 	changed_rec* cr;
 	if (!edit) {
-		return changed_rec_type::crt_not_changed;
+		return changed_rec_type::not_changed;
 	}
 	cr = ch_rec;
 	while(cr)
@@ -1501,7 +1501,7 @@ changed_rec_type Table::get_rec_type(uint32_t phys_numrecord)
 		if(cr->numrec == phys_numrecord) return cr->changed_type;
 		cr = cr->next;
 	}
-	return changed_rec_type::crt_not_changed;
+	return changed_rec_type::not_changed;
 }
 
 //---------------------------------------------------------------------------
@@ -1509,19 +1509,19 @@ changed_rec_type Table::get_rec_type(uint32_t phys_numrecord, int32_t numfield)
 {
 	changed_rec* cr;
 	if (!edit) {
-		return changed_rec_type::crt_not_changed;
+		return changed_rec_type::not_changed;
 	}
 	cr = ch_rec;
 	while(cr) {
 		if(cr->numrec == phys_numrecord) {
-			if (cr->changed_type == changed_rec_type::crt_changed) {
-				return cr->fields[numfield] ? changed_rec_type::crt_changed : changed_rec_type::crt_not_changed;
+			if (cr->changed_type == changed_rec_type::changed) {
+				return cr->fields[numfield] ? changed_rec_type::changed : changed_rec_type::not_changed;
 			}
 			return cr->changed_type;
 		}
 		cr = cr->next;
 	}
-	return changed_rec_type::crt_not_changed;
+	return changed_rec_type::not_changed;
 }
 
 //---------------------------------------------------------------------------
@@ -1810,7 +1810,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 			delete[] fldvalue;
 			return; // значение не изменилось, ничего не делаем
 		}
-		cr = new changed_rec(this, phys_numrecord >= phys_numrecords ? changed_rec_type::crt_insert : changed_rec_type::crt_changed, phys_numrecord);
+		cr = new changed_rec(this, phys_numrecord >= phys_numrecords ? changed_rec_type::inserted : changed_rec_type::changed, phys_numrecord);
 		if(phys_numrecord <= phys_numrecords) memcpy(cr->rec, rec, recordlen);
 	}
 
@@ -1869,7 +1869,7 @@ void Table::restore_edit_value(uint32_t phys_numrecord, int32_t numfield)
 
 	for(cr = ch_rec; cr; cr = cr->next) if(cr->numrec == phys_numrecord) break;
 	if(!cr) return;
-	if(cr->changed_type != changed_rec_type::crt_changed) return;
+	if(cr->changed_type != changed_rec_type::changed) return;
 
 	fld = fields[numfield];
 	tf = fld->gettype();
@@ -1918,17 +1918,17 @@ void Table::set_rec_type(uint32_t phys_numrecord, changed_rec_type crt)
 	{
 		switch(crt)
 		{
-			case changed_rec_type::crt_changed:
+			case changed_rec_type::changed:
 				msreg_g.AddError("Попытка прямой установки признака \"Изменена\" существующей записи таблицы",
 					"Таблица", name,
 					"Физический номер записи", phys_numrecord);
 				break;
-			case changed_rec_type::crt_insert:
+			case changed_rec_type::inserted:
 				msreg_g.AddError("Попытка прямой установки признака \"Добавлена\" существующей записи таблицы",
 					"Таблица", name,
 					"Физический номер записи", phys_numrecord);
 				break;
-			case changed_rec_type::crt_delete:
+			case changed_rec_type::deleted:
 				if(cr)
 				{
 					cr->clear();
@@ -1938,7 +1938,7 @@ void Table::set_rec_type(uint32_t phys_numrecord, changed_rec_type crt)
 				}
 				else new changed_rec(this, crt, phys_numrecord);
 				break;
-			case changed_rec_type::crt_not_changed:
+			case changed_rec_type::not_changed:
 				if(cr)
 				{
 					if(ch_rec == cr) ch_rec = cr->next;
@@ -1956,12 +1956,12 @@ void Table::set_rec_type(uint32_t phys_numrecord, changed_rec_type crt)
 	{
 		switch(crt)
 		{
-			case changed_rec_type::crt_changed:
+			case changed_rec_type::changed:
 				msreg_g.AddError("Попытка прямой установки признака \"Изменена\" добавленной записи таблицы",
 					"Таблица", name,
 					"Физический номер записи", phys_numrecord);
 				break;
-			case changed_rec_type::crt_insert:
+			case changed_rec_type::inserted:
 				if(cr) cr->changed_type = crt;
 				else
 				{
@@ -1979,7 +1979,7 @@ void Table::set_rec_type(uint32_t phys_numrecord, changed_rec_type crt)
 					}
 				}
 				break;
-			case changed_rec_type::crt_delete:
+			case changed_rec_type::deleted:
 				if(cr)
 				{
 					if(ch_rec == cr) ch_rec = cr->next;
@@ -1993,7 +1993,7 @@ void Table::set_rec_type(uint32_t phys_numrecord, changed_rec_type crt)
 				}
 				for(cr = ch_rec; cr; cr = cr->next) if(cr->numrec > phys_numrecord) cr->numrec--;
 				break;
-			case changed_rec_type::crt_not_changed:
+			case changed_rec_type::not_changed:
 				msreg_g.AddError("Попытка прямой установки признака \"Не изменена\" добавленной записи таблицы",
 					"Таблица", name,
 					"Физический номер записи", phys_numrecord);
@@ -2009,7 +2009,7 @@ char* Table::get_edit_record(uint32_t phys_numrecord, char* rec)
 	changed_rec* cr;
 	for(cr = ch_rec; cr; cr = cr->next) if(phys_numrecord == cr->numrec)
 	{
-		if(cr->changed_type != changed_rec_type::crt_delete)
+		if(cr->changed_type != changed_rec_type::deleted)
 		{
 			memcpy(rec, cr->rec, recordlen);
 			return rec;
@@ -2429,21 +2429,21 @@ void Table::end_edit()
 
 	// удаляем удаленные записи
 	for (cr = ch_rec; cr; cr = cr->next) {
-		if (cr->changed_type == changed_rec_type::crt_delete) {
+		if (cr->changed_type == changed_rec_type::deleted) {
 			delete_record(cr->numrec);
 		}
 	}
 
 	// записываем измененные записи
 	for (cr = ch_rec; cr; cr = cr->next) {
-		if (cr->changed_type == changed_rec_type::crt_changed) {
+		if (cr->changed_type == changed_rec_type::changed) {
 			update_record(cr->numrec, cr->rec, cr->fields);
 		}
 	}
 
 	// добавляем новые записи
 	for (cr = ch_rec; cr; cr = cr->next) {
-		if (cr->changed_type == changed_rec_type::crt_insert) {
+		if (cr->changed_type == changed_rec_type::inserted) {
 			insert_record(cr->rec);
 		}
 	}

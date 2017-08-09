@@ -28,10 +28,10 @@ enum table_info
 // типы измененных записей
 enum class changed_rec_type
 {
-	crt_not_changed,
-	crt_changed,
-	crt_insert,
-	crt_delete
+	not_changed,
+	changed,
+	inserted,
+	deleted
 };
 
 // структура изменной записи таблицы
