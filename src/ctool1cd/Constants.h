@@ -125,7 +125,7 @@ const char DATE67_TEST_TEMPLATE[256] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-enum type_fields
+enum class type_fields
 {
 	tf_binary, // B // длина = length
 	tf_bool, // L // длина = 1

@@ -29,7 +29,7 @@ changed_rec::changed_rec(Table* _parent, changed_rec_type crt, uint32_t phys_num
 	parent = _parent;
 	numrec = phys_numrecord;
 	changed_type = crt;
-	if(crt == crt_delete)
+	if(crt == changed_rec_type::deleted)
 	{
 		fields = NULL;
 		rec = NULL;
@@ -64,7 +64,7 @@ void changed_rec::clear()
 	{
 		f = parent->fields[i];
 		tf = f->gettype();
-		if(tf == tf_image || tf == tf_string || tf == tf_text)
+		if(tf == type_fields::tf_image || tf == type_fields::tf_string || tf == type_fields::tf_text)
 		{
 			b = *(TStream**)(rec + f->getoffset() + (f->getnull_exists() ? 1 : 0));
 			delete b;
@@ -297,21 +297,21 @@ void Table::init(int32_t block_descr)
 			return;
 		}
 		ws = ff->get_value();
-		if(ws == "B") fld->type = tf_binary;
-		else if(ws == "L") fld->type = tf_bool;
-		else if(ws == "N") fld->type = tf_numeric;
-		else if(ws == "NC") fld->type = tf_char;
-		else if(ws == "NVC") fld->type = tf_varchar;
+		if(ws == "B") fld->type = type_fields::tf_binary;
+		else if(ws == "L") fld->type = type_fields::tf_bool;
+		else if(ws == "N") fld->type = type_fields::tf_numeric;
+		else if(ws == "NC") fld->type = type_fields::tf_char;
+		else if(ws == "NVC") fld->type = type_fields::tf_varchar;
 		else if(ws == "RV")
 		{
-			fld->type = tf_version;
+			fld->type = type_fields::tf_version;
 			has_version = true;
 		}
-		else if(ws == "NT") fld->type = tf_string;
-		else if(ws == "T") fld->type = tf_text;
-		else if(ws == "I") fld->type = tf_image;
-		else if(ws == "DT") fld->type = tf_datetime;
-		else if(ws == "VB") fld->type = tf_varbinary;
+		else if(ws == "NT") fld->type = type_fields::tf_string;
+		else if(ws == "T") fld->type = type_fields::tf_text;
+		else if(ws == "I") fld->type = type_fields::tf_image;
+		else if(ws == "DT") fld->type = type_fields::tf_datetime;
+		else if(ws == "VB") fld->type = type_fields::tf_varbinary;
 		else
 		{
 			msreg_g.AddError("Неизвестный тип поля таблицы.",
@@ -688,7 +688,7 @@ void Table::init(int32_t block_descr)
 	{// добавляем скрытое поле версии
 		fld = fields[num_fields++];
 		fld->name = "VERSION";
-		fld->type = tf_version8;
+		fld->type = type_fields::tf_version8;
 	}
 
 	t = t->get_next();
@@ -783,7 +783,7 @@ void Table::init(int32_t block_descr)
 			file_index->getdata(buf, 0, buflen);
 
 //			// Временно, для отладки >>
-//			if(buf[0]) msreg_g.AddMessage_("Существуют свободные страницы в файле индексов", msHint,
+//			if(buf[0]) msreg_g.AddMessage_("Существуют свободные страницы в файле индексов", MessageState::Hint,
 //					"Таблица", name,
 //					"Индекс свободной страницы", tohex(buf[0]));
 //			// Временно, для олтладки <<
@@ -799,7 +799,7 @@ void Table::init(int32_t block_descr)
 			{
 				for(i = 1; i <= num_indexes; i++)
 				{
-					if(base->version < ver8_3_8_0)
+					if(base->version < db_ver::ver8_3_8_0)
 					{
 						if(buf[i] >= file_index->getlen())
 						{
@@ -845,13 +845,13 @@ void Table::init(int32_t block_descr)
 	// вычисляем длину записи таблицы как сумму длинн полей и проставим смещения полей в записи
 	recordlen = 1; // первый байт записи - признак удаленности
 	// сначала идут поля (поле) с типом "версия"
-	for(i = 0; i < num_fields; i++) if(fields[i]->type == tf_version || fields[i]->type == tf_version8)
+	for(i = 0; i < num_fields; i++) if(fields[i]->type == type_fields::tf_version || fields[i]->type == type_fields::tf_version8)
 	{
 		fields[i]->offset = recordlen;
 		recordlen += fields[i]->getlen();
 	}
 	// затем идут все остальные поля
-	for(i = 0; i < num_fields; i++) if(fields[i]->type != tf_version && fields[i]->type != tf_version8)
+	for(i = 0; i < num_fields; i++) if(fields[i]->type != type_fields::tf_version && fields[i]->type != type_fields::tf_version8)
 	{
 		fields[i]->offset = recordlen;
 		recordlen += fields[i]->getlen();
@@ -884,7 +884,7 @@ void Table::init(int32_t block_descr)
 	for(i = 0; i < num_indexes; i++) indexes[i]->get_length();
 
 	#ifdef _DEBUG
-	msreg_g.AddDebugMessage("Создана таблица.", msInfo,
+	msreg_g.AddDebugMessage("Создана таблица.", MessageState::Info,
 		"Таблица", name,
 		"Длина таблицы", file_data->getlen(),
 		"Длина записи", recordlen);
@@ -1356,7 +1356,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 		s = fields[i]->getprecision();
 		f->Write(s.c_str(), s.GetLength());
 		f->Write(fpart5.c_str(), fpart5.GetLength());
-		if(fields[i]->type == tf_image) ic++;
+		if(fields[i]->type == type_fields::tf_image) ic++;
 	}
 
 	f->Write(part3.c_str(), part3.GetLength());
@@ -1394,7 +1394,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 			f->Write(us->c_str(), us->Length());
 			f->Write(">", 1);
 
-			if(blob_to_file && fields[i]->type == tf_image)
+			if(blob_to_file && fields[i]->type == type_fields::tf_image)
 			{
 				if(!dircreated)
 				{
@@ -1410,7 +1410,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 						}
 						catch(...)
 						{
-							msreg_g.AddMessage_("Не удалось создать каталог blob", msWarning,
+							msreg_g.AddMessage_("Не удалось создать каталог blob", MessageState::Warning,
 								"Таблица", name,
 								"Путь", dir);
 						}
@@ -1481,7 +1481,7 @@ void Table::begin_edit()
 	if(edit) return;
 	if(base->readonly)
 	{
-		msreg_g.AddMessage_("Попытка входа в режим редактирования в режиме \"Только чтение\"", msWarning,
+		msreg_g.AddMessage_("Попытка входа в режим редактирования в режиме \"Только чтение\"", MessageState::Warning,
 			"Таблица", name);
 		return;
 	}
@@ -1492,32 +1492,36 @@ void Table::begin_edit()
 changed_rec_type Table::get_rec_type(uint32_t phys_numrecord)
 {
 	changed_rec* cr;
-	if(!edit) return crt_not_changed;
+	if (!edit) {
+		return changed_rec_type::not_changed;
+	}
 	cr = ch_rec;
 	while(cr)
 	{
 		if(cr->numrec == phys_numrecord) return cr->changed_type;
 		cr = cr->next;
 	}
-	return crt_not_changed;
+	return changed_rec_type::not_changed;
 }
 
 //---------------------------------------------------------------------------
 changed_rec_type Table::get_rec_type(uint32_t phys_numrecord, int32_t numfield)
 {
 	changed_rec* cr;
-	if(!edit) return crt_not_changed;
+	if (!edit) {
+		return changed_rec_type::not_changed;
+	}
 	cr = ch_rec;
-	while(cr)
-	{
-		if(cr->numrec == phys_numrecord)
-		{
-			if(cr->changed_type == crt_changed) return cr->fields[numfield] ? crt_changed : crt_not_changed;
+	while(cr) {
+		if(cr->numrec == phys_numrecord) {
+			if (cr->changed_type == changed_rec_type::changed) {
+				return cr->fields[numfield] ? changed_rec_type::changed : changed_rec_type::not_changed;
+			}
 			return cr->changed_type;
 		}
 		cr = cr->next;
 	}
-	return crt_not_changed;
+	return changed_rec_type::not_changed;
 }
 
 //---------------------------------------------------------------------------
@@ -1608,7 +1612,7 @@ void Table::import_table(const String &path)
 	}
 	catch(...)
 	{
-		msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы root", msWarning,
+		msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы root", MessageState::Warning,
 			"Таблица", name,
 			"Файл", (dir / "root").string());
 		return;
@@ -1626,7 +1630,7 @@ void Table::import_table(const String &path)
 		}
 		catch(...)
 		{
-			msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы data", msWarning,
+			msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы data", MessageState::Warning,
 				"Таблица", name,
 				"Файл", (dir / "data").string());
 		}
@@ -1653,7 +1657,7 @@ void Table::import_table(const String &path)
 		}
 		catch(...)
 		{
-			msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы blob", msWarning,
+			msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы blob", MessageState::Warning,
 				"Таблица", name,
 				"Файл", (dir / "blob").string());
 		}
@@ -1680,7 +1684,7 @@ void Table::import_table(const String &path)
 		}
 		catch(...)
 		{
-			msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы index", msWarning,
+			msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы index", MessageState::Warning,
 				"Таблица", name,
 				"Файл", (dir / "index").string());
 		}
@@ -1708,7 +1712,7 @@ void Table::import_table(const String &path)
 		}
 		catch(...)
 		{
-			msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы descr", msWarning,
+			msreg_g.AddMessage_("Ошибка открытия файла импорта таблицы descr", MessageState::Warning,
 				"Файл", (dir / "descr").string());
 		}
 		if(fopen)
@@ -1730,7 +1734,7 @@ void Table::import_table(const String &path)
 			i = str.Pos("{\"Files\",");
 			if(i == 0)
 			{
-				msreg_g.AddMessage_("Ошибка поиска раздела Files в файле импорта таблицы descr", msWarning,
+				msreg_g.AddMessage_("Ошибка поиска раздела Files в файле импорта таблицы descr", MessageState::Warning,
 					"Файл", (dir / "descr").string());
 				return;
 			}
@@ -1771,13 +1775,13 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 
 	fld = fields[numfield];
 	tf = fld->gettype();
-	if(tf == tf_version || tf == tf_version8) return;
+	if(tf == type_fields::tf_version || tf == type_fields::tf_version8) return;
 	if(null && !fld->null_exists) return;
 
 	rec = new char[recordlen];
 	fldvalue = new char[fld->getlen()];
 
-	if(tf == tf_string || tf == tf_text || tf == tf_image)
+	if(tf == type_fields::tf_string || tf == type_fields::tf_text || tf == type_fields::tf_image)
 	{
 		memset(fldvalue, 0, fld->getlen());
 		k = fldvalue;
@@ -1806,13 +1810,13 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 			delete[] fldvalue;
 			return; // значение не изменилось, ничего не делаем
 		}
-		cr = new changed_rec(this, phys_numrecord >= phys_numrecords ? crt_insert : crt_changed, phys_numrecord);
+		cr = new changed_rec(this, phys_numrecord >= phys_numrecords ? changed_rec_type::inserted : changed_rec_type::changed, phys_numrecord);
 		if(phys_numrecord <= phys_numrecords) memcpy(cr->rec, rec, recordlen);
 	}
 
 	editrec = cr->rec;
 
-	if(cr->fields[numfield]) if(tf == tf_string || tf == tf_text || tf == tf_image)
+	if(cr->fields[numfield]) if(tf == type_fields::tf_string || tf == type_fields::tf_text || tf == type_fields::tf_image)
 	{
 		ost = (TStream**)(editrec + fld->offset + (fld->getnull_exists() ? 1 : 0));
 		if(*ost != st)
@@ -1865,13 +1869,13 @@ void Table::restore_edit_value(uint32_t phys_numrecord, int32_t numfield)
 
 	for(cr = ch_rec; cr; cr = cr->next) if(cr->numrec == phys_numrecord) break;
 	if(!cr) return;
-	if(cr->changed_type != crt_changed) return;
+	if(cr->changed_type != changed_rec_type::changed) return;
 
 	fld = fields[numfield];
 	tf = fld->gettype();
 	if(cr->fields[numfield])
 	{
-		if(tf == tf_string || tf == tf_text || tf == tf_image)
+		if(tf == type_fields::tf_string || tf == type_fields::tf_text || tf == type_fields::tf_image)
 		{
 			ost = (TStream**)(cr->rec + fld->offset + (fld->getnull_exists() ? 1 : 0));
 			delete *ost;
@@ -1914,17 +1918,17 @@ void Table::set_rec_type(uint32_t phys_numrecord, changed_rec_type crt)
 	{
 		switch(crt)
 		{
-			case crt_changed:
+			case changed_rec_type::changed:
 				msreg_g.AddError("Попытка прямой установки признака \"Изменена\" существующей записи таблицы",
 					"Таблица", name,
 					"Физический номер записи", phys_numrecord);
 				break;
-			case crt_insert:
+			case changed_rec_type::inserted:
 				msreg_g.AddError("Попытка прямой установки признака \"Добавлена\" существующей записи таблицы",
 					"Таблица", name,
 					"Физический номер записи", phys_numrecord);
 				break;
-			case crt_delete:
+			case changed_rec_type::deleted:
 				if(cr)
 				{
 					cr->clear();
@@ -1934,7 +1938,7 @@ void Table::set_rec_type(uint32_t phys_numrecord, changed_rec_type crt)
 				}
 				else new changed_rec(this, crt, phys_numrecord);
 				break;
-			case crt_not_changed:
+			case changed_rec_type::not_changed:
 				if(cr)
 				{
 					if(ch_rec == cr) ch_rec = cr->next;
@@ -1952,12 +1956,12 @@ void Table::set_rec_type(uint32_t phys_numrecord, changed_rec_type crt)
 	{
 		switch(crt)
 		{
-			case crt_changed:
+			case changed_rec_type::changed:
 				msreg_g.AddError("Попытка прямой установки признака \"Изменена\" добавленной записи таблицы",
 					"Таблица", name,
 					"Физический номер записи", phys_numrecord);
 				break;
-			case crt_insert:
+			case changed_rec_type::inserted:
 				if(cr) cr->changed_type = crt;
 				else
 				{
@@ -1975,7 +1979,7 @@ void Table::set_rec_type(uint32_t phys_numrecord, changed_rec_type crt)
 					}
 				}
 				break;
-			case crt_delete:
+			case changed_rec_type::deleted:
 				if(cr)
 				{
 					if(ch_rec == cr) ch_rec = cr->next;
@@ -1989,7 +1993,7 @@ void Table::set_rec_type(uint32_t phys_numrecord, changed_rec_type crt)
 				}
 				for(cr = ch_rec; cr; cr = cr->next) if(cr->numrec > phys_numrecord) cr->numrec--;
 				break;
-			case crt_not_changed:
+			case changed_rec_type::not_changed:
 				msreg_g.AddError("Попытка прямой установки признака \"Не изменена\" добавленной записи таблицы",
 					"Таблица", name,
 					"Физический номер записи", phys_numrecord);
@@ -2005,7 +2009,7 @@ char* Table::get_edit_record(uint32_t phys_numrecord, char* rec)
 	changed_rec* cr;
 	for(cr = ch_rec; cr; cr = cr->next) if(phys_numrecord == cr->numrec)
 	{
-		if(cr->changed_type != crt_delete)
+		if(cr->changed_type != changed_rec_type::deleted)
 		{
 			memcpy(rec, cr->rec, recordlen);
 			return rec;
@@ -2424,13 +2428,25 @@ void Table::end_edit()
 	changed_rec* cr;
 
 	// удаляем удаленные записи
-	for(cr = ch_rec; cr; cr = cr->next) if(cr->changed_type == crt_delete) delete_record(cr->numrec);
+	for (cr = ch_rec; cr; cr = cr->next) {
+		if (cr->changed_type == changed_rec_type::deleted) {
+			delete_record(cr->numrec);
+		}
+	}
 
 	// записываем измененные записи
-	for(cr = ch_rec; cr; cr = cr->next) if(cr->changed_type == crt_changed) update_record(cr->numrec, cr->rec, cr->fields);
+	for (cr = ch_rec; cr; cr = cr->next) {
+		if (cr->changed_type == changed_rec_type::changed) {
+			update_record(cr->numrec, cr->rec, cr->fields);
+		}
+	}
 
 	// добавляем новые записи
-	for(cr = ch_rec; cr; cr = cr->next) if(cr->changed_type == crt_insert) insert_record(cr->rec);
+	for (cr = ch_rec; cr; cr = cr->next) {
+		if (cr->changed_type == changed_rec_type::inserted) {
+			insert_record(cr->rec);
+		}
+	}
 
 	cancel_edit();
 	base->flush();
@@ -2454,7 +2470,7 @@ void Table::delete_record(uint32_t phys_numrecord)
 	{
 		f = fields[i];
 		tf = f->type;
-		if(tf == tf_image || tf == tf_string || tf == tf_text)
+		if(tf == type_fields::tf_image || tf == type_fields::tf_string || tf == type_fields::tf_text)
 		{
 			j = *(uint32_t*)(rec + f->offset);
 			if(j) delete_blob_record(j);
@@ -2487,9 +2503,9 @@ void Table::insert_record(char* rec)
 		offset = f->offset + (f->getnull_exists() ? 1 : 0);
 		switch(tf)
 		{
-			case tf_image:
-			case tf_string:
-			case tf_text:
+			case type_fields::tf_image:
+			case type_fields::tf_string:
+			case type_fields::tf_text:
 				st = (TStream**)(rec + offset);
 				if(*st)
 				{
@@ -2505,12 +2521,12 @@ void Table::insert_record(char* rec)
 				*(uint32_t*)(rec + offset) = k;
 				*(uint32_t*)(rec + offset + 4) = l;
 				if(f->getnull_exists()) *(rec + f->offset) = l ? 1 : 0;
-			case tf_version:
+			case type_fields::tf_version:
 				file_data->get_version_rec_and_increase(&ver);
 				memcpy(rec + offset, &ver, 8);
 				memcpy(rec + offset + 8, &ver, 8);
 				break;
-			case tf_version8:
+			case type_fields::tf_version8:
 				file_data->get_version_rec_and_increase(&ver);
 				memcpy(rec + offset, &ver, 8);
 				break;
@@ -2563,7 +2579,7 @@ void Table::update_record(uint32_t phys_numrecord, char* rec, char* changed_fiel
 		offset = f->offset + (f->getnull_exists() ? 1 : 0);
 		if(changed_fields[i])
 		{
-			if(tf == tf_image || tf == tf_string || tf == tf_text)
+			if(tf == type_fields::tf_image || tf == type_fields::tf_string || tf == type_fields::tf_text)
 			{
 				if(f->getnull_exists())
 				{
@@ -2620,12 +2636,12 @@ void Table::update_record(uint32_t phys_numrecord, char* rec, char* changed_fiel
 		}
 		else
 		{
-			if(tf == tf_version)
+			if(tf == type_fields::tf_version)
 			{
 				file_data->get_version_rec_and_increase(&ver);
 				memcpy(orec + offset + 8, &ver, 8);
 			}
-			else if(tf == tf_version8)
+			else if(tf == type_fields::tf_version8)
 			{
 				file_data->get_version_rec_and_increase(&ver);
 				memcpy(orec + offset, &ver, 8);
@@ -2671,14 +2687,14 @@ char* Table::get_record_template_test()
 		l = f->getlength();
 		switch(f->gettype())
 		{
-			case tf_binary: // B // длина = length
+			case type_fields::tf_binary: // B // длина = length
 				memset(curp, 1, BLOB_RECORD_LEN * l);
 				break;
-			case tf_bool: // L // длина = 1
+			case type_fields::tf_bool: // L // длина = 1
 				curp[0] = 1;
 				curp[1] = 1;
 				break;
-			case tf_numeric: // N // длина = (length + 2) / 2
+			case type_fields::tf_numeric: // N // длина = (length + 2) / 2
 				j = (l + 2) / 2;
 				for(; j > 0; --j)
 				{
@@ -2686,10 +2702,10 @@ char* Table::get_record_template_test()
 					curp += BLOB_RECORD_LEN;
 				}
 				break;
-			case tf_char: // NC // длина = length * 2
+			case type_fields::tf_char: // NC // длина = length * 2
 				memset(curp, 1, BLOB_RECORD_LEN * 2 * l);
 				break;
-			case tf_varchar: // NVC // длина = length * 2 + 2
+			case type_fields::tf_varchar: // NVC // длина = length * 2 + 2
 				if(l > 255) j = BLOB_RECORD_LEN;
 				else j = l + 1;
 				memset(curp, 1, j);
@@ -2700,19 +2716,19 @@ char* Table::get_record_template_test()
 				curp += BLOB_RECORD_LEN;
 				memset(curp, 1, BLOB_RECORD_LEN * 2 * l);
 				break;
-			case tf_version: // RV // 16, 8 версия создания и 8 версия модификации ? каждая версия int32_t(изменения) + int32_t(реструктуризация)
+			case type_fields::tf_version: // RV // 16, 8 версия создания и 8 версия модификации ? каждая версия int32_t(изменения) + int32_t(реструктуризация)
 				memset(curp, 1, BLOB_RECORD_LEN * 16);
 				break;
-			case tf_string: // NT // 8 (unicode text)
+			case type_fields::tf_string: // NT // 8 (unicode text)
 				memset(curp, 1, BLOB_RECORD_LEN * 8);
 				break;
-			case tf_text: // T // 8 (ascii text)
+			case type_fields::tf_text: // T // 8 (ascii text)
 				memset(curp, 1, BLOB_RECORD_LEN * 8);
 				break;
-			case tf_image: // I // 8 (image = bynary data)
+			case type_fields::tf_image: // I // 8 (image = bynary data)
 				memset(curp, 1, BLOB_RECORD_LEN * 8);
 				break;
-			case tf_datetime: // DT //7
+			case type_fields::tf_datetime: // DT //7
 				if(f->getname().CompareIC("_DATE_TIME") == 0) required = true;
 				else if(f->getname().CompareIC("_NUMBERPREFIX") == 0) required = true;
 
@@ -2732,10 +2748,10 @@ char* Table::get_record_template_test()
 				curp += BLOB_RECORD_LEN;
 				memcpy(curp, DATE67_TEST_TEMPLATE, BLOB_RECORD_LEN);
 				break;
-			case tf_version8: // 8, скрытое поле при recordlock == false и отсутствии поля типа tf_version
+			case type_fields::tf_version8: // 8, скрытое поле при recordlock == false и отсутствии поля типа tf_version
 				memset(curp, 1, BLOB_RECORD_LEN * 8);
 				break;
-			case tf_varbinary: // VB // длина = length + 2
+			case type_fields::tf_varbinary: // VB // длина = length + 2
 				if(l > 255) j = BLOB_RECORD_LEN;
 				else j = l + 1;
 				memset(curp, 1, j);

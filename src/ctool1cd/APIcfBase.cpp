@@ -134,7 +134,7 @@ v8file::v8file(v8catalog* _parent, const String& _name, v8file* _previous, int _
 	is_headermodified = !start_header;
 	if(previous) previous->next = this;
 	else parent->first = this;
-	iscatalog = iscatalog_unknown;
+	iscatalog = FileIsCatalog::unknown;
 	self = NULL;
 	is_opened = false;
 	time_create = *_time_create;
@@ -381,7 +381,7 @@ bool v8file::IsCatalog()
 	char _t[32];
 
 	Lock->Acquire();
-	if(iscatalog == iscatalog_unknown){
+	if(iscatalog == FileIsCatalog::unknown){
 		// эмпирический метод?
 		if(!is_opened) if(!Open())
 		{
@@ -395,13 +395,13 @@ bool v8file::IsCatalog()
 			data->Read(_t, 16);
 			if(memcmp(_t, _EMPTY_CATALOG_TEMPLATE, 16) != 0)
 			{
-				iscatalog = iscatalog_false;
+				iscatalog = FileIsCatalog::no;
 				Lock->Release();
 				return false;
 			}
 			else
 			{
-				iscatalog = iscatalog_true;
+				iscatalog = FileIsCatalog::yes;
 				Lock->Release();
 				return true;
 			}
@@ -411,36 +411,36 @@ bool v8file::IsCatalog()
 		data->Read(&_startempty, 4);
 		if(_startempty != LAST_BLOCK){
 			if(_startempty + 31 >= _filelen){
-				iscatalog = iscatalog_false;
+				iscatalog = FileIsCatalog::no;
 				Lock->Release();
 				return false;
 			}
 			data->Seek(_startempty, soFromBeginning);
 			data->Read(_t, 31);
 			if(_t[0] != 0xd || _t[1] != 0xa || _t[10] != 0x20 || _t[19] != 0x20 || _t[28] != 0x20 || _t[29] != 0xd || _t[30] != 0xa){
-				iscatalog = iscatalog_false;
+				iscatalog = FileIsCatalog::no;
 				Lock->Release();
 				return false;
 			}
 		}
 		if(_filelen < 31 + 16){
-			iscatalog = iscatalog_false;
+			iscatalog = FileIsCatalog::no;
 			Lock->Release();
 			return false;
 		}
 		data->Seek(16, soFromBeginning);
 		data->Read(_t, 31);
 		if(_t[0] != 0xd || _t[1] != 0xa || _t[10] != 0x20 || _t[19] != 0x20 || _t[28] != 0x20 || _t[29] != 0xd || _t[30] != 0xa){
-			iscatalog = iscatalog_false;
+			iscatalog = FileIsCatalog::no;
 			Lock->Release();
 			return false;
 		}
-		iscatalog = iscatalog_true;
+		iscatalog = FileIsCatalog::yes;
 		Lock->Release();
 		return true;
 	}
 	Lock->Release();
-	return iscatalog == iscatalog_true;
+	return iscatalog == FileIsCatalog::yes;
 }
 
 //---------------------------------------------------------------------------
@@ -506,7 +506,7 @@ void v8file::DeleteFile()
 		delete self;
 		self = NULL;
 	}
-	iscatalog = iscatalog_false;
+	iscatalog = FileIsCatalog::no;
 	next = NULL;
 	previous = NULL;
 	is_opened = false;
@@ -588,7 +588,7 @@ void v8file::Close(){
 	}
 	delete data;
 	data = NULL;
-	iscatalog = iscatalog_unknown;
+	iscatalog = FileIsCatalog::unknown;
 	is_opened = false;
 	is_datamodified = false;
 	is_headermodified = false;
@@ -638,7 +638,7 @@ int64_t v8file::WriteAndClose(TStream* Stream, int Length)
 		parent->Lock->Release();
 		delete[]wname;
 	}
-	iscatalog = iscatalog_unknown;
+	iscatalog = FileIsCatalog::unknown;
 	is_opened = false;
 	is_datamodified = false;
 	is_headermodified = false;

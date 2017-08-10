@@ -65,10 +65,10 @@ class v8catalog;
 class TV8FileStream;
 
 //---------------------------------------------------------------------------
-enum FileIsCatalog{
-	iscatalog_unknown,
-	iscatalog_true,
-	iscatalog_false
+enum class FileIsCatalog {
+	unknown,
+	yes,
+	no
 };
 
 //---------------------------------------------------------------------------

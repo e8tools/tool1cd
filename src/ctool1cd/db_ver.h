@@ -1,7 +1,7 @@
 #ifndef _DB_VER_H
 #define _DB_VER_H
 //---------------------------------------------------------------------------
-enum db_ver
+enum class db_ver
 {
 	ver8_0_3_0  = 1,
 	ver8_0_5_0  = 2,
