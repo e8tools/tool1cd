@@ -2655,6 +2655,74 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	}
 
 	boost::filesystem::path filepath = boost::filesystem::path(static_cast<std::string>(_filename));
+/*
+	// Проверяем, нет ли снэпшота нужной версии конфигурации
+	if(*(rec + fldv_snapshotcrc->offset)) if(*(rec + fldv_snapshotmaker->offset)) if(memcmp(rootobj, rec + fldv_snapshotmaker->offset + 1, 16) == 0)
+	{
+		uint32_t _crc = *(uint32_t*)(rec + fldv_snapshotcrc->offset + 1);
+
+		String s = filename.SubString(1, filename.LastDelimiter("\\"));
+		s += "cache\\ddb";
+		ss = "00000";
+		ss += ver;
+		s += ss.SubString(ss.GetLength() - 4, 5);
+		s += ".snp";
+		if(FileExists(s)) {
+			try {
+				in = new TFileStream(s, fmOpenRead | fmShareDenyNone);
+			}
+			catch(...) {
+				msreg_m.AddMessage_("Не удалось открыть файл снэпшота", MessageState::Warning,
+						"Имя файла", s,
+						"Требуемая версия", ver);
+				in = NULL;
+			}
+			try
+			{
+				//if(FileExists(__filename)) DeleteFile(__filename);
+				out = new TFileStream(__filename, fmCreate | fmShareDenyWrite);
+			}
+			catch(...) {
+				msreg_m.AddMessage_("Не удалось создать файл конфигурации", MessageState::Warning,
+						"Имя файла", __filename);
+				delete[] rec;
+				return false;
+			}
+			if(in) {
+				try {
+					InflateStream(in, out);
+				}
+				catch(...) {
+					msreg_m.AddMessage_("Не удалось распаковать файл снэпшота", MessageState::Warning,
+							"Имя файла", s,
+							"Требуемая версия", ver);
+					delete out;
+					out = NULL;
+				}
+				delete in;
+				in = NULL;
+				if(out) {
+					k = _crc32(out);
+					if(k == _crc) {
+						delete out;
+						delete[] rec;
+						return true;
+					}
+					msreg_m.AddMessage_("Файл снэпшота испорчен (не совпала контрольная сумма)", MessageState::Warning,
+							"Имя файла", s,
+							"Требуемая версия", ver,
+							"Должен быть CRC32", tohex(_crc),
+							"Получился CRC32", tohex(k));
+					delete out;
+				}
+			}
+		}
+		else {
+			msreg_m.AddMessage_("Не найден файл снэпшота", MessageState::Warning,
+					"Имя файла", s,
+					"Требуемая версия", ver);
+		}
+	}*/
 
 	// Определяем версию структуры конфигурации (для файла version)
 	if(depotVer >= depot_ver::Ver5)
