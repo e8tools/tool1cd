@@ -2522,7 +2522,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	TStream* out;
 	TStream* st;
 	std::vector<_packdata> packdates;
-	TSearchRec srec;
 	_packdata pd;
 	_packdata* pdr;
 	int64_t packlen;
@@ -2773,8 +2772,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	}
 	else
 	{
-		fldh_datahash = NULL;
-		flde_datahash = NULL;
+		fldh_datahash = nullptr;
+		flde_datahash = nullptr;
 	}
 
 	indh = get_index(table_history, "PK");
