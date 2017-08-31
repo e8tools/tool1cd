@@ -2522,7 +2522,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	TStream* out;
 	TStream* st;
 	std::vector<_packdata> packdates;
-	TSearchRec srec;
 	_packdata pd;
 	_packdata* pdr;
 	int64_t packlen;
@@ -2769,12 +2768,12 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				packdates.push_back(pd);
 		}
 
-		objects_path = root_path / "data" / "objects";
+		objects_path = root_path.parent_path() / "data" / "objects";
 	}
 	else
 	{
-		fldh_datahash = NULL;
-		flde_datahash = NULL;
+		fldh_datahash = nullptr;
+		flde_datahash = nullptr;
 	}
 
 	indh = get_index(table_history, "PK");
@@ -2916,7 +2915,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 					if(!ok)
 					{
 						String ss = fldh_datahash->get_presentation(rech1, true);
-						boost::filesystem::path current_object_path = objects_path / static_cast<std::string>(ss.SubString(3, ss.GetLength() - 2));
+						boost::filesystem::path current_object_path = objects_path / static_cast<std::string>(ss.SubString(1, 2)) / static_cast<std::string>(ss.SubString(3, ss.GetLength() - 2));
 						if(boost::filesystem::exists(current_object_path))
 						{
 							try
@@ -3042,11 +3041,11 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 								}
 								if(ok) break;
 							}
-
+							
 							if(!ok)
 							{
 								String ss = flde_datahash->get_presentation(rec, true);
-								boost::filesystem::path current_object_path = objects_path / static_cast<std::string>(ss.SubString(3, ss.GetLength() - 2));
+								boost::filesystem::path current_object_path = objects_path / static_cast<std::string>(ss.SubString(1, 2)) / static_cast<std::string>(ss.SubString(3, ss.GetLength() - 2));
 								if (boost::filesystem::exists(current_object_path))
 								{
 									try
