@@ -12,6 +12,7 @@
 #include "TempStream.h"
 #include "ConfigStorage.h"
 #include "Constants.h"
+#include "CRC32.h"
 
 using namespace std;
 
@@ -2513,8 +2514,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	bool datapacked;
 	bool deletesobj;
 	char emptyimage[8];
-	uint32_t i, k;
-	int32_t v, j, res, lastver, n;
+	uint32_t i;
+	int32_t j, res, lastver, n;
 	String sn;
 	depot_ver depotVer;
 	uint32_t configVerMajor, configVerMinor;
@@ -2573,7 +2574,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	rec = new char[table_depot->get_recordlen()];
 	ok = false;
-	for(i = 0; i < table_depot->get_phys_numrecords(); i++)
+	for(uint32_t i = 0; i < table_depot->get_phys_numrecords(); i++)
 	{
 		table_depot->getrecord(i, rec);
 		if(!*rec)
@@ -2582,6 +2583,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 			break;
 		}
 	}
+
 	if(!ok)
 	{
 		msreg_m.AddError("Не удалось прочитать запись в таблице DEPOT.");
@@ -2590,19 +2592,18 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	}
 
 	{
-	String s = fldd_depotver->get_presentation(rec, true);
+		String depotVer_str = fldd_depotver->get_presentation(rec, true);
 
-	if(s.CompareIC("0300000000000000") == 0) depotVer = depot_ver::Ver3;
-	else if(s.CompareIC("0500000000000000") == 0) depotVer = depot_ver::Ver5;
-	else if(s.CompareIC("0600000000000000") == 0) depotVer = depot_ver::Ver6;
-	else if(s.CompareIC("0700000000000000") == 0) depotVer = depot_ver::Ver7;
-	else
-	{
-		msreg_m.AddMessage_("Неизвестная версия хранилища", MessageState::Error,
-			"Версия хранилища", s);
-		delete[] rec;
-		return false;
-	}
+		if(depotVer_str.CompareIC("0300000000000000") == 0) { depotVer = depot_ver::Ver3; }
+		else if(depotVer_str.CompareIC("0500000000000000") == 0) { depotVer = depot_ver::Ver5; }
+		else if(depotVer_str.CompareIC("0600000000000000") == 0) { depotVer = depot_ver::Ver6; }
+		else if(depotVer_str.CompareIC("0700000000000000") == 0) { depotVer = depot_ver::Ver7; }
+		else {
+			msreg_m.AddMessage_("Неизвестная версия хранилища", MessageState::Error,
+					"Версия хранилища", depotVer_str);
+			delete[] rec;
+			return false;
+		}
 	}
 
 	memcpy(rootobj, rec + fldd_rootobjid->offset, 16);
@@ -2632,13 +2633,14 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	rec = new char[table_versions->get_recordlen()];
 	ok = false;
-	for(i = 0; i < table_versions->get_phys_numrecords(); i++)
+	for(uint32_t i = 0; i < table_versions->get_phys_numrecords(); i++)
 	{
 		table_versions->getrecord(i, rec);
-		if(*rec) continue;
-		String s = fldv_vernum->get_presentation(rec, true);
-		v = s.ToIntDef(0);
-		if(v == ver)
+		if(*rec) {
+			continue;
+		}
+		int32_t vernum = fldv_vernum->get_presentation(rec, true).ToIntDef(0);
+		if(vernum == ver)
 		{
 			ok = true;
 			break;
@@ -2654,74 +2656,83 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	}
 
 	boost::filesystem::path filepath = boost::filesystem::path(static_cast<std::string>(_filename));
-/*
-	// Проверяем, нет ли снэпшота нужной версии конфигурации
-	if(*(rec + fldv_snapshotcrc->offset)) if(*(rec + fldv_snapshotmaker->offset)) if(memcmp(rootobj, rec + fldv_snapshotmaker->offset + 1, 16) == 0)
-	{
-		uint32_t _crc = *(uint32_t*)(rec + fldv_snapshotcrc->offset + 1);
+	boost::filesystem::path root_path(static_cast<std::string>(filename)); // путь к 1cd
 
-		String s = filename.SubString(1, filename.LastDelimiter("\\"));
-		s += "cache\\ddb";
-		ss = "00000";
-		ss += ver;
-		s += ss.SubString(ss.GetLength() - 4, 5);
-		s += ".snp";
-		if(FileExists(s)) {
+	// Проверяем, нет ли снэпшота нужной версии конфигурации
+	if( (*(rec + fldv_snapshotcrc->offset))   &&
+		(*(rec + fldv_snapshotmaker->offset)) &&
+		(memcmp(rootobj, rec + fldv_snapshotmaker->offset + 1, 16) == 0) )
+	{
+		uint32_t snapshot_crc = *(uint32_t*)(rec + fldv_snapshotcrc->offset + 1);
+
+		String name_snap = "ddb";
+		String ver_part  = "00000";
+		ver_part  += ver;
+		name_snap += ver_part.SubString(ver_part.GetLength() - 4, 5);
+		name_snap += ".snp";
+
+		boost::filesystem::path file_snap = root_path.parent_path() / "cache" / static_cast<std::string>(name_snap);
+
+		if(boost::filesystem::exists(file_snap)) {
 			try {
-				in = new TFileStream(s, fmOpenRead | fmShareDenyNone);
+				in = new TFileStream(file_snap.string(), fmOpenRead | fmShareDenyNone);
 			}
 			catch(...) {
 				msreg_m.AddMessage_("Не удалось открыть файл снэпшота", MessageState::Warning,
-						"Имя файла", s,
-						"Требуемая версия", ver);
-				in = NULL;
+					"Имя файла", file_snap.string(),
+					"Требуемая версия", ver);
+				in = nullptr;
 			}
 			try
 			{
-				//if(FileExists(__filename)) DeleteFile(__filename);
-				out = new TFileStream(__filename, fmCreate | fmShareDenyWrite);
+				out = new TFileStream(_filename, fmCreate | fmShareDenyWrite);
 			}
 			catch(...) {
 				msreg_m.AddMessage_("Не удалось создать файл конфигурации", MessageState::Warning,
-						"Имя файла", __filename);
+						"Имя файла", _filename);
 				delete[] rec;
 				return false;
 			}
 			if(in) {
-				try {
-					InflateStream(in, out);
+				if(depotVer >= depot_ver::Ver7) {
+					out->CopyFrom(in, 0);
 				}
-				catch(...) {
-					msreg_m.AddMessage_("Не удалось распаковать файл снэпшота", MessageState::Warning,
-							"Имя файла", s,
-							"Требуемая версия", ver);
-					delete out;
-					out = NULL;
+				else {
+					try {
+						ZInflateStream(in, out);
+					}
+					catch(...) {
+						msreg_m.AddMessage_("Не удалось распаковать файл снэпшота", MessageState::Warning,
+								"Имя файла", file_snap.string(),
+								"Требуемая версия", ver);
+						delete out;
+						out = nullptr;
+					}
 				}
 				delete in;
-				in = NULL;
+				in = nullptr;
 				if(out) {
-					k = _crc32(out);
-					if(k == _crc) {
+					uint32_t calc_crc = _crc32(out);
+					if(calc_crc == snapshot_crc) {
 						delete out;
 						delete[] rec;
 						return true;
 					}
 					msreg_m.AddMessage_("Файл снэпшота испорчен (не совпала контрольная сумма)", MessageState::Warning,
-							"Имя файла", s,
+							"Имя файла", file_snap.string(),
 							"Требуемая версия", ver,
-							"Должен быть CRC32", tohex(_crc),
-							"Получился CRC32", tohex(k));
+							"Должен быть CRC32", tohex(snapshot_crc),
+							"Получился CRC32", tohex(calc_crc));
 					delete out;
 				}
 			}
 		}
 		else {
 			msreg_m.AddMessage_("Не найден файл снэпшота", MessageState::Warning,
-					"Имя файла", s,
+					"Имя файла", file_snap.string(),
 					"Требуемая версия", ver);
 		}
-	}*/
+	}
 
 	// Определяем версию структуры конфигурации (для файла version)
 	if(depotVer >= depot_ver::Ver5)
@@ -2784,7 +2795,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	flde_extdata = get_field(table_externals, "EXTDATA");
 	if(!flde_extdata) return false;
 
-	boost::filesystem::path root_path(static_cast<std::string>(filename)); // путь к 1cd
 	boost::filesystem::path objects_path;
 
 	if(depotVer >= depot_ver::Ver6)
@@ -2922,7 +2932,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	{
 		trc->add_child("2", nd_number);
 		trc->add_child(GUIDasMS((unsigned char*)rootobj), nd_guid);
-		tcountr = NULL;
+		tcountr = nullptr;
 		oldformat = false;
 	}
 
@@ -2963,10 +2973,10 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				else if(depotVer >= depot_ver::Ver6)
 				{
 					rec = rech1 + fldh_datahash->offset + (fldh_datahash->null_exists ? 1 : 0);
-					for(i = 0; i < packdates.size(); i++)
+					for(uint32_t i = 0; i < packdates.size(); i++)
 					{
 						pdr = &packdates[i];
-						for(k = 0; k < pdr->count; k++) if(memcmp(rec, pdr->datahashes[k].datahash, 20) == 0)
+						for(uint32_t k = 0; k < pdr->count; k++) if(memcmp(rec, pdr->datahashes[k].datahash, 20) == 0)
 						{
 							st = pdr->pack;
 							st->Seek(pdr->datahashes[k].offset, soBeginning);
@@ -3040,10 +3050,9 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						if(res > 0) break;
 						if(!res)
 						{
-							s = flde_vernum->get_presentation(rece, false);
-							v = s.ToIntDef(MaxInt);
+							int32_t vernum = flde_vernum->get_presentation(rece, false).ToIntDef(std::numeric_limits<int32_t>::max());
 							s = flde_extname->get_presentation(rece);
-							if(v <= ver) if(*(rece + flde_datapacked->offset))
+							if(vernum <= ver) if(*(rece + flde_datapacked->offset))
 							{
 								for(j = 0; j < nreces; j++) if(s.CompareIC(flde_extname->get_presentation(reces[j])) == 0) break;
 								if(j == reces.GetLength()){
@@ -3053,7 +3062,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 								if(j == nreces) nreces++;
 								memcpy(reces[j], rece, table_externals->get_recordlen());
 							}
-							if(v == lastver)
+							if(vernum == lastver)
 							{
 								extnames.SetLength(extnames.GetLength() + 1);
 								extnames[extnames.GetLength() - 1] = s;
@@ -3093,10 +3102,10 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						else if(depotVer >= depot_ver::Ver6)
 						{
 							frec = rec + flde_datahash->offset + (flde_datahash->null_exists ? 1 : 0);
-							for(i = 0; i < packdates.size(); i++)
+							for(int32_t i = 0; i < packdates.size(); i++)
 							{
 								pdr = &packdates[i];
-								for(k = 0; k < pdr->count; k++) if(memcmp(frec, pdr->datahashes[k].datahash, 20) == 0)
+								for(uint32_t k = 0; k < pdr->count; k++) if(memcmp(frec, pdr->datahashes[k].datahash, 20) == 0)
 								{
 									out = new TTempStream;
 									st = pdr->pack;
@@ -3165,9 +3174,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 		if(ih < nh)
 		{
-			String s = fldh_vernum->get_presentation(rech2, false);
-			v = s.ToIntDef(MaxInt);
-			if(v <= ver)
+			int32_t vernum = fldh_vernum->get_presentation(rech2, false).ToIntDef(std::numeric_limits<int32_t>::max());
+			if(vernum <= ver)
 			{
 				removed = *(rech2 + fldh_removed->offset);
 				if(removed)
@@ -3182,7 +3190,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 					{
 						memcpy(rech1, rech2, table_history->get_recordlen());
 						lastremoved = false;
-						lastver = v;
+						lastver = vernum;
 					}
 				}
 			}
