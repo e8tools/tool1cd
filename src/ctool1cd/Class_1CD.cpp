@@ -2660,8 +2660,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	// Проверяем, нет ли снэпшота нужной версии конфигурации
 	if( (*(rec + fldv_snapshotcrc->offset))   &&
-		(*(rec + fldv_snapshotmaker->offset)) &&
-		(memcmp(rootobj, rec + fldv_snapshotmaker->offset + 1, 16) == 0) )
+		(*(rec + fldv_snapshotmaker->offset))/* &&
+		(memcmp(rootobj, rec + fldv_snapshotmaker->offset + 1, 16) == 0)*/ )
 	{
 		uint32_t snapshot_crc = *(uint32_t*)(rec + fldv_snapshotcrc->offset + 1);
 
