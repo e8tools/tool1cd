@@ -1,6 +1,8 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+#include "String.hpp"
+
 const unsigned int LIVE_CASH = 5; // время жизни кешированных данных в минутах
 
 const char SIG_CON[8] = {'1', 'C', 'D', 'B', 'M', 'S', 'V', '8'};
@@ -157,5 +159,9 @@ const uint32_t DEFAULT_PAGE_SIZE = PAGE_SIZE_4K;
 // 33221100-5544-7766-8899-aabbccddeeff
 //
 
+
+const String EMPTY_GUID = "00000000-0000-0000-0000-000000000000";
+const String SNAPSHOT_VER1 = "3721ca9e-a272-496b-a093-206ea7629574";
+const String SNAPSHOT_VER2 = "6fdfdf78-062a-46bb-8402-62145ae55764";
 
 #endif

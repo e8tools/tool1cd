@@ -2659,12 +2659,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	boost::filesystem::path root_path(static_cast<std::string>(filename)); // путь к 1cd
 
 	// Проверяем, нет ли снэпшота нужной версии конфигурации
-	if( (*(rec + fldv_snapshotcrc->offset))   &&
-		(*(rec + fldv_snapshotmaker->offset))/* &&
-		(memcmp(rootobj, rec + fldv_snapshotmaker->offset + 1, 16) == 0)*/ )
+	if( fldv_snapshotmaker->get_presentation(rec, true).Compare(EMPTY_GUID) != 0 )
 	{
-		uint32_t snapshot_crc = *(uint32_t*)(rec + fldv_snapshotcrc->offset + 1);
-
 		String name_snap = "ddb";
 		String ver_part  = "00000";
 		ver_part  += ver;
@@ -2694,24 +2690,49 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				return false;
 			}
 			if(in) {
-				if(depotVer >= depot_ver::Ver7) {
-					out->CopyFrom(in, 0);
+				snapshot_version snap_ver = snapshot_version::Ver1;
+
+				if( memcmp(rootobj, rec + fldv_snapshotmaker->offset + 1, 16) == 0 ||
+					fldv_snapshotmaker->get_presentation(rec, true).Compare(SNAPSHOT_VER1) == 0 ) {
+					snap_ver = snapshot_version::Ver1;
 				}
-				else {
+				else if (fldv_snapshotmaker->get_presentation(rec, true).Compare(SNAPSHOT_VER2) == 0) {
+					snap_ver = snapshot_version::Ver2;
+				};
+
+				switch (snap_ver) {
+				case snapshot_version::Ver1:
+				{
 					try {
 						ZInflateStream(in, out);
 					}
 					catch(...) {
 						msreg_m.AddMessage_("Не удалось распаковать файл снэпшота", MessageState::Warning,
-								"Имя файла", file_snap.string(),
-								"Требуемая версия", ver);
+							"Имя файла", file_snap.string(),
+							"Требуемая версия", ver);
 						delete out;
 						out = nullptr;
 					}
+					break;
 				}
+				case snapshot_version::Ver2:
+				{
+					out->CopyFrom(in, 0);
+					break;
+				}
+				default:
+					{
+						msreg_m.AddMessage_("Неизвестная версия снэпшота", MessageState::Warning,
+								"Имя файла", file_snap.string());
+						delete out;
+						out = nullptr;
+					}
+				};
+
 				delete in;
 				in = nullptr;
 				if(out) {
+					uint32_t snapshot_crc = *(uint32_t*)(rec + fldv_snapshotcrc->offset + 1);
 					uint32_t calc_crc = _crc32(out);
 					if(calc_crc == snapshot_crc) {
 						delete out;
