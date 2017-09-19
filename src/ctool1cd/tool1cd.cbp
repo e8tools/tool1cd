@@ -45,6 +45,8 @@
 		<Unit filename="APIcfBase.h" />
 		<Unit filename="Base64.cpp" />
 		<Unit filename="Base64.h" />
+		<Unit filename="CRC32.cpp" />
+		<Unit filename="CRC32.h" />
 		<Unit filename="Class_1CD.cpp" />
 		<Unit filename="Class_1CD.h" />
 		<Unit filename="Common.cpp" />

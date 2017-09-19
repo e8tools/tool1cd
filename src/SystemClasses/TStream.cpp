@@ -179,7 +179,7 @@ int64_t TWrapperStream::Read(void *Buffer, int64_t Count)
 {
 	_stream->seekg(GetPosition(), std::ios_base::beg);
 	_stream->read((char*)Buffer, Count);
-	if (!*_stream) {
+	if (_stream->bad()) {
 		String err(std::strerror(errno));
 		std::cerr << err << std::endl;
 		throw Exception(err);
@@ -194,7 +194,7 @@ int64_t TWrapperStream::Write(const void *Buffer, int64_t Count)
 	_stream->seekp(GetPosition(), std::ios_base::beg);
 	_stream->write((char*)Buffer, Count);
 	_stream->flush();
-	if (!*_stream) {
+	if (_stream->bad()) {
 		String err(std::strerror(errno));
 		std::cerr << err << std::endl;
 		throw Exception(err);

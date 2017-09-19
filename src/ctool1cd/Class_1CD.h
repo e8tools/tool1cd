@@ -153,6 +153,13 @@ struct pagemaprec
 };
 
 
+// Версии файлов shapshot
+
+enum class snapshot_version {
+	Ver1 = 1,
+	Ver2 = 2
+};
+
 // класс базы 1CD
 class T_1CD
 {
