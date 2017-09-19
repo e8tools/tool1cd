@@ -2669,6 +2669,9 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 		boost::filesystem::path file_snap = root_path.parent_path() / "cache" / static_cast<std::string>(name_snap);
 
+		msreg_m.AddMessage_("Попытка открытия файла снэпшота", MessageState::Info,
+				"Файл", file_snap.string());
+
 		if(boost::filesystem::exists(file_snap)) {
 			try {
 				in = new TFileStream(file_snap.string(), fmOpenRead | fmShareDenyNone);
