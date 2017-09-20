@@ -2906,13 +2906,13 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	std::map<String,TStream*> extmap; // контейнер для сортировки файлов в корне
 	std::map<String,TStream*> metamap; // контейнер для сортировки файлов в metadata
 
-	tv = new tree("", nd_list, NULL); // корень дерева файла versions
-	tvc = new tree("", nd_list, tv); // тек. элемент дерева файла versions
-	tr = new tree("", nd_list, NULL); // корень дерева файла root
-	trc = new tree("", nd_list, tr); // тек. элемент дерева файла root
+	tv = new tree("",  node_type::nd_list, NULL); // корень дерева файла versions
+	tvc = new tree("", node_type::nd_list, tv); // тек. элемент дерева файла versions
+	tr = new tree("",  node_type::nd_list, NULL); // корень дерева файла root
+	trc = new tree("", node_type::nd_list, tr); // тек. элемент дерева файла root
 
-	tvc->add_child("1", nd_number);
-	tcountv = tvc->add_child("0", nd_number); // узел, содержащий счетчик в файле versions
+	tvc->add_child("1", node_type::nd_number);
+	tcountv = tvc->add_child("0", node_type::nd_number); // узел, содержащий счетчик в файле versions
 
 	CreateGUID(guid);
 	vermap[""] = GUIDasMS(uid);
@@ -2920,13 +2920,13 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	String sversion;
 	{// Создаем и записываем файл version
 	String s;
-	t = new tree("", nd_list, NULL);
-	tc = new tree("", nd_list, t);
-	tc = new tree("", nd_list, tc);
+	t = new tree("",  node_type::nd_list, NULL);
+	tc = new tree("", node_type::nd_list, t);
+	tc = new tree("", node_type::nd_list, tc);
 	s = configVerMajor;
-	tc->add_child(s, nd_number);
+	tc->add_child(s, node_type::nd_number);
 	s = configVerMinor;
-	tc->add_child(s, nd_number);
+	tc->add_child(s, node_type::nd_number);
 	sversion = outtext(t);
 	delete t;
 	}
@@ -2947,15 +2947,15 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	if(configVerMajor < 100)
 	{
-		trc->add_child("1", nd_number);
-		trc->add_child(GUIDasMS((unsigned char*)rootobj), nd_guid);
-		tcountr = trc->add_child("0", nd_number); // узел, содержащий счетчик в файле root
+		trc->add_child("1", node_type::nd_number);
+		trc->add_child(GUIDasMS((unsigned char*)rootobj), node_type::nd_guid);
+		tcountr = trc->add_child("0", node_type::nd_number); // узел, содержащий счетчик в файле root
 		oldformat = true;
 	}
 	else
 	{
-		trc->add_child("2", nd_number);
-		trc->add_child(GUIDasMS((unsigned char*)rootobj), nd_guid);
+		trc->add_child("2", node_type::nd_number);
+		trc->add_child(GUIDasMS((unsigned char*)rootobj), node_type::nd_guid);
 		tcountr = nullptr;
 		oldformat = false;
 	}
@@ -3234,21 +3234,21 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	vermap["versions"] = GUIDasMS(uid);
 	if(oldformat)
 	{
-		tcountv->set_value(vermap.size(), nd_number);
-		tcountr->set_value(rootmap.size(), nd_number);
+		tcountv->set_value(vermap.size(), node_type::nd_number);
+		tcountr->set_value(rootmap.size(), node_type::nd_number);
 	}
 	else
 	{
 		CreateGUID(guid);
 		vermap["root"] = GUIDasMS(uid);
-		tcountv->set_value(vermap.size(), nd_number);
+		tcountv->set_value(vermap.size(), node_type::nd_number);
 	}
 
 	// Запись root
 	for(pmap = rootmap.begin(); pmap != rootmap.end(); ++pmap)
 	{
-		trc->add_child(pmap->first, nd_string);
-		trc->add_child(pmap->second, nd_guid);
+		trc->add_child(pmap->first, node_type::nd_string);
+		trc->add_child(pmap->second, node_type::nd_guid);
 	}
 	String tree_text = outtext(tr);
 	delete tr;
@@ -3275,8 +3275,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	for(pmap = vermap.begin(); pmap != vermap.end(); ++pmap)
 	{
-		tvc->add_child(pmap->first, nd_string);
-		tvc->add_child(pmap->second, nd_guid);
+		tvc->add_child(pmap->first, node_type::nd_string);
+		tvc->add_child(pmap->second, node_type::nd_guid);
 	}
 
 	String tv_text = outtext(tv);

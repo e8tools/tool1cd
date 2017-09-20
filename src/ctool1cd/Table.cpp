@@ -161,7 +161,7 @@ void Table::init(int32_t block_descr)
 	}
 
 	t = rt->get_first();
-	if(t->get_type() != nd_string)
+	if(t->get_type() != node_type::nd_string)
 	{
 		msreg_g.AddError("Ошибка получения имени таблицы. Узел не является строкой.",
 			"Блок", tohex(block_descr));
@@ -205,7 +205,7 @@ void Table::init(int32_t block_descr)
 	t = t->get_next();
 	// пропускаем узел, так как там всегда содержится "0", и что это такое, неизвестно (версия формата описания таблиц?)
 	t = t->get_next();
-	if(t->get_type() != nd_list)
+	if(t->get_type() != node_type::nd_list)
 	{
 		msreg_g.AddError("Ошибка получения полей таблицы. Узел не является деревом.",
 			"Блок", tohex(block_descr),
@@ -231,7 +231,7 @@ void Table::init(int32_t block_descr)
 	for(i = 0; i < num_fields2; i++) fields[i] = new Field(this);
 
 	f = t->get_first();
-	if(f->get_type() != nd_string)
+	if(f->get_type() != node_type::nd_string)
 	{
 		msreg_g.AddError("Ошибка получения полей таблицы. Ожидаемый узел Fields не является строкой.",
 			"Блок", tohex(block_descr),
@@ -270,7 +270,7 @@ void Table::init(int32_t block_descr)
 		}
 
 		ff = f->get_first();
-		if(ff->get_type() != nd_string)
+		if(ff->get_type() != node_type::nd_string)
 		{
 			msreg_g.AddError("Ошибка получения имени поля таблицы. Узел не является строкой.",
 				"Блок", tohex(block_descr),
@@ -285,7 +285,7 @@ void Table::init(int32_t block_descr)
 		fld->name = ff->get_value();
 
 		ff = ff->get_next();
-		if(ff->get_type() != nd_string)
+		if(ff->get_type() != node_type::nd_string)
 		{
 			msreg_g.AddError("Ошибка получения типа поля таблицы. Узел не является строкой.",
 				"Блок", tohex(block_descr),
@@ -326,7 +326,7 @@ void Table::init(int32_t block_descr)
 		}
 
 		ff = ff->get_next();
-		if(ff->get_type() != nd_number)
+		if(ff->get_type() != node_type::nd_number)
 		{
 			msreg_g.AddError("Ошибка получения признака NULL поля таблицы. Узел не является числом.",
 				"Блок", tohex(block_descr),
@@ -355,7 +355,7 @@ void Table::init(int32_t block_descr)
 		}
 
 		ff = ff->get_next();
-		if(ff->get_type() != nd_number)
+		if(ff->get_type() != node_type::nd_number)
 		{
 			msreg_g.AddError("Ошибка получения длины поля таблицы. Узел не является числом.",
 				"Блок", tohex(block_descr),
@@ -369,7 +369,7 @@ void Table::init(int32_t block_descr)
 		fld->length = StrToInt(ff->get_value());
 
 		ff = ff->get_next();
-		if(ff->get_type() != nd_number)
+		if(ff->get_type() != node_type::nd_number)
 		{
 			msreg_g.AddError("Ошибка получения точности поля таблицы. Узел не является числом.",
 				"Блок", tohex(block_descr),
@@ -383,7 +383,7 @@ void Table::init(int32_t block_descr)
 		fld->precision = StrToInt(ff->get_value());
 
 		ff = ff->get_next();
-		if(ff->get_type() != nd_string)
+		if(ff->get_type() != node_type::nd_string)
 		{
 			msreg_g.AddError("Ошибка получения регистрочувствительности поля таблицы. Узел не является строкой.",
 				"Блок", tohex(block_descr),
@@ -412,7 +412,7 @@ void Table::init(int32_t block_descr)
 	}
 
 	t = t->get_next();
-	if(t->get_type() != nd_list)
+	if(t->get_type() != node_type::nd_list)
 	{
 		msreg_g.AddError("Ошибка получения индексов таблицы. Узел не является деревом.",
 			"Блок", tohex(block_descr),
@@ -440,7 +440,7 @@ void Table::init(int32_t block_descr)
 		for(i = 0; i < num_indexes; i++) indexes[i] = new Index(this);
 
 		f = t->get_first();
-		if(f->get_type() != nd_string)
+		if(f->get_type() != node_type::nd_string)
 		{
 			msreg_g.AddError("Ошибка получения индексов таблицы. Ожидаемый узел Indexes не является строкой.",
 				"Блок", tohex(block_descr),
@@ -483,7 +483,7 @@ void Table::init(int32_t block_descr)
 			ind = indexes[i];
 			ind->num_records = numrec;
 
-			if(f->get_type() != nd_list)
+			if(f->get_type() != node_type::nd_list)
 			{
 				msreg_g.AddError("Ошибка получения очередного индекса таблицы. Узел не является деревом.",
 					"Блок", tohex(block_descr),
@@ -497,7 +497,7 @@ void Table::init(int32_t block_descr)
 			}
 
 			ff = f->get_first();
-			if(ff->get_type() != nd_string)
+			if(ff->get_type() != node_type::nd_string)
 			{
 				msreg_g.AddError("Ошибка получения имени индекса таблицы. Узел не является строкой.",
 					"Блок", tohex(block_descr),
@@ -512,7 +512,7 @@ void Table::init(int32_t block_descr)
 			ind->name = ff->get_value();
 
 			ff = ff->get_next();
-			if(ff->get_type() != nd_number)
+			if(ff->get_type() != node_type::nd_number)
 			{
 				msreg_g.AddError("Ошибка получения типа индекса таблицы. Узел не является числом.",
 					"Блок", tohex(block_descr),
@@ -561,7 +561,7 @@ void Table::init(int32_t block_descr)
 				}
 
 				in = ff->get_first();
-				if(in->get_type() != nd_string)
+				if(in->get_type() != node_type::nd_string)
 				{
 					msreg_g.AddError("Ошибка получения имени поля индекса таблицы. Узел не является строкой.",
 						"Блок", tohex(block_descr),
@@ -599,7 +599,7 @@ void Table::init(int32_t block_descr)
 				}
 
 				in = in->get_next();
-				if(in->get_type() != nd_number)
+				if(in->get_type() != node_type::nd_number)
 				{
 					msreg_g.AddError("Ошибка получения длины поля индекса таблицы. Узел не является числом.",
 						"Блок", tohex(block_descr),
@@ -632,7 +632,7 @@ void Table::init(int32_t block_descr)
 	}
 
 	f = t->get_first();
-	if(f->get_type() != nd_string)
+	if(f->get_type() != node_type::nd_string)
 	{
 		msreg_g.AddError("Ошибка получения типа блокировки таблицы. Ожидаемый узел Recordlock не является строкой.",
 			"Блок", tohex(block_descr),
@@ -657,7 +657,7 @@ void Table::init(int32_t block_descr)
 	}
 
 	f = f->get_next();
-	if(f->get_type() != nd_string)
+	if(f->get_type() != node_type::nd_string)
 	{
 		msreg_g.AddError("Ошибка получения типа блокировки таблицы. Узел не является строкой.",
 			"Блок", tohex(block_descr),
@@ -705,7 +705,7 @@ void Table::init(int32_t block_descr)
 	}
 
 	f = t->get_first();
-	if(f->get_type() != nd_string)
+	if(f->get_type() != node_type::nd_string)
 	{
 		msreg_g.AddError("Ошибка получения файлов таблицы. Ожидаемый узел Files не является строкой.",
 			"Блок", tohex(block_descr),
@@ -732,7 +732,7 @@ void Table::init(int32_t block_descr)
 	for(i = 0; i < 3; i++)
 	{
 		f = f->get_next();
-		if(f->get_type() != nd_number)
+		if(f->get_type() != node_type::nd_number)
 		{
 			msreg_g.AddError("Ошибка получения файла таблицы. Узел не является числом.",
 				"Блок", tohex(block_descr),
