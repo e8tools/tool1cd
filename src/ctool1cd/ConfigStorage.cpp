@@ -616,7 +616,7 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 					}
 					else
 					{
-						if(ct->get_type() != nd_number)
+						if(ct->get_type() != node_type::nd_number)
 						{
 							msreg_m.AddError("Ошибка разбора файла DynamicallyUpdated"
 								, "Путь", s);
@@ -843,7 +843,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 					}
 					else
 					{
-						if(ct->get_type() != nd_number)
+						if(ct->get_type() != node_type::nd_number)
 						{
 							msreg_m.AddError("Ошибка разбора файла DynamicallyUpdated"
 								, "Путь", s);
@@ -1064,7 +1064,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* tabc, const
 			delete stream;
 			return;
 		}
-		if(ct->get_type() != nd_string)
+		if(ct->get_type() != node_type::nd_string)
 		{
 			msreg_m.AddError("Ошибка разбора файла configinfo"
 				, "Путь", s);
@@ -1083,7 +1083,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* tabc, const
 			delete stream;
 			return;
 		}
-		if(ct->get_type() != nd_binary2)
+		if(ct->get_type() != node_type::nd_binary2)
 		{
 			msreg_m.AddError("Ошибка разбора файла configinfo"
 				, "Путь", s);
@@ -1255,7 +1255,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 			delete stream;
 			return;
 		}
-		if(ct->get_type() != nd_string)
+		if(ct->get_type() != node_type::nd_string)
 		{
 			msreg_m.AddError("Ошибка разбора файла configinfo"
 				, "Путь", s);
@@ -1276,7 +1276,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 			delete stream;
 			return;
 		}
-		if(ct->get_type() != nd_binary2)
+		if(ct->get_type() != node_type::nd_binary2)
 		{
 			msreg_m.AddError("Ошибка разбора файла configinfo"
 				, "Путь", s);
