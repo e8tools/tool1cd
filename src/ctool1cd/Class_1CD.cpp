@@ -2529,7 +2529,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	v8catalog* cat;
 	v8catalog* cath;
 	bool oldformat;
-	v8file* f;
 	tree* t;
 	tree* tc;
 	tree* tv; // корень дерева файла versions
@@ -3228,7 +3227,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 
 	// Завершаем формирование списков версий
-	std::map<String,String>::iterator pmap;
 
 	CreateGUID(guid);
 	vermap["versions"] = GUIDasMS(uid);
@@ -3245,7 +3243,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	}
 
 	// Запись root
-	for(pmap = rootmap.begin(); pmap != rootmap.end(); ++pmap)
+	for(auto pmap = rootmap.begin(); pmap != rootmap.end(); ++pmap)
 	{
 		trc->add_child(pmap->first, node_type::nd_string);
 		trc->add_child(pmap->second, node_type::nd_guid);
@@ -3273,7 +3271,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	// Запись versions
 
-	for(pmap = vermap.begin(); pmap != vermap.end(); ++pmap)
+	for(auto pmap = vermap.begin(); pmap != vermap.end(); ++pmap)
 	{
 		tvc->add_child(pmap->first, node_type::nd_string);
 		tvc->add_child(pmap->second, node_type::nd_guid);
@@ -3292,21 +3290,18 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	ZDeflateStream(in, out);
 	extmap["versions"] = out;
 
-	std::map<String,TStream*>::iterator psmap;
 	if(oldformat)
 	{
 		cath = cat->CreateCatalog("metadata", true);
-		for(psmap = metamap.begin(); psmap != metamap.end(); ++psmap)
+		for(auto psmap = metamap.begin(); psmap != metamap.end(); ++psmap)
 		{
-			f = cath->createFile(psmap->first);
-			f->WriteAndClose(psmap->second);
+			cath->createFile(psmap->first)->WriteAndClose(psmap->second);
 			delete psmap->second;
 		}
 	}
-	for(psmap = extmap.begin(); psmap != extmap.end(); ++psmap)
+	for(auto psmap = extmap.begin(); psmap != extmap.end(); ++psmap)
 	{
-		f = cat->createFile(psmap->first);
-		f->WriteAndClose(psmap->second);
+		cat->createFile(psmap->first)->WriteAndClose(psmap->second);
 		delete psmap->second;
 	}
 
