@@ -2514,9 +2514,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	bool datapacked;
 	bool deletesobj;
 	char emptyimage[8];
-	uint32_t i;
-	int32_t j, res, lastver, n;
-	String sn;
+	int32_t j, lastver;
 	depot_ver depotVer;
 	uint32_t configVerMajor, configVerMinor;
 	TStream* in;
@@ -2846,12 +2844,13 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						"Файл", current_path.string());
 					return false;
 				}
+				uint32_t count;
 				in->Seek(8, soFromBeginning);
-				in->Read(&i, 4);
-				pd.datahashes = new _datahash[i];
-				in->Read(pd.datahashes, i * sizeof(_datahash));
+				in->Read(&count, 4);
+				pd.datahashes = new _datahash[count];
+				in->Read(pd.datahashes, count * sizeof(_datahash));
 				delete in;
-				pd.count = i;
+				pd.count = count;
 
 				boost::filesystem::path pack_item = current_path;
 				pack_item.replace_extension("pck");
@@ -2968,8 +2967,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	{
 		if(ih < nh)
 		{
-			i = indh->get_numrec(ih);
-			table_history->getrecord(i, rech2);
+			uint32_t num_rec = indh->get_numrec(ih);
+			table_history->getrecord(num_rec, rech2);
 		}
 
 		if(memcmp(curobj, rech2 + fldh_objid->offset, 16) != 0 || ih == nh)
@@ -3069,7 +3068,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 					while(true)
 					{
 						if(ie > ne) break;
-						res = memcmp(rece + flde_objid->offset, curobj, 16);
+						int32_t res = memcmp(rece + flde_objid->offset, curobj, 16);
 						if(res > 0) break;
 						if(!res)
 						{
@@ -3096,15 +3095,15 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 							ie++;
 							break;
 						}
-						i = inde->get_numrec(ie++);
-						table_externals->getrecord(i, rece);
+						uint32_t num_rec = inde->get_numrec(ie++);
+						table_externals->getrecord(num_rec, rece);
 					}
 					for(j = 0; j < nreces; j++)
 					{
 						rec = reces[j];
-						sn = flde_extname->get_presentation(rec);
+						String ext_name = flde_extname->get_presentation(rec);
 						ok = false;
-						for(n = 0; n < extnames.GetLength(); n++ ) if(sn.CompareIC(extnames[n]) == 0)
+						for( int32_t n = 0; n < extnames.GetLength(); n++ ) if(ext_name.CompareIC(extnames[n]) == 0)
 						{
 							ok = true;
 							break;
@@ -3176,13 +3175,13 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						{
 							msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
 								"Таблица", "EXTERNALS",
-								"Объект", sn,
+								"Объект", ext_name,
 								"Версия", flde_vernum->get_presentation(rec));
 						}
 						else
 						{
-							vermap[sn] = GUIDasMS((unsigned char*)rec + flde_extverid->offset);
-							extmap[sn] = out;
+							vermap[ext_name] = GUIDasMS((unsigned char*)rec + flde_extverid->offset);
+							extmap[ext_name] = out;
 						}
 
 					}
@@ -3223,7 +3222,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	delete[] rech1;
 	delete[] rech2;
 	delete[] rece;
-	for(j = 0; j < nreces; j++) delete[] reces[j];
+	for(int32_t j = 0; j < nreces; j++) delete[] reces[j];
 
 
 	// Завершаем формирование списков версий
@@ -3307,7 +3306,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	delete in;
 
-	for(i = 0; i < packdates.size(); i++)
+	for(size_t i = 0; i < packdates.size(); i++)
 	{
 		delete packdates[i].pack;
 		delete[] packdates[i].datahashes;
