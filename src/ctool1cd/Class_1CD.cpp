@@ -3,6 +3,9 @@
 #include <vector>
 #include <System.IOUtils.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <regex>
 
 #include "UZLib.h"
@@ -2536,6 +2539,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	tree* tcountv; // узел, содержащий счетчик в файле versions
 	tree* tcountr; // узел, содержащий счетчик в файле root
 
+	boost::uuids::random_generator uuid_gen;
+
 	union
 	{
 		GUID guid;
@@ -2547,7 +2552,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		char cv_b[2];
 		unsigned short cv_s;
 	};
-
 
 	if(!is_open()) return false;
 
@@ -2912,8 +2916,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	tvc->add_child("1", node_type::nd_number);
 	tcountv = tvc->add_child("0", node_type::nd_number); // узел, содержащий счетчик в файле versions
 
-	CreateGUID(guid);
-	vermap[""] = GUIDasMS(uid);
+	vermap[""] = to_string(uuid_gen());
 
 	String sversion;
 	{// Создаем и записываем файл version
@@ -2940,8 +2943,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	ZDeflateStream(in, out);
 	delete in;
 	extmap["version"] = out;
-	CreateGUID(guid);
-	vermap["version"] = GUIDasMS(uid);
+
+	vermap["version"] = to_string(uuid_gen());
 
 	if(configVerMajor < 100)
 	{
@@ -3227,8 +3230,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	// Завершаем формирование списков версий
 
-	CreateGUID(guid);
-	vermap["versions"] = GUIDasMS(uid);
+	vermap["versions"] = to_string(uuid_gen());
+
 	if(oldformat)
 	{
 		tcountv->set_value(vermap.size(), node_type::nd_number);
@@ -3236,8 +3239,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	}
 	else
 	{
-		CreateGUID(guid);
-		vermap["root"] = GUIDasMS(uid);
+		vermap["root"] = to_string(uuid_gen());
 		tcountv->set_value(vermap.size(), node_type::nd_number);
 	}
 
