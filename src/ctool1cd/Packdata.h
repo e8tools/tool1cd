@@ -13,6 +13,7 @@
 #include <memory>
 
 #include "TempStream.h"
+#include "Constants.h"
 
 // Структура одной записи индекса упакованных объектов хранилища 8.3 (из файла *.ind)
 
@@ -20,7 +21,7 @@
 #pragma pack(1)
 struct record_data_hash
 {
-	char datahash[20];	// хэш файла
+	char datahash[DATAHASH_FIELD_LENGTH];	// хэш файла
 	int64_t offset;		// смещение файла в файле *.pck
 };
 #pragma pack(pop)
@@ -36,8 +37,7 @@ public:
 	TStream* get_data(const char* datahash, bool &find);
 private:
 	std::unique_ptr<TFileStream> pack;	// открытый на чтение файл *.pck
-	uint32_t count;						// кол-во записей (объектов) в файле *.pck
-	std::unique_ptr<record_data_hash[]> datahashes;	// массив
+	std::vector<record_data_hash> datahashes;
 
 };
 

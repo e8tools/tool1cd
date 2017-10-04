@@ -8,7 +8,6 @@
 
 #include "Packdata.h"
 #include "MessageRegistration.h"
-#include "Constants.h"
 
 extern Registrator msreg_g;
 
@@ -17,9 +16,13 @@ Packdata::Packdata(boost::filesystem::path& file_path) {
 	std::unique_ptr<TFileStream> in(new TFileStream(file_path.string(), fmOpenRead | fmShareDenyNone));
 
 	in->Seek(8, soFromBeginning);
+	uint32_t count;
 	in->Read(&count, sizeof(count));
-	datahashes.reset(new record_data_hash[count]);
-	in->Read(datahashes.get(), count * sizeof(record_data_hash));
+	datahashes.resize(count);
+	for(auto &record: datahashes) {
+		in->Read(&record.datahash, DATAHASH_FIELD_LENGTH);
+		in->Read(&record.offset, sizeof(int64_t));
+	}
 
 	boost::filesystem::path pack_item = file_path;
 	pack_item.replace_extension("pck");
@@ -34,9 +37,9 @@ TStream* Packdata::get_data(const char* datahash, bool &find) {
 	TStream *buffer = nullptr;
 	find = false;
 
-	for(uint32_t k = 0; k < count; k++) {
-		if(memcmp(datahash, datahashes[k].datahash, DATAHASH_FIELD_LENGTH) == 0) {
-			pack->Seek(datahashes[k].offset, soBeginning);
+	for(const auto &record: datahashes) {
+		if(memcmp(datahash, record.datahash, DATAHASH_FIELD_LENGTH) == 0) {
+			pack->Seek(record.offset, soBeginning);
 			int64_t packlen = 0;
 			pack->Read(&packlen, sizeof(packlen));
 			buffer = new TTempStream;
