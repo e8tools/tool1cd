@@ -2916,8 +2916,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	tvc->add_child("1", node_type::nd_number);
 	tcountv = tvc->add_child("0", node_type::nd_number); // узел, содержащий счетчик в файле versions
 
-	vermap[""] = to_string(uuid_gen());
-
+	vermap[""] = GUIDasMS(uuid_gen().data);
+	
 	String sversion;
 	{// Создаем и записываем файл version
 	String s;
@@ -2944,7 +2944,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	delete in;
 	extmap["version"] = out;
 
-	vermap["version"] = to_string(uuid_gen());
+	vermap["version"] = GUIDasMS(uuid_gen().data);
 
 	if(configVerMajor < 100)
 	{
@@ -3230,7 +3230,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	// Завершаем формирование списков версий
 
-	vermap["versions"] = to_string(uuid_gen());
+	vermap["versions"] = GUIDasMS(uuid_gen().data);
 
 	if(oldformat)
 	{
@@ -3239,7 +3239,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	}
 	else
 	{
-		vermap["root"] = to_string(uuid_gen());
+		vermap["root"] = GUIDasMS(uuid_gen().data);
 		tcountv->set_value(vermap.size(), node_type::nd_number);
 	}
 
