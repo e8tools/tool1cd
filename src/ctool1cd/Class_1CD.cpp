@@ -2832,8 +2832,15 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 			if (!std::regex_match(current_path.filename().string(), pack_mask)) {
 				continue;
 			}
-			std::shared_ptr<Packdata> pd = std::make_shared<Packdata>(current_path);
-			packdates.push_back(pd);
+			try {
+				std::shared_ptr<Packdata> pd = std::make_shared<Packdata>(current_path);
+				packdates.push_back(pd);
+			}
+			catch (...) {
+				msreg_m.AddMessage_("Ошибка обработки файлов", MessageState::Error,
+					"Каталог", subpath.string());
+				return false;
+			}
 		}
 
 		objects_path = root_path.parent_path() / "data" / "objects";

@@ -13,21 +13,31 @@ extern Registrator msreg_g;
 
 Packdata::Packdata(boost::filesystem::path& file_path) {
 
-	std::unique_ptr<TFileStream> in(new TFileStream(file_path.string(), fmOpenRead | fmShareDenyNone));
-
-	in->Seek(8, soFromBeginning);
-	uint32_t count;
-	in->Read(&count, sizeof(count));
-	datahashes.resize(count);
-	for(auto &record: datahashes) {
-		in->Read(&record.datahash, DATAHASH_FIELD_LENGTH);
-		in->Read(&record.offset, sizeof(int64_t));
+	try {
+		std::unique_ptr<TFileStream> in(new TFileStream(file_path.string(), fmOpenRead | fmShareDenyNone));
+		in->Seek(8, soFromBeginning);
+		uint32_t count;
+		in->Read(&count, sizeof(count));
+		datahashes.resize(count);
+		in->Read(datahashes.data(), count * sizeof(record_data_hash));
+	}
+	catch (...) {
+		msreg_g.AddMessage_("Ошибка открытия файла", MessageState::Error,
+				"Файл", file_path.string());
+		throw;
 	}
 
 	boost::filesystem::path pack_item = file_path;
 	pack_item.replace_extension("pck");
-	std::unique_ptr<TFileStream> tmp(new TFileStream(pack_item.string(), fmOpenRead | fmShareDenyNone)); // в TWrapperStream есть метод reset
-	pack = std::move(tmp);
+	try {
+		std::unique_ptr<TFileStream> tmp(new TFileStream(pack_item.string(), fmOpenRead | fmShareDenyNone)); // в TWrapperStream есть метод reset
+		pack = std::move(tmp);
+	}
+	catch (...) {
+		msreg_g.AddMessage_("Ошибка открытия файла", MessageState::Error,
+				"Файл", pack_item.string());
+		throw;
+	}
 }
 
 Packdata::~Packdata() {
