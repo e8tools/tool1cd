@@ -16,6 +16,7 @@
 #include "ConfigStorage.h"
 #include "Constants.h"
 #include "CRC32.h"
+#include "Packdata.h"
 
 using namespace std;
 
@@ -2523,10 +2524,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	TStream* in;
 	TStream* out;
 	TStream* st;
-	std::vector<_packdata> packdates;
-	_packdata pd;
-	_packdata* pdr;
-	int64_t packlen;
+	vector <std::shared_ptr<Packdata>> packdates;
 	v8catalog* cat;
 	v8catalog* cath;
 	bool oldformat;
@@ -2832,38 +2830,15 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 			if (!std::regex_match(current_path.filename().string(), pack_mask)) {
 				continue;
 			}
-				try
-				{
-					in = new TFileStream(current_path.string(), fmOpenRead | fmShareDenyNone);
-				}
-				catch(...)
-				{
-					msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
-						"Файл", current_path.string());
-					return false;
-				}
-				uint32_t count;
-				in->Seek(8, soFromBeginning);
-				in->Read(&count, 4);
-				pd.datahashes = new _datahash[count];
-				in->Read(pd.datahashes, count * sizeof(_datahash));
-				delete in;
-				pd.count = count;
-
-				boost::filesystem::path pack_item = current_path;
-				pack_item.replace_extension("pck");
-				try
-				{
-					pd.pack = new TFileStream(pack_item.string(), fmOpenRead | fmShareDenyNone);
-				}
-				catch(...)
-				{
-				    delete pd.pack;
-				    msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
-						"Файл", pack_item.string());
-					return false;
-				}
+			try {
+				std::shared_ptr<Packdata> pd = std::make_shared<Packdata>(current_path);
 				packdates.push_back(pd);
+			}
+			catch (...) {
+				msreg_m.AddMessage_("Ошибка обработки файлов", MessageState::Error,
+					"Каталог", subpath.string());
+				return false;
+			}
 		}
 
 		objects_path = root_path.parent_path() / "data" / "objects";
@@ -2974,7 +2949,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 			{
 				ok = false;
 				deletesobj = false;
-				packlen = 0;
 				rec = rech1 + fldh_objdata->offset + 1;
 				if(*(rech1 + fldh_objdata->offset) && memcmp(emptyimage, rec, 8))
 				{
@@ -2992,21 +2966,11 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				else if(depotVer >= depot_ver::Ver6)
 				{
 					rec = rech1 + fldh_datahash->offset + (fldh_datahash->null_exists ? 1 : 0);
-					for(uint32_t i = 0; i < packdates.size(); i++)
-					{
-						pdr = &packdates[i];
-						for(uint32_t k = 0; k < pdr->count; k++) if(memcmp(rec, pdr->datahashes[k].datahash, 20) == 0)
-						{
-							st = pdr->pack;
-							st->Seek(pdr->datahashes[k].offset, soBeginning);
-							st->Read(&packlen, 8);
-							out = new TTempStream;
-							out->CopyFrom(st, packlen);
-							ok = true;
-							out->Close();
+					for(auto& packdata: packdates) {
+						out = packdata->get_data(rec, ok);
+						if(ok) {
 							break;
 						}
-						if(ok) break;
 					}
 
 					if(!ok)
@@ -3108,7 +3072,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						if(!ok) continue;
 
 						ok = false;
-						packlen = 0;
 						deletesobj = false;
 						frec = rec + flde_extdata->offset;
 						if(memcmp(emptyimage, frec, 8))
@@ -3121,21 +3084,11 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						else if(depotVer >= depot_ver::Ver6)
 						{
 							frec = rec + flde_datahash->offset + (flde_datahash->null_exists ? 1 : 0);
-							for(int32_t i = 0; i < packdates.size(); i++)
-							{
-								pdr = &packdates[i];
-								for(uint32_t k = 0; k < pdr->count; k++) if(memcmp(frec, pdr->datahashes[k].datahash, 20) == 0)
-								{
-									out = new TTempStream;
-									st = pdr->pack;
-									st->Seek(pdr->datahashes[k].offset, soBeginning);
-									st->Read(&packlen, 8);
-									out->CopyFrom(st, packlen);
-									ok = true;
-									out->Close();
+							for(auto& packdata:packdates) {
+								out = packdata->get_data(frec, ok);
+								if(ok) {
 									break;
 								}
-								if(ok) break;
 							}
 							
 							if(!ok)
@@ -3301,12 +3254,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	}
 
 	delete in;
-
-	for(size_t i = 0; i < packdates.size(); i++)
-	{
-		delete packdates[i].pack;
-		delete[] packdates[i].datahashes;
-	}
 
 	delete cat;
 	return true;
