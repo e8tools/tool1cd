@@ -2540,13 +2540,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	tree* tcountr; // узел, содержащий счетчик в файле root
 
 	boost::uuids::random_generator uuid_gen;
-
-	union
-	{
-		GUID guid;
-		unsigned char uid[16];
-	};
-
+	
 	union
 	{
 		char cv_b[2];
