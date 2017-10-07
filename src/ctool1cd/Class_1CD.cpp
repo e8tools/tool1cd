@@ -7,6 +7,7 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <regex>
+#include <memory>
 
 #include "UZLib.h"
 #include "Class_1CD.h"
@@ -2507,8 +2508,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	Field* flde_datahash;
 	Index* inde;
 	char* rece;
-	DynamicArray<char*> reces;
-	DynamicArray<String> extnames;
+	vector<char*> reces;
+	vector<String> extnames;
 	int32_t nreces;
 	uint32_t ie, ne;
 
@@ -2518,7 +2519,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	bool datapacked;
 	bool deletesobj;
 	char emptyimage[8];
-	int32_t j, lastver;
+	int32_t lastver;
 	depot_ver depotVer;
 	uint32_t configVerMajor, configVerMinor;
 	TStream* in;
@@ -2859,7 +2860,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	rece = new char[table_externals->get_recordlen()];
 	memset(rece, 0, table_externals->get_recordlen());
 	nreces = 0;
-	reces.SetLength(0);
+	reces.resize(0);
 
 	nh = indh->get_numrecords();
 	ne = inde->get_numrecords();
@@ -2877,9 +2878,9 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	std::map<String,TStream*> extmap; // контейнер для сортировки файлов в корне
 	std::map<String,TStream*> metamap; // контейнер для сортировки файлов в metadata
 
-	tv = new tree("",  node_type::nd_list, NULL); // корень дерева файла versions
+	tv = new tree("",  node_type::nd_list, nullptr); // корень дерева файла versions
 	tvc = new tree("", node_type::nd_list, tv); // тек. элемент дерева файла versions
-	tr = new tree("",  node_type::nd_list, NULL); // корень дерева файла root
+	tr = new tree("",  node_type::nd_list, nullptr); // корень дерева файла root
 	trc = new tree("", node_type::nd_list, tr); // тек. элемент дерева файла root
 
 	tvc->add_child("1", node_type::nd_number);
@@ -2890,7 +2891,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	String sversion;
 	{// Создаем и записываем файл version
 	String s;
-	t = new tree("",  node_type::nd_list, NULL);
+	t = new tree("",  node_type::nd_list, nullptr);
 	tc = new tree("", node_type::nd_list, t);
 	tc = new tree("", node_type::nd_list, tc);
 	s = configVerMajor;
@@ -3024,10 +3025,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						extmap[s] = out;
 					}
 
-
 					// Вот тут идем по EXTERNALS
-					while(true)
-					{
+					while(true) {
 						if(ie > ne) break;
 						int32_t res = memcmp(rece + flde_objid->offset, curobj, 16);
 						if(res > 0) break;
@@ -3035,11 +3034,11 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						{
 							int32_t vernum = flde_vernum->get_presentation(rece, false).ToIntDef(std::numeric_limits<int32_t>::max());
 							s = flde_extname->get_presentation(rece);
-							if(vernum <= ver) if(*(rece + flde_datapacked->offset))
-							{
+							if(vernum <= ver && *(rece + flde_datapacked->offset)) {
+								int32_t j;
 								for(j = 0; j < nreces; j++) if(s.CompareIC(flde_extname->get_presentation(reces[j])) == 0) break;
-								if(j == reces.GetLength()){
-									reces.SetLength(reces.GetLength() + 1);
+								if(j == reces.size()){
+									reces.resize(reces.size() + 1);
 									reces[j] = new char[table_externals->get_recordlen()];
 								}
 								if(j == nreces) nreces++;
@@ -3047,8 +3046,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 							}
 							if(vernum == lastver)
 							{
-								extnames.SetLength(extnames.GetLength() + 1);
-								extnames[extnames.GetLength() - 1] = s;
+								extnames.resize(extnames.size() + 1);
+								extnames[extnames.size() - 1] = s;
 							}
 						}
 						if(ie == ne)
@@ -3059,15 +3058,16 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						uint32_t num_rec = inde->get_numrec(ie++);
 						table_externals->getrecord(num_rec, rece);
 					}
-					for(j = 0; j < nreces; j++)
+					for(int32_t j = 0; j < nreces; j++)
 					{
 						rec = reces[j];
 						String ext_name = flde_extname->get_presentation(rec);
 						ok = false;
-						for( int32_t n = 0; n < extnames.GetLength(); n++ ) if(ext_name.CompareIC(extnames[n]) == 0)
-						{
-							ok = true;
-							break;
+						for( const auto& name: extnames ) {
+							if(ext_name.CompareIC(name) == 0) {
+								ok = true;
+								break;
+							}
 						}
 						if(!ok) continue;
 
@@ -3136,7 +3136,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 					}
 					nreces = 0;
-					extnames.SetLength(0);
+					extnames.resize(0);
 				}
 			}
 
@@ -3172,7 +3172,9 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	delete[] rech1;
 	delete[] rech2;
 	delete[] rece;
-	for(int32_t j = 0; j < nreces; j++) delete[] reces[j];
+	for(size_t j = 0; j < reces.size(); j++) {
+		delete[] reces[j];
+	}
 
 
 	// Завершаем формирование списков версий
