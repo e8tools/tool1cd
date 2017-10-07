@@ -2491,7 +2491,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	Field* fldh_datapacked;
 	Field* fldh_objdata;
 	Field* fldh_datahash;
-	Index* indh;
+	Index* index_history;
 	char* rech1;
 	char* rech2;
 
@@ -2506,7 +2506,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	Field* flde_datapacked;
 	Field* flde_extdata;
 	Field* flde_datahash;
-	Index* inde;
+	Index* index_externals;
 	char* rece;
 	vector<char*> reces;
 	vector<String> extnames;
@@ -2850,10 +2850,10 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		flde_datahash = nullptr;
 	}
 
-	indh = get_index(table_history, "PK");
-	if(!indh) return 0;
-	inde = get_index(table_externals, "PK");
-	if(!inde) return 0;
+	index_history = get_index(table_history, "PK");
+	if(!index_history) return false;
+	index_externals = get_index(table_externals, "PK");
+	if(!index_externals) return false;
 
 	rech1 = new char[table_history->get_recordlen()];
 	rech2 = new char[table_history->get_recordlen()];
@@ -2862,8 +2862,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	nreces = 0;
 	reces.resize(0);
 
-	nh = indh->get_numrecords();
-	ne = inde->get_numrecords();
+	nh = index_history->get_numrecords();
+	ne = index_externals->get_numrecords();
 	memset(curobj, 0, 16);
 
 	if (boost::filesystem::exists(filepath)) {
@@ -2940,7 +2940,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	{
 		if(ih < nh)
 		{
-			uint32_t num_rec = indh->get_numrec(ih);
+			uint32_t num_rec = index_history->get_numrec(ih);
 			table_history->getrecord(num_rec, rech2);
 		}
 
@@ -3055,7 +3055,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 							ie++;
 							break;
 						}
-						uint32_t num_rec = inde->get_numrec(ie++);
+						uint32_t num_rec = index_externals->get_numrec(ie++);
 						table_externals->getrecord(num_rec, rece);
 					}
 					for(int32_t j = 0; j < nreces; j++)
