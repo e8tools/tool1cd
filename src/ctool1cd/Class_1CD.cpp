@@ -17,7 +17,7 @@
 #include "ConfigStorage.h"
 #include "Constants.h"
 #include "CRC32.h"
-#include "Packdata.h"
+#include "PackDirectory.h"
 
 using namespace std;
 
@@ -2525,7 +2525,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	TStream* in;
 	TStream* out;
 	TStream* st;
-	vector <std::shared_ptr<Packdata>> packdates;
+	unique_ptr<PackDirectory> pack_directory;
 	v8catalog* cat;
 	v8catalog* cath;
 	bool oldformat;
@@ -2822,24 +2822,14 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		flde_datahash = get_field(table_externals, "DATAHASH");
 		if(!flde_datahash) return false;
 
-		boost::filesystem::path subpath = root_path.parent_path() / "data" / "pack";
-		std::regex pack_mask("pack-.*\\.ind");
-		boost::filesystem::directory_iterator dit(subpath), dend;
-		for (; dit != dend; dit++)
-		{
-			boost::filesystem::path current_path = dit->path();
-			if (!std::regex_match(current_path.filename().string(), pack_mask)) {
-				continue;
-			}
-			try {
-				std::shared_ptr<Packdata> pd = std::make_shared<Packdata>(current_path);
-				packdates.push_back(pd);
-			}
-			catch (...) {
-				msreg_m.AddMessage_("Ошибка обработки файлов", MessageState::Error,
-					"Каталог", subpath.string());
-				return false;
-			}
+		boost::filesystem::path root_dir = root_path.parent_path();
+		try {
+			pack_directory.reset(new PackDirectory(root_dir));
+		}
+		catch(...) {
+			msreg_m.AddMessage_("Ошибка обработки файлов", MessageState::Error,
+					"Каталог", root_dir.string());
+			return false;
 		}
 
 		objects_path = root_path.parent_path() / "data" / "objects";
@@ -2967,12 +2957,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				else if(depotVer >= depot_ver::Ver6)
 				{
 					rec = rech1 + fldh_datahash->offset + (fldh_datahash->null_exists ? 1 : 0);
-					for(auto& packdata: packdates) {
-						out = packdata->get_data(rec, ok);
-						if(ok) {
-							break;
-						}
-					}
+					out = pack_directory->get_data(rec, ok);
 
 					if(!ok)
 					{
@@ -3084,12 +3069,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						else if(depotVer >= depot_ver::Ver6)
 						{
 							frec = rec + flde_datahash->offset + (flde_datahash->null_exists ? 1 : 0);
-							for(auto& packdata:packdates) {
-								out = packdata->get_data(frec, ok);
-								if(ok) {
-									break;
-								}
-							}
+							out = pack_directory->get_data(frec, ok);
 							
 							if(!ok)
 							{
