@@ -6,7 +6,6 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
-#include <regex>
 #include <memory>
 
 #include "UZLib.h"
@@ -2525,7 +2524,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	TStream* in;
 	TStream* out;
 	TStream* st;
-	unique_ptr<PackDirectory> pack_directory;
+	PackDirectory pack_directory;
 	v8catalog* cat;
 	v8catalog* cath;
 	bool oldformat;
@@ -2824,7 +2823,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 		boost::filesystem::path root_dir = root_path.parent_path();
 		try {
-			pack_directory.reset(new PackDirectory(root_dir));
+			pack_directory.init(root_dir);
 		}
 		catch(...) {
 			msreg_m.AddMessage_("Ошибка обработки файлов", MessageState::Error,
@@ -2957,7 +2956,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				else if(depotVer >= depot_ver::Ver6)
 				{
 					rec = rech1 + fldh_datahash->offset + (fldh_datahash->null_exists ? 1 : 0);
-					out = pack_directory->get_data(rec, ok);
+					out = pack_directory.get_data(rec, ok);
 
 					if(!ok)
 					{
@@ -3069,7 +3068,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						else if(depotVer >= depot_ver::Ver6)
 						{
 							frec = rec + flde_datahash->offset + (flde_datahash->null_exists ? 1 : 0);
-							out = pack_directory->get_data(frec, ok);
+							out = pack_directory.get_data(frec, ok);
 							
 							if(!ok)
 							{

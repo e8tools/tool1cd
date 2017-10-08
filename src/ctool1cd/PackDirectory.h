@@ -15,9 +15,11 @@
 
 class PackDirectory {
 public:
+	PackDirectory();
 	explicit PackDirectory(boost::filesystem::path& root_path);
 	virtual ~PackDirectory();
 
+	void init(boost::filesystem::path& root_path);
 	TStream* get_data(const char* datahash, bool &find);
 private:
 	std::vector<std::shared_ptr<Packdata>> packdates;

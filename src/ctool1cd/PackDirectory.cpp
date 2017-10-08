@@ -8,8 +8,19 @@
 
 #include "PackDirectory.h"
 
-PackDirectory::PackDirectory(boost::filesystem::path& root_path) {
-	boost::filesystem::path subpath = root_path / "data" / "pack";
+PackDirectory::PackDirectory() {
+
+}
+
+PackDirectory::PackDirectory(boost::filesystem::path& init_path) {
+	init(init_path);
+}
+
+PackDirectory::~PackDirectory() {
+}
+
+void PackDirectory::init(boost::filesystem::path& init_path) {
+	boost::filesystem::path subpath = init_path / "data" / "pack";
 	std::regex pack_mask("pack-.*\\.ind");
 	boost::filesystem::directory_iterator dit(subpath), dend;
 	for (; dit != dend; dit++) {
@@ -20,9 +31,6 @@ PackDirectory::PackDirectory(boost::filesystem::path& root_path) {
 		std::shared_ptr<Packdata> pd = std::make_shared<Packdata>(current_path);
 		packdates.push_back(pd);
 	}
-}
-
-PackDirectory::~PackDirectory() {
 }
 
 TStream* PackDirectory::get_data(const char* datahash, bool &find) {
