@@ -11,8 +11,8 @@ private:
 public:
 	bool has_error;
 	Messenger();
-	virtual void AddMessage(const String& message, const MessageState mstate, TStringList* param = NULL);
-	virtual void Status(const String& message);
+	virtual void AddMessage(const String& message, const MessageState mstate, TStringList* param = NULL) override;
+	virtual void Status(const String& message) override;
 	void setlogfile(String _logfile);
 	void setnoverbose(bool nv){noverbose = nv;};
 };

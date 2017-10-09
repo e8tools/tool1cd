@@ -25,8 +25,8 @@ public:
 
 	virtual int32_t Read(void *Buffer, int32_t Count);
 	virtual int32_t Read(System::DynamicArray<System::t::Byte> Buffer, int32_t Offset, int32_t Count);
-	virtual int32_t Write(const void *Buffer, int32_t Count){throw(Exception(L"Write read-only stream"));};
-	virtual int32_t Write(const System::DynamicArray<System::t::Byte> Buffer, int32_t Offset, int32_t Count){throw(Exception(L"Write read-only stream"));};
+	virtual int32_t Write(const void *Buffer, int32_t Count){throw(Exception(L"Write read-only stream"));}
+	virtual int32_t Write(const System::DynamicArray<System::t::Byte> Buffer, int32_t Offset, int32_t Count){throw(Exception(L"Write read-only stream"));}
 	virtual int32_t Seek(int32_t Offset, System::Word Origin);
 	virtual int64_t Seek(const int64_t Offset, TSeekOrigin Origin);
 };

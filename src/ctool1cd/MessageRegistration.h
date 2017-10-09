@@ -168,34 +168,34 @@ public:
 	virtual ~MessageRegistrator();
 	void setDebugMode(bool dstate);
 	bool getDebugMode();
-	virtual void AddMessage(const String& description, const MessageState mstate, TStringList* param = NULL) = 0;
-	virtual void Status(const String& message) = 0;
-	void AddError(const String& description);
+	virtual void AddMessage(const String& description, const MessageState mstate, TStringList* param = NULL) override = 0;
+	virtual void Status(const String& message) override = 0;
+	void AddError(const String& description) override;
 	void AddError(const String& description,
 				const String& parname1, const String& par1
-	);
+	) override;
 	void AddError(const String& description,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2
-	);
+	) override;
 	void AddError(const String& description,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2,
 				const String& parname3, const String& par3
-	);
+	) override;
 	void AddError(const String& description,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2,
 				const String& parname3, const String& par3,
 				const String& parname4, const String& par4
-	);
+	) override;
 	void AddError(const String& description,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2,
 				const String& parname3, const String& par3,
 				const String& parname4, const String& par4,
 				const String& parname5, const String& par5
-	);
+	) override;
 	void AddError(const String& description,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2,
@@ -203,7 +203,7 @@ public:
 				const String& parname4, const String& par4,
 				const String& parname5, const String& par5,
 				const String& parname6, const String& par6
-	);
+	) override;
 	void AddError(const String& description,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2,
@@ -212,33 +212,33 @@ public:
 				const String& parname5, const String& par5,
 				const String& parname6, const String& par6,
 				const String& parname7, const String& par7
-	);
+	) override;
 
 	void AddMessage_(const String& description, const MessageState mstate,
 				const String& parname1, const String& par1
-	);
+	) override;
 	void AddMessage_(const String& description, const MessageState mstate,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2
-	);
+	) override;
 	void AddMessage_(const String& description, const MessageState mstate,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2,
 				const String& parname3, const String& par3
-	);
+	) override;
 	void AddMessage_(const String& description, const MessageState mstate,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2,
 				const String& parname3, const String& par3,
 				const String& parname4, const String& par4
-	);
+	) override;
 	void AddMessage_(const String& description, const MessageState mstate,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2,
 				const String& parname3, const String& par3,
 				const String& parname4, const String& par4,
 				const String& parname5, const String& par5
-	);
+	) override;
 	void AddMessage_(const String& description, const MessageState mstate,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2,
@@ -246,7 +246,7 @@ public:
 				const String& parname4, const String& par4,
 				const String& parname5, const String& par5,
 				const String& parname6, const String& par6
-	);
+	) override;
 	void AddMessage_(const String& description, const MessageState mstate,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2,
@@ -255,28 +255,28 @@ public:
 				const String& parname5, const String& par5,
 				const String& parname6, const String& par6,
 				const String& parname7, const String& par7
-	);
+	) override;
 
-	void AddDebugMessage(const String& description, const MessageState mstate);
+	void AddDebugMessage(const String& description, const MessageState mstate) override;
 
 	void AddDebugMessage(const String& description, const MessageState mstate,
 				const String& parname1, const String& par1
-	);
+	) override;
 	void AddDebugMessage(const String& description, const MessageState mstate,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2
-	);
+	) override;
 	void AddDebugMessage(const String& description, const MessageState mstate,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2,
 				const String& parname3, const String& par3
-	);
+	) override;
 	void AddDebugMessage(const String& description, const MessageState mstate,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2,
 				const String& parname3, const String& par3,
 				const String& parname4, const String& par4
-	);
+	) override;
 
 	void AddDebugMessage(const String& description, const MessageState mstate,
 				const String& parname1, const String& par1,
@@ -284,7 +284,7 @@ public:
 				const String& parname3, const String& par3,
 				const String& parname4, const String& par4,
 				const String& parname5, const String& par5
-	);
+	) override;
 	void AddDebugMessage(const String& description, const MessageState mstate,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2,
@@ -292,7 +292,7 @@ public:
 				const String& parname4, const String& par4,
 				const String& parname5, const String& par5,
 				const String& parname6, const String& par6
-	);
+	) override;
 	void AddDebugMessage(const String& description, const MessageState mstate,
 				const String& parname1, const String& par1,
 				const String& parname2, const String& par2,
@@ -301,7 +301,7 @@ public:
 				const String& parname5, const String& par5,
 				const String& parname6, const String& par6,
 				const String& parname7, const String& par7
-	);
+	) override;
 };
 
 //---------------------------------------------------------------------------
