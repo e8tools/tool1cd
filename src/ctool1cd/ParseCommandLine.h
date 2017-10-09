@@ -52,8 +52,8 @@ public:
 	String& getfilename();
 	static String& gethelpstring();
 
-	void AddMessageRegistrator(MessageRegistrator* messageregistrator);
-	void RemoveMessageRegistrator();
+	void AddMessageRegistrator(MessageRegistrator* messageregistrator) override;
+	void RemoveMessageRegistrator() override;
 private:
 	static CommandDefinition definitions[];
 	static String helpstring;

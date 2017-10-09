@@ -43,11 +43,11 @@ private:
 	String fdir;
 public:
 	ConfigStorageDirectory(const String& _dir);
-	virtual ConfigFile* readfile(const String& path);
-	virtual bool writefile(const String& path, TStream* str);
-	virtual String presentation();
-	virtual void close(ConfigFile* cf){delete cf->str; delete cf;};
-	virtual bool fileexists(const String& path);
+	virtual ConfigFile* readfile(const String& path) override;
+	virtual bool writefile(const String& path, TStream* str) override;
+	virtual String presentation() override;
+	virtual void close(ConfigFile* cf) override {delete cf->str; delete cf;}
+	virtual bool fileexists(const String& path) override;
 	virtual ~ConfigStorageDirectory() {}
 };
 
@@ -61,11 +61,11 @@ private:
 public:
 	ConfigStorageCFFile(const String& fname);
 	virtual ~ConfigStorageCFFile();
-	virtual ConfigFile* readfile(const String& path);
-	virtual bool writefile(const String& path, TStream* str);
-	virtual String presentation();
-	virtual void close(ConfigFile* cf);
-	virtual bool fileexists(const String& path);
+	virtual ConfigFile* readfile(const String& path) override;
+	virtual bool writefile(const String& path, TStream* str) override;
+	virtual String presentation() override;
+	virtual void close(ConfigFile* cf) override;
+	virtual bool fileexists(const String& path) override;
 };
 
 //---------------------------------------------------------------------------
@@ -104,15 +104,15 @@ class ConfigStorageTable : public ConfigStorage, public IControlMessageRegistrat
 public:
 	ConfigStorageTable(T_1CD* _base = NULL) : base(_base){};
 	virtual ~ConfigStorageTable();
-	virtual ConfigFile* readfile(const String& path);
-	virtual bool writefile(const String& path, TStream* str);
-	virtual void close(ConfigFile* cf);
+	virtual ConfigFile* readfile(const String& path) override;
+	virtual bool writefile(const String& path, TStream* str) override;
+	virtual void close(ConfigFile* cf) override;
 	bool save_config(String _filename); // сохранение конфигурации в файл
 	bool getready(){return ready;};
-	virtual bool fileexists(const String& path);
+	virtual bool fileexists(const String& path) override;
 
-	virtual void AddMessageRegistrator(MessageRegistrator* messageregistrator);
-	virtual void RemoveMessageRegistrator();
+	virtual void AddMessageRegistrator(MessageRegistrator* messageregistrator) override;
+	virtual void RemoveMessageRegistrator() override;
 protected:
 	std::map<String,container_file*> files;
 	bool ready{false};
@@ -128,11 +128,11 @@ class ConfigStorageTableConfig : public ConfigStorageTable
 {
 public:
 	ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _base = NULL);
-	virtual String presentation();
+	virtual String presentation() override;
 	virtual ~ConfigStorageTableConfig() {}
 
-	void AddMessageRegistrator(MessageRegistrator* messageregistrator);
-	void RemoveMessageRegistrator();
+	void AddMessageRegistrator(MessageRegistrator* messageregistrator) override;
+	void RemoveMessageRegistrator() override;
 private:
 	String present;
 	Registrator msreg_m;
@@ -144,11 +144,11 @@ class ConfigStorageTableConfigSave : public ConfigStorageTable
 {
 public:
 	ConfigStorageTableConfigSave(TableFiles* tabc, TableFiles* tabcs, T_1CD* _base = NULL);
-	virtual String presentation();
+	virtual String presentation() override;
 	virtual ~ConfigStorageTableConfigSave() {}
 
-	void AddMessageRegistrator(MessageRegistrator* messageregistrator);
-	void RemoveMessageRegistrator();
+	void AddMessageRegistrator(MessageRegistrator* messageregistrator) override;
+	void RemoveMessageRegistrator() override;
 private:
 	String present;
 	Registrator msreg_m;
@@ -160,11 +160,11 @@ class ConfigStorageTableConfigCas : public ConfigStorageTable
 {
 public:
 	ConfigStorageTableConfigCas(TableFiles* tabc, const String& configver, T_1CD* _base = NULL);
-	virtual String presentation();
+	virtual String presentation() override;
 	virtual ~ConfigStorageTableConfigCas() {}
 
-	void AddMessageRegistrator(MessageRegistrator* messageregistrator);
-	void RemoveMessageRegistrator();
+	void AddMessageRegistrator(MessageRegistrator* messageregistrator) override;
+	void RemoveMessageRegistrator() override;
 private:
 	String present;
 	Registrator msreg_m;
@@ -176,11 +176,11 @@ class ConfigStorageTableConfigCasSave : public ConfigStorageTable
 {
 public:
 	ConfigStorageTableConfigCasSave(TableFiles* tabc, TableFiles* tabcs, const TGUID& uid, const String& configver, T_1CD* _base = NULL);
-	virtual String presentation();
+	virtual String presentation() override;
 	virtual ~ConfigStorageTableConfigCasSave() {}
 
-	void AddMessageRegistrator(MessageRegistrator* messageregistrator);
-	void RemoveMessageRegistrator();
+	void AddMessageRegistrator(MessageRegistrator* messageregistrator) override;
+	void RemoveMessageRegistrator() override;
 private:
 	String present;
 	Registrator msreg_m;
