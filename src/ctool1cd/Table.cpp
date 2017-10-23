@@ -1533,9 +1533,9 @@ void Table::export_table(const String &path) const
 	dir /= static_cast<std::string>(name);
 	if (!boost::filesystem::exists(dir)) {
 		boost::filesystem::create_directories(dir);
-		// TODO: Throw error
+		// TODO: ошибка создания каталога
 	} else if (!boost::filesystem::is_directory(dir)) {
-		// TODO: Throw error
+		// TODO: ошибка "это не каталог"
 	}
 
 	export_import_table_root root;

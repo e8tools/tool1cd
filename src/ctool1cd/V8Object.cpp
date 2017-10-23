@@ -361,7 +361,7 @@ char* v8object::getdata()
 	}
 	else if(type == v8objtype::free838)
 	{
-		// TODO
+		// TODO: реализовать v8object::getdata() для файла свободных страниц формата 8.3.8
 	}
 	return data;
 }
@@ -381,7 +381,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 	uint32_t curobjblock;
 	uint32_t curoffobjblock;
 
-	lastdataget = GetTickCount(); // TODO
+	lastdataget = GetTickCount(); // TODO: реализовать получение времени последнего обращения к данным объекта
 
 	if(data) memcpy(buf, data + _start, _length);
 	else
@@ -525,7 +525,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 		}
 		else if(type == v8objtype::free838)
 		{
-			// TODO
+			// TODO: реализовать v8object::getdata для файла свободных страниц формата 8.3.8
 		}
 
 	}
@@ -607,7 +607,7 @@ uint64_t v8object::get_fileoffset(uint64_t offset)
 
 	else if(type == v8objtype::free838)
 	{
-		// TODO
+		// TODO: реализовать v8object::get_fileoffset для файла свободных страниц формата 8.3.8
 		return 0;
 	}
 
@@ -641,7 +641,7 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 		return false;
 	}
 
-	lastdataget = GetTickCount(); // TODO
+	lastdataget = GetTickCount(); // TODO: реализовать получение времени последнего обращения к данным объекта
 
 	delete[] data;
 	data = nullptr;

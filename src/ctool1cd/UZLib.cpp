@@ -52,7 +52,7 @@ bool ZDeflateStream(TStream* src, TStream* dst)
 		if (strm.avail_in == 0) {
 			return false;
 		}
-		/* TODO: Check error */
+		/* TODO: ZDeflateStream проверка ошибок */
 
 		flush = (strm.avail_in < CHUNKSIZE) ? Z_FINISH : Z_NO_FLUSH;
 		strm.next_in = in;

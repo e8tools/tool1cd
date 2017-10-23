@@ -42,7 +42,7 @@ ConfigFile* ConfigStorageDirectory::readfile(const String& path)
 		}
 		catch(...)
 		{
-			// TODO Здесь надо бы что-нибудь сообщить об ошибке
+			// TODO: сообщить об ошибке и записать в log
 			delete cf;
 			return NULL;
 		}
