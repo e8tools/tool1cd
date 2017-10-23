@@ -130,13 +130,13 @@ TEncoding *TEncoding::Unicode = new TUcs2Encoding();
 
 int TEncoding::GetBufferEncoding(const System::DynamicArray<t::Byte> &Buffer, TEncoding* &AEncoding)
 {
-	// TODO:
+	// TODO: реализовать GetBufferEncoding
 	return 0;
 }
 
 DynamicArray<t::Byte> TEncoding::Convert(TEncoding * const Source, TEncoding * const Destination, const DynamicArray<t::Byte> &Bytes, int StartIndex, int Count)
 {
-	// TODO: Костыли
+	// TODO: Исправить работу TEncoding::Convert
 	auto data = Source->toUtf8(Bytes); // TODO: StartIndex, Count
 	DynamicArray<t::Byte> Result = Destination->fromUtf8(data);
 	return Result;
@@ -154,24 +154,19 @@ int StrToInt(const String &s)
 
 int FindFirst(const String &Path, int Attr, TSearchRec &rec)
 {
-	// TODO: FindFirst
+	// TODO: реализовать FindFirst
 	return 1;
 }
 
 int  FindNext(TSearchRec &rec)
 {
-	// TODO:
+	// TODO: реализовать FindNext
 	return 1;
 }
 
 void FindClose(TSearchRec &rec)
 {
-	// TODO:
-}
-
-void CreateGUID(TGUID &guid)
-{
-	// TODO: CreateGUID
+	// TODO: реализовать FindClose
 }
 
 String ExtractFileExt(const String &filename)
@@ -182,7 +177,7 @@ String ExtractFileExt(const String &filename)
 
 String StringReplace(const String &S, const String &OldPattern, const String &NewPattern, TReplaceFlags Flags)
 {
-	// TODO: StringReplace
+	// TODO: реализовать StringReplace
 	return S.Replace(OldPattern, NewPattern);
 }
 

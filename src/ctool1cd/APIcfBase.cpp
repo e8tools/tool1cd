@@ -183,7 +183,7 @@ void v8file::SaveToFile(const String& FileName)
 	Lock->Release();
 	GetTimeCreate(&create);
 	GetTimeModify(&modify);
-	// SetFileTime((HANDLE)fs->Handle, &create, &modify, &modify); // TODO: SetFileTime
+	// SetFileTime((HANDLE)fs->Handle, &create, &modify, &modify); // TODO: реализовать сохранение времени создания и изменения файла
 	delete fs;
 }
 

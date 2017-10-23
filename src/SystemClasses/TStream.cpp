@@ -19,7 +19,7 @@ int64_t TStream::GetSize() const
 
 void TStream::SetSize(int64_t NewSize)
 {
-	// TODO: TStream::SetSize
+	// TODO: реализовать TStream::SetSize
 	m_size = NewSize;
 }
 

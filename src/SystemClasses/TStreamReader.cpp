@@ -22,7 +22,7 @@ int TStreamReader::Read()
 
 String TStreamReader::ReadLine()
 {
-	// TODO: TStreamReader::ReadLine()
+	// TODO: реализовать TStreamReader::ReadLine()
 	return String();
 }
 

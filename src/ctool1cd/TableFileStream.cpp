@@ -72,28 +72,28 @@ int32_t TableFileStream::Read(void *Buffer, int32_t Count)
 		Count -= curlen;
 	}
 
-	// TODO
+	// TODO: Возвращаемое значение TableFileStream::Read(void *Buffer, int32_t Count)
 	return 0;
 }
 
 //---------------------------------------------------------------------------
 int32_t TableFileStream::Read(System::DynamicArray<System::t::Byte> Buffer, int32_t Offset, int32_t Count)
 {
-	// TODO
+	// TODO: реализовать TableFileStream::Read(System::DynamicArray<System::t::Byte> Buffer, int32_t Offset, int32_t Count)
 	return 0;
 }
 
 //---------------------------------------------------------------------------
 int32_t TableFileStream::Seek(int32_t Offset, System::Word Origin)
 {
-	// TODO
+	// TODO: реализовать TableFileStream::Seek(int32_t Offset, System::Word Origin)
 	return 0;
 }
 
 //---------------------------------------------------------------------------
 int64_t TableFileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
 {
-	// TODO
+	// TODO: реализовать TableFileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
 	return 0;
 }
 

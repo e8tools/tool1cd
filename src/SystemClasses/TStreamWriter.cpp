@@ -18,7 +18,7 @@ TStreamWriter::TStreamWriter(TStream *stream, TEncoding* Encoding, int BufferSiz
 
 void TStreamWriter::Write(const String &s)
 {
-	// TODO:: TEncoding::Convert()
+	// TODO: кодировка TEncoding::Convert()
 	stream->Write(s.c_str(), s.size());
 }
 

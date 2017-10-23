@@ -18,7 +18,7 @@ void TCriticalSection::Release()
 
 unsigned GetTickCount()
 {
-	// TODO: GetTickCount()
+	// TODO: реализовать GetTickCount()
 	return 0;
 }
 
