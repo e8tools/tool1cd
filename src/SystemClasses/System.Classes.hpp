@@ -30,7 +30,7 @@ public:
 	virtual void Release();
 };
 
-unsigned GetTickCount();
+unsigned long GetTickCount();
 
 } // Classes
 
