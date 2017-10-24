@@ -15,6 +15,7 @@
 #include "Exception.hpp"
 #include "TStreamWriter.hpp"
 #include "TStreamReader.hpp"
+#include "GetTickCount.hpp"
 
 namespace System {
 
@@ -30,10 +31,7 @@ public:
 	virtual void Release();
 };
 
-unsigned long GetTickCount();
-
 } // Classes
-
 
 } // System
 

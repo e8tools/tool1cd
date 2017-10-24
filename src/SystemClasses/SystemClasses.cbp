@@ -45,6 +45,8 @@
 		<Unit filename="Classes.hpp" />
 		<Unit filename="DynamicArray.hpp" />
 		<Unit filename="Exception.hpp" />
+		<Unit filename="GetTickCount.cpp" />
+		<Unit filename="GetTickCount.hpp" />
 		<Unit filename="String.cpp" />
 		<Unit filename="String.hpp" />
 		<Unit filename="SysInit.hpp" />
