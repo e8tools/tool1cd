@@ -20,22 +20,22 @@ bool operator == (const TGUID &a, const TGUID &b)
 
 bool SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime, LPFILETIME lpFileTime)
 {
-	return false;
+	return false; // TODO: реализовать кроссплатформенное преобразование системного времени в файловое время
 }
 
 bool LocalFileTimeToFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileTime)
 {
-	return false;
+	return false; // TODO: реализовать кроссплатформенное преобразование локального системного файлового времени в универсальное (UTC) файловое время
 }
 
 bool FileTimeToLocalFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileTime)
 {
-	return false;
+	return false; // TODO: реализовать кроссплатформенное преобразование из универсального (UTC) файлового времени в локальноое системное файловое время
 }
 
 void GetSystemTime(LPSYSTEMTIME lpSystemTime)
 {
-
+	// TODO: реализовать кроссплатформенное получение времени операционной системы
 }
 
 } // System
