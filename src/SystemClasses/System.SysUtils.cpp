@@ -152,23 +152,6 @@ int StrToInt(const String &s)
 	return stoi(s.c_str());
 }
 
-int FindFirst(const String &Path, int Attr, TSearchRec &rec)
-{
-	// TODO: реализовать FindFirst
-	return 1;
-}
-
-int  FindNext(TSearchRec &rec)
-{
-	// TODO: реализовать FindNext
-	return 1;
-}
-
-void FindClose(TSearchRec &rec)
-{
-	// TODO: реализовать FindClose
-}
-
 String ExtractFileExt(const String &filename)
 {
 	boost::filesystem::path _p(filename.c_str());

@@ -18,6 +18,19 @@ TFileStream::TFileStream(const String &FileName, const uint16_t fileMode)
 	m_position = 0;
 }
 
+TFileStream::TFileStream(const boost::filesystem::path &path, const uint16_t fileMode)
+	: TWrapperStream(), filename(path.string())
+{
+	std::ios_base::openmode mode = std::ios::binary | std::ios::in | std::ios::out;
+	if (fileMode == fmCreate) {
+		mode |= std::ios::trunc;
+	}
+	_stream = std::make_shared<boost::filesystem::fstream>(path, mode);
+	reopen(_stream);
+	m_position = 0;
+}
+
+
 TFileStream::~TFileStream()
 {
 	Close();
