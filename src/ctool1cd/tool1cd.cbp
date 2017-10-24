@@ -67,6 +67,10 @@
 		<Unit filename="Messenger.cpp" />
 		<Unit filename="Messenger.h" />
 		<Unit filename="NodeTypes.h" />
+		<Unit filename="PackDirectory.cpp" />
+		<Unit filename="PackDirectory.h" />
+		<Unit filename="Packdata.cpp" />
+		<Unit filename="Packdata.h" />
 		<Unit filename="ParseCommandLine.cpp" />
 		<Unit filename="ParseCommandLine.h" />
 		<Unit filename="Parse_tree.cpp" />

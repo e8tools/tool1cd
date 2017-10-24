@@ -3,10 +3,12 @@ project (SystemClasses)
 
 set (SYSTEM_SOURCES String.cpp System.Classes.cpp System.cpp
 	System.IOUtils.cpp TFileStream.cpp TMemoryStream.cpp TStream.cpp
-	TStreamReader.cpp TStreamWriter.cpp System.SysUtils.cpp)
+	TStreamReader.cpp TStreamWriter.cpp System.SysUtils.cpp
+	GetTickCount.cpp)
 set (SYSTEM_HEADERS String.hpp System.Classes.hpp System.hpp
 	System.IOUtils.hpp TFileStream.hpp TMemoryStream.hpp TStream.hpp
-	TStreamReader.hpp TStreamWriter.hpp System.SysUtils.hpp)
+	TStreamReader.hpp TStreamWriter.hpp System.SysUtils.hpp
+	GetTickCount.hpp)
 
 if (CMAKE_VERSION VERSION_LESS "3.1")
 	if(CMAKE_COMPILER_IS_GNUCXX)

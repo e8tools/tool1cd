@@ -16,12 +16,6 @@ void TCriticalSection::Release()
 {
 }
 
-unsigned GetTickCount()
-{
-	// TODO: реализовать GetTickCount()
-	return 0;
-}
-
 } // Classes
 
 

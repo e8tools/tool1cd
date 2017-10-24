@@ -381,7 +381,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 	uint32_t curobjblock;
 	uint32_t curoffobjblock;
 
-	lastdataget = GetTickCount(); // TODO: реализовать получение времени последнего обращения к данным объекта
+	lastdataget = GetTickCount();
 
 	if(data) memcpy(buf, data + _start, _length);
 	else
@@ -641,7 +641,7 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 		return false;
 	}
 
-	lastdataget = GetTickCount(); // TODO: реализовать получение времени последнего обращения к данным объекта
+	lastdataget = GetTickCount();
 
 	delete[] data;
 	data = nullptr;
