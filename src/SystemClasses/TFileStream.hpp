@@ -6,6 +6,7 @@
 #include <string>
 #include <iostream>
 #include <memory>
+#include <boost/filesystem.hpp>
 
 namespace System {
 
@@ -25,6 +26,7 @@ class TFileStream : public TWrapperStream
 public:
 
 	TFileStream(const String &FileName, const uint16_t fileMode);
+	TFileStream(const boost::filesystem::path &path, const uint16_t fileMode);
 
 	virtual ~TFileStream();
 

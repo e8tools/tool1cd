@@ -14,7 +14,7 @@ extern Registrator msreg_g;
 Packdata::Packdata(boost::filesystem::path& file_path) {
 
 	try {
-		std::unique_ptr<TFileStream> in(new TFileStream(file_path.string(), fmOpenRead | fmShareDenyNone));
+		std::unique_ptr<TFileStream> in(new TFileStream(file_path, fmOpenRead | fmShareDenyNone));
 		in->Seek(8, soFromBeginning);
 		uint32_t count;
 		in->Read(&count, sizeof(count));
@@ -30,7 +30,7 @@ Packdata::Packdata(boost::filesystem::path& file_path) {
 	boost::filesystem::path pack_item = file_path;
 	pack_item.replace_extension("pck");
 	try {
-		std::unique_ptr<TFileStream> tmp(new TFileStream(pack_item.string(), fmOpenRead | fmShareDenyNone)); // в TWrapperStream есть метод reset
+		std::unique_ptr<TFileStream> tmp(new TFileStream(pack_item, fmOpenRead | fmShareDenyNone)); // в TWrapperStream есть метод reset
 		pack = std::move(tmp);
 	}
 	catch (...) {

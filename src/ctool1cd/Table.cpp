@@ -1568,7 +1568,7 @@ void Table::export_table(const String &path) const
 	else root.has_descr = false;
 
 	try {
-		TFileStream f((dir / "root").string(), fmCreate|fmShareDenyNone);
+		TFileStream f(dir / "root", fmCreate|fmShareDenyNone);
 		f.Write(&root, sizeof(export_import_table_root));
 	} catch(...) {
 	}
@@ -1608,7 +1608,7 @@ void Table::import_table(const String &path)
 
 	try
 	{
-		f = new TFileStream((dir / "root").string(), fmOpenRead);
+		f = new TFileStream(dir / "root", fmOpenRead);
 	}
 	catch(...)
 	{
@@ -1625,7 +1625,7 @@ void Table::import_table(const String &path)
 		fopen = false;
 		try
 		{
-			f = new TFileStream((dir / "data").string(), fmOpenRead);
+			f = new TFileStream(dir / "data", fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
@@ -1652,7 +1652,7 @@ void Table::import_table(const String &path)
 		fopen = false;
 		try
 		{
-			f = new TFileStream((dir / "blob").string(), fmOpenRead);
+			f = new TFileStream(dir / "blob", fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
@@ -1679,7 +1679,7 @@ void Table::import_table(const String &path)
 		fopen = false;
 		try
 		{
-			f = new TFileStream((dir / "index").string(), fmOpenRead);
+			f = new TFileStream(dir / "index", fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
@@ -1707,7 +1707,7 @@ void Table::import_table(const String &path)
 		fopen = false;
 		try
 		{
-			f = new TFileStream((dir / "descr").string(), fmOpenRead);
+			f = new TFileStream(dir / "descr", fmOpenRead);
 			fopen = true;
 		}
 		catch(...)

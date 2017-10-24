@@ -2538,7 +2538,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	tree* tcountr; // узел, содержащий счетчик в файле root
 
 	boost::uuids::random_generator uuid_gen;
-	
+
 	union
 	{
 		char cv_b[2];
@@ -2667,7 +2667,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 		if(boost::filesystem::exists(file_snap)) {
 			try {
-				in = new TFileStream(file_snap.string(), fmOpenRead | fmShareDenyNone);
+				in = new TFileStream(file_snap, fmOpenRead | fmShareDenyNone);
 			}
 			catch(...) {
 				msreg_m.AddMessage_("Не удалось открыть файл снэпшота", MessageState::Warning,
@@ -2876,7 +2876,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	tcountv = tvc->add_child("0", node_type::nd_number); // узел, содержащий счетчик в файле versions
 
 	vermap[""] = GUIDasMS(uuid_gen().data);
-	
+
 	String sversion;
 	{// Создаем и записываем файл version
 	String s;
@@ -2966,7 +2966,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						{
 							try
 							{
-								out = new TFileStream(current_object_path.string(), fmOpenRead | fmShareDenyNone);
+								out = new TFileStream(current_object_path, fmOpenRead | fmShareDenyNone);
 								ok = true;
 							}
 							catch(...)
@@ -3069,7 +3069,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						{
 							frec = rec + flde_datahash->offset + (flde_datahash->null_exists ? 1 : 0);
 							out = pack_directory.get_data(frec, ok);
-							
+
 							if(!ok)
 							{
 								String ss = flde_datahash->get_presentation(rec, true);
@@ -3078,7 +3078,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 								{
 									try
 									{
-										out = new TFileStream(current_object_path.string(), fmOpenRead | fmShareDenyNone);
+										out = new TFileStream(current_object_path, fmOpenRead | fmShareDenyNone);
 										ok = true;
 									}
 									catch(...)
