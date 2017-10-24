@@ -3309,11 +3309,14 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	bool hasdeleted;
 	std::vector<_packdata> packdates;
 	TSearchRec srec;
+	PackDirectory pack_directory;
+	/*
 	_packdata pd;
 	_packdata* pdr;
+	*/
 	int64_t packlen;
 	v8catalog* cat;
-	String cath;
+	// String cath;
 	TFileStream* f;
 	String __filename;
 
@@ -3432,7 +3435,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		return false;
 	}
 
-	__filename = System::Ioutils::TPath::GetFullPath(_filename);
+	boost::filesystem::path filepath = boost::filesystem::path(static_cast<std::string>(_filename));
+	boost::filesystem::path root_path(static_cast<std::string>(filename)); // путь к 1cd
 
 	// Определяем версию структуры конфигурации (для файла version)
 	if(depotVer >= depot_ver::Ver5)
@@ -3495,6 +3499,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	flde_extdata = get_field(table_externals, "EXTDATA");
 	if(!flde_extdata) return false;
 
+	boost::filesystem::path objects_path;
+
 	if(depotVer >= depot_ver::Ver6)
 	{
 		fldh_datahash = get_field(table_history, "DATAHASH");
@@ -3502,48 +3508,17 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		flde_datahash = get_field(table_externals, "DATAHASH");
 		if(!flde_datahash) return false;
 
-		sp = filename.SubString(1, filename.LastDelimiter("\\")) + "data\\pack\\";
-		s = sp + "pack-*.ind";
-		if(FindFirst(s, 0, srec) == 0)
-		{
-			do
-			{
-				try
-				{
-					f = new TFileStream(sp + srec.Name, fmOpenRead | fmShareDenyNone);
-				}
-				catch(...)
-				{
-					msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
-						"Файл", srec.Name);
-					FindClose(srec);
-					return false;
-				}
-				f->Seek(8, soFromBeginning);
-				f->Read(&i, 4);
-				pd.datahashes = new _datahash[i];
-				f->Read(pd.datahashes, i * sizeof(_datahash));
-				delete f;
-				pd.count = i;
-				try
-				{
-					s = sp + srec.Name.SubString(1, srec.Name.GetLength() - 3) + "pck";
-					pd.pack = new TFileStream(s, fmOpenRead | fmShareDenyNone);
-				}
-				catch(...)
-				{
-				    delete pd.pack;
-				    msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
-						"Файл", s);
-					FindClose(srec);
-					return false;
-				}
-				packdates.push_back(pd);
-			} while(FindNext(srec) == 0);
-			FindClose(srec);
+		boost::filesystem::path root_dir = root_path.parent_path();
+		try {
+			pack_directory.init(root_dir);
+		}
+		catch(...) {
+			msreg_m.AddMessage_("Ошибка обработки файлов", MessageState::Error,
+					"Каталог", root_dir.string());
+			return false;
 		}
 
-		sp = filename.SubString(1, filename.LastDelimiter("\\")) + "data\\objects\\";
+		objects_path = root_path.parent_path() / "data" / "objects";
 	}
 	else
 	{
@@ -3566,14 +3541,11 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	ne = inde->get_numrecords();
 	memset(curobj, 0, 16);
 
+	boost::filesystem::path cath (filepath);
 
 	if(configVerMajor < 100)
 	{
-		cath = __filename + "\\metadata\\";
-	}
-	else
-	{
-		cath = __filename + "\\";
+		cath /= "metadata";
 	}
 
 	lastver = -1;
@@ -3671,39 +3643,24 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 							else if(depotVer >= depot_ver::Ver6)
 							{
 								rec = rech2 + fldh_datahash->offset + (fldh_datahash->null_exists ? 1 : 0);
-								for(i = 0; i < packdates.size(); i++)
-								{
-									pdr = &packdates[i];
-									for(k = 0; k < pdr->count; k++) if(memcmp(rec, pdr->datahashes[k].datahash, 20) == 0)
-									{
-										sobj = pdr->pack;
-										sobj->Seek(pdr->datahashes[k].offset, soBeginning);
-										sobj->Read(&packlen, 8);
-										in->SetSize(0);
-										in->CopyFrom(sobj, packlen);
-										sobj = in;
-										ok = true;
-										break;
-									}
-									if(ok) break;
-								}
+								sobj = pack_directory.get_data(rec, ok);
 
 								if(!ok)
 								{
 									ss = fldh_datahash->get_presentation(rech2, true);
-									s = sp + ss.SubString(1, 2) + L'\\' + ss.SubString(3, ss.GetLength() - 2);
-									if(FileExists(s))
+									boost::filesystem::path current_object_path = objects_path / static_cast<std::string>(ss.SubString(1, 2)) / static_cast<std::string>(ss.SubString(3, ss.GetLength() - 2));
+									if (boost::filesystem::exists(current_object_path))
 									{
 										try
 										{
-											sobj = new TFileStream(s, fmOpenRead | fmShareDenyNone);
+											sobj = new TFileStream(current_object_path, fmOpenRead | fmShareDenyNone);
 											deletesobj = true;
 											ok = true;
 										}
 										catch(...)
 										{
 											msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
-												"Файл", s,
+												"Файл", current_object_path.string(),
 												"Таблица", "HISTORY",
 												"Объект", sn,
 												"Версия", lastver);
@@ -3729,7 +3686,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 							}
 							else
 							{
-								f = new TFileStream(cath + sn, fmCreate);
+								f = new TFileStream(cath / static_cast<string>(sn), fmCreate);
 								sobj->Seek(0, soFromBeginning);
 								ZInflateStream(sobj, f);
 								delete f;
@@ -3800,39 +3757,24 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 									else if(depotVer >= depot_ver::Ver6)
 									{
 										frec = rece + flde_datahash->offset + (flde_datahash->null_exists ? 1 : 0);
-										for(i = 0; i < packdates.size(); i++)
-										{
-											pdr = &packdates[i];
-											for(k = 0; k < pdr->count; k++) if(memcmp(frec, pdr->datahashes[k].datahash, 20) == 0)
-											{
-												sobj = pdr->pack;
-												sobj->Seek(pdr->datahashes[k].offset, soBeginning);
-												sobj->Read(&packlen, 8);
-												in->SetSize(0);
-												in->CopyFrom(sobj, packlen);
-												sobj = in;
-												ok = true;
-												break;
-											}
-											if(ok) break;
-										}
+										sobj = pack_directory.get_data(frec, ok);
 
 										if(!ok)
 										{
 											ss = flde_datahash->get_presentation(rece, true);
-											s = sp + ss.SubString(1, 2) + L'\\' + ss.SubString(3, ss.GetLength() - 2);
-											if(FileExists(s))
+											boost::filesystem::path current_object_path = objects_path / static_cast<std::string>(ss.SubString(1, 2)) / static_cast<std::string>(ss.SubString(3, ss.GetLength() - 2));
+											if (boost::filesystem::exists(current_object_path))
 											{
 												try
 												{
-													sobj = new TFileStream(s, fmOpenRead | fmShareDenyNone);
+													sobj = new TFileStream(current_object_path, fmOpenRead | fmShareDenyNone);
 													deletesobj = true;
 													ok = true;
 												}
 												catch(...)
 												{
 													msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
-														"Файл", s,
+														"Файл", current_object_path.string(),
 														"Таблица", "EXTERNALS",
 														"Объект", sn,
 														"Файл конфигурации", se,
@@ -3842,7 +3784,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 											else
 											{
 												msreg_m.AddMessage_("Не найден файл", MessageState::Error,
-													"Файл", s,
+													"Файл", current_object_path.string(),
 													"Таблица", "EXTERNALS",
 													"Объект", sn,
 													"Файл конфигурации", se,
@@ -3869,10 +3811,10 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 											cat = new v8catalog(out, false, true);
 											iscatalog = cat->IsCatalog();
 										}
-										if(iscatalog) cat->SaveToDir(cath + se);
+										if(iscatalog) cat->SaveToDir((cath / static_cast<string>(se)).string());
 										else
 										{
-											f = new TFileStream(cath + se, fmCreate);
+											f = new TFileStream(cath / static_cast<string>(se), fmCreate);
 											f->CopyFrom(out, 0);
 											delete f;
 										}
@@ -3923,7 +3865,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	delete sw;
 	if(hasdeleted)
 	{
-		f = new TFileStream(__filename + "\\deleted", fmCreate);
+		f = new TFileStream(root_path / "deleted", fmCreate);
 		f->CopyFrom(sd, 0);
 		delete f;
 	}
