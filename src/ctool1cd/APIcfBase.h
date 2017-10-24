@@ -29,6 +29,8 @@
 	const wchar_t str_backslash[] = L"\\";
 #endif
 
+#define WINDOWS_TICK 10000000
+
 // массив для преобразования числа в шестнадцатиричную строку
 const char _BUFHEX[] = "0123456789abcdef";
 
