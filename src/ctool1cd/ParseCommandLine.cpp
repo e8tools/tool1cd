@@ -235,7 +235,7 @@ CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mes
 			else filename = dequote(p);
 		}
 	}
-	LocalFree(szArglist);
+	LocalFree(szArglist); // TODO: разобраться нужно ли освобождать память
 }
 
 DynamicArray<ParsedCommand>& CommandParse::getcommands()

@@ -21,8 +21,6 @@ namespace t { // в msvc конфликтует с zlib
 typedef uint8_t Byte;
 }
 
-const unsigned int MAXUINT = UINT_MAX;
-const int MaxInt = INT_MAX;
 const int MAX_PATH = 260;
 
 typedef struct _FILETIME {

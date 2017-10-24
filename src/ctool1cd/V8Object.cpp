@@ -1424,7 +1424,7 @@ TStream* v8object::readBlob(TStream* _str, uint32_t _startblock, uint32_t _lengt
 	}
 	delete[] _curb;
 
-	if(_length != MAXUINT) if(_str->GetSize() - startlen != _length)
+	if(_length != UINT_MAX) if(_str->GetSize() - startlen != _length)
 	{
 		msreg_g.AddError("Несовпадение длины Blob-поля, указанного в записи, с длиной практически прочитанных данных",
 			"Номер страницы файла", tohex(block),

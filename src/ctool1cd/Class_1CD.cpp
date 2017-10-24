@@ -3573,7 +3573,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 			if(ih) if(hasrech2)
 			{
 				s = fldh_vernum->get_presentation(rech2, false);
-				lastver = s.ToIntDef(MaxInt);
+				lastver = s.ToIntDef(std::numeric_limits<int32_t>::max());
 				sn = fldh_objid->get_presentation(rech2, false, L'.', true);
 
 				hasext = true;
@@ -3706,7 +3706,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 					if(!res)
 					{
 						s = flde_vernum->get_presentation(rece, false);
-						v = s.ToIntDef(MaxInt);
+						v = s.ToIntDef(std::numeric_limits<int32_t>::max());
 						if(v == lastver)
 						{
 							se = flde_extname->get_presentation(rece);
@@ -3735,7 +3735,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 									if(memcmp(verid, rece + flde_extverid->offset, 16) == 0)
 									{
 										s = flde_vernum->get_presentation(rece, false);
-										v = s.ToIntDef(MaxInt);
+										v = s.ToIntDef(std::numeric_limits<int32_t>::max());
 										if(v < ver_begin) break;
 										datapacked = *(rece + flde_datapacked->offset);
 									}
@@ -3848,7 +3848,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		if(ih < nh)
 		{
 			s = fldh_vernum->get_presentation(rech, false);
-			v = s.ToIntDef(MaxInt);
+			v = s.ToIntDef(std::numeric_limits<int32_t>::max());
 			if(v < ver_begin)
 			{
 				memcpy(rech1, rech, table_history->get_recordlen());

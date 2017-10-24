@@ -2,6 +2,7 @@
 #define V8OBJECT_H
 
 #include <System.Classes.hpp>
+#include <climits>
 
 #include "MemBlock.h"
 #include "Class_1CD.h"
@@ -100,7 +101,7 @@ public:
 	static v8object* get_last();
 	v8object* get_next();
 	uint32_t get_block_number();
-	TStream* readBlob(TStream* _str, uint32_t _startblock, uint32_t _length = MAXUINT, bool rewrite = true);
+	TStream* readBlob(TStream* _str, uint32_t _startblock, uint32_t _length = UINT_MAX, bool rewrite = true);
 private:
 	T_1CD* base;
 
