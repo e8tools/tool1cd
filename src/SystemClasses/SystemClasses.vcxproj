@@ -148,6 +148,7 @@
     <ClInclude Include="Classes.hpp" />
     <ClInclude Include="DynamicArray.hpp" />
     <ClInclude Include="Exception.hpp" />
+    <ClInclude Include="GetTickCount.hpp" />
     <ClInclude Include="String.hpp" />
     <ClInclude Include="SysInit.hpp" />
     <ClInclude Include="System.Classes.hpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="vcl.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GetTickCount.cpp" />
     <ClCompile Include="String.cpp" />
     <ClCompile Include="System.Classes.cpp" />
     <ClCompile Include="System.cpp" />

@@ -164,6 +164,8 @@
     <ClInclude Include="MessageRegistration.h" />
     <ClInclude Include="Messenger.h" />
     <ClInclude Include="NodeTypes.h" />
+    <ClInclude Include="Packdata.h" />
+    <ClInclude Include="PackDirectory.h" />
     <ClInclude Include="ParseCommandLine.h" />
     <ClInclude Include="Parse_tree.h" />
     <ClInclude Include="PrecompiledHeaders.h" />
@@ -190,6 +192,8 @@
     <ClCompile Include="MemBlock.cpp" />
     <ClCompile Include="MessageRegistration.cpp" />
     <ClCompile Include="Messenger.cpp" />
+    <ClCompile Include="Packdata.cpp" />
+    <ClCompile Include="PackDirectory.cpp" />
     <ClCompile Include="ParseCommandLine.cpp" />
     <ClCompile Include="Parse_tree.cpp" />
     <ClCompile Include="Table.cpp" />
