@@ -8,14 +8,14 @@
 
 #include <iostream>
 #include <System.IOUtils.hpp>
-#include "Zip.h"
-
+#include <vector>
 
 #include "cTool_1CD_Main.h"
 #include "ParseCommandLine.h"
 #include "ErrorCode.h"
 #include "Messenger.h"
 #include "APIcfBase.h"
+#include "Zip.h"
 
 using namespace std;
 
@@ -46,7 +46,7 @@ bool check_path(boost::filesystem::path& check_path, Messenger& mess) {
 
 //---------------------------------------------------------------------------
 //cmd_export_all_to_xml
-void T1CD_cmd_export_all_to_xml(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess, bool ActionXMLSaveBLOBToFileChecked, bool ActionXMLUnpackBLOBChecked)
+void T1CD_cmd_export_all_to_xml(T_1CD& base1CD, const ParsedCommand& pc, Messenger& mess, bool ActionXMLSaveBLOBToFileChecked, bool ActionXMLUnpackBLOBChecked)
 {
 	Table* tbl;
 
@@ -75,7 +75,7 @@ void T1CD_cmd_export_all_to_xml(T_1CD& base1CD, ParsedCommand& pc, Messenger& me
 
 //---------------------------------------------------------------------------
 //cmd_export_to_xml
-void T1CD_cmd_export_to_xml(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess, bool ActionXMLSaveBLOBToFileChecked, bool ActionXMLUnpackBLOBChecked)
+void T1CD_cmd_export_to_xml(T_1CD& base1CD, const ParsedCommand& pc, Messenger& mess, bool ActionXMLSaveBLOBToFileChecked, bool ActionXMLUnpackBLOBChecked)
 {
 	boost::regex* expr;
 	Table* tbl;
@@ -148,7 +148,7 @@ void T1CD_cmd_export_to_xml(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess, 
 		mess.AddError("Попытка выгрузки таблиц в XML без открытой базы.");
 } //T1CD_cmd_export_to_xml
 
-void T1CD_cmd_export_to_binary(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
+void T1CD_cmd_export_to_binary(T_1CD& base1CD, const ParsedCommand& pc, Messenger& mess)
 {
 	if (!base1CD.is_open()) {
 		mess.AddError("Попытка выгрузки таблиц без открытой базы.");
@@ -211,7 +211,7 @@ void T1CD_cmd_export_to_binary(T_1CD& base1CD, ParsedCommand& pc, Messenger& mes
 
 } // T1CD_cmd_export_to_binary
 
-void T1CD_cmd_import_from_binary(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
+void T1CD_cmd_import_from_binary(T_1CD& base1CD, const ParsedCommand& pc, Messenger& mess)
 {
 	if (!base1CD.is_open()) {
 		mess.AddError("Попытка загрузки таблиц без открытой базы.");
@@ -277,7 +277,7 @@ void T1CD_cmd_import_from_binary(T_1CD& base1CD, ParsedCommand& pc, Messenger& m
 
 //---------------------------------------------------------------------------
 //cmd_save_config
-void T1CD_cmd_save_config(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
+void T1CD_cmd_save_config(T_1CD& base1CD, const ParsedCommand& pc, Messenger& mess)
 {
 	if (base1CD.is_open())
 	{
@@ -307,7 +307,7 @@ void T1CD_cmd_save_config(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
 
 //---------------------------------------------------------------------------
 //cmd_save_configsave
-void T1CD_cmd_save_configsave(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
+void T1CD_cmd_save_configsave(T_1CD& base1CD, const ParsedCommand& pc, Messenger& mess)
 {
 	if (base1CD.is_open())
 	{
@@ -331,7 +331,7 @@ void T1CD_cmd_save_configsave(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess
 
 //---------------------------------------------------------------------------
 //cmd_save_vendors_configs
-void T1CD_cmd_save_vendors_configs(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
+void T1CD_cmd_save_vendors_configs(T_1CD& base1CD, const ParsedCommand& pc, Messenger& mess)
 {
 	if (base1CD.is_open()) {
 		boost::filesystem::path param_path(pc.param1);
@@ -358,7 +358,7 @@ void T1CD_cmd_save_vendors_configs(T_1CD& base1CD, ParsedCommand& pc, Messenger&
 
 //---------------------------------------------------------------------------
 //cmd_save_all_configs
-void T1CD_cmd_save_all_configs(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
+void T1CD_cmd_save_all_configs(T_1CD& base1CD, const ParsedCommand& pc, Messenger& mess)
 {
 	if (base1CD.is_open())
 	{
@@ -403,7 +403,7 @@ void T1CD_cmd_save_all_configs(T_1CD& base1CD, ParsedCommand& pc, Messenger& mes
 
 //---------------------------------------------------------------------------
 //cmd_save_depot_config
-void T1CD_cmd_save_depot_config(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
+void T1CD_cmd_save_depot_config(T_1CD& base1CD, const ParsedCommand& pc, Messenger& mess)
 {
 	if (!base1CD.is_open())
 	{
@@ -454,7 +454,7 @@ void T1CD_cmd_save_depot_config(T_1CD& base1CD, ParsedCommand& pc, Messenger& me
 
 //---------------------------------------------------------------------------
 // cmd_save_depot_config_part
-void T1CD_cmd_save_depot_config_part(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
+void T1CD_cmd_save_depot_config_part(T_1CD& base1CD, const ParsedCommand& pc, Messenger& mess)
 {
 	if (!base1CD.is_open())
 	{
@@ -528,9 +528,9 @@ int main(int argc, char* argv[])
 
 	CommandParse comm(argv, argc, &mess);
 
-	DynamicArray<ParsedCommand>& commands = comm.getcommands();
+	vector<ParsedCommand>& commands = comm.getcommands();
 
-	if(commands.get_length() == 0)
+	if(commands.size() == 0)
 	{
 		cout << "cTool_1CD (c) awa 2009 - 2017" << endl << "Запусти cTool_1CD -h для справки" << endl;
 		return 0;
@@ -539,11 +539,8 @@ int main(int argc, char* argv[])
 	mess.setlogfile("tool1cd.log");
 
 	// Первый цикл просмотра команд для определения ключей параметров
-	for(i = 0; i < commands.get_length(); i++)
-	{
-		ParsedCommand& pc = commands[i];
-		switch(pc.command)
-		{
+	for( const auto& pc: commands ) {
+		switch(pc.command) {
 			case Command::help:
 				cout << comm.gethelpstring() << endl;
 				return 0;
@@ -598,13 +595,9 @@ int main(int argc, char* argv[])
 		return CTOOL_1CD_FILE_NOT_OPEN;
 	}
 
-	for(i = 0; i < commands.get_length(); i++)
-	{
-		ParsedCommand& pc = commands[i];
-		try
-		{
-			switch(pc.command)
-			{
+	for( const auto& pc: commands )	{
+		try {
+			switch(pc.command) {
 				case Command::export_all_to_xml: {
 					T1CD_cmd_export_all_to_xml(base1CD, pc, mess, ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
 					break;
