@@ -334,7 +334,7 @@ void T1CD_cmd_save_configsave(T_1CD& base1CD, const ParsedCommand& pc, Messenger
 void T1CD_cmd_save_vendors_configs(T_1CD& base1CD, const ParsedCommand& pc, Messenger& mess)
 {
 	if (base1CD.is_open()) {
-		boost::filesystem::path param_path(pc.param1);
+		boost::filesystem::path param_path(static_cast<string>(pc.param1));
 		if(!check_path(param_path, mess)) {
 			return;
 		}
@@ -362,7 +362,7 @@ void T1CD_cmd_save_all_configs(T_1CD& base1CD, const ParsedCommand& pc, Messenge
 {
 	if (base1CD.is_open())
 	{
-		boost::filesystem::path param_path(pc.param1);
+		boost::filesystem::path param_path(static_cast<string>(pc.param1));
 		if(!check_path(param_path, mess)) {
 			return;
 		}
