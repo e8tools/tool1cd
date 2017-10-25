@@ -15,6 +15,7 @@
 #include "ParseCommandLine.h"
 #include "ErrorCode.h"
 #include "Messenger.h"
+#include "APIcfBase.h"
 
 using namespace std;
 
@@ -31,6 +32,16 @@ bool IsTrueString(const String &str)
 {
 	String s = str.LowerCase();
 	return s.Compare("1") == 0 || s.Compare("y") == 0 || s.Compare("yes") == 0 || s.Compare("д") == 0 || s.Compare("да") == 0;
+}
+
+bool check_path(boost::filesystem::path& check_path, Messenger& mess) {
+	if (!boost::filesystem::exists(check_path)) {
+		mess.AddMessage_("Каталог не существует.", MessageState::Error, "Каталог", check_path.string());
+		return false;
+	}
+	else {
+		return true;
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -271,14 +282,12 @@ void T1CD_cmd_save_config(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
 	if (base1CD.is_open())
 	{
 		boost::filesystem::path cfpath(static_cast<string>(pc.param1));
-		if (!boost::iequals(cfpath.extension().string(), ".cf"))
+		if (!boost::iequals(cfpath.extension().string(), str_cf))
 		{
-			if (!boost::filesystem::exists(cfpath))
-			{
-				mess.AddMessage_("Каталог не существует.", MessageState::Error, "Каталог", cfpath.string());
+			if (!check_path(cfpath, mess)) {
 				return;
 			}
-			cfpath /= "dbcf.cf";
+			cfpath /= "dbcf.cf"; // FIXME: заменить "dbcf.cf" константой
 		}
 		if (base1CD.save_config(cfpath.string()))
 		{
@@ -303,14 +312,12 @@ void T1CD_cmd_save_configsave(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess
 	if (base1CD.is_open())
 	{
 		boost::filesystem::path cfpath(static_cast<string>(pc.param1));
-		if (!boost::iequals(cfpath.extension().string(), ".cf"))
+		if (!boost::iequals(cfpath.extension().string(), str_cf))
 		{
-			if (!boost::filesystem::exists(cfpath))
-			{
-				mess.AddMessage_("Каталог не существует.", MessageState::Error, "Каталог", cfpath.string());
+			if (!check_path(cfpath, mess)) {
 				return;
 			}
-			cfpath /= "cf.cf";
+			cfpath /= "cf.cf"; // FIXME: заменить "cf.cf" константой
 		}
 		if (base1CD.save_configsave(cfpath.string()))
 			mess.AddMessage_("Сохранение основной конфигурации завершено.", MessageState::Succesfull, "Файл", cfpath.string());
@@ -326,20 +333,27 @@ void T1CD_cmd_save_configsave(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess
 //cmd_save_vendors_configs
 void T1CD_cmd_save_vendors_configs(T_1CD& base1CD, ParsedCommand& pc, Messenger& mess)
 {
-	if (base1CD.is_open())
-	{
+	if (base1CD.is_open()) {
+		boost::filesystem::path param_path(pc.param1);
+		if(!check_path(param_path, mess)) {
+			return;
+		}
+
 		base1CD.find_supplier_configs();
-		for (size_t n = 0; n < base1CD.supplier_configs.size(); n++)
-		{
-			String f = pc.param1 + "\\" + base1CD.supplier_configs[n].name + " " + base1CD.supplier_configs[n].version + ".cf";
-			if (base1CD.save_supplier_configs(n, f))
-				mess.AddMessage_("Сохранение конфигурации поставщика завершено.", MessageState::Succesfull, "Файл", f);
-			else
-				mess.AddMessage_("Не удалось сохранить конфигурацию поставщика.", MessageState::Error, "Файл", f);
+		for (size_t n = 0; n < base1CD.supplier_configs.size(); n++) {
+			String file_name = base1CD.supplier_configs[n].name + " " + base1CD.supplier_configs[n].version + str_cf;
+			boost::filesystem::path cfpath = param_path / static_cast<string>(file_name);
+			if (base1CD.save_supplier_configs(n, cfpath.string())) {
+				mess.AddMessage_("Сохранение конфигурации поставщика завершено.", MessageState::Succesfull, "Файл", cfpath.string());
+			}
+			else {
+				mess.AddMessage_("Не удалось сохранить конфигурацию поставщика.", MessageState::Error, "Файл", cfpath.string());
+			}
 		}
 	}
-	else
+	else {
 		mess.AddError("Попытка выгрузки конфигураций поставщиков без открытой базы.");
+	}
 } // T1CD_cmd_save_vendors_configs
 
 //---------------------------------------------------------------------------
@@ -348,31 +362,42 @@ void T1CD_cmd_save_all_configs(T_1CD& base1CD, ParsedCommand& pc, Messenger& mes
 {
 	if (base1CD.is_open())
 	{
-		String f = pc.param1 + "\\dbcf.cf";
+		boost::filesystem::path param_path(pc.param1);
+		if(!check_path(param_path, mess)) {
+			return;
+		}
 
-		if (base1CD.save_config(f))
-			mess.AddMessage_("Сохранение конфигурации базы данных завершено.", MessageState::Succesfull, "Файл", f);
-		else
-			mess.AddMessage_("Не удалось сохранить конфигурацию базы данных.", MessageState::Error, "Файл", f);
+		boost::filesystem::path dbpath = param_path / "dbcf.cf"; // FIXME: заменить "dbcf.cf" константой
+		if (base1CD.save_config(dbpath.string())) {
+			mess.AddMessage_("Сохранение конфигурации базы данных завершено.", MessageState::Succesfull, "Файл", dbpath.string());
+		}
+		else {
+			mess.AddMessage_("Не удалось сохранить конфигурацию базы данных.", MessageState::Error, "Файл", dbpath.string());
+		}
 
-		f = pc.param1 + "\\cf.cf";
-		if (base1CD.save_configsave(f))
-			mess.AddMessage_("Сохранение основной конфигурации завершено.", MessageState::Succesfull, "Файл", f);
-		else
-			mess.AddMessage_("Не удалось сохранить основную конфигурацию.", MessageState::Error, "Файл", f);
+		boost::filesystem::path cfpath = param_path / "cf.cf"; // FIXME: заменить "cf.cf" константой
+		if (base1CD.save_configsave(cfpath.string())) {
+			mess.AddMessage_("Сохранение основной конфигурации завершено.", MessageState::Succesfull, "Файл", cfpath.string());
+		}
+		else {
+			mess.AddMessage_("Не удалось сохранить основную конфигурацию.", MessageState::Error, "Файл", cfpath.string());
+		}
 
 		base1CD.find_supplier_configs();
-		for (size_t n = 0; n < base1CD.supplier_configs.size(); n++)
-		{
-			f = pc.param1 + "\\" + base1CD.supplier_configs[n].name + " " + base1CD.supplier_configs[n].version + ".cf";
-			if (base1CD.save_supplier_configs(n, f))
-				mess.AddMessage_("Сохранение конфигурации поставщика завершено.", MessageState::Succesfull, "Файл", f);
-			else
-				mess.AddMessage_("Не удалось сохранить конфигурацию поставщика.", MessageState::Error, "Файл", f);
+		for (size_t n = 0; n < base1CD.supplier_configs.size(); n++) {
+			String file_name = base1CD.supplier_configs[n].name + " " + base1CD.supplier_configs[n].version + str_cf;
+			boost::filesystem::path supplier_path = param_path / static_cast<string>(file_name);
+			if (base1CD.save_supplier_configs(n, supplier_path.string())) {
+				mess.AddMessage_("Сохранение конфигурации поставщика завершено.", MessageState::Succesfull, "Файл", supplier_path.string());
+			}
+			else {
+				mess.AddMessage_("Не удалось сохранить конфигурацию поставщика.", MessageState::Error, "Файл", supplier_path.string());
+			}
 		}
 	}
-	else
+	else {
 		mess.AddError("Попытка выгрузки всех конфигураций без открытой базы.");
+	}
 
 } // T1CD_cmd_save_all_configs
 
@@ -413,14 +438,12 @@ void T1CD_cmd_save_depot_config(T_1CD& base1CD, ParsedCommand& pc, Messenger& me
 
 	cfpath = boost::filesystem::absolute(cfpath);
 
-	if (!boost::iequals(cfpath.extension().string(), ".cf"))
+	if (!boost::iequals(cfpath.extension().string(), str_cf))
 	{
-		if (!boost::filesystem::exists(cfpath))
-		{
-			mess.AddMessage_("Каталог не существует.", MessageState::Error, "Каталог", cfpath.string());
+		if (!check_path(cfpath, mess)) {
 			return;
 		}
-		cfpath /= static_cast<string>(String(string("v") + version_number + string(".cf")));
+		cfpath /= static_cast<string>(String(string("v") + version_number + string(str_cf)));
 	}
 	if (base1CD.save_depot_config(cfpath.string(), version_number))
 		mess.AddMessage_("Сохранение конфигурации хранилища завершено.", MessageState::Succesfull, "Файл", cfpath.string());
@@ -476,7 +499,7 @@ void T1CD_cmd_save_depot_config_part(T_1CD& base1CD, ParsedCommand& pc, Messenge
 	}
 
 	f = pc.param2;
-	f = System::Ioutils::TPath::GetFullPath(f);
+	f = System::Ioutils::TPath::GetFullPath(f); // TODO: System::Ioutils::TPath::GetFullPath заменить на boost::filesystem
 	if (!DirectoryExists(f))
 		System::Ioutils::TDirectory::CreateDirectory(f);
 	if (base1CD.save_part_depot_config(f, j, k))
@@ -495,11 +518,7 @@ int main(int argc, char* argv[])
 {
 	Messenger mess; // регистратор сообщений
 	int i;
-
-
 	String f, v;
-
-
 
 	bool ActionOpenBaseNotMonopolyChecked = false;
 	bool ActionXMLSaveBLOBToFileChecked   = false;

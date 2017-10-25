@@ -518,7 +518,7 @@ db_ver T_1CD::getversion()
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::save_config(String _filename)
+bool T_1CD::save_config(String _filename) // TODO: переписать сохранение конфигурации базы данных на boost::filesystem
 {
 	if(!cs_config) cs_config = new ConfigStorageTableConfig(get_files_config());
 	if(!cs_config->getready()) return false;
@@ -526,7 +526,7 @@ bool T_1CD::save_config(String _filename)
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::save_configsave(String _filename)
+bool T_1CD::save_configsave(String _filename) // TODO: переписать сохранение основной конфигурации на boost::filesystem
 {
 	if(!cs_configsave) cs_configsave = new ConfigStorageTableConfigSave(get_files_config(), get_files_configsave());
 	if(!cs_configsave->getready()) return false;
@@ -763,7 +763,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::save_supplier_configs(uint32_t numcon, const String& _filename)
+bool T_1CD::save_supplier_configs(uint32_t numcon, const String& _filename) // TODO: переписать сохранение конфигурации поставщика на boost::filesystem
 {
 	TFileStream* _fs;
 	container_file* f;
