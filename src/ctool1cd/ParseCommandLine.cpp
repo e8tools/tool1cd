@@ -162,8 +162,8 @@ CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mes
 			for (j = 0; j < numdef; j++) if(k.Compare(definitions[j].key) == 0) break;
 			if (j < numdef)
 			{
-				int n = commands.get_length();
-				commands.set_length(n + 1);
+				int n = commands.size();
+				commands.resize(n + 1);
 				commands[n].command = definitions[j].command;
 				commands[n].param1 = "";
 				commands[n].param2 = "";
@@ -238,7 +238,7 @@ CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mes
 	LocalFree(szArglist); // TODO: разобраться нужно ли освобождать память
 }
 
-DynamicArray<ParsedCommand>& CommandParse::getcommands()
+std::vector<ParsedCommand>& CommandParse::getcommands()
 {
 	return commands;
 }
