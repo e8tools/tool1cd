@@ -3,7 +3,8 @@
 #ifndef ParseCommandLineH
 #define ParseCommandLineH
 
-#include <Classes.hpp>
+#include <vector>
+
 #include "MessageRegistration.h"
 
 //---------------------------------------------------------------------------
@@ -48,7 +49,7 @@ class CommandParse: public IControlMessageRegistration
 {
 public:
 	CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mess = nullptr);
-	DynamicArray<ParsedCommand>& getcommands();
+	std::vector<ParsedCommand>& getcommands();
 	String& getfilename();
 	static String& gethelpstring();
 
@@ -58,7 +59,7 @@ private:
 	static CommandDefinition definitions[];
 	static String helpstring;
 	String filename;
-	DynamicArray<ParsedCommand> commands;
+	std::vector<ParsedCommand> commands;
 	Registrator mess; // регистратор сообщений
 };
 

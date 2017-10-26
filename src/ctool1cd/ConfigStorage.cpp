@@ -20,7 +20,7 @@ const int lsdynupdate = sdynupdate.Length();
 ConfigStorageDirectory::ConfigStorageDirectory(const String& _dir)
 {
 	fdir = _dir;
-	if(*fdir.LastChar() != '\\') fdir += '\\';
+	if(*fdir.LastChar() != '\\') fdir += '\\'; // FIXME: разобраться в конструкторе ConfigStorageDirectory - это работа с файловой системой?
 }
 
 //---------------------------------------------------------------------------
@@ -29,7 +29,7 @@ ConfigFile* ConfigStorageDirectory::readfile(const String& path)
 	ConfigFile* cf;
 	String filename;
 
-	filename = fdir + TStringBuilder(path).Replace('/', '\\')->ToString();
+	filename = fdir + TStringBuilder(path).Replace('/', '\\')->ToString(); // FIXME: исправить чтение файла на boost::filesystem
 
 	if(FileExists(filename))
 	{
@@ -55,7 +55,7 @@ ConfigFile* ConfigStorageDirectory::readfile(const String& path)
 //---------------------------------------------------------------------------
 bool ConfigStorageDirectory::writefile(const String& path, TStream* str)
 {
-	String filename = fdir + TStringBuilder(path).Replace('/', '\\')->ToString();
+	String filename = fdir + TStringBuilder(path).Replace('/', '\\')->ToString(); // FIXME: исправить запись файла на boost::filesystem
 	TFileStream* f = new TFileStream(filename, fmCreate);
 	f->CopyFrom(str, 0);
 	delete f;
@@ -73,7 +73,7 @@ String ConfigStorageDirectory::presentation()
 bool ConfigStorageDirectory::fileexists(const String& path)
 {
 	String filename;
-	filename = fdir + TStringBuilder(path).Replace('/', '\\')->ToString();
+	filename = fdir + TStringBuilder(path).Replace('/', '\\')->ToString(); // FIXME: исправить проверку существования файла на boost::filesystem
 	return FileExists(filename);
 }
 
