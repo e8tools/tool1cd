@@ -34,14 +34,17 @@ bool IsTrueString(const String &str)
 	return s.Compare("1") == 0 || s.Compare("y") == 0 || s.Compare("yes") == 0 || s.Compare("д") == 0 || s.Compare("да") == 0;
 }
 
-bool check_path(boost::filesystem::path& check_path, Messenger& mess) {
+bool directory_exists(boost::filesystem::path& check_path, Messenger& mess) {
 	if (!boost::filesystem::exists(check_path)) {
 		mess.AddMessage_("Каталог не существует.", MessageState::Error, "Каталог", check_path.string());
 		return false;
 	}
-	else {
-		return true;
+	else if (!boost::filesystem::is_directory(check_path)) {
+		mess.AddMessage_("Указанный путь не является каталогом.", MessageState::Error, "Каталог", check_path.string());
+		return false;
 	}
+
+	return true;
 }
 
 //---------------------------------------------------------------------------
@@ -284,7 +287,7 @@ void T1CD_cmd_save_config(T_1CD& base1CD, const ParsedCommand& pc, Messenger& me
 		boost::filesystem::path cfpath(static_cast<string>(pc.param1));
 		if (!boost::iequals(cfpath.extension().string(), str_cf))
 		{
-			if (!check_path(cfpath, mess)) {
+			if (!directory_exists(cfpath, mess)) {
 				return;
 			}
 			cfpath /= "dbcf.cf"; // FIXME: заменить "dbcf.cf" константой
@@ -314,7 +317,7 @@ void T1CD_cmd_save_configsave(T_1CD& base1CD, const ParsedCommand& pc, Messenger
 		boost::filesystem::path cfpath(static_cast<string>(pc.param1));
 		if (!boost::iequals(cfpath.extension().string(), str_cf))
 		{
-			if (!check_path(cfpath, mess)) {
+			if (!directory_exists(cfpath, mess)) {
 				return;
 			}
 			cfpath /= "cf.cf"; // FIXME: заменить "cf.cf" константой
@@ -335,7 +338,7 @@ void T1CD_cmd_save_vendors_configs(T_1CD& base1CD, const ParsedCommand& pc, Mess
 {
 	if (base1CD.is_open()) {
 		boost::filesystem::path param_path(static_cast<string>(pc.param1));
-		if(!check_path(param_path, mess)) {
+		if(!directory_exists(param_path, mess)) {
 			return;
 		}
 
@@ -363,7 +366,7 @@ void T1CD_cmd_save_all_configs(T_1CD& base1CD, const ParsedCommand& pc, Messenge
 	if (base1CD.is_open())
 	{
 		boost::filesystem::path param_path(static_cast<string>(pc.param1));
-		if(!check_path(param_path, mess)) {
+		if(!directory_exists(param_path, mess)) {
 			return;
 		}
 
@@ -440,7 +443,7 @@ void T1CD_cmd_save_depot_config(T_1CD& base1CD, const ParsedCommand& pc, Messeng
 
 	if (!boost::iequals(cfpath.extension().string(), str_cf))
 	{
-		if (!check_path(cfpath, mess)) {
+		if (!directory_exists(cfpath, mess)) {
 			return;
 		}
 		cfpath /= static_cast<string>(String(string("v") + version_number + string(str_cf)));
