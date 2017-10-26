@@ -157,8 +157,7 @@ void ZInflateStream(TStream* src, TStream* dst)
 {
 	z_stream strm;
 	int ret;
-	uintmax_t srcSize;
-
+	
 	unsigned have;
 
 	std::unique_ptr<unsigned char[]> srcBuf(new unsigned char[CHUNKSIZE]);

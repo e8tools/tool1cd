@@ -2523,7 +2523,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	uint32_t configVerMajor, configVerMinor;
 	TStream* in;
 	TStream* out;
-	TStream* st;
 	PackDirectory pack_directory;
 	v8catalog* cat;
 	v8catalog* cath;
@@ -3296,7 +3295,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	bool hasext;
 	char emptyimage[8];
 	char verid[16];
-	uint32_t i, k;
+	uint32_t i;
 	int32_t v, res, lastver, n;
 	String s, ss, sp, sn, se;
 	depot_ver depotVer;
@@ -3310,16 +3309,9 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	std::vector<_packdata> packdates;
 	TSearchRec srec;
 	PackDirectory pack_directory;
-	/*
-	_packdata pd;
-	_packdata* pdr;
-	*/
-	int64_t packlen;
 	v8catalog* cat;
-	// String cath;
 	TFileStream* f;
-	String __filename;
-
+	
 	union
 	{
 		GUID guid;
@@ -3627,7 +3619,6 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 						{
 							ok = false;
 							deletesobj = false;
-							packlen = 0;
 							rec = rech2 + fldh_objdata->offset + 1;
 							if(inreaded)
 							{
@@ -3745,7 +3736,6 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 								if(datapacked)
 								{
 									ok = false;
-									packlen = 0;
 									deletesobj = false;
 									frec = rece + flde_extdata->offset;
 									if(memcmp(emptyimage, frec, 8))
