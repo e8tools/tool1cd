@@ -520,7 +520,6 @@ void T1CD_cmd_save_depot_config_part(T_1CD& base1CD, const ParsedCommand& pc, Me
 int main(int argc, char* argv[])
 {
 	Messenger mess; // регистратор сообщений
-	int i;
 	String f, v;
 
 	bool ActionOpenBaseNotMonopolyChecked = false;
