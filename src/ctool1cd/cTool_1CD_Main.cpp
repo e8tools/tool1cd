@@ -473,7 +473,7 @@ void T1CD_cmd_save_depot_config_part(T_1CD& base1CD, const ParsedCommand& pc, Me
 	int32_t begin_version = 0;
 	int32_t end_version = 0;
 
-	int32_t splitter = version_number_param.Pos(":") + 1; // FIXME: +1, чтобы исправить возвращаемый индекс
+	int32_t splitter = version_number_param.Pos(":");
 	if (splitter) {
 		end_version = version_number_param
 				.SubString(splitter + 1, version_number_param.Length() - splitter)

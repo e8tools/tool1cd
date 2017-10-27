@@ -252,13 +252,13 @@ int String::ToIntDef(int default_value) const
  *      @const String &substr - подстрока поиска
  *
  */
-int String::Pos(const String &substr) // FIXME: Индекс возвращается с 0, а должно быть с 1
+int String::Pos(const String &substr)
 {
 	auto index = find(substr);
 	if (index == npos) {
 		return 0;
 	}
-	return index;
+	return index + 1;
 }
 
 /** Функция возвращает длину строки.
@@ -285,7 +285,7 @@ void String::SetLength(int NewLength)
  */
 int String::LastDelimiter(const String &delimiters) const
 {
-	return 0;
+	return 0; // TODO: реализовать функцию поиска последнего разделителя
 }
 
 /** Функция ищет вхождение последнего символа в строке.
