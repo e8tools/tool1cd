@@ -459,57 +459,63 @@ void T1CD_cmd_save_depot_config(T_1CD& base1CD, const ParsedCommand& pc, Messeng
 // cmd_save_depot_config_part
 void T1CD_cmd_save_depot_config_part(T_1CD& base1CD, const ParsedCommand& pc, Messenger& mess)
 {
-	if (!base1CD.is_open())
-	{
+	if (!base1CD.is_open()) {
 		mess.AddError("Попытка выгрузки файлов конфигурации хранилища без открытой базы.");
 		return;
 	}
-	if (!base1CD.is_depot)
-	{
+	if (!base1CD.is_depot) {
 		mess.AddError("Попытка выгрузки файлов конфигурации хранилища из базы, не являющейся хранилищем конфигурации.");
 		return;
 	}
-	String f = pc.param1;
-	String v;
-	int j, k;
 
-	k = f.Pos(":");
-	if (k)
-	{
-		v = f.SubString(k + 1, f.Length() - k);
-		f = f.SubString(1, k - 1);
-		j = f.ToIntDef(0);
-		k = v.ToIntDef(0);
+	String version_number_param = pc.param1;
+
+	int32_t begin_version = 0;
+	int32_t end_version = 0;
+
+	int32_t splitter = version_number_param.Pos(":") + 1; // FIXME: +1, чтобы исправить возвращаемый индекс
+	if (splitter) {
+		end_version = version_number_param
+				.SubString(splitter + 1, version_number_param.Length() - splitter)
+				.ToIntDef(0);
+		begin_version = version_number_param
+				.SubString(1, splitter - 1)
+				.ToIntDef(0);
 	}
-	else
-	{
-		j = f.ToIntDef(0);
-		k = j;
+	else {
+		begin_version = version_number_param.ToIntDef(0);
+		end_version = begin_version;
 	}
 
-	j = base1CD.get_ver_depot_config(j);
-	if (!j)
-	{
-		mess.AddError("Запрошенной версии конфигурации нет в хранилище конфигурации.", "Версия", j);
+	auto version_exists = [&] (int32_t ver) {
+		if (!ver) {
+			mess.AddError("Запрошенной версии конфигурации нет в хранилище конфигурации.", "Версия", ver);
+			return false;
+		}
+		return true;
+	};
+
+	begin_version = base1CD.get_ver_depot_config(begin_version);
+	if(!version_exists(begin_version)) { return; }
+
+	end_version = base1CD.get_ver_depot_config(end_version);
+	if(!version_exists(end_version)) { return; }
+
+	boost::filesystem::path save_path(static_cast<string>(pc.param2));
+	if (!boost::filesystem::exists(save_path)) {
+		boost::filesystem::create_directory(save_path);
+	}
+	else if (!boost::filesystem::is_directory(save_path)) {
+		mess.AddMessage_("Указанный путь не является каталогом.", MessageState::Error, "Каталог", save_path.string());
 		return;
 	}
 
-	k = base1CD.get_ver_depot_config(k);
-	if (!k)
-	{
-		mess.AddError("Запрошенной версии конфигурации нет в хранилище конфигурации.", "Версия", k);
-		return;
+	if (base1CD.save_part_depot_config(save_path.string(), begin_version, end_version)) {
+		mess.AddMessage_("Сохранение файлов конфигурации хранилища завершено.", MessageState::Succesfull, "Файл", save_path.string());
 	}
-
-	f = pc.param2;
-	f = System::Ioutils::TPath::GetFullPath(f); // TODO: System::Ioutils::TPath::GetFullPath заменить на boost::filesystem
-	if (!DirectoryExists(f))
-		System::Ioutils::TDirectory::CreateDirectory(f);
-	if (base1CD.save_part_depot_config(f, j, k))
-		mess.AddMessage_("Сохранение файлов конфигурации хранилища завершено.", MessageState::Succesfull, "Файл", f);
-	else
-		mess.AddMessage_("Не удалось сохранить файлы конфигурации хранилища.", MessageState::Error, "Файл", f);
-
+	else {
+		mess.AddMessage_("Не удалось сохранить файлы конфигурации хранилища.", MessageState::Error, "Файл", save_path.string());
+	}
 } // T1CD_cmd_save_depot_config_part
 
 

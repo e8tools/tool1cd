@@ -252,7 +252,7 @@ int String::ToIntDef(int default_value) const
  *      @const String &substr - подстрока поиска
  *
  */
-int String::Pos(const String &substr)
+int String::Pos(const String &substr) // FIXME: Индекс возвращается с 0, а должно быть с 1
 {
 	auto index = find(substr);
 	if (index == npos) {
