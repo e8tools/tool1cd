@@ -518,6 +518,15 @@ void T1CD_cmd_save_depot_config_part(T_1CD& base1CD, const ParsedCommand& pc, Me
 	}
 } // T1CD_cmd_save_depot_config_part
 
+void T1CD_cmd_find_and_save_lost_objects(T_1CD& base1CD, const ParsedCommand& pc, Messenger& mess) {
+
+	boost::filesystem::path lost_objects(static_cast<string>(pc.param1));
+	if (!directory_exists(lost_objects, mess)) {
+		return;
+	}
+
+	base1CD.find_and_save_lost_objects(lost_objects);
+} // T1CD_cmd_find_and_save_lost_objects
 
 //***************************************************************************
 
@@ -644,6 +653,10 @@ int main(int argc, char* argv[])
 				}
 				case Command::import_from_binary: {
 					T1CD_cmd_import_from_binary(base1CD, pc, mess);
+					break;
+				}
+				case Command::find_and_save_lost_objects: {
+					T1CD_cmd_find_and_save_lost_objects(base1CD, pc, mess);
 					break;
 				}
 			}
