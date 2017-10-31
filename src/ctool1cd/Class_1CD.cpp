@@ -2067,7 +2067,7 @@ bool T_1CD::test_list_of_tables()
 //---------------------------------------------------------------------------
 bool T_1CD::replaceTREF(String mapfile)
 {
-	DynamicArray<int32_t> map; // динамический массив соответствия номеров
+	vector<int32_t> map; // динамический массив соответствия номеров
 	int32_t i,j,m;
 	int32_t k, l;
 	uint32_t ii, kk;
@@ -2091,7 +2091,7 @@ bool T_1CD::replaceTREF(String mapfile)
 		if(m < j) m = j;
 	}
 
-	map.set_length(m + 1);
+	map.resize(m + 1);
 
 	for(k = 0; k < list->Count(); k++)
 	{
@@ -2246,7 +2246,7 @@ void T_1CD::find_and_create_lost_tables()
 	char buf[8];
 	v8object* v8obj;
 	bool block_is_find;
-	DynamicArray<uint32_t> losttables;
+	vector<uint32_t> losttables;
 	char* b;
 
 	numlosttables = 0;
@@ -2274,7 +2274,7 @@ void T_1CD::find_and_create_lost_tables()
 						v8obj->getdata(buf, 0, 4);
 						if(memcmp(buf, SIG_TABDESCR, 4) == 0)
 						{
-							if(losttables.get_length() <= numlosttables) losttables.set_length(losttables.get_length() + 1024);
+							if(losttables.size() <= numlosttables) losttables.resize(losttables.size() + 1024);
 							losttables[numlosttables++] = i;
 						}
 					}
@@ -2317,43 +2317,22 @@ void T_1CD::find_and_create_lost_tables()
 }
 
 //---------------------------------------------------------------------------
-void T_1CD::find_and_save_lost_objects()
+void T_1CD::find_and_save_lost_objects(boost::filesystem::path &lost_objects)
 {
-	uint32_t i;
-	char buf[8];
-	v8object* v8obj;
-	bool block_is_find;
-	bool dir_created;
-	String path;
-
-	dir_created = false;
-	path = filename.SubString(1, filename.LastDelimiter("\\"));
-	path += "LostObjects\\";
-
-	for(i = 1; i < length; i++)
-	{
+	for(uint32_t i = 1; i < length; i++) {
+		char buf[8];
 		getblock(buf, i, 8);
-		if(memcmp(buf, SIG_OBJ, 8) == 0)
-		{
-			block_is_find = false;
-			for(v8obj = v8object::get_first(); v8obj; v8obj = v8obj->get_next())
-			{
-				if(v8obj->get_block_number() == i)
-				{
+		if(memcmp(buf, SIG_OBJ, 8) == 0) {
+			bool block_is_find = false;
+			for(auto v8obj = v8object::get_first(); v8obj; v8obj = v8obj->get_next()) {
+				if(v8obj->get_block_number() == i) {
 					block_is_find = true;
 					break;
 				}
 			}
-			if(!block_is_find)
-			{
-				if(!dir_created)
-				{
-					CreateDir(path);
-					dir_created = true;
-				}
-				v8obj = new v8object(this, i);
-				v8obj->savetofile(path + "block" + i);
-				delete v8obj;
+			if(!block_is_find) {
+				unique_ptr<v8object> find_v8obj(new v8object(this, i));
+				find_v8obj->savetofile(lost_objects.string() + "block" + i);
 			}
 		}
 	}

@@ -1130,7 +1130,7 @@ void v8object::set_len(uint64_t _len)
 			msreg_g.AddError("Попытка установки длины файла больше максимальной",
 				"Номер страницы файла", tohex(block),
 				"Максимальная длина файла", maxlen,
-				"Запрошенная длина файла", tohex(_len));
+				"Запрошенная длина файла", tohex(_len)); // FIXME: tohex работает только с int, а тут int64_t
 			_len = maxlen;
 		}
 

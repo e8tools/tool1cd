@@ -3,7 +3,8 @@
 #ifndef Class_1CDH
 #define Class_1CDH
 
-#include "vector"
+#include <boost/filesystem.hpp>
+#include <vector>
 
 #include "MessageRegistration.h"
 #include "APIcfBase.h"
@@ -233,7 +234,7 @@ public:
 	bool test_list_of_tables(); // проверка списка таблиц (по DBNames)
 #ifndef PublicRelease
 	void find_lost_objects();
-	void find_and_save_lost_objects();
+	void find_and_save_lost_objects(boost::filesystem::path &lost_objects);
 	bool create_table(String path); // создание таблицы из файлов импорта таблиц
 	bool delete_table(Table* tab);
 	bool delete_object(v8object* ob);
