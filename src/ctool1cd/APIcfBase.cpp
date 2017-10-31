@@ -1,8 +1,20 @@
 #include "APIcfBase.h"
-
+#include "boost/date_time/gregorian/gregorian.hpp"
+#include "boost/date_time/local_time/local_time.hpp"
 
 #pragma comment (lib, "zlibstatic.lib")
 
+using namespace boost::gregorian;
+using namespace boost::local_time;
+using namespace boost::posix_time;
+
+//---------------------------------------------------------------------------
+// возвращает секунды от эпохи UNIX
+// https://stackoverflow.com/questions/6161776/convert-windows-filetime-to-second-in-unix-linux
+unsigned WindowsTickToUnixSeconds(long long windowsTicks)
+{
+	return (unsigned)(windowsTicks / WINDOWS_TICK - SEC_TO_UNIX_EPOCH);
+}
 
 //---------------------------------------------------------------------------
 // преобразует шестнадцатиричную восьмисимвольную строку в число

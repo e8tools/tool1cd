@@ -107,6 +107,7 @@ void Index::create_recordsindex()
 			curblock = 	reverse_byte_order(curblock);
 			if(version >= db_ver::ver8_3_8_0) curblock *= pagesize;
 			file_index->getdata(buf, curblock, pagesize);
+
 			is_leaf = buf[0] & 0x2;
 		}
 

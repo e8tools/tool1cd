@@ -942,7 +942,7 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 	TStream* _s2;
 	TStream* _sx;
 	TStream* _sx2;
-	uint32_t i, j, k, l;
+	uint32_t k, l;
 	bool usetemporaryfiles = false;
 
 	char *orec = rec;
@@ -1010,7 +1010,7 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 			char *_xor_mask = &_bb[1];
 			char *_xor_buf = &_xor_mask[xor_mask_size];
 			size_t data_size = stream_size - xor_mask_size - 1;
-			for(i = 0, k = 0; i < data_size; i++, k++)
+			for(size_t i = 0, k = 0; i < data_size; i++, k++)
 			{
 				if (k >= xor_mask_size) {
 					k = 0;

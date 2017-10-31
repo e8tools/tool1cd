@@ -11,41 +11,43 @@
 
 CommandDefinition CommandParse::definitions[] =
 {
-	{"h",                  Command::help,                   0, ""}, // 1
-	{"help",               Command::help,                   0, ""}, // 2
-	{"?",                  Command::help,                   0, ""}, // 3
-	{"nv",                 Command::no_verbose,             0, ""}, // 4
-	{"noverbose",          Command::no_verbose,             0, ""}, // 5
-	{"q",                  Command::quit,                   0, ""}, // 6
-	{"quit",               Command::quit,                   0, ""}, // 7
-	{"eax",                Command::export_all_to_xml,      1, ""}, // 8
-	{"exportalltoxml",     Command::export_all_to_xml,      1, ""}, // 9
-	{"bf",                 Command::xml_blob_to_file,       1, "0"}, // 10
-	{"blobtofile",         Command::xml_blob_to_file,       1, "0"}, // 11
-	{"pb",                 Command::xml_parse_blob,         1, "1"}, // 12
-	{"parseblob",          Command::xml_parse_blob,         1, "1"}, // 13
-	{"ex",                 Command::export_to_xml,          2, ""}, // 14
-	{"exporttoxml",        Command::export_to_xml,          2, ""}, // 15
-	{"ne",                 Command::not_exclusively,        0, ""}, // 16
-	{"notexclusively",     Command::not_exclusively,        0, ""}, // 17
-	{"ddc",                Command::save_config,            1, ""}, // 18
-	{"dumpdbconfig",       Command::save_config,            1, ""}, // 29
-	{"dc",                 Command::save_configsave,        1, ""}, // 20
-	{"dumpconfig",         Command::save_configsave,        1, ""}, // 21
-	{"dvc",                Command::save_vendors_configs,   1, ""}, // 22
-	{"dumpvendorsconfigs", Command::save_vendors_configs,   1, ""}, // 23
-	{"dac",                Command::save_all_configs,       1, ""}, // 24
-	{"dumpallconfigs",     Command::save_all_configs,       1, ""}, // 25
-	{"drc",                Command::save_depot_config,      2, ""}, // 26
-	{"dumpdepotconfig",    Command::save_depot_config,      2, ""}, // 27
-	{"dpc",                Command::save_depot_config_part, 2, ""}, // 28
-	{"dumppartdepotconfig",Command::save_depot_config_part, 2, ""}, // 29
-	{"l",                  Command::logfile,                1, ""}, // 30
-	{"logfile",            Command::logfile,                1, ""}, // 31
-	{"eb",                 Command::export_to_binary,       2, ""}, // 32
-	{"exporttobinary",     Command::export_to_binary,       2, ""}, // 33
-	{"ib",                 Command::import_from_binary,     2, ""}, // 34
-	{"importfrombinary",   Command::import_from_binary,     2, ""}, // 35
+	{"h",                  Command::help,                       0, ""}, // 1
+	{"help",               Command::help,                       0, ""}, // 2
+	{"?",                  Command::help,                       0, ""}, // 3
+	{"nv",                 Command::no_verbose,                 0, ""}, // 4
+	{"noverbose",          Command::no_verbose,                 0, ""}, // 5
+	{"q",                  Command::quit,                       0, ""}, // 6
+	{"quit",               Command::quit,                       0, ""}, // 7
+	{"eax",                Command::export_all_to_xml,          1, ""}, // 8
+	{"exportalltoxml",     Command::export_all_to_xml,          1, ""}, // 9
+	{"bf",                 Command::xml_blob_to_file,           1, "0"}, // 10
+	{"blobtofile",         Command::xml_blob_to_file,           1, "0"}, // 11
+	{"pb",                 Command::xml_parse_blob,             1, "1"}, // 12
+	{"parseblob",          Command::xml_parse_blob,             1, "1"}, // 13
+	{"ex",                 Command::export_to_xml,              2, ""}, // 14
+	{"exporttoxml",        Command::export_to_xml,              2, ""}, // 15
+	{"ne",                 Command::not_exclusively,            0, ""}, // 16
+	{"notexclusively",     Command::not_exclusively,            0, ""}, // 17
+	{"ddc",                Command::save_config,                1, ""}, // 18
+	{"dumpdbconfig",       Command::save_config,                1, ""}, // 29
+	{"dc",                 Command::save_configsave,            1, ""}, // 20
+	{"dumpconfig",         Command::save_configsave,            1, ""}, // 21
+	{"dvc",                Command::save_vendors_configs,       1, ""}, // 22
+	{"dumpvendorsconfigs", Command::save_vendors_configs,       1, ""}, // 23
+	{"dac",                Command::save_all_configs,           1, ""}, // 24
+	{"dumpallconfigs",     Command::save_all_configs,           1, ""}, // 25
+	{"drc",                Command::save_depot_config,          2, ""}, // 26
+	{"dumpdepotconfig",    Command::save_depot_config,          2, ""}, // 27
+	{"dpc",                Command::save_depot_config_part,     2, ""}, // 28
+	{"dumppartdepotconfig",Command::save_depot_config_part,     2, ""}, // 29
+	{"l",                  Command::logfile,                    1, ""}, // 30
+	{"logfile",            Command::logfile,                    1, ""}, // 31
+	{"eb",                 Command::export_to_binary,           2, ""}, // 32
+	{"exporttobinary",     Command::export_to_binary,           2, ""}, // 33
+	{"ib",                 Command::import_from_binary,         2, ""}, // 34
+	{"importfrombinary",   Command::import_from_binary,         2, ""}, // 35
+	{"slo",                Command::find_and_save_lost_objects, 1, ""}, // 36
+	{"savelostobjects",    Command::find_and_save_lost_objects, 1, ""}, // 37
 };
 
 
@@ -126,6 +128,8 @@ String CommandParse::helpstring =
    Если в списке содержатся пробелы, список необходимо заключать в кавычки.\r\n\
    Таблицы должны существовать в базе, новые таблицы не создаются.\r\n\
 \r\n\
+ -slo, -SaveLostObjects <путь>\r\n\
+   Найти потерянные объекты и сохранить.\
 Если в пути содержатся пробелы, его необходимо заключать в кавычки. Пути следует указывать без завершающего бэкслеша \"\\\".\r\n\
 Для команд -dc, -ddc, -drc вместо пути можно указывать имя файла конфигурации (имя файла должно заканчиваться на \".cf\").\r\n\
 ";
@@ -162,8 +166,8 @@ CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mes
 			for (j = 0; j < numdef; j++) if(k.Compare(definitions[j].key) == 0) break;
 			if (j < numdef)
 			{
-				int n = commands.get_length();
-				commands.set_length(n + 1);
+				int n = commands.size();
+				commands.resize(n + 1);
 				commands[n].command = definitions[j].command;
 				commands[n].param1 = "";
 				commands[n].param2 = "";
@@ -238,7 +242,7 @@ CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mes
 	LocalFree(szArglist); // TODO: разобраться нужно ли освобождать память
 }
 
-DynamicArray<ParsedCommand>& CommandParse::getcommands()
+std::vector<ParsedCommand>& CommandParse::getcommands()
 {
 	return commands;
 }

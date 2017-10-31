@@ -10,6 +10,8 @@
 #include "Zip.h"
 #include "UZLib.h"
 
+//#include "boost/date_time/gregorian/gregorian.hpp"
+
 #pragma comment (lib, "zlibstatic.lib")
 
 
@@ -30,6 +32,7 @@
 #endif
 
 #define WINDOWS_TICK 10000000
+#define SEC_TO_UNIX_EPOCH 11644473600LL
 
 // массив для преобразования числа в шестнадцатиричную строку
 const char _BUFHEX[] = "0123456789abcdef";
