@@ -59,7 +59,7 @@ uint32_t Index::get_numrecords()
 {
 	if(!start) return 0;
 	if(!recordsindex_complete) create_recordsindex();
-	return recordsindex.GetLength();
+	return recordsindex.size();
 }
 
 //---------------------------------------------------------------------------
@@ -99,7 +99,7 @@ void Index::create_recordsindex()
 	curlen = *(int16_t*)(buf + 2);
 	if(curlen)
 	{
-		recordsindex.SetLength(tbase->file_data->getlen() / tbase->recordlen);
+		recordsindex.resize(tbase->file_data->getlen() / tbase->recordlen);
 		bool is_leaf = buf[0] & 0x2;
 		while(!is_leaf)
 		{
@@ -125,16 +125,16 @@ void Index::create_recordsindex()
 				rbuf += rlen;
 				if(curindex % 10000 == 0) msreg_g.Status(readindex + curindex);
 			}
-			if(curblock == 0xffffffff) break;
+			if(curblock == 0xffffffff) break; // FIXME: разобраться литерал 0xffffffff == UINT_MAX, а тут uint64_t curblock
 			if(version >= db_ver::ver8_3_8_0) curblock *= pagesize;
 			file_index->getdata(buf, curblock, pagesize);
 		}
-		recordsindex.SetLength(curindex);
+		recordsindex.resize(curindex);
 	}
 
 	recordsindex_complete = true;
 	delete[] buf;
-	tbase->log_numrecords = recordsindex.GetLength();
+	tbase->log_numrecords = recordsindex.size();
 	msreg_g.Status("");
 }
 
