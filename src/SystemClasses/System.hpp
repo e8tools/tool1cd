@@ -30,8 +30,8 @@ typedef uint16_t         WORD;
 typedef unsigned long    DWORD;
 typedef char16_t         WCHART;
 typedef char             *LPSTR;
-typedef __int64          LONGLONG;
-typedef unsigned __int64 ULONGLONG;
+typedef uint64_t         LONGLONG;
+typedef uint64_t         ULONGLONG;
 typedef long             LONG;
 
 
