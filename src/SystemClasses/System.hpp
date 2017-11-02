@@ -18,8 +18,8 @@
 #define WINDOWS_TICK 10000000
 #define SEC_TO_UNIX_EPOCH 11644473600LL
 
-#define Int32x32To64(a, b)  ((__int64)(((__int64)((long)(a))) * ((long)(b))))
-#define UInt32x32To64(a, b) ((unsigned __int64)(((unsigned __int64)((unsigned int)(a))) * ((unsigned int)(b))))
+#define Int32x32To64(a, b)  ((int64_t)(((int64_t)((long)(a))) * ((long)(b))))
+#define UInt32x32To64(a, b) ((uint64_t)(((uint64_t)((unsigned int)(a))) * ((unsigned int)(b))))
 
 
 namespace System {
@@ -30,7 +30,7 @@ typedef uint16_t         WORD;
 typedef unsigned long    DWORD;
 typedef char16_t         WCHART;
 typedef char             *LPSTR;
-typedef uint64_t         LONGLONG;
+typedef int64_t          LONGLONG;
 typedef uint64_t         ULONGLONG;
 typedef long             LONG;
 
