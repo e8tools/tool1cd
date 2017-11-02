@@ -9,8 +9,8 @@
 
 #include "Zip.h"
 #include "UZLib.h"
+#include <sys/utime.h>
 
-//#include "boost/date_time/gregorian/gregorian.hpp"
 
 #pragma comment (lib, "zlibstatic.lib")
 
@@ -31,9 +31,6 @@
 	const wchar_t str_backslash[] = L"\\";
 #endif
 
-#define WINDOWS_TICK 10000000
-#define SEC_TO_UNIX_EPOCH 11644473600LL
-
 // массив для преобразования числа в шестнадцатиричную строку
 const char _BUFHEX[] = "0123456789abcdef";
 
@@ -42,6 +39,9 @@ const char _BLOCK_HEADER_TEMPLATE[] = "\r\n00000000 00000000 00000000 \r\n";
 const char _EMPTY_CATALOG_TEMPLATE[16] = {'\xff','\xff','\xff','\x7f',0,2,0,0,0,0,0,0,0,0,0,0};
 
 const int32_t LAST_BLOCK = std::numeric_limits<int>::max();
+
+const int64_t EPOCH_START = 504911232000000;
+
 
 //---------------------------------------------------------------------------
 struct v8header_struct{

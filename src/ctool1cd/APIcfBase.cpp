@@ -1,12 +1,6 @@
 #include "APIcfBase.h"
-#include "boost/date_time/gregorian/gregorian.hpp"
-#include "boost/date_time/local_time/local_time.hpp"
 
 #pragma comment (lib, "zlibstatic.lib")
-
-using namespace boost::gregorian;
-using namespace boost::local_time;
-using namespace boost::posix_time;
 
 //---------------------------------------------------------------------------
 // возвращает секунды от эпохи UNIX
@@ -22,15 +16,23 @@ int hex_to_int(char* hexstr)
 {
 	int res = 0;
 	int sym;
+	
 	for(int i = 0; i < 8; i++)
 	{
 		sym = hexstr[i];
-		if(sym >= 'a') sym -= 'a' - '9' - 1;
-		else if(sym > '9') sym -= 'A' - '9' - 1;
+		
+		if(sym >= 'a') 
+			sym -= 'a' - '9' - 1;
+		else if(sym > '9') 
+			sym -= 'A' - '9' - 1;
+		
 		sym -= '0';
+		
 		res = (res << 4) | (sym & 0xf);
 	}
+
 	return res;
+
 }
 
 //---------------------------------------------------------------------------
@@ -39,13 +41,16 @@ char* int_to_hex(char* hexstr, int dec)
 {
 	int _t1 = dec;
 	int _t2;
+	
 	for(int i = 7; i >= 0; i--)
 	{
 		_t2 = _t1 & 0xf;
 		hexstr[i] = _BUFHEX[_t2];
 		_t1 >>= 4;
 	}
+	
 	return hexstr;
+
 }
 
 //---------------------------------------------------------------------------
@@ -53,21 +58,24 @@ char* int_to_hex(char* hexstr, int dec)
 TStream* read_block(TStream* stream_from, int start, TStream* stream_to = NULL)
 {
 	char temp_buf[32];
-	int len,curlen,pos,readlen;
+	int len, curlen, pos, readlen;
 
-	if(!stream_to) stream_to = new TMemoryStream;
+	if(!stream_to) 
+		stream_to = new TMemoryStream;
 	stream_to->Seek(0, soFromBeginning);
 	stream_to->SetSize(0);
 
-	if(start < 0 || start == LAST_BLOCK || start > stream_from->GetSize()) return stream_to;
+	if(start < 0 || start == LAST_BLOCK || start > stream_from->GetSize()) 
+		return stream_to;
 
 	stream_from->Seek(start, soFromBeginning);
 	stream_from->Read(temp_buf, 31);
 
 	len = hex_to_int(&temp_buf[2]);
-	if(!len) return stream_to;
+	if(!len) 
+		return stream_to;
 	curlen = hex_to_int(&temp_buf[11]);
-	start = hex_to_int(&temp_buf[20]);
+	start  = hex_to_int(&temp_buf[20]);
 
 	readlen = std::min(len, curlen);
 	stream_to->CopyFrom(stream_from, readlen);
@@ -75,11 +83,12 @@ TStream* read_block(TStream* stream_from, int start, TStream* stream_to = NULL)
 	pos = readlen;
 
 	while(start != LAST_BLOCK){
+		
 		stream_from->Seek(start, soFromBeginning);
 		stream_from->Read(temp_buf, 31);
 
 		curlen = hex_to_int(&temp_buf[11]);
-		start = hex_to_int(&temp_buf[20]);
+		start  = hex_to_int(&temp_buf[20]);
 
 		readlen = std::min(len - pos, curlen);
 		stream_to->CopyFrom(stream_from, readlen);
@@ -88,27 +97,33 @@ TStream* read_block(TStream* stream_from, int start, TStream* stream_to = NULL)
 	}
 
 	return stream_to;
+
 }
 
 //---------------------------------------------------------------------------
 //преобразование времени
 void V8timeToFileTime(const int64_t* v8t, FILETIME* ft){
+
 	FILETIME lft;
+
 	int64_t t = *v8t;
-	t -= 504911232000000; //504911232000000 = ((365 * 4 + 1) * 100 - 3) * 4 * 24 * 60 * 60 * 10000
+	t -= EPOCH_START; //504911232000000 = ((365 * 4 + 1) * 100 - 3) * 4 * 24 * 60 * 60 * 10000
 	t *= 1000;
 	*(int64_t*)&lft = t;
 	LocalFileTimeToFileTime(&lft, ft);
+
 }
 
 //---------------------------------------------------------------------------
 // обратное преобразование времени
 void FileTimeToV8time(const FILETIME* ft, int64_t* v8t){
+	
 	FILETIME lft;
+	
 	FileTimeToLocalFileTime(ft, &lft);
 	int64_t t = *(int64_t*)&lft;
 	t /= 1000;
-	t += 504911232000000; //504911232000000 = ((365 * 4 + 1) * 100 - 3) * 4 * 24 * 60 * 60 * 10000
+	t += EPOCH_START; //504911232000000 = ((365 * 4 + 1) * 100 - 3) * 4 * 24 * 60 * 60 * 10000
 	*v8t = t;
 }
 
@@ -118,9 +133,11 @@ void setCurrentTime(int64_t* v8t)
 {
 	SYSTEMTIME st;
 	FILETIME ft;
+	
 	GetSystemTime(&st);
 	SystemTimeToFileTime(&st, &ft);
 	FileTimeToV8time(&ft, v8t);
+
 }
 
 //---------------------------------------------------------------------------
@@ -134,25 +151,28 @@ v8file::v8file(v8catalog* _parent, const String& _name, v8file* _previous, int _
 {
 	Lock = new TCriticalSection();
 	is_destructed = false;
-	flushed = false;
-	parent = _parent;
-	name = _name;
+	flushed  = false;
+	parent   = _parent;
+	name     = _name;
 	previous = _previous;
-	next = NULL;
-	data = NULL;
-	start_data = _start_data;
-	start_header = _start_header;
-	is_datamodified = !start_data;
+	next     = NULL;
+	data     = NULL;
+	start_data        = _start_data;
+	start_header      = _start_header;
+	is_datamodified   = !start_data;
 	is_headermodified = !start_header;
-	if(previous) previous->next = this;
-	else parent->first = this;
+	if(previous) 
+		previous->next = this;
+	else 
+		parent->first = this;
 	iscatalog = FileIsCatalog::unknown;
 	self = NULL;
 	is_opened = false;
 	time_create = *_time_create;
 	time_modify = *_time_modify;
 	selfzipped = false;
-	if(parent) parent->files[name.UpperCase()] = this;
+	if(parent) 
+		parent->files[name.UpperCase()] = this;
 }
 
 //---------------------------------------------------------------------------
@@ -188,13 +208,44 @@ void v8file::SetTimeModify(FILETIME* ft)
 void v8file::SaveToFile(const String& FileName)
 {
 	FILETIME create, modify;
+	struct tm tma = { 0 };
+	struct tm tmm = { 0 };
+	struct _utimbuf ut;
+
+	// Fill out the accessed time structure  
+	tma.tm_hour = 12;
+	tma.tm_isdst = 0;
+	tma.tm_mday = 15;
+	tma.tm_min = 0;
+	tma.tm_mon = 0;
+	tma.tm_sec = 0;
+	tma.tm_year = 103;
+
+	// Fill out the modified time structure  
+	tmm.tm_hour = 12;
+	tmm.tm_isdst = 0;
+	tmm.tm_mday = 15;
+	tmm.tm_min = 0;
+	tmm.tm_mon = 0;
+	tmm.tm_sec = 0;
+	tmm.tm_year = 102;
+
+	// Convert tm to time_t  
+	ut.actime = mktime(&tma);
+	ut.modtime = mktime(&tmm);
+
 	if(!is_opened) if(!Open()) return;
+
 	TFileStream* fs = new TFileStream(FileName, fmCreate);
 	Lock->Acquire();
 	fs->CopyFrom(data, 0);
 	Lock->Release();
+	
 	GetTimeCreate(&create);
 	GetTimeModify(&modify);
+	
+	_utime(FileName.c_str(), &ut);
+	
 	// SetFileTime((HANDLE)fs->Handle, &create, &modify, &modify); // TODO: реализовать сохранение времени создания и изменения файла
 	delete fs;
 }
