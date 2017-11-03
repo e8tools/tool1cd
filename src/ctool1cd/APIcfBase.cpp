@@ -244,8 +244,15 @@ void v8file::SaveToFile(const String& FileName)
 	GetTimeCreate(&create);
 	GetTimeModify(&modify);
 	
-	_utime(FileName.c_str(), &ut);
-	
+	#ifdef _MSC_VER
+		
+		_utime(FileName.c_str(), &ut);
+
+	#else
+
+		utime(FileName.c_str(), &ut);
+
+	#endif // _MSC_VER
 	// SetFileTime((HANDLE)fs->Handle, &create, &modify, &modify); // TODO: реализовать сохранение времени создания и изменения файла
 	delete fs;
 }

@@ -9,7 +9,22 @@
 
 #include "Zip.h"
 #include "UZLib.h"
-#include <sys/utime.h>
+
+#ifdef _MSC_VER
+
+	#include <sys/utime.h>
+
+#else
+
+	#include <sys/types.h>
+	#include <utime.h>
+
+#endif // _MSC_VER
+
+#include <boost/date_time/c_time.hpp>
+
+
+
 
 
 #pragma comment (lib, "zlibstatic.lib")
