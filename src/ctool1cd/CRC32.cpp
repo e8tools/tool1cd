@@ -1,9 +1,5 @@
-#pragma hdrstop
-
 #include "CRC32.h"
 #include <boost/crc.hpp>
-//---------------------------------------------------------------------------
-#pragma package(smart_init)
 
 uint32_t _crc32(TStream* str)
 {

@@ -8,6 +8,8 @@
 #ifndef SRC_CTOOL1CD_INDEX_H_
 #define SRC_CTOOL1CD_INDEX_H_
 
+#include <vector>
+
 #include "Common.h"
 #include "Class_1CD.h"
 #include "Field.h"
@@ -118,7 +120,7 @@ private:
 	uint64_t start; // Смещение в файле индексов блока описания индекса
 	uint64_t rootblock; // Смещение в файле индексов корневого блока индекса
 	uint32_t length; // длина в байтах одной распакованной записи индекса
-	DynamicArray<uint32_t> recordsindex; // динамический массив индексов записей по номеру (только не пустые записи)
+	std::vector<uint32_t> recordsindex; // динамический массив индексов записей по номеру (только не пустые записи)
 	bool recordsindex_complete; // признак заполнености recordsindex
 	void create_recordsindex();
 
