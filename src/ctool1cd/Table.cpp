@@ -12,9 +12,7 @@
 
 extern Registrator msreg_g;
 #ifndef getcfname
-#ifndef console
 extern TMultiReadExclusiveWriteSynchronizer* tr_syn;
-#endif
 #endif
 
 const uint32_t BLOB_RECORD_LEN = 256;
@@ -1065,17 +1063,13 @@ uint32_t Table::get_added_numrecords()
 //---------------------------------------------------------------------------
 char* Table::getrecord(uint32_t phys_numrecord, char* buf)
 {
-	#ifndef console
-	#ifndef getcfname
+    #ifndef getcfname
 	tr_syn->BeginWrite();
-	#endif
-	#endif
+    #endif
 	char* b = file_data->getdata(buf, phys_numrecord * recordlen, recordlen);
-	#ifndef console
-	#ifndef getcfname
+    #ifndef getcfname
 	tr_syn->EndWrite();
-	#endif
-	#endif
+    #endif
 	return b;
 }
 
@@ -2059,16 +2053,12 @@ uint32_t Table::get_phys_numrec(int32_t ARow, Index* cur_index)
 	if(cur_index) numrec = cur_index->get_numrec(ARow - 1);
 	else
 	{
-		#ifndef console
-		#ifndef getcfname
+        #ifndef getcfname
 		tr_syn->BeginRead();
-		#endif
-		#endif
+        #endif
 		numrec = recordsindex[ARow - 1];
-		#ifndef console
-		#ifndef getcfname
+        #ifndef getcfname
 		tr_syn->EndRead();
-		#endif
 		#endif
 	}
 
