@@ -1063,13 +1063,13 @@ uint32_t Table::get_added_numrecords()
 //---------------------------------------------------------------------------
 char* Table::getrecord(uint32_t phys_numrecord, char* buf)
 {
-    #ifndef getcfname
+	#ifndef getcfname
 	tr_syn->BeginWrite();
-    #endif
+	#endif
 	char* b = file_data->getdata(buf, phys_numrecord * recordlen, recordlen);
-    #ifndef getcfname
+	#ifndef getcfname
 	tr_syn->EndWrite();
-    #endif
+	#endif
 	return b;
 }
 
@@ -1423,7 +1423,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 					{
 						if(s.GetLength()) s += "_";
 						s += fields[i]->name;
-                    }
+					}
 					if(rc)
 					{
 						s += "_";
@@ -2053,13 +2053,13 @@ uint32_t Table::get_phys_numrec(int32_t ARow, Index* cur_index)
 	if(cur_index) numrec = cur_index->get_numrec(ARow - 1);
 	else
 	{
-        #ifndef getcfname
+	#ifndef getcfname
 		tr_syn->BeginRead();
-        #endif
+	#endif
 		numrec = recordsindex[ARow - 1];
-        #ifndef getcfname
+	#ifndef getcfname
 		tr_syn->EndRead();
-		#endif
+	#endif
 	}
 
 	return numrec;
@@ -2769,8 +2769,8 @@ void Table::fillrecordsindex()
 	int32_t j;
 	char* rec;
 
-    if(recordsindex_complete) return;
-    recordsindex = new uint32_t [phys_numrecords];
+	if(recordsindex_complete) return;
+	recordsindex = new uint32_t [phys_numrecords];
 	rec = new char[recordlen];
 
 	j = 0;
