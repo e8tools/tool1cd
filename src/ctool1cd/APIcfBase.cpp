@@ -210,7 +210,16 @@ void v8file::SaveToFile(const String& FileName)
 	FILETIME create, modify;
 	struct tm tma = { 0 };
 	struct tm tmm = { 0 };
-	struct _utimbuf ut;
+	
+    #ifdef _MSC_VER
+    
+		struct _utimbuf ut;
+    
+    #else
+    
+		struct utimbuf ut;
+    
+    #endif // _MSC_VER
 
 	// Fill out the accessed time structure  
 	tma.tm_hour = 12;
