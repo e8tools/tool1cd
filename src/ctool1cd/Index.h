@@ -88,10 +88,8 @@ public:
 	uint32_t get_numrecords(); // получает количество записей, проиндексированных индексом
 	uint32_t get_numrec(uint32_t num_record); // получает физический индекс записи по порядковому индексу
 
-#ifndef PublicRelease
 	void dump(String filename);
 	void calcRecordIndex(const char* rec, char* indexBuf); // вычислить индекс записи rec и поместить в indexBuf. Длина буфера indexBuf должна быть не меньше length
-#endif //#ifdef PublicRelease
 
 	uint32_t get_rootblock();
 	uint32_t get_length();
@@ -124,7 +122,6 @@ private:
 	bool recordsindex_complete; // признак заполнености recordsindex
 	void create_recordsindex();
 
-#ifndef PublicRelease
 	void dump_recursive(v8object* file_index, TFileStream* f, int32_t level, uint64_t curblock);
 	void delete_index(const char* rec, const uint32_t phys_numrec); // удаление индекса записи из файла index
 	void delete_index_record(const char* index_buf, const uint32_t phys_numrec); // удаление одного индекса из файла index
@@ -132,7 +129,6 @@ private:
 	void write_index(const uint32_t phys_numrecord, const char* rec); // запись индекса записи
 	void write_index_record(const uint32_t phys_numrecord, const char* index_buf); // запись индекса
 	void write_index_record(const uint32_t phys_numrecord, const char* index_buf, uint64_t block, int32_t& result, char* new_last_index_buf, uint32_t& new_last_phys_num, char* new_last_index_buf2, uint32_t& new_last_phys_num2, uint64_t& new_last_block2); // рекурсивная запись индекса
-#endif //#ifdef PublicRelease
 };
 
 #endif /* SRC_CTOOL1CD_INDEX_H_ */

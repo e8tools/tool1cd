@@ -38,9 +38,7 @@ public:
 	int32_t getoffset();
 	String get_presentation_type();
 	bool save_blob_to_file(char* rec, String filename, bool unpack);
-#ifndef PublicRelease
 	uint32_t getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen);
-#endif //#ifdef PublicRelease
 private:
 	String name;
 	type_fields type;

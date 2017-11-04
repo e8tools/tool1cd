@@ -232,7 +232,6 @@ public:
 
 	bool test_stream_format();
 	bool test_list_of_tables(); // проверка списка таблиц (по DBNames)
-#ifndef PublicRelease
 	void find_lost_objects();
 	void find_and_save_lost_objects(boost::filesystem::path &lost_objects);
 	bool create_table(String path); // создание таблицы из файлов импорта таблиц
@@ -242,9 +241,8 @@ public:
 	void find_and_create_lost_tables();
 	void restore_DATA_allocation_table(Table* tab);
 	bool test_block_by_template(uint32_t testblock, char* tt, uint32_t num, int32_t rlen, int32_t len);
-#endif //#ifdef PublicRelease
-	String& getfilename(){return filename;};
-	uint32_t getpagesize(){return pagesize;};
+	String& getfilename(){return filename;}
+	uint32_t getpagesize(){return pagesize;}
 private:
 	Registrator msreg_m;
 	String filename;

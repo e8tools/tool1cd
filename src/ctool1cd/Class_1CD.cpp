@@ -296,40 +296,24 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	else if(ver == "8.1.0.0")
 	{
 		version = db_ver::ver8_1_0_0;
-		#ifdef PublicRelease
-		readonly = true;
-		#else
 		readonly = !_monopoly;
-		#endif
 	}
 	else if(ver == "8.2.0.0")
 	{
 		version = db_ver::ver8_2_0_0;
-		#ifdef PublicRelease
-		readonly = true;
-		#else
 		readonly = !_monopoly;
-		#endif
 	}
 	else
 #endif
 		 if(ver == "8.2.14.0")
 	{
 		version = db_ver::ver8_2_14_0;
-		#ifdef PublicRelease
-		readonly = true;
-		#else
 		readonly = !_monopoly;
-		#endif
 	}
 	else if(ver == "8.3.8.0")
 	{
 		version = db_ver::ver8_3_8_0;
-		#ifdef PublicRelease
-		readonly = true;
-		#else
 		readonly = !_monopoly;
-		#endif
 		pagesize = cont->pagesize;
 	}
 	else
@@ -834,7 +818,6 @@ void T_1CD::flush()
 
 //---------------------------------------------------------------------------
 
-#ifndef PublicRelease
 void T_1CD::find_lost_objects()
 {
 	uint32_t i;
@@ -861,7 +844,6 @@ void T_1CD::find_lost_objects()
 	}
 	msreg_m.AddMessage("Поиск потерянных объектов завершен", MessageState::Succesfull);
 }
-#endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
 bool T_1CD::test_stream_format()
@@ -1531,7 +1513,6 @@ bool T_1CD::recursive_test_stream_format(v8catalog* cat, String path)
 }
 
 //---------------------------------------------------------------------------
-#ifndef PublicRelease
 bool T_1CD::create_table(String path)
 {
 	TFileStream* f;
@@ -1756,7 +1737,6 @@ bool T_1CD::create_table(String path)
 	delete root;
 	return true;
 }
-#endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
 void T_1CD::set_readonly(bool ro)
@@ -2063,7 +2043,6 @@ bool T_1CD::test_list_of_tables()
 	return result;
 }
 
-#ifndef PublicRelease
 //---------------------------------------------------------------------------
 bool T_1CD::replaceTREF(String mapfile)
 {
@@ -2339,8 +2318,6 @@ void T_1CD::find_and_save_lost_objects(boost::filesystem::path &lost_objects)
 	msreg_m.AddMessage("Поиск и сохранение потерянных объектов завершен", MessageState::Succesfull);
 
 }
-
-#endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
 // Если не удалось получить версию, возвращается 0, иначе возвращается положительное число
@@ -3856,8 +3833,6 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	return true;
 }
 
-
-#ifndef PublicRelease
 //---------------------------------------------------------------------------
 // Проверка и восстановление таблицы размещения файла DATA переденной таблицы
 // Проверка записей происходит по тестовому шаблону, созданному из описания полей
@@ -4093,8 +4068,6 @@ bool T_1CD::test_block_by_template(uint32_t testblock, char* tt, uint32_t num, i
 	}
 	return true;
 }
-
-#endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
 TableFiles* T_1CD::get_files_config()

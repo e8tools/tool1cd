@@ -767,7 +767,6 @@ String TrimSpacesRight(String s)
 }
 
 //---------------------------------------------------------------------------
-#ifndef PublicRelease
 uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen)
 {
 
@@ -932,7 +931,6 @@ uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxl
 	return addlen;
 
 }
-#endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
 bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
