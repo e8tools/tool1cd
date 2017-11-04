@@ -140,9 +140,8 @@ public:
 	uint32_t get_phys_numrec(int32_t ARow, Index* cur_index); // получить физический индекс записи по номеру строки по указанному индексу
 	String get_file_name_for_field(int32_t num_field, char* rec, uint32_t numrec = 0); // получить имя файла по-умолчанию конкретного поля конкретной записи
 	String get_file_name_for_record(char* rec); // получить имя файла по-умолчанию конкретной записи
-	T_1CD* getbase(){return base;};
+	T_1CD* getbase(){return base;}
 
-#ifndef PublicRelease
 	void begin_edit(); // переводит таблицу в режим редактирования
 	void cancel_edit(); // переводит таблицу в режим просмотра и отменяет все изменения
 	void end_edit(); // переводит таблицу в режим просмотра и сохраняет все изменения
@@ -159,7 +158,6 @@ public:
 	void insert_record(char* rec); // добавление записи
 	void update_record(uint32_t phys_numrecord, char* rec, char* changed_fields); // изменение записи
 	char* get_record_template_test();
-#endif //#ifdef PublicRelease
 private:
 	T_1CD* base;
 
@@ -192,7 +190,6 @@ private:
 	void create_file_blob(); // создание файла file_blob
 	void create_file_index(); // создание файла file_index
 	void refresh_descr_table(); // создание и запись файла описания таблицы
-#ifndef PublicRelease
 
 	bool edit; // признак, что таблица находится в режиме редактирования
 
@@ -204,7 +201,6 @@ private:
 	uint32_t write_blob_record(char* blob_record, uint32_t blob_len); // записывает НОВУЮ запись в файл blob, возвращает индекс новой записи
 	uint32_t write_blob_record(TStream* bstr); //  // записывает НОВУЮ запись в файл blob, возвращает индекс новой записи
 	void write_index_record(const uint32_t phys_numrecord, const char* rec); // запись индексов записи в файл index
-#endif //#ifdef PublicRelease
 
 	bool bad; // признак битой таблицы
 };
