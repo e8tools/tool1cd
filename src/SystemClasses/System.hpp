@@ -8,19 +8,13 @@
 #include <cstdint>
 #include <vector>
 #include <climits>
-//#include <boost/date_time/filetime_functions.hpp>
-#include <boost/date_time/c_time.hpp>
-
-//#include <Winnt.h>
-//#include <Winbase.h>
-
+#include <ctime>
 
 #define WINDOWS_TICK 10000000
 #define SEC_TO_UNIX_EPOCH 11644473600LL
 
 #define Int32x32To64(a, b)  ((int64_t)(((int64_t)((long)(a))) * ((long)(b))))
 #define UInt32x32To64(a, b) ((uint64_t)(((uint64_t)((unsigned int)(a))) * ((unsigned int)(b))))
-
 
 namespace System {
 

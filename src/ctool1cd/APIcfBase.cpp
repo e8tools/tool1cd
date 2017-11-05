@@ -5,6 +5,7 @@
 //---------------------------------------------------------------------------
 // возвращает секунды от эпохи UNIX
 // https://stackoverflow.com/questions/6161776/convert-windows-filetime-to-second-in-unix-linux
+// 
 unsigned WindowsTickToUnixSeconds(long long windowsTicks)
 {
 	return (unsigned)(windowsTicks / WINDOWS_TICK - SEC_TO_UNIX_EPOCH);
@@ -255,7 +256,9 @@ void v8file::SaveToFile(const String& FileName)
 	
 	#ifdef _MSC_VER
 		
-		_utime(FileName.c_str(), &ut);
+		//SetFileTime((HANDLE)fs->Handle, &create, &modify, &modify);
+	//fs->GetHandle()
+	_utime(FileName.c_str(), &ut);
 
 	#else
 

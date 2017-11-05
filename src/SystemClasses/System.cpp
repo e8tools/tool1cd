@@ -90,9 +90,18 @@ bool FileTimeToLocalFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileT
 
 void GetSystemTime(LPSYSTEMTIME lpSystemTime)
 {
-	time_t CurrTime;
-	time(&CurrTime);
 	// TODO: реализовать кроссплатформенное получение времени операционной системы
+
+	time_t CurrTime = time(NULL);
+	tm *ttm = localtime(&CurrTime);
+
+	lpSystemTime->wYear   = ttm->tm_year + 1900;
+	lpSystemTime->wMonth  = ttm->tm_mon + 1;
+	lpSystemTime->wDay    = ttm->tm_mday;
+	lpSystemTime->wHour   = ttm->tm_hour;
+	lpSystemTime->wMinute = ttm->tm_min;
+	lpSystemTime->wSecond = ttm->tm_sec;
+
 }
 
 } // System
