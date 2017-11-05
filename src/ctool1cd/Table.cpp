@@ -115,9 +115,7 @@ void Table::init(int32_t block_descr)
 	numrecords_found = 0;
 	recordsindex = NULL;
 
-#ifndef PublicRelease
 	edit = false;
-#endif //#ifdef PublicRelease
 	ch_rec = NULL;
 	added_numrecords = 0;
 
@@ -1461,15 +1459,10 @@ int64_t Table::get_fileoffset(uint32_t phys_numrecord)
 //---------------------------------------------------------------------------
 bool Table::get_edit()
 {
-#ifndef PublicRelease
 	return edit;
-#else
-	return false;
-#endif //#ifdef PublicRelease
 }
 //---------------------------------------------------------------------------
 
-#ifndef PublicRelease
 void Table::begin_edit()
 {
 	if(edit) return;
@@ -1995,7 +1988,6 @@ void Table::set_rec_type(uint32_t phys_numrecord, changed_rec_type crt)
 		}
 	}
 }
-#endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
 char* Table::get_edit_record(uint32_t phys_numrecord, char* rec)
@@ -2025,8 +2017,6 @@ uint32_t Table::get_phys_numrec(int32_t ARow, Index* cur_index)
 		return 0;
 	}
 
-
-#ifndef PublicRelease
 	if(edit)
 	{
 		if((uint32_t)ARow > log_numrecords + added_numrecords)
@@ -2040,7 +2030,6 @@ uint32_t Table::get_phys_numrec(int32_t ARow, Index* cur_index)
 		}
 		if((uint32_t)ARow > log_numrecords) return ARow - 1 - log_numrecords + phys_numrecords;
 	}
-#endif //#ifdef PublicRelease
 
 	if((uint32_t)ARow > log_numrecords)
 	{
@@ -2099,7 +2088,6 @@ void Table::refresh_descr_table()
 
 }
 
-#ifndef PublicRelease
 //---------------------------------------------------------------------------
 void Table::delete_data_record(uint32_t phys_numrecord)
 {
@@ -2758,8 +2746,6 @@ char* Table::get_record_template_test()
 
 	return res;
 }
-
-#endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
 // заполнить recordsindex не динамически

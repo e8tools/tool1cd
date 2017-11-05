@@ -139,7 +139,6 @@ void Index::create_recordsindex()
 }
 
 //---------------------------------------------------------------------------
-#ifndef PublicRelease
 void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, uint64_t curblock)
 {
 	unsigned char bf[3];
@@ -293,7 +292,6 @@ void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 
 	delete[] buf;
 }
-#endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
 uint32_t Index::get_rootblock()
@@ -328,7 +326,6 @@ uint32_t Index::get_length()
 }
 
 //---------------------------------------------------------------------------
-#ifndef PublicRelease
 void Index::dump(String _filename)
 {
 	TFileStream* f;
@@ -362,7 +359,6 @@ void Index::dump(String _filename)
 
 	delete f;
 }
-#endif //#ifdef PublicRelease
 
 //---------------------------------------------------------------------------
 char* Index::unpack_leafpage(uint64_t page_offset, uint32_t& number_indexes)
@@ -587,7 +583,6 @@ bool Index::pack_leafpage(char* unpack_index, uint32_t number_indexes, char* pag
 }
 
 //---------------------------------------------------------------------------
-#ifndef PublicRelease
 void Index::calcRecordIndex(const char* rec, char* indexBuf)
 {
 	int32_t i, j, k;
@@ -1162,6 +1157,3 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 	delete[] page;
 
 }
-#endif //#ifdef PublicRelease
-
-
