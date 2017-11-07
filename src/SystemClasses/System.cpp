@@ -44,7 +44,7 @@ uint64_t FileTime_to_POSIX(LPFILETIME pft)
 void UnixTimeToFileTime(time_t t, LPFILETIME pft)
 {
 
-	uint64_t ll = Int32x32To64(t, 10000000) + SEC_TO_UNIX_EPOCH;
+	uint64_t ll = UInt32x32To64(t, 10000000) + SEC_TO_UNIX_EPOCH;
 
 	pft->dwLowDateTime = (uint32_t)ll;
 	pft->dwHighDateTime = ll >> 32;
