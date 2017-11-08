@@ -5,6 +5,9 @@ pipeline {
     stages {
 
         stage('Сборка') {
+
+            cleanWs()
+            
             agent { label 'windows' }
 
             steps {
