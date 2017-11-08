@@ -26,7 +26,7 @@ pipeline {
                 
                 script {
                     bat 'chcp 65001 > nul && call opm test'
-                    junit 'junit-*.xml'
+                    junit 'tests.xml'
                 }
                 
             }
