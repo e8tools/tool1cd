@@ -11,8 +11,8 @@ pipeline {
                 checkout scm
 
                 script {
-                    bat '"C:\Program Files\CMake\bin\cmake.exe"'
-                    bat '"C:\Program Files\CMake\bin\cmake.exe" --build'
+                    bat '"C:\\Program Files\\CMake\\bin\\cmake.exe"'
+                    bat '"C:\\Program Files\\CMake\\bin\\cmake.exe" --build'
                 }
             }
         }
