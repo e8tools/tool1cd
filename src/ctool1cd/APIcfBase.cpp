@@ -310,7 +310,7 @@ int64_t v8file::Read(void* Buffer, int Start, int Length)
 
 //---------------------------------------------------------------------------
 // чтение
-int64_t v8file::Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length)
+int64_t v8file::Read(std::vector<t::Byte> Buffer, int Start, int Length)
 {
 	int64_t ret;
 	Lock->Acquire();
@@ -347,7 +347,7 @@ int64_t v8file::Write(const void* Buffer, int Start, int Length) // дозапи
 
 //---------------------------------------------------------------------------
 // записать
-int64_t v8file::Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length) // дозапись/перезапись частично
+int64_t v8file::Write(std::vector<t::Byte> Buffer, int Start, int Length) // дозапись/перезапись частично
 {
 	int64_t ret;
 	Lock->Acquire();
@@ -1702,7 +1702,7 @@ int TV8FileStream::Read(void *Buffer, int Count)
 
 //---------------------------------------------------------------------------
 // чтение буфера
-int TV8FileStream::Read(System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count)
+int TV8FileStream::Read(std::vector<t::Byte> Buffer, int Offset, int Count)
 {
 	int r = file->Read(Buffer, pos, Count);
 	pos += r;
@@ -1720,7 +1720,7 @@ int TV8FileStream::Write(const void *Buffer, int Count)
 
 //---------------------------------------------------------------------------
 // запись буфера
-int TV8FileStream::Write(const System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count)
+int TV8FileStream::Write(const std::vector<t::Byte> Buffer, int Offset, int Count)
 {
 	int r = file->Write(Buffer, pos, Count);
 	pos += r;

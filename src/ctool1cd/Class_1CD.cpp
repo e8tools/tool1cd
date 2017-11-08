@@ -50,7 +50,7 @@ tree* get_treeFromV8file(v8file* f)
 	}
 	bytes = TEncoding::Convert(enc, TEncoding::Unicode, sb->GetBytes(), offset, sb->GetSize() - offset);
 
-	rt = parse_1Ctext(String((WCHART*)&bytes[0], bytes.GetLength() / 2), f->GetFullName());
+	rt = parse_1Ctext(String((WCHART*)&bytes[0], bytes.size() / 2), f->GetFullName());
 	delete sb;
 	return rt;
 }
@@ -1423,7 +1423,7 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 			if(_sb->GetSize()-offset > 0)
 			{
 				bytes2 = TEncoding::Convert(enc, TEncoding::Unicode, _sb->GetBytes(), offset, _sb->GetSize()-offset);
-				if(bytes2.GetLength() == 0)
+				if(bytes2.size() == 0)
 				{
 					msreg_m.AddError("Ошибка тестирования. Ошибка конвертации",
 						"Путь", path);
@@ -1431,7 +1431,7 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 				}
 				else
 				{
-					sf = String((WCHART*)&bytes2[0], bytes2.GetLength() / 2);
+					sf = String((WCHART*)&bytes2[0], bytes2.size() / 2);
 					for(i = 1; i <= sf.GetLength(); i++)
 					{
 						first_symbol = sf[i];
@@ -1925,14 +1925,14 @@ bool T_1CD::test_list_of_tables()
 			if(_sb->GetSize()-offset > 0)
 			{
 				bytes2 = TEncoding::Convert(enc, TEncoding::Unicode, _sb->GetBytes(), offset, _sb->GetSize()-offset);
-				if(bytes2.GetLength() == 0)
+				if(bytes2.size() == 0)
 				{
 					msreg_m.AddError("Ошибка тестирования. Ошибка конвертации файла PARAMS/DBNames");
 					result = false;
 				}
 				else
 				{
-					sf = String((WCHART*)&bytes2[0], bytes2.GetLength() / 2);
+					sf = String((WCHART*)&bytes2[0], bytes2.size() / 2);
 					for(i = 1; i <= sf.GetLength(); i++)
 					{
 						first_symbol = sf[i];
@@ -2847,7 +2847,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	}
 
 	in = new TMemoryStream;
-	in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().GetLength());
+	in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().size());
 	{
 		TStreamWriter sw(in, TEncoding::UTF8, 1024);
 		sw.Write(sversion);
@@ -3135,7 +3135,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	String tree_text = outtext(tr);
 	delete tr;
 	in->SetSize(0);
-	in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().GetLength());
+	in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().size());
 	{
 		TStreamWriter sw(in, TEncoding::UTF8, 1024);
 		sw.Write(tree_text);
@@ -3164,7 +3164,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	String tv_text = outtext(tv);
 	delete tv;
 	in->SetSize(0);
-	in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().GetLength());
+	in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().size());
 	{
 		TStreamWriter sw(in, TEncoding::UTF8, 1024);
 		sw.Write(tv_text);

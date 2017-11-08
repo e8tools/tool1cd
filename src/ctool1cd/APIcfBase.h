@@ -6,6 +6,7 @@
 #include <map>
 #include <set>
 #include <limits>
+#include<vector>
 
 #include "Zip.h"
 #include "UZLib.h"
@@ -115,10 +116,10 @@ class v8file{
 	int64_t GetFileLength64();
 
 	int64_t Read(void* Buffer, int Start, int Length);
-	int64_t Read(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length);
+	int64_t Read(std::vector<System::t::Byte> Buffer, int Start, int Length);
 
 	int64_t Write(const void* Buffer, int Start, int Length);                           // дозапись/перезапись частично
-	int64_t Write(System::DynamicArray<System::t::Byte> Buffer, int Start, int Length); // дозапись/перезапись частично
+	int64_t Write(std::vector<System::t::Byte> Buffer, int Start, int Length); // дозапись/перезапись частично
 	int64_t Write(const void* Buffer, int Length);                                      // перезапись целиком
 	int64_t Write(TStream* Stream, int Start, int Length);                              // дозапись/перезапись частично
 	int64_t Write(TStream* Stream);                                                     // перезапись целиком
@@ -217,9 +218,9 @@ public:
 	TV8FileStream(v8file* f, bool ownfile = false);
 	virtual ~TV8FileStream();
 	virtual int Read(void *Buffer, int Count);
-	virtual int Read(System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count);
+	virtual int Read(std::vector<System::t::Byte> Buffer, int Offset, int Count);
 	virtual int Write(const void *Buffer, int Count);
-	virtual int Write(const System::DynamicArray<System::t::Byte> Buffer, int Offset, int Count);
+	virtual int Write(const std::vector<System::t::Byte> Buffer, int Offset, int Count);
 	virtual int Seek(int Offset, System::Word Origin);
 	virtual int64_t Seek(const int64_t Offset, TSeekOrigin Origin);
 };

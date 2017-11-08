@@ -8,6 +8,8 @@
 #ifndef SRC_CTOOL1CD_TABLEFILESTREAM_H_
 #define SRC_CTOOL1CD_TABLEFILESTREAM_H_
 
+#include <vector>
+
 #include "Common.h"
 #include "Table.h"
 
@@ -24,9 +26,9 @@ public:
 	virtual ~TableFileStream();
 
 	virtual int32_t Read(void *Buffer, int32_t Count);
-	virtual int32_t Read(System::DynamicArray<System::t::Byte> Buffer, int32_t Offset, int32_t Count);
+	virtual int32_t Read(std::vector<System::t::Byte> Buffer, int32_t Offset, int32_t Count);
 	virtual int32_t Write(const void *Buffer, int32_t Count){throw(Exception(L"Write read-only stream"));}
-	virtual int32_t Write(const System::DynamicArray<System::t::Byte> Buffer, int32_t Offset, int32_t Count){throw(Exception(L"Write read-only stream"));}
+	virtual int32_t Write(const std::vector<System::t::Byte> Buffer, int32_t Offset, int32_t Count){throw(Exception(L"Write read-only stream"));}
 	virtual int32_t Seek(int32_t Offset, System::Word Origin);
 	virtual int64_t Seek(const int64_t Offset, TSeekOrigin Origin);
 };

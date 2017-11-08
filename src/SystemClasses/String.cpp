@@ -48,7 +48,7 @@ String::String(const char *src, int limit_size) : string(src, limit_size)
  *      @src        - входная строка
  *      @limit_size - лимит в размере
  */
-String::String(const DynamicArray<t::Byte> &bytes) : string(reinterpret_cast<const char *>(bytes.data()), bytes.size())
+String::String(const std::vector<t::Byte> &bytes) : string(reinterpret_cast<const char *>(bytes.data()), bytes.size())
 {
 }
 
@@ -59,7 +59,7 @@ String::String(const DynamicArray<t::Byte> &bytes) : string(reinterpret_cast<con
 String::String(const WCHART *w_src, int limit_size)
 {
 	// Костыль
-	DynamicArray<t::Byte> tmpdata;
+	std::vector<t::Byte> tmpdata;
 	const WCHART *p = w_src;
 	bool limit_exceeded = false;
 
@@ -87,7 +87,7 @@ String::String(const WCHART *w_src, int limit_size)
 String::String(const WCHART *w_src)
 {
 	// Костыль
-	DynamicArray<t::Byte> tmpdata;
+	std::vector<t::Byte> tmpdata;
 	const WCHART *p = w_src;
 
 	if( p != nullptr ) {

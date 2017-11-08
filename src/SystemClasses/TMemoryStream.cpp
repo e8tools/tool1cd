@@ -1,9 +1,8 @@
-#include "TMemoryStream.hpp"
-
-#include "System.hpp"
-#include "DynamicArray.hpp"
-#include "TStream.hpp"
 #include <cstring>
+
+#include "TMemoryStream.hpp"
+#include "System.hpp"
+#include "TStream.hpp"
 
 namespace System {
 
@@ -50,7 +49,7 @@ int64_t TMemoryStream::Write(const void *Buffer, int64_t Count)
 	return Count;
 }
 
-const DynamicArray<t::Byte> &TMemoryStream::GetBytes() const
+const std::vector<t::Byte> &TMemoryStream::GetBytes() const
 {
 	return _data;
 }
@@ -69,7 +68,7 @@ void TMemoryStream::EnsureSize(size_t size)
 	}
 }
 
-TBytesStream::TBytesStream(const DynamicArray<t::Byte> &initial)
+TBytesStream::TBytesStream(const std::vector<t::Byte> &initial)
 {
 	Write(initial.data(), initial.size());
 	m_position = 0;
