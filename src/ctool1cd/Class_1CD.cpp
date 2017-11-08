@@ -4195,6 +4195,3 @@ String T_1CD::pagemaprec_presentation(pagemaprec& pmr)
 		default: return String("??? неизвестный тип страницы ???");
 	}
 }
-
-
-
