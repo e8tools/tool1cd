@@ -4,7 +4,7 @@ pipeline {
     
     stages {
 
-        stage('Сборка') {
+        stage('Сборка WIN') {
 
             agent { label 'windows' }
 
@@ -16,13 +16,13 @@ pipeline {
 
                 script {
                     bat 'chcp 65001 > nul'
-                    bat '"C:\\Program Files\\CMake\\bin\\cmake.exe" -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DBOOST_INCLUDEDIR="%BOOST_INCLUDEDIR%" -DZLIB_LIBRARY="%ZLIB_LIBRARY%" -DZLIB_INCLUDE_DIR="%ZLIB_INCLUDE_DIR%" .'
-                    bat '"C:\\Program Files\\CMake\\bin\\cmake.exe" --build .'
+                    bat '"%CMAKE_EXE%" -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DBOOST_INCLUDEDIR="%BOOST_INCLUDEDIR%" -DZLIB_LIBRARY="%ZLIB_LIBRARY%" -DZLIB_INCLUDE_DIR="%ZLIB_INCLUDE_DIR%" .'
+                    bat '"%CMAKE_EXE%" --build .'
                 }
             }
         }
 
-        stage('Тестирование кода пакета WIN') {
+        stage('Тестирование WIN') {
 
             agent { label 'windows' }
 
