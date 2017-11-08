@@ -77,7 +77,7 @@ int32_t TableFileStream::Read(void *Buffer, int32_t Count)
 }
 
 //---------------------------------------------------------------------------
-int32_t TableFileStream::Read(System::DynamicArray<System::t::Byte> Buffer, int32_t Offset, int32_t Count)
+int32_t TableFileStream::Read(std::vector<t::Byte> Buffer, int32_t Offset, int32_t Count)
 {
 	// TODO: реализовать TableFileStream::Read(System::DynamicArray<System::t::Byte> Buffer, int32_t Offset, int32_t Count)
 	return 0;

@@ -12,23 +12,23 @@ namespace SysUtils {
 class TUtf8Encoding : public TEncoding
 {
 
-virtual DynamicArray<t::Byte> GetPreamble()
+virtual std::vector<t::Byte> GetPreamble()
 {
-	DynamicArray<t::Byte> result;
+	std::vector<t::Byte> result;
 	result.push_back(0xEF);
 	result.push_back(0xBB);
 	result.push_back(0xBF);
 	return result;
 }
 
-virtual String toUtf8(const System::DynamicArray<t::Byte> &Buffer) const
+virtual String toUtf8(const std::vector<t::Byte> &Buffer) const
 {
 	return String(Buffer);
 }
 
-virtual DynamicArray<t::Byte> fromUtf8(const String &str)
+virtual std::vector<t::Byte> fromUtf8(const String &str)
 {
-	DynamicArray<t::Byte> result;
+	std::vector<t::Byte> result;
 	for (char c : str) {
 		result.push_back((t::Byte)c);
 	}
@@ -41,28 +41,28 @@ virtual DynamicArray<t::Byte> fromUtf8(const String &str)
 class TUcs2Encoding : public TEncoding
 {
 
-virtual DynamicArray<t::Byte> GetPreamble()
+virtual std::vector<t::Byte> GetPreamble()
 {
-	DynamicArray<t::Byte> result;
+	std::vector<t::Byte> result;
 	result.push_back(0xFF);
 	result.push_back(0xFE);
 	return result;
 }
 
-virtual String toUtf8(const System::DynamicArray<t::Byte> &Buffer) const
+virtual String toUtf8(const std::vector<t::Byte> &Buffer) const
 {
 	auto data_first = (const uint16_t *)Buffer.data();
 	auto data_last  = data_first + Buffer.size() / sizeof(uint16_t);
-	DynamicArray<t::Byte> result_vector;
+	std::vector<t::Byte> result_vector;
 	utf8::utf16to8(data_first, data_last, back_inserter(result_vector));
 	return String(result_vector);
 }
 
-virtual DynamicArray<t::Byte> fromUtf8(const String &data)
+virtual std::vector<t::Byte> fromUtf8(const String &data)
 {
 	auto data_first = data.c_str();
 	auto data_last = data_first + data.size();
-	DynamicArray<t::Byte> result_vector;
+	std::vector<t::Byte> result_vector;
 	utf8::utf8to16(data_first, data_last, back_inserter(result_vector));
 	return result_vector;
 }
@@ -128,23 +128,23 @@ TEncoding *TEncoding::UTF8 = new TUtf8Encoding();
 TEncoding *TEncoding::Unicode = new TUcs2Encoding();
 
 
-int TEncoding::GetBufferEncoding(const System::DynamicArray<t::Byte> &Buffer, TEncoding* &AEncoding)
+int TEncoding::GetBufferEncoding(const std::vector<t::Byte> &Buffer, TEncoding* &AEncoding)
 {
 	// TODO: реализовать GetBufferEncoding
 	return 0;
 }
 
-DynamicArray<t::Byte> TEncoding::Convert(TEncoding * const Source, TEncoding * const Destination, const DynamicArray<t::Byte> &Bytes, int StartIndex, int Count)
+std::vector<t::Byte> TEncoding::Convert(TEncoding * const Source, TEncoding * const Destination, const std::vector<t::Byte> &Bytes, int StartIndex, int Count)
 {
 	// TODO: Исправить работу TEncoding::Convert
 	auto data = Source->toUtf8(Bytes); // TODO: StartIndex, Count
-	DynamicArray<t::Byte> Result = Destination->fromUtf8(data);
+	std::vector<t::Byte> Result = Destination->fromUtf8(data);
 	return Result;
 }
 
-DynamicArray<t::Byte> TEncoding::GetPreamble()
+std::vector<t::Byte> TEncoding::GetPreamble()
 {
-	return DynamicArray<t::Byte>();
+	return std::vector<t::Byte>();
 }
 
 int StrToInt(const String &s)

@@ -1,6 +1,8 @@
 #ifndef SYSTEM_SYSUTILS_HPP
 #define SYSTEM_SYSUTILS_HPP
 
+#include <vector>
+
 #include "System.IOUtils.hpp"
 #include "String.hpp"
 
@@ -45,12 +47,12 @@ class TEncoding
 
 public:
 
-virtual System::DynamicArray<System::t::Byte> GetPreamble() = 0;
-virtual String toUtf8(const System::DynamicArray<t::Byte> &Buffer) const = 0;
-virtual DynamicArray<t::Byte> fromUtf8(const String &str) = 0;
+virtual std::vector<System::t::Byte> GetPreamble() = 0;
+virtual String toUtf8(const std::vector<t::Byte> &Buffer) const = 0;
+virtual std::vector<t::Byte> fromUtf8(const String &str) = 0;
 
-static int GetBufferEncoding(const System::DynamicArray<t::Byte> &Buffer, TEncoding* &AEncoding);
-static DynamicArray<t::Byte> Convert(TEncoding * const Source, TEncoding * const Destination, const DynamicArray<t::Byte> &Bytes, int StartIndex, int Count);
+static int GetBufferEncoding(const std::vector<t::Byte> &Buffer, TEncoding* &AEncoding);
+static std::vector<t::Byte> Convert(TEncoding * const Source, TEncoding * const Destination, const std::vector<t::Byte> &Bytes, int StartIndex, int Count);
 
 //! двухбайтная кодировка WCHART
 static TEncoding *Unicode;
@@ -59,7 +61,7 @@ static TEncoding *UTF8;
 
 };
 
-typedef System::DynamicArray<System::t::Byte> TBytes;
+typedef std::vector<System::t::Byte> TBytes;
 
 int StrToInt(const String &s);
 

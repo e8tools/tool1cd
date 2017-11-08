@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include "System.hpp"
-#include "DynamicArray.hpp"
 
 namespace System {
 
@@ -22,7 +21,7 @@ public:
 
 	String(const char *src, int limit_size);
 
-	explicit String(const DynamicArray<t::Byte> &bytes);
+	explicit String(const std::vector<t::Byte> &bytes);
 
 	String(const WCHART *w_src, int limit_size);
 
