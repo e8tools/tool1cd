@@ -8,7 +8,6 @@
 #include <limits>
 #include<vector>
 
-#include "Zip.h"
 #include "UZLib.h"
 
 #pragma comment (lib, "zlibstatic.lib")
