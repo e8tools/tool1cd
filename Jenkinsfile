@@ -6,11 +6,12 @@ pipeline {
 
         stage('Сборка') {
 
-            cleanWs()
-            
             agent { label 'windows' }
 
             steps {
+                
+                cleanWs()
+            
                 checkout scm
 
                 script {
