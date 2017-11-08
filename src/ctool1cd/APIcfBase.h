@@ -7,7 +7,6 @@
 #include <set>
 #include <limits>
 
-#include "Zip.h"
 #include "UZLib.h"
 
 #pragma comment (lib, "zlibstatic.lib")

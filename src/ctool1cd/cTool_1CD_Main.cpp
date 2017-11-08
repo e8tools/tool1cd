@@ -15,7 +15,6 @@
 #include "ErrorCode.h"
 #include "Messenger.h"
 #include "APIcfBase.h"
-#include "Zip.h"
 
 using namespace std;
 
