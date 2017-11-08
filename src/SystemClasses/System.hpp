@@ -13,9 +13,6 @@
 #define WINDOWS_TICK 10000000
 #define SEC_TO_UNIX_EPOCH 11644473600LL
 
-#define Int32x32To64(a, b)  ((int64_t)(((int64_t)((long)(a))) * ((long)(b))))
-#define UInt32x32To64(a, b) ((uint64_t)(((uint64_t)((unsigned int)(a))) * ((unsigned int)(b))))
-
 namespace System {
 
 typedef uint32_t         LongWord;
@@ -68,6 +65,11 @@ typedef union _LARGE_INTEGER {
 } LARGE_INTEGER, *PLARGE_INTEGER;
 
 
+int64_t Int32x32To64(int64_t a, int64_t b);
+uint64_t UInt32x32To64(int64_t a, int64_t b);
+
+uint64_t FileTime_to_POSIX(LPFILETIME pft);
+void UnixTimeToFileTime(time_t t, LPFILETIME pft);
 
 bool SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime, LPFILETIME lpFileTime);
 bool LocalFileTimeToFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileTime);

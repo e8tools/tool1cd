@@ -21,6 +21,21 @@ bool operator == (const TGUID &a, const TGUID &b)
 }
 
 //---------------------------------------------------------------------------
+// Замена макросов Microsoft
+int64_t Int32x32To64(int64_t a, int64_t b)
+{
+	return ((int64_t)(((int64_t)((long)(a))) * ((long)(b))));
+}
+
+//---------------------------------------------------------------------------
+// Замена макросов Microsoft
+uint64_t UInt32x32To64(int64_t a, int64_t b)
+{
+	return ((uint64_t)(((uint64_t)((unsigned int)(a))) * ((unsigned int)(b))));
+}
+
+
+//---------------------------------------------------------------------------
 // Преобразование времени FILETIME to POSIX
 uint64_t FileTime_to_POSIX(LPFILETIME pft)
 {
@@ -69,7 +84,7 @@ bool SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime, LPFILETIME lpFileTime)
 	UnixTime = mktime(&ttm);
 	UnixTimeToFileTime(UnixTime, lpFileTime);
 
-	return true; // TODO: реализовать кроссплатформенное преобразование системного времени в файловое время
+	return true; 
 }
 
 bool LocalFileTimeToFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileTime)
@@ -88,7 +103,6 @@ bool LocalFileTimeToFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileT
 bool FileTimeToLocalFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileTime)
 {
 	
-	// TODO: реализовать кроссплатформенное преобразование из универсального (UTC) файлового времени в локальноое системное файловое время
 	time_t rawtime  = FileTime_to_POSIX((LPFILETIME)lpLocalFileTime);
 	struct tm * ptm = localtime(&rawtime);
 	time_t UnixTime = mktime(ptm);
@@ -100,8 +114,7 @@ bool FileTimeToLocalFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileT
 
 void GetSystemTime(LPSYSTEMTIME lpSystemTime)
 {
-
-	// TODO: реализовать кроссплатформенное получение времени операционной системы
+	
 	time_t CurrTime = time(NULL);
 	tm *ttm = localtime(&CurrTime);
 

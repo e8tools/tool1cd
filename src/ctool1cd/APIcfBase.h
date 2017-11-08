@@ -10,23 +10,6 @@
 #include "Zip.h"
 #include "UZLib.h"
 
-#ifdef _MSC_VER
-
-	#include <sys/utime.h>
-
-#else
-
-	#include <sys/types.h>
-	#include <utime.h>
-
-#endif // _MSC_VER
-
-#include <boost/date_time/c_time.hpp>
-
-
-
-
-
 #pragma comment (lib, "zlibstatic.lib")
 
 
@@ -55,7 +38,7 @@ const char _EMPTY_CATALOG_TEMPLATE[16] = {'\xff','\xff','\xff','\x7f',0,2,0,0,0,
 
 const int32_t LAST_BLOCK = std::numeric_limits<int>::max();
 
-const int64_t EPOCH_START = 504911232000000;
+const int64_t EPOCH_START_WIN = 504911232000000;
 
 
 //---------------------------------------------------------------------------

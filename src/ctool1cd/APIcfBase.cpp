@@ -1,5 +1,17 @@
 #include "APIcfBase.h"
 
+#ifdef _MSC_VER
+
+	#include <sys/utime.h>
+
+#else
+
+	#include <sys/types.h>
+	#include <utime.h>
+
+#endif // _MSC_VER
+
+
 #pragma comment (lib, "zlibstatic.lib")
 
 //---------------------------------------------------------------------------
@@ -108,7 +120,7 @@ void V8timeToFileTime(const int64_t* v8t, FILETIME* ft){
 	FILETIME lft;
 
 	int64_t t = *v8t;
-	t -= EPOCH_START; //504911232000000 = ((365 * 4 + 1) * 100 - 3) * 4 * 24 * 60 * 60 * 10000
+	t -= EPOCH_START_WIN; //504911232000000 = ((365 * 4 + 1) * 100 - 3) * 4 * 24 * 60 * 60 * 10000
 	t *= 1000;
 	*(int64_t*)&lft = t;
 	LocalFileTimeToFileTime(&lft, ft);
@@ -124,7 +136,7 @@ void FileTimeToV8time(const FILETIME* ft, int64_t* v8t){
 	FileTimeToLocalFileTime(ft, &lft);
 	int64_t t = *(int64_t*)&lft;
 	t /= 1000;
-	t += EPOCH_START; //504911232000000 = ((365 * 4 + 1) * 100 - 3) * 4 * 24 * 60 * 60 * 10000
+	t += EPOCH_START_WIN; //504911232000000 = ((365 * 4 + 1) * 100 - 3) * 4 * 24 * 60 * 60 * 10000
 	*v8t = t;
 }
 
@@ -209,8 +221,6 @@ void v8file::SetTimeModify(FILETIME* ft)
 void v8file::SaveToFile(const String& FileName)
 {
 	FILETIME create, modify;
-	struct tm tma = { 0 };
-	struct tm tmm = { 0 };
 	
     #ifdef _MSC_VER
     
@@ -222,28 +232,6 @@ void v8file::SaveToFile(const String& FileName)
     
     #endif // _MSC_VER
 
-	// Fill out the accessed time structure  
-	tma.tm_hour = 12;
-	tma.tm_isdst = 0;
-	tma.tm_mday = 15;
-	tma.tm_min = 0;
-	tma.tm_mon = 0;
-	tma.tm_sec = 0;
-	tma.tm_year = 103;
-
-	// Fill out the modified time structure  
-	tmm.tm_hour = 12;
-	tmm.tm_isdst = 0;
-	tmm.tm_mday = 15;
-	tmm.tm_min = 0;
-	tmm.tm_mon = 0;
-	tmm.tm_sec = 0;
-	tmm.tm_year = 102;
-
-	// Convert tm to time_t  
-	ut.actime = mktime(&tma);
-	ut.modtime = mktime(&tmm);
-
 	if(!is_opened) if(!Open()) return;
 
 	TFileStream* fs = new TFileStream(FileName, fmCreate);
@@ -253,19 +241,25 @@ void v8file::SaveToFile(const String& FileName)
 	
 	GetTimeCreate(&create);
 	GetTimeModify(&modify);
-	
+
+	time_t RawtimeCreate = FileTime_to_POSIX(&create);
+	struct tm * ptm_create = localtime(&RawtimeCreate);
+	ut.actime = mktime(ptm_create);
+
+	time_t RawtimeModified = FileTime_to_POSIX(&create);
+	struct tm * ptm_modified = localtime(&RawtimeModified);
+	ut.modtime = mktime(ptm_modified);
+
 	#ifdef _MSC_VER
 		
-		//SetFileTime((HANDLE)fs->Handle, &create, &modify, &modify);
-	//fs->GetHandle()
-	_utime(FileName.c_str(), &ut);
+		_utime(FileName.c_str(), &ut);
 
 	#else
 
 		utime(FileName.c_str(), &ut);
 
 	#endif // _MSC_VER
-	// SetFileTime((HANDLE)fs->Handle, &create, &modify, &modify); // TODO: реализовать сохранение времени создания и изменения файла
+
 	delete fs;
 }
 
