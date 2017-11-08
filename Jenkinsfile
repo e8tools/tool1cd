@@ -11,7 +11,10 @@ pipeline {
                 checkout scm
 
                 script {
-                    bat '"C:\\Program Files\\CMake\\bin\\cmake.exe" .'
+                    bat '"C:\\Program Files\\CMake\\bin\\cmake.exe" cmake -G "Visual Studio 14"
+                        -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DBOOST_INCLUDEDIR="%BOOST_INCLUDEDIR%"
+                        -DZLIB_LIBRARY=D:\home\dmpas\workspace\lib\zlib\build\Release\zlibstatic.lib -DZLIB_INCLUDE_DIR=D:\home\dmpas\workspace\lib\zlib
+                        .'
                     bat '"C:\\Program Files\\CMake\\bin\\cmake.exe" --build .'
                 }
             }
