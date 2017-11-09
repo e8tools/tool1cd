@@ -52,9 +52,9 @@ class TableFiles
 public:
 	TableFiles(Table* t);
 	virtual ~TableFiles();
-	bool getready(){return ready;};
+	bool getready(){return ready;}
 	table_file* getfile(const String& name);
-	Table* gettable(){return tab;};
+	Table* gettable(){return tab;}
 
 	// __property std::map<String,table_file*> files = {read = allfiles};
 	std::map<String,table_file*> &files();

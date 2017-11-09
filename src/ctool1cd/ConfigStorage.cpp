@@ -13,6 +13,8 @@ const String spoint = ".";
 const String sdynupdate = "_dynupdate_";
 const int lsdynupdate = sdynupdate.Length();
 
+extern Registrator msreg_g;
+
 //********************************************************
 // Класс ConfigStorageDirectory
 
@@ -497,7 +499,7 @@ bool ConfigStorageTable::save_config(String _filename)
 		if(j != prevj)
 		{
 			prevj = j;
-			msreg_m.Status(String(j) + "%");
+			msreg_g.Status(String(j) + "%");
 		}
 
 		tf = pfiles->second;
@@ -514,7 +516,7 @@ bool ConfigStorageTable::save_config(String _filename)
 	}
 
 	delete c;
-	msreg_m.Status("");
+	msreg_g.Status("");
 	return true;
 }
 
@@ -537,14 +539,6 @@ bool ConfigStorageTable::fileexists(const String& path)
 	pfiles = files.find(fname.UpperCase());
 	if(pfiles == files.end()) return false;
 	return true;
-}
-
-void ConfigStorageTable::AddMessageRegistrator(MessageRegistrator* messageregistrator) {
-	msreg_m.AddMessageRegistrator(messageregistrator);
-}
-
-void ConfigStorageTable::RemoveMessageRegistrator() {
-	msreg_m.RemoveMessageRegistrator();
 }
 
 //********************************************************
@@ -587,7 +581,7 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 		tt = parse_1Cstream(DynamicallyUpdated->stream, s);
 		if(!tt)
 		{
-			msreg_m.AddError("Ошибка разбора файла DynamicallyUpdated"
+			msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
 				, "Путь", s);
 		}
 		else
@@ -595,7 +589,7 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 			ct = tt->get_first();
 			if(!ct)
 			{
-				msreg_m.AddError("Ошибка разбора файла DynamicallyUpdated"
+				msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
 					, "Путь", s);
 			}
 			else
@@ -603,7 +597,7 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 				ct = ct->get_first();
 				if(!ct)
 				{
-					msreg_m.AddError("Ошибка разбора файла DynamicallyUpdated"
+					msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
 						, "Путь", s);
 				}
 				else
@@ -611,14 +605,14 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 					ct = ct->get_next();
 					if(!ct)
 					{
-						msreg_m.AddError("Ошибка разбора файла DynamicallyUpdated"
+						msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
 							, "Путь", s);
 					}
 					else
 					{
 						if(ct->get_type() != node_type::nd_number)
 						{
-							msreg_m.AddError("Ошибка разбора файла DynamicallyUpdated"
+							msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
 								, "Путь", s);
 						}
 						else
@@ -714,14 +708,6 @@ String ConfigStorageTableConfig::presentation()
 	return present;
 }
 
-void ConfigStorageTableConfig::AddMessageRegistrator(MessageRegistrator* messageregistrator) {
-	msreg_m.AddMessageRegistrator(messageregistrator);
-}
-
-void ConfigStorageTableConfig::RemoveMessageRegistrator() {
-	msreg_m.RemoveMessageRegistrator();
-}
-
 //********************************************************
 // Класс ConfigStorageTableConfigSave
 
@@ -766,7 +752,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 		tt = parse_1Cstream(deleted->stream, s);
 		if(!tt)
 		{
-			msreg_m.AddError("Ошибка разбора файла deleted"
+			msreg_g.AddError("Ошибка разбора файла deleted"
 				, "Путь", s);
 		}
 		else
@@ -774,7 +760,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 			ct = tt->get_first();
 			if(!ct)
 			{
-				msreg_m.AddError("Ошибка разбора файла DynamicallyUpdated"
+				msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
 					, "Путь", s);
 			}
 			{
@@ -783,7 +769,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 					ct = ct->get_next();
 					if(!ct)
 					{
-						msreg_m.AddError("Ошибка разбора файла DynamicallyUpdated"
+						msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
 							, "Путь", s);
 						break;
 					}
@@ -791,7 +777,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 					ct = ct->get_next();
 					if(!ct)
 					{
-						msreg_m.AddError("Ошибка разбора файла DynamicallyUpdated"
+						msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
 							, "Путь", s);
 						break;
 					}
@@ -814,7 +800,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 		tt = parse_1Cstream(DynamicallyUpdated->stream, s);
 		if(!tt)
 		{
-			msreg_m.AddError("Ошибка разбора файла DynamicallyUpdated"
+			msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
 				, "Путь", s);
 		}
 		else
@@ -822,7 +808,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 			ct = tt->get_first();
 			if(!ct)
 			{
-				msreg_m.AddError("Ошибка разбора файла DynamicallyUpdated"
+				msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
 					, "Путь", s);
 			}
 			else
@@ -830,7 +816,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 				ct = ct->get_first();
 				if(!ct)
 				{
-					msreg_m.AddError("Ошибка разбора файла DynamicallyUpdated"
+					msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
 						, "Путь", s);
 				}
 				else
@@ -838,14 +824,14 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 					ct = ct->get_next();
 					if(!ct)
 					{
-						msreg_m.AddError("Ошибка разбора файла DynamicallyUpdated"
+						msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
 							, "Путь", s);
 					}
 					else
 					{
 						if(ct->get_type() != node_type::nd_number)
 						{
-							msreg_m.AddError("Ошибка разбора файла DynamicallyUpdated"
+							msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
 								, "Путь", s);
 						}
 						else
@@ -889,7 +875,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 		}
 		else
 		{
-			msreg_m.AddError("Ошибка чтения CONFIGSAVE. Повторяющееся имя файла"
+			msreg_g.AddError("Ошибка чтения CONFIGSAVE. Повторяющееся имя файла"
 				, "Имя файла", s);
 		}
 	}
@@ -968,14 +954,6 @@ String ConfigStorageTableConfigSave::presentation()
 	return present;
 }
 
-void ConfigStorageTableConfigSave::AddMessageRegistrator(MessageRegistrator* messageregistrator) {
-	msreg_m.AddMessageRegistrator(messageregistrator);
-}
-
-void ConfigStorageTableConfigSave::RemoveMessageRegistrator() {
-	msreg_m.RemoveMessageRegistrator();
-}
-
 //********************************************************
 // Класс ConfigStorageTableConfigCas
 
@@ -1001,7 +979,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* tabc, const
 	_configinfo = tabc->getfile(configver);
 	if(!_configinfo)
 	{
-		msreg_m.AddError("Ошибка поиска файла"
+		msreg_g.AddError("Ошибка поиска файла"
 			, "Путь", s
 			, "Имя", configver
 			, "Имя файла", "configinfo");
@@ -1014,7 +992,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* tabc, const
 	tt = parse_1Cstream(configinfo->stream, s);
 	if(!tt)
 	{
-		msreg_m.AddError("Ошибка разбора файла configinfo"
+		msreg_g.AddError("Ошибка разбора файла configinfo"
 			, "Путь", s);
 		delete tt;
 		return;
@@ -1022,7 +1000,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* tabc, const
 	ct = tt->get_first();
 	if(!ct)
 	{
-		msreg_m.AddError("Ошибка разбора файла configinfo"
+		msreg_g.AddError("Ошибка разбора файла configinfo"
 			, "Путь", s);
 		delete tt;
 		return;
@@ -1030,7 +1008,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* tabc, const
 	ct = ct->get_next();
 	if(!ct)
 	{
-		msreg_m.AddError("Ошибка разбора файла configinfo"
+		msreg_g.AddError("Ошибка разбора файла configinfo"
 			, "Путь", s);
 		delete tt;
 		return;
@@ -1038,7 +1016,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* tabc, const
 	ct = ct->get_next();
 	if(!ct)
 	{
-		msreg_m.AddError("Ошибка разбора файла configinfo"
+		msreg_g.AddError("Ошибка разбора файла configinfo"
 			, "Путь", s);
 		delete tt;
 		return;
@@ -1046,7 +1024,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* tabc, const
 	ct = ct->get_first();
 	if(!ct)
 	{
-		msreg_m.AddError("Ошибка разбора файла configinfo"
+		msreg_g.AddError("Ошибка разбора файла configinfo"
 			, "Путь", s);
 		delete tt;
 		return;
@@ -1058,7 +1036,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* tabc, const
 		ct = ct->get_next();
 		if(!ct)
 		{
-			msreg_m.AddError("Ошибка разбора файла configinfo"
+			msreg_g.AddError("Ошибка разбора файла configinfo"
 				, "Путь", s);
 			delete tt;
 			delete stream;
@@ -1066,7 +1044,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* tabc, const
 		}
 		if(ct->get_type() != node_type::nd_string)
 		{
-			msreg_m.AddError("Ошибка разбора файла configinfo"
+			msreg_g.AddError("Ошибка разбора файла configinfo"
 				, "Путь", s);
 			delete tt;
 			delete stream;
@@ -1077,7 +1055,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* tabc, const
 		ct = ct->get_next();
 		if(!ct)
 		{
-			msreg_m.AddError("Ошибка разбора файла configinfo"
+			msreg_g.AddError("Ошибка разбора файла configinfo"
 				, "Путь", s);
 			delete tt;
 			delete stream;
@@ -1085,7 +1063,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* tabc, const
 		}
 		if(ct->get_type() != node_type::nd_binary2)
 		{
-			msreg_m.AddError("Ошибка разбора файла configinfo"
+			msreg_g.AddError("Ошибка разбора файла configinfo"
 				, "Путь", s);
 			delete tt;
 			delete stream;
@@ -1104,7 +1082,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* tabc, const
 		}
 		else
 		{
-			msreg_m.AddError("Ошибка поиска файла"
+			msreg_g.AddError("Ошибка поиска файла"
 				, "Путь", s
 				, "Имя", hashname
 				, "Имя файла", name);
@@ -1123,14 +1101,6 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles* tabc, const
 String ConfigStorageTableConfigCas::presentation()
 {
 	return present;
-}
-
-void ConfigStorageTableConfigCas::AddMessageRegistrator(MessageRegistrator* messageregistrator) {
-	msreg_m.AddMessageRegistrator(messageregistrator);
-}
-
-void ConfigStorageTableConfigCas::RemoveMessageRegistrator() {
-	msreg_m.RemoveMessageRegistrator();
 }
 
 //********************************************************
@@ -1178,7 +1148,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 	{
 		if(files.size())
 		{
-			msreg_m.AddError("Ошибка поиска файла"
+			msreg_g.AddError("Ошибка поиска файла"
 				, "Путь", present
 				, "Имя", g + "configinfo"
 				, "Имя файла", "configinfo");
@@ -1189,7 +1159,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 		_configinfo = tabc->getfile(configver);
 		if(!_configinfo)
 		{
-			msreg_m.AddError("Ошибка поиска файла"
+			msreg_g.AddError("Ошибка поиска файла"
 				, "Путь", s
 				, "Имя", configver
 				, "Имя файла", "configinfo");
@@ -1205,7 +1175,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 	tt = parse_1Cstream(configinfo->stream, s);
 	if(!tt)
 	{
-		msreg_m.AddError("Ошибка разбора файла configinfo"
+		msreg_g.AddError("Ошибка разбора файла configinfo"
 			, "Путь", s);
 		delete tt;
 		return;
@@ -1213,7 +1183,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 	ct = tt->get_first();
 	if(!ct)
 	{
-		msreg_m.AddError("Ошибка разбора файла configinfo"
+		msreg_g.AddError("Ошибка разбора файла configinfo"
 			, "Путь", s);
 		delete tt;
 		return;
@@ -1221,7 +1191,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 	ct = ct->get_next();
 	if(!ct)
 	{
-		msreg_m.AddError("Ошибка разбора файла configinfo"
+		msreg_g.AddError("Ошибка разбора файла configinfo"
 			, "Путь", s);
 		delete tt;
 		return;
@@ -1229,7 +1199,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 	ct = ct->get_next();
 	if(!ct)
 	{
-		msreg_m.AddError("Ошибка разбора файла configinfo"
+		msreg_g.AddError("Ошибка разбора файла configinfo"
 			, "Путь", s);
 		delete tt;
 		return;
@@ -1237,7 +1207,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 	ct = ct->get_first();
 	if(!ct)
 	{
-		msreg_m.AddError("Ошибка разбора файла configinfo"
+		msreg_g.AddError("Ошибка разбора файла configinfo"
 			, "Путь", s);
 		delete tt;
 		return;
@@ -1249,7 +1219,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 		ct = ct->get_next();
 		if(!ct)
 		{
-			msreg_m.AddError("Ошибка разбора файла configinfo"
+			msreg_g.AddError("Ошибка разбора файла configinfo"
 				, "Путь", s);
 			delete tt;
 			delete stream;
@@ -1257,7 +1227,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 		}
 		if(ct->get_type() != node_type::nd_string)
 		{
-			msreg_m.AddError("Ошибка разбора файла configinfo"
+			msreg_g.AddError("Ошибка разбора файла configinfo"
 				, "Путь", s);
 			delete tt;
 			delete stream;
@@ -1270,7 +1240,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 
 		if(!ct)
 		{
-			msreg_m.AddError("Ошибка разбора файла configinfo"
+			msreg_g.AddError("Ошибка разбора файла configinfo"
 				, "Путь", s);
 			delete tt;
 			delete stream;
@@ -1278,7 +1248,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 		}
 		if(ct->get_type() != node_type::nd_binary2)
 		{
-			msreg_m.AddError("Ошибка разбора файла configinfo"
+			msreg_g.AddError("Ошибка разбора файла configinfo"
 				, "Путь", s);
 			delete tt;
 			delete stream;
@@ -1297,7 +1267,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 		}
 		else
 		{
-			msreg_m.AddError("Ошибка поиска файла"
+			msreg_g.AddError("Ошибка поиска файла"
 				, "Путь", s
 				, "Имя", hashname
 				, "Имя файла", name);
@@ -1316,12 +1286,4 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 String ConfigStorageTableConfigCasSave::presentation()
 {
 	return present;
-}
-
-void ConfigStorageTableConfigCasSave::AddMessageRegistrator(MessageRegistrator* messageregistrator) {
-	msreg_m.AddMessageRegistrator(messageregistrator);
-}
-
-void ConfigStorageTableConfigCasSave::RemoveMessageRegistrator() {
-	msreg_m.RemoveMessageRegistrator();
 }
