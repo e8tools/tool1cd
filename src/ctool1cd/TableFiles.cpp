@@ -61,39 +61,39 @@ TableFiles::TableFiles(Table* t)
 	table_file* tf;
 	std::map<String,table_file*>::iterator pfilesmap;
 
-	tab = t;
+	table = t;
 	ready = test_table();
 	if(!ready) return;
 
-	rec = new char[tab->get_recordlen()];
+	record = new char[table->get_recordlen()];
 
-	filename = tab->getfield(0);
+	filename = table->getfield(0);
 
-	f = tab->getfield(1);
-	create = (unsigned char*)(rec + f->getoffset());
-	f = tab->getfield(2);
-	modify = (unsigned char*)(rec + f->getoffset());
-	f = tab->getfield(5);
-	start = (int32_t*)(rec + f->getoffset());
+	f = table->getfield(1);
+	create = (unsigned char*)(record + f->getoffset());
+	f = table->getfield(2);
+	modify = (unsigned char*)(record + f->getoffset());
+	f = table->getfield(5);
+	start = (int32_t*)(record + f->getoffset());
 	length = start + 1;
 
-	if(tab->get_numfields() > 6) partno = tab->getfield(6);
+	if(table->get_numfields() > 6) partno = table->getfield(6);
 	else partno = NULL;
 
-	for(i = 0; i < tab->get_phys_numrecords(); ++i)
+	for(i = 0; i < table->get_phys_numrecords(); ++i)
 	{
-		tab->getrecord(i, rec);
-		if(*rec) continue;
+		table->getrecord(i, record);
+		if(*record) continue;
 		if(*start == 0) continue;
 		if(*length == 0) continue;
 
-		tr.name = filename->get_presentation(rec);
+		tr.name = filename->get_presentation(record);
 		if(tr.name.IsEmpty()) continue;
 
 		tr.addr.blob_start = *start;
 		tr.addr.blob_length = *length;
 
-		if(partno) tr.partno = partno->get_presentation(rec, true).ToIntDef(0);
+		if(partno) tr.partno = partno->get_presentation(record, true).ToIntDef(0);
 		else tr.partno = 0;
 		time1CD_to_FileTime(&tr.ft_create, create);
 		time1CD_to_FileTime(&tr.ft_modify, modify);
@@ -108,7 +108,7 @@ TableFiles::TableFiles(Table* t)
 
 	for(pmaxpartno = maxpartnos.begin(); pmaxpartno != maxpartnos.end(); ++pmaxpartno)
 	{
-		tf = new table_file(tab, pmaxpartno->first, pmaxpartno->second);
+		tf = new table_file(table, pmaxpartno->first, pmaxpartno->second);
 		allfiles[pmaxpartno->first] = tf;
 	}
 
@@ -130,9 +130,9 @@ TableFiles::TableFiles(Table* t)
 //---------------------------------------------------------------------------
 TableFiles::~TableFiles()
 {
-	if (rec) {
-		delete[] rec;
-		rec = nullptr;
+	if (record) {
+		delete[] record;
+		record = nullptr;
 	}
 	for (auto p : allfiles) {
 		delete p.second;
@@ -143,78 +143,78 @@ TableFiles::~TableFiles()
 //---------------------------------------------------------------------------
 bool TableFiles::test_table()
 {
-	if(!tab) return false;
-	if(tab->get_numfields() < 6)
+	if(!table) return false;
+	if(table->get_numfields() < 6)
 	{
 		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. В таблице меньше 6 полей"
-			,"Таблица", tab->getname()
-			,"Кол-во полей", tab->get_numfields());
+			,"Таблица", table->getname()
+			,"Кол-во полей", table->get_numfields());
 		return false;
 	}
 
-	if(tab->get_numfields() > 7)
+	if(table->get_numfields() > 7)
 	{
 		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. В таблице больше 7 полей"
-			,"Таблица", tab->getname()
-			,"Кол-во полей", tab->get_numfields());
+			,"Таблица", table->getname()
+			,"Кол-во полей", table->get_numfields());
 		return false;
 	}
 
-	if(tab->getfield(0)->getname().CompareIC("FILENAME"))
+	if(table->getfield(0)->getname().CompareIC("FILENAME"))
 	{
 		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Первое поле таблицы не FILENAME"
-			,"Таблица", tab->getname()
-			,"Поле", tab->getfield(0)->getname());
+			,"Таблица", table->getname()
+			,"Поле", table->getfield(0)->getname());
 		return false;
 	}
 
-	if(tab->getfield(1)->getname().CompareIC("CREATION"))
+	if(table->getfield(1)->getname().CompareIC("CREATION"))
 	{
 		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Второе поле таблицы не CREATION"
-			,"Таблица", tab->getname()
-			,"Поле", tab->getfield(1)->getname());
+			,"Таблица", table->getname()
+			,"Поле", table->getfield(1)->getname());
 		return false;
 	}
 
-	if(tab->getfield(2)->getname().CompareIC("MODIFIED"))
+	if(table->getfield(2)->getname().CompareIC("MODIFIED"))
 	{
 		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Третье поле таблицы не MODIFIED"
-			,"Таблица", tab->getname()
-			,"Поле", tab->getfield(2)->getname());
+			,"Таблица", table->getname()
+			,"Поле", table->getfield(2)->getname());
 		return false;
 	}
 
-	if(tab->getfield(3)->getname().CompareIC("ATTRIBUTES"))
+	if(table->getfield(3)->getname().CompareIC("ATTRIBUTES"))
 	{
 		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Четвертое поле таблицы не ATTRIBUTES"
-			,"Таблица", tab->getname()
-			,"Поле", tab->getfield(3)->getname());
+			,"Таблица", table->getname()
+			,"Поле", table->getfield(3)->getname());
 		return false;
 	}
 
-	if(tab->getfield(4)->getname().CompareIC("DATASIZE"))
+	if(table->getfield(4)->getname().CompareIC("DATASIZE"))
 	{
 		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Пятое поле таблицы не DATASIZE"
-			,"Таблица", tab->getname()
-			,"Поле", tab->getfield(4)->getname());
+			,"Таблица", table->getname()
+			,"Поле", table->getfield(4)->getname());
 		return false;
 	}
 
-	if(tab->getfield(5)->getname().CompareIC("BINARYDATA"))
+	if(table->getfield(5)->getname().CompareIC("BINARYDATA"))
 	{
 		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Шестое поле таблицы не BINARYDATA"
-			,"Таблица", tab->getname()
-			,"Поле", tab->getfield(5)->getname());
+			,"Таблица", table->getname()
+			,"Поле", table->getfield(5)->getname());
 		return false;
 	}
 
-	if(tab->get_numfields() > 6)
+	if(table->get_numfields() > 6)
 	{
-		if(tab->getfield(6)->getname().CompareIC("PARTNO"))
+		if(table->getfield(6)->getname().CompareIC("PARTNO"))
 		{
 			msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Седьмое поле таблицы не PARTNO"
-				,"Таблица", tab->getname()
-				,"Поле", tab->getfield(6)->getname());
+				,"Таблица", table->getname()
+				,"Поле", table->getfield(6)->getname());
 			return false;
 		}
 	}
@@ -227,8 +227,12 @@ table_file* TableFiles::getfile(const String& name)
 	std::map<String,table_file*>::iterator p;
 
 	p = allfiles.find(name.UpperCase());
-	if(p == allfiles.end()) return NULL;
-	else return p->second;
+	if(p == allfiles.end()) {
+		return nullptr;
+	}
+	else {
+		return p->second;
+	}
 }
 
 std::map<String,table_file*> &TableFiles::files()

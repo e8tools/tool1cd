@@ -49,22 +49,21 @@ struct table_file
 // Класс таблицы контейнера файлов (CONFIG, CONFIGSAVE, PARAMS, FILES, CONFICAS, CONFICASSAVE)
 class TableFiles
 {
+private:
+	Table* table {nullptr};
+	std::map<String,table_file*> allfiles;
+	char* record {nullptr};
+	bool ready {false};
+
+	bool test_table();
 public:
 	TableFiles(Table* t);
 	virtual ~TableFiles();
-	bool getready(){return ready;}
+	bool getready() { return ready; }
 	table_file* getfile(const String& name);
-	Table* gettable(){return tab;}
+	Table* gettable() { return table; }
 
-	// __property std::map<String,table_file*> files = {read = allfiles};
 	std::map<String,table_file*> &files();
-private:
-	Table* tab;
-	std::map<String,table_file*> allfiles;
-	char* rec;
-	bool ready;
-
-	bool test_table();
 };
 
 
