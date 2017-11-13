@@ -6,8 +6,11 @@
  */
 
 #include "Index.h"
+#include <limits>
 
 extern Registrator msreg_g;
+
+static const uint32_t LAST_PAGE = std::numeric_limits<uint32_t>::max();
 
 //---------------------------------------------------------------------------
 Index::Index(Table* _base)
@@ -125,7 +128,7 @@ void Index::create_recordsindex()
 				rbuf += rlen;
 				if(curindex % 10000 == 0) msreg_g.Status(readindex + curindex);
 			}
-			if(curblock == 0xffffffff) break; // FIXME: разобраться литерал 0xffffffff == UINT_MAX, а тут uint64_t curblock
+			if(curblock == LAST_PAGE) break; // FIXME: разобраться LAST_PAGE == UINT_MAX, а тут uint64_t curblock
 			if(version >= db_ver::ver8_3_8_0) curblock *= pagesize;
 			file_index->getdata(buf, curblock, pagesize);
 		}
@@ -181,7 +184,7 @@ void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 			s = "=";
 			s += level;
 			s += " leaf, curblock ";
-			s += curblock == 0xffffffff ? -1 : (curblock / pagesize);
+			s += curblock == LAST_PAGE ? -1 : (curblock / pagesize);
 			s += ", count ";
 			s += curlen;
 			s += ", free ";
@@ -243,7 +246,7 @@ void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 			s = "*";
 			s += level;
 			s += " branch, curblock ";
-			s += curblock == 0xffffffff ? -1 : (curblock / pagesize);
+			s += curblock == LAST_PAGE ? -1 : (curblock / pagesize);
 			s += ", count ";
 			s += curlen;
 			s += "\r\n";
@@ -661,11 +664,11 @@ void Index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 				if(lph->number_indexes == 0)
 				{
 					page_is_empty = true;
-					if(lph->prev_page != 0xffffffff)
+					if(lph->prev_page != LAST_PAGE)
 					{
 						tbase->file_index->setdata(&(lph->next_page), (version < db_ver::ver8_3_8_0 ? lph->prev_page : lph->prev_page * pagesize) + 8, 4);
 					}
-					if(lph->next_page != 0xffffffff)
+					if(lph->next_page != LAST_PAGE)
 					{
 						tbase->file_index->setdata(&(lph->prev_page), (version < db_ver::ver8_3_8_0 ? lph->next_page : lph->next_page * pagesize) + 4, 4);
 					}
@@ -727,11 +730,11 @@ void Index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 				if(bph->number_indexes == 0)
 				{
 					page_is_empty = true;
-					if(bph->prev_page != 0xffffffff)
+					if(bph->prev_page != LAST_PAGE)
 					{
 						tbase->file_index->setdata(&(bph->next_page), (version < db_ver::ver8_3_8_0 ? bph->prev_page : bph->prev_page * pagesize) + 8, 4);
 					}
-					if(bph->next_page != 0xffffffff)
+					if(bph->next_page != LAST_PAGE)
 					{
 						tbase->file_index->setdata(&(bph->prev_page), (version < db_ver::ver8_3_8_0 ? bph->next_page : bph->next_page * pagesize) + 4, 4);
 					}
@@ -806,8 +809,8 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 
 		bph->flags = indexpage_is_root | indexpage_is_leaf;
 		bph->number_indexes = 2;
-		bph->prev_page = 0xffffffff;
-		bph->next_page = 0xffffffff;
+		bph->prev_page = LAST_PAGE;
+		bph->next_page = LAST_PAGE;
 
 		cur_index = page + 12;
 		memcpy(cur_index, new_last_index_buf, length);
