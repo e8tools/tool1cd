@@ -138,7 +138,7 @@ String dequote(String str)
 
 //---------------------------------------------------------------------------
 
-CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mess)
+CommandParse::CommandParse(char **szArglist, int nArgs, MessageRegistrator* _mess)
 {
 	int numdef = sizeof(definitions) / sizeof(CommandDefinition);
 	String k, p;
@@ -231,7 +231,6 @@ CommandParse::CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mes
 			else filename = dequote(p);
 		}
 	}
-	LocalFree(szArglist); // TODO: разобраться нужно ли освобождать память
 }
 
 std::vector<ParsedCommand>& CommandParse::getcommands()

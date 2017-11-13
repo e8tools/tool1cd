@@ -49,7 +49,7 @@ struct ParsedCommand
 class CommandParse: public IControlMessageRegistration
 {
 public:
-	CommandParse(LPSTR *szArglist, int nArgs, MessageRegistrator* _mess = nullptr);
+	CommandParse(char **szArglist, int nArgs, MessageRegistrator* _mess = nullptr);
 	std::vector<ParsedCommand>& getcommands();
 	String& getfilename();
 	static String& gethelpstring();
