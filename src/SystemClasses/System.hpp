@@ -20,7 +20,6 @@ typedef uint16_t         Word;
 typedef uint16_t         WORD;
 typedef unsigned long    DWORD;
 typedef char16_t         WCHART;
-typedef char             *LPSTR;
 typedef int64_t          LONGLONG;
 typedef uint64_t         ULONGLONG;
 typedef long             LONG;
@@ -93,12 +92,6 @@ enum TReplaceFlags {
 	rfReplaceAll = 1,
 	rfIgnoreCase = 2
 };
-
-template<typename T>
-void LocalFree(T *anyvalue)
-{
-	// Do nothing
-}
 
 } // System
 
