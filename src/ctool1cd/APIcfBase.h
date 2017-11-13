@@ -216,12 +216,12 @@ protected:
 public:
 	TV8FileStream(v8file* f, bool ownfile = false);
 	virtual ~TV8FileStream();
-	virtual int Read(void *Buffer, int Count);
+	virtual int64_t Read(void *Buffer, int64_t Count) override;
 	virtual int Read(std::vector<System::t::Byte> Buffer, int Offset, int Count);
-	virtual int Write(const void *Buffer, int Count);
+	virtual int64_t Write(const void *Buffer, int64_t Count) override;
 	virtual int Write(const std::vector<System::t::Byte> Buffer, int Offset, int Count);
 	virtual int Seek(int Offset, System::Word Origin);
-	virtual int64_t Seek(const int64_t Offset, TSeekOrigin Origin);
+	virtual int64_t Seek(const int64_t Offset, TSeekOrigin Origin) override;
 };
 
 #endif

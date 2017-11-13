@@ -24,14 +24,14 @@ TableFileStream::~TableFileStream()
 }
 
 //---------------------------------------------------------------------------
-int32_t TableFileStream::Read(void *Buffer, int32_t Count)
+int64_t TableFileStream::Read(void *Buffer, int64_t Count)
 {
 	uint32_t nbf; // индекс текущего table_blob_file в tablefile->addr
 	uint32_t ibf; // индекс внутри table_blob_file
 	uint32_t curoff; // curoffset
 	table_blob_file* addr;
 	TStream* str;
-	int32_t curlen;
+	int64_t curlen;
 	char* buf;
 
 	buf = (char*)Buffer;
@@ -49,7 +49,7 @@ int32_t TableFileStream::Read(void *Buffer, int32_t Count)
 
 	while(Count)
 	{
-		curlen = std::min(Count, (int32_t)(addr[nbf].blob_length - ibf));
+		curlen = std::min(Count, (int64_t)(addr[nbf].blob_length - ibf));
 		str = streams[nbf];
 		if(!str)
 		{
