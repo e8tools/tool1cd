@@ -18,13 +18,13 @@ public:
 	TMemoryStream();
 	virtual ~TMemoryStream();
 
-	virtual int64_t GetSize() const;
+	virtual int64_t GetSize() const override;
 
-	virtual void    SetSize(int64_t NewSize);
+	virtual void    SetSize(int64_t NewSize) override;
 
-	virtual int64_t Read(void *Buffer, int64_t Count);
+	virtual int64_t Read(void *Buffer, int64_t Count) override;
 
-	virtual int64_t Write(const void *Buffer, int64_t Count);
+	virtual int64_t Write(const void *Buffer, int64_t Count) override;
 
 	const std::vector<t::Byte> &GetBytes() const;
 
