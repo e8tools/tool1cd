@@ -2536,7 +2536,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		return false;
 	}
 
-	depotVer = define_depot_version(rec);
+	depotVer = get_depot_version(rec);
 	if(depotVer == depot_ver::UnknownVer) {
 		delete[] rec;
 		return false;
@@ -3299,7 +3299,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		return false;
 	}
 
-	depotVer = define_depot_version(rec);
+	depotVer = get_depot_version(rec);
 	if(depotVer == depot_ver::UnknownVer) {
 		delete[] rec;
 		return false;
@@ -4171,7 +4171,7 @@ String T_1CD::pagemaprec_presentation(pagemaprec& pmr)
 	}
 }
 
-depot_ver T_1CD::define_depot_version(const char *record)
+depot_ver T_1CD::get_depot_version(const char *record)
 {
 	depot_ver depotVer = depot_ver::UnknownVer;
 

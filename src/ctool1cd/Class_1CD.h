@@ -299,7 +299,7 @@ private:
 	void pagemapfill();
 	String pagemaprec_presentation(pagemaprec& pmr);
 
-	depot_ver define_depot_version(const char *record);
+	depot_ver get_depot_version(const char *record);
 };
 
 //---------------------------------------------------------------------------
