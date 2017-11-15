@@ -1130,7 +1130,7 @@ void v8object::set_len(uint64_t _len)
 			msreg_g.AddError("Попытка установки длины файла больше максимальной",
 				"Номер страницы файла", tohex(block),
 				"Максимальная длина файла", maxlen,
-				"Запрошенная длина файла", tohex(_len)); // FIXME: tohex работает только с int, а тут int64_t
+				"Запрошенная длина файла", tohex64(_len));
 			_len = maxlen;
 		}
 
@@ -1392,7 +1392,7 @@ TStream* v8object::readBlob(TStream* _str, uint32_t _startblock, uint32_t _lengt
 	{
 		msreg_g.AddError("Длина файла Blob не кратна 0x100",
 			"Номер страницы файла", tohex(block),
-			"Длина файла", tohex(len));
+			"Длина файла", tohex64(len));
 	}
 
 	_curb = new char[0x100];
