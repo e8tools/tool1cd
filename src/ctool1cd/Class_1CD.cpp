@@ -330,7 +330,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	if((int64_t)length * pagesize != fs->GetSize())
 	{
 		msreg_m.AddError(String("Длина файла базы не кратна длине страницы (" + tohex(pagesize) + ")"),
-			"Длина файла", tohex(fs->GetSize()));
+			"Длина файла", tohex64(fs->GetSize()));
 		delete fs;
 		fs = NULL;
 		return;

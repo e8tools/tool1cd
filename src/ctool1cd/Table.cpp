@@ -770,7 +770,7 @@ void Table::init(int32_t block_descr)
 		{
 			msreg_g.AddError("Ошибка чтения индексов. Длина файла индексов не кратна размеру страницы",
 				"Таблица", name,
-				"Длина файла индексов", tohex(file_index->getlen()));
+				"Длина файла индексов", tohex64(file_index->getlen()));
 		}
 		else
 		{
@@ -788,7 +788,7 @@ void Table::init(int32_t block_descr)
 			{
 				msreg_g.AddError("Ошибка чтения индексов. Индекс первого свободного блока за пределами файла индексов",
 					"Таблица", name,
-					"Длина файла индексов", tohex(file_index->getlen()),
+					"Длина файла индексов", tohex64(file_index->getlen()),
 					"Индекс свободной страницы", tohex(buf[0]));
 			}
 			else
@@ -801,7 +801,7 @@ void Table::init(int32_t block_descr)
 						{
 							msreg_g.AddError("Ошибка чтения индексов. Указанное смещение индекса за пределами файла индексов",
 								"Таблица", name,
-								"Длина файла индексов", tohex(file_index->getlen()),
+								"Длина файла индексов", tohex64(file_index->getlen()),
 								"Номер индекса", i,
 								"Смещение индекса", tohex(buf[i]));
 						}
@@ -809,7 +809,7 @@ void Table::init(int32_t block_descr)
 						{
 							msreg_g.AddError("Ошибка чтения индексов. Указанное смещение индекса не кратно 4 Кб",
 								"Таблица", name,
-								"Длина файла индексов", tohex(file_index->getlen()),
+								"Длина файла индексов", tohex64(file_index->getlen()),
 								"Номер индекса", i,
 								"Смещение индекса", tohex(buf[i]));
 						}

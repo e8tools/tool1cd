@@ -921,7 +921,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 				break;
 			default:
 				msreg_g.AddError("Ошибка формата потока. Неизвестный режим разбора.",
-					"Режим разбора", tohex(state),
+					"Режим разбора", tohex((int)state),
 					"Путь", path);
 				ret = false;
 				break;
@@ -947,7 +947,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 	else if(state != s_delimitier)
 	{
 		msreg_g.AddError("Ошибка формата потока. Незавершенное значение",
-			"Режим разбора", tohex(state),
+			"Режим разбора", tohex((int)state),
 			"Путь", path);
 		ret = false;
 	}
