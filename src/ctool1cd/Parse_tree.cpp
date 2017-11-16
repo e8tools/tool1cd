@@ -362,7 +362,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 					default:
 						msreg_g.AddError("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
 							"Символ", sym,
-							"Код символа", tohex(sym),
+							"Код символа", to_hex_string(sym), // FIXME: Разобраться с представлением wchar_t
 							"Путь", path);
 						delete ret;
 						return NULL;
@@ -409,7 +409,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 						default:
 							msreg_g.AddError("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
 								"Символ", sym,
-								"Код символа", tohex(sym),
+								"Код символа", to_hex_string(sym),
 								"Путь", path);
 							delete ret;
 							return NULL;
@@ -457,7 +457,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 				break;
 			default:
 				msreg_g.AddError("Ошибка формата потока. Неизвестный режим разбора.",
-					"Режим разбора", tohex(state),
+					"Режим разбора", to_hex_string((int)state),
 					"Путь", path);
 				delete ret;
 				return NULL;
@@ -482,7 +482,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 	else if(state != s_delimitier)
 	{
 		msreg_g.AddError("Ошибка формата потока. Незавершенное значение",
-			"Режим разбора", tohex(state),
+			"Режим разбора", to_hex_string((int)state),
 			"Путь", path);
 		delete ret;
 		return NULL;
@@ -598,7 +598,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 					default:
 						msreg_g.AddError("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
 							"Символ", sym,
-							"Код символа", tohex(sym),
+							"Код символа", to_hex_string(sym),
 							"Путь", path);
 						delete ret;
 						return NULL;
@@ -645,7 +645,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 						default:
 							msreg_g.AddError("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
 								"Символ", sym,
-								"Код символа", tohex(sym),
+								"Код символа", to_hex_string(sym),
 								"Путь", path);
 							delete ret;
 							return NULL;
@@ -693,7 +693,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 				break;
 			default:
 				msreg_g.AddError("Ошибка формата потока. Неизвестный режим разбора.",
-					"Режим разбора", tohex(state),
+					"Режим разбора", to_hex_string((int)state),
 					"Путь", path);
 				delete ret;
 				return NULL;
@@ -718,7 +718,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 	else if(state != s_delimitier)
 	{
 		msreg_g.AddError("Ошибка формата потока. Незавершенное значение",
-			"Режим разбора", tohex(state),
+			"Режим разбора", to_hex_string((int)state),
 			"Путь", path);
 		delete ret;
 		return NULL;
@@ -827,7 +827,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 					default:
 						msreg_g.AddError("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
 							"Символ", sym,
-							"Код символа", tohex(sym),
+							"Код символа", to_hex_string(sym),
 							"Путь", path);
 						delete reader;
 						return ret;
@@ -872,7 +872,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 						default:
 							msreg_g.AddError("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
 								"Символ", sym,
-								"Код символа", tohex(sym),
+								"Код символа", to_hex_string(sym),
 								"Путь", path);
 							delete reader;
 							return ret;
@@ -921,7 +921,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 				break;
 			default:
 				msreg_g.AddError("Ошибка формата потока. Неизвестный режим разбора.",
-					"Режим разбора", tohex(state),
+					"Режим разбора", to_hex_string((int)state),
 					"Путь", path);
 				ret = false;
 				break;
@@ -947,7 +947,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 	else if(state != s_delimitier)
 	{
 		msreg_g.AddError("Ошибка формата потока. Незавершенное значение",
-			"Режим разбора", tohex(state),
+			"Режим разбора", to_hex_string((int)state),
 			"Путь", path);
 		ret = false;
 	}

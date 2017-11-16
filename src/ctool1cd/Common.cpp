@@ -401,23 +401,6 @@ String hexstring(char* buf, int n)
 }
 
 //---------------------------------------------------------------------------
-String tohex(int n)
-{
-	return String("0x") + String::IntToHex(n, 0);
-}
-
-//---------------------------------------------------------------------------
-String tohex64(int64_t n)
-{
-	int nl;
-	int nh;
-	nh = *(int*)(((char*)&n) + 4);
-	nl = *(int*)&n;
-	if(nh) return String("0x") + String::IntToHex(nh, 0) + String::IntToHex(nl, 8);
-	return String("0x") + String::IntToHex(nl, 0);
-}
-
-//---------------------------------------------------------------------------
 String hexstring(TStream* str)
 {
 	String s = "";
