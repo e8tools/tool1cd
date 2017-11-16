@@ -150,7 +150,7 @@ struct pagemaprec
 	int32_t tab; // Индекс в T_1CD::tables, -1 - страница не относится к таблицам
 	pagetype type; // тип страницы
 	uint32_t number; // номер страницы в своем типе
-	pagemaprec(){tab = -1; type = pagetype::lost; number = 0;};
+	pagemaprec(){tab = -1; type = pagetype::lost; number = 0;}
 };
 
 
@@ -159,6 +159,16 @@ struct pagemaprec
 enum class snapshot_version {
 	Ver1 = 1,
 	Ver2 = 2
+};
+
+// Известные версии хранилища конфигурации
+enum class depot_ver
+{
+	UnknownVer = 0,
+	Ver3 = 3, // 0300000000000000
+	Ver5 = 5, // 0500000000000000
+	Ver6 = 6, // 0600000000000000
+	Ver7 = 7  // 0700000000000000
 };
 
 // класс базы 1CD
@@ -288,15 +298,8 @@ private:
 
 	void pagemapfill();
 	String pagemaprec_presentation(pagemaprec& pmr);
-};
-//---------------------------------------------------------------------------
-// Известные версии хранилища конфигурации
-enum class depot_ver
-{
-	Ver3 = 3, // 0300000000000000
-	Ver5 = 5, // 0500000000000000
-	Ver6 = 6, // 0600000000000000
-	Ver7 = 7  // 0700000000000000
+
+	depot_ver get_depot_version(const char *record);
 };
 
 //---------------------------------------------------------------------------

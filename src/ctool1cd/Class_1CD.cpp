@@ -2431,7 +2431,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 {
 	char* rec;
 	char* frec;
-	Field* fldd_depotver;
 	Field* fldd_rootobjid;
 
 	Field* fldv_vernum;
@@ -2515,8 +2514,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		return false;
 	}
 
-	fldd_depotver = get_field(table_depot, "DEPOTVER");
-	if(!fldd_depotver) return false;
 	fldd_rootobjid = get_field(table_depot, "ROOTOBJID");
 	if(!fldd_rootobjid) return false;
 
@@ -2539,19 +2536,10 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		return false;
 	}
 
-	{
-		String depotVer_str = fldd_depotver->get_presentation(rec, true);
-
-		if(depotVer_str.CompareIC("0300000000000000") == 0) { depotVer = depot_ver::Ver3; }
-		else if(depotVer_str.CompareIC("0500000000000000") == 0) { depotVer = depot_ver::Ver5; }
-		else if(depotVer_str.CompareIC("0600000000000000") == 0) { depotVer = depot_ver::Ver6; }
-		else if(depotVer_str.CompareIC("0700000000000000") == 0) { depotVer = depot_ver::Ver7; }
-		else {
-			msreg_m.AddMessage_("Неизвестная версия хранилища", MessageState::Error,
-					"Версия хранилища", depotVer_str);
-			delete[] rec;
-			return false;
-		}
+	depotVer = get_depot_version(rec);
+	if(depotVer == depot_ver::UnknownVer) {
+		delete[] rec;
+		return false;
 	}
 
 	memcpy(rootobj, rec + fldd_rootobjid->offset, 16);
@@ -3205,7 +3193,6 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 {
 	char* rec;
 	char* frec;
-	Field* fldd_depotver;
 
 	Field* fldv_vernum;
 	Field* fldv_cversion;
@@ -3226,7 +3213,6 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	char* rech2; // запись с версией <= ver_end
 	bool hasrech2;
 
-	//char rootobj[16];
 	char curobj[16];
 	uint32_t ih, nh;
 
@@ -3253,7 +3239,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	char verid[16];
 	uint32_t i;
 	int32_t v, res, lastver, n;
-	String s, ss, sp, sn, se;
+	String s, ss, sn, se;
 	depot_ver depotVer;
 	uint32_t configVerMajor, configVerMinor;
 	TMemoryStream* in;
@@ -3263,7 +3249,6 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	TMemoryStream* sd;
 	bool hasdeleted;
 	std::vector<_packdata> packdates;
-	TSearchRec srec;
 	PackDirectory pack_directory;
 	v8catalog* cat;
 	TFileStream* f;
@@ -3296,9 +3281,6 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		return false;
 	}
 
-	fldd_depotver = get_field(table_depot, "DEPOTVER");
-	if(!fldd_depotver) return false;
-
 	rec = new char[table_depot->get_recordlen()];
 	ok = false;
 	for(i = 0; i < table_depot->get_phys_numrecords(); i++)
@@ -3317,15 +3299,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		return false;
 	}
 
-	s = fldd_depotver->get_presentation(rec, true);
-
-	if(s.CompareIC("0300000000000000") == 0) depotVer = depot_ver::Ver3;
-	else if(s.CompareIC("0500000000000000") == 0) depotVer = depot_ver::Ver5;
-	else if(s.CompareIC("0600000000000000") == 0) depotVer = depot_ver::Ver6;
-	else
-	{
-		msreg_m.AddMessage_("Неизвестная версия хранилища", MessageState::Error,
-			"Версия хранилища", s);
+	depotVer = get_depot_version(rec);
+	if(depotVer == depot_ver::UnknownVer) {
 		delete[] rec;
 		return false;
 	}
@@ -4194,4 +4169,29 @@ String T_1CD::pagemaprec_presentation(pagemaprec& pmr)
 
 		default: return String("??? неизвестный тип страницы ???");
 	}
+}
+
+depot_ver T_1CD::get_depot_version(const char *record)
+{
+	depot_ver depotVer = depot_ver::UnknownVer;
+
+	Field* fldd_depotver = get_field(table_depot, "DEPOTVER");
+
+	if(!fldd_depotver) {
+		return depotVer;
+	}
+
+	String Ver = fldd_depotver->get_presentation(record, true);
+
+	if(Ver.CompareIC("0300000000000000") == 0) { depotVer = depot_ver::Ver3; }
+	else if(Ver.CompareIC("0500000000000000") == 0) { depotVer = depot_ver::Ver5; }
+	else if(Ver.CompareIC("0600000000000000") == 0) { depotVer = depot_ver::Ver6; }
+	else if(Ver.CompareIC("0700000000000000") == 0) { depotVer = depot_ver::Ver7; }
+	else {
+		depotVer = depot_ver::UnknownVer;
+		msreg_m.AddMessage_("Неизвестная версия хранилища", MessageState::Error,
+				"Версия хранилища", Ver);
+	}
+
+	return depotVer;
 }
