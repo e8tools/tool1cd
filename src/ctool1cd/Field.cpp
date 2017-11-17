@@ -142,11 +142,11 @@ String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimite
 		case type_fields::tf_version8:
 			return String(*(int32_t*)fr) + ":" + *(int32_t*)(fr + 4);
 		case type_fields::tf_string:
-			return detailed ? String("{MEMO} [") + tohex(*(int32_t*)fr) + "][" + tohex(*(int32_t*)(fr + 4)) + "]" : String("{MEMO}");
+			return detailed ? String("{MEMO} [") + to_hex_string(*(int32_t*)fr) + "][" + to_hex_string(*(int32_t*)(fr + 4)) + "]" : String("{MEMO}");
 		case type_fields::tf_text:
-			return detailed ? String("{TEXT} [") + tohex(*(int32_t*)fr) + "][" + tohex(*(int32_t*)(fr + 4)) + "]" : String("{TEXT}");
+			return detailed ? String("{TEXT} [") + to_hex_string(*(int32_t*)fr) + "][" + to_hex_string(*(int32_t*)(fr + 4)) + "]" : String("{TEXT}");
 		case type_fields::tf_image:
-			return detailed ? String("{IMAGE} [") + tohex(*(int32_t*)fr) + "][" + tohex(*(int32_t*)(fr + 4)) + "]" : String("{IMAGE}");
+			return detailed ? String("{IMAGE} [") + to_hex_string(*(int32_t*)fr) + "][" + to_hex_string(*(int32_t*)(fr + 4)) + "]" : String("{IMAGE}");
 		case type_fields::tf_datetime:
 			return date_to_string(fr);
 		case type_fields::tf_varbinary:

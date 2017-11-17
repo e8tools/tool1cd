@@ -3,6 +3,8 @@
 #define CommonH
 
 #include <System.Classes.hpp>
+#include <sstream>
+#include <iomanip>
 
 void time1CD_to_FileTime(FILETIME* ft, unsigned char* time1CD);
 unsigned int reverse_byte_order(unsigned int value);
@@ -17,12 +19,28 @@ bool string1C_to_date(const String& str, unsigned char* bytedate);
 bool string_to_date(const String& str, unsigned char* bytedate);
 String date_to_string1C(const unsigned char* bytedate);
 String date_to_string(const unsigned char* bytedate);
-String tohex(int n);
-String tohex64(int64_t n);
 String hexstring(char* buf, int n);
 String hexstring(TStream* str);
 String toXML(String in);
 unsigned char from_hex_digit(char digit);
+
+template< typename T >
+String to_hex_string( T num ) {
+	std::stringstream stream;
+	stream << "0x"
+		   << std::setfill('0') << std::setw(sizeof(T))
+		   << std::hex << num;
+	return String(stream.str());
+}
+
+template< typename T >
+std::wstring to_hex_wstring( T num ) {
+	std::wstringstream stream;
+	stream << L"0x"
+		   << std::setfill(L'0') << std::setw(sizeof(T))
+		   << std::hex << num;
+	return stream.str();
+}
 
 #endif
 

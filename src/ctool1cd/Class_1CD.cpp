@@ -67,8 +67,8 @@ bool T_1CD::getblock(void* buf, uint32_t block_number, int32_t blocklen)
 	if(block_number >= length)
 	{
 		msreg_m.AddError("Попытка чтения блока за пределами файла.",
-			"Индекс блока", tohex(block_number),
-			"Всего блоков", tohex(length));
+			"Индекс блока", to_hex_string(block_number),
+			"Всего блоков", to_hex_string(length));
 		return false;
 	}
 
@@ -83,8 +83,8 @@ char*  T_1CD::getblock(uint32_t block_number)
 	if(block_number >= length)
 	{
 		msreg_m.AddError("Попытка чтения блока за пределами файла.",
-			"Индекс блока", tohex(block_number),
-			"Всего блоков", tohex(length));
+			"Индекс блока", to_hex_string(block_number),
+			"Всего блоков", to_hex_string(length));
 		return NULL;
 	}
 
@@ -101,8 +101,8 @@ char*  T_1CD::getblock_for_write(uint32_t block_number, bool read)
 	if(block_number > length)
 	{
 		msreg_m.AddError("Попытка получения блока за пределами файла базы.",
-			"Индекс блока", tohex(block_number),
-			"Всего блоков", tohex(length));
+			"Индекс блока", to_hex_string(block_number),
+			"Всего блоков", to_hex_string(length));
 		return NULL;
 	}
 
@@ -329,8 +329,8 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	length = fs->GetSize() / pagesize;
 	if((int64_t)length * pagesize != fs->GetSize())
 	{
-		msreg_m.AddError(String("Длина файла базы не кратна длине страницы (" + tohex(pagesize) + ")"),
-			"Длина файла", tohex(fs->GetSize()));
+		msreg_m.AddError(String("Длина файла базы не кратна длине страницы (" + to_hex_string(pagesize) + ")"),
+			"Длина файла", to_hex_string(fs->GetSize()));
 		delete fs;
 		fs = NULL;
 		return;
@@ -839,7 +839,7 @@ void T_1CD::find_lost_objects()
 					break;
 				}
 			}
-			if(!block_is_find) msreg_m.AddMessage_("Найден потерянный объект", MessageState::Info, "Номер блока", tohex(i));
+			if(!block_is_find) msreg_m.AddMessage_("Найден потерянный объект", MessageState::Info, "Номер блока", to_hex_string(i));
 		}
 	}
 	msreg_m.AddMessage("Поиск потерянных объектов завершен", MessageState::Succesfull);
@@ -2681,8 +2681,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 					msreg_m.AddMessage_("Файл снэпшота испорчен (не совпала контрольная сумма)", MessageState::Warning,
 							"Имя файла", file_snap.string(),
 							"Требуемая версия", ver,
-							"Должен быть CRC32", tohex(snapshot_crc),
-							"Получился CRC32", tohex(calc_crc));
+							"Должен быть CRC32", to_hex_string(snapshot_crc),
+							"Получился CRC32", to_hex_string(calc_crc));
 					delete out;
 				}
 			}
@@ -3843,7 +3843,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 		msreg_m.AddMessage_("Сигнатура корневого блока файла DATA некорректная.", MessageState::Error
 			,"Таблица", tab->getname()
 			,"Номер блока (dec)", block
-			,"Номер блока (hex)", tohex(block)
+			,"Номер блока (hex)", to_hex_string(block)
 		);
 		return;
 	}
@@ -3855,7 +3855,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 		msreg_m.AddMessage_("Длина файла DATA не кратна длине одной записи.", MessageState::Error
 			,"Таблица", tab->getname()
 			,"Номер блока (dec)", block
-			,"Номер блока (hex)", tohex(block)
+			,"Номер блока (hex)", to_hex_string(block)
 			,"Длина файла", l
 			,"Длина записи", tab->get_recordlen()
 		);
@@ -3965,7 +3965,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 				for(d = 0; d < bk.size(); ++d)
 				{
 					if(d > 0) s += ", ";
-					s += tohex(bk[d]);
+					s += to_hex_string(bk[d]);
 				}
 				msreg_m.AddMessage_("Найдено несколько подходящих страниц данных файла DATA.", MessageState::Hint
 					,"Таблица", tab->getname()
