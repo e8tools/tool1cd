@@ -1421,7 +1421,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 						s += rc + 1;
 					}
 
-					dir /= s;
+					dir /= static_cast<std::string>(s);
 					if(!fields[i]->save_blob_to_file(rec, dir.string(), unpack)) {
 						s = "{NULL}";
 					}
