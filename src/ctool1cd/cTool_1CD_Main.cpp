@@ -33,27 +33,19 @@ bool IsTrueString(const String &str)
 	return s.Compare("1") == 0 || s.Compare("y") == 0 || s.Compare("yes") == 0 || s.Compare("д") == 0 || s.Compare("да") == 0;
 }
 
-bool directory_exists(boost::filesystem::path& check_path, Messenger& mess) {
-	if (!boost::filesystem::exists(check_path)) {
-		mess.AddMessage_("Каталог не существует.", MessageState::Error, "Каталог", check_path.string());
-		return false;
-	}
-	else if (!boost::filesystem::is_directory(check_path)) {
-		mess.AddMessage_("Указанный путь не является каталогом.", MessageState::Error, "Каталог", check_path.string());
-		return false;
-	}
-
-	return true;
-}
-
 //---------------------------------------------------------------------------
 //cmd_export_all_to_xml
 void T1CD_cmd_export_all_to_xml(T_1CD& base1CD, const ParsedCommand& pc, Messenger& mess, bool ActionXMLSaveBLOBToFileChecked, bool ActionXMLUnpackBLOBChecked)
 {
-	Table* tbl;
+	Table* tbl = nullptr;
 
 	if (base1CD.is_open())
 	{
+		boost::filesystem::path root_path(static_cast<string>(pc.param1));
+		if(!directory_exists(root_path)) {
+			return;
+		}
+
 		for (int j = 0; j < base1CD.get_numtables(); j++)
 		{
 			tbl = base1CD.gettable(j);
@@ -63,7 +55,6 @@ void T1CD_cmd_export_all_to_xml(T_1CD& base1CD, const ParsedCommand& pc, Messeng
 				tbl->fillrecordsindex();
 			}
 
-			boost::filesystem::path root_path(static_cast<string>(pc.param1));
 			boost::filesystem::path filetable = root_path / static_cast<string>(tbl->getname() + ".xml");
 
 			tbl->export_to_xml(filetable.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
@@ -79,12 +70,15 @@ void T1CD_cmd_export_all_to_xml(T_1CD& base1CD, const ParsedCommand& pc, Messeng
 //cmd_export_to_xml
 void T1CD_cmd_export_to_xml(T_1CD& base1CD, const ParsedCommand& pc, Messenger& mess, bool ActionXMLSaveBLOBToFileChecked, bool ActionXMLUnpackBLOBChecked)
 {
-	boost::regex* expr;
-	Table* tbl;
+	boost::regex* expr = nullptr;
+	Table* tbl = nullptr;
 
 	if (base1CD.is_open())
 	{
 		boost::filesystem::path root_path(static_cast<string>(pc.param1));
+		if(!directory_exists(root_path)) {
+			return;
+		}
 
 		Sysutils::TStringBuilder filter(pc.param2);
 		filter.Replace("*", ".*");
@@ -158,6 +152,9 @@ void T1CD_cmd_export_to_binary(T_1CD& base1CD, const ParsedCommand& pc, Messenge
 	}
 
 	boost::filesystem::path root_path(static_cast<string>(pc.param1));
+	if(!directory_exists(root_path)) {
+		return;
+	}
 
 	Sysutils::TStringBuilder filter(pc.param2);
 	filter.Replace("*", ".*");
@@ -221,6 +218,9 @@ void T1CD_cmd_import_from_binary(T_1CD& base1CD, const ParsedCommand& pc, Messen
 	}
 
 	boost::filesystem::path root_path(static_cast<string>(pc.param1));
+	if(!directory_exists(root_path)) {
+		return;
+	}
 
 	Sysutils::TStringBuilder filter(pc.param2);
 	filter.Replace("*", ".*");
@@ -286,7 +286,7 @@ void T1CD_cmd_save_config(T_1CD& base1CD, const ParsedCommand& pc, Messenger& me
 		boost::filesystem::path cfpath(static_cast<string>(pc.param1));
 		if (!boost::iequals(cfpath.extension().string(), str_cf))
 		{
-			if (!directory_exists(cfpath, mess)) {
+			if (!directory_exists(cfpath)) {
 				return;
 			}
 			cfpath /= "dbcf.cf"; // FIXME: заменить "dbcf.cf" константой
@@ -316,7 +316,7 @@ void T1CD_cmd_save_configsave(T_1CD& base1CD, const ParsedCommand& pc, Messenger
 		boost::filesystem::path cfpath(static_cast<string>(pc.param1));
 		if (!boost::iequals(cfpath.extension().string(), str_cf))
 		{
-			if (!directory_exists(cfpath, mess)) {
+			if (!directory_exists(cfpath)) {
 				return;
 			}
 			cfpath /= "cf.cf"; // FIXME: заменить "cf.cf" константой
@@ -337,7 +337,7 @@ void T1CD_cmd_save_vendors_configs(T_1CD& base1CD, const ParsedCommand& pc, Mess
 {
 	if (base1CD.is_open()) {
 		boost::filesystem::path param_path(static_cast<string>(pc.param1));
-		if(!directory_exists(param_path, mess)) {
+		if(!directory_exists(param_path)) {
 			return;
 		}
 
@@ -365,7 +365,7 @@ void T1CD_cmd_save_all_configs(T_1CD& base1CD, const ParsedCommand& pc, Messenge
 	if (base1CD.is_open())
 	{
 		boost::filesystem::path param_path(static_cast<string>(pc.param1));
-		if(!directory_exists(param_path, mess)) {
+		if(!directory_exists(param_path)) {
 			return;
 		}
 
@@ -442,7 +442,7 @@ void T1CD_cmd_save_depot_config(T_1CD& base1CD, const ParsedCommand& pc, Messeng
 
 	if (!boost::iequals(cfpath.extension().string(), str_cf))
 	{
-		if (!directory_exists(cfpath, mess)) {
+		if (!directory_exists(cfpath)) {
 			return;
 		}
 		cfpath /= static_cast<string>(String(string("v") + version_number + string(str_cf)));
@@ -501,11 +501,7 @@ void T1CD_cmd_save_depot_config_part(T_1CD& base1CD, const ParsedCommand& pc, Me
 	if(!version_exists(end_version)) { return; }
 
 	boost::filesystem::path save_path(static_cast<string>(pc.param2));
-	if (!boost::filesystem::exists(save_path)) {
-		boost::filesystem::create_directory(save_path);
-	}
-	else if (!boost::filesystem::is_directory(save_path)) {
-		mess.AddMessage_("Указанный путь не является каталогом.", MessageState::Error, "Каталог", save_path.string());
+	if(!directory_exists(save_path, true)) {
 		return;
 	}
 
@@ -520,7 +516,7 @@ void T1CD_cmd_save_depot_config_part(T_1CD& base1CD, const ParsedCommand& pc, Me
 void T1CD_cmd_find_and_save_lost_objects(T_1CD& base1CD, const ParsedCommand& pc, Messenger& mess) {
 
 	boost::filesystem::path lost_objects(static_cast<string>(pc.param1));
-	if (!directory_exists(lost_objects, mess)) {
+	if (!directory_exists(lost_objects)) {
 		return;
 	}
 

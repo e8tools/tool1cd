@@ -42,5 +42,7 @@ std::wstring to_hex_wstring( T num ) {
 	return stream.str();
 }
 
+bool directory_exists(boost::filesystem::path& check_path, bool create_directory = false);
+
 #endif
 
