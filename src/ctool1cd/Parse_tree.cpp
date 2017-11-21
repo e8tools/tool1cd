@@ -503,7 +503,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 
 tree* parse_1Ctext(const String& text, const String& path)
 {
-	TStringBuilder* __curvalue__;
+	TStringBuilder* __curvalue__; // TODO: избавиться от класса TStringBuilder
 
 	enum _state{
 		s_value, // ожидание начала значения

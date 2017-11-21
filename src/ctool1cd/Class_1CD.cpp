@@ -337,7 +337,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	}
 
 	MemBlock::pagesize = pagesize;
-	MemBlock::maxcount = 0x40000000 / pagesize; // гигабайт
+	MemBlock::maxcount = 0x40000000 / pagesize; // гигабайт // FIXME: заменить 0x40000000 на константу
 	MemBlock::create_memblocks(length);
 
 	if(length != cont->length)
@@ -664,7 +664,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		{
 			tree& node = (*tr)[0][3 + i];
 			nodetype = node[0].get_value();
-			if(nodetype.CompareIC("9cd510cd-abfc-11d4-9434-004095e12fc7") == 0) // узел "Общие"
+			if(nodetype.CompareIC("9cd510cd-abfc-11d4-9434-004095e12fc7") == 0) // узел "Общие" // FIXME: "9cd510cd-abfc-11d4-9434-004095e12fc7" - оформить как константу
 			{
 				tree& confinfo = node[1][1];
 				int32_t verconfinfo = confinfo[0].get_value().ToInt();

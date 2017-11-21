@@ -273,7 +273,7 @@ void v8file::SaveToStream(TStream* stream)
 	Lock->Release();
 }
 
-int64_t v8file::GetFileLength()
+int64_t v8file::GetFileLength() // FIXME: Сделать одну функцию получения длины файла
 {
 	int64_t ret;
 	Lock->Acquire();
@@ -285,7 +285,7 @@ int64_t v8file::GetFileLength()
 
 //---------------------------------------------------------------------------
 // определить размер файла
-int64_t v8file::GetFileLength64()
+int64_t v8file::GetFileLength64() // FIXME: Сделать одну функцию получения длины файла
 {
 	int64_t ret;
 	Lock->Acquire();
@@ -645,7 +645,7 @@ void v8file::Close(){
 				hs->Write(&time_create, 8);
 				hs->Write(&time_modify, 8);
 				hs->Write(&_t, 4);
-				#ifndef _DELPHI_STRING_UNICODE
+				#ifndef _DELPHI_STRING_UNICODE // FIXME: определится используем WCHART или char
 				int ws = name.WideCharBufSize();
 				char* tb = new char[ws];
 				name.WideChar((WCHART*)tb, ws);

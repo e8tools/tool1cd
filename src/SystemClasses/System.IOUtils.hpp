@@ -10,8 +10,6 @@ void CreateDir(const String &dirname);
 
 bool FileExists(const String &filename);
 
-bool DirectoryExists(const String &filename);
-
 void DeleteFile(const String &filename);
 
 void RemoveDir(const String &dirname);
