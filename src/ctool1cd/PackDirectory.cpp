@@ -24,7 +24,7 @@ PackDirectory::~PackDirectory() {
 void PackDirectory::init(boost::filesystem::path& init_path) {
 	boost::filesystem::path subpath = init_path / "data" / "pack";
 	if(!directory_exists(subpath)){
-		throw std::exception();
+		throw std::exception(); // FIXME: реализовать свой класс исключения
 	}
 	std::regex pack_mask("pack-.*\\.ind");
 	boost::filesystem::directory_iterator dit(subpath), dend;
