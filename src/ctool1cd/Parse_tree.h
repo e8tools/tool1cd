@@ -5,6 +5,14 @@
 #include "NodeTypes.h"
 #include "MessageRegistration.h"
 
+enum class state_type {
+	s_value,		// ожидание начала значения
+	s_delimitier,	// ожидание разделителя
+	s_string,		// режим ввода строки
+	s_quote_or_endstring, // режим ожидания конца строки или двойной кавычки
+	s_nonstring // режим ввода значения не строки
+};
+
 class tree
 {
 public:
