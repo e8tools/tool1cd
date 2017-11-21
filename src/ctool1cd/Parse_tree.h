@@ -2,9 +2,6 @@
 #ifndef Parse_treeH
 #define Parse_treeH
 
-#include <vcl.h>
-#pragma hdrstop
-
 #include "NodeTypes.h"
 #include "MessageRegistration.h"
 
@@ -33,12 +30,12 @@ public:
 private:
 	String value;
 	node_type type;
-	int num_subnode; // количество подчиненных
-	tree* parent; // +1
-	tree* next; // 0
-	tree* prev; // 0
-	tree* first; // -1
-	tree* last; // -1
+	int num_subnode;	// количество подчиненных
+	tree* parent;		// +1
+	tree* next;			// 0
+	tree* prev;			// 0
+	tree* first;		// -1
+	tree* last;			// -1
 	unsigned int index;
 };
 

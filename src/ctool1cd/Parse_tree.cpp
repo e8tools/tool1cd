@@ -35,10 +35,10 @@ tree::tree(const String& _value, const node_type _type, tree* _parent)
 		else parent->first = this;
 		parent->last = this;
 	}
-	else prev = NULL;
-	next = NULL;
-	first = NULL;
-	last = NULL;
+	else prev = nullptr;
+	next = nullptr;
+	first = nullptr;
+	last = nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -101,7 +101,7 @@ int tree::get_num_subnode()
 //---------------------------------------------------------------------------
 tree* tree::get_subnode(int _index)
 {
-	if(_index >= num_subnode) return NULL;
+	if(_index >= num_subnode) return nullptr;
 	tree* t = first;
 	while(_index)
 	{
@@ -120,7 +120,7 @@ tree* tree::get_subnode(const String& node_name)
 		if(t->value == node_name) return t;
 		t = t->next;
 	}
-	return NULL;
+	return nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -285,7 +285,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 
 	__curvalue__ = new TStringBuilder;
 
-	ret = new tree("", node_type::nd_list, NULL);
+	ret = new tree("", node_type::nd_list, nullptr);
 	t = ret;
 
 	reader = new TStreamReader(str, true);
@@ -323,7 +323,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 								"Позиция", i,
 								"Путь", path);
 							delete ret;
-							return NULL;
+							return nullptr;
 						}
 						state = s_delimitier;
 						break;
@@ -356,7 +356,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 								"Позиция", i,
 								"Путь", path);
 							delete ret;
-							return NULL;
+							return nullptr;
 						}
 						break;
 					default:
@@ -365,7 +365,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 							"Код символа", to_hex_string(sym), // FIXME: Разобраться с представлением wchar_t
 							"Путь", path);
 						delete ret;
-						return NULL;
+						return nullptr;
 				}
 				break;
 			case s_string:
@@ -402,7 +402,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 									"Позиция", i,
 									"Путь", path);
 								delete ret;
-								return NULL;
+								return nullptr;
 							}
 							state = s_delimitier;
 							break;
@@ -412,7 +412,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 								"Код символа", to_hex_string(sym),
 								"Путь", path);
 							delete ret;
-							return NULL;
+							return nullptr;
 					}
 				}
 				break;
@@ -446,7 +446,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 								"Позиция", i,
 								"Путь", path);
 							delete ret;
-							return NULL;
+							return nullptr;
 						}
 						state = s_delimitier;
 						break;
@@ -460,7 +460,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 					"Режим разбора", to_hex_string((int)state),
 					"Путь", path);
 				delete ret;
-				return NULL;
+				return nullptr;
 
 		}
 	}
@@ -485,7 +485,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 			"Режим разбора", to_hex_string((int)state),
 			"Путь", path);
 		delete ret;
-		return NULL;
+		return nullptr;
 	}
 
 	if(t != ret)
@@ -493,7 +493,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 		msreg_g.AddError("Ошибка формата потока. Не хватает закрывающих скобок } в конце текста разбора.",
 			"Путь", path);
 		delete ret;
-		return NULL;
+		return nullptr;
 	}
 
 	return ret;
@@ -523,7 +523,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 
 	__curvalue__ = new TStringBuilder;
 
-	ret = new tree("", node_type::nd_list, NULL);
+	ret = new tree("", node_type::nd_list, nullptr);
 	t = ret;
 
 	for(i = 1; i <= len; i++)
@@ -559,7 +559,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 								"Позиция", i,
 								"Путь", path);
 							delete ret;
-							return NULL;
+							return nullptr;
 						}
 						state = s_delimitier;
 						break;
@@ -592,7 +592,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 								"Позиция", i,
 								"Путь", path);
 							delete ret;
-							return NULL;
+							return nullptr;
 						}
 						break;
 					default:
@@ -601,7 +601,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 							"Код символа", to_hex_string(sym),
 							"Путь", path);
 						delete ret;
-						return NULL;
+						return nullptr;
 				}
 				break;
 			case s_string:
@@ -638,7 +638,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 									"Позиция", i,
 									"Путь", path);
 								delete ret;
-								return NULL;
+								return nullptr;
 							}
 							state = s_delimitier;
 							break;
@@ -648,7 +648,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 								"Код символа", to_hex_string(sym),
 								"Путь", path);
 							delete ret;
-							return NULL;
+							return nullptr;
 					}
 				}
 				break;
@@ -682,7 +682,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 								"Позиция", i,
 								"Путь", path);
 							delete ret;
-							return NULL;
+							return nullptr;
 						}
 						state = s_delimitier;
 						break;
@@ -696,7 +696,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 					"Режим разбора", to_hex_string((int)state),
 					"Путь", path);
 				delete ret;
-				return NULL;
+				return nullptr;
 
 		}
 	}
@@ -721,7 +721,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 			"Режим разбора", to_hex_string((int)state),
 			"Путь", path);
 		delete ret;
-		return NULL;
+		return nullptr;
 	}
 
 	if(t != ret)
@@ -729,7 +729,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 		msreg_g.AddError("Ошибка формата потока. Не хватает закрывающих скобок } в конце текста разбора.",
 			"Путь", path);
 		delete ret;
-		return NULL;
+		return nullptr;
 	}
 
 	return ret;
