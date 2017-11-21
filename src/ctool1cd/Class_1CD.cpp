@@ -1517,7 +1517,6 @@ bool T_1CD::create_table(String path)
 {
 	TFileStream* f;
 	bool fopen;
-	String dir;
 	String str;
 	char* buf;
 	uint32_t i;
@@ -1530,22 +1529,20 @@ bool T_1CD::create_table(String path)
 	v8object* file_index;
 	tree* t;
 
-	if(!DirectoryExists(path))
-	{
-		msreg_m.AddMessage_("Директория импорта таблицы не найдена", MessageState::Warning,
-			"Директория", path);
+	boost::filesystem::path dir(static_cast<std::string>(path));
+	if(!directory_exists(dir)) {
 		return false;
 	}
-	dir = path + "\\";
 
+	boost::filesystem::path path_root = dir / "root";
 	try
 	{
-		f = new TFileStream(dir + "root", fmOpenRead);
+		f = new TFileStream(path_root, fmOpenRead);
 	}
 	catch(...)
 	{
 		msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы root", MessageState::Warning,
-			"Файл", dir + "root");
+			"Файл", path_root.string());
 		return false;
 	}
 	root = new export_import_table_root;
@@ -1553,14 +1550,15 @@ bool T_1CD::create_table(String path)
 	delete f;
 
 
+	boost::filesystem::path path_descr = dir / "descr";
 	try
 	{
-		f = new TFileStream(dir + "descr", fmOpenRead);
+		f = new TFileStream(path_descr, fmOpenRead);
 	}
 	catch(...)
 	{
 		msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы descr", MessageState::Warning,
-			"Файл", dir + "descr");
+			"Файл", path_descr.string());
 		return false;
 	}
 
@@ -1573,7 +1571,7 @@ bool T_1CD::create_table(String path)
 	delete[] buf;
 	delete f;
 
-	t = parse_1Ctext(str, dir + "descr");
+	t = parse_1Ctext(str, path_descr.string());
 	str = (*t)[0][0].get_value();
 
 	for(j = 0; j < num_tables; j++) if(tables[j]->getname().CompareIC(str) == 0)
@@ -1588,15 +1586,16 @@ bool T_1CD::create_table(String path)
 	if(root->has_data)
 	{
 		fopen = false;
+		boost::filesystem::path path_data = dir / "data";
 		try
 		{
-			f = new TFileStream(dir + "data", fmOpenRead);
+			f = new TFileStream(path_data, fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
 		{
 			msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы data", MessageState::Warning,
-				"Файл", dir + "data");
+				"Файл", path_data.string());
 		}
 		if(fopen)
 		{
@@ -1612,15 +1611,16 @@ bool T_1CD::create_table(String path)
 	if(root->has_blob)
 	{
 		fopen = false;
+		boost::filesystem::path path_blob = dir / "blob";
 		try
 		{
-			f = new TFileStream(dir + "blob", fmOpenRead);
+			f = new TFileStream(path_blob, fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
 		{
 			msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы blob", MessageState::Warning,
-				"Файл", dir + "blob");
+				"Файл", path_blob.string());
 		}
 		if(fopen)
 		{
@@ -1636,15 +1636,16 @@ bool T_1CD::create_table(String path)
 	if(root->has_index)
 	{
 		fopen = false;
+		boost::filesystem::path path_index = dir / "index";
 		try
 		{
-			f = new TFileStream(dir + "index", fmOpenRead);
+			f = new TFileStream(path_index, fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
 		{
 			msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы index", MessageState::Warning,
-				"Файл", dir + "index");
+				"Файл", path_index.string());
 		}
 		if(fopen)
 		{
@@ -1662,13 +1663,13 @@ bool T_1CD::create_table(String path)
 		fopen = false;
 		try
 		{
-			f = new TFileStream(dir + "descr", fmOpenRead);
+			f = new TFileStream(path_descr, fmOpenRead);
 			fopen = true;
 		}
 		catch(...)
 		{
 			msreg_m.AddMessage_("Ошибка открытия файла импорта таблицы descr", MessageState::Warning,
-				"Файл", dir + "descr");
+				"Файл", path_descr.string());
 		}
 		if(fopen)
 		{
@@ -1690,7 +1691,7 @@ bool T_1CD::create_table(String path)
 			if(i == 0)
 			{
 				msreg_m.AddMessage_("Ошибка поиска раздела Files в файле импорта таблицы descr", MessageState::Warning,
-					"Файл", dir + "descr");
+					"Файл", path_descr.string());
 				delete root;
 				return false;
 			}
@@ -1722,17 +1723,13 @@ bool T_1CD::create_table(String path)
 				root81->numblocks++;
 				root_object->setdata(buf, i + 4);
 			}
-
-
 		}
-
-
 	}
 
 	flush();
 
 	msreg_m.AddMessage_("Таблица создана и импортирована", MessageState::Succesfull,
-		"Путь", dir);
+		"Путь", dir.string());
 
 	delete root;
 	return true;

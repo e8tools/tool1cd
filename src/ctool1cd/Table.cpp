@@ -1284,13 +1284,10 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 	String* us;
 	String s;
 	String recname;
-	//String fieldname;
 	int32_t i;
 	uint32_t j, numr, nr;
 	char* rec;
-	bool dircreated = false;
 	bool canwriteblob = false;
-	String dir;
 	Index* curindex;
 	int32_t ic; // image count, количество полей с типом image
 	int32_t rc; // repeat count, количество повторов имени записи подряд (для случая, если индекс не уникальный)
@@ -1362,6 +1359,9 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 
 	recname = "";
 	rc = 0;
+	bool dircreated = false;
+	boost::filesystem::path dir(static_cast<std::string>(_filename) + ".blob");
+
 	for(j = 0; j < numr; j++)
 	{
 		if(j % 100 == 0 && j) msreg_g.Status(status + j);
@@ -1388,29 +1388,22 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 
 			if(blob_to_file && fields[i]->type == type_fields::tf_image)
 			{
-				if(!dircreated)
-				{
-					dircreated = true;
-					dir = _filename + ".blob";
-					if(!DirectoryExists(dir))
+				if(!dircreated) {
+					try
 					{
-						try
+						if(!directory_exists(dir, true))
 						{
-							CreateDir(dir);
-							dir += "/";
+							dircreated = false;
+							canwriteblob = false;
+						} else {
+							dircreated = true;
 							canwriteblob = true;
 						}
-						catch(...)
-						{
-							msreg_g.AddMessage_("Не удалось создать каталог blob", MessageState::Warning,
-								"Таблица", name,
-								"Путь", dir);
-						}
 					}
-					else
-					{
-						dir += "/";
-						canwriteblob = true;
+					catch(...) {
+						msreg_g.AddMessage_("Не удалось создать каталог blob", MessageState::Warning,
+							"Таблица", name,
+							"Путь", dir.string());
 					}
 				}
 
@@ -1427,7 +1420,11 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 						s += "_";
 						s += rc + 1;
 					}
-					if(!fields[i]->save_blob_to_file(rec, dir + s, unpack)) s = "{NULL}";
+
+					dir /= static_cast<std::string>(s);
+					if(!fields[i]->save_blob_to_file(rec, dir.string(), unpack)) {
+						s = "{NULL}";
+					}
 				}
 				else s = "{ERROR}";
 			}
@@ -1518,11 +1515,8 @@ void Table::export_table(const String &path) const
 	boost::filesystem::path dir(static_cast<std::string>(path));
 
 	dir /= static_cast<std::string>(name);
-	if (!boost::filesystem::exists(dir)) {
-		boost::filesystem::create_directories(dir);
-		// TODO: ошибка создания каталога
-	} else if (!boost::filesystem::is_directory(dir)) {
-		// TODO: ошибка "это не каталог"
+	if(!directory_exists(dir, true)) {
+		return;
 	}
 
 	export_import_table_root root;
@@ -1580,10 +1574,8 @@ void Table::import_table(const String &path)
 {
 	boost::filesystem::path dir(static_cast<std::string>(path));
 	dir /= static_cast<std::string>(name);
-	if (!boost::filesystem::exists(dir)) {
-		return;
-	}
-	if (!boost::filesystem::is_directory(dir)) {
+
+	if(!directory_exists(dir)) {
 		return;
 	}
 

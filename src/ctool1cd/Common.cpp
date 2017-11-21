@@ -2,6 +2,7 @@
 #pragma hdrstop
 
 #include "Common.h"
+#include "MessageRegistration.h"
 //---------------------------------------------------------------------------
 #if !defined(_WIN32)
 #pragma package(smart_init)
@@ -9,6 +10,8 @@
 
 const size_t GUID_LEN = 36;
 const wchar_t hexdecode[] = L"0123456789abcdef";
+
+extern Registrator msreg_g;
 
 //---------------------------------------------------------------------------
 void time1CD_to_FileTime(FILETIME* ft, unsigned char* time1CD)
@@ -441,3 +444,20 @@ unsigned char from_hex_digit(char digit)
 	return 0;
 }
 
+bool directory_exists(boost::filesystem::path& check_path, bool create_directory) {
+	if(!boost::filesystem::exists(check_path)) {
+		if(create_directory) {
+			boost::filesystem::create_directory(check_path);
+			return true;
+		}
+		else {
+			msreg_g.AddMessage_("Каталог не существует.", MessageState::Error, "Каталог", check_path.string());
+			return false;
+		}
+	} else if(!boost::filesystem::is_directory(check_path)) {
+		msreg_g.AddMessage_("Указанный путь не является каталогом.", MessageState::Error, "Каталог", check_path.string());
+		return false;
+	}
+
+	return true;
+}
