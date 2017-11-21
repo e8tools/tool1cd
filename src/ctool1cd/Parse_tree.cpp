@@ -35,10 +35,10 @@ tree::tree(const String& _value, const node_type _type, tree* _parent)
 		else parent->first = this;
 		parent->last = this;
 	}
-	else prev = NULL;
-	next = NULL;
-	first = NULL;
-	last = NULL;
+	else prev = nullptr;
+	next = nullptr;
+	first = nullptr;
+	last = nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -101,7 +101,7 @@ int tree::get_num_subnode()
 //---------------------------------------------------------------------------
 tree* tree::get_subnode(int _index)
 {
-	if(_index >= num_subnode) return NULL;
+	if(_index >= num_subnode) return nullptr;
 	tree* t = first;
 	while(_index)
 	{
@@ -120,7 +120,7 @@ tree* tree::get_subnode(const String& node_name)
 		if(t->value == node_name) return t;
 		t = t->next;
 	}
-	return NULL;
+	return nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -266,14 +266,6 @@ tree* parse_1Cstream(TStream* str, const String& path)
 {
 	TStringBuilder* __curvalue__;
 
-	enum _state{
-		s_value, // ожидание начала значения
-		s_delimitier, // ожидание разделителя
-		s_string, // режим ввода строки
-		s_quote_or_endstring, // режим ожидания конца строки или двойной кавычки
-		s_nonstring // режим ввода значения не строки
-	}state = s_value;
-
 	String curvalue;
 	tree* ret;
 	tree* t;
@@ -281,14 +273,14 @@ tree* parse_1Cstream(TStream* str, const String& path)
 	wchar_t sym;
 	int _sym;
 	node_type nt;
-	TStreamReader* reader;
 
 	__curvalue__ = new TStringBuilder;
 
-	ret = new tree("", node_type::nd_list, NULL);
+	ret = new tree("", node_type::nd_list, nullptr);
 	t = ret;
 
-	reader = new TStreamReader(str, true);
+	TStreamReader* reader = new TStreamReader(str, true);
+	state_type state = state_type::s_value;
 
 	for(i = 1, _sym = reader->Read(); _sym >= 0; i++, _sym = reader->Read())
 	{
@@ -296,7 +288,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 
 		switch(state)
 		{
-			case s_value:
+			case state_type::s_value:
 				switch(sym)
 				{
 					case L' ': // space
@@ -305,9 +297,8 @@ tree* parse_1Cstream(TStream* str, const String& path)
 					case L'\n':
 						break;
 					case L'"':
-						//curvalue = "";
 						__curvalue__->Clear();
-						state = s_string;
+						state = state_type::s_string;
 						break;
 					case L'{':
 						t = new tree("", node_type::nd_list, t);
@@ -323,21 +314,21 @@ tree* parse_1Cstream(TStream* str, const String& path)
 								"Позиция", i,
 								"Путь", path);
 							delete ret;
-							return NULL;
+							return nullptr;
 						}
-						state = s_delimitier;
+						state = state_type::s_delimitier;
 						break;
 					case L',':
 						t->add_child("", node_type::nd_empty);
 						break;
 					default:
 						__curvalue__->Clear();
-						__curvalue__->Append(sym);
-						state = s_nonstring;
+						__curvalue__->Append(sym); // FIXME: sym -тип wchar_t, Append прнимает char
+						state = state_type::s_nonstring;
 						break;
 				}
 				break;
-			case s_delimitier:
+			case state_type::s_delimitier:
 				switch(sym)
 				{
 					case L' ': // space
@@ -346,7 +337,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 					case L'\n':
 						break;
 					case L',':
-						state = s_value;
+						state = state_type::s_value;
 						break;
 					case L'}':
 						t = t->get_parent();
@@ -356,7 +347,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 								"Позиция", i,
 								"Путь", path);
 							delete ret;
-							return NULL;
+							return nullptr;
 						}
 						break;
 					default:
@@ -365,20 +356,20 @@ tree* parse_1Cstream(TStream* str, const String& path)
 							"Код символа", to_hex_string(sym), // FIXME: Разобраться с представлением wchar_t
 							"Путь", path);
 						delete ret;
-						return NULL;
+						return nullptr;
 				}
 				break;
-			case s_string:
+			case state_type::s_string:
 				if(sym == L'"'){
-					state = s_quote_or_endstring;
+					state = state_type::s_quote_or_endstring;
 				}
 				else __curvalue__->Append(sym);
 				break;
-			case s_quote_or_endstring:
+			case state_type::s_quote_or_endstring:
 				if(sym == L'"')
 				{
-					__curvalue__->Append(sym);
-					state = s_string;
+					__curvalue__->Append(sym); // FIXME: sym -тип wchar_t, Append прнимает char
+					state = state_type::s_string;
 				}
 				else
 				{
@@ -389,10 +380,10 @@ tree* parse_1Cstream(TStream* str, const String& path)
 						case L'\t':
 						case L'\r':
 						case L'\n':
-							state = s_delimitier;
+							state = state_type::s_delimitier;
 							break;
 						case L',':
-							state = s_value;
+							state = state_type::s_value;
 							break;
 						case L'}':
 							t = t->get_parent();
@@ -402,9 +393,9 @@ tree* parse_1Cstream(TStream* str, const String& path)
 									"Позиция", i,
 									"Путь", path);
 								delete ret;
-								return NULL;
+								return nullptr;
 							}
-							state = s_delimitier;
+							state = state_type::s_delimitier;
 							break;
 						default:
 							msreg_g.AddError("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
@@ -412,11 +403,11 @@ tree* parse_1Cstream(TStream* str, const String& path)
 								"Код символа", to_hex_string(sym),
 								"Путь", path);
 							delete ret;
-							return NULL;
+							return nullptr;
 					}
 				}
 				break;
-			case s_nonstring:
+			case state_type::s_nonstring:
 				switch(sym)
 				{
 					case L',':
@@ -428,7 +419,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 							"Путь", path);
 						}
 						t->add_child(curvalue, nt);
-						state = s_value;
+						state = state_type::s_value;
 						break;
 					case L'}':
 						curvalue = __curvalue__->ToString();
@@ -446,9 +437,9 @@ tree* parse_1Cstream(TStream* str, const String& path)
 								"Позиция", i,
 								"Путь", path);
 							delete ret;
-							return NULL;
+							return nullptr;
 						}
-						state = s_delimitier;
+						state = state_type::s_delimitier;
 						break;
 					default:
 						__curvalue__->Append(sym);
@@ -460,12 +451,12 @@ tree* parse_1Cstream(TStream* str, const String& path)
 					"Режим разбора", to_hex_string((int)state),
 					"Путь", path);
 				delete ret;
-				return NULL;
+				return nullptr;
 
 		}
 	}
 
-	if(state == s_nonstring)
+	if(state == state_type::s_nonstring)
 	{
 		curvalue = __curvalue__->ToString();
 		nt = classification_value(curvalue);
@@ -476,16 +467,16 @@ tree* parse_1Cstream(TStream* str, const String& path)
 		}
 		t->add_child(curvalue, nt);
 	}
-	else if(state == s_quote_or_endstring) {
+	else if(state == state_type::s_quote_or_endstring) {
 		t->add_child(__curvalue__->ToString(), node_type::nd_string);
 	}
-	else if(state != s_delimitier)
+	else if(state != state_type::s_delimitier)
 	{
 		msreg_g.AddError("Ошибка формата потока. Незавершенное значение",
 			"Режим разбора", to_hex_string((int)state),
 			"Путь", path);
 		delete ret;
-		return NULL;
+		return nullptr;
 	}
 
 	if(t != ret)
@@ -493,7 +484,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 		msreg_g.AddError("Ошибка формата потока. Не хватает закрывающих скобок } в конце текста разбора.",
 			"Путь", path);
 		delete ret;
-		return NULL;
+		return nullptr;
 	}
 
 	return ret;
@@ -505,14 +496,6 @@ tree* parse_1Ctext(const String& text, const String& path)
 {
 	TStringBuilder* __curvalue__; // TODO: избавиться от класса TStringBuilder
 
-	enum _state{
-		s_value, // ожидание начала значения
-		s_delimitier, // ожидание разделителя
-		s_string, // режим ввода строки
-		s_quote_or_endstring, // режим ожидания конца строки или двойной кавычки
-		s_nonstring // режим ввода значения не строки
-	}state = s_value;
-
 	String curvalue;
 	tree* ret;
 	tree* t;
@@ -523,7 +506,9 @@ tree* parse_1Ctext(const String& text, const String& path)
 
 	__curvalue__ = new TStringBuilder;
 
-	ret = new tree("", node_type::nd_list, NULL);
+	state_type state = state_type::s_value;
+
+	ret = new tree("", node_type::nd_list, nullptr);
 	t = ret;
 
 	for(i = 1; i <= len; i++)
@@ -533,7 +518,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 
 		switch(state)
 		{
-			case s_value:
+			case state_type::s_value:
 				switch(sym)
 				{
 					case ' ': // space
@@ -543,7 +528,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 						break;
 					case '"':
 						__curvalue__->Clear();
-						state = s_string;
+						state = state_type::s_string;
 						break;
 					case '{':
 						t = new tree("", node_type::nd_list, t);
@@ -559,9 +544,9 @@ tree* parse_1Ctext(const String& text, const String& path)
 								"Позиция", i,
 								"Путь", path);
 							delete ret;
-							return NULL;
+							return nullptr;
 						}
-						state = s_delimitier;
+						state = state_type::s_delimitier;
 						break;
 					case ',':
 						t->add_child("", node_type::nd_empty);
@@ -569,11 +554,11 @@ tree* parse_1Ctext(const String& text, const String& path)
 					default:
 						__curvalue__->Clear();
 						__curvalue__->Append(sym);
-						state = s_nonstring;
+						state = state_type::s_nonstring;
 						break;
 				}
 				break;
-			case s_delimitier:
+			case state_type::s_delimitier:
 				switch(sym)
 				{
 					case ' ': // space
@@ -582,7 +567,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 					case '\n':
 						break;
 					case ',':
-						state = s_value;
+						state = state_type::s_value;
 						break;
 					case '}':
 						t = t->get_parent();
@@ -592,7 +577,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 								"Позиция", i,
 								"Путь", path);
 							delete ret;
-							return NULL;
+							return nullptr;
 						}
 						break;
 					default:
@@ -601,20 +586,20 @@ tree* parse_1Ctext(const String& text, const String& path)
 							"Код символа", to_hex_string(sym),
 							"Путь", path);
 						delete ret;
-						return NULL;
+						return nullptr;
 				}
 				break;
-			case s_string:
+			case state_type::s_string:
 				if(sym == '"'){
-					state = s_quote_or_endstring;
+					state = state_type::s_quote_or_endstring;
 				}
 				else __curvalue__->Append(sym);
 				break;
-			case s_quote_or_endstring:
+			case state_type::s_quote_or_endstring:
 				if(sym == '"')
 				{
 					__curvalue__->Append(sym);
-					state = s_string;
+					state = state_type::s_string;
 				}
 				else
 				{
@@ -625,10 +610,10 @@ tree* parse_1Ctext(const String& text, const String& path)
 						case '\t':
 						case '\r':
 						case '\n':
-							state = s_delimitier;
+							state = state_type::s_delimitier;
 							break;
 						case ',':
-							state = s_value;
+							state = state_type::s_value;
 							break;
 						case '}':
 							t = t->get_parent();
@@ -638,9 +623,9 @@ tree* parse_1Ctext(const String& text, const String& path)
 									"Позиция", i,
 									"Путь", path);
 								delete ret;
-								return NULL;
+								return nullptr;
 							}
-							state = s_delimitier;
+							state = state_type::s_delimitier;
 							break;
 						default:
 							msreg_g.AddError("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
@@ -648,11 +633,11 @@ tree* parse_1Ctext(const String& text, const String& path)
 								"Код символа", to_hex_string(sym),
 								"Путь", path);
 							delete ret;
-							return NULL;
+							return nullptr;
 					}
 				}
 				break;
-			case s_nonstring:
+			case state_type::s_nonstring:
 				switch(sym)
 				{
 					case ',':
@@ -664,7 +649,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 							"Путь", path);
 						}
 						t->add_child(curvalue, nt);
-						state = s_value;
+						state = state_type::s_value;
 						break;
 					case '}':
 						curvalue = __curvalue__->ToString();
@@ -682,9 +667,9 @@ tree* parse_1Ctext(const String& text, const String& path)
 								"Позиция", i,
 								"Путь", path);
 							delete ret;
-							return NULL;
+							return nullptr;
 						}
-						state = s_delimitier;
+						state = state_type::s_delimitier;
 						break;
 					default:
 						__curvalue__->Append(sym);
@@ -696,12 +681,12 @@ tree* parse_1Ctext(const String& text, const String& path)
 					"Режим разбора", to_hex_string((int)state),
 					"Путь", path);
 				delete ret;
-				return NULL;
+				return nullptr;
 
 		}
 	}
 
-	if(state == s_nonstring)
+	if(state == state_type::s_nonstring)
 	{
 		curvalue = __curvalue__->ToString();
 		nt = classification_value(curvalue);
@@ -712,16 +697,16 @@ tree* parse_1Ctext(const String& text, const String& path)
 		}
 		t->add_child(curvalue, nt);
 	}
-	else if(state == s_quote_or_endstring) {
+	else if(state == state_type::s_quote_or_endstring) {
 		t->add_child(__curvalue__->ToString(), node_type::nd_string);
 	}
-	else if(state != s_delimitier)
+	else if(state != state_type::s_delimitier)
 	{
 		msreg_g.AddError("Ошибка формата потока. Незавершенное значение",
 			"Режим разбора", to_hex_string((int)state),
 			"Путь", path);
 		delete ret;
-		return NULL;
+		return nullptr;
 	}
 
 	if(t != ret)
@@ -729,7 +714,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 		msreg_g.AddError("Ошибка формата потока. Не хватает закрывающих скобок } в конце текста разбора.",
 			"Путь", path);
 		delete ret;
-		return NULL;
+		return nullptr;
 	}
 
 	return ret;
@@ -741,28 +726,19 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 {
 	TStringBuilder* __curvalue__;
 
-	enum _state{
-		s_value, // ожидание начала значения
-		s_delimitier, // ожидание разделителя
-		s_string, // режим ввода строки
-		s_quote_or_endstring, // режим ожидания конца строки или двойной кавычки
-		s_nonstring // режим ввода значения не строки
-	}state = s_value;
-
 	String curvalue;
 	int i;
 	wchar_t sym;
 	int _sym;
 	node_type nt;
-	int level;
+	int level = 0;
 	bool ret = true;
 
 	__curvalue__ = new TStringBuilder;
 
-	TStreamReader* reader;
+	TStreamReader* reader = new TStreamReader(str, true);
 
-	reader = new TStreamReader(str, true);
-	level = 0;
+	state_type state = state_type::s_value;
 
 	for(i = 1, _sym = reader->Read(); _sym > 0; i++, _sym = reader->Read())
 	{
@@ -770,7 +746,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 
 		switch(state)
 		{
-			case s_value:
+			case state_type::s_value:
 				switch(sym)
 				{
 					case L' ': // space
@@ -780,7 +756,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 						break;
 					case L'"':
 						__curvalue__->Clear();
-						state = s_string;
+						state = state_type::s_string;
 						break;
 					case L'{':
 						level++;
@@ -793,17 +769,17 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 								"Путь", path);
 							ret = false;
 						}
-						state = s_delimitier;
+						state = state_type::s_delimitier;
 						level--;
 						break;
 					default:
 						__curvalue__->Clear();
 						__curvalue__->Append(sym);
-						state = s_nonstring;
+						state = state_type::s_nonstring;
 						break;
 				}
 				break;
-			case s_delimitier:
+			case state_type::s_delimitier:
 				switch(sym)
 				{
 					case L' ': // space
@@ -812,7 +788,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 					case L'\n':
 						break;
 					case L',':
-						state = s_value;
+						state = state_type::s_value;
 						break;
 					case L'}':
 						if(level <= 0)
@@ -833,17 +809,17 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 						return ret;
 				}
 				break;
-			case s_string:
+			case state_type::s_string:
 				if(sym == L'"'){
-					state = s_quote_or_endstring;
+					state = state_type::s_quote_or_endstring;
 				}
 				else __curvalue__->Append(sym);
 				break;
-			case s_quote_or_endstring:
+			case state_type::s_quote_or_endstring:
 				if(sym == L'"')
 				{
 					__curvalue__->Append(sym);
-					state = s_string;
+					state = state_type::s_string;
 				}
 				else
 				{
@@ -853,10 +829,10 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 						case L'\t':
 						case L'\r':
 						case L'\n':
-							state = s_delimitier;
+							state = state_type::s_delimitier;
 							break;
 						case L',':
-							state = s_value;
+							state = state_type::s_value;
 							break;
 						case L'}':
 							if(level <= 0)
@@ -867,7 +843,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 								ret = false;
 							}
 							level--;
-							state = s_delimitier;
+							state = state_type::s_delimitier;
 							break;
 						default:
 							msreg_g.AddError("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
@@ -879,7 +855,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 					}
 				}
 				break;
-			case s_nonstring:
+			case state_type::s_nonstring:
 				switch(sym)
 				{
 					case L',':
@@ -892,7 +868,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 								"Путь", path);
 							ret = false;
 						}
-						state = s_value;
+						state = state_type::s_value;
 						break;
 					case L'}':
 						curvalue = __curvalue__->ToString();
@@ -912,7 +888,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 							ret = false;
 						}
 						level--;
-						state = s_delimitier;
+						state = state_type::s_delimitier;
 						break;
 					default:
 						__curvalue__->Append(sym);
@@ -928,7 +904,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 		}
 	}
 
-	if(state == s_nonstring)
+	if(state == state_type::s_nonstring)
 	{
 		curvalue = __curvalue__->ToString();
 		nt = classification_value(curvalue);
@@ -940,11 +916,11 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 			ret = false;
 		}
 	}
-	else if(state == s_quote_or_endstring)
+	else if(state == state_type::s_quote_or_endstring)
 	{
 
 	}
-	else if(state != s_delimitier)
+	else if(state != state_type::s_delimitier)
 	{
 		msreg_g.AddError("Ошибка формата потока. Незавершенное значение",
 			"Режим разбора", to_hex_string((int)state),
