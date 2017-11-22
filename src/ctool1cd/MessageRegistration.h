@@ -3,7 +3,6 @@
 #define MessageRegistrationH
 
 #include <System.Classes.hpp>
-#pragma hdrstop
 
 //---------------------------------------------------------------------------
 enum class MessageState

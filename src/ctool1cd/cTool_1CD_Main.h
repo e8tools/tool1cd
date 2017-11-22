@@ -4,7 +4,6 @@
 
 #include <iostream>
 
-#pragma hdrstop
 #include <stdio.h>
 #include "Class_1CD.h"
 #include "Parse_tree.h"

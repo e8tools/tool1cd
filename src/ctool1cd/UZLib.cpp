@@ -1,7 +1,3 @@
-//---------------------------------------------------------------------------
-
-#pragma hdrstop
-
 #include <stdio.h>
 #include <assert.h>
 #include <malloc.h>

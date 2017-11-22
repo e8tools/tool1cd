@@ -1,6 +1,3 @@
-
-#pragma hdrstop
-
 #include "Common.h"
 #include "MessageRegistration.h"
 //---------------------------------------------------------------------------
