@@ -1,6 +1,3 @@
-
-#pragma hdrstop
-
 #include "Base64.h"
 
 #if !defined(_WIN32)

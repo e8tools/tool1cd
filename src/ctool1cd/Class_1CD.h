@@ -233,8 +233,8 @@ public:
 	bool save_config_ext(const String& _filename, const TGUID& uid, const String& hashname);
 	bool save_config_ext_db(const String& _filename, const String& hashname);
 
-	Field* get_field(Table* tab, String fieldname);
-	Index* get_index(Table* tab, String indexname);
+	Field* get_field(Table* tab, String fieldname); // TODO: класс Table должен предоставить публичный метод get_field
+	Index* get_index(Table* tab, String indexname); // TODO: класс Table должен предоставить публичный метод get_index
 
 	bool get_readonly();
 	void set_readonly(bool ro);

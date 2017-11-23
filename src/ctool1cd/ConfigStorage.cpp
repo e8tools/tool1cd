@@ -1,6 +1,3 @@
-
-#pragma hdrstop
-
 #include "ConfigStorage.h"
 #include "Common.h"
 #include "Base64.h"

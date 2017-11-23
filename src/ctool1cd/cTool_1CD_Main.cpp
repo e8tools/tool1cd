@@ -1,5 +1,3 @@
-#pragma hdrstop
-
 #include <stdio.h>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
