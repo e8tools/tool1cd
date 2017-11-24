@@ -41,6 +41,8 @@ build_script:
     cmake --build . --config Release
 test_script:
 - ps: >-
+    chcp 65001
+
     bin\Release\testproject.exe -r junit > junit.xml
 
     $wc = New-Object 'System.Net.WebClient'
