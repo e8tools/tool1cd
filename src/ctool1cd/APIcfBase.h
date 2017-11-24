@@ -135,10 +135,10 @@ class v8file{
 	
 	int64_t WriteAndClose(TStream* Stream, int Length = -1); // перезапись целиком и закрытие файла (для экономии памяти не используется data файла)
 	
-	void GetTimeCreate(FILETIME* ft);
-	void GetTimeModify(FILETIME* ft);
-	void SetTimeCreate(FILETIME* ft);
-	void SetTimeModify(FILETIME* ft);
+	void GetTimeCreate(System::FILETIME* ft);
+	void GetTimeModify(System::FILETIME* ft);
+	void SetTimeCreate(System::FILETIME* ft);
+	void SetTimeModify(System::FILETIME* ft);
 	void SaveToFile(const String& FileName);
 	void SaveToStream(TStream* stream);
 	TV8FileStream* get_stream(bool own = false);

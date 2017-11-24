@@ -30,3 +30,4 @@ endif()
 
 add_subdirectory(${SOURCE_DIR}/SystemClasses)
 add_subdirectory(${SOURCE_DIR}/ctool1cd)
+add_subdirectory(${SOURCE_DIR}/tests)

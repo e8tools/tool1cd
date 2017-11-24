@@ -19,6 +19,7 @@
 #include "PackDirectory.h"
 
 using namespace std;
+using namespace System;
 
 extern Registrator msreg_g;
 
@@ -3252,7 +3253,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	
 	union
 	{
-		GUID guid;
+		TGUID guid;
 		unsigned char uid[16];
 	};
 
