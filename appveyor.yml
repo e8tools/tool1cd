@@ -41,15 +41,21 @@ build_script:
     cmake --build . --config Release
 test_script:
 - ps: >-
+    function RunTests {
+
     bin\Release\testproject.exe --reporter junit --out junit.xml
 
-    if ($?) { New-Variable -Name "TotalResult" -Value 0} else { New-Variable -Name "TotalResult" -Value 1 }
+    $TotalExitCode = $LastExitCode
 
     $wc = New-Object 'System.Net.WebClient'
 
     $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\junit.xml))
 
     exit $TotalResult
+
+    }
+
+    RunTests
 
 after_build:
 - cmd: >-
