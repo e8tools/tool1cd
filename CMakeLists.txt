@@ -28,6 +28,16 @@ if (MSVC)
 
 endif()
 
+if (CMAKE_VERSION VERSION_LESS "3.1")
+	if(CMAKE_COMPILER_IS_GNUCXX)
+		set (CMAKE_CXX_FLAGS "--std=gnu++11 ${CMAKE_CXX_FLAGS}")
+	endif()
+else()
+	set (CMAKE_CXX_STANDARD 11)
+	set (CMAKE_CXX_STANDARD_REQUIRED YES)
+	set (CMAKE_CXX_EXTENSIONS OFF)
+endif()
+
 add_subdirectory(${SOURCE_DIR}/SystemClasses)
 add_subdirectory(${SOURCE_DIR}/ctool1cd)
 add_subdirectory(${SOURCE_DIR}/tests)
