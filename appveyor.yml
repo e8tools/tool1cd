@@ -39,23 +39,15 @@ build_script:
     cmake -G "Visual Studio 14" -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DBOOST_INCLUDEDIR="%BOOST_INCLUDEDIR%" -DZLIB_LIBRARY=%APPVEYOR_BUILD_FOLDER%\zlib-1.2.8\build\Release\zlibstatic.lib -DZLIB_INCLUDE_DIR=%APPVEYOR_BUILD_FOLDER%\zlib-1.2.8 .
 
     cmake --build . --config Release
+
 test_script:
+- bin\Release\testproject.exe --reporter junit --out junit.xml
+
+on_finish:
 - ps: >-
-    function RunTests {
-
-    bin\Release\testproject.exe --reporter junit --out junit.xml
-
-    $TotalExitCode = $LastExitCode
-
     $wc = New-Object 'System.Net.WebClient'
 
     $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\junit.xml))
-
-    return $TotalExitCode
-
-    }
-
-    RunTests
 
 after_build:
 - cmd: >-
