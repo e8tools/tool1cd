@@ -13,14 +13,6 @@ set (TOOL_HEADERS cTool_1CD_Main.h ParseCommandLine.h MessageRegistration.h Clas
 	db_ver.h NodeTypes.h V8Object.h Constants.h Field.h Index.h Table.h TableFiles.h
 	TableFileStream.h MemBlock.h CRC32.h Packdata.h PackDirectory.h)
 
-if (CMAKE_VERSION VERSION_LESS "3.1")
-	if(CMAKE_COMPILER_IS_GNUCXX)
-		set (CMAKE_CXX_FLAGS "--std=gnu++11 ${CMAKE_CXX_FLAGS}")
-	endif()
-else()
-	set (CMAKE_CXX_STANDARD 11)
-endif()
-
 add_executable (ctool1cd ${TOOL_SOURCES} ${TOOL_HEADERS})
 
 include_directories (${SOURCE_DIR}/SystemClasses)
