@@ -30,8 +30,6 @@ namespace t { // в msvc конфликтует с zlib
 typedef uint8_t Byte;
 }
 
-const int MAX_PATH = 260;
-
 typedef struct _FILETIME {
 
 	DWORD dwLowDateTime;
