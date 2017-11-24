@@ -27,8 +27,8 @@ public:
 
 	virtual int64_t Read(void *Buffer, int64_t Count) override;
 	virtual int32_t Read(std::vector<System::t::Byte> Buffer, int32_t Offset, int32_t Count);
-	virtual int64_t Write(const void *Buffer, int64_t Count) override { throw(Exception(L"Write read-only stream")); }
-	virtual int32_t Write(const std::vector<System::t::Byte> Buffer, int32_t Offset, int32_t Count) { throw(Exception(L"Write read-only stream")); }
+	virtual int64_t Write(const void *Buffer, int64_t Count) override { throw(System::Exception(L"Write read-only stream")); }
+	virtual int32_t Write(const std::vector<System::t::Byte> Buffer, int32_t Offset, int32_t Count) { throw(System::Exception(L"Write read-only stream")); }
 	virtual int32_t Seek(int32_t Offset, System::Word Origin);
 	virtual int64_t Seek(const int64_t Offset, TSeekOrigin Origin) override;
 };

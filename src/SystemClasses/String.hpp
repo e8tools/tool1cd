@@ -124,6 +124,7 @@ public:
 
 } // System
 
-using namespace System;
+using System::String;
+using System::TStringList;
 
 #endif

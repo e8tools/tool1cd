@@ -15,6 +15,7 @@
 #include "APIcfBase.h"
 
 using namespace std;
+using namespace System;
 
 TMultiReadExclusiveWriteSynchronizer* tr_syn = new TMultiReadExclusiveWriteSynchronizer();
 
