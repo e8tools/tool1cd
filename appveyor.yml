@@ -43,7 +43,7 @@ test_script:
 - ps: >-
     bin\Release\testproject.exe --reporter junit --out junit.xml
 
-    $TotalResult = $LastExitCode
+    if ($?) { New-Variable -Name "TotalResult" -Value 0} else { New-Variable -Name "TotalResult" -Value 1 }
 
     $wc = New-Object 'System.Net.WebClient'
 
