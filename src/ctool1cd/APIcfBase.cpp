@@ -11,6 +11,7 @@
 
 #endif // _MSC_VER
 
+using namespace System;
 
 #pragma comment (lib, "zlibstatic.lib")
 

@@ -26,8 +26,8 @@ struct table_rec
 	String name;
 	table_blob_file addr;
 	int32_t partno;
-	FILETIME ft_create;
-	FILETIME ft_modify;
+	System::FILETIME ft_create;
+	System::FILETIME ft_modify;
 };
 
 //---------------------------------------------------------------------------
@@ -38,8 +38,8 @@ struct table_file
 	String name; // Имя, как оно хранится в таблице
 	uint32_t maxpartno;
 	table_blob_file* addr;
-	FILETIME ft_create;
-	FILETIME ft_modify;
+	System::FILETIME ft_create;
+	System::FILETIME ft_modify;
 
 	table_file(Table* _t, const String& _name, uint32_t _maxpartno);
 	~table_file();

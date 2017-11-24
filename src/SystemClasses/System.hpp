@@ -84,14 +84,17 @@ struct TGUID {
 
 bool operator == (const TGUID &a, const TGUID &b);
 
-typedef TGUID GUID;
-
 enum TReplaceFlags {
 	rfReplaceAll = 1,
 	rfIgnoreCase = 2
 };
 
 } // System
+
+using System::TGUID;
+using System::WCHART;
+
+#include "String.hpp"
 
 #endif
 

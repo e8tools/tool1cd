@@ -230,7 +230,7 @@ public:
 	bool save_depot_config(const String& _filename, int32_t ver = 0);
 	bool save_part_depot_config(const String& _filename, int32_t ver_begin, int32_t ver_end);
 	int32_t get_ver_depot_config(int32_t ver); // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
-	bool save_config_ext(const String& _filename, const TGUID& uid, const String& hashname);
+	bool save_config_ext(const String& _filename, const System::TGUID& uid, const String& hashname);
 	bool save_config_ext_db(const String& _filename, const String& hashname);
 
 	Field* get_field(Table* tab, String fieldname); // TODO: класс Table должен предоставить публичный метод get_field
