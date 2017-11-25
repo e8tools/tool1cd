@@ -24,4 +24,8 @@ find_package (Boost 1.53 REQUIRED COMPONENTS filesystem regex system)
 include_directories (${Boost_INCLUDE_DIRS})
 target_link_libraries (ctool1cd ${Boost_LIBRARIES})
 
+find_package (ZLIB REQUIRED)
+include_directories (${ZLIB_INCLUDE_DIRS})
+target_link_libraries (ctool1cd ${ZLIB_LIBRARIES})
+
 install (TARGETS ctool1cd DESTINATION bin)

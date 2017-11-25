@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(TestProject)
+project(testproject)
 
 file(GLOB TEST_SYSTEM_SOURCES "SystemClasses/test_*.cpp")
 file(GLOB TEST_TOOL1CD_SOURCES "tool1cd/test_*.cpp")
@@ -12,3 +12,16 @@ target_link_libraries (testproject SystemClasses)
 
 include_directories (${SOURCE_DIR}/tool1cd)
 target_link_libraries (testproject tool1cd)
+
+add_definitions (-DBOOST_ALL_NO_LIB)
+set (Boost_USE_STATIC_LIBS ON)
+set (Boost_USE_MULTITHREADED OFF)
+set (Boost_USE_STATIC_RUNTIME ON)
+
+find_package (Boost 1.53 REQUIRED COMPONENTS filesystem regex system)
+include_directories (${Boost_INCLUDE_DIRS})
+target_link_libraries (testproject ${Boost_LIBRARIES})
+
+find_package (ZLIB REQUIRED)
+include_directories (${ZLIB_INCLUDE_DIRS})
+target_link_libraries (testproject ${ZLIB_LIBRARIES})
