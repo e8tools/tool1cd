@@ -31,7 +31,7 @@
 		<Compiler>
 			<Add option="-std=c++11" />
 			<Add directory="../SystemClasses" />
-<Add directory="../tool1cd" />
+			<Add directory="../tool1cd" />
 		</Compiler>
 		<Linker>
 			<Add library="dmpassystem" />
@@ -40,8 +40,11 @@
 			<Add library="boost_system" />
 			<Add library="z" />
 			<Add directory="../SystemClasses/bin/Debug" />
-<Add directory="../tool1cd/bin/Debug" />
+			<Add directory="../tool1cd/bin/Debug" />
 		</Linker>
+		<Unit filename="ErrorCode.h" />
+		<Unit filename="ParseCommandLine.cpp" />
+		<Unit filename="ParseCommandLine.h" />
 		<Unit filename="cTool_1CD_Main.cpp" />
 		<Unit filename="cTool_1CD_Main.h" />
 		<Extensions>
