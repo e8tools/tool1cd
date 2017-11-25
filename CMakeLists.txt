@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(tool1cd)
+project(tool1cd_project)
 
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
@@ -39,5 +39,6 @@ else()
 endif()
 
 add_subdirectory(${SOURCE_DIR}/SystemClasses)
+add_subdirectory(${SOURCE_DIR}/tool1cd)
 add_subdirectory(${SOURCE_DIR}/ctool1cd)
 add_subdirectory(${SOURCE_DIR}/tests)

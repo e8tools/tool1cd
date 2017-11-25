@@ -9,3 +9,6 @@ add_executable(testproject ${TEST_SYSTEM_SOURCES} ${TEST_TOOL1CD_SOURCES} catch_
 
 include_directories (${SOURCE_DIR}/SystemClasses)
 target_link_libraries (testproject SystemClasses)
+
+include_directories (${SOURCE_DIR}/tool1cd)
+target_link_libraries (testproject tool1cd)
