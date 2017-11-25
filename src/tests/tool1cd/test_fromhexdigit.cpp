@@ -26,4 +26,10 @@ TEST_CASE( "Проверка from_hex_digit", "[FROMHEXDIGIT]" ) {
 	REQUIRE( from_hex_digit('D') == 13 );
 	REQUIRE( from_hex_digit('E') == 14 );
 	REQUIRE( from_hex_digit('F') == 15 );
+
+	REQUIRE( from_hex_digit('Y') == 0 );
+	REQUIRE( from_hex_digit('y') == 0 );
+
+	REQUIRE( from_hex_digit('#') == 0 );
+	REQUIRE( from_hex_digit('$') == 0 );
 }
