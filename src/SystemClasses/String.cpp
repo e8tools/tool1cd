@@ -140,8 +140,7 @@ static uint32_t __to_upper(uint32_t code_point)
 	return code_point;
 }
 
-
-	/** Функция перевода каждого символа в строчные (C strings).
+/** Функция перевода каждого символа в строчные (C strings).
  *      @param        - нет
  *      Переводит символы в строчные
  */
