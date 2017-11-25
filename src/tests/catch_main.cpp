@@ -1,9 +1,12 @@
 #define CATCH_CONFIG_MAIN
 #include <System.SysUtils.hpp>
 #include <String.hpp>
+#include <MessageRegistration.h>
 #include "catch.hpp"
 
 using namespace System;
+
+Registrator msreg_g;
 
 TEST_CASE("File extension extracts correctly", "[SysUtils]")
 {

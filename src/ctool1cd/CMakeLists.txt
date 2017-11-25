@@ -4,19 +4,16 @@ project (ctool1cd)
 set (tool_VERSION_MAJOR 1)
 set (tool_VERSION_MINOR 0)
 
-set (TOOL_SOURCES cTool_1CD_Main.cpp ParseCommandLine.cpp MessageRegistration.cpp Class_1CD.cpp
-	Common.cpp ConfigStorage.cpp Parse_tree.cpp APIcfBase.cpp TempStream.cpp Base64.cpp UZLib.cpp Messenger.cpp
-	V8Object.cpp Field.cpp Index.cpp Table.cpp TableFiles.cpp TableFileStream.cpp
-	MemBlock.cpp CRC32.cpp Packdata.cpp PackDirectory.cpp)
-set (TOOL_HEADERS cTool_1CD_Main.h ParseCommandLine.h MessageRegistration.h Class_1CD.h
-	Common.h ConfigStorage.h Parse_tree.h APIcfBase.h TempStream.h Base64.h UZLib.h Messenger.h ErrorCode.h
-	db_ver.h NodeTypes.h V8Object.h Constants.h Field.h Index.h Table.h TableFiles.h
-	TableFileStream.h MemBlock.h CRC32.h Packdata.h PackDirectory.h)
+set (CTOOL_SOURCES cTool_1CD_Main.cpp)
+set (CTOOL_HEADERS cTool_1CD_Main.h)
 
-add_executable (ctool1cd ${TOOL_SOURCES} ${TOOL_HEADERS})
+add_executable (ctool1cd ${CTOOL_SOURCES} ${CTOOL_HEADERS})
 
 include_directories (${SOURCE_DIR}/SystemClasses)
 target_link_libraries (ctool1cd SystemClasses)
+
+include_directories (${SOURCE_DIR}/tool1cd)
+target_link_libraries (ctool1cd tool1cd)
 
 add_definitions (-DBOOST_ALL_NO_LIB)
 set (Boost_USE_STATIC_LIBS ON)
