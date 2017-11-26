@@ -7,6 +7,7 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem.hpp>
 #include "System.SysUtils.hpp"
+#include "utf8.h"
 
 using namespace std;
 
@@ -113,15 +114,51 @@ String::String(unsigned long      value) : string(ToString(value)) {}
 String::String(long long          value) : string(ToString(value)) {}
 String::String(unsigned long long value) : string(ToString(value)) {}
 
+// TODO: Впилить толковые строки
+static uint32_t __to_lower(uint32_t code_point)
+{
+	if (code_point >= 'A' && code_point <= 'Z') {
+		return code_point - 'A' + 'a';
+	}
+	if (code_point == 0x0401)
+		return 0x0451;
+	if (code_point >= 0x0410 && code_point <= 0x042F)
+		return code_point - 0x0410 + 0x430;
+	return code_point;
+}
+
+// TODO: Впилить толковые строки
+static uint32_t __to_upper(uint32_t code_point)
+{
+	if (code_point >= 'a' && code_point <= 'z') {
+		return code_point - 'a' + 'A';
+	}
+	if (code_point == 0x0451)
+		return 0x0401;
+	if (code_point >= 0x0430 && code_point <= 0x044F)
+		return code_point - 0x0430 + 0x410;
+	return code_point;
+}
+
 /** Функция перевода каждого символа в строчные (C strings).
  *      @param        - нет
  *      Переводит символы в строчные
  */
 String String::UpperCase() const
 {
-	string copy (*this);
-	transform(copy.begin(), copy.end(), copy.begin(), ::toupper);
-	return String(copy);
+	std::vector<char> result_data(size() + 1);
+
+	auto cstr = c_str();
+	utf8::iterator<const char*> it (cstr, cstr, cstr + size()),
+		eit(cstr + size(), cstr, cstr + size());
+
+	auto rit = result_data.data();
+
+	while (it != eit) {
+		rit = utf8::append(__to_upper(*it++), rit);
+	}
+
+	return String(result_data.data(), size());
 }
 
 /** Функция перевода каждого символа в нижний регистр (C strings).
@@ -130,9 +167,19 @@ String String::UpperCase() const
  */
 String String::LowerCase() const
 {
-	string copy (*this);
-	transform(copy.begin(), copy.end(), copy.begin(), ::tolower);
-	return String(copy);
+	std::vector<char> result_data(size());
+
+	auto cstr = c_str();
+	utf8::iterator<const char*> it (cstr, cstr, cstr + size()),
+			eit(cstr + size(), cstr, cstr + size());
+
+	auto rit = result_data.data();
+
+	while (it != eit) {
+		rit = utf8::append(__to_lower(*it++), rit);
+	}
+
+	return String(result_data.data(), size());
 }
 
 /** Функция определяет пустая строка или нет.

@@ -3,7 +3,7 @@
 
 using namespace System;
 
-TEST_CASE("Uppercase в уникоде", "[String]")
+TEST_CASE("Uppercase в уникоде", "[SystemClasses][String][Unicode]")
 {
 	GIVEN( "Строка 'Привет'")  {
 		String testString("Привет");
@@ -22,4 +22,21 @@ TEST_CASE("Uppercase в уникоде", "[String]")
 			}
 		}
 	}
+}
+
+TEST_CASE("Upper/Lower Case для каждой буквы", "[SystemClasses][String][Unicode]")
+{
+	String lowcase("abcdefghijklmnopqrstuvwxyz01234567890"
+								"абвгдеёжзийклмнопрстуфхцчшщъыьэюя");
+	String upcase("ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890"
+						   "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ");
+
+	REQUIRE(lowcase.UpperCase() == upcase);
+	REQUIRE(upcase.LowerCase() == lowcase);
+
+	REQUIRE(lowcase.UpperCase().LowerCase() == lowcase);
+	REQUIRE(upcase.LowerCase().UpperCase() == upcase);
+
+	REQUIRE(upcase.UpperCase() == upcase);
+	REQUIRE(lowcase.LowerCase() == lowcase);
 }
