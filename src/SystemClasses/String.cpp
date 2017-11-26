@@ -117,8 +117,8 @@ String::String(unsigned long long value) : string(ToString(value)) {}
 // TODO: Впилить толковые строки
 static uint32_t __to_lower(uint32_t code_point)
 {
-	if (code_point < 0x80) {
-		return (uint32_t)std::tolower((unsigned char) code_point, std::locale());
+	if (code_point >= 'A' && code_point <= 'Z') {
+		return code_point - 'A' + 'a';
 	}
 	if (code_point == 0x0401)
 		return 0x0451;
@@ -130,8 +130,8 @@ static uint32_t __to_lower(uint32_t code_point)
 // TODO: Впилить толковые строки
 static uint32_t __to_upper(uint32_t code_point)
 {
-	if (code_point < 0x80) {
-		return (uint32_t)std::toupper((unsigned char) code_point, std::locale());
+	if (code_point >= 'a' && code_point <= 'z') {
+		return code_point - 'a' + 'A';
 	}
 	if (code_point == 0x0451)
 		return 0x0401;
