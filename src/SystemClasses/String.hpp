@@ -69,9 +69,9 @@ public:
 		return result;
 	}
 
-	bool operator == (const String &b) const;
+	bool operator == (const std::string &b) const;
 
-	bool operator != (const String &b) const;
+	bool operator != (const std::string &b) const;
 
 	int ToInt() const;
 
