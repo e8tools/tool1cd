@@ -552,6 +552,17 @@ String String::IntToHex(int n, int digits)
 	return String(ss.str());
 }
 
+bool String::operator == (const String &b) const
+{
+	return Compare(b) == 0;
+}
+
+bool String::operator != (const String &b) const
+{
+	return Compare(b) != 0;
+}
+
+
 
 } // System
 

@@ -69,15 +69,9 @@ public:
 		return result;
 	}
 
-	bool operator == (const String &b) const
-	{
-		return Compare(b) == 0;
-	}
+	bool operator == (const String &b) const;
 
-	bool operator != (const String &b) const
-	{
-		return Compare(b) != 0;
-	}
+	bool operator != (const String &b) const;
 
 	int ToInt() const;
 
