@@ -69,6 +69,16 @@ public:
 		return result;
 	}
 
+	bool operator == (const String &b) const
+	{
+		return Compare(b) == 0;
+	}
+
+	bool operator != (const String &b) const
+	{
+		return Compare(b) != 0;
+	}
+
 	int ToInt() const;
 
 	int ToIntDef(int default_value) const;
