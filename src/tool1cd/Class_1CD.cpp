@@ -2345,10 +2345,10 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 		return 0;
 	}
 
-	fld = get_field(table_versions, "VERNUM");
+	fld = table_versions->get_field("VERNUM");
 	if(!fld) return 0;
 
-	ind = get_index(table_versions, "PK");
+	ind = table_versions->get_index("PK");
 	if(!ind) return 0;
 
 	i = ind->get_numrecords();
@@ -2374,50 +2374,6 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 	}
 
 	return v;
-}
-
-Field* T_1CD::get_field(Table* tab, String fieldname)
-{
-	int32_t j;
-	Field* fld;
-	String s;
-
-	for(j = 0; j < tab->num_fields; j++)
-	{
-		fld = tab->fields[j];
-		if(fld->getname().CompareIC(fieldname) == 0) return fld;
-	}
-
-	s ="В таблице ";
-	s += tab->name;
-	s += " не найдено поле ";
-	s += fieldname;
-	s += ".";
-	msreg_m.AddError(s);
-
-	return NULL;
-}
-
-Index* T_1CD::get_index(Table* tab, String indexname)
-{
-	int32_t j;
-	Index* ind;
-	String s;
-
-	for(j = 0; j < tab->num_indexes; j++)
-	{
-		ind = tab->indexes[j];
-		if(ind->getname().CompareIC(indexname) == 0) return ind;
-	}
-
-	s ="В таблице ";
-	s += tab->name;
-	s += " не найден индекс ";
-	s += indexname;
-	s += ".";
-	msreg_m.AddError(s);
-
-	return NULL;
 }
 
 //---------------------------------------------------------------------------
@@ -2512,7 +2468,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		return false;
 	}
 
-	fldd_rootobjid = get_field(table_depot, "ROOTOBJID");
+	fldd_rootobjid = table_depot->get_field("ROOTOBJID");
 	if(!fldd_rootobjid) return false;
 
 	rec = new char[table_depot->get_recordlen()];
@@ -2553,16 +2509,16 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		return false;
 	}
 
-	fldv_vernum = get_field(table_versions, "VERNUM");
+	fldv_vernum = table_versions->get_field("VERNUM");
 	if(!fldv_vernum) return false;
 	if(depotVer >= depot_ver::Ver5)
 	{
-		fldv_cversion = get_field(table_versions, "CVERSION");
+		fldv_cversion = table_versions->get_field("CVERSION");
 		if(!fldv_cversion) return false;
 	}
-	fldv_snapshotcrc = get_field(table_versions, "SNAPSHOTCRC");
+	fldv_snapshotcrc = table_versions->get_field("SNAPSHOTCRC");
 	if(!fldv_snapshotcrc) return false;
-	fldv_snapshotmaker = get_field(table_versions, "SNAPSHOTMAKER");
+	fldv_snapshotmaker = table_versions->get_field("SNAPSHOTMAKER");
 	if(!fldv_snapshotmaker) return false;
 
 	rec = new char[table_versions->get_recordlen()];
@@ -2727,39 +2683,39 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		return false;
 	}
 
-	fldh_objid = get_field(table_history, "OBJID");
+	fldh_objid = table_history->get_field("OBJID");
 	if(!fldh_objid) return false;
-	fldh_vernum = get_field(table_history, "VERNUM");
+	fldh_vernum = table_history->get_field("VERNUM");
 	if(!fldh_vernum) return false;
-	fldh_objverid = get_field(table_history, "OBJVERID");
+	fldh_objverid = table_history->get_field("OBJVERID");
 	if(!fldh_objverid) return false;
-	fldh_removed = get_field(table_history, "REMOVED");
+	fldh_removed = table_history->get_field("REMOVED");
 	if(!fldh_removed) return false;
-	fldh_datapacked = get_field(table_history, "DATAPACKED");
+	fldh_datapacked = table_history->get_field("DATAPACKED");
 	if(!fldh_datapacked) return false;
-	fldh_objdata = get_field(table_history, "OBJDATA");
+	fldh_objdata = table_history->get_field("OBJDATA");
 	if(!fldh_objdata) return false;
 
-	flde_objid = get_field(table_externals, "OBJID");
+	flde_objid = table_externals->get_field("OBJID");
 	if(!flde_objid) return false;
-	flde_vernum = get_field(table_externals, "VERNUM");
+	flde_vernum = table_externals->get_field("VERNUM");
 	if(!flde_vernum) return false;
-	flde_extname = get_field(table_externals, "EXTNAME");
+	flde_extname = table_externals->get_field("EXTNAME");
 	if(!flde_extname) return false;
-	flde_extverid = get_field(table_externals, "EXTVERID");
+	flde_extverid = table_externals->get_field("EXTVERID");
 	if(!flde_extverid) return false;
-	flde_datapacked = get_field(table_externals, "DATAPACKED");
+	flde_datapacked = table_externals->get_field("DATAPACKED");
 	if(!flde_datapacked) return false;
-	flde_extdata = get_field(table_externals, "EXTDATA");
+	flde_extdata = table_externals->get_field("EXTDATA");
 	if(!flde_extdata) return false;
 
 	boost::filesystem::path objects_path;
 
 	if(depotVer >= depot_ver::Ver6)
 	{
-		fldh_datahash = get_field(table_history, "DATAHASH");
+		fldh_datahash = table_history->get_field("DATAHASH");
 		if(!fldh_datahash) return false;
-		flde_datahash = get_field(table_externals, "DATAHASH");
+		flde_datahash = table_externals->get_field("DATAHASH");
 		if(!flde_datahash) return false;
 
 		boost::filesystem::path root_dir = root_path.parent_path();
@@ -2780,9 +2736,9 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		flde_datahash = nullptr;
 	}
 
-	index_history = get_index(table_history, "PK");
+	index_history = table_history->get_index("PK");
 	if(!index_history) return false;
-	index_externals = get_index(table_externals, "PK");
+	index_externals = table_externals->get_index("PK");
 	if(!index_externals) return false;
 
 	rech1 = new char[table_history->get_recordlen()];
@@ -3322,16 +3278,16 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		return false;
 	}
 
-	fldv_vernum = get_field(table_versions, "VERNUM");
+	fldv_vernum = table_versions->get_field("VERNUM");
 	if(!fldv_vernum) return false;
 	if(depotVer >= depot_ver::Ver5)
 	{
-		fldv_cversion = get_field(table_versions, "CVERSION");
+		fldv_cversion = table_versions->get_field("CVERSION");
 		if(!fldv_cversion) return false;
 	}
-	fldv_snapshotcrc = get_field(table_versions, "SNAPSHOTCRC");
+	fldv_snapshotcrc = table_versions->get_field("SNAPSHOTCRC");
 	if(!fldv_snapshotcrc) return false;
-	fldv_snapshotmaker = get_field(table_versions, "SNAPSHOTMAKER");
+	fldv_snapshotmaker = table_versions->get_field("SNAPSHOTMAKER");
 	if(!fldv_snapshotmaker) return false;
 
 	rec = new char[table_versions->get_recordlen()];
@@ -3394,39 +3350,39 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		return false;
 	}
 
-	fldh_objid = get_field(table_history, "OBJID");
+	fldh_objid = table_history->get_field("OBJID");
 	if(!fldh_objid) return false;
-	fldh_vernum = get_field(table_history, "VERNUM");
+	fldh_vernum = table_history->get_field("VERNUM");
 	if(!fldh_vernum) return false;
-	fldh_objverid = get_field(table_history, "OBJVERID");
+	fldh_objverid = table_history->get_field("OBJVERID");
 	if(!fldh_objverid) return false;
-	fldh_removed = get_field(table_history, "REMOVED");
+	fldh_removed = table_history->get_field("REMOVED");
 	if(!fldh_removed) return false;
-	fldh_datapacked = get_field(table_history, "DATAPACKED");
+	fldh_datapacked = table_history->get_field("DATAPACKED");
 	if(!fldh_datapacked) return false;
-	fldh_objdata = get_field(table_history, "OBJDATA");
+	fldh_objdata = table_history->get_field("OBJDATA");
 	if(!fldh_objdata) return false;
 
-	flde_objid = get_field(table_externals, "OBJID");
+	flde_objid = table_externals->get_field("OBJID");
 	if(!flde_objid) return false;
-	flde_vernum = get_field(table_externals, "VERNUM");
+	flde_vernum = table_externals->get_field("VERNUM");
 	if(!flde_vernum) return false;
-	flde_extname = get_field(table_externals, "EXTNAME");
+	flde_extname = table_externals->get_field("EXTNAME");
 	if(!flde_extname) return false;
-	flde_extverid = get_field(table_externals, "EXTVERID");
+	flde_extverid = table_externals->get_field("EXTVERID");
 	if(!flde_extverid) return false;
-	flde_datapacked = get_field(table_externals, "DATAPACKED");
+	flde_datapacked = table_externals->get_field("DATAPACKED");
 	if(!flde_datapacked) return false;
-	flde_extdata = get_field(table_externals, "EXTDATA");
+	flde_extdata = table_externals->get_field("EXTDATA");
 	if(!flde_extdata) return false;
 
 	boost::filesystem::path objects_path;
 
 	if(depotVer >= depot_ver::Ver6)
 	{
-		fldh_datahash = get_field(table_history, "DATAHASH");
+		fldh_datahash = table_history->get_field("DATAHASH");
 		if(!fldh_datahash) return false;
-		flde_datahash = get_field(table_externals, "DATAHASH");
+		flde_datahash = table_externals->get_field("DATAHASH");
 		if(!flde_datahash) return false;
 
 		boost::filesystem::path root_dir = root_path.parent_path();
@@ -3447,9 +3403,9 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		flde_datahash = NULL;
 	}
 
-	indh = get_index(table_history, "PK");
+	indh = table_history->get_index("PK");
 	if(!indh) return 0;
-	inde = get_index(table_externals, "PK");
+	inde = table_externals->get_index("PK");
 	if(!inde) return 0;
 
 	rech = new char[table_history->get_recordlen()];
@@ -4173,7 +4129,7 @@ depot_ver T_1CD::get_depot_version(const char *record)
 {
 	depot_ver depotVer = depot_ver::UnknownVer;
 
-	Field* fldd_depotver = get_field(table_depot, "DEPOTVER");
+	Field* fldd_depotver = table_depot->get_field("DEPOTVER");
 
 	if(!fldd_depotver) {
 		return depotVer;

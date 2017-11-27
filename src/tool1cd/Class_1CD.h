@@ -232,10 +232,7 @@ public:
 	int32_t get_ver_depot_config(int32_t ver); // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
 	bool save_config_ext(const String& _filename, const System::TGUID& uid, const String& hashname);
 	bool save_config_ext_db(const String& _filename, const String& hashname);
-
-	Field* get_field(Table* tab, String fieldname); // TODO: класс Table должен предоставить публичный метод get_field
-	Index* get_index(Table* tab, String indexname); // TODO: класс Table должен предоставить публичный метод get_index
-
+		
 	bool get_readonly();
 	void set_readonly(bool ro);
 	void flush();

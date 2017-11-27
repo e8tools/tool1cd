@@ -2837,3 +2837,46 @@ String Table::get_file_name_for_record(char* rec)
 
 	return s;
 }
+
+Field* Table::get_field(const String& fieldname)
+{
+	Field* fld =  nullptr;
+	
+	for (int32_t j = 0; j < num_fields; j++)
+	{
+		fld = fields[j];
+		if (fld->getname().CompareIC(fieldname) == 0) {
+			return fld;
+		}
+	}
+
+	String s = "В таблице ";
+	s += name;
+	s += " не найдено поле ";
+	s += fieldname;
+	s += ".";
+	msreg_g.AddError(s);
+
+	return fld;
+}
+
+Index* Table::get_index(const String& indexname)
+{
+	Index* ind = nullptr;
+	
+	for (int32_t j = 0; j < num_indexes; j++) {
+		ind = indexes[j];
+		if (ind->getname().CompareIC(indexname) == 0) {
+			return ind;
+		}
+	}
+
+	String s = "В таблице ";
+	s += name;
+	s += " не найден индекс ";
+	s += indexname;
+	s += ".";
+	msreg_g.AddError(s);
+
+	return ind;
+}
