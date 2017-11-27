@@ -325,7 +325,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 						break;
 					default:
 						__curvalue__->Clear();
-						__curvalue__->Append(sym); // FIXME: sym -тип wchar_t, Append прнимает char
+						__curvalue__->Append(sym); // TODO: sym -тип wchar_t, Append принимает char
 						state = state_type::s_nonstring;
 						break;
 				}
