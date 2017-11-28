@@ -6,7 +6,8 @@
 #include <map>
 #include <set>
 #include <limits>
-#include<vector>
+#include <vector>
+#include <array>
 
 #include "UZLib.h"
 
@@ -40,6 +41,8 @@ const int32_t LAST_BLOCK = std::numeric_limits<int>::max();
 
 const int64_t EPOCH_START_WIN = 504911232000000;
 
+int32_t hex_to_int(std::array<char, 8>& hexstr);
+std::array<char, 8> int_to_hex(int dec);
 
 //---------------------------------------------------------------------------
 struct v8header_struct{
