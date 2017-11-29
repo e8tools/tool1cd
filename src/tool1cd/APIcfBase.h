@@ -30,19 +30,22 @@
 	const wchar_t str_backslash[] = L"\\";
 #endif
 
-// массив для преобразования числа в шестнадцатиричную строку
-const char _BUFHEX[] = "0123456789abcdef";
-
 // шаблон заголовка блока
 const char _BLOCK_HEADER_TEMPLATE[] = "\r\n00000000 00000000 00000000 \r\n";
 const char _EMPTY_CATALOG_TEMPLATE[16] = {'\xff','\xff','\xff','\x7f',0,2,0,0,0,0,0,0,0,0,0,0};
 
 const int32_t LAST_BLOCK = std::numeric_limits<int>::max();
+const uint32_t BLOCK_SIZE = 32U;
+const uint32_t CATALOG_BLOCK_SIZE = 16U;
+constexpr uint32_t HEX_INT_LEN = 8U;
 
 const int64_t EPOCH_START_WIN = 504911232000000;
 
-int32_t hex_to_int(std::array<char, 8>& hexstr);
-std::array<char, 8> int_to_hex(int dec);
+int32_t hex_to_int(std::array<char, HEX_INT_LEN>& hexstr);
+std::array<char, HEX_INT_LEN> int_to_hex(int dec);
+
+// массив для преобразования числа в шестнадцатиричную строку
+const char BUFHEX[] = "0123456789abcdef";
 
 //---------------------------------------------------------------------------
 struct v8header_struct{
