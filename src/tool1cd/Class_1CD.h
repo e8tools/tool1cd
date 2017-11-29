@@ -100,25 +100,6 @@ public:
 	String version; // версия конфигурация поставщика
 };
 
-// Структура одной записи индекса упакованных объектов хранилища 8.3 (из файла *.ind)
-
-#pragma pack(push)
-#pragma pack(1)
-struct _datahash
-{
-	char datahash[20]; // хэш файла
-	int64_t offset; // смещение файла в файле *.pck
-};
-#pragma pack(pop)
-
-// Структура для одной пары файлов *.ind и *.pck в каталоге data\pack\ хранилища 8.3
-struct _packdata
-{
-	TFileStream* pack; // открытый на чтение файл *.pck
-	uint32_t count; // кол-во записей (объектов) в файле *.pck
-	_datahash* datahashes; // массив
-};
-
 // Типы страниц
 enum class pagetype
 {

@@ -3202,16 +3202,9 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	TStreamWriter* sw;
 	TMemoryStream* sd;
 	bool hasdeleted;
-	std::vector<_packdata> packdates;
 	PackDirectory pack_directory;
 	v8catalog* cat;
 	TFileStream* f;
-	
-	union
-	{
-		TGUID guid;
-		unsigned char uid[16];
-	};
 
 	union
 	{
@@ -3750,14 +3743,6 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	delete[] rech1;
 	delete[] rech2;
 	delete[] rece;
-
-	for(i = 0; i < packdates.size(); i++)
-	{
-		delete packdates[i].pack;
-		delete[] packdates[i].datahashes;
-	}
-
-
 
 	return true;
 }
