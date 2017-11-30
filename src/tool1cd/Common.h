@@ -28,7 +28,7 @@ template< typename T >
 String to_hex_string( T num ) {
 	std::stringstream stream;
 	stream << "0x"
-		   << std::setfill('0') << std::setw(sizeof(T))
+		   << std::setfill('0') << std::setw(sizeof(T) * 2)
 		   << std::hex << num;
 	return String(stream.str());
 }
@@ -37,7 +37,7 @@ template< typename T >
 std::wstring to_hex_wstring( T num ) {
 	std::wstringstream stream;
 	stream << L"0x"
-		   << std::setfill(L'0') << std::setw(sizeof(T))
+		   << std::setfill(L'0') << std::setw(sizeof(T) * 2)
 		   << std::hex << num;
 	return stream.str();
 }
