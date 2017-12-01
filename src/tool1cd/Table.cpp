@@ -15,9 +15,6 @@ extern Registrator msreg_g;
 extern TMultiReadExclusiveWriteSynchronizer* tr_syn;
 #endif
 
-const uint32_t BLOB_RECORD_LEN = 256;
-const uint32_t BLOB_RECORD_DATA_LEN = 250;
-
 //********************************************************
 // Класс changed_rec
 

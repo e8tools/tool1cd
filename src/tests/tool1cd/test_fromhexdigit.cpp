@@ -1,7 +1,7 @@
 #include "../catch.hpp"
 #include <Common.h>
 
-TEST_CASE( "Проверка from_hex_digit", "[FROMHEXDIGIT]" ) {
+TEST_CASE( "Проверка from_hex_digit", "[tool1cd][from_hex_digit]" ) {
 	REQUIRE( from_hex_digit('0') == 0 );
 	REQUIRE( from_hex_digit('1') == 1 );
 	REQUIRE( from_hex_digit('2') == 2 );

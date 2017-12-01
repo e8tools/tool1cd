@@ -6,7 +6,8 @@
 #include <map>
 #include <set>
 #include <limits>
-#include<vector>
+#include <vector>
+#include <string>
 
 #include "UZLib.h"
 
@@ -29,17 +30,18 @@
 	const wchar_t str_backslash[] = L"\\";
 #endif
 
-// массив для преобразования числа в шестнадцатиричную строку
-const char _BUFHEX[] = "0123456789abcdef";
-
 // шаблон заголовка блока
 const char _BLOCK_HEADER_TEMPLATE[] = "\r\n00000000 00000000 00000000 \r\n";
 const char _EMPTY_CATALOG_TEMPLATE[16] = {'\xff','\xff','\xff','\x7f',0,2,0,0,0,0,0,0,0,0,0,0};
 
 const int32_t LAST_BLOCK = std::numeric_limits<int>::max();
+const uint32_t BLOCK_HEADER_LEN = 32U;
+const uint32_t CATALOG_HEADER_LEN = 16U;
 
 const int64_t EPOCH_START_WIN = 504911232000000;
 
+int32_t hex_to_int(std::string& hexstr);
+std::string int_to_hex(int dec);
 
 //---------------------------------------------------------------------------
 struct v8header_struct{

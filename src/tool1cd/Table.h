@@ -14,6 +14,9 @@
 #include "Index.h"
 #include "Class_1CD.h"
 
+static const uint32_t BLOB_RECORD_LEN = 256;
+static const uint32_t BLOB_RECORD_DATA_LEN = 250;
+
 class Index;
 
 enum table_info
@@ -66,7 +69,7 @@ public:
 struct blob_block{
 	uint32_t nextblock;
 	int16_t length;
-	char data[250];
+	char data[BLOB_RECORD_DATA_LEN];
 };
 
 // структура root файла экспорта/импорта таблиц
