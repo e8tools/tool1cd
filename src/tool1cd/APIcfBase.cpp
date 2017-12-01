@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "APIcfBase.h"
+#include "Common.h"
 
 #ifdef _MSC_VER
 
@@ -40,47 +41,6 @@ unsigned WindowsTickToUnixSeconds(long long windowsTicks)
 }
 
 //---------------------------------------------------------------------------
-// преобразует шестнадцатиричную восьмисимвольную строку в число
-int32_t hex_to_int(std::string &hexstr)
-{
-	int32_t result = 0;
-
-	if(hexstr.length() < HEX_INT_LEN) {
-		std::stringstream stream;
-		stream << "Длина строки меньше "
-			   << HEX_INT_LEN
-			   << " символов!";
-		throw std::invalid_argument(stream.str());
-	}
-			
-	for(uint32_t i = 0; i < HEX_INT_LEN; i++) {
-		char sym = hexstr[i];
-		if (sym >= 'a') {
-			sym -= 'a' - '9' - 1;
-		}
-		else if (sym > '9') {
-			sym -= 'A' - '9' - 1;
-		}
-		sym -= '0';
-		
-		result = (result << 4) | (sym & 0xf);
-	}
-
-	return result;
-}
-
-//---------------------------------------------------------------------------
-// преобразует число в шестнадцатиричную восьмисимвольную строку
-std::string int_to_hex(int dec)
-{
-	std::stringstream stream;
-	stream << std::setfill('0')
-		   << std::setw(HEX_INT_LEN)
-		   << std::hex << dec;
-		return stream.str();
-}
-
-//---------------------------------------------------------------------------
 // читает блок из потока каталога stream_from, собирая его по страницам
 TStream* read_block(TStream* stream_from, int start, TStream* stream_to = nullptr)
 {
@@ -98,26 +58,26 @@ TStream* read_block(TStream* stream_from, int start, TStream* stream_to = nullpt
 	stream_from->Seek(start, soFromBeginning);
 	stream_from->Read(temp_buf.data(), temp_buf.size() - 1);
 
-	std::string hex_len;
+	std::string hex_len("0x");
 	std::copy_n(temp_buf.begin() + (int)block_header::doc_len,
 				HEX_INT_LEN,
 				std::back_inserter(hex_len));
-	len = hex_to_int(hex_len);
+	len = std::stoi(hex_len, nullptr, 16);
 
 	if(!len) 
 		return stream_to;
 
-	std::string hex_curlen;
+	std::string hex_curlen("0x");
 	std::copy_n(temp_buf.begin() + (int)block_header::block_len,
 				HEX_INT_LEN,
 				std::back_inserter(hex_curlen));
-	curlen =hex_to_int(hex_curlen);
+	curlen =std::stoi(hex_curlen, nullptr, 16);
 
-	std::string hex_start;
+	std::string hex_start("0x");
 	std::copy_n(temp_buf.begin() + (int)block_header::nextblock,
 				HEX_INT_LEN,
 				std::back_inserter(hex_start));
-	start  = hex_to_int(hex_start);
+	start  = std::stoi(hex_start, nullptr, 16);
 
 	readlen = std::min(len, curlen);
 	stream_to->CopyFrom(stream_from, readlen);
@@ -129,17 +89,17 @@ TStream* read_block(TStream* stream_from, int start, TStream* stream_to = nullpt
 		stream_from->Seek(start, soFromBeginning);
 		stream_from->Read(temp_buf.data(), temp_buf.size() - 1);
 
-		std::string hex_curlen;
+		std::string hex_curlen("0x");
 		std::copy_n(temp_buf.begin() + (int)block_header::block_len,
 					HEX_INT_LEN,
 					std::back_inserter(hex_curlen));
-		curlen = hex_to_int(hex_curlen);
+		curlen = std::stoi(hex_curlen, nullptr, 16);
 
-		std::string hex_start;
+		std::string hex_start("0x");
 		std::copy_n(temp_buf.begin() + (int)block_header::nextblock,
 					HEX_INT_LEN,
 					std::back_inserter(hex_start));
-		start  = hex_to_int(hex_start);
+		start  = std::stoi(hex_start, nullptr, 16);
 
 		readlen = std::min(len - pos, curlen);
 		stream_to->CopyFrom(stream_from, readlen);
@@ -1292,18 +1252,18 @@ void v8catalog::free_block(int start){
 		data->Seek(start, soFromBeginning);
 		data->ReadBuffer(temp_buf.data(), temp_buf.size() - 1);
 
-		std::string hex_nextstart;
+		std::string hex_nextstart("0x");
 		std::copy_n(temp_buf.begin() + (int)block_header::nextblock,
 					HEX_INT_LEN,
 					std::back_inserter(hex_nextstart));
-		nextstart = hex_to_int(hex_nextstart);
+		nextstart = std::stoi(hex_nextstart, nullptr, 16);
 
-		std::string hex_int = int_to_hex(LAST_BLOCK);
+		std::string hex_int = to_hex_string(LAST_BLOCK, false);
 		std::copy(hex_int.begin(),
 				  hex_int.end(),
 				  temp_buf.begin() + (int)block_header::doc_len);
 		if (nextstart == LAST_BLOCK) {
-			std::string hex_prevempty = int_to_hex(prevempty);
+			std::string hex_prevempty = to_hex_string(prevempty, false);
 			std::copy(hex_prevempty.begin(),
 					  hex_prevempty.end(),
 					  temp_buf.begin() + (int)block_header::nextblock);
@@ -1413,17 +1373,17 @@ int v8catalog::write_block(TStream* block, int start, bool use_page_size, int le
 			data->Seek(start, soFromBeginning);
 			data->ReadBuffer(temp_buf.data(), temp_buf.size() - 1);
 
-			std::string hex_blocklen;
+			std::string hex_blocklen("0x");
 			std::copy_n(temp_buf.begin() + (int)block_header::block_len,
 						HEX_INT_LEN,
 						std::back_inserter(hex_blocklen));
-			blocklen = hex_to_int(hex_blocklen);
+			blocklen = std::stoi(hex_blocklen, nullptr, 16);
 
-			std::string hex_nextstart;
+			std::string hex_nextstart("0x");
 			std::copy_n(temp_buf.begin() + (int)block_header::nextblock,
 						HEX_INT_LEN,
 						std::back_inserter(hex_nextstart));
-			nextstart = hex_to_int(hex_nextstart);
+			nextstart = std::stoi(hex_nextstart, nullptr, 16);
 
 			start_empty = nextstart;
 			is_emptymodified = true;
@@ -1432,7 +1392,7 @@ int v8catalog::write_block(TStream* block, int start, bool use_page_size, int le
 		{// пишем в новый блок
 			memcpy(temp_buf.data(), _BLOCK_HEADER_TEMPLATE, temp_buf.size() - 1);
 			blocklen = use_page_size ? len > page_size ? len : page_size : len;
-			std::string hex_blocklen = int_to_hex(blocklen);
+			std::string hex_blocklen = to_hex_string(blocklen, false);
 			std::copy(hex_blocklen.begin(),
 					  hex_blocklen.end(),
 					  temp_buf.begin() + (int)block_header::block_len);
@@ -1444,20 +1404,20 @@ int v8catalog::write_block(TStream* block, int start, bool use_page_size, int le
 			data->Seek(start, soFromBeginning);
 			data->ReadBuffer(temp_buf.data(), temp_buf.size() - 1);
 
-			std::string hex_blocklen;
+			std::string hex_blocklen("0x");
 			std::copy_n(temp_buf.begin() + (int)block_header::block_len,
 						HEX_INT_LEN,
 						std::back_inserter(hex_blocklen));
-			blocklen = hex_to_int(hex_blocklen);
+			blocklen = std::stoi(hex_blocklen, nullptr, 16);
 
-			std::string hex_nextstart;
+			std::string hex_nextstart("0x");
 			std::copy_n(temp_buf.begin() + (int)block_header::nextblock,
 						HEX_INT_LEN,
 						std::back_inserter(hex_nextstart));
-			nextstart = hex_to_int(hex_nextstart);
+			nextstart = std::stoi(hex_nextstart, nullptr, 16);
 		}
 
-		std::string hex_first_block_len = int_to_hex(isfirstblock ? len : 0);
+		std::string hex_first_block_len = to_hex_string(isfirstblock ? len : 0, false);
 		std::copy(hex_first_block_len.begin(),
 				  hex_first_block_len.end(),
 				  temp_buf.begin() + (int)block_header::doc_len);
@@ -1465,7 +1425,7 @@ int v8catalog::write_block(TStream* block, int start, bool use_page_size, int le
 		if(!nextstart) nextstart = data->GetSize() + 31 + blocklen;
 		else nextstart = get_nextblock(nextstart);
 
-		std::string hex_block = int_to_hex(len <= blocklen ? LAST_BLOCK : nextstart);
+		std::string hex_block = to_hex_string(len <= blocklen ? LAST_BLOCK : nextstart, false);
 		std::copy(hex_block.begin(),
 				  hex_block.end(),
 				  temp_buf.begin() + (int)block_header::nextblock);

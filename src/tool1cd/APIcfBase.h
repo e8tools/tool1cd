@@ -40,9 +40,6 @@ const uint32_t CATALOG_HEADER_LEN = 16U;
 
 const int64_t EPOCH_START_WIN = 504911232000000;
 
-int32_t hex_to_int(std::string& hexstr);
-std::string int_to_hex(int dec);
-
 //---------------------------------------------------------------------------
 struct v8header_struct{
 	int64_t time_create;
