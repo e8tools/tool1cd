@@ -10,11 +10,15 @@ trim_trailing_whitespace = true
 
 [*.{cpp,h,hpp}]
 indent_style = tab
-indent_size = 4
+indent_size = tab
 
 [*.yml]
 indent_style = space
 indent_size = 2
+trim_trailing_whitespace = false
+
+[*.md]
+trim_trailing_whitespace = false
 
 [**catch.hpp]
 indent_style = ignore
