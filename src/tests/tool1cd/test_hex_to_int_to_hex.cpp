@@ -24,4 +24,7 @@ TEST_CASE("hex_to_int/int_to_hex получение целого из шеста
 	REQUIRE(hex_to_int(hex_value) == -24);
 	REQUIRE(int_to_hex(-24) == hex_value);
 
+	hex_value = "00";
+	REQUIRE_THROWS_AS(hex_to_int(hex_value), std::invalid_argument);
+
 }
