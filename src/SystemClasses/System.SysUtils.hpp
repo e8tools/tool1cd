@@ -32,16 +32,6 @@ public:
 	String value;
 };
 
-class TMultiReadExclusiveWriteSynchronizer
-{
-public:
-	void BeginWrite();
-	void EndWrite();
-
-	void BeginRead();
-	void EndRead();
-};
-
 class TEncoding
 {
 

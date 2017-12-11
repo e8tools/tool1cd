@@ -11,9 +11,6 @@
 #include "Table.h"
 
 extern Registrator msreg_g;
-#ifndef getcfname
-extern TMultiReadExclusiveWriteSynchronizer* tr_syn;
-#endif
 
 //********************************************************
 // Класс changed_rec
@@ -1058,13 +1055,8 @@ uint32_t Table::get_added_numrecords()
 //---------------------------------------------------------------------------
 char* Table::getrecord(uint32_t phys_numrecord, char* buf)
 {
-	#ifndef getcfname
-	tr_syn->BeginWrite();
-	#endif
 	char* b = file_data->getdata(buf, phys_numrecord * recordlen, recordlen);
-	#ifndef getcfname
-	tr_syn->EndWrite();
-	#endif
+
 	return b;
 }
 
@@ -2031,13 +2023,7 @@ uint32_t Table::get_phys_numrec(int32_t ARow, Index* cur_index)
 	if(cur_index) numrec = cur_index->get_numrec(ARow - 1);
 	else
 	{
-	#ifndef getcfname
-		tr_syn->BeginRead();
-	#endif
 		numrec = recordsindex[ARow - 1];
-	#ifndef getcfname
-		tr_syn->EndRead();
-	#endif
 	}
 
 	return numrec;
