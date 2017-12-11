@@ -7,6 +7,8 @@ file(GLOB TEST_TOOL1CD_SOURCES "tool1cd/test_*.cpp")
 
 add_executable(testproject ${TEST_SYSTEM_SOURCES} ${TEST_TOOL1CD_SOURCES} catch_main.cpp catch.hpp)
 
+add_definitions (-DCMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+
 include_directories (${SOURCE_DIR}/SystemClasses)
 target_link_libraries (testproject SystemClasses)
 

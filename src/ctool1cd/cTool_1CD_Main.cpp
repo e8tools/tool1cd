@@ -17,8 +17,6 @@
 using namespace std;
 using namespace System;
 
-TMultiReadExclusiveWriteSynchronizer* tr_syn = new TMultiReadExclusiveWriteSynchronizer();
-
 //---------------------------------------------------------------------------
 const int TEMP_BUFFER_SIZE = 4096;
 char temp[TEMP_BUFFER_SIZE];

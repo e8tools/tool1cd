@@ -105,25 +105,6 @@ void TStringBuilder::Append(char c)
 	value.append(1, c);
 }
 
-
-
-void TMultiReadExclusiveWriteSynchronizer::BeginWrite()
-{
-}
-
-void TMultiReadExclusiveWriteSynchronizer::EndWrite()
-{
-}
-
-void TMultiReadExclusiveWriteSynchronizer::BeginRead()
-{
-}
-
-void TMultiReadExclusiveWriteSynchronizer::EndRead()
-{
-}
-
-
 TEncoding *TEncoding::UTF8 = new TUtf8Encoding();
 TEncoding *TEncoding::Unicode = new TUcs2Encoding();
 
