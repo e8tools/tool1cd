@@ -25,19 +25,23 @@ String toXML(String in);
 unsigned char from_hex_digit(char digit);
 
 template< typename T >
-String to_hex_string( T num ) {
+String to_hex_string( T num, bool prefix = true ) {
 	std::stringstream stream;
-	stream << "0x"
-		   << std::setfill('0') << std::setw(sizeof(T) * 2)
+	if(prefix) {
+		stream << "0x";
+	};
+	stream << std::setfill('0') << std::setw(sizeof(T) * 2)
 		   << std::hex << num;
 	return String(stream.str());
 }
 
 template< typename T >
-std::wstring to_hex_wstring( T num ) {
+std::wstring to_hex_wstring( T num, bool prefix = true ) {
 	std::wstringstream stream;
-	stream << L"0x"
-		   << std::setfill(L'0') << std::setw(sizeof(T) * 2)
+	if(prefix) {
+		stream << L"0x";
+	};
+	stream << std::setfill(L'0') << std::setw(sizeof(T) * 2)
 		   << std::hex << num;
 	return stream.str();
 }
