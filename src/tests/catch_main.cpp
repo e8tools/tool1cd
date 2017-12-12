@@ -7,6 +7,7 @@
 using namespace System;
 
 Registrator msreg_g;
+TMultiReadExclusiveWriteSynchronizer* tr_syn = new TMultiReadExclusiveWriteSynchronizer();
 
 TEST_CASE("File extension extracts correctly", "[SysUtils]")
 {
