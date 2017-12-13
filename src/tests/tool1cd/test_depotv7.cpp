@@ -9,8 +9,8 @@ TEST_CASE("Работа с хранилищем версии 7", "[tool1cd][Clas
 
 		T_1CD base1CD(path, nullptr, true);
 		WHEN ("вызываем is_open") {
+			bool result = base1CD.is_open();
 			THEN ("получаем 'true'") {
-				bool result = base1CD.is_open();
 				REQUIRE( result == true );
 			}
 		}
