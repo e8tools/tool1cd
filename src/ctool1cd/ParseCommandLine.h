@@ -4,8 +4,7 @@
 #define ParseCommandLineH
 
 #include <vector>
-
-#include "MessageRegistration.h"
+#include "String.hpp"
 
 //---------------------------------------------------------------------------
 enum class Command
@@ -46,22 +45,19 @@ struct ParsedCommand
 	String param3;        // значение третьего доп. параметра
 };
 
-class CommandParse: public IControlMessageRegistration
+class CommandParse
 {
 public:
-	CommandParse(char **szArglist, int nArgs, MessageRegistrator* _mess = nullptr);
+	CommandParse(char **szArglist, int nArgs);
 	std::vector<ParsedCommand>& getcommands();
 	String& getfilename();
 	static String& gethelpstring();
 
-	void AddMessageRegistrator(MessageRegistrator* messageregistrator) override;
-	void RemoveMessageRegistrator() override;
 private:
 	static CommandDefinition definitions[];
 	static String helpstring;
 	String filename;
 	std::vector<ParsedCommand> commands;
-	Registrator mess; // регистратор сообщений
 };
 
 //---------------------------------------------------------------------------
