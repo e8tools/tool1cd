@@ -5,6 +5,10 @@
 #pragma package(smart_init)
 #endif
 
+#include "MessageRegistration.h"
+
+extern Registrator msreg_g;
+
 CommandDefinition CommandParse::definitions[] =
 {
 	{"h",                  Command::help,                       0, ""}, // 1
@@ -134,12 +138,10 @@ String dequote(String str)
 
 //---------------------------------------------------------------------------
 
-CommandParse::CommandParse(char **szArglist, int nArgs, MessageRegistrator* _mess)
+CommandParse::CommandParse(char **szArglist, int nArgs)
 {
 	int numdef = sizeof(definitions) / sizeof(CommandDefinition);
 	String k, p;
-
-	mess.AddMessageRegistrator(_mess);
 
 	filename = "";
 	for (int i = 1; i < nArgs; i++)
@@ -183,7 +185,7 @@ CommandParse::CommandParse(char **szArglist, int nArgs, MessageRegistrator* _mes
 					}
 					else
 					{
-						mess.AddMessage_("Недостаточно параметров ключа командной строки.", MessageState::Error,
+						msreg_g.AddMessage_("Недостаточно параметров ключа командной строки.", MessageState::Error,
 							"Ключ", k);
 						// Ошибка! Недостаточно параметров ключа!
 					}
@@ -210,7 +212,7 @@ CommandParse::CommandParse(char **szArglist, int nArgs, MessageRegistrator* _mes
 			else
 			{
 				// Ошибка! Неизвестный ключ!
-				mess.AddMessage_("Неизвестный ключ командной строки.", MessageState::Error,
+				msreg_g.AddMessage_("Неизвестный ключ командной строки.", MessageState::Error,
 					"Ключ", k);
 			}
 
@@ -220,7 +222,7 @@ CommandParse::CommandParse(char **szArglist, int nArgs, MessageRegistrator* _mes
 			if(filename.Length() > 0)
 			{
 				// Ошибка! Имя файла базы уже было в командной строке!
-				mess.AddMessage_("Повторное имя файла базы в командной строке.", MessageState::Error,
+				msreg_g.AddMessage_("Повторное имя файла базы в командной строке.", MessageState::Error,
 					"Имя файла", filename,
 					"Повторное имя файла", p);
 			}
@@ -244,11 +246,4 @@ String& CommandParse::gethelpstring()
 	return helpstring;
 }
 
-void CommandParse::AddMessageRegistrator(MessageRegistrator* messageregistrator) {
-	mess.AddMessageRegistrator(messageregistrator);
-}
-
-void CommandParse::RemoveMessageRegistrator() {
-	mess.RemoveMessageRegistrator();
-}
 

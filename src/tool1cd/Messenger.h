@@ -14,7 +14,7 @@ public:
 	virtual void AddMessage(const String& message, const MessageState mstate, TStringList* param = NULL) override;
 	virtual void Status(const String& message) override;
 	void setlogfile(String _logfile);
-	void setnoverbose(bool nv){noverbose = nv;};
+	void setnoverbose(bool nv){noverbose = nv;}
 };
 
 #endif // MESSENGER_H_INCLUDED
