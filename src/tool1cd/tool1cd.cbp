@@ -8,8 +8,9 @@
 		<Build>
 			<Target title="Debug">
 				<Option output="bin/Debug/tool1cd" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
 				<Option object_output="obj/Debug/" />
-				<Option type="1" />
+				<Option type="2" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
@@ -17,8 +18,9 @@
 			</Target>
 			<Target title="Release">
 				<Option output="bin/Release/tool1cd" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
 				<Option object_output="obj/Release/" />
-				<Option type="1" />
+				<Option type="2" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
@@ -53,8 +55,6 @@
 		<Unit filename="ConfigStorage.cpp" />
 		<Unit filename="ConfigStorage.h" />
 		<Unit filename="Constants.h" />
-		<Unit filename="DTshkaPCH1.h" />
-		<Unit filename="ErrorCode.h" />
 		<Unit filename="Field.cpp" />
 		<Unit filename="Field.h" />
 		<Unit filename="Index.cpp" />
@@ -70,11 +70,8 @@
 		<Unit filename="PackDirectory.h" />
 		<Unit filename="Packdata.cpp" />
 		<Unit filename="Packdata.h" />
-		<Unit filename="ParseCommandLine.cpp" />
-		<Unit filename="ParseCommandLine.h" />
 		<Unit filename="Parse_tree.cpp" />
 		<Unit filename="Parse_tree.h" />
-		<Unit filename="PrecompiledHeaders.h" />
 		<Unit filename="Table.cpp" />
 		<Unit filename="Table.h" />
 		<Unit filename="TableFileStream.cpp" />
@@ -87,11 +84,7 @@
 		<Unit filename="UZLib.h" />
 		<Unit filename="V8Object.cpp" />
 		<Unit filename="V8Object.h" />
-		<Unit filename="Zip.cpp" />
-		<Unit filename="Zip.h" />
-		<Unit filename="cTool_1CD_PCH.h" />
 		<Unit filename="db_ver.h" />
-		<Unit filename="wcxhead.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

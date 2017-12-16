@@ -34,6 +34,7 @@
 			<Add directory="../tool1cd" />
 		</Compiler>
 		<Linker>
+			<Add library="tool1cd" />
 			<Add library="dmpassystem" />
 			<Add library="boost_regex" />
 			<Add library="boost_filesystem" />
@@ -42,6 +43,8 @@
 			<Add directory="../SystemClasses/bin/Debug" />
 			<Add directory="../tool1cd/bin/Debug" />
 		</Linker>
+		<Unit filename="App.cpp" />
+		<Unit filename="App.h" />
 		<Unit filename="ErrorCode.h" />
 		<Unit filename="ParseCommandLine.cpp" />
 		<Unit filename="ParseCommandLine.h" />

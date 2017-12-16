@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="ctool1cd">
+		<Project filename="SystemClasses/SystemClasses.cbp" />
+		<Project filename="tool1cd/tool1cd.cbp">
+			<Depends filename="../SystemClasses/SystemClasses.cbp" />
+		</Project>
+		<Project filename="ctool1cd/ctool1cd.cbp">
+			<Depends filename="../SystemClasses/SystemClasses.cbp" />
+			<Depends filename="tool1cd/tool1cd.cbp" />
+		</Project>
+	</Workspace>
+</CodeBlocks_workspace_file>
