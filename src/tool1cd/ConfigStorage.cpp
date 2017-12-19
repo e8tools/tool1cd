@@ -57,8 +57,8 @@ ConfigFile* ConfigStorageDirectory::readfile(const String& path)
 bool ConfigStorageDirectory::writefile(const String& path, TStream* str)
 {
 	String filename = fdir + TStringBuilder(path).Replace('/', '\\')->ToString(); // FIXME: исправить запись файла на boost::filesystem
-	std::unique_ptr<TFileStream> f (new TFileStream(filename, fmCreate));
-	f->CopyFrom(str, 0);
+	TFileStream f(filename, fmCreate);
+	f.CopyFrom(str, 0);
 
 	return true;
 }
