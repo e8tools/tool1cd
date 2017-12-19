@@ -28,7 +28,7 @@ MemBlock::MemBlock(TFileStream* fs, uint32_t _numblock, bool for_write, bool rea
 	if(count >= maxcount) delete first; // если количество кешированных блоков превышает максимальное, удаляем последний, к которому было обращение
 	count++;
 	prev = last;
-	next = NULL;
+	next = nullptr;
 	if(last) last->next = this;
 	else first = this;
 	last = this;
@@ -80,7 +80,7 @@ MemBlock::~MemBlock()
 	else last = prev;
 
 	// удаляем себя из массива блоков
-	memblocks[numblock] = NULL;
+	memblocks[numblock] = nullptr;
 
 	count--;
 	delete[] buf;
@@ -97,7 +97,7 @@ char* MemBlock::getblock(bool for_write)
 	else last = prev;
 	// ... и записываем себя в конец цепочки
 	prev = last;
-	next = NULL;
+	next = nullptr;
 	if(last) last->next = this;
 	else first = this;
 	last = this;
@@ -121,7 +121,7 @@ void MemBlock::garbage()
 //---------------------------------------------------------------------------
 char* MemBlock::getblock(TFileStream* fs, uint32_t _numblock)
 {
-	if(_numblock >= numblocks) return NULL;
+	if(_numblock >= numblocks) return nullptr;
 	if(!memblocks[_numblock]) new MemBlock(fs, _numblock, false, true);
 	return memblocks[_numblock]->getblock(false);
 }
@@ -129,7 +129,7 @@ char* MemBlock::getblock(TFileStream* fs, uint32_t _numblock)
 //---------------------------------------------------------------------------
 char* MemBlock::getblock_for_write(TFileStream* fs, uint32_t _numblock, bool read)
 {
-	if(_numblock > numblocks) return NULL;
+	if(_numblock > numblocks) return nullptr;
 	if(_numblock == numblocks) add_block();
 	if(!memblocks[_numblock]) new MemBlock(fs, _numblock, true, read);
 	else memblocks[_numblock]->is_changed = true;
@@ -160,12 +160,12 @@ void MemBlock::add_block()
 {
 	MemBlock** mb;
 
-	if(numblocks < array_numblocks) memblocks[numblocks++] = NULL;
+	if(numblocks < array_numblocks) memblocks[numblocks++] = nullptr;
 	else
 	{
 		mb = new MemBlock*[array_numblocks + delta];
 		for(unsigned i = 0; i < array_numblocks; i++) mb[i] = memblocks[i];
-		for(unsigned i = array_numblocks; i < array_numblocks + delta; i++) mb[i] = NULL;
+		for(unsigned i = array_numblocks; i < array_numblocks + delta; i++) mb[i] = nullptr;
 		array_numblocks += delta;
 		delete[] memblocks;
 		memblocks = mb;

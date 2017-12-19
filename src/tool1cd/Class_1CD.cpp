@@ -25,6 +25,8 @@ extern Registrator msreg_g;
 
 bool T_1CD::recoveryMode = false;
 
+const uint32_t ONE_GB = 1073741824;
+
 //********************************************************
 // Функции
 
@@ -40,14 +42,14 @@ tree* get_treeFromV8file(v8file* f)
 	sb = new TBytesStream(bytes);
 	f->SaveToStream(sb);
 
-	enc = NULL;
+	enc = nullptr;
 	offset = TEncoding::GetBufferEncoding(sb->GetBytes(), enc);
 	if(offset == 0)
 	{
 		msreg_g.AddError("Ошибка определения кодировки файла контейнера",
 			"Файл", f->GetFullName());
 		delete sb;
-		return NULL;
+		return nullptr;
 	}
 	bytes = TEncoding::Convert(enc, TEncoding::Unicode, sb->GetBytes(), offset, sb->GetSize() - offset);
 
@@ -80,13 +82,13 @@ bool T_1CD::getblock(void* buf, uint32_t block_number, int32_t blocklen)
 //---------------------------------------------------------------------------
 char*  T_1CD::getblock(uint32_t block_number)
 {
-	if(!fs) return NULL;
+	if(!fs) return nullptr;
 	if(block_number >= length)
 	{
 		msreg_m.AddError("Попытка чтения блока за пределами файла.",
 			"Индекс блока", to_hex_string(block_number),
 			"Всего блоков", to_hex_string(length));
-		return NULL;
+		return nullptr;
 	}
 
 	return MemBlock::getblock(fs, block_number);
@@ -98,13 +100,13 @@ char*  T_1CD::getblock_for_write(uint32_t block_number, bool read)
 	v8con* bc;
 
 
-	if(!fs) return NULL;
+	if(!fs) return nullptr;
 	if(block_number > length)
 	{
 		msreg_m.AddError("Попытка получения блока за пределами файла базы.",
 			"Индекс блока", to_hex_string(block_number),
 			"Всего блоков", to_hex_string(length));
-		return NULL;
+		return nullptr;
 	}
 
 	if(block_number == length)
@@ -132,7 +134,7 @@ Table* T_1CD::gettable(int32_t numtable)
 		msreg_m.AddError("Попытка получения таблицы по номеру, превышающему количество таблиц",
 			"Количество таблиц", num_tables,
 			"Номер таблицы", numtable + 1);
-		return NULL;
+		return nullptr;
 	}
 	return tables[numtable];
 }
@@ -202,13 +204,13 @@ T_1CD::~T_1CD()
 	if(free_blocks)
 	{
 		delete free_blocks;
-		free_blocks = NULL;
+		free_blocks = nullptr;
 	}
 
 	if(root_object)
 	{
 		delete root_object;
-		root_object = NULL;
+		root_object = nullptr;
 	}
 
 	delete cs_config;
@@ -225,7 +227,7 @@ T_1CD::~T_1CD()
 	{
 		for(int32_t i = 0; i < num_tables; i++) delete tables[i];
 		delete[] tables;
-		tables = NULL;
+		tables = nullptr;
 	}
 	num_tables = 0;
 
@@ -236,7 +238,7 @@ T_1CD::~T_1CD()
 	if(fs)
 	{
 		delete fs;
-		fs = NULL;
+		fs = nullptr;
 	}
 
 	delete[] locale;
@@ -267,7 +269,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	catch(...)
 	{
 		msreg_m.AddError("Ошибка открытия файла базы (файл открыт другой программой?)");
-		fs = NULL;
+		fs = nullptr;
 		return;
 	}
 
@@ -278,7 +280,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	{
 		msreg_m.AddError("Файл не является базой 1С (сигнатура не равна \"1CDBMSV8\")");
 		delete fs;
-		fs = NULL;
+		fs = nullptr;
 		delete cont;
 		return;
 	}
@@ -322,7 +324,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 		msreg_m.AddError("Неподдерживаемая версия базы 1С",
 			"Версия базы", ver);
 		delete fs;
-		fs = NULL;
+		fs = nullptr;
 		delete cont;
 		return;
 	}
@@ -333,12 +335,12 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 		msreg_m.AddError(String("Длина файла базы не кратна длине страницы (" + to_hex_string(pagesize) + ")"),
 			"Длина файла", to_hex_string(fs->GetSize()));
 		delete fs;
-		fs = NULL;
+		fs = nullptr;
 		return;
 	}
 
 	MemBlock::pagesize = pagesize;
-	MemBlock::maxcount = 0x40000000 / pagesize; // гигабайт // FIXME: заменить 0x40000000 на константу
+	MemBlock::maxcount = ONE_GB / pagesize; // гигабайт
 	MemBlock::create_memblocks(length);
 
 	if(length != cont->length)
@@ -493,7 +495,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 //---------------------------------------------------------------------------
 bool T_1CD::is_open()
 {
-	return fs != NULL;
+	return fs != nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -540,10 +542,10 @@ void T_1CD::add_supplier_config(table_file* tf)
 	container_file* f;
 	TStream* s;
 	int32_t i;
-	v8catalog* cat = NULL;
+	v8catalog* cat = nullptr;
 	v8catalog* cat2;
 	v8file* file;
-	tree* tr = NULL;
+	tree* tr = nullptr;
 	String filenamemeta;
 	String nodetype;
 	String _name; // имя конфигурация поставщика
@@ -576,10 +578,10 @@ void T_1CD::add_supplier_config(table_file* tf)
 		}
 		f->close();
 		delete f;
-		f = NULL;
+		f = nullptr;
 
 		cat = new v8catalog(s, true);
-		s = NULL;
+		s = nullptr;
 		file = cat->GetFile("version");
 		if(!file)
 		{
@@ -593,7 +595,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		tr = get_treeFromV8file(file);
 		i = (*tr)[0][0][0].get_value().ToInt();
 		delete tr;
-		tr = NULL;
+		tr = nullptr;
 
 		#ifdef _DEBUG
 		msreg_m.AddDebugMessage("Найдена версия контейнера конфигурации поставщика", MessageState::Info,
@@ -639,7 +641,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		tr = get_treeFromV8file(file);
 		filenamemeta = (*tr)[0][1].get_value();
 		delete tr;
-		tr = NULL;
+		tr = nullptr;
 
 		file = cat2->GetFile(filenamemeta);
 		if(!file)
@@ -665,7 +667,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		{
 			tree& node = (*tr)[0][3 + i];
 			nodetype = node[0].get_value();
-			if(nodetype.CompareIC("9cd510cd-abfc-11d4-9434-004095e12fc7") == 0) // узел "Общие" // FIXME: "9cd510cd-abfc-11d4-9434-004095e12fc7" - оформить как константу
+			if(nodetype.CompareIC(NODE_GENERAL) == 0) // узел "Общие"
 			{
 				tree& confinfo = node[1][1];
 				int32_t verconfinfo = confinfo[0].get_value().ToInt();
@@ -702,7 +704,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 			}
 		}
 		delete tr;
-		tr = NULL;
+		tr = nullptr;
 
 		if(i >= numnode)
 		{
@@ -733,7 +735,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 		supplier_configs.push_back(sc);
 
 		delete cat;
-		cat = NULL;
+		cat = nullptr;
 	}
 	catch(...)
 	{
@@ -1380,7 +1382,7 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 	{
 		msreg_m.AddError("Ошибка тестирования. Ошибка чтения формата.",
 			"Путь", path);
-		cat = NULL;
+		cat = nullptr;
 
 	}
 	if(!cat || !cat->GetFirst())
@@ -1411,7 +1413,7 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 		_sb = new TBytesStream(bytes1);
 		_sb->CopyFrom(_s, 0);
 
-		enc = NULL;
+		enc = nullptr;
 		offset = TEncoding::GetBufferEncoding(_sb->GetBytes(), enc);
 		if(offset == 0)
 		{
@@ -1492,7 +1494,7 @@ bool T_1CD::recursive_test_stream_format(v8catalog* cat, String path)
 		{
 			msreg_m.AddError("Ошибка тестирования. Ошибка чтения формата.",
 				"Путь", path);
-			c = NULL;
+			c = nullptr;
 		}
 		if(result)
 		{
@@ -1580,9 +1582,9 @@ bool T_1CD::create_table(String path)
 		delete_table(tables[j]);
 	}
 
-	file_data = NULL;
-	file_blob = NULL;
-	file_index = NULL;
+	file_data = nullptr;
+	file_blob = nullptr;
+	file_index = nullptr;
 
 	if(root->has_data)
 	{
@@ -1911,7 +1913,7 @@ bool T_1CD::test_list_of_tables()
 		}
 		delete str;
 
-		enc = NULL;
+		enc = nullptr;
 		offset = TEncoding::GetBufferEncoding(_sb->GetBytes(), enc);
 		if(offset == 0)
 		{
@@ -2141,10 +2143,10 @@ bool T_1CD::delete_table(Table* tab)
 
 	if(res)
 	{
-		tab->descr_table = NULL;
-		tab->file_data = NULL;
-		tab->file_blob = NULL;
-		tab->file_index = NULL;
+		tab->descr_table = nullptr;
+		tab->file_data = nullptr;
+		tab->file_blob = nullptr;
+		tab->file_index = nullptr;
 
 
 		for(i = 0; i < num_tables; i++) if(tables[i] == tab) break;
@@ -3392,8 +3394,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	}
 	else
 	{
-		fldh_datahash = NULL;
-		flde_datahash = NULL;
+		fldh_datahash = nullptr;
+		flde_datahash = nullptr;
 	}
 
 	indh = table_history->get_index("PK");
@@ -3427,7 +3429,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 	in = new TMemoryStream;
 	out = new TMemoryStream;
-	cat = NULL;
+	cat = nullptr;
 	hasrech1 = false;
 	hasrech2 = false;
 	for(ih = 0, ie = 0; ih <= nh; ih++)
@@ -3687,7 +3689,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 											delete f;
 										}
 										delete cat;
-										cat = NULL;
+										cat = nullptr;
 										if(deletesobj) delete sobj;
 
 									}
@@ -3940,10 +3942,8 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 bool T_1CD::test_block_by_template(uint32_t testblock, char* tt, uint32_t num, int32_t rlen, int32_t len)
 {
 	unsigned char b[DEFAULT_PAGE_SIZE]; // TODO работа с pagesize
-	bool ok;
 	int32_t i, j;
 
-	ok = true;
 	fs->Seek((int64_t)testblock << 12, (TSeekOrigin)soFromBeginning);
 	fs->ReadBuffer(b, len);
 

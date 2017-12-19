@@ -40,9 +40,6 @@ Packdata::Packdata(boost::filesystem::path& file_path) {
 	}
 }
 
-Packdata::~Packdata() {
-}
-
 TStream* Packdata::get_data(const char* datahash, bool &find) {
 	TStream *buffer = nullptr;
 	find = false;

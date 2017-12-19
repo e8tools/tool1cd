@@ -369,7 +369,7 @@ char* Index::unpack_leafpage(uint64_t page_offset, uint32_t& number_indexes)
 	char* buf;
 	char* ret;
 
-	if(!tbase->file_index) return NULL;
+	if(!tbase->file_index) return nullptr;
 
 	buf = new char[pagesize];
 	tbase->file_index->getdata(buf, page_offset, pagesize);
@@ -392,7 +392,7 @@ char* Index::unpack_leafpage(char* page, uint32_t& number_indexes)
 	if(length == 0)
 	{
 		number_indexes = 0;
-		return NULL;
+		return nullptr;
 	}
 
 	header = (leaf_page_header*)page;
@@ -403,13 +403,13 @@ char* Index::unpack_leafpage(char* page, uint32_t& number_indexes)
 			"Таблица", tbase->name,
 			"Индекс", name);
 		number_indexes = 0;
-		return NULL;
+		return nullptr;
 	}
 
 	number_indexes = header->number_indexes;
 	if(!number_indexes)
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	unsigned numrecmask = header->numrecmask;

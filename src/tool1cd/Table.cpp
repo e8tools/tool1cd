@@ -26,8 +26,8 @@ changed_rec::changed_rec(Table* _parent, changed_rec_type crt, uint32_t phys_num
 	changed_type = crt;
 	if(crt == changed_rec_type::deleted)
 	{
-		fields = NULL;
-		rec = NULL;
+		fields = nullptr;
+		rec = nullptr;
 	}
 	else
 	{
@@ -98,22 +98,22 @@ void Table::init(int32_t block_descr)
 	uint32_t* buf;
 
 	num_fields = 0;
-	fields = NULL;
+	fields = nullptr;
 	num_indexes = 0;
 	indexes = 0;
 	recordlock = false;
-	file_data = NULL;
-	file_blob = NULL;
-	file_index = NULL;
+	file_data = nullptr;
+	file_blob = nullptr;
+	file_index = nullptr;
 	lockinmemory = 0;
 
 	recordsindex_complete = false;
 	numrecords_review = 0;
 	numrecords_found = 0;
-	recordsindex = NULL;
+	recordsindex = nullptr;
 
 	edit = false;
-	ch_rec = NULL;
+	ch_rec = nullptr;
 	added_numrecords = 0;
 
 	phys_numrecords = 0;
@@ -609,7 +609,7 @@ void Table::init(int32_t block_descr)
 			}
 		}
 	}
-	else indexes = NULL;
+	else indexes = nullptr;
 
 	t = t->get_next();
 	if(t->get_num_subnode() != 2)
@@ -742,9 +742,9 @@ void Table::init(int32_t block_descr)
 
 	delete root;
 
-	if(blockfile[0]) file_data = new v8object(base, blockfile[0]); else file_data = NULL;
-	if(blockfile[1]) file_blob = new v8object(base, blockfile[1]); else file_blob = NULL;
-	if(blockfile[2]) file_index = new v8object(base, blockfile[2]); else file_index = NULL;
+	if(blockfile[0]) file_data = new v8object(base, blockfile[0]); else file_data = nullptr;
+	if(blockfile[1]) file_blob = new v8object(base, blockfile[1]); else file_blob = nullptr;
+	if(blockfile[2]) file_index = new v8object(base, blockfile[2]); else file_index = nullptr;
 
 	if(num_indexes && !file_index)
 	{
@@ -937,7 +937,7 @@ void Table::deleteindexes()
 	{
 		for(i = 0; i < num_indexes; i++) delete indexes[i];
 		delete[] indexes;
-		indexes = NULL;
+		indexes = nullptr;
 	}
 }
 
@@ -958,22 +958,22 @@ Table::~Table()
 	if(file_data)
 	{
 		delete file_data;
-		file_data = NULL;
+		file_data = nullptr;
 	}
 	if(file_blob)
 	{
 		delete file_blob;
-		file_blob = NULL;
+		file_blob = nullptr;
 	}
 	if(file_index)
 	{
 		delete file_index;
-		file_index = NULL;
+		file_index = nullptr;
 	}
 	if(descr_table)
 	{
 		delete descr_table;
-		descr_table = NULL;
+		descr_table = nullptr;
 	}
 
 	delete[] recordsindex;
@@ -1012,7 +1012,7 @@ Field* Table::getfield(int32_t numfield)
 			"Таблица", name,
 			"Количество полей", num_fields,
 			"Номер поля", numfield + 1);
-		return NULL;
+		return nullptr;
 	}
 	return fields[numfield];
 }
@@ -1026,7 +1026,7 @@ Index* Table::getindex(int32_t numindex)
 			"Таблица", name,
 			"Количество индексов", num_indexes,
 			"Номер индекса", numindex + 1);
-		return NULL;
+		return nullptr;
 	}
 	return indexes[numindex];
 }
@@ -1324,7 +1324,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 			break;
 		}
 	}
-	else curindex = NULL;
+	else curindex = nullptr;
 
 	ic = 0;
 	for(i = 0; i < num_fields; i++)
@@ -1444,7 +1444,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 }
 
 //---------------------------------------------------------------------------
-int64_t Table::get_fileoffset(uint32_t phys_numrecord)
+uint64_t Table::get_fileoffset(uint32_t phys_numrecord)
 {
 	uint32_t _offset = phys_numrecord * recordlen;
 	return file_data->get_fileoffset(_offset);
@@ -1693,7 +1693,7 @@ void Table::import_table(const String &path)
 		}
 		if(fopen)
 		{
-			if(!descr_table) descr_table = new v8object(base); // вообще, если descr_table == NULL, то это огромная ошибка!
+			if(!descr_table) descr_table = new v8object(base); // вообще, если descr_table == nullptr, то это огромная ошибка!
 			ob = (v8ob*)base->getblock_for_write(descr_table->get_block_number(), true);
 			ob->version.version_1 = root.descr_version_1;
 			ob->version.version_2 = root.descr_version_2;
@@ -1798,7 +1798,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 		if(*ost != st)
 		{
 			delete *ost;
-			*ost = NULL;
+			*ost = nullptr;
 		}
 	}
 
@@ -1855,7 +1855,7 @@ void Table::restore_edit_value(uint32_t phys_numrecord, int32_t numfield)
 		{
 			ost = (TStream**)(cr->rec + fld->offset + (fld->getnull_exists() ? 1 : 0));
 			delete *ost;
-			*ost = NULL;
+			*ost = nullptr;
 		}
 	}
 
@@ -2385,7 +2385,7 @@ void Table::cancel_edit()
 	}
 
 	edit = false;
-	ch_rec = NULL;
+	ch_rec = nullptr;
 	added_numrecords = 0;
 }
 
@@ -2479,7 +2479,7 @@ void Table::insert_record(char* rec)
 					l = (*st)->GetSize();
 					k = write_blob_record(*st);
 					delete *st;
-					*st = NULL;
+					*st = nullptr;
 				}
 				else{
 					k = 0;
@@ -2563,7 +2563,7 @@ void Table::update_record(uint32_t phys_numrecord, char* rec, char* changed_fiel
 							l = (*st)->GetSize();
 							k = write_blob_record(*st);
 							delete *st;
-							*st = NULL;
+							*st = nullptr;
 							*(orec + f->offset) = 1;
 						}
 						else{
@@ -2589,7 +2589,7 @@ void Table::update_record(uint32_t phys_numrecord, char* rec, char* changed_fiel
 						l = (*st)->GetSize();
 						k = write_blob_record(*st);
 						delete *st;
-						*st = NULL;
+						*st = nullptr;
 					}
 					else{
 						k = 0;
@@ -2838,7 +2838,7 @@ String Table::get_file_name_for_record(char* rec)
 Field* Table::get_field(const String& fieldname)
 {
 	Field* fld =  nullptr;
-	
+
 	for (int32_t j = 0; j < num_fields; j++)
 	{
 		fld = fields[j];
@@ -2860,7 +2860,7 @@ Field* Table::get_field(const String& fieldname)
 Index* Table::get_index(const String& indexname)
 {
 	Index* ind = nullptr;
-	
+
 	for (int32_t j = 0; j < num_indexes; j++) {
 		ind = indexes[j];
 		if (ind->getname().CompareIC(indexname) == 0) {

@@ -135,7 +135,7 @@ public:
 	v8object* get_file_blob();
 	v8object* get_file_index();
 
-	int64_t get_fileoffset(uint32_t phys_numrecord); // получить физическое смещение в файле записи по номеру
+	uint64_t get_fileoffset(uint32_t phys_numrecord); // получить физическое смещение в файле записи по номеру
 
 	char* get_edit_record(uint32_t phys_numrecord, char* buf); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
 	bool get_edit();

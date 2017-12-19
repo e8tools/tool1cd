@@ -25,8 +25,8 @@ struct ConfigFile
 class ConfigStorage
 {
 public:
-	ConfigStorage(){}
-	virtual ~ConfigStorage(){}
+	ConfigStorage() = default;
+	virtual ~ConfigStorage() = default;
 	virtual ConfigFile* readfile(const String& path) = 0; // Если файл не существует, возвращается NULL
 	virtual bool writefile(const String& path, TStream* str) = 0;
 	virtual String presentation() = 0;
@@ -41,7 +41,7 @@ class ConfigStorageDirectory : public ConfigStorage
 private:
 	String fdir;
 public:
-	ConfigStorageDirectory(const String& _dir);
+	explicit ConfigStorageDirectory(const String& _dir);
 	virtual ConfigFile* readfile(const String& path) override;
 	virtual bool writefile(const String& path, TStream* str) override;
 	virtual String presentation() override;
@@ -58,7 +58,7 @@ private:
 	String filename;
 	v8catalog* cat;
 public:
-	ConfigStorageCFFile(const String& fname);
+	explicit ConfigStorageCFFile(const String& fname);
 	virtual ~ConfigStorageCFFile();
 	virtual ConfigFile* readfile(const String& path) override;
 	virtual bool writefile(const String& path, TStream* str) override;
@@ -101,7 +101,7 @@ struct container_file
 class ConfigStorageTable : public ConfigStorage
 {
 public:
-	ConfigStorageTable(T_1CD* _base = NULL) : base(_base){}
+	explicit ConfigStorageTable(T_1CD* _base = nullptr) : base(_base){}
 	virtual ~ConfigStorageTable();
 	virtual ConfigFile* readfile(const String& path) override;
 	virtual bool writefile(const String& path, TStream* str) override;
@@ -122,9 +122,9 @@ private:
 class ConfigStorageTableConfig : public ConfigStorageTable
 {
 public:
-	ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _base = NULL);
+	explicit ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _base = nullptr);
 	virtual String presentation() override;
-	virtual ~ConfigStorageTableConfig() {}
+	virtual ~ConfigStorageTableConfig() = default;
 
 private:
 	String present;
@@ -135,7 +135,7 @@ private:
 class ConfigStorageTableConfigSave : public ConfigStorageTable
 {
 public:
-	ConfigStorageTableConfigSave(TableFiles* tabc, TableFiles* tabcs, T_1CD* _base = NULL);
+	ConfigStorageTableConfigSave(TableFiles* tabc, TableFiles* tabcs, T_1CD* _base = nullptr);
 	virtual String presentation() override;
 	virtual ~ConfigStorageTableConfigSave() {}
 
@@ -148,7 +148,7 @@ private:
 class ConfigStorageTableConfigCas : public ConfigStorageTable
 {
 public:
-	ConfigStorageTableConfigCas(TableFiles* tabc, const String& configver, T_1CD* _base = NULL);
+	ConfigStorageTableConfigCas(TableFiles* tabc, const String& configver, T_1CD* _base = nullptr);
 	virtual String presentation() override;
 	virtual ~ConfigStorageTableConfigCas() {}
 
@@ -161,9 +161,9 @@ private:
 class ConfigStorageTableConfigCasSave : public ConfigStorageTable
 {
 public:
-	ConfigStorageTableConfigCasSave(TableFiles* tabc, TableFiles* tabcs, const TGUID& uid, const String& configver, T_1CD* _base = NULL);
+	ConfigStorageTableConfigCasSave(TableFiles* tabc, TableFiles* tabcs, const TGUID& uid, const String& configver, T_1CD* _base = nullptr);
 	virtual String presentation() override;
-	virtual ~ConfigStorageTableConfigCasSave() {}
+	virtual ~ConfigStorageTableConfigCasSave() = default;
 
 private:
 	String present;

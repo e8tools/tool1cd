@@ -13,7 +13,7 @@ TableFileStream::TableFileStream(table_file* tf)
 	curoffset = 0;
 	tablefile = tf;
 	streams = new TStream*[tablefile->maxpartno + 1];
-	for(uint32_t i = 0; i <= tablefile->maxpartno; ++i) streams[i] = NULL;
+	for(uint32_t i = 0; i <= tablefile->maxpartno; ++i) streams[i] = nullptr;
 }
 
 //---------------------------------------------------------------------------

@@ -1031,16 +1031,16 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 				zipped = true;
 				if(maybezipped_twice) _sx = _s;
 				else _sx2 = _s;
-				_s = NULL;
+				_s = nullptr;
 				delete blob_stream;
-				blob_stream = NULL;
+				blob_stream = nullptr;
 			}
 			catch (...)
 			{
 				_sx2 = blob_stream;
 				delete _s;
-				_s = NULL;
-				blob_stream = NULL;
+				_s = nullptr;
+				blob_stream = nullptr;
 				zipped = false;
 			}
 
@@ -1054,16 +1054,16 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
 					ZInflateStream(_sx, _s2);
 					zippedContainer = true;
 					_sx2 = _s2;
-					_s2 = NULL;
+					_s2 = nullptr;
 					delete _sx;
-					_sx = NULL;
+					_sx = nullptr;
 				}
 				catch (...)
 				{
 					_sx2 = _sx;
-					_sx = NULL;
+					_sx = nullptr;
 					delete _s2;
-					_s2 = NULL;
+					_s2 = nullptr;
 				}
 			}
 

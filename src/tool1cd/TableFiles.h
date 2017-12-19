@@ -57,7 +57,7 @@ private:
 
 	bool test_table();
 public:
-	TableFiles(Table* t);
+	explicit TableFiles(Table* t);
 	virtual ~TableFiles();
 	bool getready() { return ready; }
 	table_file* getfile(const String& name);
