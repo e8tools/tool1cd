@@ -78,7 +78,7 @@ TableFiles::TableFiles(Table* t)
 	length = start + 1;
 
 	if(table->get_numfields() > 6) partno = table->getfield(6);
-	else partno = NULL;
+	else partno = nullptr;
 
 	for(i = 0; i < table->get_phys_numrecords(); ++i)
 	{

@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "ConfigStorage.h"
 #include "Common.h"
 #include "Base64.h"
@@ -36,18 +38,18 @@ ConfigFile* ConfigStorageDirectory::readfile(const String& path)
 		try
 		{
 			cf->str = new TFileStream(filename, fmOpenRead);
-			cf->addin = NULL;
+			cf->addin = nullptr;
 			return cf;
 		}
 		catch(...)
 		{
 			// TODO: сообщить об ошибке и записать в log
 			delete cf;
-			return NULL;
+			return nullptr;
 		}
 
 	}
-	else return NULL;
+	else return nullptr;
 
 }
 
@@ -55,9 +57,8 @@ ConfigFile* ConfigStorageDirectory::readfile(const String& path)
 bool ConfigStorageDirectory::writefile(const String& path, TStream* str)
 {
 	String filename = fdir + TStringBuilder(path).Replace('/', '\\')->ToString(); // FIXME: исправить запись файла на boost::filesystem
-	TFileStream* f = new TFileStream(filename, fmCreate);
+	std::unique_ptr<TFileStream> f (new TFileStream(filename, fmCreate));
 	f->CopyFrom(str, 0);
-	delete f;
 
 	return true;
 }
@@ -101,21 +102,21 @@ ConfigFile* ConfigStorageCFFile::readfile(const String& path)
 	int i;
 	ConfigFile* cf;
 
-	if(!cat->isOpen()) return NULL;
+	if(!cat->isOpen()) return nullptr;
 
 	String fname = TStringBuilder(path).Replace('/', '\\')->ToString();
 	c = cat;
 	for(i = fname.Pos("\\"); i; i = fname.Pos("\\"))
 	{
 		f = c->GetFile(fname.SubString(1, i - 1));
-		if(!f) return NULL;
+		if(!f) return nullptr;
 		c = f->GetCatalog();
-		if(!c) return NULL;
+		if(!c) return nullptr;
 		fname = fname.SubString(i + 1, fname.Length() - i);
 	}
 	f = c->GetFile(fname);
-	if(!f) return NULL;
-	if(!f->Open()) return NULL;
+	if(!f) return nullptr;
+	if(!f->Open()) return nullptr;
 	cf = new ConfigFile;
 	cf->str = f->get_stream();
 	cf->str->Seek(0l, soBeginning);
@@ -188,13 +189,13 @@ bool ConfigStorageCFFile::fileexists(const String& path)
 //---------------------------------------------------------------------------
 container_file::container_file(table_file* _f, const String& _name)
 {
-	
+
 
 	file    = _f;
 	name    = _name;
-	stream  = NULL;
-	rstream = NULL;
-	cat     = NULL;
+	stream  = nullptr;
+	rstream = nullptr;
+	cat     = nullptr;
 	packed  = table_file_packed::unknown;
 	dynno   = -3;
 }
@@ -210,7 +211,7 @@ bool container_file::open()
 {
 	TStream* ts;
 	String tn;
-	
+
 	unsigned int i;
 	Table* t;
 	table_blob_file* addr;
@@ -271,7 +272,7 @@ bool container_file::open()
 //---------------------------------------------------------------------------
 bool container_file::ropen()
 {
-	
+
 	unsigned int i;
 	Table* t;
 	table_blob_file* addr;
@@ -307,15 +308,15 @@ bool container_file::ropen()
 void container_file::close()
 {
 	delete cat;
-	cat = NULL;
+	cat = nullptr;
 	if(stream != rstream)
 	{
 		delete stream;
 		delete rstream;
 	}
 	else delete stream;
-	stream = NULL;
-	rstream = NULL;
+	stream = nullptr;
+	rstream = nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -392,7 +393,7 @@ ConfigFile* ConfigStorageTable::readfile(const String& path)
 	ConfigFile* cf;
 	ConfigStorageTable_addin* cfa;
 
-	if(!ready) return NULL;
+	if(!ready) return nullptr;
 
 	fname = TStringBuilder(path).Replace('/', '\\')->ToString();
 	i = fname.Pos("\\");
@@ -408,7 +409,7 @@ ConfigFile* ConfigStorageTable::readfile(const String& path)
 	}
 
 	pfiles = files.find(r_name.UpperCase());
-	if(pfiles == files.end()) return NULL;
+	if(pfiles == files.end()) return nullptr;
 	tf = pfiles->second;
 
 	tf->open();
@@ -419,14 +420,14 @@ ConfigFile* ConfigStorageTable::readfile(const String& path)
 		for(i = fname.Pos("\\"); i; i = fname.Pos("\\"))
 		{
 			f = c->GetFile(fname.SubString(1, i - 1));
-			if(!f) return NULL;
+			if(!f) return nullptr;
 			c = f->GetCatalog();
-			if(!c) return NULL;
+			if(!c) return nullptr;
 			fname = fname.SubString(i + 1, fname.Length() - i);
 		}
 		f = c->GetFile(fname);
-		if(!f) return NULL;
-		if(!f->Open()) return NULL;
+		if(!f) return nullptr;
+		if(!f->Open()) return nullptr;
 		cf = new ConfigFile;
 		cfa = new ConfigStorageTable_addin;
 		cfa->variant = ConfigStorageTableAddinVariant::v8file;
@@ -477,42 +478,40 @@ void ConfigStorageTable::close(ConfigFile* cf)
 //---------------------------------------------------------------------------
 bool ConfigStorageTable::save_config(String _filename)
 {
-	v8catalog* c;
-	v8file* f;
-	std::map<String,container_file*>::iterator pfiles;
-	container_file* tf;
-	int i, j, prevj, size;
+	if(!ready) {
+		return false;
+	}
 
-	if(!ready) return false;
+	if(FileExists(_filename)) {
+		DeleteFile(_filename);
+	}
 
-	size = files.size();
-	prevj = 101;
+	size_t prevj = 101;
+	size_t i = 1;
 
-	if(FileExists(_filename)) DeleteFile(_filename);
-	c = new v8catalog(_filename, false);
-	for(pfiles = files.begin(), i = 1; pfiles != files.end(); ++pfiles, ++i)
+	std::unique_ptr<v8catalog> catalog (new v8catalog(_filename, false));
+	for(auto pfiles: files)
 	{
-		j = i * 100 / size;
+		++i;
+		size_t j = i * 100 / files.size();
 		if(j != prevj)
 		{
 			prevj = j;
 			msreg_g.Status(String(j) + "%");
 		}
 
-		tf = pfiles->second;
+		container_file* tf = pfiles.second;
 		if(tf->ropen())
 		{
-			f = c->createFile(tf->name);
+			v8file* f = catalog->createFile(tf->name);
 			f->SetTimeCreate(&tf->file->ft_create);
 			f->SetTimeModify(&tf->file->ft_modify);
 			f->WriteAndClose(tf->rstream);
 
 			tf->close();
 		}
-
 	}
 
-	delete c;
 	msreg_g.Status("");
 	return true;
 }
@@ -569,7 +568,7 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 	tab = tabf->gettable();
 	_DynamicallyUpdated = tabf->getfile("DynamicallyUpdated");
 
-	dynup = NULL;
+	dynup = nullptr;
 	if(_DynamicallyUpdated)
 	{
 		DynamicallyUpdated = new container_file(_DynamicallyUpdated, _DynamicallyUpdated->name);
@@ -788,7 +787,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 	tab = tabc->gettable();
 	_DynamicallyUpdated = tabc->getfile("DynamicallyUpdated");
 
-	dynup = NULL;
+	dynup = nullptr;
 	if(_DynamicallyUpdated)
 	{
 		DynamicallyUpdated = new container_file(_DynamicallyUpdated, _DynamicallyUpdated->name);
@@ -1125,7 +1124,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 	ready = tabcs->getready();
 	if(!ready) return;
 
-	configinfo = NULL;
+	configinfo = nullptr;
 	present = tabcs->gettable()->getbase()->getfilename() + "\\CONFIGCASSAVE";
 
 	g = GUID_to_string(uid) + "__";

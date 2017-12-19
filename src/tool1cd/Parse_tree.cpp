@@ -119,7 +119,7 @@ tree* tree::get_subnode(const String& node_name)
 	tree* t = first;
 	while(t)
 	{
-		if(t->value == node_name) return t;
+		if(t->value.Compare(node_name) == 0) return t;
 		t = t->next;
 	}
 	return nullptr;
@@ -166,7 +166,7 @@ tree& tree::operator [](int _index)
 //---------------------------------------------------------------------------
 void tree::outtext(String& text)
 {
-	node_type lt;
+	node_type lt = node_type::nd_unknown;
 	TReplaceFlags _ReplaceAll = TReplaceFlags::rfReplaceAll;
 
 	if(num_subnode)

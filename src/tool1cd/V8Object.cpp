@@ -23,7 +23,7 @@ void v8object::garbage()
 		if(!ob->lockinmemory) if(ob->data) if(curt - ob->lastdataget > LIVE_CASH * 60 * 1000)
 		{
 			delete[] ob->data;
-			ob->data = NULL;
+			ob->data = nullptr;
 		}
 		ob = ob->next;
 	}
@@ -47,9 +47,9 @@ void v8object::init()
 	new_version_recorded = false;
 	numblocks = 0;
 	real_numblocks = 0;
-	blocks = NULL;
+	blocks = nullptr;
 	block = -1;
-	data = NULL;
+	data = nullptr;
 	lockinmemory = false;
 	type = v8objtype::unknown;
 	fatlevel = 0;
@@ -62,7 +62,7 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 	lockinmemory = false;
 
 	prev = last;
-	next = NULL;
+	next = nullptr;
 	if(last) last->next = this;
 	else first = this;
 	last = this;
@@ -101,7 +101,7 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 		new_version_recorded = false;
 		block = blockNum;
 		real_numblocks = 0;
-		data = NULL;
+		data = nullptr;
 
 		if(type == v8objtype::free80)
 		{
@@ -117,7 +117,7 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 				blocks = new uint32_t[real_numblocks];
 				memcpy(blocks, t->blocks, real_numblocks * sizeof(*blocks));
 			}
-			else blocks = NULL;
+			else blocks = nullptr;
 		}
 		else
 		{
@@ -128,7 +128,7 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 				blocks = new uint32_t[numblocks];
 				memcpy(blocks, t->blocks, numblocks * sizeof(*blocks));
 			}
-			else blocks = NULL;
+			else blocks = nullptr;
 		}
 
 		delete t;
@@ -167,7 +167,7 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 		new_version_recorded = false;
 		block = blockNum;
 		real_numblocks = 0;
-		data = NULL;
+		data = nullptr;
 
 		if(len)
 		{
@@ -184,7 +184,7 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 			blocks = new uint32_t[numblocks];
 			memcpy(blocks, t->blocks, numblocks * sizeof(*blocks));
 		}
-		else blocks = NULL;
+		else blocks = nullptr;
 
 		delete[] b;
 	}
@@ -211,7 +211,7 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 		new_version_recorded = false;
 		block = blockNum;
 		real_numblocks = 0;
-		data = NULL;
+		data = nullptr;
 
 		if(len) numblocks = (len - 1) / 0x400 + 1;
 		else numblocks = 0;
@@ -225,7 +225,7 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 			blocks = new uint32_t[real_numblocks];
 			memcpy(blocks, t->blocks, real_numblocks * sizeof(*blocks));
 		}
-		else blocks = NULL;
+		else blocks = nullptr;
 
 		delete[] b;
 	}
@@ -288,7 +288,7 @@ char* v8object::getdata()
 	uint32_t curlen = 0;
 
 	lastdataget = GetTickCount();
-	if(!len) return NULL;
+	if(!len) return nullptr;
 	if(data) return data;
 
 	if(type == v8objtype::free80)
@@ -1057,7 +1057,7 @@ void v8object::set_len(uint64_t _len)
 	}
 
 	delete[] data;
-	data = NULL;
+	data = nullptr;
 
 	if(type == v8objtype::data80)
 	{
@@ -1072,7 +1072,7 @@ void v8object::set_len(uint64_t _len)
 		{
 			delete[] blocks;
 			if(num_blocks) blocks = new uint32_t[num_blocks];
-			else blocks = NULL;
+			else blocks = nullptr;
 		}
 
 		if(num_data_blocks > cur_data_blocks)
@@ -1154,7 +1154,7 @@ void v8object::set_len(uint64_t _len)
 		{
 			delete[] blocks;
 			if(num_blocks) blocks = new uint32_t[num_blocks];
-			else blocks = NULL;
+			else blocks = nullptr;
 		}
 
 		if(num_data_blocks > cur_data_blocks)

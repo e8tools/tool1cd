@@ -32,7 +32,7 @@ class Packdata {
 public:
 
 	explicit Packdata(boost::filesystem::path& file_path);
-	~Packdata();
+	~Packdata() = default;
 
 	TStream* get_data(const char* datahash, bool &find);
 private:

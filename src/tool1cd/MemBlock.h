@@ -19,6 +19,17 @@ class T_1CD;
 class MemBlock
 {
 friend T_1CD;
+public:
+	static uint32_t count; // текущее количество кешированных блоков
+
+	static void garbage();
+	static char* getblock(TFileStream* fs, uint32_t _numblock);
+	static char* getblock_for_write(TFileStream* fs, uint32_t _numblock, bool read);
+	static void create_memblocks(uint64_t _numblocks);
+
+	static void delete_memblocks();
+	static uint64_t get_numblocks();
+	static void flush();
 private:
 	char* buf; // указатель на блок в памяти
 	static uint32_t pagesize; // размер одной страницы (до версии 8.2.14 всегда 0x1000 (4K), начиная с версии 8.3.8 от 0x1000 (4K) до 0x10000 (64K))
@@ -44,17 +55,6 @@ private:
 	static void add_block();
 	void write();
 
-public:
-	static uint32_t count; // текущее количество кешированных блоков
-
-	static void garbage();
-	static char* getblock(TFileStream* fs, uint32_t _numblock);
-	static char* getblock_for_write(TFileStream* fs, uint32_t _numblock, bool read);
-	static void create_memblocks(uint64_t _numblocks);
-
-	static void delete_memblocks();
-	static uint64_t get_numblocks();
-	static void flush();
 };
 
 #endif /* SRC_CTOOL1CD_MEMBLOCK_H_ */
