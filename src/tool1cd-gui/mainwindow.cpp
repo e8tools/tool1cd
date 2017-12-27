@@ -15,15 +15,15 @@ MainWindow::~MainWindow()
 	delete ui;
 }
 
-void MainWindow::on_action_5_triggered()
-{
-	close();
-}
-
-void MainWindow::on_action_triggered()
+void MainWindow::on_openDatabaseFileAction_triggered()
 {
 	QString fileName = QFileDialog::getOpenFileName(this, ("Open base"), "", ("Bases (*.1CD)"));
 	if (fileName.isNull() || fileName.isEmpty()) {
 		return;
 	}
+}
+
+void MainWindow::on_exitAction_triggered()
+{
+	close();
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>305</height>
+    <width>588</width>
+    <height>395</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="utils">
        <attribute name="title">
@@ -34,51 +34,35 @@
         <item>
          <widget class="QTabWidget" name="tabWidget_2">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="saveConfigs">
            <attribute name="title">
             <string>Сохранение конфигураций</string>
            </attribute>
-           <widget class="QPushButton" name="pushButton">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>10</y>
-              <width>171</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Сохранить основную конфигурацию</string>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="pushButton_2">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>30</y>
-              <width>171</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Сохранить конфигурацию базы данных</string>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="pushButton_3">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>50</y>
-              <width>171</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Найти конфигурации поставщика</string>
-            </property>
-           </widget>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QPushButton" name="pushButton">
+              <property name="text">
+               <string>Сохранить основную конфигурацию</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_2">
+              <property name="text">
+               <string>Сохранить конфигурацию базы данных</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_3">
+              <property name="text">
+               <string>Найти конфигурации поставщика</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
           <widget class="QWidget" name="tabFiles">
            <attribute name="title">
@@ -126,13 +110,7 @@
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QListWidget" name="listWidget_2">
-          <item>
-           <property name="text">
-            <string>Таблица</string>
-           </property>
-          </item>
-         </widget>
+         <widget class="QListWidget" name="listWidget_2"/>
         </item>
         <item>
          <widget class="QWidget" name="widget" native="true">
@@ -170,8 +148,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>400</width>
-     <height>17</height>
+     <width>588</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">

@@ -16,9 +16,10 @@ public:
 	~MainWindow();
 
 private slots:
-	void on_action_5_triggered();
 
-	void on_action_triggered();
+	void on_openDatabaseFileAction_triggered();
+
+	void on_exitAction_triggered();
 
 private:
 	Ui::MainWindow *ui;
