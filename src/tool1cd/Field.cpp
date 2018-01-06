@@ -39,13 +39,13 @@ Field::Field(Table* _parent)
 }
 
 //---------------------------------------------------------------------------
-String Field::getname()
+String Field::getname() const
 {
 	return name;
 }
 
 //---------------------------------------------------------------------------
-int32_t Field::getlen() // возвращает длину поля в байтах
+int32_t Field::getlen() const // возвращает длину поля в байтах
 {
 	if(len) return len;
 
@@ -70,7 +70,7 @@ int32_t Field::getlen() // возвращает длину поля в байт�
 
 //---------------------------------------------------------------------------
 // При ignore_showGUID binary16 всегда преобразуется в GUID
-String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed)
+String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed) const
 {
 	char sym;
 	int32_t i, j, m;
@@ -168,7 +168,7 @@ String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimite
 }
 
 //---------------------------------------------------------------------------
-bool Field::get_bynary_value(char* binary_value, bool null, String& value)
+bool Field::get_bynary_value(char* binary_value, bool null, String& value) const
 {
 	unsigned char* fr = (unsigned char*)binary_value;
 	memset(fr, 0, len);
@@ -551,7 +551,7 @@ bool Field::get_bynary_value(char* binary_value, bool null, String& value)
 }
 
 //---------------------------------------------------------------------------
-String Field::get_XML_presentation(char* rec, bool ignore_showGUID)
+String Field::get_XML_presentation(char* rec, bool ignore_showGUID) const
 {
 	char sym;
 	int32_t i, j, m;
@@ -697,49 +697,49 @@ String Field::get_XML_presentation(char* rec, bool ignore_showGUID)
 }
 
 //---------------------------------------------------------------------------
-type_fields Field::gettype()
+type_fields Field::gettype() const
 {
 	return type;
 }
 
 //---------------------------------------------------------------------------
-Table* Field::getparent()
+Table* Field::getparent() const
 {
 	return parent;
 }
 
 //---------------------------------------------------------------------------
-bool Field::getnull_exists()
+bool Field::getnull_exists() const
 {
 	return null_exists;
 }
 
 //---------------------------------------------------------------------------
-int32_t Field::getlength()
+int32_t Field::getlength() const
 {
 	return length;
 }
 
 //---------------------------------------------------------------------------
-int32_t Field::getprecision()
+int32_t Field::getprecision() const
 {
 	return precision;
 }
 
 //---------------------------------------------------------------------------
-bool Field::getcase_sensitive()
+bool Field::getcase_sensitive() const
 {
 	return case_sensitive;
 }
 
 //---------------------------------------------------------------------------
-int32_t Field::getoffset()
+int32_t Field::getoffset() const
 {
 	return offset;
 }
 
 //---------------------------------------------------------------------------
-String Field::get_presentation_type()
+String Field::get_presentation_type() const
 {
 	switch(type)
 	{
@@ -767,7 +767,7 @@ String TrimSpacesRight(String s)
 }
 
 //---------------------------------------------------------------------------
-uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen)
+uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen) const
 {
 
 	int32_t i, j;
@@ -933,7 +933,7 @@ uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxl
 }
 
 //---------------------------------------------------------------------------
-bool Field::save_blob_to_file(char* rec, String _filename, bool unpack)
+bool Field::save_blob_to_file(char* rec, String _filename, bool unpack) const
 {
 	TStream* blob_stream;
 	TStream* _s;

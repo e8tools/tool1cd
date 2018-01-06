@@ -24,21 +24,29 @@ public:
 
 	Field(Table* _parent);
 
-	int32_t getlen(); // возвращает длину поля в байтах
-	String getname();
-	String get_presentation(const char* rec, bool EmptyNull = false, wchar_t Delimiter = 0, bool ignore_showGUID = false, bool detailed = false);
-	String get_XML_presentation(char* rec, bool ignore_showGUID = false);
-	bool get_bynary_value(char* buf, bool null, String& value);
-	type_fields gettype();
-	Table* getparent();
-	bool getnull_exists();
-	int32_t getlength();
-	int32_t getprecision();
-	bool getcase_sensitive();
-	int32_t getoffset();
-	String get_presentation_type();
-	bool save_blob_to_file(char* rec, String filename, bool unpack);
-	uint32_t getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen);
+	int32_t getlen() const; // возвращает длину поля в байтах
+	String getname() const;
+
+	String get_presentation(
+			const char* rec,
+			bool EmptyNull = false,
+			wchar_t Delimiter = 0,
+			bool ignore_showGUID = false,
+			bool detailed = false) const;
+
+	String get_XML_presentation(char* rec, bool ignore_showGUID = false) const;
+
+	bool get_bynary_value(char* buf, bool null, String& value) const;
+	type_fields gettype() const;
+	Table* getparent() const;
+	bool getnull_exists() const;
+	int32_t getlength() const;
+	int32_t getprecision() const;
+	bool getcase_sensitive() const;
+	int32_t getoffset() const;
+	String get_presentation_type() const;
+	bool save_blob_to_file(char* rec, String filename, bool unpack) const;
+	uint32_t getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen) const;
 private:
 	String name;
 	type_fields type;
@@ -48,7 +56,7 @@ private:
 	bool case_sensitive;
 
 	Table* parent;
-	int32_t len; // длина поля в байтах
+	mutable int32_t len; // длина поля в байтах
 	int32_t offset; // смещение поля в записи
 	static bool showGUIDasMS; // Признак, что GUID надо преобразовывать по стилю MS (иначе по стилю 1С)
 	static char buf[];
