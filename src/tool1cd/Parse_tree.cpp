@@ -318,7 +318,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 							delete ret;
 							return nullptr;
 						}
-						state = state_type::s_delimitier;
+						state = state_type::s_delimiter;
 						break;
 					case L',':
 						t->add_child("", node_type::nd_empty);
@@ -330,7 +330,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 						break;
 				}
 				break;
-			case state_type::s_delimitier:
+			case state_type::s_delimiter:
 				switch(sym)
 				{
 					case L' ': // space
@@ -382,7 +382,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 						case L'\t':
 						case L'\r':
 						case L'\n':
-							state = state_type::s_delimitier;
+							state = state_type::s_delimiter;
 							break;
 						case L',':
 							state = state_type::s_value;
@@ -397,7 +397,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 								delete ret;
 								return nullptr;
 							}
-							state = state_type::s_delimitier;
+							state = state_type::s_delimiter;
 							break;
 						default:
 							msreg_g.AddError("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
@@ -441,7 +441,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 							delete ret;
 							return nullptr;
 						}
-						state = state_type::s_delimitier;
+						state = state_type::s_delimiter;
 						break;
 					default:
 						__curvalue__->Append(sym);
@@ -472,7 +472,7 @@ tree* parse_1Cstream(TStream* str, const String& path)
 	else if(state == state_type::s_quote_or_endstring) {
 		t->add_child(__curvalue__->ToString(), node_type::nd_string);
 	}
-	else if(state != state_type::s_delimitier)
+	else if(state != state_type::s_delimiter)
 	{
 		msreg_g.AddError("Ошибка формата потока. Незавершенное значение",
 			"Режим разбора", to_hex_string((int)state),
@@ -548,7 +548,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 							delete ret;
 							return nullptr;
 						}
-						state = state_type::s_delimitier;
+						state = state_type::s_delimiter;
 						break;
 					case ',':
 						t->add_child("", node_type::nd_empty);
@@ -560,7 +560,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 						break;
 				}
 				break;
-			case state_type::s_delimitier:
+			case state_type::s_delimiter:
 				switch(sym)
 				{
 					case ' ': // space
@@ -612,7 +612,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 						case '\t':
 						case '\r':
 						case '\n':
-							state = state_type::s_delimitier;
+							state = state_type::s_delimiter;
 							break;
 						case ',':
 							state = state_type::s_value;
@@ -627,7 +627,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 								delete ret;
 								return nullptr;
 							}
-							state = state_type::s_delimitier;
+							state = state_type::s_delimiter;
 							break;
 						default:
 							msreg_g.AddError("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
@@ -671,7 +671,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 							delete ret;
 							return nullptr;
 						}
-						state = state_type::s_delimitier;
+						state = state_type::s_delimiter;
 						break;
 					default:
 						__curvalue__->Append(sym);
@@ -702,7 +702,7 @@ tree* parse_1Ctext(const String& text, const String& path)
 	else if(state == state_type::s_quote_or_endstring) {
 		t->add_child(__curvalue__->ToString(), node_type::nd_string);
 	}
-	else if(state != state_type::s_delimitier)
+	else if(state != state_type::s_delimiter)
 	{
 		msreg_g.AddError("Ошибка формата потока. Незавершенное значение",
 			"Режим разбора", to_hex_string((int)state),
@@ -771,7 +771,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 								"Путь", path);
 							ret = false;
 						}
-						state = state_type::s_delimitier;
+						state = state_type::s_delimiter;
 						level--;
 						break;
 					default:
@@ -781,7 +781,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 						break;
 				}
 				break;
-			case state_type::s_delimitier:
+			case state_type::s_delimiter:
 				switch(sym)
 				{
 					case L' ': // space
@@ -831,7 +831,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 						case L'\t':
 						case L'\r':
 						case L'\n':
-							state = state_type::s_delimitier;
+							state = state_type::s_delimiter;
 							break;
 						case L',':
 							state = state_type::s_value;
@@ -845,7 +845,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 								ret = false;
 							}
 							level--;
-							state = state_type::s_delimitier;
+							state = state_type::s_delimiter;
 							break;
 						default:
 							msreg_g.AddError("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.",
@@ -890,7 +890,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 							ret = false;
 						}
 						level--;
-						state = state_type::s_delimitier;
+						state = state_type::s_delimiter;
 						break;
 					default:
 						__curvalue__->Append(sym);
@@ -922,7 +922,7 @@ bool test_parse_1Ctext(TStream* str, const String& path)
 	{
 
 	}
-	else if(state != state_type::s_delimitier)
+	else if(state != state_type::s_delimiter)
 	{
 		msreg_g.AddError("Ошибка формата потока. Незавершенное значение",
 			"Режим разбора", to_hex_string((int)state),
