@@ -40,9 +40,9 @@ Packdata::Packdata(boost::filesystem::path& file_path) {
 	}
 }
 
-TStream* Packdata::get_data(const char* datahash, bool &find) {
+TStream* Packdata::get_data(const char* datahash, bool &found) {
 	TStream *buffer = nullptr;
-	find = false;
+	found = false;
 
 	for(const auto &record: datahashes) {
 		if(memcmp(datahash, record.datahash, DATAHASH_FIELD_LENGTH) == 0) {
@@ -52,7 +52,7 @@ TStream* Packdata::get_data(const char* datahash, bool &find) {
 			buffer = new TTempStream;
 			buffer->CopyFrom(pack.get(), packlen);
 			buffer->Close();
-			find = true;
+			found = true;
 		}
 	}
 	return buffer;
