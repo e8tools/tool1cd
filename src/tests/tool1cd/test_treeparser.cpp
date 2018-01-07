@@ -19,8 +19,8 @@ TEST_CASE( "Проверка Parse_tree", "[tool1cd][common][Parse_tree]" ) {
 			AND_WHEN("Парсим и выводим дерево через строку") {
 				String from_string;
 				tree *tree_from_string = parse_1Ctext(test_tree_source, "");
-				tree_from_string->outtext(from_string);
 				REQUIRE(tree_from_string != nullptr);
+				tree_from_string->outtext(from_string);
 				delete tree_from_string;
 
 				THEN("Получаем одинаковые значения") {
