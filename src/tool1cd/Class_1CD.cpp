@@ -183,7 +183,6 @@ void T_1CD::init()
 
 	is_infobase = false;
 	is_depot    = false;
-	Field::showGUIDasMS = false;
 
 	pagemap  = nullptr;
 	version  = db_ver::ver8_2_14_0;
@@ -474,7 +473,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 			if(!table_externals) msreg_m.AddError("Отсутствует таблица EXTERNALS");
 			if(!table_selfrefs) msreg_m.AddError("Отсутствует таблица SELFREFS");
 			if(!table_outrefs) msreg_m.AddError("Отсутствует таблица OUTREFS");
-			Field::showGUIDasMS = true;
+			FieldType::showGUIDasMS = true; // TODO: wat??
 		}
 	}
 	else
@@ -2854,7 +2853,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				}
 				else if(depotVer >= depot_ver::Ver6)
 				{
-					rec = rech1 + fldh_datahash->offset + (fldh_datahash->null_exists ? 1 : 0);
+					rec = rech1 + fldh_datahash->offset + (fldh_datahash->getnull_exists() ? 1 : 0);
 					out = pack_directory.get_data(rec, ok);
 
 					if(!ok)
@@ -2966,7 +2965,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						}
 						else if(depotVer >= depot_ver::Ver6)
 						{
-							frec = rec + flde_datahash->offset + (flde_datahash->null_exists ? 1 : 0);
+							frec = rec + flde_datahash->offset + (flde_datahash->getnull_exists() ? 1 : 0);
 							out = pack_directory.get_data(frec, ok);
 
 							if(!ok)
@@ -3488,9 +3487,9 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 								}
 								else if(depotVer >= depot_ver::Ver6)
 								{
-									if(memcmp(rech2 + fldh_datahash->offset + (fldh_datahash->null_exists ? 1 : 0)
-											, rech1 + fldh_datahash->offset + (fldh_datahash->null_exists ? 1 : 0)
-											, fldh_datahash->length) == 0) changed = false;
+									if(memcmp(rech2 + fldh_datahash->offset + (fldh_datahash->getnull_exists() ? 1 : 0)
+											, rech1 + fldh_datahash->offset + (fldh_datahash->getnull_exists() ? 1 : 0)
+											, fldh_datahash->getlength()) == 0) changed = false;
 								}
 							}
 						}
@@ -3513,7 +3512,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 							}
 							else if(depotVer >= depot_ver::Ver6)
 							{
-								rec = rech2 + fldh_datahash->offset + (fldh_datahash->null_exists ? 1 : 0);
+								rec = rech2 + fldh_datahash->offset + (fldh_datahash->getnull_exists() ? 1 : 0);
 								sobj = pack_directory.get_data(rec, ok);
 
 								if(!ok)
@@ -3626,7 +3625,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 									}
 									else if(depotVer >= depot_ver::Ver6)
 									{
-										frec = rece + flde_datahash->offset + (flde_datahash->null_exists ? 1 : 0);
+										frec = rece + flde_datahash->offset + (flde_datahash->getnull_exists() ? 1 : 0);
 										sobj = pack_directory.get_data(frec, ok);
 
 										if(!ok)
