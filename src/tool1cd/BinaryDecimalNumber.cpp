@@ -6,6 +6,7 @@
 #include "BinaryDecimalNumber.h"
 #include <map>
 #include <vector>
+#include <array>
 
 class BinaryDecimalBuilder
 {
