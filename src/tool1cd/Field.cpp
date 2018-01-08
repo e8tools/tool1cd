@@ -56,7 +56,7 @@ String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimite
 }
 
 //---------------------------------------------------------------------------
-bool Field::get_bynary_value(char* binary_value, bool null, String& value) const
+bool Field::get_binary_value(char *binary_value, bool null, const String &value) const
 {
 	return type->get_binary_value(binary_value, null, value);
 }

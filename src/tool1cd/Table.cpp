@@ -1640,7 +1640,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 		}
 		*(TStream**)k = st;
 	}
-	else fld->get_bynary_value(fldvalue, null, value);
+	else fld->get_binary_value(fldvalue, null, value);
 
 	changed = true;
 	if(phys_numrecord < phys_numrecords)

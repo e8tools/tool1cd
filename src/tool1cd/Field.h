@@ -37,7 +37,7 @@ public:
 
 	String get_XML_presentation(char* rec, bool ignore_showGUID = false) const;
 
-	bool get_bynary_value(char* buf, bool null, String& value) const;
+	bool get_binary_value(char *buf, bool null, const String &value) const;
 	type_fields gettype() const;
 	Table* getparent() const;
 	bool getnull_exists() const;
