@@ -479,109 +479,92 @@ bool NumericFieldType::get_binary_value(char* binary_value, bool null, const Str
 		*fr = 1;
 		fr++;
 	}
-	switch(type)
+	int32_t l = value.GetLength();
+	if(!l) {
+		return true;
+	}
+
+	unsigned char* b = new unsigned char[l];
+	bool k = false; // знак минус
+	int32_t m = -1; // позиция точки
+	bool n = false; // признак наличия значащих цифр в начале
+	int32_t j = 0;
+
+	for(int32_t ind = 0; ind < l; ind++)
 	{
-		case type_fields::tf_numeric: {
-			int32_t l = value.GetLength();
-			if(!l) {
-				break;
+		wchar_t sym = value[ind + 1];
+		if(sym == L'-') {
+			k = true;
+			continue;
+		}
+		if (sym == L'.') {
+			m = j;
+			n = true;
+			continue;
+		}
+		if (!n) {
+			if(sym == L'0') {
+				continue;
 			}
-
-			unsigned char* b = new unsigned char[l];
-			bool k = false; // знак минус
-			int32_t m = -1; // позиция точки
-			bool n = false; // признак наличия значащих цифр в начале
-			int32_t j = 0;
-
-			for(int32_t ind = 0; ind < l; ind++)
-			{
-				wchar_t sym = value[ind + 1];
-				if(sym == L'-')
-				{
-					k = true;
-					continue;
-				}
-				if(sym == L'.')
-				{
-					m = j;
-					n = true;
-					continue;
-				}
-				if(!n) {
-					if(sym == L'0')
-					{
-						continue;
-					}
-				}
-				if(sym >= L'0' || sym <= L'9')
-				{
-					b[j++] = sym - L'0';
-					n = true;
-				}
-			}
-			if(m == -1) {
-				m = j;
-			}
-
-			// тут имеем:
-			// в b значащие цифры
-			// k - признак минуса
-			// j - всего значащих цифр
-			// m - позиция точки (количество цифр до запятой, что одно и то же)
-
-			//     0     1     2     3
-			//+-----+-----+-----+-----+
-			//I  .  I  .  I  .  I  .  I
-			//+-----+-----+-----+-----+
-			//  S  0  1  2  3  4  5  6  (номер цифры (полубайта), ниже равен i)
-
-			l = length - precision; // макс. количество цифр до запятой
-			if(m > l)
-			{
-				// значение превышает максимально допустимое, заменяем на все 9ки
-				for(int32_t ind = 0; ind < length; ind++)
-				{
-					if(ind & 1) {
-						fr[(ind + 1) >> 1] |= 0x90;
-					}
-					else {
-						fr[(ind + 1) >> 1] |= 0x9;
-					}
-				}
-			}
-			else
-			{
-				int32_t p = 0;
-				for(int32_t ind = l - 1, p = m - 1; p >= 0; ind--, p--)
-				{
-					if(ind & 1) {
-						fr[(ind + 1) >> 1] |= b[p] << 4;
-					}
-					else {
-						fr[(ind + 1) >> 1] |= b[p];
-					}
-				}
-				int32_t q = std::min(j - m, precision); // количество цифр после запятой
-				for(int32_t ind = l, p = m; p < m + q; ind++, p++)
-				{
-					if(ind & 1) {
-						fr[(ind + 1) >> 1] |= b[p] << 4;
-					}
-					else {
-						fr[(ind + 1) >> 1] |= b[p];
-					}
-				}
-			}
-
-			if(!k) {
-				*fr |= 0x10; // Знак
-			}
-
-			delete[] b;
-
-			break;
+		}
+		if (sym >= L'0' || sym <= L'9') {
+			b[j++] = sym - L'0';
+			n = true;
 		}
 	}
+	if (m == -1) {
+		m = j;
+	}
+
+	// тут имеем:
+	// в b значащие цифры
+	// k - признак минуса
+	// j - всего значащих цифр
+	// m - позиция точки (количество цифр до запятой, что одно и то же)
+
+	//     0     1     2     3
+	//+-----+-----+-----+-----+
+	//I  .  I  .  I  .  I  .  I
+	//+-----+-----+-----+-----+
+	//  S  0  1  2  3  4  5  6  (номер цифры (полубайта), ниже равен i)
+
+	l = length - precision; // макс. количество цифр до запятой
+	if (m > l) {
+		// значение превышает максимально допустимое, заменяем на все 9ки
+		for(int32_t ind = 0; ind < length; ind++) {
+			if(ind & 1) {
+				fr[(ind + 1) >> 1] |= 0x90;
+			}
+			else {
+				fr[(ind + 1) >> 1] |= 0x9;
+			}
+		}
+	} else {
+		int32_t p = 0;
+		for(int32_t ind = l - 1, p = m - 1; p >= 0; ind--, p--) {
+			if(ind & 1) {
+				fr[(ind + 1) >> 1] |= b[p] << 4;
+			}
+			else {
+				fr[(ind + 1) >> 1] |= b[p];
+			}
+		}
+		int32_t q = std::min(j - m, precision); // количество цифр после запятой
+		for (int32_t ind = l, p = m; p < m + q; ind++, p++) {
+			if(ind & 1) {
+				fr[(ind + 1) >> 1] |= b[p] << 4;
+			}
+			else {
+				fr[(ind + 1) >> 1] |= b[p];
+			}
+		}
+	}
+
+	if(!k) {
+		*fr |= 0x10; // Знак
+	}
+
+	delete[] b;
 
 	return true;
 }
