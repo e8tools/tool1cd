@@ -130,7 +130,7 @@ public:
 	int32_t precision {0};
 	bool case_sensitive {false};
 
-	mutable int32_t len;
+	mutable int32_t len {0};
 };
 
 String CommonFieldType::get_fast_presentation(const char* rec) const
