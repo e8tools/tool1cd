@@ -56,3 +56,41 @@ TEST_CASE( "Проверка разбора полей", "[tool1cd][Fields]" ) {
 	}
 }
 
+TEST_CASE( "Проверка преобразований полей", "[tool1cd][Fields][Types]")
+{
+	GIVEN ("Описание числового поля с дробной частью") {
+		String numeric_field = "{\"AnyName\",\"N\",0,10,4,\"CS\"}";
+		Field *fld = load_field(numeric_field);
+
+		char buf[100];
+
+		WHEN ("Выполняем сериализацию/десериализацию строки '10'") {
+			String source = "10";
+			fld->get_binary_value(buf, false, source);
+			String result = fld->get_presentation(buf);
+
+			THEN ("Получаем '10'") {
+				REQUIRE (result == "10");
+			}
+		}
+
+		WHEN ("Выполняем сериализацию/десериализацию строки '10.0'") {
+			String source = "10.0";
+			fld->get_binary_value(buf, false, source);
+			String result = fld->get_presentation(buf);
+
+			THEN ("Получаем '10'") {
+				REQUIRE (result == "10");
+			}
+		}
+		WHEN ("Выполняем сериализацию/десериализацию строки '10.90'") {
+			String source = "10.90";
+			fld->get_binary_value(buf, false, source);
+			String result = fld->get_presentation(buf);
+
+			THEN ("Получаем '10.9000'") {
+				REQUIRE (result == "10.9000");
+			}
+		}
+	}
+}

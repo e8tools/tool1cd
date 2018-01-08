@@ -1,5 +1,6 @@
 #include "Common.h"
 #include "MessageRegistration.h"
+#include "BinaryDecimalNumber.h"
 //---------------------------------------------------------------------------
 #if !defined(_WIN32)
 #pragma package(smart_init)
@@ -17,12 +18,13 @@ void time1CD_to_FileTime(FILETIME* ft, unsigned char* time1CD)
 {
 	SYSTEMTIME st;
 	FILETIME lft;
-	st.wYear = (time1CD[0] >> 4) * 1000 + (time1CD[0] & 0xf) * 100 + (time1CD[1] >> 4) * 10 + (time1CD[1] & 0xf);
-	st.wMonth = (time1CD[2] >> 4) * 10 + (time1CD[2] & 0xf);
-	st.wDay = (time1CD[3] >> 4) * 10 + (time1CD[3] & 0xf);
-	st.wHour = (time1CD[4] >> 4) * 10 + (time1CD[4] & 0xf);
-	st.wMinute = (time1CD[5] >> 4) * 10 + (time1CD[5] & 0xf);
-	st.wSecond = (time1CD[6] >> 4) * 10 + (time1CD[6] & 0xf);
+	BinaryDecimalDate bdd(time1CD);
+	st.wYear = bdd.get_year();
+	st.wMonth = bdd.get_month();
+	st.wDay = bdd.get_day();
+	st.wHour = bdd.get_hour();
+	st.wMinute = bdd.get_minute();
+	st.wSecond = bdd.get_second();
 	SystemTimeToFileTime(&st, &lft);
 	LocalFileTimeToFileTime(&lft, ft);
 }
@@ -299,13 +301,8 @@ bool two_hex_digits_to_byte(const wchar_t hi, const wchar_t lo, unsigned char& r
 // yyyymmddhhmmss -> char[7]
 bool string1C_to_date(const String& str, unsigned char* bytedate)
 {
-	bytedate[0] = ((str[1] - L'0') << 4) + (str[2] - L'0');
-	bytedate[1] = ((str[3] - L'0') << 4) + (str[4] - L'0');
-	bytedate[2] = ((str[5] - L'0') << 4) + (str[6] - L'0');
-	bytedate[3] = ((str[7] - L'0') << 4) + (str[8] - L'0');
-	bytedate[4] = ((str[9] - L'0') << 4) + (str[10] - L'0');
-	bytedate[5] = ((str[11] - L'0') << 4) + (str[12] - L'0');
-	bytedate[6] = ((str[13] - L'0') << 4) + (str[14] - L'0');
+	BinaryDecimalDate bdd(str, "yyyyMMddhhmmss");
+	bdd.write_to(bytedate);
 	return true;
 }
 
@@ -313,13 +310,8 @@ bool string1C_to_date(const String& str, unsigned char* bytedate)
 // dd.mm.yyyy hh:mm:ss -> char[7]
 bool string_to_date(const String& str, unsigned char* bytedate)
 {
-	bytedate[3] = ((str[1] - L'0') << 4) + (str[2] - L'0');
-	bytedate[2] = ((str[4] - L'0') << 4) + (str[5] - L'0');
-	bytedate[0] = ((str[7] - L'0') << 4) + (str[8] - L'0');
-	bytedate[1] = ((str[9] - L'0') << 4) + (str[10] - L'0');
-	bytedate[4] = ((str[12] - L'0') << 4) + (str[13] - L'0');
-	bytedate[5] = ((str[15] - L'0') << 4) + (str[16] - L'0');
-	bytedate[6] = ((str[18] - L'0') << 4) + (str[19] - L'0');
+	BinaryDecimalDate bdd(str);
+	bdd.write_to(bytedate);
 	return true;
 }
 
@@ -327,24 +319,15 @@ bool string_to_date(const String& str, unsigned char* bytedate)
 // char[7] -> yyyymmddhhmmss
 String date_to_string1C(const unsigned char* bytedate)
 {
-	WCHART buf[15];
-
-	buf[0] = L'0' + (bytedate[0] >> 4);
-	buf[1] = L'0' + (bytedate[0] & 0xf);
-	buf[2] = L'0' + (bytedate[1] >> 4);
-	buf[3] = L'0' + (bytedate[1] & 0xf);
-	buf[4] = L'0' + (bytedate[2] >> 4);
-	buf[5] = L'0' + (bytedate[2] & 0xf);
-	buf[6] = L'0' + (bytedate[3] >> 4);
-	buf[7] = L'0' + (bytedate[3] & 0xf);
-	buf[8] = L'0' + (bytedate[4] >> 4);
-	buf[9] = L'0' + (bytedate[4] & 0xf);
-	buf[10] = L'0' + (bytedate[5] >> 4);
-	buf[11] = L'0' + (bytedate[5] & 0xf);
-	buf[12] = L'0' + (bytedate[6] >> 4);
-	buf[13] = L'0' + (bytedate[6] & 0xf);
-	buf[14] = 0;
-	return String(buf);
+	BinaryDecimalDate bdd(bytedate);
+	std::string result;
+	result += bdd.get_part(0, 4);
+	result += bdd.get_part(4, 2);
+	result += bdd.get_part(6, 2);
+	result += bdd.get_part(8, 2);
+	result += bdd.get_part(10, 2);
+	result += bdd.get_part(12, 2);
+	return result;
 
 }
 
@@ -352,30 +335,8 @@ String date_to_string1C(const unsigned char* bytedate)
 // char[7] -> dd.mm.yyyy hh:mm:ss
 String date_to_string(const unsigned char* bytedate)
 {
-	WCHART buf[20];
-
-	buf[0] = L'0' + (bytedate[3] >> 4);
-	buf[1] = L'0' + (bytedate[3] & 0xf);
-	buf[2] = L'.';
-	buf[3] = L'0' + (bytedate[2] >> 4);
-	buf[4] = L'0' + (bytedate[2] & 0xf);
-	buf[5] = L'.';
-	buf[6] = L'0' + (bytedate[0] >> 4);
-	buf[7] = L'0' + (bytedate[0] & 0xf);
-	buf[8] = L'0' + (bytedate[1] >> 4);
-	buf[9] = L'0' + (bytedate[1] & 0xf);
-	buf[10] = L' ';
-	buf[11] = L'0' + (bytedate[4] >> 4);
-	buf[12] = L'0' + (bytedate[4] & 0xf);
-	buf[13] = L':';
-	buf[14] = L'0' + (bytedate[5] >> 4);
-	buf[15] = L'0' + (bytedate[5] & 0xf);
-	buf[16] = L':';
-	buf[17] = L'0' + (bytedate[6] >> 4);
-	buf[18] = L'0' + (bytedate[6] & 0xf);
-	buf[19] = 0;
-	return String(buf);
-
+	BinaryDecimalDate bdd(bytedate);
+	return bdd.get_presentation();
 }
 
 //---------------------------------------------------------------------------

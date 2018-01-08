@@ -7,6 +7,8 @@
 #include "Common.h"
 #include "Base64.h"
 #include "Table.h"
+#include "BinaryDecimalNumber.h"
+#include <vector>
 
 // TODO: инициализация null_index
 static char null_index[4096];
@@ -484,87 +486,8 @@ bool NumericFieldType::get_binary_value(char* binary_value, bool null, const Str
 		return true;
 	}
 
-	unsigned char* b = new unsigned char[l];
-	bool k = false; // знак минус
-	int32_t m = -1; // позиция точки
-	bool n = false; // признак наличия значащих цифр в начале
-	int32_t j = 0;
-
-	for(int32_t ind = 0; ind < l; ind++)
-	{
-		wchar_t sym = value[ind + 1];
-		if(sym == L'-') {
-			k = true;
-			continue;
-		}
-		if (sym == L'.') {
-			m = j;
-			n = true;
-			continue;
-		}
-		if (!n) {
-			if(sym == L'0') {
-				continue;
-			}
-		}
-		if (sym >= L'0' || sym <= L'9') {
-			b[j++] = sym - L'0';
-			n = true;
-		}
-	}
-	if (m == -1) {
-		m = j;
-	}
-
-	// тут имеем:
-	// в b значащие цифры
-	// k - признак минуса
-	// j - всего значащих цифр
-	// m - позиция точки (количество цифр до запятой, что одно и то же)
-
-	//     0     1     2     3
-	//+-----+-----+-----+-----+
-	//I  .  I  .  I  .  I  .  I
-	//+-----+-----+-----+-----+
-	//  S  0  1  2  3  4  5  6  (номер цифры (полубайта), ниже равен i)
-
-	l = length - precision; // макс. количество цифр до запятой
-	if (m > l) {
-		// значение превышает максимально допустимое, заменяем на все 9ки
-		for(int32_t ind = 0; ind < length; ind++) {
-			if(ind & 1) {
-				fr[(ind + 1) >> 1] |= 0x90;
-			}
-			else {
-				fr[(ind + 1) >> 1] |= 0x9;
-			}
-		}
-	} else {
-		int32_t p = 0;
-		for(int32_t ind = l - 1, p = m - 1; p >= 0; ind--, p--) {
-			if(ind & 1) {
-				fr[(ind + 1) >> 1] |= b[p] << 4;
-			}
-			else {
-				fr[(ind + 1) >> 1] |= b[p];
-			}
-		}
-		int32_t q = std::min(j - m, precision); // количество цифр после запятой
-		for (int32_t ind = l, p = m; p < m + q; ind++, p++) {
-			if(ind & 1) {
-				fr[(ind + 1) >> 1] |= b[p] << 4;
-			}
-			else {
-				fr[(ind + 1) >> 1] |= b[p];
-			}
-		}
-	}
-
-	if(!k) {
-		*fr |= 0x10; // Знак
-	}
-
-	delete[] b;
+	BinaryDecimalNumber bdn(value, true, getlength(), getprecision());
+	bdn.write_to(binary_value);
 
 	return true;
 }
@@ -580,38 +503,8 @@ String NumericFieldType::get_presentation(const char* rec, bool EmptyNull, wchar
 		}
 		fr++;
 	}
-	TStringBuilder sb;
-	bool digitNotStarted = true; // признак, что значащие цифры еще не начались
-	int pointPosition = length - precision; // позиция десятичной точки слева
-	if(fr[0] >> 4 == 0) {
-		sb.Append('-');
-	}
-	for (int j = 0; j < length; j++) {
-		if (Delimiter) {
-			if (!digitNotStarted) {
-				if (pointPosition - j > 0) {
-					if ((pointPosition - j) % 3 == 0) {
-						sb.Append(Delimiter);
-					}
-				}
-			}
-		}
-		if (j == pointPosition) {
-			sb.Append('.');
-			digitNotStarted = false;
-		}
-		if (j & 1) sym = fr[(j + 1) >> 1] >> 4;
-		else sym = fr[j >> 1] & 0xf;
-
-		if (sym == 0 && digitNotStarted) {
-			continue;
-		}
-
-		digitNotStarted = false;
-		sb.Append('0' + sym);
-	}
-
-	return sb.ToString();
+	BinaryDecimalNumber bdn(fr, length, precision, true);
+	return bdn.get_presentation();
 }
 
 String NumericFieldType::get_XML_presentation(char* rec, Table *parent, bool ignore_showGUID) const
@@ -748,12 +641,9 @@ uint32_t NumericFieldType::getSortKey(const char* rec, unsigned char* SortKey, i
 }
 
 
-bool DatetimeFieldType::get_binary_value(char* binary_value, bool null, const String& inValue) const
+// Ожидаем дату строго в формате "дд.ММ.гггг чч:мм:сс"
+bool DatetimeFieldType::get_binary_value(char* binary_value, bool null, const String& value) const
 {
-	// TODO: (DatetimeFieldType::get_binary_value) тут колдунство!
-
-	String value = inValue;
-
 	unsigned char* fr = (unsigned char*)binary_value;
 	memset(fr, 0, len);
 
@@ -770,171 +660,8 @@ bool DatetimeFieldType::get_binary_value(char* binary_value, bool null, const St
 		fr[2] = 1;
 		fr[3] = 1;
 	} else {
-
-		#define correct_spaces(A,B)\
-		if(value[B] == L' ')\
-		{\
-			value[B] = value[A];\
-			value[A] = L'0';\
-		}\
-		if(value[A] == L' ') value[A] = L'0';
-
-		correct_spaces(1,2) // корректируем день
-		correct_spaces(4,5) // корректируем месяц
-		correct_spaces(12,13) // корректируем часы
-		correct_spaces(15,16) // корректируем минуты
-		correct_spaces(18,19) // корректируем секунды
-
-		int32_t i = 0;
-		// корректируем год
-		while(value[10] == L' ')
-		{
-			value[10] = value[9];
-			value[9] = value[8];
-			value[8] = value[7];
-			value[7] = L'0';
-			i++;
-		}
-		while(value[9] == L' ')
-		{
-			value[9] = value[8];
-			value[8] = value[7];
-			value[7] = L'0';
-			i++;
-		}
-		while(value[8] == L' ')
-		{
-			value[8] = value[7];
-			value[7] = L'0';
-			i++;
-		}
-		if(value[7] == L' ') {
-			value[7] = L'0';
-		}
-
-		// дополняем год при необходимости
-		switch(i)
-		{
-			case 1:
-				value[7] = L'2';
-				break;
-			case 2:
-				value[7] = L'2';
-				value[8] = L'0';
-				break;
-			case 3:
-				value[7] = L'2';
-				value[8] = L'0';
-				value[9] = L'1';
-				break;
-		}
-
-		// исправляем день, месяц, год
-		int32_t day = (value[1] - L'0') * 10 + (value[2] - L'0'); // день
-		int32_t month = (value[4] - L'0') * 10 + (value[5] - L'0'); // месяц
-		int32_t year = (value[7] - L'0') * 1000 + (value[8] - L'0') * 100 + (value[9] - L'0') * 10 + (value[10] - L'0'); // год
-
-		if(month > 12)
-		{
-			month = 12;
-			value[4] = L'1';
-			value[5] = L'2';
-		}
-		else if(month == 0)
-		{
-			month = 1;
-			value[4] = L'0';
-			value[5] = L'1';
-		}
-
-		if(year == 0)
-		{
-			year = 1;
-			value[7] = L'0'; //-V525
-			value[8] = L'0';
-			value[9] = L'0';
-			value[10] = L'1';
-		}
-
-		if(day == 0)
-		{
-			value[1] = L'0';
-			value[2] = L'1';
-		}
-		else if(day > 28) switch(month)
-			{
-				case 1:
-				case 3:
-				case 5:
-				case 7:
-				case 8:
-				case 10:
-				case 12:
-					if(day > 31)
-					{
-						value[1] = L'3';
-						value[2] = L'1';
-					}
-					break;
-				case 4:
-				case 6:
-				case 9:
-				case 11:
-					if(day > 30)
-					{
-						value[1] = L'3';
-						value[2] = L'0';
-					}
-					break;
-				case 2:
-					if(year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))
-					{
-						if(day > 29)
-						{
-							value[1] = L'2';
-							value[2] = L'9';
-						}
-					}
-					else
-					{
-						if(day > 28)
-						{
-							value[1] = L'2';
-							value[2] = L'8';
-						}
-					}
-					break;
-			}
-
-		// исправляем часы, минуты, секунды
-		int32_t hours = (value[12] - L'0') * 10 + (value[13] - L'0'); // часы
-		if(hours > 23)
-		{
-			value[12] = L'2';
-			value[13] = L'3';
-		}
-
-		int32_t minutes = (value[15] - L'0') * 10 + (value[16] - L'0'); // минуты
-		if(minutes > 59)
-		{
-			value[15] = L'5';
-			value[16] = L'9';
-		}
-
-		int32_t seconds = (value[18] - L'0') * 10 + (value[19] - L'0'); // секунды
-		if(seconds > 59)
-		{
-			value[18] = L'5';
-			value[19] = L'9';
-		}
-
-		fr[3] = ((value[1] - L'0') << 4) + (value[2] - L'0');
-		fr[2] = ((value[4] - L'0') << 4) + (value[5] - L'0');
-		fr[0] = ((value[7] - L'0') << 4) + (value[8] - L'0');
-		fr[1] = ((value[9] - L'0') << 4) + (value[10] - L'0');
-		fr[4] = ((value[12] - L'0') << 4) + (value[13] - L'0');
-		fr[5] = ((value[15] - L'0') << 4) + (value[16] - L'0');
-		fr[6] = ((value[18] - L'0') << 4) + (value[19] - L'0');
+		BinaryDecimalDate bdc(value);
+		bdc.write_to(fr);
 	}
 
 	return true;
