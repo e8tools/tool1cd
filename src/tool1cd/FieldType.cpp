@@ -109,10 +109,10 @@ public:
 	virtual String get_fast_presentation(
 			const char* rec) const;
 
-	virtual bool get_bynary_value(
-			char* buf,
+	virtual bool get_binary_value(
+			char *buf,
 			bool null,
-			String& value) const override;
+			const String &value) const override;
 
 	virtual String get_XML_presentation(
 			char* rec,
@@ -154,10 +154,10 @@ public:
 			bool ignore_showGUID,
 			bool detailed) const override;
 
-	virtual bool get_bynary_value(
+	virtual bool get_binary_value(
 			char* buf,
 			bool null,
-			String& value) const override;
+			const String& value) const override;
 
 	virtual String get_XML_presentation(
 			char* rec,
@@ -186,10 +186,10 @@ public:
 			bool ignore_showGUID,
 			bool detailed) const override;
 
-	virtual bool get_bynary_value(
+	virtual bool get_binary_value(
 			char* buf,
 			bool null,
-			String& value) const override;
+			const String& value) const override;
 
 	virtual String get_XML_presentation(
 			char* rec,
@@ -217,10 +217,10 @@ public:
 			bool ignore_showGUID,
 			bool detailed) const override;
 
-	virtual bool get_bynary_value(
+	virtual bool get_binary_value(
 			char* buf,
 			bool null,
-			String& value) const override;
+			const String& value) const override;
 
 	virtual String get_XML_presentation(
 			char* rec,
@@ -233,7 +233,7 @@ public:
 			int32_t maxlen) const override;
 };
 
-bool BinaryFieldType::get_bynary_value(char* binary_value, bool null, String& value) const
+bool BinaryFieldType::get_binary_value(char* binary_value, bool null, const String& value) const
 {
 	unsigned char* fr = (unsigned char*)binary_value;
 	memset(fr, 0, len);
@@ -467,7 +467,7 @@ uint32_t BinaryFieldType::getSortKey(const char* rec, unsigned char* SortKey, in
 }
 
 
-bool NumericFieldType::get_bynary_value(char* binary_value, bool null, String& value) const
+bool NumericFieldType::get_binary_value(char* binary_value, bool null, const String& value) const
 {
 	unsigned char* fr = (unsigned char*)binary_value;
 	memset(fr, 0, len);
@@ -765,9 +765,11 @@ uint32_t NumericFieldType::getSortKey(const char* rec, unsigned char* SortKey, i
 }
 
 
-bool DatetimeFieldType::get_bynary_value(char* binary_value, bool null, String& value) const
+bool DatetimeFieldType::get_binary_value(char* binary_value, bool null, const String& inValue) const
 {
-	// TODO: (DatetimeFieldType::get_bynary_value) тут колдунство!
+	// TODO: (DatetimeFieldType::get_binary_value) тут колдунство!
+
+	String value = inValue;
 
 	unsigned char* fr = (unsigned char*)binary_value;
 	memset(fr, 0, len);
@@ -1050,7 +1052,7 @@ uint32_t DatetimeFieldType::getSortKey(const char* rec, unsigned char* SortKey, 
 }
 
 
-bool CommonFieldType::get_bynary_value(char* binary_value, bool null, String& value) const
+bool CommonFieldType::get_binary_value(char *binary_value, bool null, const String &value) const
 {
 	unsigned char* fr = (unsigned char*)binary_value;
 	memset(fr, 0, len);

@@ -27,10 +27,10 @@ public:
 			bool ignore_showGUID,
 			bool detailed) const = 0;
 
-	virtual bool get_bynary_value(
-			char* buf,
+	virtual bool get_binary_value(
+			char *buf,
 			bool null,
-			String& value) const = 0;
+			const String &value) const = 0;
 
 	virtual String get_XML_presentation(
 			char* rec,
