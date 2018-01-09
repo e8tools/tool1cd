@@ -299,7 +299,7 @@ bool two_hex_digits_to_byte(const wchar_t hi, const wchar_t lo, unsigned char& r
 
 //---------------------------------------------------------------------------
 // yyyymmddhhmmss -> char[7]
-bool string1C_to_date(const String& str, unsigned char* bytedate)
+bool string1C_to_date(const String &str, void *bytedate)
 {
 	BinaryDecimalDate bdd(str, "yyyyMMddhhmmss");
 	bdd.write_to(bytedate);
@@ -308,7 +308,7 @@ bool string1C_to_date(const String& str, unsigned char* bytedate)
 
 //---------------------------------------------------------------------------
 // dd.mm.yyyy hh:mm:ss -> char[7]
-bool string_to_date(const String& str, unsigned char* bytedate)
+bool string_to_date(const String &str, void *bytedate)
 {
 	BinaryDecimalDate bdd(str);
 	bdd.write_to(bytedate);
@@ -317,7 +317,7 @@ bool string_to_date(const String& str, unsigned char* bytedate)
 
 //---------------------------------------------------------------------------
 // char[7] -> yyyymmddhhmmss
-String date_to_string1C(const unsigned char* bytedate)
+String date_to_string1C(const void *bytedate)
 {
 	BinaryDecimalDate bdd(bytedate);
 	std::string result;
@@ -340,7 +340,7 @@ String date_to_string(const void *bytedate)
 }
 
 //---------------------------------------------------------------------------
-String hexstring(char* buf, int n)
+String hexstring(const char *buf, int n)
 {
 	int i;
 	String s = "";
@@ -384,7 +384,7 @@ String hexstring(TStream* str)
 }
 
 //---------------------------------------------------------------------------
-String toXML(String in)
+String toXML(const String &in)
 {
 	return TStringBuilder(in)
 		.Replace("&", "&amp;")

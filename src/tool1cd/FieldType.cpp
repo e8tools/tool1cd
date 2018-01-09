@@ -580,33 +580,22 @@ String DatetimeFieldType::get_presentation(const char* rec, bool EmptyNull, wcha
 
 String DatetimeFieldType::get_XML_presentation(const char *rec, Table *parent, bool ignore_showGUID) const
 {
+	BinaryDecimalDate bdd(rec);
+	TStringBuilder result;
+	result.Append(String(bdd.get_year()));
+	result.Append('-');
+	result.Append(String(bdd.get_month()));
+	result.Append('-');
+	result.Append(String(bdd.get_day()));
+	result.Append('T');
 
-	unsigned char* fr = (unsigned char*)rec;
+	result.Append(String(bdd.get_hour()));
+	result.Append(':');
+	result.Append(String(bdd.get_minute()));
+	result.Append(':');
+	result.Append(String(bdd.get_second()));
 
-	char *buf = new char[length*2]; // TODO: адовый костыль с утечкой памяти
-
-	buf[0] = '0' + (fr[0] >> 4);
-	buf[1] = '0' + (fr[0] & 0xf);
-	buf[2] = '0' + (fr[1] >> 4);
-	buf[3] = '0' + (fr[1] & 0xf);
-	buf[4] = '-';
-	buf[5] = '0' + (fr[2] >> 4);
-	buf[6] = '0' + (fr[2] & 0xf);
-	buf[7] = '-';
-	buf[8] = '0' + (fr[3] >> 4);
-	buf[9] = '0' + (fr[3] & 0xf);
-	buf[10] = 'T';
-	buf[11] = '0' + (fr[4] >> 4);
-	buf[12] = '0' + (fr[4] & 0xf);
-	buf[13] = ':';
-	buf[14] = '0' + (fr[5] >> 4);
-	buf[15] = '0' + (fr[5] & 0xf);
-	buf[16] = ':';
-	buf[17] = '0' + (fr[6] >> 4);
-	buf[18] = '0' + (fr[6] & 0xf);
-	buf[19] = 0;
-	return buf;
-
+	return result.ToString();
 }
 
 uint32_t DatetimeFieldType::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen) const

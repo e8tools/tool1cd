@@ -15,13 +15,13 @@ bool string_to_GUID(const String& str, System::TGUID* guid);
 String GUID_to_string_flat(System::TGUID* guid);
 bool string_to_GUID_flat(const String& str, System::TGUID* guid);
 bool two_hex_digits_to_byte(const wchar_t hi, const wchar_t lo, unsigned char& res);
-bool string1C_to_date(const String& str, unsigned char* bytedate);
-bool string_to_date(const String& str, unsigned char* bytedate);
-String date_to_string1C(const unsigned char* bytedate);
+bool string1C_to_date(const String &str, void *bytedate);
+bool string_to_date(const String &str, void *bytedate);
+String date_to_string1C(const void *bytedate);
 String date_to_string(const void *bytedate);
-String hexstring(char* buf, int n);
+String hexstring(const char *buf, int n);
 String hexstring(TStream* str);
-String toXML(String in);
+String toXML(const String &in);
 unsigned char from_hex_digit(char digit);
 
 template< typename T >
