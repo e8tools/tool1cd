@@ -35,7 +35,7 @@ public:
 			bool ignore_showGUID = false,
 			bool detailed = false) const;
 
-	String get_XML_presentation(char* rec, bool ignore_showGUID = false) const;
+	String get_XML_presentation(const char *rec, bool ignore_showGUID = false) const;
 
 	bool get_binary_value(char *buf, bool null, const String &value) const;
 	type_fields gettype() const;
@@ -50,7 +50,9 @@ public:
 	uint32_t getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen) const;
 private:
 	String name;
-	FieldType *type;
+	type_fields type;
+	bool null_exists {false};
+	FieldType *type_manager;
 
 	Table* parent;
 	mutable int32_t len; // длина поля в байтах

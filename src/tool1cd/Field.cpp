@@ -41,16 +41,22 @@ String Field::getname() const
 //---------------------------------------------------------------------------
 int32_t Field::getlen() const // возвращает длину поля в байтах
 {
-	return type->getlen();
+	return (null_exists ? 1 : 0) + type_manager->getlen();
 }
 
 //---------------------------------------------------------------------------
 // При ignore_showGUID binary16 всегда преобразуется в GUID
 String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed) const
 {
-	unsigned char* fr = (unsigned char*)rec + offset;
-	return type->get_presentation(
-			rec + offset,
+	const char* fr = rec + offset;
+	if (getnull_exists()) {
+		if (fr[0] == 0) {
+			return EmptyNull ? "" : "{NULL}";
+		}
+		fr++;
+	}
+	return type_manager->get_presentation(
+			fr,
 			EmptyNull, Delimiter, ignore_showGUID, detailed
 	);
 }
@@ -58,19 +64,35 @@ String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimite
 //---------------------------------------------------------------------------
 bool Field::get_binary_value(char *binary_value, bool null, const String &value) const
 {
-	return type->get_binary_value(binary_value, null, value);
+	memset(binary_value, 0, len);
+
+	if (null_exists) {
+		if (null) {
+			return true;
+		}
+		*binary_value = 1;
+		binary_value++;
+	}
+	return type_manager->get_binary_value(binary_value, null, value);
 }
 
 //---------------------------------------------------------------------------
-String Field::get_XML_presentation(char* rec, bool ignore_showGUID) const
+String Field::get_XML_presentation(const char *rec, bool ignore_showGUID) const
 {
-	return type->get_XML_presentation(rec + offset, parent, ignore_showGUID);
+	const char *fr = rec + offset;
+	if (null_exists) {
+		if (fr[0] == 0) {
+			return "";
+		}
+		fr++;
+	}
+	return type_manager->get_XML_presentation(fr, parent, ignore_showGUID);
 }
 
 //---------------------------------------------------------------------------
 type_fields Field::gettype() const
 {
-	return type->gettype();
+	return type_manager->gettype();
 }
 
 //---------------------------------------------------------------------------
@@ -82,25 +104,25 @@ Table* Field::getparent() const
 //---------------------------------------------------------------------------
 bool Field::getnull_exists() const
 {
-	return type->getnull_exists();
+	return null_exists;
 }
 
 //---------------------------------------------------------------------------
 int32_t Field::getlength() const
 {
-	return type->getlength();
+	return type_manager->getlength();
 }
 
 //---------------------------------------------------------------------------
 int32_t Field::getprecision() const
 {
-	return type->getprecision();
+	return type_manager->getprecision();
 }
 
 //---------------------------------------------------------------------------
 bool Field::getcase_sensitive() const
 {
-	return type->getcase_sensitive();
+	return type_manager->getcase_sensitive();
 }
 
 //---------------------------------------------------------------------------
@@ -112,7 +134,7 @@ int32_t Field::getoffset() const
 //---------------------------------------------------------------------------
 String Field::get_presentation_type() const
 {
-	return type->get_presentation_type();
+	return type_manager->get_presentation_type();
 }
 
 //---------------------------------------------------------------------------
@@ -125,9 +147,21 @@ String TrimSpacesRight(String s)
 //---------------------------------------------------------------------------
 uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen) const
 {
+	const char *fr = rec + offset;
+	bool isnull = false;
+	if (null_exists) {
+		if (*fr == 0) {
+			*(SortKey++) = 0;
+			isnull = true;
+		}
+		else *(SortKey++) = 1;
+
+		fr++;
+	}
+
 	try {
 
-		return type->getSortKey(rec + offset, SortKey, maxlen);
+		return type_manager->getSortKey(fr, SortKey, maxlen);
 
 	} catch (SerializationException &exception) {
 		exception.add_detail("Таблица", parent->name)
@@ -373,14 +407,20 @@ Field *Field::field_from_tree(tree *field_tree, bool &has_version, Table *parent
 
 	field_tree = field_tree->get_next();
 
+	field_type_declaration type_declaration;
 	try {
 
-		fld->type = FieldType::parse_field_type(field_tree);
+		type_declaration = field_type_declaration::parse_tree(field_tree);
 
 	} catch (FieldStreamParseException &formatError) {
 		throw formatError.add_detail("Поле", fld->name);
 	}
-	if (fld->type->gettype() == type_fields::tf_version) {
+
+	fld->type         = type_declaration.type;
+	fld->null_exists  = type_declaration.null_exists;
+	fld->type_manager = FieldType::create_type_manager(type_declaration);
+
+	if (fld->type == type_fields::tf_version) {
 		has_version = true;
 	}
 	return fld;

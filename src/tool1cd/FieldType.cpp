@@ -16,31 +16,18 @@ bool FieldType::showGUIDasMS = false;
 bool FieldType::showGUID = false;
 
 
-struct field_type_declaration {
-	type_fields type {type_fields::tf_binary};
-	bool null_exists {false};
-	int32_t length {0};
-	int32_t precision {0};
-	bool case_sensitive {false};
-};
-
 class CommonFieldType : public FieldType
 {
 public:
 
 	CommonFieldType(field_type_declaration declaration)
 			: type(declaration.type), length(declaration.length), precision(declaration.precision),
-			  null_exists(declaration.null_exists), case_sensitive(declaration.case_sensitive)
+			  case_sensitive(declaration.case_sensitive)
 	{}
 
 	virtual type_fields gettype() const override
 	{
 		return type;
-	}
-
-	virtual bool getnull_exists() const override
-	{
-		return null_exists;
 	}
 
 	virtual int32_t getlength() const override
@@ -82,7 +69,6 @@ public:
 	{
 		if(len) return len;
 
-		len = null_exists ? 1 : 0;
 		switch(type)
 		{
 			case type_fields::tf_binary: len += length; break;
@@ -117,7 +103,7 @@ public:
 			const String &value) const override;
 
 	virtual String get_XML_presentation(
-			char* rec,
+			const char *rec,
 			Table *parent,
 			bool ignore_showGUID) const override;
 
@@ -127,7 +113,6 @@ public:
 			int32_t maxlen) const override;
 
 	type_fields type {type_fields::tf_binary};
-	bool null_exists {false};
 	int32_t length {0};
 	int32_t precision {0};
 	bool case_sensitive {false};
@@ -162,7 +147,7 @@ public:
 			const String& value) const override;
 
 	virtual String get_XML_presentation(
-			char* rec,
+			const char *rec,
 			Table *parent,
 			bool ignore_showGUID) const override;
 
@@ -194,7 +179,7 @@ public:
 			const String& value) const override;
 
 	virtual String get_XML_presentation(
-			char* rec,
+			const char *rec,
 			Table *parent,
 			bool ignore_showGUID) const override;
 
@@ -225,7 +210,7 @@ public:
 			const String& value) const override;
 
 	virtual String get_XML_presentation(
-			char* rec,
+			const char *rec,
 			Table *parent,
 			bool ignore_showGUID) const override;
 
@@ -240,14 +225,6 @@ bool BinaryFieldType::get_binary_value(char* binary_value, bool null, const Stri
 	unsigned char* fr = (unsigned char*)binary_value;
 	memset(fr, 0, len);
 
-	if (null_exists)
-	{
-		if (null) {
-			return true;
-		}
-		*fr = 1;
-		fr++;
-	}
 	switch(type)
 	{
 		case type_fields::tf_binary: {
@@ -306,12 +283,6 @@ String BinaryFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_
 
 	unsigned char* fr = (unsigned char*)rec;
 
-	if (getnull_exists()) {
-		if (fr[0] == 0) {
-			return EmptyNull ? "" : "{NULL}";
-		}
-		fr++;
-	}
 	char *buf = new char[length * 2]; // TODO: адовый костыль с утечкой памяти
 	switch(type)
 	{
@@ -353,7 +324,7 @@ String BinaryFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_
 	return "{?}";
 }
 
-String BinaryFieldType::get_XML_presentation(char* rec, Table *parent, bool ignore_showGUID) const
+String BinaryFieldType::get_XML_presentation(const char *rec, Table *parent, bool ignore_showGUID) const
 {
 	char sym;
 	int32_t i, j, m;
@@ -364,13 +335,6 @@ String BinaryFieldType::get_XML_presentation(char* rec, Table *parent, bool igno
 	String s;
 
 	unsigned char* fr = (unsigned char*)rec;
-
-	if(null_exists) {
-		if(fr[0] == 0) {
-			return "";
-		}
-		fr++;
-	}
 
 	char *buf = new char[length*2]; // TODO: адовый костыль с утечкой памяти
 	switch(type)
@@ -435,18 +399,6 @@ uint32_t BinaryFieldType::getSortKey(const char* rec, unsigned char* SortKey, in
 				.add_detail("Значение поля", get_fast_presentation(rec));
 	}
 
-	if (null_exists) {
-		if (*fr == 0) {
-			*(SortKey++) = 0;
-			isnull = true;
-		}
-		else *(SortKey++) = 1;
-
-		fr++;
-		maxl--;
-		addlen = 1;
-	}
-
 	switch(type)
 	{
 		case type_fields::tf_binary:
@@ -456,7 +408,7 @@ uint32_t BinaryFieldType::getSortKey(const char* rec, unsigned char* SortKey, in
 						.add_detail("Длина буфера", maxlen)
 						.add_detail("Необходимая длина буфера", len);
 			}
-			memcpy(SortKey, isnull ? (void *)null_index : (void*)fr, len - addlen);
+			// memcpy(SortKey, isnull ? (void *)null_index : (void*)fr, len - addlen);
 			return len;
 
 		case type_fields::tf_varbinary:
@@ -471,16 +423,6 @@ uint32_t BinaryFieldType::getSortKey(const char* rec, unsigned char* SortKey, in
 
 bool NumericFieldType::get_binary_value(char* binary_value, bool null, const String& value) const
 {
-	unsigned char* fr = (unsigned char*)binary_value;
-	memset(fr, 0, len);
-
-	if (null_exists) {
-		if (null) {
-			return true;
-		}
-		*fr = 1;
-		fr++;
-	}
 	int32_t l = value.GetLength();
 	if(!l) {
 		return true;
@@ -494,31 +436,15 @@ bool NumericFieldType::get_binary_value(char* binary_value, bool null, const Str
 
 String NumericFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed) const
 {
-	char sym;
-	unsigned char* fr = (unsigned char*)rec;
-
-	if (getnull_exists()) {
-		if (fr[0] == 0) {
-			return EmptyNull ? "" : "{NULL}";
-		}
-		fr++;
-	}
-	BinaryDecimalNumber bdn(fr, length, precision, true);
+	BinaryDecimalNumber bdn(rec, length, precision, true);
 	return bdn.get_presentation();
 }
 
-String NumericFieldType::get_XML_presentation(char* rec, Table *parent, bool ignore_showGUID) const
+String NumericFieldType::get_XML_presentation(const char *rec, Table *parent, bool ignore_showGUID) const
 {
 	char sym;
 
 	unsigned char* fr = (unsigned char*)rec;
-
-	if (null_exists) {
-		if(fr[0] == 0) {
-			return "";
-		}
-		fr++;
-	}
 
 	TStringBuilder sb;
 	bool digitNotStarted = true; // признак, что значащие цифры еще не начались
@@ -563,18 +489,6 @@ uint32_t NumericFieldType::getSortKey(const char* rec, unsigned char* SortKey, i
 	if (!maxlen) {
 		throw SerializationException("Ошибка получения ключа сортировки поля. Нулевая длина буфера.")
 				.add_detail("Значение поля", get_fast_presentation(rec));
-	}
-
-	if (null_exists) {
-		if(*fr == 0) {
-			*(SortKey++) = 0;
-			isnull = true;
-		}
-		else *(SortKey++) = 1;
-
-		fr++;
-		maxl--;
-		addlen = 1;
 	}
 
 	if (isnull)
@@ -647,14 +561,6 @@ bool DatetimeFieldType::get_binary_value(char* binary_value, bool null, const St
 	unsigned char* fr = (unsigned char*)binary_value;
 	memset(fr, 0, len);
 
-	if (null_exists) {
-		if (null) {
-			return true;
-		}
-		*fr = 1;
-		fr++;
-	}
-
 	if (value.GetLength() < 19) {
 		fr[1] = 1;
 		fr[2] = 1;
@@ -669,28 +575,13 @@ bool DatetimeFieldType::get_binary_value(char* binary_value, bool null, const St
 
 String DatetimeFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed) const
 {
-	unsigned char* fr = (unsigned char*)rec;
-
-	if (getnull_exists()) {
-		if (fr[0] == 0) {
-			return EmptyNull ? "" : "{NULL}";
-		}
-		fr++;
-	}
-	return date_to_string(fr);
+	return date_to_string(rec);
 }
 
-String DatetimeFieldType::get_XML_presentation(char* rec, Table *parent, bool ignore_showGUID) const
+String DatetimeFieldType::get_XML_presentation(const char *rec, Table *parent, bool ignore_showGUID) const
 {
 
 	unsigned char* fr = (unsigned char*)rec;
-
-	if (null_exists) {
-		if(fr[0] == 0) {
-			return "";
-		}
-		fr++;
-	}
 
 	char *buf = new char[length*2]; // TODO: адовый костыль с утечкой памяти
 
@@ -738,18 +629,6 @@ uint32_t DatetimeFieldType::getSortKey(const char* rec, unsigned char* SortKey, 
 				.add_detail("Значение поля", get_fast_presentation(rec));
 	}
 
-	if (null_exists) {
-		if (*fr == 0) {
-			*(SortKey++) = 0;
-			isnull = true;
-		}
-		else *(SortKey++) = 1;
-
-		fr++;
-		maxl--;
-		addlen = 1;
-	}
-
 	if (len > maxlen) {
 		throw SerializationException("Ошибка получения ключа сортировки поля. Длина буфера меньше необходимой.")
 				.add_detail("Значение поля", get_fast_presentation(rec))
@@ -767,13 +646,6 @@ bool CommonFieldType::get_binary_value(char *binary_value, bool null, const Stri
 	unsigned char* fr = (unsigned char*)binary_value;
 	memset(fr, 0, len);
 
-	if (null_exists) {
-		if(null) {
-			return true;
-		}
-		*fr = 1;
-		fr++;
-	}
 	switch(type)
 	{
 
@@ -832,12 +704,6 @@ String CommonFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_
 
 	unsigned char* fr = (unsigned char*)rec;
 
-	if (getnull_exists()) {
-		if (fr[0] == 0) {
-			return EmptyNull ? "" : "{NULL}";
-		}
-		fr++;
-	}
 	char *buf = new char[length * 2]; // TODO: адовый костыль с утечкой памяти
 	switch(type)
 	{
@@ -877,7 +743,7 @@ String CommonFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_
 	return "{?}";
 }
 
-String CommonFieldType::get_XML_presentation(char* rec, Table *parent, bool ignore_showGUID) const
+String CommonFieldType::get_XML_presentation(const char *rec, Table *parent, bool ignore_showGUID) const
 {
 	int32_t i, j, m;
 
@@ -886,13 +752,6 @@ String CommonFieldType::get_XML_presentation(char* rec, Table *parent, bool igno
 	String s;
 
 	unsigned char* fr = (unsigned char*)rec;
-
-	if (null_exists) {
-		if (fr[0] == 0) {
-			return "";
-		}
-		fr++;
-	}
 
 	char *buf = new char[length*2]; // TODO: адовый костыль с утечкой памяти
 	switch(type)
@@ -959,16 +818,6 @@ uint32_t CommonFieldType::getSortKey(const char* rec, unsigned char* SortKey, in
 				.add_detail("Значение поля", get_fast_presentation(rec));
 	}
 
-	if (null_exists) {
-		if (*fr == 0) {
-			*(SortKey++) = 0;
-			isnull = true;
-		} else *(SortKey++) = 1;
-
-		fr++;
-		addlen = 1;
-	}
-
 	switch(type)
 	{
 		case type_fields::tf_bool:
@@ -995,7 +844,7 @@ uint32_t CommonFieldType::getSortKey(const char* rec, unsigned char* SortKey, in
 }
 
 
-field_type_declaration parse_field_type_declaration(tree *field_tree)
+field_type_declaration field_type_declaration::parse_tree(tree *field_tree)
 {
 	field_type_declaration type_declaration;
 
@@ -1067,9 +916,8 @@ FieldType *FieldType::Version8()
 	return new CommonFieldType(td);
 }
 
-FieldType *FieldType::parse_field_type(tree *field_tree)
+FieldType *FieldType::create_type_manager(const field_type_declaration &type_declaration)
 {
-	field_type_declaration type_declaration = parse_field_type_declaration(field_tree);
 	switch (type_declaration.type) {
 
 		case type_fields::tf_binary:

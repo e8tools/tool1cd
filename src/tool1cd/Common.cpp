@@ -333,7 +333,7 @@ String date_to_string1C(const unsigned char* bytedate)
 
 //---------------------------------------------------------------------------
 // char[7] -> dd.mm.yyyy hh:mm:ss
-String date_to_string(const unsigned char* bytedate)
+String date_to_string(const void *bytedate)
 {
 	BinaryDecimalDate bdd(bytedate);
 	return bdd.get_presentation();

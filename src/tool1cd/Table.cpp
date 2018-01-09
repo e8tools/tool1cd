@@ -553,7 +553,7 @@ void Table::init(int32_t block_descr)
 	{// добавляем скрытое поле версии
 		fld = new Field(this);
 		fld->name = "VERSION";
-		fld->type = FieldType::Version8();
+		fld->type_manager = FieldType::Version8();
 		fields.push_back(fld);
 	}
 
@@ -712,16 +712,16 @@ void Table::init(int32_t block_descr)
 	recordlen = 1; // первый байт записи - признак удаленности
 	// сначала идут поля (поле) с типом "версия"
 	for(i = 0; i < num_fields; i++) {
-		if (fields[i]->type->gettype() == type_fields::tf_version
-			|| fields[i]->type->gettype() == type_fields::tf_version8) {
+		if (fields[i]->type_manager->gettype() == type_fields::tf_version
+			|| fields[i]->type_manager->gettype() == type_fields::tf_version8) {
 			fields[i]->offset = recordlen;
 			recordlen += fields[i]->getlen();
 		}
 	}
 	// затем идут все остальные поля
 	for(i = 0; i < num_fields; i++) {
-		if (fields[i]->type->gettype() != type_fields::tf_version
-			&& fields[i]->type->gettype() != type_fields::tf_version8) {
+		if (fields[i]->type_manager->gettype() != type_fields::tf_version
+			&& fields[i]->type_manager->gettype() != type_fields::tf_version8) {
 			fields[i]->offset = recordlen;
 			recordlen += fields[i]->getlen();
 		}
@@ -1214,7 +1214,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 		s = fields[i]->getprecision();
 		f->Write(s.c_str(), s.GetLength());
 		f->Write(fpart5.c_str(), fpart5.GetLength());
-		if(fields[i]->type->gettype() == type_fields::tf_image) ic++;
+		if(fields[i]->type_manager->gettype() == type_fields::tf_image) ic++;
 	}
 
 	f->Write(part3.c_str(), part3.GetLength());
@@ -1255,7 +1255,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 			f->Write(us->c_str(), us->Length());
 			f->Write(">", 1);
 
-			if(blob_to_file && fields[i]->type->gettype() == type_fields::tf_image)
+			if(blob_to_file && fields[i]->type_manager->gettype() == type_fields::tf_image)
 			{
 				if(!dircreated) {
 					try
@@ -2308,7 +2308,7 @@ void Table::delete_record(uint32_t phys_numrecord)
 	for(i = 0; i < num_fields; i++)
 	{
 		f = fields[i];
-		tf = f->type->gettype();
+		tf = f->type_manager->gettype();
 		if(tf == type_fields::tf_image || tf == type_fields::tf_string || tf == type_fields::tf_text)
 		{
 			j = *(uint32_t*)(rec + f->offset);
@@ -2338,7 +2338,7 @@ void Table::insert_record(char* rec)
 	for(i = 0; i < num_fields; i++)
 	{
 		f = fields[i];
-		tf = f->type->gettype();
+		tf = f->type_manager->gettype();
 		offset = f->offset + (f->getnull_exists() ? 1 : 0);
 		switch(tf)
 		{
@@ -2414,7 +2414,7 @@ void Table::update_record(uint32_t phys_numrecord, char* rec, char* changed_fiel
 	for(i = 0; i < num_fields; i++)
 	{
 		f = fields[i];
-		tf = f->type->gettype();
+		tf = f->type_manager->gettype();
 		offset = f->offset + (f->getnull_exists() ? 1 : 0);
 		if(changed_fields[i])
 		{

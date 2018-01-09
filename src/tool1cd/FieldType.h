@@ -10,10 +10,20 @@
 
 class Table;
 
+struct field_type_declaration {
+	type_fields type {type_fields::tf_binary};
+	bool null_exists {false};
+	int32_t length {0};
+	int32_t precision {0};
+	bool case_sensitive {false};
+
+	static field_type_declaration parse_tree(tree *field_tree);
+};
+
+
 class FieldType {
 public:
 	virtual type_fields gettype() const = 0;
-	virtual bool getnull_exists() const = 0;
 	virtual int32_t getlength() const = 0;
 	virtual int32_t getlen() const = 0;
 	virtual int32_t getprecision() const = 0;
@@ -33,7 +43,7 @@ public:
 			const String &value) const = 0;
 
 	virtual String get_XML_presentation(
-			char* rec,
+			const char *rec,
 			Table *parent,
 			bool ignore_showGUID) const = 0;
 
@@ -43,7 +53,7 @@ public:
 			int32_t maxlen) const = 0;
 
 
-	static FieldType *parse_field_type(tree *field_tree);
+	static FieldType *create_type_manager(const field_type_declaration &type_declaration);
 	static FieldType *Version8();
 
 	// TODO: убрать это куда-нибудь

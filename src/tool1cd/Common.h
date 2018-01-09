@@ -18,7 +18,7 @@ bool two_hex_digits_to_byte(const wchar_t hi, const wchar_t lo, unsigned char& r
 bool string1C_to_date(const String& str, unsigned char* bytedate);
 bool string_to_date(const String& str, unsigned char* bytedate);
 String date_to_string1C(const unsigned char* bytedate);
-String date_to_string(const unsigned char* bytedate);
+String date_to_string(const void *bytedate);
 String hexstring(char* buf, int n);
 String hexstring(TStream* str);
 String toXML(String in);
