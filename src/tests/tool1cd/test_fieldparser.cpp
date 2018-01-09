@@ -88,8 +88,8 @@ TEST_CASE( "Проверка преобразований полей", "[tool1cd
 			fld->get_binary_value(buf, false, source);
 			String result = fld->get_presentation(buf);
 
-			THEN ("Получаем '10.9000'") {
-				REQUIRE (result == "10.9000");
+			THEN ("Получаем '10.9'") {
+				REQUIRE (result == "10.9");
 			}
 		}
 	}

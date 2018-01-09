@@ -133,7 +133,15 @@ std::string BinaryDecimalNumber::get_presentation() const
 	if (precision != 0) {
 		std::string frac = ".";
 		bool has_significant_digits = false;
-		for (int i = int_size; i < data.size(); i++) {
+		int max_significant_size = data.size();
+		while (max_significant_size > int_size) {
+			if (data[max_significant_size - 1] == 0) {
+				max_significant_size--;
+			} else {
+				break;
+			}
+		}
+		for (int i = int_size; i < max_significant_size; i++) {
 			if (data[i] != 0) {
 				has_significant_digits = true;
 			}
