@@ -200,12 +200,15 @@ BinaryDecimalDate::BinaryDecimalDate(const std::string &presentation, const std:
 {
 	std::map<char, std::vector<int> > indexes;
 	for (int i = 0; i < format.size(); i++) {
+		indexes.insert(std::make_pair(format[i], std::vector<int>()));
+	}
+	for (int i = 0; i < format.size(); i++) {
 		indexes.at(format[i]).push_back(i);
 	}
 	for (auto part : {'y', 'M', 'd', 'h', 'm', 's'}) {
 		for (auto i : indexes[part]) {
 			if (i < presentation.size()) {
-				data.push_back(presentation[i]);
+				data.push_back(presentation[i] - '0');
 			} else {
 				data.push_back(0);
 			}

@@ -320,15 +320,7 @@ bool string_to_date(const String &str, void *bytedate)
 String date_to_string1C(const void *bytedate)
 {
 	BinaryDecimalDate bdd(bytedate);
-	std::string result;
-	result += bdd.get_part(0, 4);
-	result += bdd.get_part(4, 2);
-	result += bdd.get_part(6, 2);
-	result += bdd.get_part(8, 2);
-	result += bdd.get_part(10, 2);
-	result += bdd.get_part(12, 2);
-	return result;
-
+	return bdd.get_part(0, 14);
 }
 
 //---------------------------------------------------------------------------
