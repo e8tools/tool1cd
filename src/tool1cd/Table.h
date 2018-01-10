@@ -108,7 +108,8 @@ public:
 	Table(T_1CD* _base, int32_t block_descr);
 	Table(T_1CD* _base, String _descr, int32_t block_descr = 0);
 	~Table();
-	void init(int32_t block_descr = 0);
+	void init();
+	void init(int32_t block_descr);
 
 	String getname();
 	String getdescription();
@@ -172,8 +173,7 @@ private:
 	String description;
 	String name;
 	int32_t num_fields;
-	int32_t num_fields2; // количество элементов в массиве fields
-	Field** fields;
+	std::vector<Field*> fields;
 	int32_t num_indexes;
 	Index** indexes;
 	bool recordlock;

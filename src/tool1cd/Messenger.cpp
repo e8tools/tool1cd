@@ -22,7 +22,7 @@ void Messenger::Status(const String& message)
 }
 
 //---------------------------------------------------------------------------
-void Messenger::AddMessage(const String& message, const MessageState mstate, TStringList* param)
+void Messenger::AddMessage(const String &message, const MessageState mstate, const TStringList *param)
 {
 	shared_ptr<ostream> output (&cerr, [](...){} );
 

@@ -79,26 +79,10 @@ bool Table::get_issystem()
 	return issystem;
 }
 
-//---------------------------------------------------------------------------
-void Table::init(int32_t block_descr)
+void Table::init()
 {
-	tree* t;
-	tree* f;
-	tree* ff;
-	tree* in;
-	tree* rt;
-	int32_t i, j, k;
-	uint32_t m;
-	uint64_t s;
-	String ws;
-	Index* ind;
-	int32_t numrec;
-	int32_t blockfile[3];
-	Field* fld;
-	uint32_t* buf;
-
 	num_fields = 0;
-	fields = nullptr;
+	fields.clear();
 	num_indexes = 0;
 	indexes = 0;
 	recordlock = false;
@@ -119,6 +103,25 @@ void Table::init(int32_t block_descr)
 	phys_numrecords = 0;
 	log_numrecords = 0;
 	bad = true;
+}
+
+//---------------------------------------------------------------------------
+void Table::init(int32_t block_descr)
+{
+	tree* t;
+	tree* f;
+	tree* in;
+	tree* rt;
+	int32_t i, j, k;
+	uint32_t m;
+	uint64_t s;
+	Index* ind;
+	int32_t numrec;
+	int32_t blockfile[3];
+	Field* fld;
+	uint32_t* buf;
+
+	init();
 
 	if(description.IsEmpty()) return;
 
@@ -218,10 +221,8 @@ void Table::init(int32_t block_descr)
 	}
 
 	num_fields = t->get_num_subnode() - 1;
-	num_fields2 = num_fields + 1; // добавляем лишнее поле на случай наличия скрытого поля версии
-	fields = new Field*[num_fields2];
+	fields.resize(num_fields);
 	bool has_version = false; // признак наличия поля версии
-	for(i = 0; i < num_fields2; i++) fields[i] = new Field(this);
 
 	f = t->get_first();
 	if(f->get_type() != node_type::nd_string)
@@ -262,144 +263,20 @@ void Table::init(int32_t block_descr)
 			return;
 		}
 
-		ff = f->get_first();
-		if(ff->get_type() != node_type::nd_string)
-		{
-			msreg_g.AddError("Ошибка получения имени поля таблицы. Узел не является строкой.",
-				"Блок", to_hex_string(block_descr),
-				"Таблица", name,
-				"Номер поля", i + 1);
-			deletefields();
-			init();
-			delete root;
-			return;
-		}
-		fld = fields[i];
-		fld->name = ff->get_value();
+		tree *field_tree = f->get_first();
+		try {
 
-		ff = ff->get_next();
-		if(ff->get_type() != node_type::nd_string)
-		{
-			msreg_g.AddError("Ошибка получения типа поля таблицы. Узел не является строкой.",
-				"Блок", to_hex_string(block_descr),
-				"Таблица", name,
-				"Поле", fld->name);
-			deletefields();
-			init();
-			delete root;
-			return;
-		}
-		ws = ff->get_value();
-		if(ws == "B") fld->type = type_fields::tf_binary;
-		else if(ws == "L") fld->type = type_fields::tf_bool;
-		else if(ws == "N") fld->type = type_fields::tf_numeric;
-		else if(ws == "NC") fld->type = type_fields::tf_char;
-		else if(ws == "NVC") fld->type = type_fields::tf_varchar;
-		else if(ws == "RV")
-		{
-			fld->type = type_fields::tf_version;
-			has_version = true;
-		}
-		else if(ws == "NT") fld->type = type_fields::tf_string;
-		else if(ws == "T") fld->type = type_fields::tf_text;
-		else if(ws == "I") fld->type = type_fields::tf_image;
-		else if(ws == "DT") fld->type = type_fields::tf_datetime;
-		else if(ws == "VB") fld->type = type_fields::tf_varbinary;
-		else
-		{
-			msreg_g.AddError("Неизвестный тип поля таблицы.",
-				"Блок", to_hex_string(block_descr),
-				"Таблица", name,
-				"Поле", fld->name,
-				"Тип поля", ws);
-			deletefields();
-			init();
-			delete root;
-			return;
-		}
+			fields[i] = Field::field_from_tree(field_tree, has_version, this);
 
-		ff = ff->get_next();
-		if(ff->get_type() != node_type::nd_number)
-		{
-			msreg_g.AddError("Ошибка получения признака NULL поля таблицы. Узел не является числом.",
-				"Блок", to_hex_string(block_descr),
-				"Таблица", name,
-				"Поле", fld->name,
-				"Тип поля", ws);
+		} catch (FieldStreamParseException &formatError) {
 			deletefields();
 			init();
 			delete root;
-			return;
-		}
-		ws = ff->get_value();
-		if(ws == "0") fld->null_exists = false;
-		else if(ws == "1") fld->null_exists = true;
-		else
-		{
-			msreg_g.AddError("Неизвестное значение признака NULL поля таблицы.",
-				"Блок", to_hex_string(block_descr),
-				"Таблица", name,
-				"Поле", fld->name,
-				"Признак NUL", ws);
-			deletefields();
-			init();
-			delete root;
-			return;
-		}
-
-		ff = ff->get_next();
-		if(ff->get_type() != node_type::nd_number)
-		{
-			msreg_g.AddError("Ошибка получения длины поля таблицы. Узел не является числом.",
-				"Блок", to_hex_string(block_descr),
-				"Таблица", name,
-				"Поле", fld->name);
-			deletefields();
-			init();
-			delete root;
-			return;
-		}
-		fld->length = StrToInt(ff->get_value());
-
-		ff = ff->get_next();
-		if(ff->get_type() != node_type::nd_number)
-		{
-			msreg_g.AddError("Ошибка получения точности поля таблицы. Узел не является числом.",
-				"Блок", to_hex_string(block_descr),
-				"Таблица", name,
-				"Поле", fld->name);
-			deletefields();
-			init();
-			delete root;
-			return;
-		}
-		fld->precision = StrToInt(ff->get_value());
-
-		ff = ff->get_next();
-		if(ff->get_type() != node_type::nd_string)
-		{
-			msreg_g.AddError("Ошибка получения регистрочувствительности поля таблицы. Узел не является строкой.",
-				"Блок", to_hex_string(block_descr),
-				"Таблица", name,
-				"Поле", fld->name);
-			deletefields();
-			init();
-			delete root;
-			return;
-		}
-		ws = ff->get_value();
-		if(ws == "CS") fld->case_sensitive = true;
-		else if(ws == "CI") fld->case_sensitive = false;
-		else
-		{
-			msreg_g.AddError("Неизвестное значение регистрочувствительности поля таблицы.",
-				"Блок", to_hex_string(block_descr),
-				"Таблица", name,
-				"Поле", fld->name,
-				"Регистрочувствительность", ws);
-			deletefields();
-			init();
-			delete root;
+			/*throw */formatError
+					.add_detail("Блок", to_hex_string(block_descr))
+					.add_detail("Таблица", name)
+					.add_detail("Номер поля", i + 1)
+					.show();
 			return;
 		}
 	}
@@ -489,8 +366,8 @@ void Table::init(int32_t block_descr)
 				return;
 			}
 
-			ff = f->get_first();
-			if(ff->get_type() != node_type::nd_string)
+			tree *index_tree = f->get_first();
+			if(index_tree->get_type() != node_type::nd_string)
 			{
 				msreg_g.AddError("Ошибка получения имени индекса таблицы. Узел не является строкой.",
 					"Блок", to_hex_string(block_descr),
@@ -502,10 +379,10 @@ void Table::init(int32_t block_descr)
 				delete root;
 				return;
 			}
-			ind->name = ff->get_value();
+			ind->name = index_tree->get_value();
 
-			ff = ff->get_next();
-			if(ff->get_type() != node_type::nd_number)
+			index_tree = index_tree->get_next();
+			if(index_tree->get_type() != node_type::nd_number)
 			{
 				msreg_g.AddError("Ошибка получения типа индекса таблицы. Узел не является числом.",
 					"Блок", to_hex_string(block_descr),
@@ -517,16 +394,15 @@ void Table::init(int32_t block_descr)
 				delete root;
 				return;
 			}
-			ws = ff->get_value();
-			if(ws == "0") ind->is_primary = false;
-			else if(ws == "1") ind->is_primary = true;
-			else
-			{
+			String sIsPrimaryIndex = index_tree->get_value();
+			if     (sIsPrimaryIndex == "0") ind->is_primary = false;
+			else if(sIsPrimaryIndex == "1") ind->is_primary = true;
+			else {
 				msreg_g.AddError("Неизвестный тип индекса таблицы.",
 					"Блок", to_hex_string(block_descr),
 					"Таблица", name,
 					"Индекс", ind->name,
-					"Тип индекса", ws);
+					"Тип индекса", sIsPrimaryIndex);
 				deletefields();
 				deleteindexes();
 				init();
@@ -537,15 +413,15 @@ void Table::init(int32_t block_descr)
 			ind->records = new index_record[numrec];
 			for(j = 0; j < numrec; j++)
 			{
-				ff = ff->get_next();
-				if(ff->get_num_subnode() != 2)
+				index_tree = index_tree->get_next();
+				if(index_tree->get_num_subnode() != 2)
 				{
 					msreg_g.AddError("Ошибка получения очередного поля индекса таблицы. Количество узлов поля не равно 2.",
 						"Блок", to_hex_string(block_descr),
 						"Таблица", name,
 						"Индекс", ind->name,
 						"Номер поля индекса", j + 1,
-						"Узлов", ff->get_num_subnode());
+						"Узлов", index_tree->get_num_subnode());
 					deletefields();
 					deleteindexes();
 					init();
@@ -553,7 +429,7 @@ void Table::init(int32_t block_descr)
 					return;
 				}
 
-				in = ff->get_first();
+				in = index_tree->get_first();
 				if(in->get_type() != node_type::nd_string)
 				{
 					msreg_g.AddError("Ошибка получения имени поля индекса таблицы. Узел не является строкой.",
@@ -568,22 +444,19 @@ void Table::init(int32_t block_descr)
 					return;
 				}
 
-				ws = in->get_value();
-				for(k = 0; k < num_fields; k++)
-				{
-					if(fields[k]->name == ws)
-					{
+				String field_name = in->get_value();
+				for(k = 0; k < num_fields; k++) {
+					if(fields[k]->name == field_name) {
 						ind->records[j].field = fields[k];
 						break;
 					}
 				}
-				if(k >= num_fields)
-				{
+				if(k >= num_fields) {
 					msreg_g.AddError("Ошибка получения индекса таблицы. Не найдено поле таблицы по имени поля индекса.",
 						"Блок", to_hex_string(block_descr),
 						"Таблица", name,
 						"Индекс", ind->name,
-						"Поле индекса", ws);
+						"Поле индекса", field_name);
 					deletefields();
 					deleteindexes();
 					init();
@@ -592,13 +465,12 @@ void Table::init(int32_t block_descr)
 				}
 
 				in = in->get_next();
-				if(in->get_type() != node_type::nd_number)
-				{
+				if(in->get_type() != node_type::nd_number) {
 					msreg_g.AddError("Ошибка получения длины поля индекса таблицы. Узел не является числом.",
 						"Блок", to_hex_string(block_descr),
 						"Таблица", name,
 						"Индекс", ind->name,
-						"Поле индекса", ws);
+						"Поле индекса", field_name);
 					deletefields();
 					deleteindexes();
 					init();
@@ -661,15 +533,15 @@ void Table::init(int32_t block_descr)
 		delete root;
 		return;
 	}
-	ws = f->get_value();
-	if(ws == "0") recordlock = false;
-	else if(ws == "1") recordlock = true;
+	String sTableLock = f->get_value();
+	if     (sTableLock == "0") recordlock = false;
+	else if(sTableLock == "1") recordlock = true;
 	else
 	{
 		msreg_g.AddError("Неизвестное значение типа блокировки таблицы.",
 			"Блок", to_hex_string(block_descr),
 			"Таблица", name,
-			"Тип блокировки", ws);
+			"Тип блокировки", sTableLock);
 		deletefields();
 		deleteindexes();
 		init();
@@ -679,9 +551,10 @@ void Table::init(int32_t block_descr)
 
 	if(recordlock && !has_version)
 	{// добавляем скрытое поле версии
-		fld = fields[num_fields++];
+		fld = new Field(this);
 		fld->name = "VERSION";
-		fld->type = type_fields::tf_version8;
+		fld->type_manager = FieldType::Version8();
+		fields.push_back(fld);
 	}
 
 	t = t->get_next();
@@ -838,16 +711,20 @@ void Table::init(int32_t block_descr)
 	// вычисляем длину записи таблицы как сумму длинн полей и проставим смещения полей в записи
 	recordlen = 1; // первый байт записи - признак удаленности
 	// сначала идут поля (поле) с типом "версия"
-	for(i = 0; i < num_fields; i++) if(fields[i]->type == type_fields::tf_version || fields[i]->type == type_fields::tf_version8)
-	{
-		fields[i]->offset = recordlen;
-		recordlen += fields[i]->getlen();
+	for(i = 0; i < num_fields; i++) {
+		if (fields[i]->type_manager->gettype() == type_fields::tf_version
+			|| fields[i]->type_manager->gettype() == type_fields::tf_version8) {
+			fields[i]->offset = recordlen;
+			recordlen += fields[i]->getlen();
+		}
 	}
 	// затем идут все остальные поля
-	for(i = 0; i < num_fields; i++) if(fields[i]->type != type_fields::tf_version && fields[i]->type != type_fields::tf_version8)
-	{
-		fields[i]->offset = recordlen;
-		recordlen += fields[i]->getlen();
+	for(i = 0; i < num_fields; i++) {
+		if (fields[i]->type_manager->gettype() != type_fields::tf_version
+			&& fields[i]->type_manager->gettype() != type_fields::tf_version8) {
+			fields[i]->offset = recordlen;
+			recordlen += fields[i]->getlen();
+		}
 	}
 	if(recordlen < 5) recordlen = 5; // Длина одной записи не может быть меньше 5 байт (1 байт признак, что запись свободна, 4 байт - индекс следующей следующей свободной записи)
 
@@ -921,12 +798,7 @@ Table::Table()
 //---------------------------------------------------------------------------
 void Table::deletefields()
 {
-	int32_t i;
-	if(fields)
-	{
-		for(i = 0; i < num_fields2; i++) delete fields[i];
-		delete[] fields;
-	}
+	fields.clear();
 }
 
 //---------------------------------------------------------------------------
@@ -1342,7 +1214,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 		s = fields[i]->getprecision();
 		f->Write(s.c_str(), s.GetLength());
 		f->Write(fpart5.c_str(), fpart5.GetLength());
-		if(fields[i]->type == type_fields::tf_image) ic++;
+		if(fields[i]->type_manager->gettype() == type_fields::tf_image) ic++;
 	}
 
 	f->Write(part3.c_str(), part3.GetLength());
@@ -1383,7 +1255,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 			f->Write(us->c_str(), us->Length());
 			f->Write(">", 1);
 
-			if(blob_to_file && fields[i]->type == type_fields::tf_image)
+			if(blob_to_file && fields[i]->type_manager->gettype() == type_fields::tf_image)
 			{
 				if(!dircreated) {
 					try
@@ -1752,7 +1624,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 	fld = fields[numfield];
 	tf = fld->gettype();
 	if(tf == type_fields::tf_version || tf == type_fields::tf_version8) return;
-	if(null && !fld->null_exists) return;
+	if(null && !fld->getnull_exists()) return;
 
 	rec = new char[recordlen];
 	fldvalue = new char[fld->getlen()];
@@ -1761,14 +1633,14 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 	{
 		memset(fldvalue, 0, fld->getlen());
 		k = fldvalue;
-		if(fld->null_exists)
+		if(fld->getnull_exists())
 		{
 			if(!null && st) *k = 1;
 			k++;
 		}
 		*(TStream**)k = st;
 	}
-	else fld->get_bynary_value(fldvalue, null, value);
+	else fld->get_binary_value(fldvalue, null, value);
 
 	changed = true;
 	if(phys_numrecord < phys_numrecords)
@@ -2436,7 +2308,7 @@ void Table::delete_record(uint32_t phys_numrecord)
 	for(i = 0; i < num_fields; i++)
 	{
 		f = fields[i];
-		tf = f->type;
+		tf = f->type_manager->gettype();
 		if(tf == type_fields::tf_image || tf == type_fields::tf_string || tf == type_fields::tf_text)
 		{
 			j = *(uint32_t*)(rec + f->offset);
@@ -2466,7 +2338,7 @@ void Table::insert_record(char* rec)
 	for(i = 0; i < num_fields; i++)
 	{
 		f = fields[i];
-		tf = f->type;
+		tf = f->type_manager->gettype();
 		offset = f->offset + (f->getnull_exists() ? 1 : 0);
 		switch(tf)
 		{
@@ -2542,7 +2414,7 @@ void Table::update_record(uint32_t phys_numrecord, char* rec, char* changed_fiel
 	for(i = 0; i < num_fields; i++)
 	{
 		f = fields[i];
-		tf = f->type;
+		tf = f->type_manager->gettype();
 		offset = f->offset + (f->getnull_exists() ? 1 : 0);
 		if(changed_fields[i])
 		{

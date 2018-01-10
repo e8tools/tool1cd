@@ -20,7 +20,7 @@ class IMessageRegistration
 {
 public:
 	virtual ~IMessageRegistration() {}
-	virtual void AddMessage(const String& description, const MessageState mstate, TStringList* param = nullptr) = 0;
+	virtual void AddMessage(const String &description, const MessageState mstate, const TStringList *param = nullptr) = 0;
 	virtual void Status(const String& message) = 0;
 	virtual void AddError(const String& description) = 0;
 	virtual void AddError(const String& description,
@@ -167,7 +167,7 @@ public:
 	virtual ~MessageRegistrator();
 	void setDebugMode(bool dstate);
 	bool getDebugMode();
-	virtual void AddMessage(const String& description, const MessageState mstate, TStringList* param = nullptr) override = 0;
+	virtual void AddMessage(const String &description, const MessageState mstate, const TStringList *param = nullptr) override = 0;
 	virtual void Status(const String& message) override = 0;
 	void AddError(const String& description) override;
 	void AddError(const String& description,
@@ -317,7 +317,7 @@ class Registrator: public IMessageRegistration, public IControlMessageRegistrati
 {
 public:
 	inline void AddMessage(const String& description, const MessageState mstate,
-					TStringList* param = nullptr);
+					const TStringList* param = nullptr);
 	inline void Status(const String& message);
 	inline void AddError(const String& description);
 	inline void AddError(const String& description,
@@ -453,7 +453,7 @@ private:
 
 
 inline void Registrator::AddMessage(const String& description, const MessageState mstate,
-				TStringList* param) {
+				const TStringList* param) {
 	if(msreg_m) {
 		msreg_m->AddMessage(description, mstate, param);
 	}

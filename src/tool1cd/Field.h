@@ -11,6 +11,8 @@
 #include "Common.h"
 #include "Class_1CD.h"
 #include "Constants.h"
+#include "DetailedException.h"
+#include "FieldType.h"
 
 class Table;
 class T_1CD;
@@ -20,7 +22,6 @@ class Field
 friend Table;
 friend T_1CD;
 public:
-	static bool showGUID;
 
 	Field(Table* _parent);
 
@@ -34,9 +35,9 @@ public:
 			bool ignore_showGUID = false,
 			bool detailed = false) const;
 
-	String get_XML_presentation(char* rec, bool ignore_showGUID = false) const;
+	String get_XML_presentation(const char *rec, bool ignore_showGUID = false) const;
 
-	bool get_bynary_value(char* buf, bool null, String& value) const;
+	bool get_binary_value(char *buf, bool null, const String &value) const;
 	type_fields gettype() const;
 	Table* getparent() const;
 	bool getnull_exists() const;
@@ -50,18 +51,18 @@ public:
 private:
 	String name;
 	type_fields type;
-	bool null_exists;
-	int32_t length;
-	int32_t precision;
-	bool case_sensitive;
+	bool null_exists {false};
+	FieldType *type_manager;
 
 	Table* parent;
 	mutable int32_t len; // длина поля в байтах
 	int32_t offset; // смещение поля в записи
-	static bool showGUIDasMS; // Признак, что GUID надо преобразовывать по стилю MS (иначе по стилю 1С)
 	static char buf[];
 	static char null_index[];
 	static bool null_index_initialized;
+
+public:
+	static Field *field_from_tree(tree *field_tree, bool &has_version, Table *parent);
 };
 
 #endif /* SRC_CTOOL1CD_FIELD_H_ */
