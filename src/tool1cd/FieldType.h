@@ -37,10 +37,7 @@ public:
 			bool ignore_showGUID,
 			bool detailed) const = 0;
 
-	virtual bool get_binary_value(
-			char *buf,
-			bool null,
-			const String &value) const = 0;
+	virtual bool get_binary_value(char *buf, const String &value) const = 0;
 
 	virtual String get_XML_presentation(
 			const char *rec,

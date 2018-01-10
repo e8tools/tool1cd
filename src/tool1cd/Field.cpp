@@ -73,7 +73,7 @@ bool Field::get_binary_value(char *binary_value, bool null, const String &value)
 		*binary_value = 1;
 		binary_value++;
 	}
-	return type_manager->get_binary_value(binary_value, null, value);
+	return type_manager->get_binary_value(binary_value, value);
 }
 
 //---------------------------------------------------------------------------
@@ -148,13 +148,13 @@ String TrimSpacesRight(String s)
 uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen) const
 {
 	const char *fr = rec + offset;
-	bool isnull = false;
 	if (null_exists) {
 		if (*fr == 0) {
 			*(SortKey++) = 0;
-			isnull = true;
+			memcpy(SortKey, (void *)null_index, len);
+			return 0;
 		}
-		else *(SortKey++) = 1;
+		*(SortKey++) = 1;
 
 		fr++;
 	}
