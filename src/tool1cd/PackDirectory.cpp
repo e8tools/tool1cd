@@ -9,6 +9,7 @@
 
 #include "PackDirectory.h"
 #include "Common.h"
+#include "DetailedException.h"
 
 PackDirectory::PackDirectory() {
 
@@ -23,8 +24,10 @@ PackDirectory::~PackDirectory() {
 
 void PackDirectory::init(boost::filesystem::path& init_path) {
 	boost::filesystem::path subpath = init_path / "data" / "pack";
-	if(!directory_exists(subpath)){
-		throw std::exception(); // FIXME: реализовать свой класс исключения
+	if(!directory_exists(subpath)) {
+		DetailedException error("Не найден необходимый каталог `./data/pack`");
+		error.add_detail("Каталог", subpath.string());
+		throw error;
 	}
 	std::regex pack_mask("pack-.*\\.ind");
 	boost::filesystem::directory_iterator dit(subpath), dend;
