@@ -2347,10 +2347,7 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 	}
 
 	fld = table_versions->get_field("VERNUM");
-	if(!fld) return 0;
-
 	ind = table_versions->get_index("PK");
-	if(!ind) return 0;
 
 	i = ind->get_numrecords();
 	if(i <= (uint32_t)(-ver))
@@ -2492,7 +2489,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	// Получаем версию хранилища
 	fldd_rootobjid = table_depot->get_field("ROOTOBJID");
-	if(!fldd_rootobjid) return false;
 
 	rec = new char[table_depot->get_recordlen()];
 	ok = false;
@@ -2528,16 +2524,12 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	// Ищем строку с номером версии конфигурации
 
 	fldv_vernum = table_versions->get_field("VERNUM");
-	if(!fldv_vernum) return false;
 	if(depotVer >= depot_ver::Ver5)
 	{
 		fldv_cversion = table_versions->get_field("CVERSION");
-		if(!fldv_cversion) return false;
 	}
 	fldv_snapshotcrc = table_versions->get_field("SNAPSHOTCRC");
-	if(!fldv_snapshotcrc) return false;
 	fldv_snapshotmaker = table_versions->get_field("SNAPSHOTMAKER");
-	if(!fldv_snapshotmaker) return false;
 
 	rec = new char[table_versions->get_recordlen()];
 	ok = false;
@@ -2690,40 +2682,26 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	// Инициализируем таблицы HISTORY и EXTERNALS
 
-	fldh_objid = table_history->get_field("OBJID");
-	if(!fldh_objid) return false;
-	fldh_vernum = table_history->get_field("VERNUM");
-	if(!fldh_vernum) return false;
-	fldh_objverid = table_history->get_field("OBJVERID");
-	if(!fldh_objverid) return false;
-	fldh_removed = table_history->get_field("REMOVED");
-	if(!fldh_removed) return false;
+	fldh_objid      = table_history->get_field("OBJID");
+	fldh_vernum     = table_history->get_field("VERNUM");
+	fldh_objverid   = table_history->get_field("OBJVERID");
+	fldh_removed    = table_history->get_field("REMOVED");
 	fldh_datapacked = table_history->get_field("DATAPACKED");
-	if(!fldh_datapacked) return false;
-	fldh_objdata = table_history->get_field("OBJDATA");
-	if(!fldh_objdata) return false;
+	fldh_objdata    = table_history->get_field("OBJDATA");
 
-	flde_objid = table_externals->get_field("OBJID");
-	if(!flde_objid) return false;
-	flde_vernum = table_externals->get_field("VERNUM");
-	if(!flde_vernum) return false;
-	flde_extname = table_externals->get_field("EXTNAME");
-	if(!flde_extname) return false;
-	flde_extverid = table_externals->get_field("EXTVERID");
-	if(!flde_extverid) return false;
+	flde_objid      = table_externals->get_field("OBJID");
+	flde_vernum     = table_externals->get_field("VERNUM");
+	flde_extname    = table_externals->get_field("EXTNAME");
+	flde_extverid   = table_externals->get_field("EXTVERID");
 	flde_datapacked = table_externals->get_field("DATAPACKED");
-	if(!flde_datapacked) return false;
-	flde_extdata = table_externals->get_field("EXTDATA");
-	if(!flde_extdata) return false;
+	flde_extdata    = table_externals->get_field("EXTDATA");
 
 	boost::filesystem::path objects_path;
 
-	if(depotVer >= depot_ver::Ver6)
+	if (depotVer >= depot_ver::Ver6)
 	{
 		fldh_datahash = table_history->get_field("DATAHASH");
-		if(!fldh_datahash) return false;
 		flde_datahash = table_externals->get_field("DATAHASH");
-		if(!flde_datahash) return false;
 
 		boost::filesystem::path root_dir = root_path.parent_path();
 		try {
@@ -2744,9 +2722,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	}
 
 	index_history = table_history->get_index("PK");
-	if(!index_history) return false;
 	index_externals = table_externals->get_index("PK");
-	if(!index_externals) return false;
 
 	rech1 = new char[table_history->get_recordlen()];
 	rech2 = new char[table_history->get_recordlen()];
@@ -3273,16 +3249,12 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	}
 
 	fldv_vernum = table_versions->get_field("VERNUM");
-	if(!fldv_vernum) return false;
 	if(depotVer >= depot_ver::Ver5)
 	{
 		fldv_cversion = table_versions->get_field("CVERSION");
-		if(!fldv_cversion) return false;
 	}
 	fldv_snapshotcrc = table_versions->get_field("SNAPSHOTCRC");
-	if(!fldv_snapshotcrc) return false;
 	fldv_snapshotmaker = table_versions->get_field("SNAPSHOTMAKER");
-	if(!fldv_snapshotmaker) return false;
 
 	rec = new char[table_versions->get_recordlen()];
 	n = 0;
@@ -3344,40 +3316,26 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		return false;
 	}
 
-	fldh_objid = table_history->get_field("OBJID");
-	if(!fldh_objid) return false;
-	fldh_vernum = table_history->get_field("VERNUM");
-	if(!fldh_vernum) return false;
-	fldh_objverid = table_history->get_field("OBJVERID");
-	if(!fldh_objverid) return false;
-	fldh_removed = table_history->get_field("REMOVED");
-	if(!fldh_removed) return false;
+	fldh_objid      = table_history->get_field("OBJID");
+	fldh_vernum     = table_history->get_field("VERNUM");
+	fldh_objverid   = table_history->get_field("OBJVERID");
+	fldh_removed    = table_history->get_field("REMOVED");
 	fldh_datapacked = table_history->get_field("DATAPACKED");
-	if(!fldh_datapacked) return false;
-	fldh_objdata = table_history->get_field("OBJDATA");
-	if(!fldh_objdata) return false;
+	fldh_objdata    = table_history->get_field("OBJDATA");
 
-	flde_objid = table_externals->get_field("OBJID");
-	if(!flde_objid) return false;
-	flde_vernum = table_externals->get_field("VERNUM");
-	if(!flde_vernum) return false;
-	flde_extname = table_externals->get_field("EXTNAME");
-	if(!flde_extname) return false;
-	flde_extverid = table_externals->get_field("EXTVERID");
-	if(!flde_extverid) return false;
+	flde_objid      = table_externals->get_field("OBJID");
+	flde_vernum     = table_externals->get_field("VERNUM");
+	flde_extname    = table_externals->get_field("EXTNAME");
+	flde_extverid   = table_externals->get_field("EXTVERID");
 	flde_datapacked = table_externals->get_field("DATAPACKED");
-	if(!flde_datapacked) return false;
-	flde_extdata = table_externals->get_field("EXTDATA");
-	if(!flde_extdata) return false;
+	flde_extdata    = table_externals->get_field("EXTDATA");
 
 	boost::filesystem::path objects_path;
 
 	if(depotVer >= depot_ver::Ver6)
 	{
 		fldh_datahash = table_history->get_field("DATAHASH");
-		if(!fldh_datahash) return false;
 		flde_datahash = table_externals->get_field("DATAHASH");
-		if(!flde_datahash) return false;
 
 		boost::filesystem::path root_dir = root_path.parent_path();
 		try {
@@ -3398,9 +3356,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	}
 
 	indh = table_history->get_index("PK");
-	if(!indh) return 0;
 	inde = table_externals->get_index("PK");
-	if(!inde) return 0;
 
 	rech = new char[table_history->get_recordlen()];
 	rech1 = new char[table_history->get_recordlen()];
@@ -4111,25 +4067,23 @@ String T_1CD::pagemaprec_presentation(pagemaprec& pmr)
 
 depot_ver T_1CD::get_depot_version(const char *record)
 {
-	depot_ver depotVer = depot_ver::UnknownVer;
-
 	Field* fldd_depotver = table_depot->get_field("DEPOTVER");
-
-	if(!fldd_depotver) {
-		return depotVer;
-	}
-
 	String Ver = fldd_depotver->get_presentation(record, true);
 
-	if(Ver.CompareIC("0300000000000000") == 0) { depotVer = depot_ver::Ver3; }
-	else if(Ver.CompareIC("0500000000000000") == 0) { depotVer = depot_ver::Ver5; }
-	else if(Ver.CompareIC("0600000000000000") == 0) { depotVer = depot_ver::Ver6; }
-	else if(Ver.CompareIC("0700000000000000") == 0) { depotVer = depot_ver::Ver7; }
-	else {
-		depotVer = depot_ver::UnknownVer;
-		msreg_m.AddMessage_("Неизвестная версия хранилища", MessageState::Error,
-				"Версия хранилища", Ver);
+	if (Ver.CompareIC("0300000000000000") == 0) {
+		return depot_ver::Ver3;
+	}
+	if (Ver.CompareIC("0500000000000000") == 0) {
+		return depot_ver::Ver5;
+	}
+	if (Ver.CompareIC("0600000000000000") == 0) {
+		return depot_ver::Ver6;
+	}
+	if (Ver.CompareIC("0700000000000000") == 0) {
+		return depot_ver::Ver7;
 	}
 
-	return depotVer;
+	DetailedException error("Неизвестная версия хранилища!");
+	error.add_detail("Версия хранилища", Ver);
+	throw error;
 }

@@ -163,8 +163,10 @@ public:
 	void update_record(uint32_t phys_numrecord, char* rec, char* changed_fields); // изменение записи
 	char* get_record_template_test();
 
-	Field* get_field(const String& fieldname);
-	Index* get_index(const String& indexname);
+	Field* get_field (const String &fieldname);
+	Field* find_field(const String &fieldname) throw();
+	Index* get_index (const String& indexname);
+	Index* find_index(const String& indexname) throw();
 
 private:
 	T_1CD* base;

@@ -2707,45 +2707,51 @@ String Table::get_file_name_for_record(char* rec)
 	return s;
 }
 
-Field* Table::get_field(const String& fieldname)
+Field* Table::get_field(const String &fieldname)
 {
-	Field* fld =  nullptr;
+	Field* fld = find_field(fieldname);
+	if (fld) {
+		return fld;
+	}
+	DetailedException error("Поле не найдено!");
+	error.add_detail("Имя поля", fieldname);
+	error.add_detail("Таблица", name);
+	throw error;
+}
 
-	for (int32_t j = 0; j < num_fields; j++)
-	{
-		fld = fields[j];
+Field* Table::find_field(const String &fieldname) throw()
+{
+	for (int32_t j = 0; j < num_fields; j++) {
+		Field* fld = fields[j];
 		if (fld->getname().CompareIC(fieldname) == 0) {
 			return fld;
 		}
 	}
 
-	String s = "В таблице ";
-	s += name;
-	s += " не найдено поле ";
-	s += fieldname;
-	s += ".";
-	msreg_g.AddError(s);
-
-	return fld;
+	return nullptr;
 }
 
 Index* Table::get_index(const String& indexname)
 {
-	Index* ind = nullptr;
+	Index* ind = find_index(indexname);
+	if (ind) {
+		return ind;
+	}
 
+	DetailedException error("Индекс не найден!");
+	error.add_detail("Имя индекса", indexname);
+	error.add_detail("Таблица", name);
+	throw error;
+}
+
+Index* Table::find_index(const String& indexname) throw()
+{
 	for (int32_t j = 0; j < num_indexes; j++) {
-		ind = indexes[j];
+		Index* ind = indexes[j];
 		if (ind->getname().CompareIC(indexname) == 0) {
 			return ind;
 		}
 	}
 
-	String s = "В таблице ";
-	s += name;
-	s += " не найден индекс ";
-	s += indexname;
-	s += ".";
-	msreg_g.AddError(s);
-
-	return ind;
+	return nullptr;
 }
