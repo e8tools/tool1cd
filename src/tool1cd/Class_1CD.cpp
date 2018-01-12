@@ -2322,56 +2322,37 @@ void T_1CD::find_and_save_lost_objects(boost::filesystem::path &lost_objects)
 // Если не удалось получить версию, возвращается 0, иначе возвращается положительное число
 int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
 {
-	char* rec;
-	Index* ind;
-	Field* fld;
-	uint32_t i;
-	int32_t v;
-	String s;
-
-	if(!is_open()) return 0;
-
-	if(!is_depot)
-	{
-		msreg_m.AddError("База не является хранилищем конфигурации.");
-		return 0;
+	if (ver > 0) {
+		return ver;
 	}
 
-	if(ver > 0) return ver;
+	assert_i_am_a_repository();
 
-	// Определяем номер последней версии конфигурации
-	if(!table_versions)
-	{
-		msreg_m.AddError("В базе хранилища отсутствует таблица VERSIONS.");
-		return 0;
-	}
+	Field *fld = table_versions->get_field("VERNUM");
+	Index *ind = table_versions->get_index("PK");
 
-	fld = table_versions->get_field("VERNUM");
-	ind = table_versions->get_index("PK");
-
-	i = ind->get_numrecords();
-	if(i <= (uint32_t)(-ver))
-	{
-		msreg_m.AddMessage_("Запрошенной версии конфигурации не существует", MessageState::Error,
-			"Всего версий в хранилище", i,
-			"Запрошенный номер версии", ver);
-		return 0;
+	int32_t i = ind->get_numrecords();
+	if (i <= (uint32_t)(-ver)) {
+		DetailedException error("Запрошенной версии конфигурации не существует");
+		error.add_detail("Всего версий в хранилище", i);
+		error.add_detail("Запрошенный номер версии", ver);
+		throw error;
 	}
 	i = ind->get_numrec(i + ver - 1);
 
-	rec = new char[table_versions->get_recordlen()];
+	char *rec = new char[table_versions->get_recordlen()];
 	table_versions->getrecord(i, rec);
-	s = fld->get_presentation(rec, true);
+	String version_presentation = fld->get_presentation(rec, true);
 	delete[] rec;
-	v = s.ToIntDef(0);
-	if(!v)
-	{
-		msreg_m.AddMessage_("Не удалось получить реальный номер версии запрошенной конфигурации.", MessageState::Error,
-			"Запрошенный номер версии", ver);
-		return 0;
+
+	int32_t version = version_presentation.ToIntDef(0);
+	if (!version) {
+		DetailedException error("Не удалось получить реальный номер версии запрошенной конфигурации.");
+		error.add_detail("Запрошенный номер версии", ver);
+		throw error;
 	}
 
-	return v;
+	return version;
 }
 
 void T_1CD::assert_i_am_a_repository()
@@ -2413,16 +2394,9 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	Field* fldd_rootobjid;
 
 	Field* fldv_vernum;
-	Field* fldv_cversion;
 	Field* fldv_snapshotcrc;
 	Field* fldv_snapshotmaker;
 
-	Field* fldh_objid;
-	Field* fldh_vernum;
-	Field* fldh_objverid;
-	Field* fldh_removed;
-	Field* fldh_datapacked;
-	Field* fldh_objdata;
 	Field* fldh_datahash;
 	Index* index_history;
 	char* rech1;
@@ -2432,12 +2406,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	char curobj[16];
 	uint32_t ih, nh;
 
-	Field* flde_objid;
-	Field* flde_vernum;
-	Field* flde_extname;
-	Field* flde_extverid;
-	Field* flde_datapacked;
-	Field* flde_extdata;
 	Field* flde_datahash;
 	Index* index_externals;
 	char* rece;
@@ -2510,10 +2478,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	}
 
 	depotVer = get_depot_version(rec);
-	if(depotVer == depot_ver::UnknownVer) {
-		delete[] rec;
-		return false;
-	}
 
 	memcpy(rootobj, rec + fldd_rootobjid->offset, 16);
 	delete[] rec;
@@ -2524,10 +2488,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	// Ищем строку с номером версии конфигурации
 
 	fldv_vernum = table_versions->get_field("VERNUM");
-	if(depotVer >= depot_ver::Ver5)
-	{
-		fldv_cversion = table_versions->get_field("CVERSION");
-	}
 	fldv_snapshotcrc = table_versions->get_field("SNAPSHOTCRC");
 	fldv_snapshotmaker = table_versions->get_field("SNAPSHOTMAKER");
 
@@ -2661,6 +2621,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	// Определяем версию структуры конфигурации (для файла version)
 	if(depotVer >= depot_ver::Ver5)
 	{
+		Field *fldv_cversion = table_versions->get_field("CVERSION");
 		frec = rec + fldv_cversion->offset;
 		cv_b[0] = frec[1];
 		cv_b[1] = frec[0];
@@ -2682,19 +2643,19 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	// Инициализируем таблицы HISTORY и EXTERNALS
 
-	fldh_objid      = table_history->get_field("OBJID");
-	fldh_vernum     = table_history->get_field("VERNUM");
-	fldh_objverid   = table_history->get_field("OBJVERID");
-	fldh_removed    = table_history->get_field("REMOVED");
-	fldh_datapacked = table_history->get_field("DATAPACKED");
-	fldh_objdata    = table_history->get_field("OBJDATA");
+	Field *fldh_objid      = table_history->get_field("OBJID");
+	Field *fldh_vernum     = table_history->get_field("VERNUM");
+	Field *fldh_objverid   = table_history->get_field("OBJVERID");
+	Field *fldh_removed    = table_history->get_field("REMOVED");
+	Field *fldh_datapacked = table_history->get_field("DATAPACKED");
+	Field *fldh_objdata    = table_history->get_field("OBJDATA");
 
-	flde_objid      = table_externals->get_field("OBJID");
-	flde_vernum     = table_externals->get_field("VERNUM");
-	flde_extname    = table_externals->get_field("EXTNAME");
-	flde_extverid   = table_externals->get_field("EXTVERID");
-	flde_datapacked = table_externals->get_field("DATAPACKED");
-	flde_extdata    = table_externals->get_field("EXTDATA");
+	Field *flde_objid      = table_externals->get_field("OBJID");
+	Field *flde_vernum     = table_externals->get_field("VERNUM");
+	Field *flde_extname    = table_externals->get_field("EXTNAME");
+	Field *flde_extverid   = table_externals->get_field("EXTVERID");
+	Field *flde_datapacked = table_externals->get_field("DATAPACKED");
+	Field *flde_extdata    = table_externals->get_field("EXTDATA");
 
 	boost::filesystem::path objects_path;
 
@@ -2707,10 +2668,10 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		try {
 			pack_directory.init(root_dir);
 		}
-		catch(...) {
-			msreg_m.AddMessage_("Ошибка обработки файлов", MessageState::Error,
-					"Каталог", root_dir.string());
-			return false;
+		catch (...) {
+			DetailedException error("Ошибка обработки файлов");
+			error.add_detail("Каталог", root_dir.string());
+			throw error;
 		}
 
 		objects_path = root_path.parent_path() / "data" / "objects";
@@ -3130,18 +3091,9 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 {
 	char* rec;
 	char* frec;
-
 	Field* fldv_vernum;
-	Field* fldv_cversion;
 	Field* fldv_snapshotcrc;
 	Field* fldv_snapshotmaker;
-
-	Field* fldh_objid;
-	Field* fldh_vernum;
-	Field* fldh_objverid;
-	Field* fldh_removed;
-	Field* fldh_datapacked;
-	Field* fldh_objdata;
 	Field* fldh_datahash;
 	Index* indh;
 	char* rech; // текущая запись HISTORY
@@ -3153,12 +3105,6 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	char curobj[16];
 	uint32_t ih, nh;
 
-	Field* flde_objid;
-	Field* flde_vernum;
-	Field* flde_extname;
-	Field* flde_extverid;
-	Field* flde_datapacked;
-	Field* flde_extdata;
 	Field* flde_datahash;
 	Index* inde;
 	char* rece;
@@ -3224,10 +3170,6 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	}
 
 	depotVer = get_depot_version(rec);
-	if(depotVer == depot_ver::UnknownVer) {
-		delete[] rec;
-		return false;
-	}
 
 	delete[] rec;
 
@@ -3242,17 +3184,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	}
 
 	// Ищем строку с номером версии конфигурации
-	if(!table_versions)
-	{
-		msreg_m.AddError("В базе хранилища отсутствует таблица VERSIONS.");
-		return false;
-	}
-
 	fldv_vernum = table_versions->get_field("VERNUM");
-	if(depotVer >= depot_ver::Ver5)
-	{
-		fldv_cversion = table_versions->get_field("CVERSION");
-	}
 	fldv_snapshotcrc = table_versions->get_field("SNAPSHOTCRC");
 	fldv_snapshotmaker = table_versions->get_field("SNAPSHOTMAKER");
 
@@ -3282,8 +3214,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	boost::filesystem::path root_path(static_cast<std::string>(filename)); // путь к 1cd
 
 	// Определяем версию структуры конфигурации (для файла version)
-	if(depotVer >= depot_ver::Ver5)
-	{
+	if (depotVer >= depot_ver::Ver5) {
+		Field *fldv_cversion = table_versions->get_field("CVERSION");
 		frec = rec + fldv_cversion->offset;
 		cv_b[0] = frec[1];
 		cv_b[1] = frec[0];
@@ -3292,43 +3224,34 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		cv_b[0] = frec[1];
 		cv_b[1] = frec[0];
 		configVerMinor = cv_s;
-	}
-	else
-	{
+	} else {
 		configVerMinor = 0;
-		if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0) configVerMajor = 6;
-		else if(version == db_ver::ver8_1_0_0) configVerMajor = 106;
-		else configVerMajor = 216;
+		if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0) {
+			configVerMajor = 6;
+		}
+		else if(version == db_ver::ver8_1_0_0) {
+			configVerMajor = 106;
+		}
+		else {
+			configVerMajor = 216;
+		}
 	}
 
 	delete[] rec;
 
-	// Инициализируем таблицы HISTORY и EXTERNALS
-	if(!table_history)
-	{
-		msreg_m.AddError("В базе хранилища отсутствует таблица HISTORY.");
-		return false;
-	}
+	Field *fldh_objid      = table_history->get_field("OBJID");
+	Field *fldh_vernum     = table_history->get_field("VERNUM");
+	Field *fldh_objverid   = table_history->get_field("OBJVERID");
+	Field *fldh_removed    = table_history->get_field("REMOVED");
+	Field *fldh_datapacked = table_history->get_field("DATAPACKED");
+	Field *fldh_objdata    = table_history->get_field("OBJDATA");
 
-	if(!table_externals)
-	{
-		msreg_m.AddError("В базе хранилища отсутствует таблица EXTERNALS.");
-		return false;
-	}
-
-	fldh_objid      = table_history->get_field("OBJID");
-	fldh_vernum     = table_history->get_field("VERNUM");
-	fldh_objverid   = table_history->get_field("OBJVERID");
-	fldh_removed    = table_history->get_field("REMOVED");
-	fldh_datapacked = table_history->get_field("DATAPACKED");
-	fldh_objdata    = table_history->get_field("OBJDATA");
-
-	flde_objid      = table_externals->get_field("OBJID");
-	flde_vernum     = table_externals->get_field("VERNUM");
-	flde_extname    = table_externals->get_field("EXTNAME");
-	flde_extverid   = table_externals->get_field("EXTVERID");
-	flde_datapacked = table_externals->get_field("DATAPACKED");
-	flde_extdata    = table_externals->get_field("EXTDATA");
+	Field *flde_objid      = table_externals->get_field("OBJID");
+	Field *flde_vernum     = table_externals->get_field("VERNUM");
+	Field *flde_extname    = table_externals->get_field("EXTNAME");
+	Field *flde_extverid   = table_externals->get_field("EXTVERID");
+	Field *flde_datapacked = table_externals->get_field("DATAPACKED");
+	Field *flde_extdata    = table_externals->get_field("EXTDATA");
 
 	boost::filesystem::path objects_path;
 
