@@ -34,7 +34,7 @@ enum class block_header: int {
 //---------------------------------------------------------------------------
 // возвращает секунды от эпохи UNIX
 // https://stackoverflow.com/questions/6161776/convert-windows-filetime-to-second-in-unix-linux
-// 
+//
 unsigned WindowsTickToUnixSeconds(long long windowsTicks)
 {
 	return (unsigned)(windowsTicks / WINDOWS_TICK - SEC_TO_UNIX_EPOCH);
@@ -47,12 +47,12 @@ TStream* read_block(TStream* stream_from, int start, TStream* stream_to = nullpt
 	std::array<char, BLOCK_HEADER_LEN> temp_buf;
 	int len, curlen, pos, readlen;
 
-	if(!stream_to) 
+	if(!stream_to)
 		stream_to = new TMemoryStream;
 	stream_to->Seek(0, soFromBeginning);
 	stream_to->SetSize(0);
 
-	if(start < 0 || start == LAST_BLOCK || start > stream_from->GetSize()) 
+	if(start < 0 || start == LAST_BLOCK || start > stream_from->GetSize())
 		return stream_to;
 
 	stream_from->Seek(start, soFromBeginning);
@@ -64,7 +64,7 @@ TStream* read_block(TStream* stream_from, int start, TStream* stream_to = nullpt
 				std::back_inserter(hex_len));
 	len = std::stoi(hex_len, nullptr, 16);
 
-	if(!len) 
+	if(!len)
 		return stream_to;
 
 	std::string hex_curlen("0x");
@@ -85,7 +85,7 @@ TStream* read_block(TStream* stream_from, int start, TStream* stream_to = nullpt
 	pos = readlen;
 
 	while(start != LAST_BLOCK){
-		
+
 		stream_from->Seek(start, soFromBeginning);
 		stream_from->Read(temp_buf.data(), temp_buf.size() - 1);
 
@@ -128,9 +128,9 @@ void V8timeToFileTime(const int64_t* v8t, FILETIME* ft){
 //---------------------------------------------------------------------------
 // обратное преобразование времени
 void FileTimeToV8time(const FILETIME* ft, int64_t* v8t){
-	
+
 	FILETIME lft;
-	
+
 	FileTimeToLocalFileTime(ft, &lft);
 	int64_t t = *(int64_t*)&lft;
 	t /= 1000;
@@ -144,7 +144,7 @@ void setCurrentTime(int64_t* v8t)
 {
 	SYSTEMTIME st;
 	FILETIME ft;
-	
+
 	GetSystemTime(&st);
 	SystemTimeToFileTime(&st, &ft);
 	FileTimeToV8time(&ft, v8t);
@@ -172,9 +172,9 @@ v8file::v8file(v8catalog* _parent, const String& _name, v8file* _previous, int _
 	start_header      = _start_header;
 	is_datamodified   = !start_data;
 	is_headermodified = !start_header;
-	if(previous) 
+	if(previous)
 		previous->next = this;
-	else 
+	else
 		parent->first = this;
 	iscatalog = FileIsCatalog::unknown;
 	self = nullptr;
@@ -182,7 +182,7 @@ v8file::v8file(v8catalog* _parent, const String& _name, v8file* _previous, int _
 	time_create = *_time_create;
 	time_modify = *_time_modify;
 	selfzipped = false;
-	if(parent) 
+	if(parent)
 		parent->files[name.UpperCase()] = this;
 }
 
@@ -219,24 +219,26 @@ void v8file::SetTimeModify(FILETIME* ft)
 void v8file::SaveToFile(const String& FileName)
 {
 	FILETIME create, modify;
-	
-    #ifdef _MSC_VER
-    
-		struct _utimbuf ut;
-    
-    #else
-    
-		struct utimbuf ut;
-    
-    #endif // _MSC_VER
 
-	if(!is_opened) if(!Open()) return;
+#ifdef _MSC_VER
+
+		struct _utimbuf ut;
+
+#else
+
+		struct utimbuf ut;
+
+#endif // _MSC_VER
+
+	if (!try_open()){
+		return;
+	}
 
 	TFileStream* fs = new TFileStream(FileName, fmCreate);
 	Lock->Acquire();
 	fs->CopyFrom(data, 0);
 	Lock->Release();
-	
+
 	GetTimeCreate(&create);
 	GetTimeModify(&modify);
 
@@ -249,7 +251,7 @@ void v8file::SaveToFile(const String& FileName)
 	ut.modtime = mktime(ptm_modified);
 
 	#ifdef _MSC_VER
-		
+
 		_utime(FileName.c_str(), &ut);
 
 	#else
@@ -266,28 +268,20 @@ void v8file::SaveToFile(const String& FileName)
 void v8file::SaveToStream(TStream* stream)
 {
 	Lock->Acquire();
-	if(!is_opened) if(!Open()) return;
+	if (!try_open()) {
+		return;
+	}
 	stream->CopyFrom(data, 0);
 	Lock->Release();
 }
 
-int64_t v8file::GetFileLength() // FIXME: Сделать одну функцию получения длины файла
+int64_t v8file::GetFileLength()
 {
-	int64_t ret;
+	int64_t ret = 0l;
 	Lock->Acquire();
-	if (!is_opened) if (!Open()) return 0;
-	ret = data->GetSize();
-	Lock->Release();
-	return ret;
-}
-
-//---------------------------------------------------------------------------
-// определить размер файла
-int64_t v8file::GetFileLength64() // FIXME: Сделать одну функцию получения длины файла
-{
-	int64_t ret;
-	Lock->Acquire();
-	if(!is_opened) if(!Open()) return 0l;
+	if (!try_open()) {
+		return ret;
+	}
 	ret = data->GetSize();
 	Lock->Release();
 	return ret;
@@ -297,9 +291,11 @@ int64_t v8file::GetFileLength64() // FIXME: Сделать одну функци
 // чтение
 int64_t v8file::Read(void* Buffer, int Start, int Length)
 {
-	int64_t ret;
+	int64_t ret = 0l;
 	Lock->Acquire();
-	if (!is_opened) if (!Open()) return 0;
+	if (!try_open()){
+		return ret;
+	}
 	data->Seek(Start, soFromBeginning);
 	ret = data->Read(Buffer, Length);
 	Lock->Release();
@@ -310,9 +306,11 @@ int64_t v8file::Read(void* Buffer, int Start, int Length)
 // чтение
 int64_t v8file::Read(std::vector<t::Byte> Buffer, int Start, int Length)
 {
-	int64_t ret;
+	int64_t ret = 0l;
 	Lock->Acquire();
-	if (!is_opened) if (!Open()) return 0;
+	if (!try_open()){
+		return ret;
+	}
 	data->Seek(Start, soFromBeginning);
 	ret = data->Read(Buffer, Length);
 	Lock->Release();
@@ -330,9 +328,11 @@ TV8FileStream* v8file::get_stream(bool own)
 // записать
 int64_t v8file::Write(const void* Buffer, int Start, int Length) // дозапись/перезапись частично
 {
-	int64_t ret;
+	int64_t ret = 0l;
 	Lock->Acquire();
-	if (!is_opened) if (!Open()) return 0;
+	if (!try_open()){
+		return ret;
+	}
 	setCurrentTime(&time_modify);
 	is_headermodified = true;
 	is_datamodified   = true;
@@ -347,9 +347,11 @@ int64_t v8file::Write(const void* Buffer, int Start, int Length) // дозапи
 // записать
 int64_t v8file::Write(std::vector<t::Byte> Buffer, int Start, int Length) // дозапись/перезапись частично
 {
-	int64_t ret;
+	int64_t ret = 0l;
 	Lock->Acquire();
-	if (!is_opened) if (!Open()) return 0;
+	if (!try_open()){
+		return ret;
+	}
 	setCurrentTime(&time_modify);
 	is_headermodified = true;
 	is_datamodified   = true;
@@ -364,9 +366,11 @@ int64_t v8file::Write(std::vector<t::Byte> Buffer, int Start, int Length) // д�
 // записать
 int64_t v8file::Write(const void* Buffer, int Length) // перезапись целиком
 {
-	int64_t ret;
+	int64_t ret = 0l;
 	Lock->Acquire();
-	if (!is_opened) if (!Open()) return 0;
+	if (!try_open()) {
+		return ret;
+	}
 	setCurrentTime(&time_modify);
 	is_headermodified = true;
 	is_datamodified = true;
@@ -382,9 +386,11 @@ int64_t v8file::Write(const void* Buffer, int Length) // перезапись ц
 // записать
 int64_t v8file::Write(TStream* Stream, int Start, int Length) // дозапись/перезапись частично
 {
-	int64_t ret;
+	int64_t ret = 0l;
 	Lock->Acquire();
-	if (!is_opened) if (!Open()) return 0;
+	if (!try_open()) {
+		return ret;
+	}
 	setCurrentTime(&time_modify);
 	is_headermodified = true;
 	is_datamodified   = true;
@@ -399,9 +405,11 @@ int64_t v8file::Write(TStream* Stream, int Start, int Length) // дозапис�
 // записать
 int64_t v8file::Write(TStream* Stream) // перезапись целиком
 {
-	int64_t ret;
+	int64_t ret = 0l;
 	Lock->Acquire();
-	if (!is_opened) if (!Open()) return 0;
+	if (!try_open()) {
+		return ret;
+	}
 	setCurrentTime(&time_modify);
 	is_headermodified = true;
 	is_datamodified   = true;
@@ -457,7 +465,7 @@ bool v8file::IsCatalog()
 	Lock->Acquire();
 	if(iscatalog == FileIsCatalog::unknown){
 		// эмпирический метод?
-		if(!is_opened) if(!Open())
+		if (!try_open())
 		{
 			Lock->Release();
 			return false;
@@ -676,7 +684,7 @@ int64_t v8file::WriteAndClose(TStream* Stream, int Length)
 	int32_t _4bzero = 0;
 
 	Lock->Acquire();
-	if (!is_opened) if (!Open())
+	if (!try_open())
 	{
 		Lock->Release();
 		return 0;
@@ -828,7 +836,6 @@ void v8file::Flush()
 	flushed = false;
 	Lock->Release();
 }
-
 
 //********************************************************
 // Класс v8catalog
@@ -1567,7 +1574,7 @@ v8catalog* v8catalog::CreateCatalog(const String& FileName, bool _selfzipped)
 	v8catalog* ret;
 	Lock->Acquire();
 	v8file* f = createFile(FileName, _selfzipped);
-	if(f->GetFileLength())
+	if(f->GetFileLength() > 0)
 	{
 		if(f->IsCatalog()) ret = f->GetCatalog();
 		else ret = nullptr;
@@ -1772,56 +1779,37 @@ int TV8FileStream::Write(const std::vector<t::Byte> Buffer, int Offset, int Coun
 
 //---------------------------------------------------------------------------
 // позиционирование
-int TV8FileStream::Seek(int Offset, System::Word Origin)
+int64_t TV8FileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
 {
-	int l = file->GetFileLength();
+	int64_t len = file->GetFileLength();
 	switch(Origin)
 	{
 		case soFromBeginning:
-			if(Offset >= 0)
-			{
-				if(Offset <= l) pos = Offset;
-				else pos = l;
+			if(Offset >= 0)	{
+				if(Offset <= len) {
+					pos = Offset;
+				}
+				else {
+					pos = len;
+				}
 			}
 			break;
 		case soFromCurrent:
-			if(pos + Offset < l) pos += Offset;
-			else pos = l;
+			if(pos + Offset < len) {
+				pos += Offset;
+			}
+			else {
+				pos = len;
+			}
 			break;
 		case soFromEnd:
-			if(Offset <= 0)
-			{
-				if(Offset <= l) pos = l - Offset;
-				else pos = 0;
-			}
-			break;
-	}
-	return pos;
-}
-
-//---------------------------------------------------------------------------
-// позиционирование
-int64_t TV8FileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
-{
-	int64_t l = file->GetFileLength64();
-	switch(Origin)
-	{
-		case soBeginning:
-			if(Offset >= 0)
-			{
-				if(Offset <= l) pos = Offset;
-				else pos = l;
-			}
-			break;
-		case soCurrent:
-			if(pos + Offset < l) pos += Offset;
-			else pos = l;
-			break;
-		case soEnd:
-			if(Offset <= 0)
-			{
-				if(Offset <= l) pos = l - Offset;
-				else pos = 0;
+			if(Offset <= 0) {
+				if(Offset <= len) {
+					pos = len - Offset;
+				}
+				else {
+					pos = 0;
+				}
 			}
 			break;
 	}
