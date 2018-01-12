@@ -1,3 +1,9 @@
+ctool1cd (1.0.0-8~trusty) trusty; urgency=low
+
+  * Some test release.
+
+ -- Sergey Batanov <sergey.batanov@dmpas.ru>  Thu, 11 Jan 2018 08:11:00 +0300
+
 ctool1cd (1.0.0-6~trusty) trusty; urgency=low
 
   * Some test release.
