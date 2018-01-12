@@ -2377,6 +2377,33 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 	return v;
 }
 
+void T_1CD::assert_i_am_a_repository()
+{
+	if (!is_open()) {
+		throw DetailedException("База не открыта.");
+	}
+
+	if (!is_depot) {
+		throw DetailedException("База не является хранилищем конфигурации.");
+	}
+
+	if (!table_depot) {
+		throw DetailedException("В базе хранилища отсутствует таблица DEPOT.");
+	}
+
+	if (!table_versions) {
+		throw DetailedException("В базе хранилища отсутствует таблица VERSIONS.");
+	}
+
+	if (!table_history) {
+		throw DetailedException("В базе хранилища отсутствует таблица HISTORY.");
+	}
+
+	if (!table_externals) {
+		throw DetailedException("В базе хранилища отсутствует таблица EXTERNALS.");
+	}
+}
+
 //---------------------------------------------------------------------------
 // Сохранение конфигурации в файл из хранилища конфигураций
 // ver - номер версии сохраняемой конфигурации
@@ -2454,21 +2481,16 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		unsigned short cv_s;
 	};
 
-	if(!is_open()) return false;
+	try {
 
-	if(!is_depot)
-	{
-		msreg_m.AddError("База не является хранилищем конфигурации.");
+		assert_i_am_a_repository();
+
+	} catch (DetailedException &exc) {
+		exc.show();
 		return false;
 	}
 
 	// Получаем версию хранилища
-	if(!table_depot)
-	{
-		msreg_m.AddError("В базе хранилища отсутствует таблица DEPOT.");
-		return false;
-	}
-
 	fldd_rootobjid = table_depot->get_field("ROOTOBJID");
 	if(!fldd_rootobjid) return false;
 
@@ -2504,11 +2526,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	ver = get_ver_depot_config(ver);
 
 	// Ищем строку с номером версии конфигурации
-	if(!table_versions)
-	{
-		msreg_m.AddError("В базе хранилища отсутствует таблица VERSIONS.");
-		return false;
-	}
 
 	fldv_vernum = table_versions->get_field("VERNUM");
 	if(!fldv_vernum) return false;
@@ -2672,17 +2689,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	delete[] rec;
 
 	// Инициализируем таблицы HISTORY и EXTERNALS
-	if(!table_history)
-	{
-		msreg_m.AddError("В базе хранилища отсутствует таблица HISTORY.");
-		return false;
-	}
-
-	if(!table_externals)
-	{
-		msreg_m.AddError("В базе хранилища отсутствует таблица EXTERNALS.");
-		return false;
-	}
 
 	fldh_objid = table_history->get_field("OBJID");
 	if(!fldh_objid) return false;
@@ -3214,18 +3220,12 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	};
 
 
-	if(!is_open()) return false;
+	try {
 
-	if(!is_depot)
-	{
-		msreg_m.AddError("База не является хранилищем конфигурации.");
-		return false;
-	}
+		assert_i_am_a_repository();
 
-	// Получаем версию хранилища
-	if(!table_depot)
-	{
-		msreg_m.AddError("В базе хранилища отсутствует таблица DEPOT.");
+	} catch (DetailedException &exc) {
+		exc.show();
 		return false;
 	}
 

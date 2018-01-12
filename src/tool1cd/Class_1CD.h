@@ -278,6 +278,8 @@ private:
 	String pagemaprec_presentation(pagemaprec& pmr);
 
 	depot_ver get_depot_version(const char *record);
+
+	void assert_i_am_a_repository();
 };
 
 //---------------------------------------------------------------------------
