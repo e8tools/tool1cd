@@ -26,17 +26,20 @@ DetailedException::DetailedException(const String &message) throw()
 DetailedException::DetailedException(const DetailedException &src) throw()
 	: message(src.message), params(src.params)
 {
-
 }
 
 
 FieldStreamParseException::FieldStreamParseException(const String &message) throw()
 		: DetailedException(message)
 {
-
 }
 
 SerializationException::SerializationException(const String &message) throw()
+		: DetailedException(message)
+{
+}
+
+PackDirectoryNotExistsException::PackDirectoryNotExistsException(const System::String &message) throw()
 		: DetailedException(message)
 {
 }
