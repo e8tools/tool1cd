@@ -5,9 +5,9 @@
  */
 
 #include <regex>
-#include <exception>
 
 #include "PackDirectory.h"
+#include "DetailedException.h"
 #include "Common.h"
 
 PackDirectory::PackDirectory() {
@@ -23,8 +23,9 @@ PackDirectory::~PackDirectory() {
 
 void PackDirectory::init(boost::filesystem::path& init_path) {
 	boost::filesystem::path subpath = init_path / "data" / "pack";
-	if(!directory_exists(subpath)){
-		throw std::exception(); // FIXME: реализовать свой класс исключения
+	if(!directory_exists(subpath)) {
+		throw PackDirectoryDoesNotExistException("Не найден каталог хранилища. Обязательный с версии >= 6")
+				.add_detail("Каталог", subpath.string());
 	}
 	std::regex pack_mask("pack-.*\\.ind");
 	boost::filesystem::directory_iterator dit(subpath), dend;
