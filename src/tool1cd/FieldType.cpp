@@ -514,22 +514,31 @@ String DatetimeFieldType::get_presentation(const char* rec, bool EmptyNull, wcha
 	return date_to_string(rec);
 }
 
+String s02(const String &s)
+{
+	if (s.size() < 2) {
+		String result = "0";
+		return result + s;
+	}
+	return s;
+}
+
 String DatetimeFieldType::get_XML_presentation(const char *rec, Table *parent, bool ignore_showGUID) const
 {
 	BinaryDecimalDate bdd(rec);
 	TStringBuilder result;
 	result.Append(String(bdd.get_year()));
 	result.Append('-');
-	result.Append(String(bdd.get_month()));
+	result.Append(s02(String(bdd.get_month())));
 	result.Append('-');
-	result.Append(String(bdd.get_day()));
+	result.Append(s02(String(bdd.get_day())));
 	result.Append('T');
 
-	result.Append(String(bdd.get_hour()));
+	result.Append(s02(String(bdd.get_hour())));
 	result.Append(':');
-	result.Append(String(bdd.get_minute()));
+	result.Append(s02(String(bdd.get_minute())));
 	result.Append(':');
-	result.Append(String(bdd.get_second()));
+	result.Append(s02(String(bdd.get_second())));
 
 	return result.ToString();
 }
