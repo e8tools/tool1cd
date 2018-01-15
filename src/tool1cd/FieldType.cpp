@@ -276,7 +276,7 @@ String BinaryFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_
 
 	unsigned char* fr = (unsigned char*)rec;
 
-	char *buf = new char[length * 2]; // TODO: адовый костыль с утечкой памяти
+	char *buf = new char[(length + 1) * 2]; // TODO: адовый костыль с утечкой памяти
 	switch(type)
 	{
 		case type_fields::tf_binary:
@@ -326,7 +326,7 @@ String BinaryFieldType::get_XML_presentation(const char *rec, Table *parent, boo
 
 	unsigned char* fr = (unsigned char*)rec;
 
-	char *buf = new char[length*2]; // TODO: адовый костыль с утечкой памяти
+	char *buf = new char[(length + 1)*2]; // TODO: адовый костыль с утечкой памяти
 	switch(type)
 	{
 		case type_fields::tf_binary:
@@ -622,7 +622,7 @@ String CommonFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_
 
 	unsigned char* fr = (unsigned char*)rec;
 
-	char *buf = new char[length * 2]; // TODO: адовый костыль с утечкой памяти
+	char *buf = new char[(length + 1) * 2]; // TODO: адовый костыль с утечкой памяти
 	switch(type)
 	{
 		case type_fields::tf_bool:
