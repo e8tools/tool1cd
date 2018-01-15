@@ -24,7 +24,7 @@ PackDirectory::~PackDirectory() {
 void PackDirectory::init(boost::filesystem::path& init_path) {
 	boost::filesystem::path subpath = init_path / "data" / "pack";
 	if(!directory_exists(subpath)) {
-		throw PackDirectoryNotExistsException("Не найден каталог хранилища. Обязательный с версии >= 6")
+		throw PackDirectoryDoesNotExistException("Не найден каталог хранилища. Обязательный с версии >= 6")
 				.add_detail("Каталог", subpath.string());
 	}
 	std::regex pack_mask("pack-.*\\.ind");

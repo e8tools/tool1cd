@@ -34,10 +34,10 @@ public:
 	SerializationException(const String &message) throw();
 };
 
-class PackDirectoryNotExistsException : public DetailedException
+class PackDirectoryDoesNotExistException : public DetailedException
 {
 public:
-	PackDirectoryNotExistsException(const String &message) throw();
+		PackDirectoryDoesNotExistException(const String &message) throw();
 };
 
 #endif //TOOL1CD_PROJECT_DETAILEDEXCEPTION_H

@@ -39,7 +39,7 @@ SerializationException::SerializationException(const String &message) throw()
 {
 }
 
-PackDirectoryNotExistsException::PackDirectoryNotExistsException(const System::String &message) throw()
+PackDirectoryDoesNotExistException::PackDirectoryDoesNotExistException(const System::String &message) throw()
 		: DetailedException(message)
 {
 }
