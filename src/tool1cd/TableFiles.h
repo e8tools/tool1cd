@@ -8,6 +8,8 @@
 #ifndef SRC_CTOOL1CD_TABLEFILES_H_
 #define SRC_CTOOL1CD_TABLEFILES_H_
 
+#include <map>
+
 #include "Common.h"
 #include "Table.h"
 
