@@ -1,3 +1,6 @@
+#include <array>
+#include <algorithm>
+
 #include "V8Catalog.h"
 #include "APIcfBase.h"
 #include "../UZLib.h"
