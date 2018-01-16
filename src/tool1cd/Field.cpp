@@ -1,14 +1,9 @@
-/*
- *
- *
- *
- *
- */
 
 #include "Field.h"
 #include "Base64.h"
 #include "TempStream.h"
 #include "FieldType.h"
+#include "UZLib.h"
 
 extern Registrator msreg_g;
 

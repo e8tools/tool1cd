@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "MessageRegistration.h"
-#include "APIcfBase.h"
 #include "db_ver.h"
 #include "Parse_tree.h"
 #include "V8Object.h"
@@ -16,6 +15,9 @@
 #include "Table.h"
 #include "TableFiles.h"
 #include "MemBlock.h"
+#include "cfapi/V8File.h"
+#include "cfapi/V8Catalog.h"
+#include "cfapi/TV8FileStream.h"
 
 //---------------------------------------------------------------------------
 
