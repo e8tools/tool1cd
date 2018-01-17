@@ -29,10 +29,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	char* rec;
 	char* frec;
 	Field* fldv_vernum;
-	Field* fldv_snapshotcrc;
-	Field* fldv_snapshotmaker;
 	Field* fldh_datahash;
-	Index* indh;
 	char* rech; // текущая запись HISTORY
 	char* rech1; // запись с версией < ver_begin
 	bool hasrech1;
@@ -40,19 +37,15 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	bool hasrech2;
 
 	char curobj[16];
-	uint32_t ih, nh;
 
 	Field* flde_datahash;
-	Index* inde;
 	char* rece;
-	uint32_t ie, ne, je;
 
 	bool ok;
 	bool removed;
 	bool datapacked;
 	bool deletesobj;
 	bool iscatalog;
-	bool changed;
 	bool inreaded;
 	bool hasext;
 	char emptyimage[8];
@@ -74,9 +67,9 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 	union
 	{
-		char cv_b[2];
-		unsigned short cv_s;
-	};
+		char b[2];
+		unsigned short s;
+	} cv;
 
 
 	try {
@@ -122,8 +115,6 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 	// Ищем строку с номером версии конфигурации
 	fldv_vernum = table_versions->get_field("VERNUM");
-	fldv_snapshotcrc = table_versions->get_field("SNAPSHOTCRC");
-	fldv_snapshotmaker = table_versions->get_field("SNAPSHOTMAKER");
 
 	rec = new char[table_versions->get_recordlen()];
 	n = 0;
@@ -154,13 +145,13 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	if (depotVer >= depot_ver::Ver5) {
 		Field *fldv_cversion = table_versions->get_field("CVERSION");
 		frec = rec + fldv_cversion->offset;
-		cv_b[0] = frec[1];
-		cv_b[1] = frec[0];
-		configVerMajor = cv_s;
+		cv.b[0] = frec[1];
+		cv.b[1] = frec[0];
+		configVerMajor = cv.s;
 		frec += 2;
-		cv_b[0] = frec[1];
-		cv_b[1] = frec[0];
-		configVerMinor = cv_s;
+		cv.b[0] = frec[1];
+		cv.b[1] = frec[0];
+		configVerMinor = cv.s;
 	} else {
 		configVerMinor = 0;
 		if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0) {
@@ -178,7 +169,6 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 	Field *fldh_objid      = table_history->get_field("OBJID");
 	Field *fldh_vernum     = table_history->get_field("VERNUM");
-	Field *fldh_objverid   = table_history->get_field("OBJVERID");
 	Field *fldh_removed    = table_history->get_field("REMOVED");
 	Field *fldh_datapacked = table_history->get_field("DATAPACKED");
 	Field *fldh_objdata    = table_history->get_field("OBJDATA");
@@ -198,15 +188,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		flde_datahash = table_externals->get_field("DATAHASH");
 
 		boost::filesystem::path root_dir = root_path.parent_path();
-		try {
-			pack_directory.init(root_dir);
-		}
-		catch(...) {
-			msreg_m.AddMessage_("Ошибка обработки файлов", MessageState::Error,
-								"Каталог", root_dir.string());
-			return false;
-		}
-
+		pack_directory.init(root_dir);
 		objects_path = root_path.parent_path() / "data" / "objects";
 	}
 	else
@@ -215,8 +197,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		flde_datahash = nullptr;
 	}
 
-	indh = table_history->get_index("PK");
-	inde = table_externals->get_index("PK");
+	Index *history_pk = table_history->get_index("PK");
+	Index *externals_pk = table_externals->get_index("PK");
 
 	rech = new char[table_history->get_recordlen()];
 	rech1 = new char[table_history->get_recordlen()];
@@ -224,8 +206,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	rece = new char[table_externals->get_recordlen()];
 	memset(rece, 0, table_externals->get_recordlen());
 
-	nh = indh->get_numrecords();
-	ne = inde->get_numrecords();
+	uint32_t history_records = history_pk->get_numrecords();
+	uint32_t external_records = externals_pk->get_numrecords();
 	memset(curobj, 0, 16);
 
 	boost::filesystem::path cath (filepath);
@@ -247,17 +229,17 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	cat = nullptr;
 	hasrech1 = false;
 	hasrech2 = false;
-	for(ih = 0, ie = 0; ih <= nh; ih++)
-	{
-		if(ih < nh)
-		{
-			i = indh->get_numrec(ih);
+	for (uint32_t history_iterator = 0, external_iterator = 0; history_iterator <= history_records; history_iterator++) {
+		uint32_t i;
+		if (history_iterator < history_records) {
+			i = history_pk->get_numrec(history_iterator);
 			table_history->getrecord(i, rech);
 		}
 
-		if(memcmp(curobj, rech + fldh_objid->offset, 16) != 0 || ih == nh)
+		if(memcmp(curobj, rech + fldh_objid->offset, 16) != 0 || history_iterator == history_records)
 		{ // это новый объект или конец таблицы
-			if(ih) if(hasrech2)
+			if(history_iterator)
+				if(hasrech2)
 				{
 					s = fldh_vernum->get_presentation(rech2, false);
 					lastver = s.ToIntDef(std::numeric_limits<int32_t>::max());
@@ -281,8 +263,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 						if(datapacked)
 						{
-							changed = true;
-							inreaded = false;
+							bool changed = true;
+							bool inreaded = false;
 							if(hasrech1)
 							{
 								datapacked = false;
@@ -386,7 +368,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 					// Вот тут идем по EXTERNALS
 					while(hasext)
 					{
-						if(ie > ne) break;
+						if(external_iterator > external_records) break;
 						res = memcmp(rece + flde_objid->offset, curobj, 16);
 						if(res > 0) break;
 						if(!res)
@@ -409,10 +391,10 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 									// В случае отсутствия данных (datapacked = false) в этой записи пытаемся найти предыдущую запись с данными
 									// (с тем же objid, extname и extverid), но в пределах ver_begin <= vernum < lastver
 									memcpy(verid, rece + flde_extverid->offset, 16);
-									je = ie;
+									uint32_t je = external_iterator;
 									while(!datapacked && v > ver_begin && je)
 									{
-										i = inde->get_numrec(--je);
+										i = externals_pk->get_numrec(--je);
 										table_externals->getrecord(i, rece);
 										res = memcmp(rece + flde_objid->offset, curobj, 16);
 										if(res) break;
@@ -515,12 +497,12 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 							}
 
 						}
-						if(ie == ne)
+						if(external_iterator == external_records)
 						{
-							ie++;
+							external_iterator++;
 							break;
 						}
-						i = inde->get_numrec(ie++);
+						i = externals_pk->get_numrec(external_iterator++);
 						table_externals->getrecord(i, rece);
 					}
 				}
@@ -530,7 +512,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 			hasrech2 = false;
 		}
 
-		if(ih < nh)
+		if(history_iterator < history_records)
 		{
 			s = fldh_vernum->get_presentation(rech, false);
 			v = s.ToIntDef(std::numeric_limits<int32_t>::max());
