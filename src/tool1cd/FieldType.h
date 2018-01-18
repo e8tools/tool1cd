@@ -41,7 +41,7 @@ public:
 
 	virtual String get_XML_presentation(
 			const char *rec,
-			Table *parent,
+			const Table *parent,
 			bool ignore_showGUID) const = 0;
 
 	virtual uint32_t getSortKey(

@@ -775,7 +775,7 @@ void Table::set_lockinmemory(bool _lock)
 
 //---------------------------------------------------------------------------
 // rewrite - перезаписывать поток _str. Истина - перезаписывать (по умолчанию), Ложь - дописывать
-TStream* Table::readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, bool rewrite)
+TStream* Table::readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, bool rewrite) const
 {
 	uint32_t _curblock;
 	char* _curb;
@@ -850,7 +850,7 @@ TStream* Table::readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, 
 }
 
 //---------------------------------------------------------------------------
-uint32_t Table::readBlob(void* buf, uint32_t _startblock, uint32_t _length)
+uint32_t Table::readBlob(void* buf, uint32_t _startblock, uint32_t _length) const
 {
 	uint32_t _curblock;
 	char* _curb;
