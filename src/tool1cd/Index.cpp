@@ -1160,3 +1160,86 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 	delete[] page;
 
 }
+
+class IndexReadError : public DetailedException
+{
+public:
+	IndexReadError(const String &message)
+			: DetailedException(message)
+	{}
+
+	IndexReadError(const String &message, const String &index_name)
+			: DetailedException(message)
+	{
+		add_detail("Индекс", index_name);
+	}
+};
+
+Index *Index::index_from_tree(tree *f, Table *parent)
+{
+
+	int numrec = f->get_num_subnode() - 2;
+	if (numrec < 1) {
+		throw IndexReadError("Ошибка получения очередного индекса таблицы. Нет узлов описаня полей индекса.");
+	}
+	Index *ind = new Index(parent);
+	ind->num_records = numrec;
+
+	if (f->get_type() != node_type::nd_list) {
+		throw IndexReadError("Ошибка получения очередного индекса таблицы. Узел не является деревом.");
+	}
+
+	tree *index_tree = f->get_first();
+	if (index_tree->get_type() != node_type::nd_string) {
+		throw IndexReadError("Ошибка получения имени индекса таблицы. Узел не является строкой.");
+	}
+	ind->name = index_tree->get_value();
+
+	index_tree = index_tree->get_next();
+	if (index_tree->get_type() != node_type::nd_number) {
+		throw IndexReadError("Ошибка получения типа индекса таблицы. Узел не является числом.");
+	}
+	String sIsPrimaryIndex = index_tree->get_value();
+	if     (sIsPrimaryIndex == "0") ind->is_primary = false;
+	else if(sIsPrimaryIndex == "1") ind->is_primary = true;
+	else {
+		throw IndexReadError("Неизвестный тип индекса таблицы.", ind->name)
+				.add_detail("Тип индекса", sIsPrimaryIndex);
+	}
+
+	ind->records = new index_record[numrec];
+	for (int j = 0; j < numrec; j++) {
+		index_tree = index_tree->get_next();
+		if (index_tree->get_num_subnode() != 2) {
+			throw IndexReadError("Ошибка получения очередного поля индекса таблицы. "
+										 "Количество узлов поля не равно 2.", ind->name)
+					.add_detail("Номер поля индекса", j + 1)
+					.add_detail("Узлов", index_tree->get_num_subnode());
+		}
+
+		tree *in = index_tree->get_first();
+		if (in->get_type() != node_type::nd_string) {
+			throw IndexReadError("Ошибка получения имени поля индекса таблицы. Узел не является строкой.", ind->name)
+					.add_detail("Номер поля индекса", j + 1);
+		}
+
+		String field_name = in->get_value();
+		ind->records[j].field = parent->find_field(field_name);
+
+		if (!ind->records[j].field) {
+			throw IndexReadError("Ошибка получения индекса таблицы. Не найдено поле таблицы по имени поля индекса.", ind->name)
+					.add_detail("Номер поля индекса", j + 1)
+					.add_detail("Поле индекса", field_name);
+		}
+
+		in = in->get_next();
+		if (in->get_type() != node_type::nd_number) {
+			throw IndexReadError("Ошибка получения длины поля индекса таблицы. Узел не является числом.", ind->name)
+					.add_detail("Номер поля индекса", j + 1)
+					.add_detail("Поле индекса", field_name);
+		}
+		ind->records[j].len = StrToInt(in->get_value());
+	}
+
+	return ind;
+}

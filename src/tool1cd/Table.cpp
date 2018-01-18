@@ -84,7 +84,7 @@ void Table::init()
 	num_fields = 0;
 	fields.clear();
 	num_indexes = 0;
-	indexes = 0;
+	indexes.clear();
 	recordlock = false;
 	file_data = nullptr;
 	file_blob = nullptr;
@@ -229,8 +229,6 @@ void Table::init(int32_t block_descr)
 
 	num_indexes = t->get_num_subnode() - 1;
 	if (num_indexes) {
-		indexes = new Index*[num_indexes];
-		for(i = 0; i < num_indexes; i++) indexes[i] = new Index(this);
 
 		f = t->get_first();
 		if(f->get_type() != node_type::nd_string) {
@@ -241,88 +239,20 @@ void Table::init(int32_t block_descr)
 					.add_detail("Узел", f->get_value());
 		}
 
-		for(i = 0; i < num_indexes; i++)
-		{
+		for (int i = 0; i < num_indexes; i++) {
 			f = f->get_next();
-			numrec = f->get_num_subnode() - 2;
-			if (numrec < 1) {
-				throw TableReadError("Ошибка получения очередного индекса таблицы. Нет узлов описаня полей индекса.", block_descr, name)
-						.add_detail("Номер индекса", i + 1);
-			}
-			ind = indexes[i];
-			ind->num_records = numrec;
+			try {
 
-			if (f->get_type() != node_type::nd_list) {
-				throw TableReadError("Ошибка получения очередного индекса таблицы. Узел не является деревом.", block_descr, name)
-						.add_detail("Номер индекса", i + 1);
-			}
+				indexes.push_back(Index::index_from_tree(f, this));
 
-			tree *index_tree = f->get_first();
-			if (index_tree->get_type() != node_type::nd_string) {
-				throw TableReadError("Ошибка получения имени индекса таблицы. Узел не является строкой.", block_descr, name)
-						.add_detail("Номер индекса", i + 1);
-			}
-			ind->name = index_tree->get_value();
-
-			index_tree = index_tree->get_next();
-			if (index_tree->get_type() != node_type::nd_number) {
-				throw TableReadError("Ошибка получения типа индекса таблицы. Узел не является числом.", block_descr, name)
-						.add_detail("Индекс", ind->name);
-			}
-			String sIsPrimaryIndex = index_tree->get_value();
-			if     (sIsPrimaryIndex == "0") ind->is_primary = false;
-			else if(sIsPrimaryIndex == "1") ind->is_primary = true;
-			else {
-				throw TableReadError("Неизвестный тип индекса таблицы.", block_descr, name)
-						.add_detail("Индекс", ind->name)
-						.add_detail("Тип индекса", sIsPrimaryIndex);
-			}
-
-			ind->records = new index_record[numrec];
-			for(j = 0; j < numrec; j++)
-			{
-				index_tree = index_tree->get_next();
-				if (index_tree->get_num_subnode() != 2) {
-					throw TableReadError("Ошибка получения очередного поля индекса таблицы. "
-												 "Количество узлов поля не равно 2.", block_descr, name)
-							.add_detail("Индекс", ind->name)
-							.add_detail("Номер поля индекса", j + 1)
-							.add_detail("Узлов", index_tree->get_num_subnode());
-				}
-
-				in = index_tree->get_first();
-				if (in->get_type() != node_type::nd_string) {
-					throw TableReadError("Ошибка получения имени поля индекса таблицы. Узел не является строкой.", block_descr, name)
-							.add_detail("Индекс", ind->name)
-							.add_detail("Номер поля индекса", j + 1);
-				}
-
-				String field_name = in->get_value();
-				for(k = 0; k < num_fields; k++) {
-					if(fields[k]->name == field_name) {
-						ind->records[j].field = fields[k];
-						break;
-					}
-				}
-				if (k >= num_fields) {
-					throw TableReadError("Ошибка получения индекса таблицы. Не найдено поле таблицы по имени поля индекса.", block_descr, name)
-							.add_detail("Индекс", ind->name)
-							.add_detail("Номер поля индекса", j + 1)
-							.add_detail("Поле индекса", field_name);
-				}
-
-				in = in->get_next();
-				if (in->get_type() != node_type::nd_number) {
-					throw TableReadError("Ошибка получения длины поля индекса таблицы. Узел не является числом.", block_descr, name)
-							.add_detail("Индекс", ind->name)
-							.add_detail("Номер поля индекса", j + 1)
-							.add_detail("Поле индекса", field_name);
-				}
-				ind->records[j].len = StrToInt(in->get_value());
+			} catch (DetailedException &err) {
+				err.add_detail("Номер блока", to_hex_string(block_descr));
+				err.add_detail("Таблица", name);
+				err.add_detail("Номер индекса", i + 1);
+				throw err;
 			}
 		}
 	}
-	else indexes = nullptr;
 
 	t = t->get_next();
 	if (t->get_num_subnode() != 2) {
@@ -583,12 +513,8 @@ void Table::deletefields()
 //---------------------------------------------------------------------------
 void Table::deleteindexes()
 {
-	int32_t i;
-	if(indexes)
-	{
-		for(i = 0; i < num_indexes; i++) delete indexes[i];
-		delete[] indexes;
-		indexes = nullptr;
+	for (auto index : indexes) {
+		delete index;
 	}
 }
 

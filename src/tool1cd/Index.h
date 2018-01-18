@@ -129,6 +129,8 @@ private:
 	void write_index(const uint32_t phys_numrecord, const char* rec); // запись индекса записи
 	void write_index_record(const uint32_t phys_numrecord, const char* index_buf); // запись индекса
 	void write_index_record(const uint32_t phys_numrecord, const char* index_buf, uint64_t block, int32_t& result, char* new_last_index_buf, uint32_t& new_last_phys_num, char* new_last_index_buf2, uint32_t& new_last_phys_num2, uint64_t& new_last_block2); // рекурсивная запись индекса
+
+	static Index *index_from_tree(tree *f, Table *parent);
 };
 
 #endif /* SRC_CTOOL1CD_INDEX_H_ */

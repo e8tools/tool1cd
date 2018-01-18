@@ -177,7 +177,7 @@ private:
 	int32_t num_fields;
 	std::vector<Field*> fields;
 	int32_t num_indexes;
-	Index** indexes;
+	std::vector<Index*> indexes;
 	bool recordlock;
 	v8object* file_data;
 	v8object* file_blob;
