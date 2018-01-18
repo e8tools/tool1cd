@@ -127,8 +127,8 @@ public:
 	uint32_t get_added_numrecords();
 
 	char* getrecord(uint32_t phys_numrecord, char* buf); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
-	TStream* readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, bool rewrite = true);
-	uint32_t readBlob(void* _buf, uint32_t _startblock, uint32_t _length);
+	TStream* readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, bool rewrite = true) const;
+	uint32_t readBlob(void* _buf, uint32_t _startblock, uint32_t _length) const;
 	void set_lockinmemory(bool _lock);
 	bool export_to_xml(String filename, bool blob_to_file, bool unpack);
 

@@ -101,7 +101,7 @@ public:
 
 	virtual String get_XML_presentation(
 			const char *rec,
-			Table *parent,
+			const Table *parent,
 			bool ignore_showGUID) const override;
 
 	virtual uint32_t getSortKey(
@@ -144,7 +144,7 @@ public:
 
 	virtual String get_XML_presentation(
 			const char *rec,
-			Table *parent,
+			const Table *parent,
 			bool ignore_showGUID) const override;
 
 	virtual uint32_t getSortKey(
@@ -175,7 +175,7 @@ public:
 
 	virtual String get_XML_presentation(
 			const char *rec,
-			Table *parent,
+			const Table *parent,
 			bool ignore_showGUID) const override;
 
 	virtual uint32_t getSortKey(
@@ -205,7 +205,7 @@ public:
 
 	virtual String get_XML_presentation(
 			const char *rec,
-			Table *parent,
+			const Table *parent,
 			bool ignore_showGUID) const override;
 
 	virtual uint32_t getSortKey(
@@ -317,7 +317,7 @@ String BinaryFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_
 	return "{?}";
 }
 
-String BinaryFieldType::get_XML_presentation(const char *rec, Table *parent, bool ignore_showGUID) const
+String BinaryFieldType::get_XML_presentation(const char *rec, const Table *parent, bool ignore_showGUID) const
 {
 	char sym;
 	int32_t i, m;
@@ -417,7 +417,7 @@ String NumericFieldType::get_presentation(const char* rec, bool EmptyNull, wchar
 	return bdn.get_presentation();
 }
 
-String NumericFieldType::get_XML_presentation(const char *rec, Table *parent, bool ignore_showGUID) const
+String NumericFieldType::get_XML_presentation(const char *rec, const Table *parent, bool ignore_showGUID) const
 {
 	return get_presentation(rec, false, 0, false, false);
 }
@@ -523,7 +523,7 @@ String s02(const String &s)
 	return s;
 }
 
-String DatetimeFieldType::get_XML_presentation(const char *rec, Table *parent, bool ignore_showGUID) const
+String DatetimeFieldType::get_XML_presentation(const char *rec, const Table *parent, bool ignore_showGUID) const
 {
 	BinaryDecimalDate bdd(rec);
 	TStringBuilder result;
@@ -670,7 +670,7 @@ String CommonFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_
 	return "{?}";
 }
 
-String CommonFieldType::get_XML_presentation(const char *rec, Table *parent, bool ignore_showGUID) const
+String CommonFieldType::get_XML_presentation(const char *rec, const Table *parent, bool ignore_showGUID) const
 {
 	int32_t i;
 
