@@ -105,6 +105,23 @@ void Table::init()
 	bad = true;
 }
 
+class TableReadError : public DetailedException
+{
+public:
+	TableReadError(const String &message, int32_t block_descr)
+			: DetailedException(message)
+	{
+		add_detail("Блок", to_hex_string(block_descr));
+	}
+
+	TableReadError(const String &message, int32_t block_descr, const String &table_name)
+			: DetailedException(message)
+	{
+		add_detail("Блок", to_hex_string(block_descr));
+		add_detail("Таблица", table_name);
+	}
+};
+
 //---------------------------------------------------------------------------
 void Table::init(int32_t block_descr)
 {
@@ -125,48 +142,29 @@ void Table::init(int32_t block_descr)
 
 	if(description.IsEmpty()) return;
 
-	tree* root = parse_1Ctext(description, String("Блок ") + block_descr);
+	std::unique_ptr<tree> root(parse_1Ctext(description, String("Блок ") + block_descr));
 
-	if(!root)
-	{
-		msreg_g.AddError("Ошибка разбора текста описания таблицы.",
-			"Блок", to_hex_string(block_descr));
-		init();
-		return;
+	if (!root) {
+		throw TableReadError("Ошибка разбора текста описания таблицы.", block_descr);
 	}
 
-	if(root->get_num_subnode() != 1)
-	{
-		msreg_g.AddError("Ошибка разбора текста описания таблицы. Количество узлов не равно 1.",
-			"Блок", to_hex_string(block_descr),
-			"Узлов", root->get_num_subnode());
-		init();
-		delete root;
-		return;
+	if (root->get_num_subnode() != 1) {
+		throw TableReadError("Ошибка разбора текста описания таблицы. Количество узлов не равно 1.", block_descr)
+				.add_detail("Узлов", root->get_num_subnode());
 	}
 	rt = root->get_first();
 
-	if(rt->get_num_subnode() != 6)
-	{
-		msreg_g.AddError("Ошибка разбора текста описания таблицы. Количество узлов не равно 6.",
-			"Блок", to_hex_string(block_descr),
-			"Узлов", rt->get_num_subnode());
-		init();
-		delete root;
-		return;
+	if (rt->get_num_subnode() != 6) {
+		throw TableReadError("Ошибка разбора текста описания таблицы. Количество узлов не равно 6.", block_descr)
+				.add_detail("Узлов", rt->get_num_subnode());
 	}
 
 	t = rt->get_first();
-	if(t->get_type() != node_type::nd_string)
-	{
-		msreg_g.AddError("Ошибка получения имени таблицы. Узел не является строкой.",
-			"Блок", to_hex_string(block_descr));
-		init();
-		delete root;
-		return;
+	if (t->get_type() != node_type::nd_string) {
+		throw TableReadError("Ошибка получения имени таблицы. Узел не является строкой.", block_descr);
 	}
-	name = t->get_value();
-	issystem = name[1] != L'_'
+	this->name = t->get_value();
+	this->issystem = name[1] != L'_'
 		|| name.SubString(name.GetLength() - 6, 7).CompareIC("STORAGE") == 0
 		|| name.CompareIC("_SYSTEMSETTINGS") == 0
 		|| name.CompareIC("_COMMONSETTINGS") == 0
@@ -175,92 +173,37 @@ void Table::init(int32_t block_descr)
 		|| name.CompareIC("_FRMDTSETTINGS") == 0
 		|| name.CompareIC("_SCHEDULEDJOBS") == 0;
 
-#ifdef getcfname
-	if(name.CompareIC("CONFIG"))
-	{
-		delete root;
-		return;
-	}
-#endif
-#ifdef delic
-#ifdef delicfiles
-	if(name.CompareIC("PARAMS") && name.CompareIC("FILES") && name.CompareIC("CONFIG"))
-	{
-		delete root;
-		return;
-	}
-#else
-	if(name.CompareIC("PARAMS"))
-	{
-		delete root;
-		return;
-	}
-#endif
-#endif
-
 	t = t->get_next();
 	// пропускаем узел, так как там всегда содержится "0", и что это такое, неизвестно (версия формата описания таблиц?)
 	t = t->get_next();
-	if(t->get_type() != node_type::nd_list)
-	{
-		msreg_g.AddError("Ошибка получения полей таблицы. Узел не является деревом.",
-			"Блок", to_hex_string(block_descr),
-			"Таблица", name);
-		init();
-		delete root;
-		return;
+	if (t->get_type() != node_type::nd_list) {
+		throw TableReadError("Ошибка получения полей таблицы. Узел не является деревом.", block_descr, name);
 	}
-	if(t->get_num_subnode() < 2)
-	{
-		msreg_g.AddError("Ошибка получения полей таблицы. Нет узлов описания полей.",
-			"Блок", to_hex_string(block_descr),
-			"Таблица", name);
-		init();
-		delete root;
-		return;
+	if(t->get_num_subnode() < 2) {
+		throw TableReadError("Ошибка получения полей таблицы. Нет узлов описания полей.", block_descr, name);
 	}
 
 	num_fields = t->get_num_subnode() - 1;
-	fields.resize(num_fields);
+	fields.reserve(num_fields);
 	bool has_version = false; // признак наличия поля версии
 
 	f = t->get_first();
-	if(f->get_type() != node_type::nd_string)
-	{
-		msreg_g.AddError("Ошибка получения полей таблицы. Ожидаемый узел Fields не является строкой.",
-			"Блок", to_hex_string(block_descr),
-			"Таблица", name);
-		deletefields();
-		init();
-		delete root;
-		return;
+	if(f->get_type() != node_type::nd_string) {
+		throw TableReadError("Ошибка получения полей таблицы. Ожидаемый узел Fields не является строкой.", block_descr, name);
 	}
-	if(f->get_value() != "Fields")
-	{
-		msreg_g.AddError("Ошибка получения полей таблицы. Узел не Fields.",
-			"Блок", to_hex_string(block_descr),
-			"Таблица", name,
-			"Узел", f->get_value());
-		deletefields();
-		init();
-		delete root;
-		return;
+	if (f->get_value() != "Fields") {
+		throw TableReadError("Ошибка получения полей таблицы. Узел не Fields.", block_descr, name)
+				.add_detail("Узел", f->get_value());
 	}
 
 	for(i = 0; i < num_fields; i++)
 	{
 		f = f->get_next();
-		if(f->get_num_subnode() != 6)
-		{
-			msreg_g.AddError("Ошибка получения узла очередного поля таблицы. Количество узлов поля не равно 6.",
-				"Блок", to_hex_string(block_descr),
-				"Таблица", name,
-				"Номер поля", i + 1,
-				"Узлов", f->get_num_subnode());
-			deletefields();
-			init();
-			delete root;
-			return;
+		if(f->get_num_subnode() != 6) {
+			throw TableReadError("Ошибка получения узла очередного поля таблицы. "
+										 "Количество узлов поля не равно 6.", block_descr, name)
+					.add_detail("Номер поля", i + 1)
+					.add_detail("Узлов", f->get_num_subnode());
 		}
 
 		tree *field_tree = f->get_first();
@@ -269,179 +212,89 @@ void Table::init(int32_t block_descr)
 			fields[i] = Field::field_from_tree(field_tree, has_version, this);
 
 		} catch (FieldStreamParseException &formatError) {
-			deletefields();
-			init();
-			delete root;
-			/*throw */formatError
+			throw formatError
 					.add_detail("Блок", to_hex_string(block_descr))
 					.add_detail("Таблица", name)
-					.add_detail("Номер поля", i + 1)
-					.show();
-			return;
+					.add_detail("Номер поля", i + 1);
 		}
 	}
 
 	t = t->get_next();
-	if(t->get_type() != node_type::nd_list)
-	{
-		msreg_g.AddError("Ошибка получения индексов таблицы. Узел не является деревом.",
-			"Блок", to_hex_string(block_descr),
-			"Таблица", name);
-		deletefields();
-		init();
-		delete root;
-		return;
+	if (t->get_type() != node_type::nd_list) {
+		throw TableReadError("Ошибка получения индексов таблицы. Узел не является деревом.", block_descr, name);
 	}
-	if(t->get_num_subnode() < 1)
-	{
-		msreg_g.AddError("Ошибка получения индексов таблицы. Нет узлов описания индексов.",
-			"Блок", to_hex_string(block_descr),
-			"Таблица", name);
-		deletefields();
-		init();
-		delete root;
-		return;
+	if (t->get_num_subnode() < 1) {
+		throw TableReadError("Ошибка получения индексов таблицы. Нет узлов описания индексов.", block_descr, name);
 	}
 
 	num_indexes = t->get_num_subnode() - 1;
-	if(num_indexes)
-	{
+	if (num_indexes) {
 		indexes = new Index*[num_indexes];
 		for(i = 0; i < num_indexes; i++) indexes[i] = new Index(this);
 
 		f = t->get_first();
-		if(f->get_type() != node_type::nd_string)
-		{
-			msreg_g.AddError("Ошибка получения индексов таблицы. Ожидаемый узел Indexes не является строкой.",
-				"Блок", to_hex_string(block_descr),
-				"Таблица", name);
-			deletefields();
-			deleteindexes();
-			init();
-			delete root;
-			return;
+		if(f->get_type() != node_type::nd_string) {
+			throw TableReadError("Ошибка получения индексов таблицы. Ожидаемый узел Indexes не является строкой.", block_descr, name);
 		}
-		if(f->get_value() != "Indexes")
-		{
-			msreg_g.AddError("Ошибка получения индексов таблицы. Узел не Indexes.",
-				"Блок", to_hex_string(block_descr),
-				"Таблица", name,
-				"Узел", f->get_value());
-			deletefields();
-			deleteindexes();
-			init();
-			delete root;
-			return;
+		if (f->get_value() != "Indexes") {
+			throw TableReadError("Ошибка получения индексов таблицы. Узел не Indexes.", block_descr, name)
+					.add_detail("Узел", f->get_value());
 		}
 
 		for(i = 0; i < num_indexes; i++)
 		{
 			f = f->get_next();
 			numrec = f->get_num_subnode() - 2;
-			if(numrec < 1)
-			{
-				msreg_g.AddError("Ошибка получения очередного индекса таблицы. Нет узлов описаня полей индекса.",
-					"Блок", to_hex_string(block_descr),
-					"Таблица", name,
-					"Номер индекса", i + 1);
-				deletefields();
-				deleteindexes();
-				init();
-				delete root;
-				return;
+			if (numrec < 1) {
+				throw TableReadError("Ошибка получения очередного индекса таблицы. Нет узлов описаня полей индекса.", block_descr, name)
+						.add_detail("Номер индекса", i + 1);
 			}
 			ind = indexes[i];
 			ind->num_records = numrec;
 
-			if(f->get_type() != node_type::nd_list)
-			{
-				msreg_g.AddError("Ошибка получения очередного индекса таблицы. Узел не является деревом.",
-					"Блок", to_hex_string(block_descr),
-					"Таблица", name,
-					"Номер индекса", i + 1);
-				deletefields();
-				deleteindexes();
-				init();
-				delete root;
-				return;
+			if (f->get_type() != node_type::nd_list) {
+				throw TableReadError("Ошибка получения очередного индекса таблицы. Узел не является деревом.", block_descr, name)
+						.add_detail("Номер индекса", i + 1);
 			}
 
 			tree *index_tree = f->get_first();
-			if(index_tree->get_type() != node_type::nd_string)
-			{
-				msreg_g.AddError("Ошибка получения имени индекса таблицы. Узел не является строкой.",
-					"Блок", to_hex_string(block_descr),
-					"Таблица", name,
-					"Номер индекса", i + 1);
-				deletefields();
-				deleteindexes();
-				init();
-				delete root;
-				return;
+			if (index_tree->get_type() != node_type::nd_string) {
+				throw TableReadError("Ошибка получения имени индекса таблицы. Узел не является строкой.", block_descr, name)
+						.add_detail("Номер индекса", i + 1);
 			}
 			ind->name = index_tree->get_value();
 
 			index_tree = index_tree->get_next();
-			if(index_tree->get_type() != node_type::nd_number)
-			{
-				msreg_g.AddError("Ошибка получения типа индекса таблицы. Узел не является числом.",
-					"Блок", to_hex_string(block_descr),
-					"Таблица", name,
-					"Индекс", ind->name);
-				deletefields();
-				deleteindexes();
-				init();
-				delete root;
-				return;
+			if (index_tree->get_type() != node_type::nd_number) {
+				throw TableReadError("Ошибка получения типа индекса таблицы. Узел не является числом.", block_descr, name)
+						.add_detail("Индекс", ind->name);
 			}
 			String sIsPrimaryIndex = index_tree->get_value();
 			if     (sIsPrimaryIndex == "0") ind->is_primary = false;
 			else if(sIsPrimaryIndex == "1") ind->is_primary = true;
 			else {
-				msreg_g.AddError("Неизвестный тип индекса таблицы.",
-					"Блок", to_hex_string(block_descr),
-					"Таблица", name,
-					"Индекс", ind->name,
-					"Тип индекса", sIsPrimaryIndex);
-				deletefields();
-				deleteindexes();
-				init();
-				delete root;
-				return;
+				throw TableReadError("Неизвестный тип индекса таблицы.", block_descr, name)
+						.add_detail("Индекс", ind->name)
+						.add_detail("Тип индекса", sIsPrimaryIndex);
 			}
 
 			ind->records = new index_record[numrec];
 			for(j = 0; j < numrec; j++)
 			{
 				index_tree = index_tree->get_next();
-				if(index_tree->get_num_subnode() != 2)
-				{
-					msreg_g.AddError("Ошибка получения очередного поля индекса таблицы. Количество узлов поля не равно 2.",
-						"Блок", to_hex_string(block_descr),
-						"Таблица", name,
-						"Индекс", ind->name,
-						"Номер поля индекса", j + 1,
-						"Узлов", index_tree->get_num_subnode());
-					deletefields();
-					deleteindexes();
-					init();
-					delete root;
-					return;
+				if (index_tree->get_num_subnode() != 2) {
+					throw TableReadError("Ошибка получения очередного поля индекса таблицы. "
+												 "Количество узлов поля не равно 2.", block_descr, name)
+							.add_detail("Индекс", ind->name)
+							.add_detail("Номер поля индекса", j + 1)
+							.add_detail("Узлов", index_tree->get_num_subnode());
 				}
 
 				in = index_tree->get_first();
-				if(in->get_type() != node_type::nd_string)
-				{
-					msreg_g.AddError("Ошибка получения имени поля индекса таблицы. Узел не является строкой.",
-						"Блок", to_hex_string(block_descr),
-						"Таблица", name,
-						"Индекс", ind->name,
-						"Номер поля индекса", j + 1);
-					deletefields();
-					deleteindexes();
-					init();
-					delete root;
-					return;
+				if (in->get_type() != node_type::nd_string) {
+					throw TableReadError("Ошибка получения имени поля индекса таблицы. Узел не является строкой.", block_descr, name)
+							.add_detail("Индекс", ind->name)
+							.add_detail("Номер поля индекса", j + 1);
 				}
 
 				String field_name = in->get_value();
@@ -451,31 +304,19 @@ void Table::init(int32_t block_descr)
 						break;
 					}
 				}
-				if(k >= num_fields) {
-					msreg_g.AddError("Ошибка получения индекса таблицы. Не найдено поле таблицы по имени поля индекса.",
-						"Блок", to_hex_string(block_descr),
-						"Таблица", name,
-						"Индекс", ind->name,
-						"Поле индекса", field_name);
-					deletefields();
-					deleteindexes();
-					init();
-					delete root;
-					return;
+				if (k >= num_fields) {
+					throw TableReadError("Ошибка получения индекса таблицы. Не найдено поле таблицы по имени поля индекса.", block_descr, name)
+							.add_detail("Индекс", ind->name)
+							.add_detail("Номер поля индекса", j + 1)
+							.add_detail("Поле индекса", field_name);
 				}
 
 				in = in->get_next();
-				if(in->get_type() != node_type::nd_number) {
-					msreg_g.AddError("Ошибка получения длины поля индекса таблицы. Узел не является числом.",
-						"Блок", to_hex_string(block_descr),
-						"Таблица", name,
-						"Индекс", ind->name,
-						"Поле индекса", field_name);
-					deletefields();
-					deleteindexes();
-					init();
-					delete root;
-					return;
+				if (in->get_type() != node_type::nd_number) {
+					throw TableReadError("Ошибка получения длины поля индекса таблицы. Узел не является числом.", block_descr, name)
+							.add_detail("Индекс", ind->name)
+							.add_detail("Номер поля индекса", j + 1)
+							.add_detail("Поле индекса", field_name);
 				}
 				ind->records[j].len = StrToInt(in->get_value());
 			}
@@ -484,140 +325,72 @@ void Table::init(int32_t block_descr)
 	else indexes = nullptr;
 
 	t = t->get_next();
-	if(t->get_num_subnode() != 2)
-	{
-		msreg_g.AddError("Ошибка получения типа блокировки таблицы. Количество узлов не равно 2.",
-			"Блок", to_hex_string(block_descr),
-			"Таблица", name);
-		deletefields();
-		deleteindexes();
-		init();
-		delete root;
-		return;
+	if (t->get_num_subnode() != 2) {
+		throw TableReadError("Ошибка получения типа блокировки таблицы. Количество узлов не равно 2.", block_descr, name);
 	}
 
 	f = t->get_first();
-	if(f->get_type() != node_type::nd_string)
-	{
-		msreg_g.AddError("Ошибка получения типа блокировки таблицы. Ожидаемый узел Recordlock не является строкой.",
-			"Блок", to_hex_string(block_descr),
-			"Таблица", name);
-		deletefields();
-		deleteindexes();
-		init();
-		delete root;
-		return;
+	if (f->get_type() != node_type::nd_string) {
+		throw TableReadError("Ошибка получения типа блокировки таблицы. Ожидаемый узел Recordlock не является строкой.", block_descr, name);
 	}
-	if(f->get_value() != "Recordlock")
-	{
-		msreg_g.AddError("Ошибка получения типа блокировки таблицы. Узел не Recordlock.",
-			"Блок", to_hex_string(block_descr),
-			"Таблица", name,
-			"Узел", f->get_value());
-		deletefields();
-		deleteindexes();
-		init();
-		delete root;
-		return;
+	if (f->get_value() != "Recordlock") {
+		throw TableReadError("Ошибка получения типа блокировки таблицы. Узел не Recordlock.", block_descr, name)
+				.add_detail("Узел", f->get_value());
 	}
 
 	f = f->get_next();
-	if(f->get_type() != node_type::nd_string)
-	{
-		msreg_g.AddError("Ошибка получения типа блокировки таблицы. Узел не является строкой.",
-			"Блок", to_hex_string(block_descr),
-			"Таблица", name);
-		deletefields();
-		deleteindexes();
-		init();
-		delete root;
-		return;
+	if (f->get_type() != node_type::nd_string) {
+		throw TableReadError("Ошибка получения типа блокировки таблицы. Узел не является строкой.", block_descr, name);
 	}
 	String sTableLock = f->get_value();
 	if     (sTableLock == "0") recordlock = false;
 	else if(sTableLock == "1") recordlock = true;
-	else
-	{
-		msreg_g.AddError("Неизвестное значение типа блокировки таблицы.",
-			"Блок", to_hex_string(block_descr),
-			"Таблица", name,
-			"Тип блокировки", sTableLock);
-		deletefields();
-		deleteindexes();
-		init();
-		delete root;
-		return;
+	else {
+		throw TableReadError("Неизвестное значение типа блокировки таблицы.", block_descr, name)
+				.add_detail("Тип блокировки", sTableLock);
 	}
 
-	if(recordlock && !has_version)
-	{// добавляем скрытое поле версии
-		fld = new Field(this);
+	if (recordlock && !has_version) {
+		// добавляем скрытое поле версии
+		Field *fld = new Field(this);
 		fld->name = "VERSION";
 		fld->type_manager = FieldType::Version8();
 		fields.push_back(fld);
 	}
 
 	t = t->get_next();
-	if(t->get_num_subnode() != 4)
-	{
-		msreg_g.AddError("Ошибка получения файлов таблицы. Количество узлов не равно 4.",
-			"Блок", to_hex_string(block_descr),
-			"Таблица", name);
-		deletefields();
-		deleteindexes();
-		init();
-		delete root;
-		return;
+	if(t->get_num_subnode() != 4) {
+		throw TableReadError("Ошибка получения файлов таблицы. Количество узлов не равно 4.", block_descr, name);
 	}
 
 	f = t->get_first();
-	if(f->get_type() != node_type::nd_string)
-	{
-		msreg_g.AddError("Ошибка получения файлов таблицы. Ожидаемый узел Files не является строкой.",
-			"Блок", to_hex_string(block_descr),
-			"Таблица", name);
-		deletefields();
-		deleteindexes();
-		init();
-		delete root;
-		return;
+	if(f->get_type() != node_type::nd_string) {
+		throw TableReadError("Ошибка получения файлов таблицы. Ожидаемый узел Files не является строкой.", block_descr, name);
 	}
-	if(f->get_value() != "Files")
-	{
-		msreg_g.AddError("Ошибка получения файлов таблицы. Узел не Files.",
-			"Блок", to_hex_string(block_descr),
-			"Таблица", name,
-			"Узел", f->get_value());
-		deletefields();
-		deleteindexes();
-		init();
-		delete root;
-		return;
+	if (f->get_value() != "Files") {
+		throw TableReadError("Ошибка получения файлов таблицы. Узел не Files.", block_descr, name)
+				.add_detail("Узел", f->get_value());
 	}
 
 	for(i = 0; i < 3; i++)
 	{
 		f = f->get_next();
-		if(f->get_type() != node_type::nd_number)
-		{
-			msreg_g.AddError("Ошибка получения файла таблицы. Узел не является числом.",
-				"Блок", to_hex_string(block_descr),
-				"Таблица", name,
-				"Номер файла", i + 1);
-			deletefields();
-			deleteindexes();
-			init();
-			delete root;
-			return;
+		if (f->get_type() != node_type::nd_number) {
+			throw TableReadError("Ошибка получения файла таблицы. Узел не является числом.", block_descr, name)
+					.add_detail("Номер файла", i + 1);
 		}
 		blockfile[i] = StrToInt(f->get_value());
 	}
 
-	delete root;
-
-	if(blockfile[0]) file_data = new v8object(base, blockfile[0]); else file_data = nullptr;
-	if(blockfile[1]) file_blob = new v8object(base, blockfile[1]); else file_blob = nullptr;
-	if(blockfile[2]) file_index = new v8object(base, blockfile[2]); else file_index = nullptr;
+	if (blockfile[0]) {
+		file_data = new v8object(base, blockfile[0]);
+	}
+	if (blockfile[1]) {
+		file_blob = new v8object(base, blockfile[1]);
+	}
+	if (blockfile[2]) {
+		file_index = new v8object(base, blockfile[2]);
+	}
 
 	if(num_indexes && !file_index)
 	{
@@ -753,13 +526,6 @@ void Table::init(int32_t block_descr)
 	// Инициализация данных индекса
 	for(i = 0; i < num_indexes; i++) indexes[i]->get_length();
 
-	#ifdef _DEBUG
-	msreg_g.AddDebugMessage("Создана таблица.", MessageState::Info,
-		"Таблица", name,
-		"Длина таблицы", file_data->getlen(),
-		"Длина записи", recordlen);
-	#endif
-
 	bad = false;
 
 }
@@ -773,8 +539,14 @@ Table::Table(T_1CD* _base, int32_t block_descr)
 	descr_table = new v8object(base, block_descr);
 	description = String((WCHART*)descr_table->getdata(), descr_table->getlen() / 2);
 
+	try {
 
-	init(block_descr);
+		init(block_descr);
+
+	} catch (DetailedException &err) {
+		init();
+		throw err;
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -786,7 +558,14 @@ Table::Table(T_1CD* _base, String _descr, int32_t block_descr)
 	descr_table = 0;
 	description = _descr;
 
-	init(block_descr);
+	try {
+
+		init(block_descr);
+
+	} catch (DetailedException &err) {
+		init();
+		throw err;
+	}
 }
 
 //---------------------------------------------------------------------------
