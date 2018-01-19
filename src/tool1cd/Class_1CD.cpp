@@ -51,9 +51,9 @@ tree* get_treeFromV8file(v8file* f)
 		delete sb;
 		return nullptr;
 	}
-	bytes = TEncoding::Convert(enc, TEncoding::Unicode, sb->GetBytes(), offset, sb->GetSize() - offset);
+	String text = enc->toUtf8(sb->GetBytes(), offset);
 
-	rt = parse_1Ctext(String((WCHART*)&bytes[0], bytes.size() / 2), f->GetFullName());
+	rt = parse_1Ctext(text, f->GetFullName());
 	delete sb;
 	return rt;
 }
