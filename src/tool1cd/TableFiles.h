@@ -34,7 +34,7 @@ struct table_rec
 
 //---------------------------------------------------------------------------
 // Структура файла таблицы контейнера файлов
-struct table_file
+struct TableFile
 {
 	Table* t;
 	String name; // Имя, как оно хранится в таблице
@@ -43,8 +43,8 @@ struct table_file
 	System::FILETIME ft_create;
 	System::FILETIME ft_modify;
 
-	table_file(Table* _t, const String& _name, uint32_t _maxpartno);
-	~table_file();
+	TableFile(Table* _t, const String& _name, uint32_t _maxpartno);
+	~TableFile();
 };
 
 //---------------------------------------------------------------------------
@@ -53,7 +53,7 @@ class TableFiles
 {
 private:
 	Table* table {nullptr};
-	std::map<String,table_file*> allfiles;
+	std::map<String,TableFile*> allfiles;
 	char* record {nullptr};
 	bool ready {false};
 
@@ -62,10 +62,10 @@ public:
 	explicit TableFiles(Table* t);
 	virtual ~TableFiles();
 	bool getready() { return ready; }
-	table_file* getfile(const String& name);
+	TableFile* getfile(const String& name);
 	Table* gettable() { return table; }
 
-	std::map<String,table_file*> &files();
+	std::map<String,TableFile*> &files();
 };
 
 

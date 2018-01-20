@@ -494,7 +494,7 @@ bool T_1CD::save_configsave(String _filename) // TODO: переписать со
 //---------------------------------------------------------------------------
 void T_1CD::find_supplier_configs()
 {
-	std::map<String,table_file*>::iterator p;
+	std::map<String,TableFile*>::iterator p;
 
 	for(p = get_files_configsave()->files().begin(); p != get_files_configsave()->files().end(); ++p)
 	{
@@ -508,9 +508,9 @@ void T_1CD::find_supplier_configs()
 }
 
 //---------------------------------------------------------------------------
-void T_1CD::add_supplier_config(table_file* tf)
+void T_1CD::add_supplier_config(TableFile* tf)
 {
-	container_file* f;
+	ContainerFile* f;
 	TStream* s;
 	int32_t i;
 	v8catalog* cat = nullptr;
@@ -522,9 +522,8 @@ void T_1CD::add_supplier_config(table_file* tf)
 	String _name; // имя конфигурация поставщика
 	String _supplier; // синоним конфигурация поставщика
 	String _version; // версия конфигурация поставщика
-	SupplierConfig sc;
 
-	f = new container_file(tf, tf->name);
+	f = new ContainerFile(tf, tf->name);
 	if(!f->open())
 	{
 		delete f;
@@ -698,12 +697,8 @@ void T_1CD::add_supplier_config(table_file* tf)
 		}
 		#endif
 
-
-		sc.file = tf;
-		sc.name = _name;
-		sc.supplier = _supplier;
-		sc.version = _version;
-		supplier_configs.push_back(sc);
+		std::shared_ptr<SupplierConfig> sup_conf = std::make_shared<SupplierConfig>(tf, _name, _supplier, _version);
+		supplier_configs.push_back(sup_conf);
 
 		delete cat;
 		cat = nullptr;
@@ -718,52 +713,6 @@ void T_1CD::add_supplier_config(table_file* tf)
 		delete tr;
 		delete f;
 	}
-}
-
-//---------------------------------------------------------------------------
-bool T_1CD::save_supplier_configs(uint32_t numcon, const String& _filename) // TODO: переписать сохранение конфигурации поставщика на boost::filesystem
-{
-	TFileStream* _fs;
-	container_file* f;
-	table_file* tf;
-
-	if(numcon >= supplier_configs.size()) return false;
-	tf = supplier_configs[numcon].file;
-	f = new container_file(tf, tf->name);
-	if(!f->open())
-	{
-		delete f;
-		return false;
-	}
-
-	try
-	{
-		_fs = new TFileStream(_filename, fmCreate);
-	}
-	catch(...)
-	{
-		msreg_m.AddError("Ошибка открытия файла конфигурации поставщика",
-			"Имя файла", _filename);
-		delete f;
-		return false;
-	}
-
-	try
-	{
-		ZInflateStream(f->stream, _fs);
-	}
-	catch(...)
-	{
-		msreg_m.AddError("Ошибка распаковки файла конфигурации поставщика",
-			"Имя файла", _filename);
-		delete f;
-		delete _fs;
-		return false;
-	}
-
-	delete _fs;
-	delete f;
-	return true;
 }
 
 //---------------------------------------------------------------------------

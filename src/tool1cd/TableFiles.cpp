@@ -10,10 +10,10 @@
 extern Registrator msreg_g;
 
 //********************************************************
-// Класс table_file
+// Класс TableFile
 
 //---------------------------------------------------------------------------
-table_file::table_file(Table* _t, const String& _name, uint32_t _maxpartno)
+TableFile::TableFile(Table* _t, const String& _name, uint32_t _maxpartno)
 {
 	uint32_t i;
 
@@ -31,7 +31,7 @@ table_file::table_file(Table* _t, const String& _name, uint32_t _maxpartno)
 }
 
 //---------------------------------------------------------------------------
-table_file::~table_file()
+TableFile::~TableFile()
 {
 	delete[] addr;
 }
@@ -58,8 +58,8 @@ TableFiles::TableFiles(Table* t)
 	std::vector<table_rec> allrec;
 	std::map<String,int32_t> maxpartnos;
 	std::map<String,int32_t>::iterator pmaxpartno;
-	table_file* tf;
-	std::map<String,table_file*>::iterator pfilesmap;
+	TableFile* tf;
+	std::map<String,TableFile*>::iterator pfilesmap;
 
 	table = t;
 	ready = test_table();
@@ -108,7 +108,7 @@ TableFiles::TableFiles(Table* t)
 
 	for(pmaxpartno = maxpartnos.begin(); pmaxpartno != maxpartnos.end(); ++pmaxpartno)
 	{
-		tf = new table_file(table, pmaxpartno->first, pmaxpartno->second);
+		tf = new TableFile(table, pmaxpartno->first, pmaxpartno->second);
 		allfiles[pmaxpartno->first] = tf;
 	}
 
@@ -222,9 +222,9 @@ bool TableFiles::test_table()
 }
 
 //---------------------------------------------------------------------------
-table_file* TableFiles::getfile(const String& name)
+TableFile* TableFiles::getfile(const String& name)
 {
-	std::map<String,table_file*>::iterator p;
+	std::map<String,TableFile*>::iterator p;
 
 	p = allfiles.find(name.UpperCase());
 	if(p == allfiles.end()) {
@@ -235,7 +235,7 @@ table_file* TableFiles::getfile(const String& name)
 	}
 }
 
-std::map<String,table_file*> &TableFiles::files()
+std::map<String,TableFile*> &TableFiles::files()
 {
 	return allfiles;
 }

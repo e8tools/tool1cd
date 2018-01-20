@@ -289,6 +289,21 @@ void App::save_configsave(const ParsedCommand &pc)
 
 } // save_configsave
 
+void App::save_vendors_configs(const boost::filesystem::path& param_path) {
+	base1CD->find_supplier_configs();
+	for (auto& supplier_config : base1CD->supplier_configs) {
+		String file_name = supplier_config->name() + " " + supplier_config->version() + str_cf;
+		boost::filesystem::path cfpath = param_path / static_cast<string>(file_name);
+		if ( supplier_config->save_to_file(cfpath) ) {
+			msreg_g.AddMessage_("Сохранение конфигурации поставщика завершено.", MessageState::Succesfull, "Файл",
+													cfpath.string());
+		} else {
+			msreg_g.AddMessage_("Не удалось сохранить конфигурацию поставщика.", MessageState::Error, "Файл",
+													cfpath.string());
+		}
+	}
+}
+
 // save_vendors_configs
 void App::save_vendors_configs(const ParsedCommand &pc)
 {
@@ -297,18 +312,7 @@ void App::save_vendors_configs(const ParsedCommand &pc)
 		return;
 	}
 
-	base1CD->find_supplier_configs();
-	for (size_t n = 0; n < base1CD->supplier_configs.size(); n++) {
-		String file_name = base1CD->supplier_configs[n].name + " " + base1CD->supplier_configs[n].version + str_cf;
-		boost::filesystem::path cfpath = param_path / static_cast<string>(file_name);
-		if (base1CD->save_supplier_configs(n, cfpath.string())) {
-			msreg_g.AddMessage_("Сохранение конфигурации поставщика завершено.", MessageState::Succesfull, "Файл",
-				                cfpath.string());
-		} else {
-			msreg_g.AddMessage_("Не удалось сохранить конфигурацию поставщика.", MessageState::Error, "Файл",
-			                    cfpath.string());
-		}
-	}
+	save_vendors_configs(param_path);
 
 } // save_vendors_configs
 
@@ -338,19 +342,7 @@ void App::save_all_configs(const ParsedCommand &pc)
 		                    cfpath.string());
 	}
 
-	base1CD->find_supplier_configs();
-	for (size_t n = 0; n < base1CD->supplier_configs.size(); n++) {
-		String file_name = base1CD->supplier_configs[n].name + " " + base1CD->supplier_configs[n].version + str_cf;
-		boost::filesystem::path supplier_path = param_path / static_cast<string>(file_name);
-		if (base1CD->save_supplier_configs(n, supplier_path.string())) {
-			msreg_g.AddMessage_("Сохранение конфигурации поставщика завершено.", MessageState::Succesfull, "Файл",
-			                    supplier_path.string());
-		} else {
-			msreg_g.AddMessage_("Не удалось сохранить конфигурацию поставщика.", MessageState::Error, "Файл",
-			                    supplier_path.string());
-		}
-	}
-
+	save_vendors_configs(param_path);
 } // save_all_configs
 
 // save_depot_config

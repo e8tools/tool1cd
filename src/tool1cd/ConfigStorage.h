@@ -78,9 +78,9 @@ enum class table_file_packed
 
 //---------------------------------------------------------------------------
 // Структура файла контейнера файлов
-struct container_file
+struct ContainerFile
 {
-	table_file* file;
+	TableFile* file;
 	String name; // Приведенное имя (очищенное от динамического обновления)
 	TStream* stream;
 	TStream* rstream; // raw stream (нераспакованный поток)
@@ -88,8 +88,8 @@ struct container_file
 	table_file_packed packed;
 	int dynno; // Номер (индекс) динамического обновления (0, 1 и т.д.). Если без динамического обновления, то -1, если UID динамического обновления не найден, то -2. Для пропускаемых файлов -3.
 
-	container_file(table_file* _f, const String& _name);
-	~container_file();
+	ContainerFile(TableFile* _f, const String& _name);
+	~ContainerFile();
 	bool open();
 	bool ropen(); // raw open
 	void close();
@@ -111,7 +111,7 @@ public:
 	virtual bool fileexists(const String& path) override;
 
 protected:
-	std::map<String,container_file*> files;
+	std::map<String,ContainerFile*> files;
 	bool ready{false};
 private:
 	T_1CD* base; // установлена, если база принадлежит адаптеру конфигурации
