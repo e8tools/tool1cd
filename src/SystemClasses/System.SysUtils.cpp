@@ -21,9 +21,9 @@ virtual std::vector<t::Byte> GetPreamble()
 	return result;
 }
 
-virtual String toUtf8(const std::vector<t::Byte> &Buffer) const
+virtual String toUtf8(const std::vector<t::Byte> &Buffer, int offset = 0) const
 {
-	return String(Buffer);
+	return String(Buffer, offset);
 }
 
 virtual std::vector<t::Byte> fromUtf8(const String &str)
@@ -49,10 +49,10 @@ virtual std::vector<t::Byte> GetPreamble()
 	return result;
 }
 
-virtual String toUtf8(const std::vector<t::Byte> &Buffer) const
+virtual String toUtf8(const std::vector<t::Byte> &Buffer, int offset) const
 {
-	auto data_first = (const uint16_t *)Buffer.data();
-	auto data_last  = data_first + Buffer.size() / sizeof(uint16_t);
+	auto data_first = (const uint16_t *)(Buffer.data() + offset);
+	auto data_last  = data_first + (Buffer.size() - offset) / sizeof(uint16_t);
 	std::vector<t::Byte> result_vector;
 	utf8::utf16to8(data_first, data_last, back_inserter(result_vector));
 	return String(result_vector);
@@ -130,14 +130,26 @@ TEncoding *TEncoding::Unicode = new TUcs2Encoding();
 
 int TEncoding::GetBufferEncoding(const std::vector<t::Byte> &Buffer, TEncoding* &AEncoding)
 {
-	// TODO: реализовать GetBufferEncoding
+
+	std::vector<TEncoding*> known_encodings {UTF8, Unicode};
+	for (auto enc : known_encodings) {
+		auto preamble = enc->GetPreamble();
+		if (preamble.size() > Buffer.size()) {
+			continue;
+		}
+		if (std::equal(preamble.begin(), preamble.end(), Buffer.begin())) {
+			AEncoding = enc;
+			return preamble.size();
+		}
+	}
+
 	return 0;
 }
 
 std::vector<t::Byte> TEncoding::Convert(TEncoding * const Source, TEncoding * const Destination, const std::vector<t::Byte> &Bytes, int StartIndex, int Count)
 {
 	// TODO: Исправить работу TEncoding::Convert
-	auto data = Source->toUtf8(Bytes); // TODO: StartIndex, Count
+	auto data = Source->toUtf8(Bytes, StartIndex); // TODO: StartIndex, Count
 	std::vector<t::Byte> Result = Destination->fromUtf8(data);
 	return Result;
 }

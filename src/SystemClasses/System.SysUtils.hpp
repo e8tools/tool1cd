@@ -48,7 +48,7 @@ class TEncoding
 public:
 
 virtual std::vector<System::t::Byte> GetPreamble() = 0;
-virtual String toUtf8(const std::vector<t::Byte> &Buffer) const = 0;
+virtual String toUtf8(const std::vector<t::Byte> &Buffer, int offset = 0) const = 0;
 virtual std::vector<t::Byte> fromUtf8(const String &str) = 0;
 
 static int GetBufferEncoding(const std::vector<t::Byte> &Buffer, TEncoding* &AEncoding);
