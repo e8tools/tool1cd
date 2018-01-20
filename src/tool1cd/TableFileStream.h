@@ -19,10 +19,10 @@ class TableFileStream : public TStream
 {
 private:
 	int64_t curoffset;
-	table_file* tablefile;
+	TableFile* tablefile;
 	TStream** streams;
 public:
-	TableFileStream(table_file* tf);
+	TableFileStream(TableFile *tf);
 	virtual ~TableFileStream();
 
 	virtual int64_t Read(void *Buffer, int64_t Count) override;
