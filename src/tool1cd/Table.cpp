@@ -2412,7 +2412,7 @@ String Table::get_file_name_for_record(char* rec)
 	return s;
 }
 
-Field* Table::get_field(const String &fieldname)
+Field* Table::get_field(const String &fieldname) const
 {
 	Field* fld = find_field(fieldname);
 	if (fld) {
@@ -2424,7 +2424,7 @@ Field* Table::get_field(const String &fieldname)
 	throw error;
 }
 
-Field* Table::find_field(const String &fieldname) throw()
+Field* Table::find_field(const String &fieldname) const throw()
 {
 	for (int32_t j = 0; j < num_fields; j++) {
 		Field* fld = fields[j];
@@ -2436,7 +2436,7 @@ Field* Table::find_field(const String &fieldname) throw()
 	return nullptr;
 }
 
-Index* Table::get_index(const String& indexname)
+Index* Table::get_index(const String& indexname) const
 {
 	Index* ind = find_index(indexname);
 	if (ind) {
@@ -2449,7 +2449,7 @@ Index* Table::get_index(const String& indexname)
 	throw error;
 }
 
-Index* Table::find_index(const String& indexname) throw()
+Index* Table::find_index(const String& indexname) const throw()
 {
 	for (int32_t j = 0; j < num_indexes; j++) {
 		Index* ind = indexes[j];
