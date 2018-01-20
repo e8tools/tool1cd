@@ -7,6 +7,7 @@
 
 #include "V8Catalog.h"
 #include "TV8FileStream.h"
+#include "../Parse_tree.h"
 
 class v8catalog;
 class TV8FileStream;
@@ -55,6 +56,8 @@ public:
 		void SaveToStream(TStream* stream);
 		TV8FileStream* get_stream(bool own = false);
 		void Flush();
+
+		tree* get_tree();
 private:
 		friend v8catalog;
 		friend TV8FileStream;

@@ -1,5 +1,9 @@
+#include <memory>
+
 #include"APIcfBase.h"
 #include "V8File.h"
+
+extern Registrator msreg_g;
 
 using namespace System;
 
@@ -680,4 +684,25 @@ void v8file::Flush()
 	}
 	flushed = false;
 	Lock->Release();
+}
+
+tree* v8file::get_tree()
+{
+	TBytes bytes;
+	std::unique_ptr<TBytesStream> bytes_stream( new TBytesStream(bytes) );
+	SaveToStream(bytes_stream.get());
+
+	TEncoding *enc = nullptr;
+	int32_t offset = TEncoding::GetBufferEncoding(bytes_stream->GetBytes(), enc);
+	if(offset == 0 || enc == nullptr) {
+		msreg_g.AddError("Ошибка определения кодировки файла контейнера",
+			"Файл",  GetFullName());
+		return nullptr;
+	}
+
+	String text = enc->toUtf8(bytes_stream->GetBytes(), offset);
+
+	tree* rt = parse_1Ctext(text, GetFullName());
+
+	return rt;
 }
