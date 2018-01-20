@@ -8,7 +8,7 @@
 #include "TableFileStream.h"
 
 //---------------------------------------------------------------------------
-TableFileStream::TableFileStream(table_file* tf)
+TableFileStream::TableFileStream(TableFile* tf)
 {
 	curoffset = 0;
 	tablefile = tf;

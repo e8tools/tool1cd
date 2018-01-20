@@ -18,6 +18,7 @@
 #include "cfapi/V8File.h"
 #include "cfapi/V8Catalog.h"
 #include "cfapi/TV8FileStream.h"
+#include "SupplierConfig.h"
 
 //---------------------------------------------------------------------------
 
@@ -25,8 +26,9 @@ class T_1CD;
 class Table;
 class v8object;
 class Field;
-class table_file;
+struct TableFile;
 class TableFiles;
+class SupplierConfig;
 
 class ConfigStorageTableConfig;
 class ConfigStorageTableConfigSave;
@@ -90,16 +92,6 @@ union root
 {
 	root_80 root80;
 	root_81 root81;
-};
-
-// класс конфигурации поставщика
-class SupplierConfig
-{
-public:
-	table_file* file;
-	String name; // имя конфигурация поставщика
-	String supplier; // синоним конфигурация поставщика
-	String version; // версия конфигурация поставщика
 };
 
 // Типы страниц
@@ -195,7 +187,7 @@ public:
 
 	String ver;
 
-	std::vector<SupplierConfig> supplier_configs; // конфигурации поставщика
+	std::vector<std::shared_ptr<SupplierConfig>> supplier_configs; // конфигурации поставщика
 	bool supplier_configs_defined; // признак, что был произведен поиск конфигураций поставщика
 
 	T_1CD(String _filename, MessageRegistrator* mess = nullptr, bool monopoly = true);
@@ -269,7 +261,7 @@ private:
 	void set_block_as_free(uint32_t block_number); // пометить блок как свободный
 	uint32_t get_free_block(); // получить номер свободного блока (и пометить как занятый)
 
-	void add_supplier_config(table_file* file);
+	void add_supplier_config(TableFile* file);
 
 	bool recursive_test_stream_format(Table* t, uint32_t nrec);
 	bool recursive_test_stream_format2(Table* t, uint32_t nrec); // для DBSCHEMA

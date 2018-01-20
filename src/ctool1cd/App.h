@@ -1,6 +1,7 @@
 #ifndef CTOOL1CD_APPH
 #define CTOOL1CD_APPH
 
+#include <boost/filesystem.hpp>
 #include <memory>
 
 #include "Class_1CD.h"
@@ -36,6 +37,7 @@ private:
 
 	void save_config(const ParsedCommand& pc);
 	void save_configsave(const ParsedCommand& pc);
+	void save_vendors_configs(const boost::filesystem::path& param_path);
 	void save_vendors_configs(const ParsedCommand& pc);
 	void save_all_configs(const ParsedCommand& pc);
 
