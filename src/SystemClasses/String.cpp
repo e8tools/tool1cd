@@ -49,7 +49,8 @@ String::String(const char *src, int limit_size) : string(src, limit_size)
  *      @src        - входная строка
  *      @limit_size - лимит в размере
  */
-String::String(const std::vector<t::Byte> &bytes) : string(reinterpret_cast<const char *>(bytes.data()), bytes.size())
+String::String(const std::vector<t::Byte> &bytes, int offset, int size)
+		: string(reinterpret_cast<const char *>(bytes.data() + offset), ( size == -1 ? (bytes.size()-offset) : size))
 {
 }
 
