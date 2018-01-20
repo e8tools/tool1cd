@@ -30,34 +30,6 @@ const uint32_t ONE_GB = 1073741824;
 //********************************************************
 // Функции
 
-//---------------------------------------------------------------------------
-tree* get_treeFromV8file(v8file* f)
-{
-	TBytesStream* sb;
-	TEncoding *enc;
-	TBytes bytes;
-	int32_t offset;
-	tree* rt;
-
-	sb = new TBytesStream(bytes);
-	f->SaveToStream(sb);
-
-	enc = nullptr;
-	offset = TEncoding::GetBufferEncoding(sb->GetBytes(), enc);
-	if(offset == 0)
-	{
-		msreg_g.AddError("Ошибка определения кодировки файла контейнера",
-			"Файл", f->GetFullName());
-		delete sb;
-		return nullptr;
-	}
-	String text = enc->toUtf8(sb->GetBytes(), offset);
-
-	rt = parse_1Ctext(text, f->GetFullName());
-	delete sb;
-	return rt;
-}
-
 
 //********************************************************
 // Класс T_1CD
@@ -591,7 +563,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 			return;
 		}
 
-		tr = get_treeFromV8file(file);
+		tr = file->get_tree();
 		i = (*tr)[0][0][0].get_value().ToInt();
 		delete tr;
 		tr = nullptr;
@@ -637,7 +609,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 			return;
 		}
 
-		tr = get_treeFromV8file(file);
+		tr = file->get_tree();
 		filenamemeta = (*tr)[0][1].get_value();
 		delete tr;
 		tr = nullptr;
@@ -660,7 +632,7 @@ void T_1CD::add_supplier_config(table_file* tf)
 			"Имя мета", filenamemeta);
 		#endif
 
-		tr = get_treeFromV8file(file);
+		tr = file->get_tree();
 		int32_t numnode = (*tr)[0][2].get_value().ToInt();
 		for(i = 0; i < numnode; i++)
 		{
