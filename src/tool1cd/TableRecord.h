@@ -22,13 +22,16 @@ class TableRecord {
 public:
 
 	// owns data
-	TableRecord(const Table *parent, char *data, int data_size);
+	explicit TableRecord(const Table *parent, char *data = nullptr, int data_size = -1);
 
 	String get_string(const Field *field) const;
 	String get_string(const String &field_name) const;
 
 	bool is_null_value(const Field *field) const;
 	bool is_null_value(const String &field_name) const;
+
+	void set_null(const Field *field);
+	void set_data(const Field *field, const void *data);
 
 	BinaryGuid get_guid(const Field *field) const;
 	BinaryGuid get_guid(const String &field_name) const;
@@ -47,11 +50,13 @@ public:
 
 	bool is_removed() const;
 
+	void Assign(const TableRecord *another_record);
+
 	~TableRecord();
 
 private:
-	const Table *table;
 	char *data;
+	const Table *table;
 	int data_size;
 };
 

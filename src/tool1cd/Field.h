@@ -13,6 +13,7 @@
 #include "Constants.h"
 #include "DetailedException.h"
 #include "FieldType.h"
+#include "TableRecord.h"
 
 class Table;
 class T_1CD;
@@ -46,7 +47,7 @@ public:
 	bool getcase_sensitive() const;
 	int32_t getoffset() const;
 	String get_presentation_type() const;
-	bool save_blob_to_file(char* rec, String filename, bool unpack) const;
+	bool save_blob_to_file(const TableRecord *rec, String filename, bool unpack) const;
 	uint32_t getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen) const;
 private:
 	String name;

@@ -4,6 +4,7 @@
 #include "TempStream.h"
 #include "FieldType.h"
 #include "UZLib.h"
+#include "Common.h"
 
 extern Registrator msreg_g;
 
@@ -167,7 +168,7 @@ uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxl
 }
 
 //---------------------------------------------------------------------------
-bool Field::save_blob_to_file(char* rec, String _filename, bool unpack) const
+bool Field::save_blob_to_file(const TableRecord *rec, String _filename, bool unpack) const
 {
 	TStream* blob_stream;
 	TStream* _s;
@@ -175,31 +176,26 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack) const
 	TStream* _sx;
 	TStream* _sx2;
 	uint32_t k, l;
-	bool usetemporaryfiles = false;
 
-	char *orec = rec;
-	rec += offset;
-	if (getnull_exists()) {
-		if (*rec == 0) {
-			return false;
-		}
-		rec++;
+	if (rec->is_null_value(this)) {
+		return false;
 	}
 
-	if (*(uint32_t*)rec == 0 || *(uint32_t*)(rec + 4) == 0) {
+	auto bp = (const BlobPointer *)rec->get_data(this);
+	if (bp->start == 0 || bp->length == 0) {
 		return false;
 	}
 
 	if(!unpack) {
 		TFileStream temp_stream(_filename, fmCreate);
-		parent->readBlob(&temp_stream, *(uint32_t*)rec, *(uint32_t*)(rec + 4));
+		parent->readBlob(&temp_stream, bp->start, bp->length);
 		return true;
 	}
 
-	usetemporaryfiles = *(uint32_t*)(rec + 4) > 10 * 1024 * 1024;
+	bool usetemporaryfiles = *(uint32_t*)(rec + 4) > 10 * 1024 * 1024;
 	if(usetemporaryfiles) blob_stream = new TTempStream;
 	else blob_stream = new TMemoryStream;
-	parent->readBlob(blob_stream, *(uint32_t*)rec, *(uint32_t*)(rec + 4));
+	parent->readBlob(blob_stream, bp->start, bp->length);
 	if(blob_stream->GetSize() == 0)
 	{
 		delete blob_stream;
@@ -219,15 +215,19 @@ bool Field::save_blob_to_file(char* rec, String _filename, bool unpack) const
 		if(tabname.CompareIC("PARAMS") == 0)
 		{
 			Field *_f = tab->getfield(0);
-			if(_f->get_presentation(orec).CompareIC("users.usr") == 0) is_users_usr = true;
+			if (rec->get_string(_f).CompareIC("users.usr") == 0) {
+				is_users_usr = true;
+			}
 		}
-		else if(tabname.CompareIC("V8USERS") == 0) is_users_usr = true;
+		else if(tabname.CompareIC("V8USERS") == 0) {
+			is_users_usr = true;
+		}
 
 		bool maybezipped_twice = true;
 		if(tabname.CompareIC("CONFIG") == 0 || tabname.CompareIC("CONFIGSAVE") == 0)
 		{
 			Field *_f = tab->getfield(0);
-			maybezipped_twice = _f->get_presentation(orec).GetLength() > 72;
+			maybezipped_twice = rec->get_string(_f).GetLength() > 72;
 		}
 
 		if(is_users_usr)

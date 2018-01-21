@@ -7,6 +7,7 @@
 
 #include "Index.h"
 #include <limits>
+#include "TableRecord.h"
 
 extern Registrator msreg_g;
 
@@ -586,14 +587,14 @@ bool Index::pack_leafpage(char* unpack_index, uint32_t number_indexes, char* pag
 }
 
 //---------------------------------------------------------------------------
-void Index::calcRecordIndex(const char* rec, char* indexBuf)
+void Index::calcRecordIndex(const TableRecord *rec, char *indexBuf)
 {
 	int32_t i, j, k;
 
 	j = length;
 	for(i = 0; i < num_records; i++)
 	{
-		k = records[i].field->getSortKey(rec, (unsigned char *)indexBuf, j);
+		k = records[i].field->getSortKey(rec->get_raw(records[i].field), (unsigned char *)indexBuf, j);
 		indexBuf += k;
 		j -= k;
 	}
@@ -601,7 +602,7 @@ void Index::calcRecordIndex(const char* rec, char* indexBuf)
 }
 
 //---------------------------------------------------------------------------
-void Index::delete_index(const char* rec, const uint32_t phys_numrec)
+void Index::delete_index(const TableRecord *rec, const uint32_t phys_numrec)
 {
 	char* index_buf;
 	index_buf = new char[length];
@@ -764,7 +765,7 @@ void Index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 }
 
 //---------------------------------------------------------------------------
-void Index::write_index(const uint32_t phys_numrecord, const char* rec)
+void Index::write_index(const uint32_t phys_numrecord, const TableRecord *rec)
 {
 	char* index_buf;
 	index_buf = new char[length];

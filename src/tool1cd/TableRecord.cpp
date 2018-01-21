@@ -15,7 +15,9 @@ NullValueException::NullValueException(const Field *field)
 }
 
 TableRecord::TableRecord(const Table *parent, char *data, int data_size)
-	: table(parent), data(data), data_size(data_size)
+	: data(data == nullptr ? new char [parent->get_recordlen()] : data),
+	  table(parent),
+	  data_size(data_size == -1 ? parent->get_recordlen() : data_size)
 {
 
 }
@@ -112,4 +114,35 @@ bool TableRecord::get_bool(const Field *field) const
 bool TableRecord::get_bool(const String &field_name) const
 {
 	return get_bool(table->get_field(field_name));
+}
+
+void TableRecord::Assign(const TableRecord *another_record)
+{
+	if (table != nullptr) {
+		if (another_record->data_size != data_size || another_record->table != table) {
+			throw std::exception(); // TODO: внятное исключение
+		}
+	}
+	auto i = data_size;
+	while (i--) {
+		data[i] = another_record->data[i];
+	}
+}
+
+void TableRecord::set_null(const Field *field)
+{
+	if (!field->getnull_exists()) {
+		throw std::exception(); // TODO: Внятное исключение, что поле не поддерживает NULL
+	}
+	data[field->getoffset()] = '\0';
+}
+
+void TableRecord::set_data(const Field *field, const void *new_data)
+{
+	char *data_start = &data[field->getoffset()];
+	if (field->getnull_exists()) {
+		data_start[0] = '\001';
+		data_start++;
+	}
+	memcpy(data_start, new_data, field->getlen());
 }

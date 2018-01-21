@@ -1766,18 +1766,22 @@ bool T_1CD::test_list_of_tables()
 	for(k = 0; k < table_params->get_phys_numrecords(); k++)
 	{
 
-		table_params->getrecord(k); // TODO: TableRecord
-		if(*rec) continue;
+		TableRecord *rec = table_params->getrecord(k);
+		if (rec->is_removed()) {
+			continue;
+		}
 
-		if(f_name->get_presentation(rec).CompareIC("DBNames") != 0) continue;
+		if (rec->get_string(f_name).CompareIC("DBNames") != 0) {
+			continue;
+		}
 
 		hasDBNames = true;
 
-		orec = rec + f_binary_data->getoffset();
+		auto bp = (const BlobPointer *) rec->get_data(f_binary_data);
 		str = new TMemoryStream();
-		table_params->readBlob(str, *(uint32_t*)orec, *(uint32_t*)(orec + 4));
+		table_params->readBlob(str, bp->start, bp->length);
 
-		slen = f_data_size->get_presentation(rec, true);
+		String slen = rec->get_string(f_data_size);
 		try
 		{
 			j = slen.ToInt();
@@ -1947,8 +1951,6 @@ bool T_1CD::test_list_of_tables()
 		result = false;
 	}
 
-	delete[] rec;
-
 	return result;
 }
 
@@ -2013,17 +2015,18 @@ bool T_1CD::replaceTREF(String mapfile)
 				t->edit = true;
 				for(kk = 0; kk < t->get_phys_numrecords(); kk++)
 				{
-					t->getrecord(kk); // TODO: TableRecord
-					if(*rec) continue;
-					ii = reverse_byte_order(*((uint32_t*)(rec + k)));
+					TableRecord *rec = t->getrecord(kk);
+					if (rec->is_removed()) {
+						continue;
+					}
+					ii = reverse_byte_order(*((uint32_t*)(rec + k))); // TODO: wat ???
 					if(ii == 0) continue;
 					ii = map[ii];
 					*((int32_t*)(rec + k)) = reverse_byte_order(ii);
 					t->write_data_record(kk, rec);
+					delete rec;
 				}
 				t->edit = editsave;
-
-				delete[] rec;
 			}
 		}
 	}
