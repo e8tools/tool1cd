@@ -26,20 +26,14 @@ using namespace std;
 // ver_begin <= 0, ver_end <= 0 - номер версии от последней конфигурации. 0 - последняя конфигурация, -1 - предпоследняя и т.д., т.е. Номер версии определяется как номер последней + ver
 bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, int32_t ver_end)
 {
-	char* rec;
-	char* frec;
 	Field* fldv_vernum;
 	Field* fldh_datahash;
-	char* rech; // текущая запись HISTORY
-	char* rech1; // запись с версией < ver_begin
 	bool hasrech1;
-	char* rech2; // запись с версией <= ver_end
 	bool hasrech2;
 
-	char curobj[16];
+	BinaryGuid curobj;
 
 	Field* flde_datahash;
-	char* rece;
 
 	bool ok;
 	bool removed;
@@ -49,7 +43,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	bool inreaded;
 	bool hasext;
 	char emptyimage[8];
-	char verid[16];
+
 	uint32_t i;
 	int32_t v, res, lastver, n;
 	String s, ss, sn, se;
@@ -81,27 +75,25 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		return false;
 	}
 
-	rec = new char[table_depot->get_recordlen()];
-	ok = false;
+	//rec = new char[table_depot->get_recordlen()];
+	TableRecord *rec = nullptr;
+	// ok = false;
 	for(i = 0; i < table_depot->get_phys_numrecords(); i++)
 	{
-		table_depot->getrecord(i, rec);
-		if(!*rec)
-		{
-			ok = true;
+		rec = table_depot->getrecord(i);
+		if(!rec->is_removed()) {
 			break;
 		}
+		delete rec;
+		rec = nullptr;
 	}
-	if(!ok)
-	{
-		msreg_m.AddError("Не удалось прочитать запись в таблице DEPOT.");
-		delete[] rec;
-		return false;
+	if (!rec) {
+		throw DetailedException("Не удалось прочитать запись в таблице DEPOT.");
 	}
 
 	depotVer = get_depot_version(rec);
 
-	delete[] rec;
+	delete rec;
 
 	// "Нормализуем" версию конфигурации
 	ver_begin = get_ver_depot_config(ver_begin);
@@ -116,26 +108,32 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	// Ищем строку с номером версии конфигурации
 	fldv_vernum = table_versions->get_field("VERNUM");
 
-	rec = new char[table_versions->get_recordlen()];
+	rec = nullptr;
 	n = 0;
-	for(i = 0; i < table_versions->get_phys_numrecords(); i++)
+	for (int i = 0; i < table_versions->get_phys_numrecords(); i++)
 	{
-		table_versions->getrecord(i, rec);
-		if(*rec) continue;
-		s = fldv_vernum->get_presentation(rec, true);
-		v = s.ToIntDef(0);
-		if(v == ver_begin) n++;
-		if(v == ver_end) n++;
-		if(n >= 2) break;
+		rec = table_versions->getrecord(i);
+		if (rec->is_removed()) {
+			delete rec;
+			rec = nullptr;
+			continue;
+		}
+		int version = rec->get_string(fldv_vernum).ToIntDef(0);
+		if (version == ver_begin) {
+			n++;
+		}
+		if (version == ver_end) {
+			n++;
+		}
+		if (n >= 2) {
+			break;
+		}
 	}
 
-	if(n < 2)
-	{
-		msreg_m.AddMessage_("В хранилище не найдены запрошенные версии конфигурации", MessageState::Error
-				, "Версия с", ver_begin
-				, "Версия по", ver_end);
-		delete[] rec;
-		return false;
+	if (n < 2) {
+		throw DetailedException("В хранилище не найдены запрошенные версии конфигурации")
+				.add_detail("Версия с", ver_begin)
+				.add_detail("Версия по", ver_end);
 	}
 
 	boost::filesystem::path filepath = boost::filesystem::path(static_cast<std::string>(_filename));
@@ -143,8 +141,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 	// Определяем версию структуры конфигурации (для файла version)
 	if (depotVer >= depot_ver::Ver5) {
-		Field *fldv_cversion = table_versions->get_field("CVERSION");
-		frec = rec + fldv_cversion->offset;
+		const char *frec = rec->get_raw("CVERSION");
 		cv.b[0] = frec[1];
 		cv.b[1] = frec[0];
 		configVerMajor = cv.s;
@@ -165,7 +162,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		}
 	}
 
-	delete[] rec;
+	delete rec;
 
 	Field *fldh_objid      = table_history->get_field("OBJID");
 	Field *fldh_vernum     = table_history->get_field("VERNUM");
@@ -200,15 +197,13 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	Index *history_pk = table_history->get_index("PK");
 	Index *externals_pk = table_externals->get_index("PK");
 
-	rech = new char[table_history->get_recordlen()];
-	rech1 = new char[table_history->get_recordlen()];
-	rech2 = new char[table_history->get_recordlen()];
-	rece = new char[table_externals->get_recordlen()];
-	memset(rece, 0, table_externals->get_recordlen());
+	TableRecord *rech = nullptr;
+	TableRecord *rech1 = nullptr;
+	TableRecord *rech2 = nullptr;
+	TableRecord *rece = nullptr;
 
 	uint32_t history_records = history_pk->get_numrecords();
 	uint32_t external_records = externals_pk->get_numrecords();
-	memset(curobj, 0, 16);
 
 	boost::filesystem::path cath (filepath);
 
@@ -233,22 +228,20 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		uint32_t i;
 		if (history_iterator < history_records) {
 			i = history_pk->get_numrec(history_iterator);
-			table_history->getrecord(i, rech);
+			rech = table_history->getrecord(i);
 		}
 
-		if(memcmp(curobj, rech + fldh_objid->offset, 16) != 0 || history_iterator == history_records)
+		if (rech->get_guid(fldh_objid) != curobj || history_iterator == history_records)
 		{ // это новый объект или конец таблицы
 			if(history_iterator)
 				if(hasrech2)
 				{
-					s = fldh_vernum->get_presentation(rech2, false);
-					lastver = s.ToIntDef(std::numeric_limits<int32_t>::max());
-					sn = fldh_objid->get_presentation(rech2, false, L'.', true);
+					lastver = rech2->get_string(fldh_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
+					String sn = rech2->get_string(fldh_objid);
 
 					hasext = true;
-					removed = *(rech2 + fldh_removed->offset);
-					if(removed)
-					{
+					bool removed = rech2->get_bool(fldh_removed);
+					if (removed) {
 						if(hasrech1)
 						{
 							sw->Write(sn + "\r\n");
@@ -259,7 +252,11 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 					else
 					{
 						datapacked = false;
-						if(*(rech2 + fldh_datapacked->offset)) if(*(rech2 + fldh_datapacked->offset + 1)) datapacked = true;
+						if (!rech2->is_null_value(fldh_datapacked)) {
+							if (rech2->get_bool(fldh_datapacked)) {
+								datapacked = true;
+							}
+						}
 
 						if(datapacked)
 						{
@@ -268,26 +265,39 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 							if(hasrech1)
 							{
 								datapacked = false;
-								if(*(rech1 + fldh_datapacked->offset)) if(*(rech1 + fldh_datapacked->offset + 1)) datapacked = true;
+								if (!rech1->is_null_value(fldh_datapacked)) {
+									if (rech1->get_bool(fldh_datapacked)) {
+										datapacked = true;
+									}
+								}
 								if(datapacked)
 								{
-									rec = rech1 + fldh_objdata->offset + 1;
-									if(*(rech1 + fldh_objdata->offset) && memcmp(emptyimage, rec, 8))
-									{
-										table_history->readBlob(out, *(uint32_t*)rec, *(uint32_t*)(rec + 4));
-										rec = rech2 + fldh_objdata->offset + 1;
-										if(*(rech2 + fldh_objdata->offset) && memcmp(emptyimage, rec, 8))
+									auto *b = (const BlobPointer *)rech1->get_data(fldh_objdata);
+									if (!rech1->is_null_value(fldh_objdata) && (b->offset != 0 || b->size != 0)) {
+
+										table_history->readBlob(out, b->offset, b->size);
+
+										auto *b2 = (const BlobPointer *)rech2->get_data(fldh_objdata);
+										if (!rech2->is_null_value(fldh_objdata) && (b2->offset != 0 || b2->size != 0)) {
 										{
-											table_history->readBlob(in, *(uint32_t*)rec, *(uint32_t*)(rec + 4));
+											table_history->readBlob(out, b2->offset, b2->size);
 											inreaded = true;
-											if(in->GetSize() == out->GetSize()) if(memcmp(in->GetMemory(), out->GetMemory(), in->GetSize()) == 0) changed = false;
+											if (in->GetSize() == out->GetSize()) {
+												if(memcmp(in->GetMemory(), out->GetMemory(), in->GetSize()) == 0) {
+													changed = false;
+												}
+											}
 										}
 									}
 									else if(depotVer >= depot_ver::Ver6)
 									{
-										if(memcmp(rech2 + fldh_datahash->offset + (fldh_datahash->getnull_exists() ? 1 : 0)
-												, rech1 + fldh_datahash->offset + (fldh_datahash->getnull_exists() ? 1 : 0)
-												, fldh_datahash->getlength()) == 0) changed = false;
+										// TODO: тип под Datahash
+									}
+										if (memcmp(rech2->get_data(fldh_datahash)
+												, rech1->get_data(fldh_datahash)
+												, fldh_datahash->getlength()) == 0) {
+											changed = false;
+										}
 									}
 								}
 							}
@@ -296,26 +306,25 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 							{
 								ok = false;
 								deletesobj = false;
-								rec = rech2 + fldh_objdata->offset + 1;
+								auto *b = (const BlobPointer *)rech2->get_data(fldh_objdata);
 								if(inreaded)
 								{
 									sobj = in;
 									ok = true;
 								}
-								else if(*(rech2 + fldh_objdata->offset) && memcmp(emptyimage, rec, 8))
-								{
-									table_history->readBlob(in, *(uint32_t*)rec, *(uint32_t*)(rec + 4));
+								else if (!rech2->is_null_value(fldh_objdata) && (b->offset != 0 || b->size != 0)) {
+									table_history->readBlob(in, b->offset, b->size);
 									sobj = in;
 									ok = true;
 								}
 								else if(depotVer >= depot_ver::Ver6)
 								{
-									rec = rech2 + fldh_datahash->offset + (fldh_datahash->getnull_exists() ? 1 : 0);
-									sobj = pack_directory.get_data(rec, ok);
+									const char *datahash = rech2->get_data(fldh_datahash);
+									sobj = pack_directory.get_data(datahash, ok);
 
 									if(!ok)
 									{
-										ss = fldh_datahash->get_presentation(rech2, true);
+										String ss = rech2->get_string(fldh_datahash);
 										boost::filesystem::path current_object_path = objects_path / static_cast<std::string>(ss.SubString(1, 2)) / static_cast<std::string>(ss.SubString(3, ss.GetLength() - 2));
 										if (boost::filesystem::exists(current_object_path))
 										{
@@ -368,16 +377,24 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 					// Вот тут идем по EXTERNALS
 					while(hasext)
 					{
-						if(external_iterator > external_records) break;
-						res = memcmp(rece + flde_objid->offset, curobj, 16);
-						if(res > 0) break;
-						if(!res)
+						if (external_iterator > external_records) {
+							break;
+						}
+
+						BinaryGuid current_record_guid;
+						if (rece != nullptr) {
+							current_record_guid = rece->get_guid(flde_objid);
+							if (current_record_guid > curobj) {
+								break;
+							}
+						}
+						if (rece != nullptr && current_record_guid != curobj)
 						{
-							s = flde_vernum->get_presentation(rece, false);
+							String s = rece->get_string(flde_vernum);
 							v = s.ToIntDef(std::numeric_limits<int32_t>::max());
 							if(v == lastver)
 							{
-								se = flde_extname->get_presentation(rece);
+								String se = rece->get_string(flde_extname);
 								if(removed)
 								{
 									sw->Write(se + "\r\n");
@@ -385,27 +402,32 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 								}
 								else
 								{
-									datapacked = *(rece + flde_datapacked->offset);
+									datapacked = rece->get_bool(flde_datapacked);
 
 									// ==> Поиск записи о файле
 									// В случае отсутствия данных (datapacked = false) в этой записи пытаемся найти предыдущую запись с данными
 									// (с тем же objid, extname и extverid), но в пределах ver_begin <= vernum < lastver
-									memcpy(verid, rece + flde_extverid->offset, 16);
+									BinaryGuid verid = rece->get_guid(flde_extverid);
 									uint32_t je = external_iterator;
 									while(!datapacked && v > ver_begin && je)
 									{
 										i = externals_pk->get_numrec(--je);
-										table_externals->getrecord(i, rece);
-										res = memcmp(rece + flde_objid->offset, curobj, 16);
-										if(res) break;
-										s = flde_extname->get_presentation(rece);
-										if(s.CompareIC(se)) continue;
-										if(memcmp(verid, rece + flde_extverid->offset, 16) == 0)
+										rece = table_externals->getrecord(i);
+										if (rece->get_guid(flde_objid) != curobj) {
+											break;
+										}
+										s = rece->get_string(flde_extname);
+										if (s.CompareIC(se)) {
+											continue;
+										}
+
+										if (verid == rece->get_guid(flde_extverid))
 										{
-											s = flde_vernum->get_presentation(rece, false);
-											v = s.ToIntDef(std::numeric_limits<int32_t>::max());
-											if(v < ver_begin) break;
-											datapacked = *(rece + flde_datapacked->offset);
+											v = rece->get_string(flde_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
+											if (v < ver_begin) {
+												break;
+											}
+											datapacked = rece->get_bool(flde_datapacked);
 										}
 									}
 									// <== Поиск записи о файле
@@ -414,21 +436,21 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 									{
 										ok = false;
 										deletesobj = false;
-										frec = rece + flde_extdata->offset;
-										if(memcmp(emptyimage, frec, 8))
+										auto b = (const BlobPointer *)rece->get_data(flde_extdata);
+										if (b->offset != 0 || b->size != 0)
 										{
-											table_externals->readBlob(in, *(uint32_t*)frec, *(uint32_t*)(frec + 4));
+											table_externals->readBlob(in, b->offset, b->size);
 											sobj = in;
 											ok = true;
 										}
 										else if(depotVer >= depot_ver::Ver6)
 										{
-											frec = rece + flde_datahash->offset + (flde_datahash->getnull_exists() ? 1 : 0);
-											sobj = pack_directory.get_data(frec, ok);
+											const char *datahash = rece->get_data(flde_datahash->offset);
+											sobj = pack_directory.get_data(datahash, ok);
 
 											if(!ok)
 											{
-												ss = flde_datahash->get_presentation(rece, true);
+												String ss = rece->get_string(flde_datahash);
 												boost::filesystem::path current_object_path = objects_path / static_cast<std::string>(ss.SubString(1, 2)) / static_cast<std::string>(ss.SubString(3, ss.GetLength() - 2));
 												if (boost::filesystem::exists(current_object_path))
 												{
@@ -503,27 +525,26 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 							break;
 						}
 						i = externals_pk->get_numrec(external_iterator++);
-						table_externals->getrecord(i, rece);
+						rece = table_externals->getrecord(i);
 					}
 				}
 
-			memcpy(curobj, rech + fldh_objid->offset, 16);
+			curobj = rech->get_guid(fldh_objid);
 			hasrech1 = false;
 			hasrech2 = false;
 		}
 
 		if(history_iterator < history_records)
 		{
-			s = fldh_vernum->get_presentation(rech, false);
-			v = s.ToIntDef(std::numeric_limits<int32_t>::max());
-			if(v < ver_begin)
+			int v = rech->get_string(fldh_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
+			if (v < ver_begin)
 			{
-				memcpy(rech1, rech, table_history->get_recordlen());
+				rech1 = rech;
 				hasrech1 = true;
 			}
-			else if(v <= ver_end)
+			else if (v <= ver_end)
 			{
-				memcpy(rech2, rech, table_history->get_recordlen());
+				rech2 = rech;
 				hasrech2 = true;
 			}
 		}
@@ -537,11 +558,6 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		delete f;
 	}
 	delete sd;
-
-	delete[] rech;
-	delete[] rech1;
-	delete[] rech2;
-	delete[] rece;
 
 	return true;
 }

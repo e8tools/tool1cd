@@ -25,29 +25,23 @@ using namespace std;
 // ver <= 0 - номер версии от последней конфигурации. 0 - последняя конфигурация, -1 - предпоследняя и т.д., т.е. Номер версии определяется как номер последней + ver
 bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 {
-	char* rec;
 	char* frec;
 	Field* fldd_rootobjid;
 
-	Field* fldv_vernum;
 	Field* fldv_snapshotcrc;
 	Field* fldv_snapshotmaker;
 
 	Field* fldh_datahash;
 	Index* index_history;
-	char* rech1;
-	char* rech2;
 
-	char rootobj[16];
-	char curobj[16];
+	BinaryGuid rootobj;
+	BinaryGuid curobj;
 	uint32_t ih, nh;
 
 	Field* flde_datahash;
 	Index* index_externals;
-	char* rece;
-	vector<char*> reces;
+	vector<TableRecord*> reces;
 	vector<String> extnames;
-	int32_t nreces;
 	uint32_t ie, ne;
 
 	bool ok;
@@ -78,9 +72,9 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	union
 	{
-		char cv_b[2];
-		unsigned short cv_s;
-	};
+		char b[2];
+		unsigned short s;
+	} cv;
 
 	try {
 
@@ -94,69 +88,63 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	// Получаем версию хранилища
 	fldd_rootobjid = table_depot->get_field("ROOTOBJID");
 
-	rec = new char[table_depot->get_recordlen()];
-	ok = false;
+	// rec = new char[table_depot->get_recordlen()];
+	TableRecord *rec = nullptr;
 	for(uint32_t i = 0; i < table_depot->get_phys_numrecords(); i++)
 	{
-		table_depot->getrecord(i, rec);
-		if(!*rec)
-		{
-			ok = true;
+		rec = table_depot->getrecord(i);
+		if (!rec->is_removed()) {
 			break;
 		}
+		delete rec; // TODO: придумать схему без постоянной перегонки памяти
+		rec = nullptr;
 	}
 
-	if(!ok)
-	{
-		msreg_m.AddError("Не удалось прочитать запись в таблице DEPOT.");
-		delete[] rec;
-		return false;
+	if (!rec) {
+		throw DetailedException("Не удалось прочитать запись в таблице DEPOT.");
 	}
 
 	depotVer = get_depot_version(rec);
 
-	memcpy(rootobj, rec + fldd_rootobjid->offset, 16);
-	delete[] rec;
+	rootobj = rec->get_guid(fldd_rootobjid);
+	delete rec;
 
 	// "Нормализуем" версию конфигурации
 	ver = get_ver_depot_config(ver);
 
 	// Ищем строку с номером версии конфигурации
 
-	fldv_vernum = table_versions->get_field("VERNUM");
+	Field *fldv_vernum = table_versions->get_field("VERNUM");
 	fldv_snapshotcrc = table_versions->get_field("SNAPSHOTCRC");
 	fldv_snapshotmaker = table_versions->get_field("SNAPSHOTMAKER");
 
-	rec = new char[table_versions->get_recordlen()];
+	rec = nullptr;
 	ok = false;
 	for(uint32_t i = 0; i < table_versions->get_phys_numrecords(); i++)
 	{
-		table_versions->getrecord(i, rec);
-		if(*rec) {
+		rec = table_versions->getrecord(i);
+		if (rec->is_removed()) {
+			delete rec; // TODO: вариант без перегонок памяти
 			continue;
 		}
-		int32_t vernum = fldv_vernum->get_presentation(rec, true).ToIntDef(0);
-		if(vernum == ver)
-		{
-			ok = true;
+		int32_t vernum = rec->get_string(fldv_vernum).ToIntDef(0);
+		if (vernum == ver) {
 			break;
 		}
+		delete rec; // TODO: вариант без перегонок памяти
+		rec = nullptr;
 	}
 
-	if(!ok)
-	{
-		msreg_m.AddMessage_("В хранилище не найдена версия конфигурации", MessageState::Error,
-			"Требуемая версия", ver);
-		delete[] rec;
-		return false;
+	if (!rec) {
+		throw DetailedException("В хранилище не найдена версия конфигурации")
+				.add_detail("Требуемая версия", ver);
 	}
 
 	boost::filesystem::path filepath = boost::filesystem::path(static_cast<std::string>(_filename));
 	boost::filesystem::path root_path(static_cast<std::string>(filename)); // путь к 1cd
 
 	// Проверяем, нет ли снэпшота нужной версии конфигурации
-	if( fldv_snapshotmaker->get_presentation(rec, true).Compare(EMPTY_GUID) != 0 )
-	{
+	if (!rec->get_guid(fldv_snapshotmaker).is_empty()) {
 		String name_snap = "ddb";
 		String ver_part  = "00000";
 		ver_part  += ver;
@@ -183,19 +171,17 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				out = new TFileStream(_filename, fmCreate | fmShareDenyWrite);
 			}
 			catch(...) {
-				msreg_m.AddMessage_("Не удалось создать файл конфигурации", MessageState::Warning,
-						"Имя файла", _filename);
-				delete[] rec;
-				return false;
+				throw DetailedException("Не удалось создать файл конфигурации")
+						.add_detail("Имя файла", _filename);
 			}
 			if(in) {
 				snapshot_version snap_ver = snapshot_version::Ver1;
+				BinaryGuid snapshot_maker = rec->get_guid(fldv_snapshotmaker);
 
-				if( memcmp(rootobj, rec + fldv_snapshotmaker->offset + 1, 16) == 0 ||
-					fldv_snapshotmaker->get_presentation(rec, true).Compare(SNAPSHOT_VER1) == 0 ) {
+				if (rootobj == snapshot_maker || snapshot_maker == SNAPSHOT_VER1) {
 					snap_ver = snapshot_version::Ver1;
 				}
-				else if (fldv_snapshotmaker->get_presentation(rec, true).Compare(SNAPSHOT_VER2) == 0) {
+				else if (snapshot_maker == SNAPSHOT_VER2) {
 					snap_ver = snapshot_version::Ver2;
 				};
 
@@ -257,15 +243,14 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	// Определяем версию структуры конфигурации (для файла version)
 	if(depotVer >= depot_ver::Ver5)
 	{
-		Field *fldv_cversion = table_versions->get_field("CVERSION");
-		frec = rec + fldv_cversion->offset;
-		cv_b[0] = frec[1];
-		cv_b[1] = frec[0];
-		configVerMajor = cv_s;
+		const char *frec = rec->get_raw("CVERSION");
+		cv.b[0] = frec[1];
+		cv.b[1] = frec[0];
+		configVerMajor = cv.s;
 		frec += 2;
-		cv_b[0] = frec[1];
-		cv_b[1] = frec[0];
-		configVerMinor = cv_s;
+		cv.b[0] = frec[1];
+		cv.b[1] = frec[0];
+		configVerMinor = cv.s;
 	}
 	else
 	{
@@ -275,7 +260,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		else configVerMajor = 216;
 	}
 
-	delete[] rec;
+	delete rec;
 
 	// Инициализируем таблицы HISTORY и EXTERNALS
 
@@ -321,16 +306,14 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	index_history = table_history->get_index("PK");
 	index_externals = table_externals->get_index("PK");
 
-	rech1 = new char[table_history->get_recordlen()];
-	rech2 = new char[table_history->get_recordlen()];
-	rece = new char[table_externals->get_recordlen()];
-	memset(rece, 0, table_externals->get_recordlen());
-	nreces = 0;
+	TableRecord *rech1 = nullptr;
+	TableRecord *rech2 = nullptr;
+	TableRecord *rece = nullptr;
 	reces.resize(0);
 
 	nh = index_history->get_numrecords();
 	ne = index_externals->get_numrecords();
-	memset(curobj, 0, 16);
+	curobj = BinaryGuid();
 
 	if (boost::filesystem::exists(filepath)) {
 		boost::filesystem::remove(filepath);
@@ -385,14 +368,14 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	if(configVerMajor < 100)
 	{
 		trc->add_child("1", node_type::nd_number);
-		trc->add_child(GUIDasMS((unsigned char*)rootobj), node_type::nd_guid);
+		trc->add_child(rootobj.as_MS(), node_type::nd_guid);
 		tcountr = trc->add_child("0", node_type::nd_number); // узел, содержащий счетчик в файле root
 		oldformat = true;
 	}
 	else
 	{
 		trc->add_child("2", node_type::nd_number);
-		trc->add_child(GUIDasMS((unsigned char*)rootobj), node_type::nd_guid);
+		trc->add_child(rootobj.as_MS(), node_type::nd_guid);
 		tcountr = nullptr;
 		oldformat = false;
 	}
@@ -407,37 +390,37 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		if(ih < nh)
 		{
 			uint32_t num_rec = index_history->get_numrec(ih);
-			table_history->getrecord(num_rec, rech2);
+			rech2 = table_history->getrecord(num_rec);
 		}
 
-		if(memcmp(curobj, rech2 + fldh_objid->offset, 16) != 0 || ih == nh)
-		{ // это новый объект или конец таблицы
+		if (rech2->get_guid(fldh_objid) != curobj || ih == nh) {
+			// это новый объект или конец таблицы
 			if(!lastremoved)
 			{
 				ok = false;
 				deletesobj = false;
-				rec = rech1 + fldh_objdata->offset + 1;
-				if(*(rech1 + fldh_objdata->offset) && memcmp(emptyimage, rec, 8))
-				{
+				auto *b = (const BlobPointer *)rech1->get_data(fldh_objdata);
+				if (!rech1->is_null_value(fldh_objdata) && (b->offset != 0 || b->size != 0)) {
 					out = new TTempStream;
 					if(oldformat)
 					{
-						table_history->readBlob(in, *(uint32_t*)rec, *(uint32_t*)(rec + 4));
+						table_history->readBlob(in, b->offset, b->size);
 						in->Seek(0, soFromBeginning);
 						ZInflateStream(in, out);
 					}
-					else table_history->readBlob(out, *(uint32_t*)rec, *(uint32_t*)(rec + 4));
+					else table_history->readBlob(out, b->offset, b->size);
 					out->Close();
 					ok = true;
 				}
 				else if(depotVer >= depot_ver::Ver6)
 				{
-					rec = rech1 + fldh_datahash->offset + (fldh_datahash->getnull_exists() ? 1 : 0);
-					out = pack_directory.get_data(rec, ok);
+					// rec = rech1 + fldh_datahash->offset + (fldh_datahash->getnull_exists() ? 1 : 0);
+					const char* hash_data = rech1->get_raw(fldh_datahash);
+					out = pack_directory.get_data(hash_data, ok);
 
 					if(!ok)
 					{
-						String ss = fldh_datahash->get_presentation(rech1, true);
+						String ss = rech1->get_string(fldh_datahash);
 						boost::filesystem::path current_object_path = objects_path / static_cast<std::string>(ss.SubString(1, 2)) / static_cast<std::string>(ss.SubString(3, ss.GetLength() - 2));
 						if(boost::filesystem::exists(current_object_path))
 						{
@@ -451,8 +434,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 								msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
 									"Файл", current_object_path.string(),
 									"Таблица", "HISTORY",
-									"Объект", fldh_objid->get_presentation(rech1, false, L'.', true),
-									"Версия", fldh_vernum->get_presentation(rech1, false));
+									"Объект", rech1->get_string(fldd_rootobjid),
+									"Версия", rech1->get_string(fldh_vernum));
 							}
 						}
 						else
@@ -460,50 +443,55 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 							msreg_m.AddMessage_("Не найден файл", MessageState::Error,
 								"Файл", current_object_path.string(),
 								"Таблица", "HISTORY",
-								"Объект", fldh_objid->get_presentation(rech1, false, L'.', true),
-								"Версия", fldh_vernum->get_presentation(rech1, false));
+								"Объект", rech1->get_string(fldd_rootobjid),
+								"Версия", rech1->get_string(fldh_vernum));
 						}
 					}
 				}
-				String s = fldh_objid->get_presentation(rech1, false, L'.', true);
+				String s = rech1->get_string(fldh_objid);
 				if(!ok)
 				{
 					msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
 						"Таблица", "HISTORY",
 						"Объект", s,
-						"Версия", fldh_vernum->get_presentation(rech1, false));
+						"Версия", rech1->get_string(fldh_vernum));
 				}
 				else
 				{
 					if(oldformat)
 					{
-						rootmap[s] = GUIDasMS((unsigned char*)rech1 + fldh_objverid->offset);
+						rootmap[s] = rech1->get_guid(fldh_objverid).as_MS();
 						metamap[s] = out;
 					}
 					else
 					{
-						vermap[s] = GUIDasMS((unsigned char*)rech1 + fldh_objverid->offset);
+						vermap[s] = rech1->get_guid(fldh_objverid).as_MS();
 						extmap[s] = out;
 					}
 
 					// Вот тут идем по EXTERNALS
 					while(true) {
 						if(ie > ne) break;
-						int32_t res = memcmp(rece + flde_objid->offset, curobj, 16);
-						if(res > 0) break;
-						if(!res)
-						{
-							int32_t vernum = flde_vernum->get_presentation(rece, false).ToIntDef(std::numeric_limits<int32_t>::max());
-							s = flde_extname->get_presentation(rece);
-							if(vernum <= ver && *(rece + flde_datapacked->offset)) {
+						BinaryGuid current_external_guid = rece->get_guid(flde_objid);
+						if (current_external_guid > curobj) {
+							break;
+						}
+						if (current_external_guid != curobj) {
+							int32_t vernum = rece->get_string(flde_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
+							String s = rece->get_string(flde_extname);
+							if(vernum <= ver && rece->get_bool(flde_datapacked)) {
 								int32_t j;
-								for(j = 0; j < nreces; j++) if(s.CompareIC(flde_extname->get_presentation(reces[j])) == 0) break;
-								if(j == reces.size()){
-									reces.resize(reces.size() + 1);
-									reces[j] = new char[table_externals->get_recordlen()];
+								bool found = false;
+								for (j = 0; j < reces.size(); j++) {
+									if (s.CompareIC(reces[j]->get_string(flde_extname)) == 0) {
+										reces[j] = rece;
+										found = true;
+										break;
+									}
 								}
-								if(j == nreces) nreces++;
-								memcpy(reces[j], rece, table_externals->get_recordlen());
+								if (!found){
+									reces.push_back(rece);
+								}
 							}
 							if(vernum == lastver)
 							{
@@ -517,12 +505,12 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 							break;
 						}
 						uint32_t num_rec = index_externals->get_numrec(ie++);
-						table_externals->getrecord(num_rec, rece);
+						table_externals->getrecord(num_rec);
 					}
-					for(int32_t j = 0; j < nreces; j++)
+					for(int32_t j = 0; j < reces.size(); j++)
 					{
 						rec = reces[j];
-						String ext_name = flde_extname->get_presentation(rec);
+						String ext_name = rec->get_string(flde_extname);
 						ok = false;
 						for( const auto& name: extnames ) {
 							if(ext_name.CompareIC(name) == 0) {
@@ -534,22 +522,21 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 						ok = false;
 						deletesobj = false;
-						frec = rec + flde_extdata->offset;
-						if(memcmp(emptyimage, frec, 8))
-						{
+						const BlobPointer *bp = (const BlobPointer *)rec->get_data(flde_extdata);
+						if (bp->size != 0 || bp->offset != 0) {
 							out = new TTempStream;
-							table_externals->readBlob(out, *(uint32_t*)frec, *(uint32_t*)(frec + 4));
+							table_externals->readBlob(out, bp->offset, bp->size);
 							out->Close();
 							ok = true;
 						}
 						else if(depotVer >= depot_ver::Ver6)
 						{
-							frec = rec + flde_datahash->offset + (flde_datahash->getnull_exists() ? 1 : 0);
-							out = pack_directory.get_data(frec, ok);
+							const char *hashdata = rec->get_data(flde_datahash);
+							out = pack_directory.get_data(hashdata, ok);
 
 							if(!ok)
 							{
-								String ss = flde_datahash->get_presentation(rec, true);
+								String ss = rec->get_string(flde_datahash);
 								boost::filesystem::path current_object_path = objects_path / static_cast<std::string>(ss.SubString(1, 2)) / static_cast<std::string>(ss.SubString(3, ss.GetLength() - 2));
 								if (boost::filesystem::exists(current_object_path))
 								{
@@ -563,8 +550,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 										msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
 											"Файл", current_object_path.string(),
 											"Таблица", "EXTERNALS",
-											"Объект", flde_extname->get_presentation(rec),
-											"Версия", flde_vernum->get_presentation(rec));
+											"Объект", rec->get_string(flde_extname),
+											"Версия", rec->get_string(flde_vernum));
 									}
 								}
 								else
@@ -572,8 +559,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 									msreg_m.AddMessage_("Не найден файл", MessageState::Error,
 										"Файл", current_object_path.string(),
 										"Таблица", "EXTERNALS",
-										"Объект", flde_extname->get_presentation(rec),
-										"Версия", flde_vernum->get_presentation(rec));
+										"Объект", rec->get_string(flde_extname),
+										"Версия", rec->get_string(flde_vernum));
 								}
 							}
 						}
@@ -582,30 +569,30 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 							msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
 								"Таблица", "EXTERNALS",
 								"Объект", ext_name,
-								"Версия", flde_vernum->get_presentation(rec));
+								"Версия", rec->get_string(flde_vernum));
 						}
 						else
 						{
-							vermap[ext_name] = GUIDasMS((unsigned char*)rec + flde_extverid->offset);
+							vermap[ext_name] = rec->get_guid(flde_extverid).as_MS();
 							extmap[ext_name] = out;
 						}
 
 					}
-					nreces = 0;
-					extnames.resize(0);
+					reces.clear();
+					extnames.clear();
 				}
 			}
 
-			memcpy(curobj, rech2 + fldh_objid->offset, 16);
+			curobj = rech2->get_guid(fldh_objid);
 			lastremoved = true;
 		}
 
 		if(ih < nh)
 		{
-			int32_t vernum = fldh_vernum->get_presentation(rech2, false).ToIntDef(std::numeric_limits<int32_t>::max());
+			int32_t vernum = rech2->get_string(fldh_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
 			if(vernum <= ver)
 			{
-				removed = *(rech2 + fldh_removed->offset);
+				removed = rech2->get_bool(fldh_removed);
 				if(removed)
 				{
 					lastremoved = true;
@@ -613,10 +600,14 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				else
 				{
 					datapacked = false;
-					if(*(rech2 + fldh_datapacked->offset)) if(*(rech2 + fldh_datapacked->offset + 1)) datapacked = true;
+					if (!rech2->is_null_value(fldh_datapacked)) {
+						if (!rech2->get_bool(fldh_datapacked)) {
+							datapacked = true;
+						}
+					}
 					if(datapacked)
 					{
-						memcpy(rech1, rech2, table_history->get_recordlen());
+						rech1 = rech2;
 						lastremoved = false;
 						lastver = vernum;
 					}
@@ -625,9 +616,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		}
 	}
 
-	delete[] rech1;
-	delete[] rech2;
-	delete[] rece;
+	// TODO: Полечить дичайшие утечки памяти
 	for(size_t j = 0; j < reces.size(); j++) {
 		delete[] reces[j];
 	}

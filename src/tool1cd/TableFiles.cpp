@@ -6,6 +6,7 @@
  */
 
 #include "TableFiles.h"
+#include "Common.h"
 
 extern Registrator msreg_g;
 
@@ -44,15 +45,7 @@ TableFile::~TableFile()
 //---------------------------------------------------------------------------
 TableFiles::TableFiles(Table* t)
 {
-	Field* filename;
-	Field* f;
 	Field* partno;
-	int32_t* start;
-	int32_t* length;
-	unsigned char* create;
-	unsigned char* modify;
-	uint32_t i;
-	size_t j;
 	String s;
 	table_rec tr, *ptr;
 	std::vector<table_rec> allrec;
@@ -65,38 +58,36 @@ TableFiles::TableFiles(Table* t)
 	ready = test_table();
 	if(!ready) return;
 
-	record = new char[table->get_recordlen()];
+	Field *filename = table->getfield(0);
 
-	filename = table->getfield(0);
-
-	f = table->getfield(1);
-	create = (unsigned char*)(record + f->getoffset());
-	f = table->getfield(2);
-	modify = (unsigned char*)(record + f->getoffset());
-	f = table->getfield(5);
-	start = (int32_t*)(record + f->getoffset());
-	length = start + 1;
+	Field *fld_create = table->getfield(1);
+	Field *fld_modify = table->getfield(2);
+	Field *fld_blob_pointer = table->getfield(5);
 
 	if(table->get_numfields() > 6) partno = table->getfield(6);
 	else partno = nullptr;
 
-	for(i = 0; i < table->get_phys_numrecords(); ++i)
-	{
-		table->getrecord(i, record);
-		if(*record) continue;
-		if(*start == 0) continue;
-		if(*length == 0) continue;
+	for (int i = 0; i < table->get_phys_numrecords(); ++i) {
+		record = table->getrecord(i);
+		if(record->is_removed()) {
+			delete record;
+			continue;
+		}
+		auto b = (const BlobPointer *)record->get_data(fld_blob_pointer);
+		if (b->offset == 0 || b->size == 0) {
+			continue;
+		}
 
-		tr.name = filename->get_presentation(record);
+		tr.name = record->get_string(filename);
 		if(tr.name.IsEmpty()) continue;
 
-		tr.addr.blob_start = *start;
-		tr.addr.blob_length = *length;
+		tr.addr.blob_start = b->offset;
+		tr.addr.blob_length = b->size;
 
-		if(partno) tr.partno = partno->get_presentation(record, true).ToIntDef(0);
+		if(partno) tr.partno = record->get_string(partno).ToIntDef(0);
 		else tr.partno = 0;
-		time1CD_to_FileTime(&tr.ft_create, create);
-		time1CD_to_FileTime(&tr.ft_modify, modify);
+		time1CD_to_FileTime(&tr.ft_create, record->get_data(fld_create));
+		time1CD_to_FileTime(&tr.ft_modify, record->get_data(fld_modify));
 
 		allrec.push_back(tr);
 
@@ -106,14 +97,12 @@ TableFiles::TableFiles(Table* t)
 		else if(pmaxpartno->second < tr.partno) pmaxpartno->second = tr.partno;
 	}
 
-	for(pmaxpartno = maxpartnos.begin(); pmaxpartno != maxpartnos.end(); ++pmaxpartno)
-	{
-		tf = new TableFile(table, pmaxpartno->first, pmaxpartno->second);
-		allfiles[pmaxpartno->first] = tf;
+	for (auto pmaxpartno : maxpartnos) {
+		tf = new TableFile(table, pmaxpartno.first, pmaxpartno.second);
+		allfiles[pmaxpartno.first] = tf;
 	}
 
-	for(j = 0; j < allrec.size(); ++j)
-	{
+	for (int j = 0; j < allrec.size(); ++j) {
 		ptr = &(allrec[j]);
 		pfilesmap = allfiles.find(ptr->name.UpperCase());
 		tf = pfilesmap->second;
@@ -131,7 +120,7 @@ TableFiles::TableFiles(Table* t)
 TableFiles::~TableFiles()
 {
 	if (record) {
-		delete[] record;
+		delete record;
 		record = nullptr;
 	}
 	for (auto p : allfiles) {

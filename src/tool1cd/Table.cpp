@@ -9,6 +9,7 @@
 #include <boost/filesystem.hpp>
 
 #include "Table.h"
+#include "TableRecord.h"
 
 extern Registrator msreg_g;
 #ifndef getcfname
@@ -633,16 +634,17 @@ uint32_t Table::get_added_numrecords()
 }
 
 //---------------------------------------------------------------------------
-char* Table::getrecord(uint32_t phys_numrecord, char* buf)
+TableRecord * Table::getrecord(uint32_t phys_numrecord)
 {
 	#ifndef getcfname
 	tr_syn->BeginWrite();
 	#endif
+	char *buf = new char[recordlen];
 	char* b = file_data->getdata(buf, phys_numrecord * recordlen, recordlen);
 	#ifndef getcfname
 	tr_syn->EndWrite();
 	#endif
-	return b;
+	return new TableRecord(this, b, recordlen);
 }
 
 //---------------------------------------------------------------------------
@@ -943,7 +945,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 		f->Write(rpart1.c_str(), rpart1.GetLength());
 		if(curindex) nr = curindex->get_numrec(j);
 		else nr = recordsindex[j];
-		getrecord(nr, rec);
+		getrecord(nr); // TODO: TableRecord
 		if(ic){
 			s = get_file_name_for_record(rec);
 			if(s.CompareIC(recname) == 0) rc++;
@@ -1350,7 +1352,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 	changed = true;
 	if(phys_numrecord < phys_numrecords)
 	{
-		getrecord(phys_numrecord, rec);
+		getrecord(phys_numrecord); // TODO: TableRecord
 		changed = memcmp(rec + fld->offset, fldvalue, fld->len) != 0;
 	}
 
@@ -1452,7 +1454,7 @@ void Table::restore_edit_value(uint32_t phys_numrecord, int32_t numfield)
 	}
 	else{
 		rec = new char[recordlen];
-		getrecord(phys_numrecord, rec);
+		getrecord(phys_numrecord); // TODO: TableRecord
 		memcpy(cr->rec + fld->offset, rec + fld->offset, fld->len);
 		delete[] rec;
 	}
@@ -1556,19 +1558,20 @@ void Table::set_rec_type(uint32_t phys_numrecord, changed_rec_type crt)
 }
 
 //---------------------------------------------------------------------------
-char* Table::get_edit_record(uint32_t phys_numrecord, char* rec)
+TableRecord *Table::get_edit_record(uint32_t phys_numrecord)
 {
 	changed_rec* cr;
 	for(cr = ch_rec; cr; cr = cr->next) if(phys_numrecord == cr->numrec)
 	{
 		if(cr->changed_type != changed_rec_type::deleted)
 		{
+			char *rec = new char[recordlen];
 			memcpy(rec, cr->rec, recordlen);
-			return rec;
+			return new TableRecord(this, rec, recordlen);
 		}
 		break;
 	}
-	return getrecord(phys_numrecord, rec);
+	return getrecord(phys_numrecord);
 }
 
 //---------------------------------------------------------------------------
@@ -1762,7 +1765,7 @@ void Table::delete_index_record(uint32_t phys_numrecord)
 	char* rec;
 
 	rec = new char[recordlen];
-	getrecord(phys_numrecord, rec);
+	getrecord(phys_numrecord); // TODO: TableRecord
 	delete_index_record(phys_numrecord, rec);
 	delete[] rec;
 }
@@ -2006,7 +2009,7 @@ void Table::delete_record(uint32_t phys_numrecord)
 	char* rec;
 
 	rec = new char[recordlen];
-	getrecord(phys_numrecord, rec);
+	getrecord(phys_numrecord); // TODO: TableRecord
 
 	delete_index_record(phys_numrecord, rec);
 
@@ -2114,7 +2117,7 @@ void Table::update_record(uint32_t phys_numrecord, char* rec, char* changed_fiel
 	TStream** st;
 
 	orec = new char[recordlen];
-	getrecord(phys_numrecord, orec);
+	getrecord(phys_numrecord); // TODO: TableRecord
 	delete_index_record(phys_numrecord, orec);
 	for(i = 0; i < num_fields; i++)
 	{
@@ -2328,7 +2331,7 @@ void Table::fillrecordsindex()
 	j = 0;
 	for(i = 0; i < phys_numrecords; i++)
 	{
-		getrecord(i, rec);
+		getrecord(i); // TODO: TableRecord
 		if(*rec) continue;
 		recordsindex[j++] = i;
 	}

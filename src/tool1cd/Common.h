@@ -6,7 +6,7 @@
 #include <sstream>
 #include <iomanip>
 
-void time1CD_to_FileTime(System::FILETIME* ft, unsigned char* time1CD);
+void time1CD_to_FileTime(System::FILETIME *ft, const void *time1CD);
 unsigned int reverse_byte_order(unsigned int value);
 String GUIDas1C(const unsigned char* fr);
 String GUIDasMS(const unsigned char* fr);
@@ -23,6 +23,11 @@ String hexstring(const char *buf, int n);
 String hexstring(TStream* str);
 String toXML(const String &in);
 unsigned char from_hex_digit(char digit);
+
+typedef struct {
+	uint32_t offset;
+	uint32_t size;
+} BlobPointer;
 
 template< typename T >
 String to_hex_string( T num, bool prefix = true ) {

@@ -69,3 +69,21 @@ TEST_CASE("Сохраняем конфигурацию хранилища 6", "[
 		}
 	}
 }
+
+TEST_CASE("Сохраняем часть конфигурации хранилища 6", "[tool1cd][Class_1CD][depotv6]")
+{
+	GIVEN( "Хранилище tests/depotv6/depot/1cv8ddb.1CD")  {
+		std::string dbpath(CMAKE_SOURCE_DIR);
+		dbpath += "/tests/depotv6/depot/1cv8ddb.1CD";
+
+		path cfpath = boost::filesystem::temp_directory_path() / "tmp.d";
+
+		T_1CD base1CD(dbpath, nullptr, true);
+		WHEN ("Сохраняем конфигурацию") {
+			base1CD.save_part_depot_config(cfpath.string(), 1, 1);
+			THEN ("не падаем") {
+				REQUIRE( true );
+			}
+		}
+	}
+}

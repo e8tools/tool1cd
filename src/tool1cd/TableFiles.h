@@ -12,6 +12,7 @@
 
 #include "Common.h"
 #include "Table.h"
+#include "TableRecord.h"
 
 //---------------------------------------------------------------------------
 // Структура адреса файла таблицы-контейнера файлов
@@ -54,7 +55,7 @@ class TableFiles
 private:
 	Table* table {nullptr};
 	std::map<String,TableFile*> allfiles;
-	char* record {nullptr};
+	TableRecord *record {nullptr};
 	bool ready {false};
 
 	bool test_table();

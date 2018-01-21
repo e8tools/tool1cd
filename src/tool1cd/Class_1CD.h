@@ -19,6 +19,7 @@
 #include "cfapi/V8Catalog.h"
 #include "cfapi/TV8FileStream.h"
 #include "SupplierConfig.h"
+#include "TableRecord.h"
 
 //---------------------------------------------------------------------------
 
@@ -271,7 +272,7 @@ private:
 	void pagemapfill();
 	String pagemaprec_presentation(pagemaprec& pmr);
 
-	depot_ver get_depot_version(const char *record);
+	depot_ver get_depot_version(const TableRecord *record);
 
 	void assert_i_am_a_repository();
 };

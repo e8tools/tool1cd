@@ -14,7 +14,7 @@ const wchar_t hexdecode[] = L"0123456789abcdef";
 extern Registrator msreg_g;
 
 //---------------------------------------------------------------------------
-void time1CD_to_FileTime(FILETIME* ft, unsigned char* time1CD)
+void time1CD_to_FileTime(FILETIME *ft, const void *time1CD)
 {
 	SYSTEMTIME st;
 	FILETIME lft;

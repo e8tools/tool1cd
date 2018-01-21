@@ -3,6 +3,7 @@
 //
 
 #include "BinaryGuid.h"
+#include "Common.h"
 
 BinaryGuid::BinaryGuid()
 {
@@ -53,4 +54,50 @@ bool BinaryGuid::is_empty() const
 		}
 	}
 	return true;
+}
+
+BinaryGuid::BinaryGuid(const std::string &presentation)
+{
+	if (presentation.size() != 36) {
+		throw std::exception(); // TODO: Внятное сообщение
+	}
+	int j = 0;
+	for (int ind = 12; ind < 16; ind++) {
+		data[ind] = (from_hex_digit(presentation[j++]) << 4) + from_hex_digit(presentation[j++]);
+	}
+	j++;
+	for (int ind = 10; ind < 12; ind++) {
+		data[ind] = (from_hex_digit(presentation[j++]) << 4) + from_hex_digit(presentation[j++]);
+	}
+	j++;
+	for (int ind = 8; ind < 10; ind++) {
+		data[ind] = (from_hex_digit(presentation[j++]) << 4) + from_hex_digit(presentation[j++]);
+	}
+	j++;
+	for (int ind = 0; ind < 2; ind++) {
+		data[ind] = (from_hex_digit(presentation[j++]) << 4) + from_hex_digit(presentation[j++]);
+	}
+	j++;
+	for (int ind = 2; ind < 8; ind++) {
+		data[ind] = (from_hex_digit(presentation[j++]) << 4) + from_hex_digit(presentation[j++]);
+	}
+}
+
+std::string BinaryGuid::as_MS() const
+{
+	// TODO: Перенести логику сюда
+	return GUIDasMS((const unsigned char*)data.data());
+}
+
+bool BinaryGuid::operator >(const BinaryGuid &b) const
+{
+	for (int i = 0; i < GUID_BINARY_SIZE; i++) {
+		if (data[i] > b.data[i]) {
+			return true;
+		}
+		if (data[i] < b.data[i]) {
+			return false;
+		}
+	}
+	return false;
 }

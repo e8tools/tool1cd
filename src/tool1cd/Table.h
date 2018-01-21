@@ -13,6 +13,7 @@
 #include "Field.h"
 #include "Index.h"
 #include "Class_1CD.h"
+#include "TableRecord.h"
 
 static const uint32_t BLOB_RECORD_LEN = 256;
 static const uint32_t BLOB_RECORD_DATA_LEN = 250;
@@ -126,7 +127,7 @@ public:
 	void set_log_numrecords(uint32_t _log_numrecords); //
 	uint32_t get_added_numrecords();
 
-	char* getrecord(uint32_t phys_numrecord, char* buf); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
+	TableRecord *getrecord(uint32_t phys_numrecord); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
 	TStream* readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, bool rewrite = true) const;
 	uint32_t readBlob(void* _buf, uint32_t _startblock, uint32_t _length) const;
 	void set_lockinmemory(bool _lock);
@@ -138,7 +139,7 @@ public:
 
 	uint64_t get_fileoffset(uint32_t phys_numrecord); // получить физическое смещение в файле записи по номеру
 
-	char* get_edit_record(uint32_t phys_numrecord, char* buf); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
+	TableRecord *get_edit_record(uint32_t phys_numrecord); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
 	bool get_edit();
 
 	uint32_t get_phys_numrec(int32_t ARow, Index* cur_index); // получить физический индекс записи по номеру строки по указанному индексу

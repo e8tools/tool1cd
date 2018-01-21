@@ -1128,11 +1128,6 @@ bool T_1CD::test_stream_format()
 bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 {
 	int32_t j;
-	char* rec;
-	char* orec;
-	Field* f_name;
-	Field* f_data_size;
-	Field* f_binary_data;
 	String path;
 	String slen;
 	TStream* str;
@@ -1140,27 +1135,26 @@ bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 	bool res;
 
 
-	rec = new char[t->get_recordlen()];
-	t->getrecord(nrec, rec);
-	if(*rec)
+	TableRecord *rec = t->getrecord(nrec);
+	if (rec->is_removed())
 	{
-		delete[] rec;
+		delete rec;
 		return true;
 	}
 
-	f_name = t->getfield(0);
-	f_data_size = t->getfield(4);
-	f_binary_data = t->getfield(5);
+	Field *f_name = t->getfield(0);
+	Field *f_data_size = t->getfield(4);
+	Field *f_binary_data = t->getfield(5);
 
-	path = t->getname() + "/" + f_name->get_presentation(rec);
+	path = t->getname() + "/" + rec->get_string(f_name);
 
-	orec = rec + f_binary_data->getoffset();
+	const char *orec = rec->get_raw(f_binary_data);
 	if(*(uint32_t*)(orec + 4) > 10 * 1024 * 1024) str = new TTempStream;
 	else str = new TMemoryStream();
 	t->readBlob(str, *(uint32_t*)orec, *(uint32_t*)(orec + 4));
 
 	result = true;
-	slen = f_data_size->get_presentation(rec, true);
+	slen = rec->get_string(f_data_size);
 	try
 	{
 		j = slen.ToInt();
@@ -1181,10 +1175,10 @@ bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 		result = false;
 	}
 
-	res = recursive_test_stream_format(str, path, f_name->get_presentation(rec).GetLength() > 72); // вторично упакованы могут быть только конфигурации поставщика (файлы с длиной имени более 72 символов)
+	res = recursive_test_stream_format(str, path, rec->get_string(f_name).GetLength() > 72); // вторично упакованы могут быть только конфигурации поставщика (файлы с длиной имени более 72 символов)
 	result = result && res;
 
-	delete[] rec;
+	delete rec;
 	delete str;
 
 	return result;
@@ -1194,32 +1188,27 @@ bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 //---------------------------------------------------------------------------
 bool T_1CD::recursive_test_stream_format2(Table* t, uint32_t nrec)
 {
-	char* rec;
-	char* orec;
-	Field* f_sd;
 	String path;
 	TMemoryStream* str;
 	bool result;
 
-	rec = new char[t->get_recordlen()];
-	t->getrecord(nrec, rec);
-	if(*rec)
-	{
-		delete[] rec;
+	TableRecord *rec = t->getrecord(nrec);
+	if (rec->is_removed()) {
+		delete rec;
 		return true;
 	}
 
-	f_sd = t->getfield(0);
+	Field *f_sd = t->getfield(0);
 
 	path = t->getname();
 
-	orec = rec + f_sd->getoffset();
+	auto bp = (const BlobPointer *)rec->get_raw(f_sd->getoffset());
 	str = new TMemoryStream();
-	t->readBlob(str, *(uint32_t*)orec, *(uint32_t*)(orec + 4));
+	t->readBlob(str, bp->offset, bp->size);
 
 	result = recursive_test_stream_format(str, path);
 
-	delete[] rec;
+	delete rec;
 	delete str;
 
 	return result;
@@ -1777,7 +1766,7 @@ bool T_1CD::test_list_of_tables()
 	for(k = 0; k < table_params->get_phys_numrecords(); k++)
 	{
 
-		table_params->getrecord(k, rec);
+		table_params->getrecord(k); // TODO: TableRecord
 		if(*rec) continue;
 
 		if(f_name->get_presentation(rec).CompareIC("DBNames") != 0) continue;
@@ -2024,7 +2013,7 @@ bool T_1CD::replaceTREF(String mapfile)
 				t->edit = true;
 				for(kk = 0; kk < t->get_phys_numrecords(); kk++)
 				{
-					t->getrecord(kk, rec);
+					t->getrecord(kk); // TODO: TableRecord
 					if(*rec) continue;
 					ii = reverse_byte_order(*((uint32_t*)(rec + k)));
 					if(ii == 0) continue;
@@ -2249,7 +2238,6 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 
 	assert_i_am_a_repository();
 
-	Field *fld = table_versions->get_field("VERNUM");
 	Index *ind = table_versions->get_index("PK");
 
 	int32_t i = ind->get_numrecords();
@@ -2261,10 +2249,9 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 	}
 	i = ind->get_numrec(i + ver - 1);
 
-	char *rec = new char[table_versions->get_recordlen()];
-	table_versions->getrecord(i, rec);
-	String version_presentation = fld->get_presentation(rec, true);
-	delete[] rec;
+	TableRecord *rec = table_versions->getrecord(i);
+	String version_presentation = rec->get_string("VERNUM");
+	delete rec;
 
 	int32_t version = version_presentation.ToIntDef(0);
 	if (!version) {
@@ -2664,10 +2651,9 @@ String T_1CD::pagemaprec_presentation(pagemaprec& pmr)
 	}
 }
 
-depot_ver T_1CD::get_depot_version(const char *record)
+depot_ver T_1CD::get_depot_version(const TableRecord *record)
 {
-	Field* fldd_depotver = table_depot->get_field("DEPOTVER");
-	String Ver = fldd_depotver->get_presentation(record, true);
+	String Ver = record->get_string("DEPOTVER");
 
 	if (Ver.CompareIC("0300000000000000") == 0) {
 		return depot_ver::Ver3;
