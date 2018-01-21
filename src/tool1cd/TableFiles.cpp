@@ -74,15 +74,15 @@ TableFiles::TableFiles(Table* t)
 			continue;
 		}
 		auto b = (const BlobPointer *)record->get_data(fld_blob_pointer);
-		if (b->offset == 0 || b->size == 0) {
+		if (b->start == 0 || b->length == 0) {
 			continue;
 		}
 
 		tr.name = record->get_string(filename);
 		if(tr.name.IsEmpty()) continue;
 
-		tr.addr.blob_start = b->offset;
-		tr.addr.blob_length = b->size;
+		tr.addr.blob_start = b->start;
+		tr.addr.blob_length = b->length;
 
 		if(partno) tr.partno = record->get_string(partno).ToIntDef(0);
 		else tr.partno = 0;

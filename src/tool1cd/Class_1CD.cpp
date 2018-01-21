@@ -1204,7 +1204,7 @@ bool T_1CD::recursive_test_stream_format2(Table* t, uint32_t nrec)
 
 	auto bp = (const BlobPointer *)rec->get_raw(f_sd->getoffset());
 	str = new TMemoryStream();
-	t->readBlob(str, bp->offset, bp->size);
+	t->readBlob(str, bp->start, bp->length);
 
 	result = recursive_test_stream_format(str, path);
 

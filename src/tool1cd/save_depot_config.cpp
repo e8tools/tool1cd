@@ -25,7 +25,6 @@ using namespace std;
 // ver <= 0 - номер версии от последней конфигурации. 0 - последняя конфигурация, -1 - предпоследняя и т.д., т.е. Номер версии определяется как номер последней + ver
 bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 {
-	char* frec;
 	Field* fldd_rootobjid;
 
 	Field* fldv_snapshotcrc;
@@ -88,7 +87,6 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	// Получаем версию хранилища
 	fldd_rootobjid = table_depot->get_field("ROOTOBJID");
 
-	// rec = new char[table_depot->get_recordlen()];
 	TableRecord *rec = nullptr;
 	for(uint32_t i = 0; i < table_depot->get_phys_numrecords(); i++)
 	{
@@ -400,21 +398,20 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				ok = false;
 				deletesobj = false;
 				auto *b = (const BlobPointer *)rech1->get_data(fldh_objdata);
-				if (!rech1->is_null_value(fldh_objdata) && (b->offset != 0 || b->size != 0)) {
+				if (!rech1->is_null_value(fldh_objdata) && (b->start != 0 || b->length != 0)) {
 					out = new TTempStream;
 					if(oldformat)
 					{
-						table_history->readBlob(in, b->offset, b->size);
+						table_history->readBlob(in, b->start, b->length);
 						in->Seek(0, soFromBeginning);
 						ZInflateStream(in, out);
 					}
-					else table_history->readBlob(out, b->offset, b->size);
+					else table_history->readBlob(out, b->start, b->length);
 					out->Close();
 					ok = true;
 				}
 				else if(depotVer >= depot_ver::Ver6)
 				{
-					// rec = rech1 + fldh_datahash->offset + (fldh_datahash->getnull_exists() ? 1 : 0);
 					const char* hash_data = rech1->get_raw(fldh_datahash);
 					out = pack_directory.get_data(hash_data, ok);
 
@@ -523,9 +520,9 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						ok = false;
 						deletesobj = false;
 						const BlobPointer *bp = (const BlobPointer *)rec->get_data(flde_extdata);
-						if (bp->size != 0 || bp->offset != 0) {
+						if (bp->length != 0 || bp->start != 0) {
 							out = new TTempStream;
-							table_externals->readBlob(out, bp->offset, bp->size);
+							table_externals->readBlob(out, bp->start, bp->length);
 							out->Close();
 							ok = true;
 						}
@@ -618,7 +615,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	// TODO: Полечить дичайшие утечки памяти
 	for(size_t j = 0; j < reces.size(); j++) {
-		delete[] reces[j];
+		delete reces[j];
 	}
 
 

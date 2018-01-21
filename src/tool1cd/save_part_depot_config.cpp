@@ -75,9 +75,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		return false;
 	}
 
-	//rec = new char[table_depot->get_recordlen()];
 	TableRecord *rec = nullptr;
-	// ok = false;
 	for(i = 0; i < table_depot->get_phys_numrecords(); i++)
 	{
 		rec = table_depot->getrecord(i);
@@ -273,14 +271,14 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 								if(datapacked)
 								{
 									auto *b = (const BlobPointer *)rech1->get_data(fldh_objdata);
-									if (!rech1->is_null_value(fldh_objdata) && (b->offset != 0 || b->size != 0)) {
+									if (!rech1->is_null_value(fldh_objdata) && (b->start != 0 || b->length != 0)) {
 
-										table_history->readBlob(out, b->offset, b->size);
+										table_history->readBlob(out, b->start, b->length);
 
 										auto *b2 = (const BlobPointer *)rech2->get_data(fldh_objdata);
-										if (!rech2->is_null_value(fldh_objdata) && (b2->offset != 0 || b2->size != 0)) {
+										if (!rech2->is_null_value(fldh_objdata) && (b2->start != 0 || b2->length != 0)) {
 										{
-											table_history->readBlob(out, b2->offset, b2->size);
+											table_history->readBlob(out, b2->start, b2->length);
 											inreaded = true;
 											if (in->GetSize() == out->GetSize()) {
 												if(memcmp(in->GetMemory(), out->GetMemory(), in->GetSize()) == 0) {
@@ -312,8 +310,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 									sobj = in;
 									ok = true;
 								}
-								else if (!rech2->is_null_value(fldh_objdata) && (b->offset != 0 || b->size != 0)) {
-									table_history->readBlob(in, b->offset, b->size);
+								else if (!rech2->is_null_value(fldh_objdata) && (b->start != 0 || b->length != 0)) {
+									table_history->readBlob(in, b->start, b->length);
 									sobj = in;
 									ok = true;
 								}
@@ -437,9 +435,9 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 										ok = false;
 										deletesobj = false;
 										auto b = (const BlobPointer *)rece->get_data(flde_extdata);
-										if (b->offset != 0 || b->size != 0)
+										if (b->start != 0 || b->length != 0)
 										{
-											table_externals->readBlob(in, b->offset, b->size);
+											table_externals->readBlob(in, b->start, b->length);
 											sobj = in;
 											ok = true;
 										}

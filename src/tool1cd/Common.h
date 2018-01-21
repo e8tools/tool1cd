@@ -25,8 +25,8 @@ String toXML(const String &in);
 unsigned char from_hex_digit(char digit);
 
 typedef struct {
-	uint32_t offset;
-	uint32_t size;
+	uint32_t start;
+	uint32_t length;
 } BlobPointer;
 
 template< typename T >
