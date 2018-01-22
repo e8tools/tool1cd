@@ -4,6 +4,7 @@
 
 #include "BinaryGuid.h"
 #include "Common.h"
+#include "DetailedException.h"
 
 BinaryGuid::BinaryGuid()
 {
@@ -59,7 +60,8 @@ bool BinaryGuid::is_empty() const
 BinaryGuid::BinaryGuid(const std::string &presentation)
 {
 	if (presentation.size() != 36) {
-		throw std::exception(); // TODO: Внятное сообщение
+		throw DetailedException("Переданный параметр не может быть распознана как GUID")
+				.add_detail("Значение параметра", presentation);
 	}
 	int j = 0;
 	for (int ind = 12; ind < 16; ind++) {

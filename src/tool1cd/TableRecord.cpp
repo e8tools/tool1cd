@@ -14,6 +14,13 @@ NullValueException::NullValueException(const Field *field)
 	add_detail("Таблица", field->getparent()->getname());
 }
 
+FieldCannotBeNullException::FieldCannotBeNullException(const Field *field)
+	: DetailedException("Поле не может быть NULL")
+{
+	add_detail("Поле", field->getname());
+	add_detail("Таблица", field->getparent()->getname());
+}
+
 TableRecord::TableRecord(const Table *parent, char *data, int data_size)
 	: data(data == nullptr ? new char [parent->get_recordlen()] : data),
 	  table(parent),
@@ -120,7 +127,9 @@ void TableRecord::Assign(const TableRecord *another_record)
 {
 	if (table != nullptr) {
 		if (another_record->data_size != data_size || another_record->table != table) {
-			throw std::exception(); // TODO: внятное исключение
+			throw DetailedException("Попытка передать данные между записями разных таблиц!")
+					.add_detail("Таблица-приёмник", table->getname())
+					.add_detail("Таблица-источник", another_record->table->getname());
 		}
 	}
 	auto i = data_size;
@@ -132,7 +141,7 @@ void TableRecord::Assign(const TableRecord *another_record)
 void TableRecord::set_null(const Field *field)
 {
 	if (!field->getnull_exists()) {
-		throw std::exception(); // TODO: Внятное исключение, что поле не поддерживает NULL
+		throw FieldCannotBeNullException(field);
 	}
 	data[field->getoffset()] = '\0';
 }

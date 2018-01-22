@@ -18,6 +18,11 @@ public:
 	NullValueException(const Field *field);
 };
 
+class FieldCannotBeNullException : public DetailedException {
+public:
+	FieldCannotBeNullException(const Field *field);
+};
+
 class TableRecord {
 public:
 
