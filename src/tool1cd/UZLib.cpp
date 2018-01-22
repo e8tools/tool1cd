@@ -216,13 +216,11 @@ void ZInflateStream(TStream* src, TStream* dst)
 
 void ZInflateOrCopy(TStream *src, TStream *dst)
 {
-	auto src_pos = src->GetPosition();
 	try {
 
 		ZInflateStream(src, dst);
 
 	} catch (ZError &zlib_error) {
-		src->Seek(src_pos, soFromBeginning);
 		dst->CopyFrom(src, 0);
 	}
 }
