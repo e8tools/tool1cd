@@ -27,7 +27,7 @@ public:
 	// TODO: Мудрое название
 	std::string as_MS() const;
 private:
-	std::array<char, GUID_BINARY_SIZE> data;
+	std::array<uint8_t , GUID_BINARY_SIZE> data;
 };
 
 
