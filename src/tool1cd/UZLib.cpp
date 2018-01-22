@@ -214,6 +214,19 @@ void ZInflateStream(TStream* src, TStream* dst)
 }
 
 
+void ZInflateOrCopy(TStream *src, TStream *dst)
+{
+	auto src_pos = src->GetPosition();
+	try {
+
+		ZInflateStream(src, dst);
+
+	} catch (ZError &zlib_error) {
+		src->Seek(src_pos, soFromBeginning);
+		dst->CopyFrom(src, 0);
+	}
+}
+
 /* Decompress from file source to file dest until stream ends or EOF.
    inf() returns Z_OK on success, Z_MEM_ERROR if memory could not be
    allocated for processing, Z_DATA_ERROR if the deflate data is

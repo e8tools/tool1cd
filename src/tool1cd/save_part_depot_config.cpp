@@ -494,7 +494,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 										{
 											out->SetSize(0);
 											sobj->Seek(0, soFromBeginning);
-											ZInflateStream(sobj, out);
+											ZInflateOrCopy(sobj, out);
 											iscatalog = false;
 											if(out->GetSize() > 0)
 											{
