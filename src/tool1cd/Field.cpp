@@ -307,7 +307,9 @@ bool Field::save_blob_to_file(const TableRecord *rec, String _filename, bool unp
 				TFileStream temp_stream(_filename, fmCreate);
 				temp_stream.CopyFrom(_sx2, 0);
 			}
-			else cat->SaveToDir(_filename);
+			else {
+				cat->SaveToDir(boost::filesystem::path(static_cast<std::string>(_filename)));
+			}
 			delete cat;
 			delete _sx2;
 
