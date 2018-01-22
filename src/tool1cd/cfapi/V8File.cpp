@@ -65,7 +65,7 @@ void v8file::SetTimeModify(FILETIME* ft)
 
 //---------------------------------------------------------------------------
 // сохранить в файл
-void v8file::SaveToFile(const String& FileName)
+void v8file::SaveToFile(const boost::filesystem::path &FileName)
 {
 	FILETIME create, modify;
 
@@ -83,9 +83,10 @@ void v8file::SaveToFile(const String& FileName)
 		return;
 	}
 
-	TFileStream* fs = new TFileStream(FileName, fmCreate);
+	TFileStream fs(FileName, fmCreate);
 	Lock->Acquire();
-	fs->CopyFrom(data, 0);
+	fs.CopyFrom(data, 0);
+	fs.Close();
 	Lock->Release();
 
 	GetTimeCreate(&create);
@@ -108,8 +109,6 @@ void v8file::SaveToFile(const String& FileName)
 		utime(FileName.c_str(), &ut);
 
 	#endif // _MSC_VER
-
-	delete fs;
 }
 
 //---------------------------------------------------------------------------

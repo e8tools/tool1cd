@@ -4,6 +4,7 @@
 #include <map>
 
 #include "V8File.h"
+#include <boost/filesystem.hpp>
 
 class v8file;
 
@@ -21,7 +22,7 @@ public:
 		v8catalog(String name, bool _zipped); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
 		v8catalog(TStream* stream, bool _zipped, bool leave_stream = false); // создать каталог из потока
 
-		bool IsCatalog();
+		bool IsCatalog() const;
 
 		~v8catalog();
 
@@ -32,8 +33,8 @@ public:
 		void DeleteFile(const String& FileName);
 		v8catalog* GetParentCatalog();
 		v8file* GetSelfFile();
-		void SaveToDir(String DirName);
-		bool isOpen();
+		void SaveToDir(const boost::filesystem::path &dir) const;
+		bool isOpen() const;
 		void Flush();
 		void HalfClose();
 		void HalfOpen(const String& name);
@@ -58,8 +59,8 @@ private:
 		int version;     // версия
 		bool zipped;     // признак зазипованности файлов каталога
 		bool is_cfu;     // признак файла cfu (файл запакован deflate'ом)
-		bool iscatalog;
-		bool iscatalogdefined;
+		mutable bool iscatalog;
+		mutable bool iscatalogdefined;
 
 		bool is_fatmodified;
 		bool is_emptymodified;

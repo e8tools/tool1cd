@@ -78,7 +78,7 @@ TStream* read_block(TStream* stream_from, int start, TStream* stream_to = nullpt
 }
 
 // определение каталога
-bool v8catalog::IsCatalog()
+bool v8catalog::IsCatalog() const
 {
 	int64_t _filelen;
 	uint32_t _startempty = (uint32_t)(-1);
@@ -826,16 +826,21 @@ v8catalog* v8catalog::CreateCatalog(const String& FileName, bool _selfzipped)
 
 //---------------------------------------------------------------------------
 // сохранить в файловую систему
-void v8catalog::SaveToDir(String DirName)
+void v8catalog::SaveToDir(const boost::filesystem::path &dir) const
 {
-	CreateDir(DirName);
-	if(DirName.SubString(DirName.Length(), 1) != str_backslash) DirName += str_backslash;
+	if (!boost::filesystem::exists(dir)) {
+		boost::filesystem::create_directories(dir);
+	}
 	Lock->Acquire();
 	v8file* f = first;
 	while(f)
 	{
-		if(f->IsCatalog()) f->GetCatalog()->SaveToDir(DirName + f->name);
-		else f->SaveToFile(DirName + f->name);
+		if(f->IsCatalog()) {
+			f->GetCatalog()->SaveToDir(dir / static_cast<std::string>(f->name));
+		}
+		else {
+			f->SaveToFile(dir / static_cast<std::string>(f->name));
+		}
 		f->Close();
 		f = f->next;
 	}
@@ -844,7 +849,7 @@ void v8catalog::SaveToDir(String DirName)
 
 //---------------------------------------------------------------------------
 // возвращает признак открытости
-bool v8catalog::isOpen()
+bool v8catalog::isOpen() const
 {
 	return IsCatalog();
 }
