@@ -112,10 +112,10 @@ public:
 	void init();
 	void init(int32_t block_descr);
 
-	String getname();
-	String getdescription();
-	int32_t get_numfields();
-	int32_t get_numindexes();
+	String getname() const;
+	String getdescription() const;
+	int32_t get_numfields() const;
+	int32_t get_numindexes() const;
 	Field* getfield(int32_t numfield);
 	Index* getindex(int32_t numindex);
 	bool get_issystem();

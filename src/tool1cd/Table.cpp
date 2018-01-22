@@ -557,25 +557,25 @@ Table::~Table()
 }
 
 //---------------------------------------------------------------------------
-String Table::getname()
+String Table::getname() const
 {
 	return name;
 }
 
 //---------------------------------------------------------------------------
-String Table::getdescription()
+String Table::getdescription() const
 {
 	return description;
 }
 
 //---------------------------------------------------------------------------
-int32_t Table::get_numfields()
+int32_t Table::get_numfields() const
 {
 	return num_fields;
 }
 
 //---------------------------------------------------------------------------
-int32_t Table::get_numindexes()
+int32_t Table::get_numindexes() const
 {
 	return num_indexes;
 }
