@@ -76,7 +76,7 @@ TEST_CASE("Сохраняем часть конфигурации хранили
 		std::string dbpath(CMAKE_SOURCE_DIR);
 		dbpath += "/tests/depotv6/depot/1cv8ddb.1CD";
 
-		path cfpath = boost::filesystem::temp_directory_path() / "tmp.d";
+		path cfpath = boost::filesystem::temp_directory_path() / "tmp.d6";
 
 		T_1CD base1CD(dbpath, nullptr, true);
 		WHEN ("Сохраняем конфигурацию") {
