@@ -28,6 +28,11 @@ DetailedException::DetailedException(const DetailedException &src) throw()
 {
 }
 
+const char *DetailedException::what() const throw()
+{
+	return message.c_str();
+}
+
 
 FieldStreamParseException::FieldStreamParseException(const String &message) throw()
 		: DetailedException(message)

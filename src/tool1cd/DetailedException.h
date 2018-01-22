@@ -16,6 +16,8 @@ public:
 	void show() const throw();
 	DetailedException &add_detail(const String &paramName, const String &paramValue) throw();
 
+	virtual const char *what() const throw() override ;
+
 private:
 	String message;
 	TStringList params;

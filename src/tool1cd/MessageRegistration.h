@@ -8,12 +8,11 @@
 enum class MessageState
 {
 	Empty = -1,
-	Succesfull = 0,
-	Warning = 1,
+	Hint = 0,
+	Succesfull = 1,
 	Info = 2,
-	Error = 3,
-	Wait = 4,
-	Hint = 5
+	Warning = 3,
+	Error = 4
 };
 
 class IMessageRegistration
