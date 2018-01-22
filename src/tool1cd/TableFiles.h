@@ -55,7 +55,6 @@ class TableFiles
 private:
 	Table* table {nullptr};
 	std::map<String,TableFile*> allfiles;
-	TableRecord *record {nullptr};
 	bool ready {false};
 
 	bool test_table();

@@ -68,9 +68,9 @@ TableFiles::TableFiles(Table* t)
 	else partno = nullptr;
 
 	for (int i = 0; i < table->get_phys_numrecords(); ++i) {
-		record = table->getrecord(i);
+
+		std::shared_ptr<TableRecord> record (table->getrecord(i));
 		if(record->is_removed()) {
-			delete record;
 			continue;
 		}
 		auto b = (const BlobPointer *)record->get_data(fld_blob_pointer);
@@ -119,10 +119,6 @@ TableFiles::TableFiles(Table* t)
 //---------------------------------------------------------------------------
 TableFiles::~TableFiles()
 {
-	if (record) {
-		delete record;
-		record = nullptr;
-	}
 	for (auto p : allfiles) {
 		delete p.second;
 	}
