@@ -27,6 +27,9 @@ public:
 	String get_string(const Field *field) const;
 	String get_string(const String &field_name) const;
 
+	String get_xml_string(const Field *field) const;
+	String get_xml_string(const String &field_name) const;
+
 	bool is_null_value(const Field *field) const;
 	bool is_null_value(const String &field_name) const;
 

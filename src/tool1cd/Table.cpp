@@ -943,20 +943,22 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 		else nr = recordsindex[j];
 		std::shared_ptr<TableRecord> rec (getrecord(nr));
 		if(ic){
-			s = get_file_name_for_record(rec.get());
-			if(s.CompareIC(recname) == 0) rc++;
-			else
-			{
-				recname = s;
+			String filename = get_file_name_for_record(rec.get());
+			if (filename.CompareIC(recname) == 0) {
+				rc++;
+			} else {
+				recname = filename;
 				rc = 0;
 			}
 		}
 		for(i = 0; i < num_fields; i++)
 		{
+			String outputvalue;
 			f->Write(rpart3.c_str(), rpart3.GetLength());
-			us = &(fields[i]->name);
-			f->Write(us->c_str(), us->Length());
-			f->Write(">", 1);
+			String *field_name = &(fields[i]->name);
+			f->Write(field_name->c_str(), field_name->Length());
+
+			bool output_is_null = false;
 
 			if(blob_to_file && fields[i]->type_manager->gettype() == type_fields::tf_image)
 			{
@@ -981,31 +983,46 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 
 				if(canwriteblob)
 				{
-					s = recname;
+					outputvalue = recname;
 					if(ic > 1)
 					{
-						if(s.GetLength()) s += "_";
-						s += fields[i]->name;
+						if (outputvalue.size()) {
+							outputvalue += "_";
+						}
+						outputvalue += fields[i]->name;
 					}
 					if(rc)
 					{
-						s += "_";
-						s += rc + 1;
+						outputvalue += "_";
+						outputvalue += rc + 1;
 					}
 
-					dir /= static_cast<std::string>(s);
+					dir /= static_cast<std::string>(outputvalue);
 					if(!fields[i]->save_blob_to_file(rec.get(), dir.string(), unpack)) {
-						s = "{NULL}";
+						outputvalue = "{NULL}";
+						output_is_null = true;
 					}
 				}
-				else s = "{ERROR}";
+				else outputvalue = "{ERROR}";
 			}
-			else s = rec->get_string(fields[i]);
+			else {
+				if (rec->is_null_value(fields[i])) {
+					outputvalue = "{NULL}";
+					output_is_null = true;
+				} else {
+					outputvalue = rec->get_xml_string(fields[i]);
+				}
+			}
 
-			f->Write(s.c_str(), s.GetLength());
-			f->Write("</", 2);
-			f->Write(us->c_str(), us->Length());
-			f->Write(">\r\n", 3);
+			if (output_is_null) {
+				f->Write("/>\r\n", 4);
+			} else {
+				f->Write(">", 1);
+				f->Write(outputvalue.c_str(), outputvalue.GetLength());
+				f->Write("</", 2);
+				f->Write(field_name->c_str(), field_name->Length());
+				f->Write(">\r\n", 3);
+			}
 		}
 		f->Write(rpart2.c_str(), rpart2.GetLength());
 

@@ -146,3 +146,16 @@ void TableRecord::set_data(const Field *field, const void *new_data)
 	}
 	memcpy(data_start, new_data, field->getlen());
 }
+
+String TableRecord::get_xml_string(const Field *field) const
+{
+	if (is_null_value(field)) {
+		throw NullValueException(field);
+	}
+	return field->get_XML_presentation(data);
+}
+
+String TableRecord::get_xml_string(const String &field_name) const
+{
+	return get_xml_string(table->get_field(field_name));
+}
