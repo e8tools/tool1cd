@@ -24,7 +24,7 @@ void Messenger::Status(const String& message)
 //---------------------------------------------------------------------------
 void Messenger::AddMessage(const String &message, const MessageState mstate, const TStringList *param)
 {
-	if (mstate > minimal_state) {
+	if (mstate < minimal_state) {
 		return;
 	}
 
