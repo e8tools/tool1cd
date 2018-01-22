@@ -18,6 +18,8 @@
 
 using namespace std;
 
+extern boost::filesystem::path object_path(const boost::filesystem::path &rootpath, const std::string &datahash);
+
 //---------------------------------------------------------------------------
 // Сохранение конфигурации в файл из хранилища конфигураций
 // ver - номер версии сохраняемой конфигурации
@@ -417,8 +419,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 					if(!ok)
 					{
-						String ss = rech1->get_string(fldh_datahash);
-						boost::filesystem::path current_object_path = objects_path / static_cast<std::string>(ss.SubString(1, 2)) / static_cast<std::string>(ss.SubString(3, ss.GetLength() - 2));
+						String sDataHash = rech1->get_string(fldh_datahash);
+						auto current_object_path = object_path(objects_path, sDataHash);
 						if(boost::filesystem::exists(current_object_path))
 						{
 							try
@@ -445,25 +447,25 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						}
 					}
 				}
-				String s = rech1->get_string(fldh_objid);
+				String sObjId = rech1->get_string(fldh_objid);
 				if(!ok)
 				{
 					msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
 						"Таблица", "HISTORY",
-						"Объект", s,
+						"Объект", sObjId,
 						"Версия", rech1->get_string(fldh_vernum));
 				}
 				else
 				{
 					if(oldformat)
 					{
-						rootmap[s] = rech1->get_guid(fldh_objverid).as_MS();
-						metamap[s] = out;
+						rootmap[sObjId] = rech1->get_guid(fldh_objverid).as_MS();
+						metamap[sObjId] = out;
 					}
 					else
 					{
-						vermap[s] = rech1->get_guid(fldh_objverid).as_MS();
-						extmap[s] = out;
+						vermap[sObjId] = rech1->get_guid(fldh_objverid).as_MS();
+						extmap[sObjId] = out;
 					}
 
 					// Вот тут идем по EXTERNALS
@@ -533,8 +535,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 							if(!ok)
 							{
-								String ss = rec->get_string(flde_datahash);
-								boost::filesystem::path current_object_path = objects_path / static_cast<std::string>(ss.SubString(1, 2)) / static_cast<std::string>(ss.SubString(3, ss.GetLength() - 2));
+								String sDataHash = rec->get_string(flde_datahash);
+								auto current_object_path = object_path(objects_path, sDataHash);
 								if (boost::filesystem::exists(current_object_path))
 								{
 									try
