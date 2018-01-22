@@ -471,11 +471,15 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 					// Вот тут идем по EXTERNALS
 					while(true) {
 						if(ie > ne) break;
-						BinaryGuid current_external_guid = rece->get_guid(flde_objid);
-						if (current_external_guid > curobj) {
-							break;
+						BinaryGuid current_external_guid;
+
+						if (rece != nullptr) {
+							current_external_guid = rece->get_guid(flde_objid);
+							if (current_external_guid > curobj) {
+								break;
+							}
 						}
-						if (current_external_guid != curobj) {
+						if (rece != nullptr && current_external_guid != curobj) {
 							int32_t vernum = rece->get_string(flde_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
 							String s = rece->get_string(flde_extname);
 							if(vernum <= ver && rece->get_bool(flde_datapacked)) {
@@ -600,7 +604,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				{
 					datapacked = false;
 					if (!rech2->is_null_value(fldh_datapacked)) {
-						if (!rech2->get_bool(fldh_datapacked)) {
+						if (rech2->get_bool(fldh_datapacked)) {
 							datapacked = true;
 						}
 					}
