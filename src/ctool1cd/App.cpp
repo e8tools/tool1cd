@@ -571,6 +571,9 @@ int App::Run()
 		catch (String &s) {
 			msreg_g.AddError(s);
 		}
+		catch (DetailedException &ex) {
+			ex.show();
+		}
 		catch (Exception &ex) {
 			msreg_g.AddError(ex.Message());
 		}
