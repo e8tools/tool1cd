@@ -443,7 +443,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 										}
 										else if(depotVer >= depot_ver::Ver6)
 										{
-											const char *datahash = rece->get_data(flde_datahash->offset);
+											const char *datahash = rece->get_data(flde_datahash);
 											sobj = pack_directory.get_data(datahash, ok);
 
 											if(!ok)
