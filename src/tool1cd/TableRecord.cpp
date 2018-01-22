@@ -91,7 +91,7 @@ const char *TableRecord::get_raw(const String &field_name) const
 
 const char *TableRecord::get_data(const Field *field) const
 {
-	return &data[field->getoffset() + field->getnull_exists() ? 1 : 0];
+	return &data[field->getoffset() + (field->getnull_exists() ? 1 : 0)];
 }
 
 const char *TableRecord::get_data(const String &field_name) const
