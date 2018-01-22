@@ -18,6 +18,12 @@
 
 using namespace std;
 
+boost::filesystem::path object_path(const boost::filesystem::path &rootpath, const std::string &datahash)
+{
+	// aabbccddeeff -> ./data/objects/aa/bbccddeeff
+	return rootpath / datahash.substr(0, 2) / datahash.substr(2, datahash.size() - 2);
+}
+
 //---------------------------------------------------------------------------
 // Сохранение файлов конфигурации в каталог из хранилища конфигураций
 // ver_begin - начальный номер диапазона версий сохраняемых файлов конфигурации
@@ -235,14 +241,14 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 				if(hasrech2)
 				{
 					lastver = rech2->get_string(fldh_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
-					String sn = rech2->get_string(fldh_objid);
+					String sObjId = rech2->get_string(fldh_objid);
 
 					hasext = true;
 					bool removed = rech2->get_bool(fldh_removed);
 					if (removed) {
 						if(hasrech1)
 						{
-							sw->Write(sn + "\r\n");
+							sw->Write(sObjId + "\r\n");
 							hasdeleted = true;
 						}
 						else hasext = false;
@@ -322,8 +328,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 									if(!ok)
 									{
-										String ss = rech2->get_string(fldh_datahash);
-										boost::filesystem::path current_object_path = objects_path / static_cast<std::string>(ss.SubString(1, 2)) / static_cast<std::string>(ss.SubString(3, ss.GetLength() - 2));
+										String sDataHash = rech2->get_string(fldh_datahash);
+										auto current_object_path = object_path(objects_path, sDataHash);
 										if (boost::filesystem::exists(current_object_path))
 										{
 											try
@@ -337,7 +343,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 												msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
 																	"Файл", current_object_path.string(),
 																	"Таблица", "HISTORY",
-																	"Объект", sn,
+																	"Объект", sObjId,
 																	"Версия", lastver);
 											}
 										}
@@ -346,7 +352,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 											msreg_m.AddMessage_("Не найден файл", MessageState::Error,
 																"Файл", s,
 																"Таблица", "HISTORY",
-																"Объект", sn,
+																"Объект", sObjId,
 																"Версия", lastver);
 										}
 									}
@@ -356,17 +362,15 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 								{
 									msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
 														"Таблица", "HISTORY",
-														"Объект", sn,
+														"Объект", sObjId,
 														"Версия", lastver);
 								}
 								else
 								{
-									f = new TFileStream(cath / static_cast<string>(sn), fmCreate);
+									TFileStream f(cath / static_cast<string>(sObjId), fmCreate);
 									sobj->Seek(0, soFromBeginning);
-									ZInflateStream(sobj, f);
-									delete f;
+									ZInflateStream(sobj, &f);
 									if(deletesobj) delete sobj;
-
 								}
 							}
 						}
@@ -388,14 +392,13 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 						}
 						if (rece != nullptr && current_record_guid != curobj)
 						{
-							String s = rece->get_string(flde_vernum);
-							v = s.ToIntDef(std::numeric_limits<int32_t>::max());
+							v = rece->get_string(flde_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
 							if(v == lastver)
 							{
-								String se = rece->get_string(flde_extname);
+								String ext_name = rece->get_string(flde_extname);
 								if(removed)
 								{
-									sw->Write(se + "\r\n");
+									sw->Write(ext_name + "\r\n");
 									hasdeleted = true;
 								}
 								else
@@ -415,7 +418,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 											break;
 										}
 										s = rece->get_string(flde_extname);
-										if (s.CompareIC(se)) {
+										if (s.CompareIC(ext_name)) {
 											continue;
 										}
 
@@ -448,8 +451,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 											if(!ok)
 											{
-												String ss = rece->get_string(flde_datahash);
-												boost::filesystem::path current_object_path = objects_path / static_cast<std::string>(ss.SubString(1, 2)) / static_cast<std::string>(ss.SubString(3, ss.GetLength() - 2));
+												String sDataHash = rece->get_string(flde_datahash);
+												auto current_object_path = object_path(objects_path, sDataHash);
 												if (boost::filesystem::exists(current_object_path))
 												{
 													try
@@ -463,8 +466,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 														msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
 																			"Файл", current_object_path.string(),
 																			"Таблица", "EXTERNALS",
-																			"Объект", sn,
-																			"Файл конфигурации", se,
+																			"Объект", sObjId,
+																			"Файл конфигурации", ext_name,
 																			"Версия", v);
 													}
 												}
@@ -473,8 +476,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 													msreg_m.AddMessage_("Не найден файл", MessageState::Error,
 																		"Файл", current_object_path.string(),
 																		"Таблица", "EXTERNALS",
-																		"Объект", sn,
-																		"Файл конфигурации", se,
+																		"Объект", sObjId,
+																		"Файл конфигурации", ext_name,
 																		"Версия", v);
 												}
 											}
@@ -483,8 +486,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 										{
 											msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
 																"Таблица", "EXTERNALS",
-																"Объект", sn,
-																"Файл конфигурации", se,
+																"Объект", sObjId,
+																"Файл конфигурации", ext_name,
 																"Версия", v);
 										}
 										else
@@ -498,12 +501,11 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 												cat = new v8catalog(out, false, true);
 												iscatalog = cat->IsCatalog();
 											}
-											if(iscatalog) cat->SaveToDir((cath / static_cast<string>(se)).string());
+											if(iscatalog) cat->SaveToDir((cath / static_cast<string>(ext_name)).string());
 											else
 											{
-												f = new TFileStream(cath / static_cast<string>(se), fmCreate);
-												f->CopyFrom(out, 0);
-												delete f;
+												TFileStream f(cath / static_cast<string>(ext_name), fmCreate);
+												f.CopyFrom(out, 0);
 											}
 											delete cat;
 											cat = nullptr;
