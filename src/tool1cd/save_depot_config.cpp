@@ -502,7 +502,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 							break;
 						}
 						uint32_t num_rec = index_externals->get_numrec(ie++);
-						table_externals->getrecord(num_rec);
+						rece = table_externals->getrecord(num_rec);
 					}
 					for(int32_t j = 0; j < reces.size(); j++)
 					{
