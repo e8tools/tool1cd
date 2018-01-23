@@ -390,7 +390,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 								break;
 							}
 						}
-						if (rece != nullptr && current_record_guid != curobj)
+						if (rece != nullptr && current_record_guid == curobj)
 						{
 							v = rece->get_string(flde_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
 							if(v == lastver)

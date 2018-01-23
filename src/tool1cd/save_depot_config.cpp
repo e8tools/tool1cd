@@ -414,7 +414,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				}
 				else if(depotVer >= depot_ver::Ver6)
 				{
-					const char* hash_data = rech1->get_raw(fldh_datahash);
+					const char* hash_data = rech1->get_data(fldh_datahash);
 					out = pack_directory.get_data(hash_data, ok);
 
 					if(!ok)
@@ -447,7 +447,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						}
 					}
 				}
-				String sObjId = rech1->get_string(fldh_objid);
+				String sObjId = rech1->get_guid(fldh_objid).as_MS();
 				if(!ok)
 				{
 					msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
@@ -479,7 +479,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 								break;
 							}
 						}
-						if (rece != nullptr && current_external_guid != curobj) {
+						if (rece != nullptr && current_external_guid == curobj) {
 							int32_t vernum = rece->get_string(flde_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
 							String s = rece->get_string(flde_extname);
 							if(vernum <= ver && rece->get_bool(flde_datapacked)) {
