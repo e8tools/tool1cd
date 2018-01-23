@@ -28,10 +28,10 @@ public:
 		int64_t GetFileLength();
 
 		int64_t Read(void* Buffer, int Start, int Length);
-		int64_t Read(std::vector<System::t::Byte> Buffer, int Start, int Length);
+		int64_t Read(std::vector<uint8_t> Buffer, int Start, int Length);
 
 		int64_t Write(const void* Buffer, int Start, int Length);                           // дозапись/перезапись частично
-		int64_t Write(std::vector<System::t::Byte> Buffer, int Start, int Length); // дозапись/перезапись частично
+		int64_t Write(std::vector<uint8_t> Buffer, int Start, int Length); // дозапись/перезапись частично
 		int64_t Write(const void* Buffer, int Length);                                      // перезапись целиком
 		int64_t Write(TStream* Stream, int Start, int Length);                              // дозапись/перезапись частично
 		int64_t Write(TStream* Stream);                                                     // перезапись целиком

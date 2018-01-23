@@ -153,7 +153,7 @@ int64_t v8file::Read(void* Buffer, int Start, int Length)
 
 //---------------------------------------------------------------------------
 // чтение
-int64_t v8file::Read(std::vector<t::Byte> Buffer, int Start, int Length)
+int64_t v8file::Read(std::vector<uint8_t> Buffer, int Start, int Length)
 {
 	int64_t ret = 0l;
 	Lock->Acquire();
@@ -194,7 +194,7 @@ int64_t v8file::Write(const void* Buffer, int Start, int Length) // дозапи
 
 //---------------------------------------------------------------------------
 // записать
-int64_t v8file::Write(std::vector<t::Byte> Buffer, int Start, int Length) // дозапись/перезапись частично
+int64_t v8file::Write(std::vector<uint8_t> Buffer, int Start, int Length) // дозапись/перезапись частично
 {
 	int64_t ret = 0l;
 	Lock->Acquire();
@@ -688,7 +688,7 @@ void v8file::Flush()
 
 tree* v8file::get_tree()
 {
-	TBytes bytes;
+	std::vector<uint8_t> bytes;
 	std::unique_ptr<TBytesStream> bytes_stream( new TBytesStream(bytes) );
 	SaveToStream(bytes_stream.get());
 

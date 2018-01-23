@@ -26,7 +26,7 @@ public:
 
 	virtual int64_t Write(const void *Buffer, int64_t Count) override;
 
-	const std::vector<t::Byte> &GetBytes() const;
+	const std::vector<uint8_t> &GetBytes() const;
 
 	void *GetMemory();
 
@@ -34,13 +34,13 @@ private:
 
 	void EnsureSize(size_t size);
 
-	std::vector<t::Byte> _data;
+	std::vector<uint8_t> _data;
 };
 
 class TBytesStream : public TMemoryStream
 {
 public:
-	TBytesStream(const std::vector<t::Byte> &initial);
+	TBytesStream(const std::vector<uint8_t> &initial);
 
 	virtual ~TBytesStream();
 };

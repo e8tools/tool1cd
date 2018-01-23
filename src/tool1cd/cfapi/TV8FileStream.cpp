@@ -27,7 +27,7 @@ int64_t TV8FileStream::Read(void *Buffer, int64_t Count)
 
 //---------------------------------------------------------------------------
 // чтение буфера
-int TV8FileStream::Read(std::vector<t::Byte> Buffer, int Offset, int Count)
+int TV8FileStream::Read(std::vector<uint8_t> Buffer, int Offset, int Count)
 {
 	int r = file->Read(Buffer, pos, Count);
 	pos += r;
@@ -45,7 +45,7 @@ int64_t TV8FileStream::Write(const void *Buffer, int64_t Count)
 
 //---------------------------------------------------------------------------
 // запись буфера
-int TV8FileStream::Write(const std::vector<t::Byte> Buffer, int Offset, int Count)
+int TV8FileStream::Write(const std::vector<uint8_t> Buffer, int Offset, int Count)
 {
 	int r = file->Write(Buffer, pos, Count);
 	pos += r;

@@ -41,7 +41,7 @@ int64_t TMemoryStream::Read(void *Buffer, int64_t Count)
 
 int64_t TMemoryStream::Write(const void *Buffer, int64_t Count)
 {
-	auto buf = reinterpret_cast<const t::Byte*>(Buffer);
+	auto buf = reinterpret_cast<const uint8_t*>(Buffer);
 	EnsureSize(m_position + Count);
 	for (auto i = Count; i; i--) {
 		_data[m_position++] = *buf++;
@@ -49,7 +49,7 @@ int64_t TMemoryStream::Write(const void *Buffer, int64_t Count)
 	return Count;
 }
 
-const std::vector<t::Byte> &TMemoryStream::GetBytes() const
+const std::vector<uint8_t> &TMemoryStream::GetBytes() const
 {
 	return _data;
 }
@@ -68,7 +68,7 @@ void TMemoryStream::EnsureSize(size_t size)
 	}
 }
 
-TBytesStream::TBytesStream(const std::vector<t::Byte> &initial)
+TBytesStream::TBytesStream(const std::vector<uint8_t> &initial)
 {
 	Write(initial.data(), initial.size());
 	m_position = 0;

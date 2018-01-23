@@ -8,10 +8,10 @@
 extern Registrator msreg_g;
 
 SupplierConfig::SupplierConfig(TableFile *file,
-															 const System::String &name,
-															 const System::String &supplier,
-															 const System::String &version)
-	: _file(file), _name(name), _supplier(supplier), _version(version)
+							   const System::String &name,
+							   const System::String &supplier,
+							   const System::String &version)
+	 : _file(file), _name(name), _supplier(supplier), _version(version)
 {}
 
 bool SupplierConfig::save_to_file(const boost::filesystem::path& file_name) {

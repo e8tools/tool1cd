@@ -1237,8 +1237,8 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 	TBytesStream* _sb;
 	bool result;
 	TEncoding *enc;
-	TBytes bytes1;
-	TBytes bytes2;
+	std::vector<uint8_t> bytes1;
+	std::vector<uint8_t> bytes2;
 	v8catalog* cat;
 	int32_t offset;
 	String sf;
@@ -1680,8 +1680,8 @@ bool T_1CD::test_list_of_tables()
 	TMemoryStream* str;
 	TBytesStream* _sb;
 	TEncoding *enc;
-	TBytes bytes1;
-	TBytes bytes2;
+	std::vector<uint8_t> bytes1;
+	std::vector<uint8_t> bytes2;
 	wchar_t first_symbol;
 	int32_t i, j, l, l2;
 	uint32_t k;
