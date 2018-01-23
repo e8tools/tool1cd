@@ -106,7 +106,7 @@ void v8file::SaveToFile(const boost::filesystem::path &FileName)
 
 	#else
 
-		utime(FileName.c_str(), &ut);
+		utime(FileName.string().c_str(), &ut);
 
 	#endif // _MSC_VER
 }
