@@ -21,7 +21,7 @@ public:
 
 	String(const char *src, int limit_size);
 
-	explicit String(const std::vector<t::Byte> &bytes, int offset = 0, int size = -1);
+	explicit String(const std::vector<uint8_t> &bytes, int offset = 0, int size = -1);
 
 	String(const WCHART *w_src, int limit_size);
 

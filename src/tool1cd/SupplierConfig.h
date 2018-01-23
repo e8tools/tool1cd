@@ -12,9 +12,9 @@ class SupplierConfig
 {
 public:
 	SupplierConfig(TableFile* file,
-								 const String& name,
-								 const String& supplier,
-								 const String& version);
+				   const String& name,
+				   const String& supplier,
+				   const String& version);
 	~SupplierConfig() = default;
 
 	bool save_to_file(const boost::filesystem::path& file_name);

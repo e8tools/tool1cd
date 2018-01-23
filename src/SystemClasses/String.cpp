@@ -49,7 +49,7 @@ String::String(const char *src, int limit_size) : string(src, limit_size)
  *      @src        - входная строка
  *      @limit_size - лимит в размере
  */
-String::String(const std::vector<t::Byte> &bytes, int offset, int size)
+String::String(const std::vector<uint8_t> &bytes, int offset, int size)
 		: string(reinterpret_cast<const char *>(bytes.data() + offset), ( size == -1 ? (bytes.size()-offset) : size))
 {
 }
@@ -61,7 +61,7 @@ String::String(const std::vector<t::Byte> &bytes, int offset, int size)
 String::String(const WCHART *w_src, int limit_size)
 {
 	// Костыль
-	std::vector<t::Byte> tmpdata;
+	std::vector<uint8_t> tmpdata;
 	const WCHART *p = w_src;
 	bool limit_exceeded = false;
 
@@ -89,7 +89,7 @@ String::String(const WCHART *w_src, int limit_size)
 String::String(const WCHART *w_src)
 {
 	// Костыль
-	std::vector<t::Byte> tmpdata;
+	std::vector<uint8_t> tmpdata;
 	const WCHART *p = w_src;
 
 	if( p != nullptr ) {

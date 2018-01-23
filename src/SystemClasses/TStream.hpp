@@ -51,13 +51,13 @@ public:
 
 	virtual int64_t ReadBuffer(void *Buffer, int64_t Count);
 
-	virtual int64_t Read(std::vector<System::t::Byte> &Buffer, int64_t Count);
+	virtual int64_t Read(std::vector<uint8_t> &Buffer, int64_t Count);
 
 	virtual int64_t CopyFrom(TStream *Source, const int64_t Count);
 
 	virtual int64_t WriteBuffer(const void *Buffer, const int64_t Count);
 
-	virtual int64_t Write(const std::vector<System::t::Byte> &Buffer, const int64_t Count);
+	virtual int64_t Write(const std::vector<uint8_t> &Buffer, const int64_t Count);
 
 	virtual void    Close();
 

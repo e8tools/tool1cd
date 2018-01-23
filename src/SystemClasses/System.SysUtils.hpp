@@ -47,12 +47,12 @@ class TEncoding
 
 public:
 
-virtual std::vector<System::t::Byte> GetPreamble() = 0;
-virtual String toUtf8(const std::vector<t::Byte> &Buffer, int offset = 0) const = 0;
-virtual std::vector<t::Byte> fromUtf8(const String &str) = 0;
+virtual std::vector<uint8_t> GetPreamble() = 0;
+virtual String toUtf8(const std::vector<uint8_t> &Buffer, int offset = 0) const = 0;
+virtual std::vector<uint8_t> fromUtf8(const String &str) = 0;
 
-static int GetBufferEncoding(const std::vector<t::Byte> &Buffer, TEncoding* &AEncoding);
-static std::vector<t::Byte> Convert(TEncoding * const Source, TEncoding * const Destination, const std::vector<t::Byte> &Bytes, int StartIndex, int Count);
+static int GetBufferEncoding(const std::vector<uint8_t> &Buffer, TEncoding* &AEncoding);
+static std::vector<uint8_t> Convert(TEncoding * const Source, TEncoding * const Destination, const std::vector<uint8_t> &Bytes, int StartIndex, int Count);
 
 //! двухбайтная кодировка WCHART
 static TEncoding *Unicode;
@@ -60,8 +60,6 @@ static TEncoding *Unicode;
 static TEncoding *UTF8;
 
 };
-
-typedef std::vector<System::t::Byte> TBytes;
 
 int StrToInt(const String &s);
 
