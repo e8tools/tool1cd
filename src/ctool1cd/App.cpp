@@ -290,8 +290,7 @@ void App::save_configsave(const ParsedCommand &pc)
 } // save_configsave
 
 void App::save_vendors_configs(const boost::filesystem::path& param_path) {
-	base1CD->find_supplier_configs();
-	for (auto& supplier_config : base1CD->supplier_configs) {
+	for (auto& supplier_config : base1CD->supplier_configs()) {
 		String file_name = supplier_config->name() + " " + supplier_config->version() + str_cf;
 		boost::filesystem::path cfpath = param_path / static_cast<string>(file_name);
 		if ( supplier_config->save_to_file(cfpath) ) {

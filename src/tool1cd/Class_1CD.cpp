@@ -494,16 +494,20 @@ bool T_1CD::save_configsave(String _filename) // TODO: переписать со
 //---------------------------------------------------------------------------
 void T_1CD::find_supplier_configs()
 {
-	std::map<String,TableFile*>::iterator p;
+	constexpr int32_t SUPPLIER_CONFIG_NAME_LEN = 73;
 
-	for(p = get_files_configsave()->files().begin(); p != get_files_configsave()->files().end(); ++p)
-	{
-		if(p->first.GetLength() == 73) add_supplier_config(p->second);
+	for(auto& config_save: get_files_configsave()->files()) {
+		if(config_save.first.GetLength() == SUPPLIER_CONFIG_NAME_LEN) {
+			 add_supplier_config(config_save.second);
+		}
 	}
-	for(p = get_files_config()->files().begin(); p != get_files_config()->files().end(); ++p)
-	{
-		if(p->first.GetLength() == 73) add_supplier_config(p->second);
+
+	for(auto& config : get_files_config()->files()) {
+		if(config.first.GetLength() == SUPPLIER_CONFIG_NAME_LEN) {
+			add_supplier_config(config.second);
+		}
 	}
+
 	supplier_configs_defined = true;
 }
 
@@ -698,7 +702,7 @@ void T_1CD::add_supplier_config(TableFile* tf)
 		#endif
 
 		std::shared_ptr<SupplierConfig> sup_conf = std::make_shared<SupplierConfig>(tf, _name, _supplier, _version);
-		supplier_configs.push_back(sup_conf);
+		_supplier_configs.push_back(sup_conf);
 
 		delete cat;
 		cat = nullptr;
@@ -4053,4 +4057,12 @@ depot_ver T_1CD::get_depot_version(const char *record)
 	}
 
 	return depotVer;
+}
+
+T_1CD::SupplierConfigs& T_1CD::supplier_configs() {
+	if(!supplier_configs_defined) {
+		find_supplier_configs();
+	}
+
+	return _supplier_configs;
 }
