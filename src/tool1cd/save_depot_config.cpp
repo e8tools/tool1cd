@@ -426,6 +426,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 							try
 							{
 								out = new TFileStream(current_object_path, fmOpenRead | fmShareDenyNone);
+								out->Close();
 								ok = true;
 							}
 							catch(...)
@@ -546,6 +547,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 									try
 									{
 										out = new TFileStream(current_object_path, fmOpenRead | fmShareDenyNone);
+										out->Close();
 										ok = true;
 									}
 									catch(...)
