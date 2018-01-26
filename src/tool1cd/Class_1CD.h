@@ -154,6 +154,9 @@ friend Table;
 friend Index;
 friend Field;
 public:
+
+	typedef std::vector<std::shared_ptr<SupplierConfig>> SupplierConfigs;
+
 	static bool recoveryMode;
 	char* locale; // код языка базы
 	bool is_infobase; // признак информационной базы
@@ -187,9 +190,6 @@ public:
 
 	String ver;
 
-	std::vector<std::shared_ptr<SupplierConfig>> supplier_configs; // конфигурации поставщика
-	bool supplier_configs_defined; // признак, что был произведен поиск конфигураций поставщика
-
 	T_1CD(String _filename, MessageRegistrator* mess = nullptr, bool monopoly = true);
 	T_1CD();
 	~T_1CD();
@@ -200,8 +200,6 @@ public:
 
 	bool save_config(String filename);
 	bool save_configsave(String filename);
-	void find_supplier_configs();
-	bool save_supplier_configs(uint32_t numcon, const String& filename);
 	bool save_depot_config(const String& _filename, int32_t ver = 0);
 	bool save_part_depot_config(const String& _filename, int32_t ver_begin, int32_t ver_end);
 	int32_t get_ver_depot_config(int32_t ver); // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
@@ -225,6 +223,8 @@ public:
 	bool test_block_by_template(uint32_t testblock, char* tt, uint32_t num, int32_t rlen, int32_t len);
 	String& getfilename(){return filename;}
 	uint32_t getpagesize(){return pagesize;}
+
+	SupplierConfigs& supplier_configs();
 private:
 	Registrator msreg_m;
 	String filename;
@@ -239,6 +239,10 @@ private:
 	Table** tables; // таблицы базы
 	bool readonly;
 	pagemaprec* pagemap; // Массив длиной length
+
+	SupplierConfigs _supplier_configs; // конфигурации поставщика
+	bool supplier_configs_defined {false}; // признак, что был произведен поиск конфигураций поставщика
+	void find_supplier_configs();
 
 	TableFiles* _files_config;
 	TableFiles* _files_configsave;
