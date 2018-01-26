@@ -494,6 +494,7 @@ bool T_1CD::save_configsave(String _filename) // TODO: переписать со
 //---------------------------------------------------------------------------
 void T_1CD::find_supplier_configs()
 {
+	// Состоит из 36(GUID) + 1(.) + 36(GUID)
 	constexpr int32_t SUPPLIER_CONFIG_NAME_LEN = 73;
 
 	for(auto& config_save: get_files_configsave()->files()) {
