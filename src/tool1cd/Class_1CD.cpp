@@ -3975,34 +3975,27 @@ TableFiles* T_1CD::get_files_configcassave()
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::save_config_ext(const String& _filename, const TGUID& uid, const String& hashname)
+bool T_1CD::save_config_ext(const boost::filesystem::path& file_name, const TGUID& uid, const String& hashname)
 {
-	ConfigStorageTableConfigCasSave* cs;
-	bool res;
+	std::unique_ptr<ConfigStorageTableConfigCasSave> config_save
+			( new ConfigStorageTableConfigCasSave(get_files_configcas(), get_files_configcassave(), uid, hashname) );
+	if(!config_save->getready()) {
+		return false;
+	}
 
-	cs = new ConfigStorageTableConfigCasSave(get_files_configcas(), get_files_configcassave(), uid, hashname);
-	if(!cs->getready()) {
-		res = false;
-	}
-	else {
-		res = cs->save_config(_filename);
-	}
-	delete cs;
-	return res;
+	return config_save->save_config(file_name);
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::save_config_ext_db(const String& _filename, const String& hashname)
+bool T_1CD::save_config_ext_db(const boost::filesystem::path& file_name, const String& hashname)
 {
-	ConfigStorageTableConfigCas* cs;
-	bool res;
+	std::unique_ptr<ConfigStorageTableConfigCas> config_save
+			( new ConfigStorageTableConfigCas(get_files_configcas(), hashname) );
+	if(!config_save->getready()) {
+		return false;
+	}
 
-	cs = new ConfigStorageTableConfigCas(get_files_configcas(), hashname);
-	if(!cs->getready()) res = false;
-	else res = cs->save_config(_filename);
-	delete cs;
-	return res;
-
+	return config_save->save_config(file_name);
 }
 
 //---------------------------------------------------------------------------
