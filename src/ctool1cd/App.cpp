@@ -17,6 +17,16 @@ extern Registrator msreg_g;
 using namespace std;
 using namespace System;
 
+// Константы
+
+const string GENERAL_CONFIG_DEFAULT_NAME() {
+	return std::string("cf") + CF_STR;
+}
+
+const string DATABASE_CONFIG_DEFAULT_NAME() {
+	return std::string("dbcf") + CF_STR;
+}
+
 App::App(char **szArglist, int nArgs, Messenger &mess)
 		: comm(szArglist, nArgs), mess(mess)
 {}
@@ -250,48 +260,78 @@ void App::import_from_binary(const ParsedCommand &pc)
 
 } // import_from_binary
 
+void App::save_config(const boost::filesystem::path& param_path)
+{
+	if(!is_infobase()) {
+		return;
+	}
+
+	boost::filesystem::path cfpath = param_path;
+
+	if (!boost::iequals(cfpath.extension().string(), CF_STR)) {
+		if (!directory_exists(cfpath)) {
+			return;
+		}
+		cfpath /= DATABASE_CONFIG_DEFAULT_NAME();
+	}
+
+	if (base1CD->save_config(cfpath)) {
+		msreg_g.AddMessage_("Сохранение конфигурации базы данных завершено.", MessageState::Succesfull, "Файл",
+							cfpath.string());
+	} else {
+		msreg_g.AddMessage_("Не удалось сохранить конфигурацию базы данных.", MessageState::Error, "Файл",
+							cfpath.string());
+	}
+
+}
+
 // save_config
 void App::save_config(const ParsedCommand &pc)
 {
 	boost::filesystem::path cfpath(static_cast<string>(pc.param1));
-	if (!boost::iequals(cfpath.extension().string(), str_cf)) {
+
+	save_config(cfpath);
+
+} // save_config
+
+void App::save_configsave(const boost::filesystem::path& param_path)
+{
+	if(!is_infobase()) {
+		return;
+	}
+
+	boost::filesystem::path cfpath = param_path;
+	if (!boost::iequals(cfpath.extension().string(), CF_STR)) {
 		if (!directory_exists(cfpath)) {
 			return;
 		}
-		cfpath /= "dbcf.cf"; // FIXME: заменить "dbcf.cf" константой
+		cfpath /= GENERAL_CONFIG_DEFAULT_NAME();
 	}
-	if (base1CD->save_config(cfpath.string())) {
-		msreg_g.AddMessage_("Сохранение конфигурации базы данных завершено.", MessageState::Succesfull, "Файл",
-		                    cfpath.string());
-	} else {
-		msreg_g.AddMessage_("Не удалось сохранить конфигурацию базы данных.", MessageState::Error, "Файл",
-		                    cfpath.string());
-	}
+	if (base1CD->save_configsave(param_path))
+		msreg_g.AddMessage_("Сохранение основной конфигурации завершено.", MessageState::Succesfull, "Файл",
+							cfpath.string());
+	else
+		msreg_g.AddMessage_("Не удалось сохранить основную конфигурацию.", MessageState::Error, "Файл",
+							cfpath.string());
 
-} // save_config
+}
 
 // save_configsave
 void App::save_configsave(const ParsedCommand &pc)
 {
 	boost::filesystem::path cfpath(static_cast<string>(pc.param1));
-	if (!boost::iequals(cfpath.extension().string(), str_cf)) {
-		if (!directory_exists(cfpath)) {
-			return;
-		}
-		cfpath /= "cf.cf"; // FIXME: заменить "cf.cf" константой
-	}
-	if (base1CD->save_configsave(cfpath.string()))
-		msreg_g.AddMessage_("Сохранение основной конфигурации завершено.", MessageState::Succesfull, "Файл",
-		                    cfpath.string());
-	else
-		msreg_g.AddMessage_("Не удалось сохранить основную конфигурацию.", MessageState::Error, "Файл",
-		                    cfpath.string());
+	save_configsave(cfpath);
 
 } // save_configsave
 
 void App::save_vendors_configs(const boost::filesystem::path& param_path) {
+
+	if(!is_infobase()) {
+		return;
+	}
+
 	for (auto& supplier_config : base1CD->supplier_configs()) {
-		String file_name = supplier_config->name() + " " + supplier_config->version() + str_cf;
+		String file_name = supplier_config->name() + " " + supplier_config->version() + CF_STR;
 		boost::filesystem::path cfpath = param_path / static_cast<string>(file_name);
 		if ( supplier_config->save_to_file(cfpath) ) {
 			msreg_g.AddMessage_("Сохранение конфигурации поставщика завершено.", MessageState::Succesfull, "Файл",
@@ -323,23 +363,15 @@ void App::save_all_configs(const ParsedCommand &pc)
 		return;
 	}
 
-	boost::filesystem::path dbpath = param_path / "dbcf.cf"; // FIXME: заменить "dbcf.cf" константой
-	if (base1CD->save_config(dbpath.string())) {
-		msreg_g.AddMessage_("Сохранение конфигурации базы данных завершено.", MessageState::Succesfull, "Файл",
-		                    dbpath.string());
-	} else {
-		msreg_g.AddMessage_("Не удалось сохранить конфигурацию базы данных.", MessageState::Error, "Файл",
-		                    dbpath.string());
+	if(!is_infobase()) {
+		return;
 	}
 
-	boost::filesystem::path cfpath = param_path / "cf.cf"; // FIXME: заменить "cf.cf" константой
-	if (base1CD->save_configsave(cfpath.string())) {
-		msreg_g.AddMessage_("Сохранение основной конфигурации завершено.", MessageState::Succesfull, "Файл",
-		                    cfpath.string());
-	} else {
-		msreg_g.AddMessage_("Не удалось сохранить основную конфигурацию.", MessageState::Error, "Файл",
-		                    cfpath.string());
-	}
+	boost::filesystem::path dbpath = param_path / DATABASE_CONFIG_DEFAULT_NAME();
+	save_config(dbpath);
+
+	boost::filesystem::path cfpath = param_path / GENERAL_CONFIG_DEFAULT_NAME();
+	save_configsave(cfpath);
 
 	save_vendors_configs(param_path);
 } // save_all_configs
@@ -370,11 +402,11 @@ void App::save_depot_config(const ParsedCommand &pc)
 
 	cfpath = boost::filesystem::absolute(cfpath);
 
-	if (!boost::iequals(cfpath.extension().string(), str_cf)) {
+	if (!boost::iequals(cfpath.extension().string(), CF_STR)) {
 		if (!directory_exists(cfpath)) {
 			return;
 		}
-		cfpath /= static_cast<string>(String(string("v") + version_number + string(str_cf)));
+		cfpath /= static_cast<string>(String(string("v") + version_number + string(CF_STR)));
 	}
 	if (base1CD->save_depot_config(cfpath.string(), version_number))
 		msreg_g.AddMessage_("Сохранение конфигурации хранилища завершено.", MessageState::Succesfull, "Файл",
@@ -579,4 +611,13 @@ int App::Run()
 	}
 
 	return 0;
+}
+
+inline bool App::is_infobase() const {
+	if(!base1CD->is_infobase()) {
+		msreg_g.AddError("Попытка выгрузки конфигурации из файла не являющегося информационной базой!");
+		return false;
+	}
+
+	return true;
 }

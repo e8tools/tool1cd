@@ -476,20 +476,20 @@ void ConfigStorageTable::close(ConfigFile* cf)
 }
 
 //---------------------------------------------------------------------------
-bool ConfigStorageTable::save_config(String _filename)
+bool ConfigStorageTable::save_config(const boost::filesystem::path &file_name)
 {
 	if(!ready) {
 		return false;
 	}
 
-	if(FileExists(_filename)) {
-		DeleteFile(_filename);
+	if(boost::filesystem::exists(file_name)) {
+		boost::filesystem::remove_all(file_name);
 	}
 
 	size_t prevj = 101;
 	size_t i = 1;
 
-	std::unique_ptr<v8catalog> catalog (new v8catalog(_filename, false));
+	std::unique_ptr<v8catalog> catalog (new v8catalog(file_name.string(), false));
 	for(auto pfiles: files)
 	{
 		++i;
