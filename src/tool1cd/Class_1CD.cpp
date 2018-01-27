@@ -605,7 +605,7 @@ void T_1CD::add_supplier_config(TableFile* tf)
 			cat2 = file->GetCatalog();
 			if(!cat2)
 			{
-				msreg_m.AddError("Файл metadata неявляется каталогом в конфигурации поставщика",
+				msreg_m.AddError("Файл metadata не является каталогом в конфигурации поставщика",
 					"Таблица", tf->t->getname(),
 					"Имя файла", tf->name);
 				delete cat;
