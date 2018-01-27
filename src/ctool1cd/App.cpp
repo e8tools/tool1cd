@@ -307,7 +307,7 @@ void App::save_configsave(const boost::filesystem::path& param_path)
 		}
 		cfpath /= GENERAL_CONFIG_DEFAULT_NAME();
 	}
-	if (base1CD->save_configsave(param_path))
+	if (base1CD->save_configsave(cfpath))
 		msreg_g.AddMessage_("Сохранение основной конфигурации завершено.", MessageState::Succesfull, "Файл",
 							cfpath.string());
 	else
