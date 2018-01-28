@@ -7,6 +7,7 @@
 
 #include <array>
 #include <string>
+#include <System.hpp>
 
 const int GUID_BINARY_SIZE = 16;
 const size_t GUID_LEN = 36;
@@ -31,5 +32,10 @@ private:
 	std::array<uint8_t , GUID_BINARY_SIZE> data;
 };
 
+
+std::string GUIDas1C(const unsigned char* fr);
+std::string GUIDasMS(const unsigned char* fr);
+std::string GUID_to_string(const System::TGUID& guid);
+bool string_to_GUID(const String& str, System::TGUID* guid);
 
 #endif //TOOL1CD_PROJECT_BINARYGUID_H

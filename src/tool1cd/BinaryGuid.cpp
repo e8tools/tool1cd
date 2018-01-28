@@ -85,6 +85,193 @@ BinaryGuid::BinaryGuid(const std::string &presentation)
 	}
 }
 
+//---------------------------------------------------------------------------
+bool string_to_GUID(const String& str, TGUID* guid)
+{
+	int i,j;
+
+	unsigned char* g = (unsigned char*)guid;
+	wchar_t hi,lo;
+
+	memset(guid, 0, sizeof(TGUID));
+
+	bool res = true;
+	if(str.Length() != 36) res = false;
+	else
+	{
+		j = 1;
+		for(i = 12; i < 16; i++)
+		{
+			hi = str[j++];
+			lo = str[j++];
+			res = res && two_hex_digits_to_byte(hi, lo, g[i]);
+		}
+		res = res && (str[j++] == L'-');
+		for(i = 10; i < 12; i++)
+		{
+			hi = str[j++];
+			lo = str[j++];
+			res = res && two_hex_digits_to_byte(hi, lo, g[i]);
+		}
+		res = res && (str[j++] == L'-');
+		for(i = 8; i < 10; i++)
+		{
+			hi = str[j++];
+			lo = str[j++];
+			res = res && two_hex_digits_to_byte(hi, lo, g[i]);
+		}
+		res = res && (str[j++] == L'-');
+		for(i = 0; i < 2; i++)
+		{
+			hi = str[j++];
+			lo = str[j++];
+			res = res && two_hex_digits_to_byte(hi, lo, g[i]);
+		}
+		res = res && (str[j++] == L'-');
+		for(i = 2; i < 8; i++)
+		{
+			hi = str[j++];
+			lo = str[j++];
+			res = res && two_hex_digits_to_byte(hi, lo, g[i]);
+		}
+
+	}
+
+	return res;
+}
+
+
+//---------------------------------------------------------------------------
+std::string GUIDas1C(const unsigned char* fr)
+{
+	int i, j;
+	WCHART buf[GUID_LEN+1];
+	WCHART sym;
+
+	j = 0;
+	for(i = 12; i < 16; i++)
+	{
+		sym = L'0' + (fr[i] >> 4);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+		sym = L'0' + (fr[i] & 0xf);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+	}
+	buf[j++] = '-';
+	for(i = 10; i < 12; i++)
+	{
+		sym = L'0' + (fr[i] >> 4);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+		sym = L'0' + (fr[i] & 0xf);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+	}
+	buf[j++] = '-';
+	for(i = 8; i < 10; i++)
+	{
+		sym = L'0' + (fr[i] >> 4);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+		sym = L'0' + (fr[i] & 0xf);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+	}
+	buf[j++] = '-';
+	for(i = 0; i < 2; i++)
+	{
+		sym = L'0' + (fr[i] >> 4);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+		sym = L'0' + (fr[i] & 0xf);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+	}
+	buf[j++] = '-';
+	for(i = 2; i < 8; i++)
+	{
+		sym = L'0' + (fr[i] >> 4);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+		sym = L'0' + (fr[i] & 0xf);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+	}
+	buf[j] = 0;
+
+	return String(buf, GUID_LEN+1);
+}
+
+//---------------------------------------------------------------------------
+std::string GUIDasMS(const unsigned char* fr)
+{
+	int i, j;
+	WCHART buf[GUID_LEN+1];
+	WCHART sym;
+
+	j = 0;
+	for(i = 3; i >= 0; i--)
+	{
+		sym = L'0' + (fr[i] >> 4);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+		sym = L'0' + (fr[i] & 0xf);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+	}
+	buf[j++] = '-';
+	for(i = 5; i >= 4; i--)
+	{
+		sym = L'0' + (fr[i] >> 4);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+		sym = L'0' + (fr[i] & 0xf);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+	}
+	buf[j++] = '-';
+	for(i = 7; i >= 6; i--)
+	{
+		sym = L'0' + (fr[i] >> 4);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+		sym = L'0' + (fr[i] & 0xf);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+	}
+	buf[j++] = '-';
+	for(i = 8; i < 10; i++)
+	{
+		sym = L'0' + (fr[i] >> 4);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+		sym = L'0' + (fr[i] & 0xf);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+	}
+	buf[j++] = '-';
+	for(i = 10; i < 16; i++)
+	{
+		sym = L'0' + (fr[i] >> 4);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+		sym = L'0' + (fr[i] & 0xf);
+		if(sym > L'9') sym += (L'a' - L'9' - 1);
+		buf[j++] = sym;
+	}
+	buf[j] = 0;
+
+	return String(buf, GUID_LEN+1);
+}
+
+//---------------------------------------------------------------------------
+std::string GUID_to_string(const TGUID& guid)
+{
+	return GUIDas1C((unsigned char*)&guid);
+}
+
+
 std::string BinaryGuid::as_MS() const
 {
 	// TODO: Перенести логику сюда
