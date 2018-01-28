@@ -541,7 +541,7 @@ bool Index::pack_leafpage(char* unpack_index, uint32_t number_indexes, char* pag
 	}
 	for(min_numrec_bits = 0, i = max_numrec; i; i >>= 1, min_numrec_bits++);
 
-	//if(min_numrec_bits < 11) min_numrec_bits = 11; // 11 - эмпиричиски вычислено как 4066 / 2 = 2033 - максимальное кол-во записей на странице. 2033 укладывается в 11 бит
+	//if(min_numrec_bits < 11) min_numrec_bits = 11; // 11 - эмпирически вычислено как 4066 / 2 = 2033 - максимальное кол-во записей на странице. 2033 укладывается в 11 бит
 	min_bits = min_numrec_bits + leftbits + rightbits;
 	recbytes = (min_bits + 7) >> 3;
 

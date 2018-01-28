@@ -153,7 +153,7 @@ v8catalog::v8catalog(String name) // создать каталог из физи
 	iscatalogdefined = false;
 
 	String ext = ExtractFileExt(name).LowerCase();
-	if(ext == str_cfu)
+	if(ext == CFU_STR)
 	{
 		is_cfu = true;
 		zipped = false;
@@ -172,7 +172,7 @@ v8catalog::v8catalog(String name) // создать каталог из физи
 	}
 	else
 	{
-		zipped = ext == str_cf || ext == str_epf || ext == str_erf || ext == str_cfe;
+		zipped = ext == CF_STR || ext == EPF_STR || ext == ERF_STR || ext == CFE_STR;
 		is_cfu = false;
 
 		if(!FileExists(name))
@@ -829,7 +829,7 @@ v8catalog* v8catalog::CreateCatalog(const String& FileName, bool _selfzipped)
 void v8catalog::SaveToDir(String DirName)
 {
 	CreateDir(DirName);
-	if(DirName.SubString(DirName.Length(), 1) != str_backslash) DirName += str_backslash;
+	if(DirName.SubString(DirName.Length(), 1) != BACKSLASH_STR) DirName += BACKSLASH_STR;
 	Lock->Acquire();
 	v8file* f = first;
 	while(f)
