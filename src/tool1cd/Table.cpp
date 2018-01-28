@@ -1360,7 +1360,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 	else fld->get_binary_value(fldvalue, null, value);
 
 	TableRecord *rec = nullptr;
-			changed = true;
+	changed = true;
 	if(phys_numrecord < phys_numrecords)
 	{
 		rec = getrecord(phys_numrecord);
