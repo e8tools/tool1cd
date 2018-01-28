@@ -59,7 +59,7 @@ bool BinaryGuid::is_empty() const
 
 BinaryGuid::BinaryGuid(const std::string &presentation)
 {
-	if (presentation.size() != 36) {
+	if (presentation.size() != GUID_LEN) {
 		throw DetailedException("Переданный параметр не может быть распознана как GUID")
 				.add_detail("Значение параметра", presentation);
 	}

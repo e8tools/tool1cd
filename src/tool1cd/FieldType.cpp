@@ -228,7 +228,7 @@ bool BinaryFieldType::get_binary_value(char* binary_value, const String& value) 
 			int32_t j = 1;
 			if(length == 16 && showGUID) // TODO Надо доделать для showGUIDasMS
 			{
-				if(value.GetLength() < 36) {
+				if(value.GetLength() < GUID_LEN) {
 					break;
 				}
 				for(int32_t ind = 12; ind < 16; ind++) {

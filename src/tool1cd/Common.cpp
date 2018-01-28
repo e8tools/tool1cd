@@ -8,7 +8,6 @@
 
 using namespace System;
 
-const size_t GUID_LEN = 36;
 const wchar_t hexdecode[] = L"0123456789abcdef";
 
 extern Registrator msreg_g;
