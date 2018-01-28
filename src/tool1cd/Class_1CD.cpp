@@ -2599,7 +2599,7 @@ TableFiles* T_1CD::get_files_configcassave()
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::save_config_ext(const boost::filesystem::path& file_name, const TGUID& uid, const String& hashname)
+bool T_1CD::save_config_ext(const boost::filesystem::path& file_name, const BinaryGuid& uid, const String& hashname)
 {
 	std::unique_ptr<ConfigStorageTableConfigCasSave> config_save
 			( new ConfigStorageTableConfigCasSave(get_files_configcas(), get_files_configcassave(), uid, hashname) );

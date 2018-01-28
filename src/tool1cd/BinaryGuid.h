@@ -28,6 +28,7 @@ public:
 
 	// TODO: Мудрое название
 	std::string as_MS() const;
+	std::string as_1C() const;
 private:
 	std::array<uint8_t , GUID_BINARY_SIZE> data;
 };
@@ -35,7 +36,7 @@ private:
 
 std::string GUIDas1C(const unsigned char* fr);
 std::string GUIDasMS(const unsigned char* fr);
-std::string GUID_to_string(const System::TGUID& guid);
-bool string_to_GUID(const String& str, System::TGUID* guid);
+std::string GUID_to_string(const BinaryGuid& guid);
+bool string_to_GUID(const String& str, BinaryGuid* guid);
 
 #endif //TOOL1CD_PROJECT_BINARYGUID_H

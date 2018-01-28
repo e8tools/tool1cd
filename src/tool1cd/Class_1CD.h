@@ -204,7 +204,7 @@ public:
 	bool save_depot_config(const String& _filename, int32_t ver = 0);
 	bool save_part_depot_config(const String& _filename, int32_t ver_begin, int32_t ver_end);
 	int32_t get_ver_depot_config(int32_t ver); // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
-	bool save_config_ext(const boost::filesystem::path &file_name, const System::TGUID& uid, const String& hashname);
+	bool save_config_ext(const boost::filesystem::path &file_name, const BinaryGuid& uid, const String& hashname);
 	bool save_config_ext_db(const boost::filesystem::path &file_name, const String& hashname);
 		
 	bool get_readonly();

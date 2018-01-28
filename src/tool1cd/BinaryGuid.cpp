@@ -57,11 +57,19 @@ bool BinaryGuid::is_empty() const
 	return true;
 }
 
+class WrongGuidPresentation : DetailedException {
+public:
+	WrongGuidPresentation(const std::string &presentation)
+		: DetailedException("Переданный параметр не может быть распознан как GUID")
+	{
+		add_detail("Значение параметра", presentation);
+	}
+};
+
 BinaryGuid::BinaryGuid(const std::string &presentation)
 {
 	if (presentation.size() != GUID_LEN) {
-		throw DetailedException("Переданный параметр не может быть распознана как GUID")
-				.add_detail("Значение параметра", presentation);
+		throw WrongGuidPresentation(presentation);
 	}
 	int j = 0;
 	for (int ind = 12; ind < 16; ind++) {
@@ -86,187 +94,66 @@ BinaryGuid::BinaryGuid(const std::string &presentation)
 }
 
 //---------------------------------------------------------------------------
-bool string_to_GUID(const String& str, TGUID* guid)
+bool string_to_GUID(const String& str, BinaryGuid* guid)
 {
-	int i,j;
+	try {
 
-	unsigned char* g = (unsigned char*)guid;
-	wchar_t hi,lo;
+		BinaryGuid bguid(static_cast<std::string> (str));
+		*guid = bguid;
 
-	memset(guid, 0, sizeof(TGUID));
-
-	bool res = true;
-	if(str.Length() != 36) res = false;
-	else
-	{
-		j = 1;
-		for(i = 12; i < 16; i++)
-		{
-			hi = str[j++];
-			lo = str[j++];
-			res = res && two_hex_digits_to_byte(hi, lo, g[i]);
-		}
-		res = res && (str[j++] == L'-');
-		for(i = 10; i < 12; i++)
-		{
-			hi = str[j++];
-			lo = str[j++];
-			res = res && two_hex_digits_to_byte(hi, lo, g[i]);
-		}
-		res = res && (str[j++] == L'-');
-		for(i = 8; i < 10; i++)
-		{
-			hi = str[j++];
-			lo = str[j++];
-			res = res && two_hex_digits_to_byte(hi, lo, g[i]);
-		}
-		res = res && (str[j++] == L'-');
-		for(i = 0; i < 2; i++)
-		{
-			hi = str[j++];
-			lo = str[j++];
-			res = res && two_hex_digits_to_byte(hi, lo, g[i]);
-		}
-		res = res && (str[j++] == L'-');
-		for(i = 2; i < 8; i++)
-		{
-			hi = str[j++];
-			lo = str[j++];
-			res = res && two_hex_digits_to_byte(hi, lo, g[i]);
-		}
-
+	} catch (WrongGuidPresentation) {
+		return false;
 	}
-
-	return res;
+	return true;
 }
 
+std::string format_guid(const unsigned char *fr, const std::vector<int> &indices)
+{
+	std::string result;
+	const char hex[] = "0123456789abcdef";
+
+	for (int i : indices)
+	{
+		if (i == -1) {
+			result += '-';
+		} else {
+			result += hex[fr[i] >> 4];
+			result += hex[fr[i] & 0xf];
+		}
+	}
+
+	return result;
+}
 
 //---------------------------------------------------------------------------
 std::string GUIDas1C(const unsigned char* fr)
 {
-	int i, j;
-	WCHART buf[GUID_LEN+1];
-	WCHART sym;
+	std::vector<int> indices = {
+			12, 13, 14, 15, -1,
+			10, 11, -1,
+			8, 9, -1,
+			0, 1, -1,
+			2, 3, 4, 5, 6, 7};
 
-	j = 0;
-	for(i = 12; i < 16; i++)
-	{
-		sym = L'0' + (fr[i] >> 4);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-		sym = L'0' + (fr[i] & 0xf);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-	}
-	buf[j++] = '-';
-	for(i = 10; i < 12; i++)
-	{
-		sym = L'0' + (fr[i] >> 4);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-		sym = L'0' + (fr[i] & 0xf);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-	}
-	buf[j++] = '-';
-	for(i = 8; i < 10; i++)
-	{
-		sym = L'0' + (fr[i] >> 4);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-		sym = L'0' + (fr[i] & 0xf);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-	}
-	buf[j++] = '-';
-	for(i = 0; i < 2; i++)
-	{
-		sym = L'0' + (fr[i] >> 4);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-		sym = L'0' + (fr[i] & 0xf);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-	}
-	buf[j++] = '-';
-	for(i = 2; i < 8; i++)
-	{
-		sym = L'0' + (fr[i] >> 4);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-		sym = L'0' + (fr[i] & 0xf);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-	}
-	buf[j] = 0;
-
-	return String(buf, GUID_LEN+1);
+	return format_guid(fr, indices);
 }
 
 //---------------------------------------------------------------------------
 std::string GUIDasMS(const unsigned char* fr)
 {
-	int i, j;
-	WCHART buf[GUID_LEN+1];
-	WCHART sym;
+	std::vector<int> indices = {
+			3, 2, 1, 0, -1,
+			5, 4, -1,
+			7, 6, -1,
+			8, 9, -1,
+			10, 11, 12, 13, 14, 15
+	};
 
-	j = 0;
-	for(i = 3; i >= 0; i--)
-	{
-		sym = L'0' + (fr[i] >> 4);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-		sym = L'0' + (fr[i] & 0xf);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-	}
-	buf[j++] = '-';
-	for(i = 5; i >= 4; i--)
-	{
-		sym = L'0' + (fr[i] >> 4);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-		sym = L'0' + (fr[i] & 0xf);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-	}
-	buf[j++] = '-';
-	for(i = 7; i >= 6; i--)
-	{
-		sym = L'0' + (fr[i] >> 4);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-		sym = L'0' + (fr[i] & 0xf);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-	}
-	buf[j++] = '-';
-	for(i = 8; i < 10; i++)
-	{
-		sym = L'0' + (fr[i] >> 4);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-		sym = L'0' + (fr[i] & 0xf);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-	}
-	buf[j++] = '-';
-	for(i = 10; i < 16; i++)
-	{
-		sym = L'0' + (fr[i] >> 4);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-		sym = L'0' + (fr[i] & 0xf);
-		if(sym > L'9') sym += (L'a' - L'9' - 1);
-		buf[j++] = sym;
-	}
-	buf[j] = 0;
-
-	return String(buf, GUID_LEN+1);
+	return format_guid(fr, indices);
 }
 
 //---------------------------------------------------------------------------
-std::string GUID_to_string(const TGUID& guid)
+std::string GUID_to_string(const BinaryGuid& guid)
 {
 	return GUIDas1C((unsigned char*)&guid);
 }
@@ -276,6 +163,11 @@ std::string BinaryGuid::as_MS() const
 {
 	// TODO: Перенести логику сюда
 	return GUIDasMS((const unsigned char*)data.data());
+}
+
+std::string BinaryGuid::as_1C() const
+{
+	return GUIDas1C((const unsigned char*)data.data());
 }
 
 bool BinaryGuid::operator >(const BinaryGuid &b) const

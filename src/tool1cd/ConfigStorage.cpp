@@ -553,9 +553,8 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 	ContainerFile* DynamicallyUpdated;
 	tree* tt;
 	tree* ct;
-	TGUID* dynup;
-	int ndynup;
-	TGUID g;
+	std::vector<BinaryGuid> dynup;
+	BinaryGuid g;
 	Table* tab;
 	int dynno;
 	ContainerFile* pcf;
@@ -568,7 +567,6 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 	tab = tabf->gettable();
 	_DynamicallyUpdated = tabf->getfile("DynamicallyUpdated");
 
-	dynup = nullptr;
 	if(_DynamicallyUpdated)
 	{
 		DynamicallyUpdated = new ContainerFile(_DynamicallyUpdated, _DynamicallyUpdated->name);
@@ -613,14 +611,14 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 						}
 						else
 						{
-							ndynup = ct->get_value().ToIntDef(0);
+							int ndynup = ct->get_value().ToIntDef(0);
 							if(ndynup > 0)
 							{
-								dynup = new TGUID[ndynup];
+								dynup.reserve(ndynup);
 								for(m = 0; m < ndynup; ++m)
 								{
 									ct = ct->get_next();
-									string_to_GUID(ct->get_value(), &dynup[m]);
+									dynup.emplace_back(BinaryGuid(ct->get_value()));
 								}
 							}
 							else ndynup = 0;
@@ -663,12 +661,15 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 		{
 			s = name.SubString(m + lsdynupdate, name.Length() - m - lsdynupdate + 1);
 			name = name.SubString(1, m - 1);
-			string_to_GUID(s, &g);
-			if(dynup)
+			g = BinaryGuid(s);
+			if(!dynup.empty())
 			{
-				for(m = 0; m < ndynup; ++m) if(g == dynup[m]) break;
-				if(m >= ndynup) dynno = -2;
-				else dynno = m;
+				auto found = std::find(dynup.begin(), dynup.end(), g);
+				if (found == dynup.end()) {
+					dynno = -2;
+				} else {
+					dynno = found - dynup.begin();
+				}
 			}
 			else dynno = -2;
 		}
@@ -693,8 +694,6 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 			}
 		}
 	}
-
-	if(dynup) delete[] dynup;
 
 }
 
@@ -722,9 +721,9 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 	ContainerFile* deleted;
 	tree* tt;
 	tree* ct;
-	TGUID* dynup;
+	BinaryGuid* dynup;
 	int ndynup = 0;
-	TGUID g;
+	BinaryGuid g;
 	Table* tab;
 	int dynno;
 	ContainerFile* pcf;
@@ -835,7 +834,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 							ndynup = ct->get_value().ToIntDef(0);
 							if(ndynup > 0)
 							{
-								dynup = new TGUID[ndynup];
+								dynup = new BinaryGuid[ndynup];
 								for(m = 0; m < ndynup; ++m)
 								{
 									ct = ct->get_next();
@@ -1103,7 +1102,7 @@ String ConfigStorageTableConfigCas::presentation()
 // Класс ConfigStorageTableConfigCasSave
 
 //---------------------------------------------------------------------------
-ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tabc, TableFiles* tabcs, const TGUID& uid, const String& configver, T_1CD* _base) : ConfigStorageTable(_base)
+ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tabc, TableFiles* tabcs, const BinaryGuid& uid, const String& configver, T_1CD* _base) : ConfigStorageTable(_base)
 {
 	int m;
 	String s, name, hashname;
@@ -1127,7 +1126,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles* tab
 	configinfo = nullptr;
 	present = tabcs->gettable()->getbase()->getfilename() + "\\CONFIGCASSAVE";
 
-	g = GUID_to_string(uid) + "__";
+	g = uid.as_1C() + "__";
 	gl = g.Length();
 	for(ptf = tabcs->files().begin(); ptf != tabcs->files().end(); ++ptf)
 	{
