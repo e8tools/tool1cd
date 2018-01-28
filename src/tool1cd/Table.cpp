@@ -1534,7 +1534,7 @@ void Table::set_rec_type(uint32_t phys_numrecord, changed_rec_type crt)
 				{
 					if(phys_numrecord > phys_numrecords + added_numrecords)
 					{
-						msreg_g.AddError("Попытка добавленния записи таблицы, с номером больше максимального",
+						msreg_g.AddError("Попытка добавления записи таблицы, с номером больше максимального",
 							"Таблица", name,
 							"Максимальный номер записи", phys_numrecords + added_numrecords,
 							"Физический номер записи", phys_numrecord);
@@ -2211,7 +2211,7 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 }
 
 //---------------------------------------------------------------------------
-// получить шаблон проверки записи (массив, содержащий для каждого байта массив из 256 байт, содержащий 0, если значение не допусимо и 1, если допустимо)
+// получить шаблон проверки записи (массив, содержащий для каждого байта массив из 256 байт, содержащий 0, если значение не допустимо и 1, если допустимо)
 char* Table::get_record_template_test()
 {
 	int32_t len;

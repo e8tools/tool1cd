@@ -153,7 +153,7 @@ void T_1CD::init()
 	supplier_configs_defined = false;
 	locale                   = nullptr;
 
-	is_infobase = false;
+	_is_infobase = false;
 	is_depot    = false;
 
 	pagemap  = nullptr;
@@ -450,7 +450,7 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	}
 	else
 	{
-		is_infobase = true;
+		_is_infobase = true;
 		if(!table_config) msreg_m.AddError("Отсутствует таблица CONFIG");
 		if(!table_configsave) msreg_m.AddError("Отсутствует таблица CONFIGSAVE");
 		if(!table_params) msreg_m.AddError("Отсутствует таблица PARAMS");
@@ -476,34 +476,51 @@ db_ver T_1CD::getversion()
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::save_config(String _filename) // TODO: переписать сохранение конфигурации базы данных на boost::filesystem
+bool T_1CD::save_config(const boost::filesystem::path& file_name)
 {
-	if(!cs_config) cs_config = new ConfigStorageTableConfig(get_files_config());
-	if(!cs_config->getready()) return false;
-	return cs_config->save_config(_filename);
+	if(!cs_config) {
+		cs_config = new ConfigStorageTableConfig(get_files_config());
+	}
+
+	if(!cs_config->getready()) {
+		return false;
+	}
+
+	return cs_config->save_config(file_name);
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::save_configsave(String _filename) // TODO: переписать сохранение основной конфигурации на boost::filesystem
+bool T_1CD::save_configsave(const boost::filesystem::path& file_name)
 {
-	if(!cs_configsave) cs_configsave = new ConfigStorageTableConfigSave(get_files_config(), get_files_configsave());
-	if(!cs_configsave->getready()) return false;
-	return cs_configsave->save_config(_filename);
+	if(!cs_configsave) {
+		cs_configsave = new ConfigStorageTableConfigSave(get_files_config(), get_files_configsave());
+	}
+
+	if(!cs_configsave->getready()) {
+		return false;
+	}
+
+	return cs_configsave->save_config(file_name);
 }
 
 //---------------------------------------------------------------------------
 void T_1CD::find_supplier_configs()
 {
-	std::map<String,TableFile*>::iterator p;
+	// Состоит из 36(GUID) + 1(.) + 36(GUID)
+	constexpr int32_t SUPPLIER_CONFIG_NAME_LEN = 73;
 
-	for(p = get_files_configsave()->files().begin(); p != get_files_configsave()->files().end(); ++p)
-	{
-		if(p->first.GetLength() == 73) add_supplier_config(p->second);
+	for(auto& config_save: get_files_configsave()->files()) {
+		if(config_save.first.GetLength() == SUPPLIER_CONFIG_NAME_LEN) {
+			 add_supplier_config(config_save.second);
+		}
 	}
-	for(p = get_files_config()->files().begin(); p != get_files_config()->files().end(); ++p)
-	{
-		if(p->first.GetLength() == 73) add_supplier_config(p->second);
+
+	for(auto& config : get_files_config()->files()) {
+		if(config.first.GetLength() == SUPPLIER_CONFIG_NAME_LEN) {
+			add_supplier_config(config.second);
+		}
 	}
+
 	supplier_configs_defined = true;
 }
 
@@ -588,7 +605,7 @@ void T_1CD::add_supplier_config(TableFile* tf)
 			cat2 = file->GetCatalog();
 			if(!cat2)
 			{
-				msreg_m.AddError("Файл metadata неявляется каталогом в конфигурации поставщика",
+				msreg_m.AddError("Файл metadata не является каталогом в конфигурации поставщика",
 					"Таблица", tf->t->getname(),
 					"Имя файла", tf->name);
 				delete cat;
@@ -698,7 +715,7 @@ void T_1CD::add_supplier_config(TableFile* tf)
 		#endif
 
 		std::shared_ptr<SupplierConfig> sup_conf = std::make_shared<SupplierConfig>(tf, _name, _supplier, _version);
-		supplier_configs.push_back(sup_conf);
+		_supplier_configs.push_back(sup_conf);
 
 		delete cat;
 		cat = nullptr;
@@ -2582,34 +2599,27 @@ TableFiles* T_1CD::get_files_configcassave()
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::save_config_ext(const String& _filename, const TGUID& uid, const String& hashname)
+bool T_1CD::save_config_ext(const boost::filesystem::path& file_name, const TGUID& uid, const String& hashname)
 {
-	ConfigStorageTableConfigCasSave* cs;
-	bool res;
+	std::unique_ptr<ConfigStorageTableConfigCasSave> config_save
+			( new ConfigStorageTableConfigCasSave(get_files_configcas(), get_files_configcassave(), uid, hashname) );
+	if(!config_save->getready()) {
+		return false;
+	}
 
-	cs = new ConfigStorageTableConfigCasSave(get_files_configcas(), get_files_configcassave(), uid, hashname);
-	if(!cs->getready()) {
-		res = false;
-	}
-	else {
-		res = cs->save_config(_filename);
-	}
-	delete cs;
-	return res;
+	return config_save->save_config(file_name);
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::save_config_ext_db(const String& _filename, const String& hashname)
+bool T_1CD::save_config_ext_db(const boost::filesystem::path& file_name, const String& hashname)
 {
-	ConfigStorageTableConfigCas* cs;
-	bool res;
+	std::unique_ptr<ConfigStorageTableConfigCas> config_save
+			( new ConfigStorageTableConfigCas(get_files_configcas(), hashname) );
+	if(!config_save->getready()) {
+		return false;
+	}
 
-	cs = new ConfigStorageTableConfigCas(get_files_configcas(), hashname);
-	if(!cs->getready()) res = false;
-	else res = cs->save_config(_filename);
-	delete cs;
-	return res;
-
+	return config_save->save_config(file_name);
 }
 
 //---------------------------------------------------------------------------
@@ -2674,4 +2684,12 @@ depot_ver T_1CD::get_depot_version(const TableRecord *record)
 	DetailedException error("Неизвестная версия хранилища!");
 	error.add_detail("Версия хранилища", Ver);
 	throw error;
+}
+
+T_1CD::SupplierConfigs& T_1CD::supplier_configs() {
+	if(!supplier_configs_defined) {
+		find_supplier_configs();
+	}
+
+	return _supplier_configs;
 }

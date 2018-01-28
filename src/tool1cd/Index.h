@@ -104,7 +104,7 @@ public:
 	char* unpack_leafpage(char* page, uint32_t& number_indexes);
 
 	// упаковывает одну страницу-лист индексов.
-	// возвращвет истина, если упаковка произведена, и ложь, если упаковка невозможна.
+	// возвращает истина, если упаковка произведена, и ложь, если упаковка невозможна.
 	bool pack_leafpage(char* unpack_index, uint32_t number_indexes, char* page_buf);
 private:
 	Table* tbase;

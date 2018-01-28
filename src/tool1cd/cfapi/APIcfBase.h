@@ -18,12 +18,12 @@
 
 using namespace System;
 
-const char str_cfu[] = ".cfu";
-const char str_cfe[] = ".cfe";
-const char str_cf[]  = ".cf";
-const char str_epf[] = ".epf";
-const char str_erf[] = ".erf";
-const char str_backslash[] = "\\";
+const char CFU_STR[] = ".cfu";
+const char CFE_STR[] = ".cfe";
+const char CF_STR[]  = ".cf";
+const char EPF_STR[] = ".epf";
+const char ERF_STR[] = ".erf";
+const char BACKSLASH_STR[] = "\\";
 
 // шаблон заголовка блока
 const char _BLOCK_HEADER_TEMPLATE[] = "\r\n00000000 00000000 00000000 \r\n";

@@ -35,8 +35,8 @@ TEST_CASE("Работа с хранилищем версии 5", "[tool1cd][Clas
 			}
 		}
 
-		WHEN ("обращаемся к полю is_infobase") {
-			bool result = base1CD.is_infobase;
+		WHEN ("вызываем is_infobase") {
+			bool result = base1CD.is_infobase();
 			THEN ("получаем 'false'") {
 				REQUIRE( result == false );
 			}

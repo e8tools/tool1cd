@@ -2,6 +2,7 @@
 #ifndef ConfigStorageH
 #define ConfigStorageH
 
+#include <boost/filesystem.hpp>
 #include <System.Classes.hpp>
 #include <vector>
 #include <map>
@@ -106,7 +107,8 @@ public:
 	virtual ConfigFile* readfile(const String& path) override;
 	virtual bool writefile(const String& path, TStream* str) override;
 	virtual void close(ConfigFile* cf) override;
-	bool save_config(String _filename); // сохранение конфигурации в файл
+	// сохранение конфигурации в файл
+	bool save_config(const boost::filesystem::path& file_name);
 	bool getready(){return ready;}
 	virtual bool fileexists(const String& path) override;
 

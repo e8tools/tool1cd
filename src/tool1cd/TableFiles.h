@@ -52,20 +52,21 @@ struct TableFile
 // Класс таблицы контейнера файлов (CONFIG, CONFIGSAVE, PARAMS, FILES, CONFICAS, CONFICASSAVE)
 class TableFiles
 {
+public:
+	explicit TableFiles(Table* t);
+	virtual ~TableFiles();
+
+	bool getready() { return ready; }
+	TableFile* getfile(const String& name);
+	Table* gettable() { return table; }
+
+	std::map<String,TableFile*> &files();
 private:
 	Table* table {nullptr};
 	std::map<String,TableFile*> allfiles;
 	bool ready {false};
 
 	bool test_table();
-public:
-	explicit TableFiles(Table* t);
-	virtual ~TableFiles();
-	bool getready() { return ready; }
-	TableFile* getfile(const String& name);
-	Table* gettable() { return table; }
-
-	std::map<String,TableFile*> &files();
 };
 
 
