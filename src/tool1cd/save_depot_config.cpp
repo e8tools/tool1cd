@@ -399,16 +399,16 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 			{
 				ok = false;
 				deletesobj = false;
-				auto *b = (const BlobPointer *)rech1->get_data(fldh_objdata);
-				if (!rech1->is_null_value(fldh_objdata) && (b->start != 0 || b->length != 0)) {
+				auto *b = (const table_blob_file *)rech1->get_data(fldh_objdata);
+				if (!rech1->is_null_value(fldh_objdata) && (b->blob_start != 0 || b->blob_length != 0)) {
 					out = new TTempStream;
 					if(oldformat)
 					{
-						table_history->readBlob(in, b->start, b->length);
+						table_history->readBlob(in, b->blob_start, b->blob_length);
 						in->Seek(0, soFromBeginning);
 						ZInflateStream(in, out);
 					}
-					else table_history->readBlob(out, b->start, b->length);
+					else table_history->readBlob(out, b->blob_start, b->blob_length);
 					out->Close();
 					ok = true;
 				}
@@ -526,10 +526,10 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 						ok = false;
 						deletesobj = false;
-						const BlobPointer *bp = (const BlobPointer *)rec->get_data(flde_extdata);
-						if (bp->length != 0 || bp->start != 0) {
+						const table_blob_file *bp = (const table_blob_file *)rec->get_data(flde_extdata);
+						if (bp->blob_length != 0 || bp->blob_start != 0) {
 							out = new TTempStream;
-							table_externals->readBlob(out, bp->start, bp->length);
+							table_externals->readBlob(out, bp->blob_start, bp->blob_length);
 							out->Close();
 							ok = true;
 						}

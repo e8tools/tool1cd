@@ -24,10 +24,13 @@ String hexstring(TStream* str);
 String toXML(const String &in);
 unsigned char from_hex_digit(char digit);
 
-typedef struct {
-	uint32_t start;
-	uint32_t length;
-} BlobPointer;
+//---------------------------------------------------------------------------
+// Структура адреса файла таблицы-контейнера файлов
+struct table_blob_file
+{
+	uint32_t blob_start;
+	uint32_t blob_length;
+};
 
 template< typename T >
 String to_hex_string( T num, bool prefix = true ) {

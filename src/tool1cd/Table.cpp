@@ -2023,9 +2023,9 @@ void Table::delete_record(uint32_t phys_numrecord)
 		tf = f->type_manager->gettype();
 		if(tf == type_fields::tf_image || tf == type_fields::tf_string || tf == type_fields::tf_text)
 		{
-			auto bp = (const BlobPointer *)rec->get_raw(f);
-			if (bp->start) {
-				delete_blob_record(bp->start);
+			auto bp = (const table_blob_file *)rec->get_raw(f);
+			if (bp->blob_start) {
+				delete_blob_record(bp->blob_start);
 			}
 		}
 	}
@@ -2060,14 +2060,14 @@ void Table::insert_record(const TableRecord *nrec)
 			case type_fields::tf_string:
 			case type_fields::tf_text: {
 				TStream **st = (TStream **) (rec + offset);
-				BlobPointer bp = {0, 0};
+				table_blob_file bp = {0, 0};
 				if (*st) {
-					bp.length = (*st)->GetSize();
-					bp.start = write_blob_record(*st);
+					bp.blob_length = (*st)->GetSize();
+					bp.blob_start = write_blob_record(*st);
 					delete *st;
 					*st = nullptr;
 				}
-				if (bp.start == 0 && f->getnull_exists()) {
+				if (bp.blob_start == 0 && f->getnull_exists()) {
 					rec->set_null(f);
 				} else {
 					rec->set_data(f, &bp);
@@ -2134,7 +2134,7 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 	for(i = 0; i < num_fields; i++)
 	{
 		uint32_t k, l;
-		BlobPointer new_blob = {0, 0};
+		table_blob_file new_blob = {0, 0};
 		Field *f = fields[i];
 		tf = f->type_manager->gettype();
 		offset = f->offset + (f->getnull_exists() ? 1 : 0);
@@ -2146,9 +2146,9 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 				{
 					if (orec->is_null_value(f))
 					{
-						auto bp = (const BlobPointer *)orec->get_data(f);
-						if (bp->start != 0) {
-							delete_blob_record(bp->start);
+						auto bp = (const table_blob_file *)orec->get_data(f);
+						if (bp->blob_start != 0) {
+							delete_blob_record(bp->blob_start);
 						}
 					}
 					if (!rec->is_null_value(f))
@@ -2156,8 +2156,8 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 						st = (TStream**)(rec->get_data(f));
 						if(*st)
 						{
-							new_blob.length = (*st)->GetSize();
-							new_blob.start = write_blob_record(*st);
+							new_blob.blob_length = (*st)->GetSize();
+							new_blob.blob_start = write_blob_record(*st);
 							delete *st;
 							*st = nullptr;
 						}
@@ -2165,22 +2165,22 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 				}
 				else
 				{
-					auto old_blob = (const BlobPointer *)orec->get_data(f);
-					if (old_blob->start != 0) {
-						delete_blob_record(old_blob->start);
+					auto old_blob = (const table_blob_file *)orec->get_data(f);
+					if (old_blob->blob_start != 0) {
+						delete_blob_record(old_blob->blob_start);
 					}
 
 					st = (TStream**)rec->get_data(f);
 					if(*st)
 					{
-						new_blob.length = (*st)->GetSize();
-						new_blob.start = write_blob_record(*st);
+						new_blob.blob_length = (*st)->GetSize();
+						new_blob.blob_start = write_blob_record(*st);
 						delete *st;
 						*st = nullptr;
 					}
 				}
 				orec->set_data(f, &new_blob);
-				if (new_blob.start == 0) {
+				if (new_blob.blob_start == 0) {
 					if (f->getnull_exists()) {
 						orec->set_null(f);
 					}

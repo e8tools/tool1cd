@@ -1219,9 +1219,9 @@ bool T_1CD::recursive_test_stream_format2(Table* t, uint32_t nrec)
 
 	path = t->getname();
 
-	auto bp = (const BlobPointer *)rec->get_raw(f_sd->getoffset());
+	auto bp = (const table_blob_file *)rec->get_raw(f_sd->getoffset());
 	str = new TMemoryStream();
-	t->readBlob(str, bp->start, bp->length);
+	t->readBlob(str, bp->blob_start, bp->blob_length);
 
 	result = recursive_test_stream_format(str, path);
 
@@ -1794,9 +1794,9 @@ bool T_1CD::test_list_of_tables()
 
 		hasDBNames = true;
 
-		auto bp = (const BlobPointer *) rec->get_data(f_binary_data);
+		auto bp = (const table_blob_file *) rec->get_data(f_binary_data);
 		str = new TMemoryStream();
-		table_params->readBlob(str, bp->start, bp->length);
+		table_params->readBlob(str, bp->blob_start, bp->blob_length);
 
 		String slen = rec->get_string(f_data_size);
 		try
