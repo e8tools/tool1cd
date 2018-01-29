@@ -16,7 +16,7 @@ const size_t GUID_LEN = 36;
 class BinaryGuid {
 public:
 	BinaryGuid();
-	BinaryGuid(const char *src_data);
+	explicit BinaryGuid(const char *src_data);
 	BinaryGuid(const BinaryGuid &src);
 	explicit BinaryGuid(const std::string &presentation);
 
