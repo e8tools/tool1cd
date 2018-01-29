@@ -18,12 +18,6 @@
 
 using namespace std;
 
-boost::filesystem::path object_path(const boost::filesystem::path &rootpath, const std::string &datahash)
-{
-	// aabbccddeeff -> ./data/objects/aa/bbccddeeff
-	return rootpath / datahash.substr(0, 2) / datahash.substr(2, datahash.size() - 2);
-}
-
 //---------------------------------------------------------------------------
 // Сохранение файлов конфигурации в каталог из хранилища конфигураций
 // ver_begin - начальный номер диапазона версий сохраняемых файлов конфигурации
@@ -95,7 +89,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		throw DetailedException("Не удалось прочитать запись в таблице DEPOT.");
 	}
 
-	depotVer = get_depot_version(rec);
+	depotVer = get_depot_version(*rec);
 
 	delete rec;
 
@@ -181,8 +175,6 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	Field *flde_datapacked = table_externals->get_field("DATAPACKED");
 	Field *flde_extdata    = table_externals->get_field("EXTDATA");
 
-	boost::filesystem::path objects_path;
-
 	if(depotVer >= depot_ver::Ver6)
 	{
 		fldh_datahash = table_history->get_field("DATAHASH");
@@ -190,7 +182,6 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 		boost::filesystem::path root_dir = root_path.parent_path();
 		pack_directory.init(root_dir);
-		objects_path = root_path.parent_path() / "data" / "objects";
 	}
 	else
 	{
@@ -323,39 +314,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 								}
 								else if(depotVer >= depot_ver::Ver6)
 								{
-									const char *datahash = rech2->get_data(fldh_datahash);
-									sobj = pack_directory.get_data(datahash, ok);
-
-									if(!ok)
-									{
-										String sDataHash = rech2->get_string(fldh_datahash);
-										auto current_object_path = object_path(objects_path, sDataHash);
-										if (boost::filesystem::exists(current_object_path))
-										{
-											try
-											{
-												sobj = new TFileStream(current_object_path, fmOpenRead | fmShareDenyNone);
-												deletesobj = true;
-												ok = true;
-											}
-											catch(...)
-											{
-												msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
-																	"Файл", current_object_path.string(),
-																	"Таблица", "HISTORY",
-																	"Объект", sObjId,
-																	"Версия", lastver);
-											}
-										}
-										else
-										{
-											msreg_m.AddMessage_("Не найден файл", MessageState::Error,
-																"Файл", s,
-																"Таблица", "HISTORY",
-																"Объект", sObjId,
-																"Версия", lastver);
-										}
-									}
+									sobj = pack_directory.get_data(rech2->get_string(fldh_datahash), ok);
 								}
 
 								if(!ok)
@@ -446,41 +405,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 										}
 										else if(depotVer >= depot_ver::Ver6)
 										{
-											const char *datahash = rece->get_data(flde_datahash);
-											sobj = pack_directory.get_data(datahash, ok);
-
-											if(!ok)
-											{
-												String sDataHash = rece->get_string(flde_datahash);
-												auto current_object_path = object_path(objects_path, sDataHash);
-												if (boost::filesystem::exists(current_object_path))
-												{
-													try
-													{
-														sobj = new TFileStream(current_object_path, fmOpenRead | fmShareDenyNone);
-														deletesobj = true;
-														ok = true;
-													}
-													catch(...)
-													{
-														msreg_m.AddMessage_("Ошибка открытия файла", MessageState::Error,
-																			"Файл", current_object_path.string(),
-																			"Таблица", "EXTERNALS",
-																			"Объект", sObjId,
-																			"Файл конфигурации", ext_name,
-																			"Версия", v);
-													}
-												}
-												else
-												{
-													msreg_m.AddMessage_("Не найден файл", MessageState::Error,
-																		"Файл", current_object_path.string(),
-																		"Таблица", "EXTERNALS",
-																		"Объект", sObjId,
-																		"Файл конфигурации", ext_name,
-																		"Версия", v);
-												}
-											}
+											sobj = pack_directory.get_data(rece->get_string(flde_datahash), ok);
 										}
 										if(!ok)
 										{

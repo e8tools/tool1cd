@@ -128,6 +128,7 @@ public:
 	uint32_t get_added_numrecords();
 
 	TableRecord *getrecord(uint32_t phys_numrecord); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
+	void getrecord(uint32_t phys_numrecord, char *buf);
 	TStream* readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, bool rewrite = true) const;
 	uint32_t readBlob(void* _buf, uint32_t _startblock, uint32_t _length) const;
 	void set_lockinmemory(bool _lock);

@@ -2664,9 +2664,9 @@ String T_1CD::pagemaprec_presentation(pagemaprec& pmr)
 	}
 }
 
-depot_ver T_1CD::get_depot_version(const TableRecord *record)
+depot_ver T_1CD::get_depot_version(const TableRecord &record)
 {
-	String Ver = record->get_string("DEPOTVER");
+	String Ver = record.get_string("DEPOTVER");
 
 	if (Ver.CompareIC("0300000000000000") == 0) {
 		return depot_ver::Ver3;

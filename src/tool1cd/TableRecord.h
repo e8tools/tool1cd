@@ -60,6 +60,8 @@ public:
 
 	void Assign(const TableRecord *another_record);
 
+	const Table *get_table() const { return table; }
+
 	~TableRecord();
 
 private:

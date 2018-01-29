@@ -227,7 +227,7 @@ public:
 
 	SupplierConfigs& supplier_configs();
 private:
-	Registrator msreg_m;
+	mutable Registrator msreg_m;
 	String filename;
 	TFileStream* fs;
 
@@ -278,9 +278,13 @@ private:
 	void pagemapfill();
 	String pagemaprec_presentation(pagemaprec& pmr);
 
-	depot_ver get_depot_version(const TableRecord *record);
+	depot_ver get_depot_version(const TableRecord &record);
 
 	void assert_i_am_a_repository();
+	bool try_save_snapshot(const TableRecord &version_record,
+						   const BinaryGuid &rootobj,
+						   const boost::filesystem::path &root_path,
+						   const boost::filesystem::path &target_file_path) const;
 };
 
 #endif

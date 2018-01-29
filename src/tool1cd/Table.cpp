@@ -633,6 +633,12 @@ uint32_t Table::get_added_numrecords()
 }
 
 //---------------------------------------------------------------------------
+void Table::getrecord(uint32_t phys_numrecord, char *buf)
+{
+	file_data->getdata(buf, phys_numrecord * recordlen, recordlen);
+}
+
+//---------------------------------------------------------------------------
 TableRecord * Table::getrecord(uint32_t phys_numrecord)
 {
 	#ifndef getcfname
