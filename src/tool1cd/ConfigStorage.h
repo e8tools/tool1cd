@@ -163,7 +163,7 @@ private:
 class ConfigStorageTableConfigCasSave : public ConfigStorageTable
 {
 public:
-	ConfigStorageTableConfigCasSave(TableFiles* tabc, TableFiles* tabcs, const TGUID& uid, const String& configver, T_1CD* _base = nullptr);
+	ConfigStorageTableConfigCasSave(TableFiles* tabc, TableFiles* tabcs, const BinaryGuid& uid, const String& configver, T_1CD* _base = nullptr);
 	virtual String presentation() override;
 	virtual ~ConfigStorageTableConfigCasSave() = default;
 

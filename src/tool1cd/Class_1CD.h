@@ -19,6 +19,7 @@
 #include "cfapi/V8Catalog.h"
 #include "cfapi/TV8FileStream.h"
 #include "SupplierConfig.h"
+#include "TableRecord.h"
 
 //---------------------------------------------------------------------------
 
@@ -203,7 +204,7 @@ public:
 	bool save_depot_config(const String& _filename, int32_t ver = 0);
 	bool save_part_depot_config(const String& _filename, int32_t ver_begin, int32_t ver_end);
 	int32_t get_ver_depot_config(int32_t ver); // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
-	bool save_config_ext(const boost::filesystem::path &file_name, const System::TGUID& uid, const String& hashname);
+	bool save_config_ext(const boost::filesystem::path &file_name, const BinaryGuid& uid, const String& hashname);
 	bool save_config_ext_db(const boost::filesystem::path &file_name, const String& hashname);
 		
 	bool get_readonly();
@@ -226,7 +227,7 @@ public:
 
 	SupplierConfigs& supplier_configs();
 private:
-	Registrator msreg_m;
+	mutable Registrator msreg_m;
 	String filename;
 	TFileStream* fs;
 
@@ -277,7 +278,13 @@ private:
 	void pagemapfill();
 	String pagemaprec_presentation(pagemaprec& pmr);
 
-	depot_ver get_depot_version(const char *record);
+	depot_ver get_depot_version(const TableRecord &record);
+
+	void assert_i_am_a_repository();
+	bool try_save_snapshot(const TableRecord &version_record,
+						   const BinaryGuid &rootobj,
+						   const boost::filesystem::path &root_path,
+						   const boost::filesystem::path &target_file_path) const;
 };
 
 #endif

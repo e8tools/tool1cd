@@ -18,6 +18,7 @@
 
 class v8object;
 class Field;
+class TableRecord;
 
 struct index_record
 {
@@ -89,7 +90,7 @@ public:
 	uint32_t get_numrec(uint32_t num_record); // получает физический индекс записи по порядковому индексу
 
 	void dump(String filename);
-	void calcRecordIndex(const char* rec, char* indexBuf); // вычислить индекс записи rec и поместить в indexBuf. Длина буфера indexBuf должна быть не меньше length
+	void calcRecordIndex(const TableRecord *rec, char *indexBuf); // вычислить индекс записи rec и поместить в indexBuf. Длина буфера indexBuf должна быть не меньше length
 
 	uint32_t get_rootblock();
 	uint32_t get_length();
@@ -123,12 +124,14 @@ private:
 	void create_recordsindex();
 
 	void dump_recursive(v8object* file_index, TFileStream* f, int32_t level, uint64_t curblock);
-	void delete_index(const char* rec, const uint32_t phys_numrec); // удаление индекса записи из файла index
+	void delete_index(const TableRecord *rec, const uint32_t phys_numrec); // удаление индекса записи из файла index
 	void delete_index_record(const char* index_buf, const uint32_t phys_numrec); // удаление одного индекса из файла index
 	void delete_index_record(const char* index_buf, const uint32_t phys_numrec, uint64_t block, bool& is_last_record, bool& page_is_empty, char* new_last_index_buf, uint32_t& new_last_phys_num); // рекурсивное удаление одного индекса из блока файла index
-	void write_index(const uint32_t phys_numrecord, const char* rec); // запись индекса записи
+	void write_index(const uint32_t phys_numrecord, const TableRecord *rec); // запись индекса записи
 	void write_index_record(const uint32_t phys_numrecord, const char* index_buf); // запись индекса
 	void write_index_record(const uint32_t phys_numrecord, const char* index_buf, uint64_t block, int32_t& result, char* new_last_index_buf, uint32_t& new_last_phys_num, char* new_last_index_buf2, uint32_t& new_last_phys_num2, uint64_t& new_last_block2); // рекурсивная запись индекса
+
+	static Index *index_from_tree(tree *f, Table *parent);
 };
 
 #endif /* SRC_CTOOL1CD_INDEX_H_ */

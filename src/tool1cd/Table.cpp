@@ -9,6 +9,8 @@
 #include <boost/filesystem.hpp>
 
 #include "Table.h"
+#include "TableRecord.h"
+#include "Common.h"
 
 extern Registrator msreg_g;
 #ifndef getcfname
@@ -84,7 +86,7 @@ void Table::init()
 	num_fields = 0;
 	fields.clear();
 	num_indexes = 0;
-	indexes = 0;
+	indexes.clear();
 	recordlock = false;
 	file_data = nullptr;
 	file_blob = nullptr;
@@ -94,7 +96,6 @@ void Table::init()
 	recordsindex_complete = false;
 	numrecords_review = 0;
 	numrecords_found = 0;
-	recordsindex = nullptr;
 
 	edit = false;
 	ch_rec = nullptr;
@@ -229,8 +230,6 @@ void Table::init(int32_t block_descr)
 
 	num_indexes = t->get_num_subnode() - 1;
 	if (num_indexes) {
-		indexes = new Index*[num_indexes];
-		for(i = 0; i < num_indexes; i++) indexes[i] = new Index(this);
 
 		f = t->get_first();
 		if(f->get_type() != node_type::nd_string) {
@@ -241,88 +240,20 @@ void Table::init(int32_t block_descr)
 					.add_detail("Узел", f->get_value());
 		}
 
-		for(i = 0; i < num_indexes; i++)
-		{
+		for (int i = 0; i < num_indexes; i++) {
 			f = f->get_next();
-			numrec = f->get_num_subnode() - 2;
-			if (numrec < 1) {
-				throw TableReadError("Ошибка получения очередного индекса таблицы. Нет узлов описаня полей индекса.", block_descr, name)
-						.add_detail("Номер индекса", i + 1);
-			}
-			ind = indexes[i];
-			ind->num_records = numrec;
+			try {
 
-			if (f->get_type() != node_type::nd_list) {
-				throw TableReadError("Ошибка получения очередного индекса таблицы. Узел не является деревом.", block_descr, name)
-						.add_detail("Номер индекса", i + 1);
-			}
+				indexes.push_back(Index::index_from_tree(f, this));
 
-			tree *index_tree = f->get_first();
-			if (index_tree->get_type() != node_type::nd_string) {
-				throw TableReadError("Ошибка получения имени индекса таблицы. Узел не является строкой.", block_descr, name)
-						.add_detail("Номер индекса", i + 1);
-			}
-			ind->name = index_tree->get_value();
-
-			index_tree = index_tree->get_next();
-			if (index_tree->get_type() != node_type::nd_number) {
-				throw TableReadError("Ошибка получения типа индекса таблицы. Узел не является числом.", block_descr, name)
-						.add_detail("Индекс", ind->name);
-			}
-			String sIsPrimaryIndex = index_tree->get_value();
-			if     (sIsPrimaryIndex == "0") ind->is_primary = false;
-			else if(sIsPrimaryIndex == "1") ind->is_primary = true;
-			else {
-				throw TableReadError("Неизвестный тип индекса таблицы.", block_descr, name)
-						.add_detail("Индекс", ind->name)
-						.add_detail("Тип индекса", sIsPrimaryIndex);
-			}
-
-			ind->records = new index_record[numrec];
-			for(j = 0; j < numrec; j++)
-			{
-				index_tree = index_tree->get_next();
-				if (index_tree->get_num_subnode() != 2) {
-					throw TableReadError("Ошибка получения очередного поля индекса таблицы. "
-												 "Количество узлов поля не равно 2.", block_descr, name)
-							.add_detail("Индекс", ind->name)
-							.add_detail("Номер поля индекса", j + 1)
-							.add_detail("Узлов", index_tree->get_num_subnode());
-				}
-
-				in = index_tree->get_first();
-				if (in->get_type() != node_type::nd_string) {
-					throw TableReadError("Ошибка получения имени поля индекса таблицы. Узел не является строкой.", block_descr, name)
-							.add_detail("Индекс", ind->name)
-							.add_detail("Номер поля индекса", j + 1);
-				}
-
-				String field_name = in->get_value();
-				for(k = 0; k < num_fields; k++) {
-					if(fields[k]->name == field_name) {
-						ind->records[j].field = fields[k];
-						break;
-					}
-				}
-				if (k >= num_fields) {
-					throw TableReadError("Ошибка получения индекса таблицы. Не найдено поле таблицы по имени поля индекса.", block_descr, name)
-							.add_detail("Индекс", ind->name)
-							.add_detail("Номер поля индекса", j + 1)
-							.add_detail("Поле индекса", field_name);
-				}
-
-				in = in->get_next();
-				if (in->get_type() != node_type::nd_number) {
-					throw TableReadError("Ошибка получения длины поля индекса таблицы. Узел не является числом.", block_descr, name)
-							.add_detail("Индекс", ind->name)
-							.add_detail("Номер поля индекса", j + 1)
-							.add_detail("Поле индекса", field_name);
-				}
-				ind->records[j].len = StrToInt(in->get_value());
+			} catch (DetailedException &err) {
+				err.add_detail("Номер блока", to_hex_string(block_descr));
+				err.add_detail("Таблица", name);
+				err.add_detail("Номер индекса", i + 1);
+				throw err;
 			}
 		}
 	}
-	else indexes = nullptr;
 
 	t = t->get_next();
 	if (t->get_num_subnode() != 2) {
@@ -583,12 +514,8 @@ void Table::deletefields()
 //---------------------------------------------------------------------------
 void Table::deleteindexes()
 {
-	int32_t i;
-	if(indexes)
-	{
-		for(i = 0; i < num_indexes; i++) delete indexes[i];
-		delete[] indexes;
-		indexes = nullptr;
+	for (auto index : indexes) {
+		delete index;
 	}
 }
 
@@ -627,29 +554,28 @@ Table::~Table()
 		descr_table = nullptr;
 	}
 
-	delete[] recordsindex;
 }
 
 //---------------------------------------------------------------------------
-String Table::getname()
+String Table::getname() const
 {
 	return name;
 }
 
 //---------------------------------------------------------------------------
-String Table::getdescription()
+String Table::getdescription() const
 {
 	return description;
 }
 
 //---------------------------------------------------------------------------
-int32_t Table::get_numfields()
+int32_t Table::get_numfields() const
 {
 	return num_fields;
 }
 
 //---------------------------------------------------------------------------
-int32_t Table::get_numindexes()
+int32_t Table::get_numindexes() const
 {
 	return num_indexes;
 }
@@ -707,20 +633,27 @@ uint32_t Table::get_added_numrecords()
 }
 
 //---------------------------------------------------------------------------
-char* Table::getrecord(uint32_t phys_numrecord, char* buf)
+void Table::getrecord(uint32_t phys_numrecord, char *buf)
+{
+	file_data->getdata(buf, phys_numrecord * recordlen, recordlen);
+}
+
+//---------------------------------------------------------------------------
+TableRecord * Table::getrecord(uint32_t phys_numrecord)
 {
 	#ifndef getcfname
 	tr_syn->BeginWrite();
 	#endif
+	char *buf = new char[recordlen];
 	char* b = file_data->getdata(buf, phys_numrecord * recordlen, recordlen);
 	#ifndef getcfname
 	tr_syn->EndWrite();
 	#endif
-	return b;
+	return new TableRecord(this, b, recordlen);
 }
 
 //---------------------------------------------------------------------------
-int32_t Table::get_recordlen()
+int32_t Table::get_recordlen() const
 {
 	return recordlen;
 }
@@ -934,7 +867,6 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 	String recname;
 	int32_t i;
 	uint32_t j, numr, nr;
-	char* rec;
 	bool canwriteblob = false;
 	Index* curindex;
 	int32_t ic; // image count, количество полей с типом image
@@ -1001,8 +933,6 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 	if(curindex) numr = curindex->get_numrecords();
 	else numr = numrecords_found;
 
-	rec = new char[get_recordlen()];
-
 	msreg_g.Status(status);
 
 	recname = "";
@@ -1017,22 +947,24 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 		f->Write(rpart1.c_str(), rpart1.GetLength());
 		if(curindex) nr = curindex->get_numrec(j);
 		else nr = recordsindex[j];
-		getrecord(nr, rec);
+		std::shared_ptr<TableRecord> rec (getrecord(nr));
 		if(ic){
-			s = get_file_name_for_record(rec);
-			if(s.CompareIC(recname) == 0) rc++;
-			else
-			{
-				recname = s;
+			String filename = get_file_name_for_record(rec.get());
+			if (filename.CompareIC(recname) == 0) {
+				rc++;
+			} else {
+				recname = filename;
 				rc = 0;
 			}
 		}
 		for(i = 0; i < num_fields; i++)
 		{
+			String outputvalue;
 			f->Write(rpart3.c_str(), rpart3.GetLength());
-			us = &(fields[i]->name);
-			f->Write(us->c_str(), us->Length());
-			f->Write(">", 1);
+			String *field_name = &(fields[i]->name);
+			f->Write(field_name->c_str(), field_name->Length());
+
+			bool output_is_null = false;
 
 			if(blob_to_file && fields[i]->type_manager->gettype() == type_fields::tf_image)
 			{
@@ -1057,38 +989,52 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 
 				if(canwriteblob)
 				{
-					s = recname;
+					outputvalue = recname;
 					if(ic > 1)
 					{
-						if(s.GetLength()) s += "_";
-						s += fields[i]->name;
+						if (outputvalue.size()) {
+							outputvalue += "_";
+						}
+						outputvalue += fields[i]->name;
 					}
 					if(rc)
 					{
-						s += "_";
-						s += rc + 1;
+						outputvalue += "_";
+						outputvalue += rc + 1;
 					}
 
-					dir /= static_cast<std::string>(s);
-					if(!fields[i]->save_blob_to_file(rec, dir.string(), unpack)) {
-						s = "{NULL}";
+					dir /= static_cast<std::string>(outputvalue);
+					if(!fields[i]->save_blob_to_file(rec.get(), dir.string(), unpack)) {
+						outputvalue = "{NULL}";
+						output_is_null = true;
 					}
 				}
-				else s = "{ERROR}";
+				else outputvalue = "{ERROR}";
 			}
-			else s = fields[i]->get_XML_presentation(rec);
+			else {
+				if (rec->is_null_value(fields[i])) {
+					outputvalue = "{NULL}";
+					output_is_null = true;
+				} else {
+					outputvalue = rec->get_xml_string(fields[i]);
+				}
+			}
 
-			f->Write(s.c_str(), s.GetLength());
-			f->Write("</", 2);
-			f->Write(us->c_str(), us->Length());
-			f->Write(">\r\n", 3);
+			if (output_is_null) {
+				f->Write("/>\r\n", 4);
+			} else {
+				f->Write(">", 1);
+				f->Write(outputvalue.c_str(), outputvalue.GetLength());
+				f->Write("</", 2);
+				f->Write(field_name->c_str(), field_name->Length());
+				f->Write(">\r\n", 3);
+			}
 		}
 		f->Write(rpart2.c_str(), rpart2.GetLength());
 
 	}
 	f->Write(part4.c_str(), part4.GetLength());
 
-	delete[] rec;
 	delete f;
 	msreg_g.Status("");
 	return true;
@@ -1387,7 +1333,6 @@ void Table::import_table(const String &path)
 void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null, String value, TStream* st)
 {
 	Field* fld;
-	char* rec;
 	char* k;
 	char* editrec;
 	char* fldvalue;
@@ -1405,7 +1350,6 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 	if(tf == type_fields::tf_version || tf == type_fields::tf_version8) return;
 	if(null && !fld->getnull_exists()) return;
 
-	rec = new char[recordlen];
 	fldvalue = new char[fld->getlen()];
 
 	if(tf == type_fields::tf_string || tf == type_fields::tf_text || tf == type_fields::tf_image)
@@ -1421,11 +1365,13 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 	}
 	else fld->get_binary_value(fldvalue, null, value);
 
+	TableRecord *rec = nullptr;
 	changed = true;
 	if(phys_numrecord < phys_numrecords)
 	{
-		getrecord(phys_numrecord, rec);
-		changed = memcmp(rec + fld->offset, fldvalue, fld->len) != 0;
+		rec = getrecord(phys_numrecord);
+		// TODO: Вменяемое сравнение в соответствии с типами
+		changed = memcmp(rec->get_raw(fld), fldvalue, fld->len) != 0;
 	}
 
 	for(cr = ch_rec; cr; cr = cr->next) if(cr->numrec == phys_numrecord) break;
@@ -1433,12 +1379,14 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 	{
 		if(!changed)
 		{
-			delete[] rec;
 			delete[] fldvalue;
 			return; // значение не изменилось, ничего не делаем
 		}
 		cr = new changed_rec(this, phys_numrecord >= phys_numrecords ? changed_rec_type::inserted : changed_rec_type::changed, phys_numrecord);
-		if(phys_numrecord <= phys_numrecords) memcpy(cr->rec, rec, recordlen);
+		if(phys_numrecord <= phys_numrecords) {
+			// TODO: тут должно быть что-то иное
+			memcpy(cr->rec, rec, recordlen);
+		}
 	}
 
 	editrec = cr->rec;
@@ -1485,7 +1433,6 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 void Table::restore_edit_value(uint32_t phys_numrecord, int32_t numfield)
 {
 	Field* fld;
-	char* rec;
 	changed_rec* cr;
 	changed_rec* cr2;
 	int32_t i, j;
@@ -1525,10 +1472,9 @@ void Table::restore_edit_value(uint32_t phys_numrecord, int32_t numfield)
 		delete cr;
 	}
 	else{
-		rec = new char[recordlen];
-		getrecord(phys_numrecord, rec);
-		memcpy(cr->rec + fld->offset, rec + fld->offset, fld->len);
-		delete[] rec;
+		TableRecord *rec = getrecord(phys_numrecord);
+		memcpy(cr->rec + fld->offset, rec->get_raw(fld->offset), fld->len);
+		delete rec;
 	}
 
 }
@@ -1630,19 +1576,20 @@ void Table::set_rec_type(uint32_t phys_numrecord, changed_rec_type crt)
 }
 
 //---------------------------------------------------------------------------
-char* Table::get_edit_record(uint32_t phys_numrecord, char* rec)
+TableRecord *Table::get_edit_record(uint32_t phys_numrecord)
 {
 	changed_rec* cr;
 	for(cr = ch_rec; cr; cr = cr->next) if(phys_numrecord == cr->numrec)
 	{
 		if(cr->changed_type != changed_rec_type::deleted)
 		{
+			char *rec = new char[recordlen];
 			memcpy(rec, cr->rec, recordlen);
-			return rec;
+			return new TableRecord(this, rec, recordlen);
 		}
 		break;
 	}
-	return getrecord(phys_numrecord, rec);
+	return getrecord(phys_numrecord);
 }
 
 //---------------------------------------------------------------------------
@@ -1774,13 +1721,15 @@ void Table::delete_data_record(uint32_t phys_numrecord)
 	}
 	else
 	{
-		rec = new char[recordlen];
-		memset(rec, 0, recordlen);
+		char *tmp = new char[recordlen];
+		memset(tmp, 0, recordlen);
+		TableRecord *rec = new TableRecord(this, tmp, recordlen);
+
 		file_data->getdata(&first_empty_rec, 0, 4);
 		*((int32_t*)rec) = first_empty_rec;
 		file_data->setdata(&first_empty_rec, 0, 4);
 		write_data_record(phys_numrecord, rec);
-		delete[] rec;
+		delete rec;
 	}
 
 }
@@ -1833,19 +1782,15 @@ void Table::delete_blob_record(uint32_t blob_numrecord)
 //---------------------------------------------------------------------------
 void Table::delete_index_record(uint32_t phys_numrecord)
 {
-	char* rec;
-
-	rec = new char[recordlen];
-	getrecord(phys_numrecord, rec);
+	TableRecord *rec = getrecord(phys_numrecord);
 	delete_index_record(phys_numrecord, rec);
-	delete[] rec;
+	delete rec;
 }
 
 //---------------------------------------------------------------------------
-void Table::delete_index_record(uint32_t phys_numrecord, char* rec)
+void Table::delete_index_record(uint32_t phys_numrecord, const TableRecord *rec)
 {
-	if(*rec)
-	{
+	if(rec->is_removed()) {
 		msreg_g.AddError("Попытка удаления индекса удаленной записи.",
 			"Таблица", name,
 			"Физический номер записи", phys_numrecord);
@@ -1856,7 +1801,7 @@ void Table::delete_index_record(uint32_t phys_numrecord, char* rec)
 }
 
 //---------------------------------------------------------------------------
-void Table::write_data_record(uint32_t phys_numrecord, char* rec)
+void Table::write_data_record(uint32_t phys_numrecord, const TableRecord *rec)
 {
 	char* b;
 
@@ -2010,10 +1955,9 @@ uint32_t Table::write_blob_record(TStream* bstr)
 
 //---------------------------------------------------------------------------
 
-void Table::write_index_record(const uint32_t phys_numrecord, const char* rec)
+void Table::write_index_record(const uint32_t phys_numrecord, const TableRecord *rec)
 {
-	if(*rec)
-	{
+	if(rec->is_removed()) {
 		msreg_g.AddError("Попытка записи индексов помеченной на удаление записи.",
 			"Таблица", name);
 		return;
@@ -2062,7 +2006,7 @@ void Table::end_edit()
 	// добавляем новые записи
 	for (cr = ch_rec; cr; cr = cr->next) {
 		if (cr->changed_type == changed_rec_type::inserted) {
-			insert_record(cr->rec);
+			insert_record(new TableRecord(this, cr->rec));
 		}
 	}
 
@@ -2074,80 +2018,86 @@ void Table::end_edit()
 void Table::delete_record(uint32_t phys_numrecord)
 {
 	int32_t i;
-	uint32_t j;
-	Field* f;
 	type_fields tf;
-	char* rec;
-
-	rec = new char[recordlen];
-	getrecord(phys_numrecord, rec);
+	TableRecord *rec = getrecord(phys_numrecord);
 
 	delete_index_record(phys_numrecord, rec);
 
 	for(i = 0; i < num_fields; i++)
 	{
-		f = fields[i];
+		Field *f = fields[i];
 		tf = f->type_manager->gettype();
 		if(tf == type_fields::tf_image || tf == type_fields::tf_string || tf == type_fields::tf_text)
 		{
-			j = *(uint32_t*)(rec + f->offset);
-			if(j) delete_blob_record(j);
+			auto bp = (const table_blob_file *)rec->get_raw(f);
+			if (bp->blob_start) {
+				delete_blob_record(bp->blob_start);
+			}
 		}
 	}
 
 	delete_data_record(phys_numrecord);
 
-	delete[] rec;
+	delete rec;
 }
 
 //---------------------------------------------------------------------------
-void Table::insert_record(char* rec)
+void Table::insert_record(const TableRecord *nrec)
 {
-	int32_t i, offset;
+	int32_t offset;
 	char* j;
-	Field* f;
 	type_fields tf;
 	uint32_t phys_numrecord;
 	uint32_t k, l;
-	_version ver;
-	TStream** st;
+
+	TableRecord *rec = new TableRecord(this);
+	rec->Assign(nrec);
 
 	if(!file_data) create_file_data();
 
-	for(i = 0; i < num_fields; i++)
+	for (int i = 0; i < num_fields; i++)
 	{
-		f = fields[i];
+		Field *f = fields[i];
 		tf = f->type_manager->gettype();
 		offset = f->offset + (f->getnull_exists() ? 1 : 0);
 		switch(tf)
 		{
 			case type_fields::tf_image:
 			case type_fields::tf_string:
-			case type_fields::tf_text:
-				st = (TStream**)(rec + offset);
-				if(*st)
-				{
-					l = (*st)->GetSize();
-					k = write_blob_record(*st);
+			case type_fields::tf_text: {
+				TStream **st = (TStream **) (rec + offset);
+				table_blob_file bp = {0, 0};
+				if (*st) {
+					bp.blob_length = (*st)->GetSize();
+					bp.blob_start = write_blob_record(*st);
 					delete *st;
 					*st = nullptr;
 				}
-				else{
-					k = 0;
-					l = 0;
+				if (bp.blob_start == 0 && f->getnull_exists()) {
+					rec->set_null(f);
+				} else {
+					rec->set_data(f, &bp);
 				}
-				*(uint32_t*)(rec + offset) = k;
-				*(uint32_t*)(rec + offset + 4) = l;
-				if(f->getnull_exists()) *(rec + f->offset) = l ? 1 : 0;
-			case type_fields::tf_version:
-				file_data->get_version_rec_and_increase(&ver);
-				memcpy(rec + offset, &ver, 8);
-				memcpy(rec + offset + 8, &ver, 8);
+			}
+			case type_fields::tf_version: {
+
+				struct {
+					_version ver;
+					_version ver2;
+				} vers;
+
+				file_data->get_version_rec_and_increase(&vers.ver);
+				vers.ver2 = vers.ver;
+				rec->set_data(f, &vers);
+
 				break;
-			case type_fields::tf_version8:
+			}
+			case type_fields::tf_version8: {
+				_version ver;
 				file_data->get_version_rec_and_increase(&ver);
-				memcpy(rec + offset, &ver, 8);
+				rec->set_data(f, &ver);
 				break;
+			}
 		}
 	}
 
@@ -2177,22 +2127,21 @@ void Table::insert_record(char* rec)
 }
 
 //---------------------------------------------------------------------------
-void Table::update_record(uint32_t phys_numrecord, char* rec, char* changed_fields)
+void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_fields)
 {
-	char* orec;
 	int32_t i, offset;
-	Field* f;
 	type_fields tf;
-	uint32_t k, l;
 	_version ver;
 	TStream** st;
 
-	orec = new char[recordlen];
-	getrecord(phys_numrecord, orec);
+	TableRecord *rec = new TableRecord(this, newdata, recordlen);
+	TableRecord *orec = getrecord(phys_numrecord);
 	delete_index_record(phys_numrecord, orec);
 	for(i = 0; i < num_fields; i++)
 	{
-		f = fields[i];
+		uint32_t k, l;
+		table_blob_file new_blob = {0, 0};
+		Field *f = fields[i];
 		tf = f->type_manager->gettype();
 		offset = f->offset + (f->getnull_exists() ? 1 : 0);
 		if(changed_fields[i])
@@ -2201,54 +2150,47 @@ void Table::update_record(uint32_t phys_numrecord, char* rec, char* changed_fiel
 			{
 				if(f->getnull_exists())
 				{
-					if(*(orec + f->offset))
+					if (orec->is_null_value(f))
 					{
-						k = *(uint32_t*)(orec + offset);
-						if(k) delete_blob_record(k);
+						auto bp = (const table_blob_file *)orec->get_data(f);
+						if (bp->blob_start != 0) {
+							delete_blob_record(bp->blob_start);
+						}
 					}
-					if(*(rec + f->offset))
+					if (!rec->is_null_value(f))
 					{
-						st = (TStream**)(rec + offset);
+						st = (TStream**)(rec->get_data(f));
 						if(*st)
 						{
-							l = (*st)->GetSize();
-							k = write_blob_record(*st);
+							new_blob.blob_length = (*st)->GetSize();
+							new_blob.blob_start = write_blob_record(*st);
 							delete *st;
 							*st = nullptr;
-							*(orec + f->offset) = 1;
 						}
-						else{
-							k = 0;
-							l = 0;
-							*(orec + f->offset) = 0;
-						}
-					}
-					else{
-						k = 0;
-						l = 0;
-						*(orec + f->offset) = 0;
 					}
 				}
 				else
 				{
-					k = *(uint32_t*)(orec + offset);
-					if(k) delete_blob_record(k);
+					auto old_blob = (const table_blob_file *)orec->get_data(f);
+					if (old_blob->blob_start != 0) {
+						delete_blob_record(old_blob->blob_start);
+					}
 
-					st = (TStream**)(rec + offset);
+					st = (TStream**)rec->get_data(f);
 					if(*st)
 					{
-						l = (*st)->GetSize();
-						k = write_blob_record(*st);
+						new_blob.blob_length = (*st)->GetSize();
+						new_blob.blob_start = write_blob_record(*st);
 						delete *st;
 						*st = nullptr;
 					}
-					else{
-						k = 0;
-						l = 0;
+				}
+				orec->set_data(f, &new_blob);
+				if (new_blob.blob_start == 0) {
+					if (f->getnull_exists()) {
+						orec->set_null(f);
 					}
 				}
-				*(uint32_t*)(orec + offset) = k;
-				*(uint32_t*)(orec + offset + 4) = l;
 			}
 			else memcpy(orec + f->offset, rec + f->offset, f->len);
 		}
@@ -2391,27 +2333,22 @@ char* Table::get_record_template_test()
 // заполнить recordsindex не динамически
 void Table::fillrecordsindex()
 {
-	uint32_t i;
-	int32_t j;
-	char* rec;
+	if (recordsindex_complete) {
+		return;
+	}
+	recordsindex.clear();
 
-	if(recordsindex_complete) return;
-	recordsindex = new uint32_t [phys_numrecords];
-	rec = new char[recordlen];
-
-	j = 0;
-	for(i = 0; i < phys_numrecords; i++)
-	{
-		getrecord(i, rec);
-		if(*rec) continue;
-		recordsindex[j++] = i;
+	for (int i = 0; i < phys_numrecords; i++) {
+		std::shared_ptr<TableRecord> rec(getrecord(i));
+		if (rec->is_removed()) {
+			continue;
+		}
+		recordsindex.push_back(i);
 	}
 	recordsindex_complete = true;
 	numrecords_review = phys_numrecords;
-	numrecords_found = j;
-	log_numrecords = j;
-
-	delete[] rec;
+	numrecords_found = recordsindex.size();
+	log_numrecords = recordsindex.size();
 }
 
 String Table::get_file_name_for_field(int32_t num_field, char* rec, uint32_t numrec)
@@ -2447,7 +2384,7 @@ String Table::get_file_name_for_field(int32_t num_field, char* rec, uint32_t num
 	return s;
 }
 
-String Table::get_file_name_for_record(char* rec)
+String Table::get_file_name_for_record(const TableRecord *rec)
 {
 	String s("");
 
@@ -2476,7 +2413,7 @@ String Table::get_file_name_for_record(char* rec)
 				s += "_";
 			}
 			Field* tmp_field = ind->records[i].field;
-			String tmp_str = tmp_field->get_XML_presentation(rec);
+			String tmp_str = rec->get_string(tmp_field);
 
 			s += tmp_str;
 
@@ -2486,45 +2423,51 @@ String Table::get_file_name_for_record(char* rec)
 	return s;
 }
 
-Field* Table::get_field(const String& fieldname)
+Field* Table::get_field(const String &fieldname) const
 {
-	Field* fld =  nullptr;
+	Field* fld = find_field(fieldname);
+	if (fld) {
+		return fld;
+	}
+	DetailedException error("Поле не найдено!");
+	error.add_detail("Имя поля", fieldname);
+	error.add_detail("Таблица", name);
+	throw error;
+}
 
-	for (int32_t j = 0; j < num_fields; j++)
-	{
-		fld = fields[j];
+Field* Table::find_field(const String &fieldname) const throw()
+{
+	for (int32_t j = 0; j < num_fields; j++) {
+		Field* fld = fields[j];
 		if (fld->getname().CompareIC(fieldname) == 0) {
 			return fld;
 		}
 	}
 
-	String s = "В таблице ";
-	s += name;
-	s += " не найдено поле ";
-	s += fieldname;
-	s += ".";
-	msreg_g.AddError(s);
-
-	return fld;
+	return nullptr;
 }
 
-Index* Table::get_index(const String& indexname)
+Index* Table::get_index(const String& indexname) const
 {
-	Index* ind = nullptr;
+	Index* ind = find_index(indexname);
+	if (ind) {
+		return ind;
+	}
 
+	DetailedException error("Индекс не найден!");
+	error.add_detail("Имя индекса", indexname);
+	error.add_detail("Таблица", name);
+	throw error;
+}
+
+Index* Table::find_index(const String& indexname) const throw()
+{
 	for (int32_t j = 0; j < num_indexes; j++) {
-		ind = indexes[j];
+		Index* ind = indexes[j];
 		if (ind->getname().CompareIC(indexname) == 0) {
 			return ind;
 		}
 	}
 
-	String s = "В таблице ";
-	s += name;
-	s += " не найден индекс ";
-	s += indexname;
-	s += ".";
-	msreg_g.AddError(s);
-
-	return ind;
+	return nullptr;
 }

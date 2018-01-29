@@ -131,6 +131,8 @@ class ZInflateStream : ZStreamBase
 void ZInflateStream(TStream* src, TStream* dst);
 bool ZDeflateStream(TStream* src, TStream* dst);
 
+void ZInflateOrCopy(TStream *src, TStream *dst);
+
 int inf(FILE *source, FILE *dest);
 int def(FILE *source, FILE *dest, int level);
 

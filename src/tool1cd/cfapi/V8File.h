@@ -8,6 +8,7 @@
 #include "V8Catalog.h"
 #include "TV8FileStream.h"
 #include "../Parse_tree.h"
+#include <boost/filesystem.hpp>
 
 class v8catalog;
 class TV8FileStream;
@@ -52,7 +53,7 @@ public:
 		void GetTimeModify(System::FILETIME* ft);
 		void SetTimeCreate(System::FILETIME* ft);
 		void SetTimeModify(System::FILETIME* ft);
-		void SaveToFile(const String& FileName);
+		void SaveToFile(const boost::filesystem::path &FileName);
 		void SaveToStream(TStream* stream);
 		TV8FileStream* get_stream(bool own = false);
 		void Flush();

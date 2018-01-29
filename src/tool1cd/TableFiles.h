@@ -12,14 +12,7 @@
 
 #include "Common.h"
 #include "Table.h"
-
-//---------------------------------------------------------------------------
-// Структура адреса файла таблицы-контейнера файлов
-struct table_blob_file
-{
-	uint32_t blob_start;
-	uint32_t blob_length;
-};
+#include "TableRecord.h"
 
 //---------------------------------------------------------------------------
 // Структура записи таблицы контейнера файлов
@@ -63,7 +56,6 @@ public:
 private:
 	Table* table {nullptr};
 	std::map<String,TableFile*> allfiles;
-	char* record {nullptr};
 	bool ready {false};
 
 	bool test_table();

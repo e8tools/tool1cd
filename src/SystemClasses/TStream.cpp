@@ -177,6 +177,7 @@ void TWrapperStream::init_size()
 
 int64_t TWrapperStream::Read(void *Buffer, int64_t Count)
 {
+	_stream->clear();
 	_stream->seekg(GetPosition(), std::ios_base::beg);
 	_stream->read((char*)Buffer, Count);
 	if (_stream->bad()) {
