@@ -207,6 +207,10 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 		cath /= "metadata";
 	}
 
+	if (!boost::filesystem::exists(cath)) {
+		boost::filesystem::create_directories(cath);
+	}
+
 	lastver = -1;
 	memset(emptyimage, 0, 8);
 
