@@ -282,6 +282,7 @@ private:
 
 	void assert_i_am_a_repository();
 	bool try_save_snapshot(const TableRecord &version_record,
+						   int ver,
 						   const BinaryGuid &rootobj,
 						   const boost::filesystem::path &root_path,
 						   const boost::filesystem::path &target_file_path) const;

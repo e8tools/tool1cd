@@ -19,12 +19,37 @@
 
 using namespace std;
 
+/* возвращает текст вида
+{
+{216,0}
+}*/
+String serialize_version(int configVerMajor, int configVerMinor)
+{
+	auto t = std::make_shared<tree>("", node_type::nd_list, nullptr);
+	auto tc = new tree("", node_type::nd_list, t.get());
+	tc = new tree("", node_type::nd_list, tc);
+	tc->add_child(String(configVerMajor), node_type::nd_number);
+	tc->add_child(String(configVerMinor), node_type::nd_number);
+	return outtext(t.get());
+}
+
 bool try_store_blob_data(const TableRecord &record,
 						 const Field *data_field,
 						 bool inflate_stream,
 						 const Field *hash_field,
 						 PackDirectory &pack_directory,
 						 TStream *&out);
+
+
+bool contains_ic(const vector<String> &vector, const String &string_to_find)
+{
+	for (auto value : vector) {
+		if (value.CompareIC(string_to_find) == 0) {
+			return true;
+		}
+	}
+	return false;
+}
 
 //---------------------------------------------------------------------------
 // Сохранение конфигурации в файл из хранилища конфигураций
@@ -42,18 +67,12 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	vector<TableRecord*> reces;
 	vector<String> extnames;
 
-	bool lastremoved;
-	bool removed;
-	bool datapacked;
-	int32_t lastver;
 	depot_ver depotVer;
 	uint32_t configVerMajor, configVerMinor;
 	PackDirectory pack_directory;
 	v8catalog* cat;
 	v8catalog* cath;
 	bool oldformat;
-	tree* t;
-	tree* tc;
 	tree* tv; // корень дерева файла versions
 	tree* tvc; // тек. элемент дерева файла versions
 	tree* tr; // корень дерева файла root
@@ -114,7 +133,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	boost::filesystem::path root_path(static_cast<std::string>(filename)); // путь к 1cd
 
 
-	if (try_save_snapshot(versions_iterator.current(), rootobj, root_path, filepath)) {
+	if (try_save_snapshot(versions_iterator.current(), ver, rootobj, root_path, filepath)) {
 		return true;
 	}
 
@@ -171,15 +190,13 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	}
 
 	Index *index_history = table_history->get_index("PK");
-	Index *index_externals = table_externals->get_index("PK");
 
 	TableRecord *rech1 = nullptr;
 	TableRecord *rech2 = nullptr;
-	TableRecord *rece = nullptr;
 	reces.resize(0);
 
 	auto HistoryIndex_numrec = index_history->get_numrecords();
-	auto ExternalsIndex_numrec = index_externals->get_numrecords();
+	IndexedTableIterator externals_iterator(table_externals, "PK");
 
 	if (boost::filesystem::exists(filepath)) {
 		boost::filesystem::remove(filepath);
@@ -204,33 +221,14 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	vermap[""] = GUIDasMS(uuid_gen().data);
 
 	{
-		String sversion;
-		{// Создаем и записываем файл version
-			String s;
-			t = new tree("", node_type::nd_list, nullptr);
-			tc = new tree("", node_type::nd_list, t);
-			tc = new tree("", node_type::nd_list, tc);
-			s = configVerMajor;
-			tc->add_child(s, node_type::nd_number);
-			s = configVerMinor;
-			tc->add_child(s, node_type::nd_number);
-			sversion = outtext(t);
-			delete t;
-		}
-
-		{
-			TStream *in = new TMemoryStream;
-			in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().size());
-			{
-				TStreamWriter sw(in, TEncoding::UTF8, 1024);
-				sw.Write(sversion);
-			}
-			TStream *out = new TMemoryStream;
-			in->Seek(0, soFromBeginning);
-			ZDeflateStream(in, out);
-			delete in;
-			extmap["version"] = out;
-		}
+		TStream *in = new TMemoryStream;
+		in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().size());
+		in->WriteString(serialize_version(configVerMajor, configVerMinor));
+		TStream *out = new TMemoryStream;
+		in->Seek(0, soFromBeginning);
+		ZDeflateStream(in, out);
+		delete in;
+		extmap["version"] = out;
 	}
 	vermap["version"] = GUIDasMS(uuid_gen().data);
 
@@ -249,11 +247,11 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		oldformat = false;
 	}
 
-	lastver = -1;
-	lastremoved = true;
+	int lastver = -1;
+	bool lastremoved = true;
 
 	BinaryGuid curobj;
-	for (uint32_t iHistory_Index = 0, ie = 0; iHistory_Index <= HistoryIndex_numrec; iHistory_Index++)
+	for (uint32_t iHistory_Index = 0; iHistory_Index <= HistoryIndex_numrec; iHistory_Index++)
 	{
 		if(iHistory_Index < HistoryIndex_numrec)
 		{
@@ -288,59 +286,41 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 					}
 
 					// Вот тут идем по EXTERNALS
-					while(true) {
-						if(ie > ExternalsIndex_numrec) break;
-						BinaryGuid current_external_guid;
-
-						if (rece != nullptr) {
-							current_external_guid = rece->get_guid(flde_objid);
-							if (current_external_guid > curobj) {
-								break;
-							}
+					while (!externals_iterator.eof()) {
+						const auto &rece = externals_iterator.current();
+						BinaryGuid current_external_guid = rece.get_guid(flde_objid);
+						if (current_external_guid > curobj) {
+							break;
 						}
-						if (rece != nullptr && current_external_guid == curobj) {
-							int32_t vernum = rece->get_string(flde_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
-							String s = rece->get_string(flde_extname);
-							if(vernum <= ver && rece->get_bool(flde_datapacked)) {
+
+						if (current_external_guid == curobj) {
+							int32_t vernum = rece.get_string(flde_vernum).ToIntDef();
+							String ext_name = rece.get_string(flde_extname);
+							if (vernum <= ver && rece.get_bool(flde_datapacked)) {
 								int32_t j;
 								bool found = false;
 								for (j = 0; j < reces.size(); j++) {
-									if (s.CompareIC(reces[j]->get_string(flde_extname)) == 0) {
-										reces[j] = rece;
+									if (ext_name.CompareIC(reces[j]->get_string(flde_extname)) == 0) {
+										reces[j] = new TableRecord(rece);
 										found = true;
 										break;
 									}
 								}
-								if (!found){
-									reces.push_back(rece);
+								if (!found) {
+									reces.push_back(new TableRecord(rece));
 								}
 							}
-							if(vernum == lastver)
-							{
-								extnames.resize(extnames.size() + 1);
-								extnames[extnames.size() - 1] = s;
+							if (vernum == lastver) {
+								extnames.push_back(ext_name);
 							}
 						}
-						if(ie == ExternalsIndex_numrec)
-						{
-							ie++;
-							break;
-						}
-						uint32_t num_rec = index_externals->get_numrec(ie++);
-						rece = table_externals->getrecord(num_rec);
+						externals_iterator.next();
 					}
-					for(int32_t j = 0; j < reces.size(); j++)
-					{
-						TableRecord *rec = reces[j];
+					for (auto rec : reces) {
 						String ext_name = rec->get_string(flde_extname);
-						bool ok = false;
-						for( const auto& name: extnames ) {
-							if(ext_name.CompareIC(name) == 0) {
-								ok = true;
-								break;
-							}
+						if (!contains_ic(extnames, ext_name)) {
+							continue;
 						}
-						if(!ok) continue;
 
 						TStream *out;
 						if (!try_store_blob_data(*rec, flde_extdata, false, flde_datahash, pack_directory, out)) {
@@ -370,14 +350,12 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 			int32_t vernum = rech2->get_string(fldh_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
 			if(vernum <= ver)
 			{
-				removed = rech2->get_bool(fldh_removed);
-				if(removed)
-				{
+				if (rech2->get_bool(fldh_removed)) {
 					lastremoved = true;
 				}
 				else
 				{
-					datapacked = false;
+					bool datapacked = false;
 					if (!rech2->is_null_value(fldh_datapacked)) {
 						if (rech2->get_bool(fldh_datapacked)) {
 							datapacked = true;
@@ -426,10 +404,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	{
 		TStream *in = new TMemoryStream;
 		in->Write(TEncoding::UTF8->GetPreamble(), TEncoding::UTF8->GetPreamble().size());
-		{
-			TStreamWriter sw(in, TEncoding::UTF8, 1024);
-			sw.Write(tree_text);
-		}
+		in->WriteString(tree_text);
 		in->Seek(0, soFromBeginning);
 		TStream *out = new TTempStream;
 		if (oldformat) {
@@ -485,6 +460,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 
 bool T_1CD::try_save_snapshot(const TableRecord &version_record,
+							  int ver,
 							  const BinaryGuid &rootobj,
 							  const boost::filesystem::path &root_path,
 							  const boost::filesystem::path &target_file_path) const
