@@ -589,31 +589,11 @@ bool try_store_blob_data(const TableRecord &record,
 						 PackDirectory &pack_directory,
 						 TStream *&out)
 {
-	if (record.is_null_value(data_field)) {
-		return false;
-	}
-	auto *b = (const table_blob_file *)record.get_data(data_field);
-	if (b->blob_start == 0 && b->blob_length == 0) {
-
-		if (hash_field == nullptr) {
-			return false;
-		}
-
-		bool found = false;
-		out = pack_directory.get_data(record.get_string(hash_field), found);
-		return found;
+	if (record.try_store_blob_data(data_field, out, inflate_stream)) {
+		return true;
 	}
 
-	out = new TTempStream;
-	if (inflate_stream) {
-		TMemoryStream in;
-		record.get_table()->readBlob(&in, b->blob_start, b->blob_length);
-		in.Seek(0, soFromBeginning);
-		ZInflateStream(&in, out);
-	}
-	else {
-		record.get_table()->readBlob(out, b->blob_start, b->blob_length);
-	}
-	out->Close();
-	return true;
+	bool found = false;
+	out = pack_directory.get_data(record.get_string(hash_field), found);
+	return found;
 }

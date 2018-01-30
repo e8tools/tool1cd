@@ -5,7 +5,8 @@
 #include "TableRecord.h"
 #include "Field.h"
 #include "Table.h"
-
+#include "TempStream.h"
+#include "UZLib.h"
 
 NullValueException::NullValueException(const Field *field)
 	: DetailedException("Запрошенное значение равно NULL")
@@ -167,4 +168,28 @@ String TableRecord::get_xml_string(const Field *field) const
 String TableRecord::get_xml_string(const String &field_name) const
 {
 	return get_xml_string(table->get_field(field_name));
+}
+
+bool TableRecord::try_store_blob_data(const Field *field, TStream *&out, bool inflate_stream) const
+{
+	if (is_null_value(field)) {
+		return false;
+	}
+	auto *b = (const table_blob_file *)get_data(field);
+	if (b->blob_start == 0 && b->blob_length == 0) {
+		return false;
+	}
+
+	out = new TTempStream;
+	if (inflate_stream) {
+		TMemoryStream in;
+		table->readBlob(&in, b->blob_start, b->blob_length);
+		in.Seek(0, soFromBeginning);
+		ZInflateStream(&in, out);
+	}
+	else {
+		table->readBlob(out, b->blob_start, b->blob_length);
+	}
+	out->Close();
+	return true;
 }

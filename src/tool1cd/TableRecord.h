@@ -62,6 +62,8 @@ public:
 
 	const Table *get_table() const { return table; }
 
+	bool try_store_blob_data(const Field *field, TStream* &out, bool inflate_stream = false) const;
+
 	~TableRecord();
 
 private:
