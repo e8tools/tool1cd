@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "System.hpp"
+#include <limits>
 
 namespace System {
 
@@ -71,7 +72,7 @@ public:
 
 	int ToInt() const;
 
-	int ToIntDef(int default_value) const;
+	int ToIntDef(int default_value = std::numeric_limits<int>::max()) const;
 
 	int Pos(const String &substr);
 
