@@ -59,6 +59,8 @@ public:
 
 	virtual int64_t Write(const std::vector<uint8_t> &Buffer, const int64_t Count);
 
+	virtual void    WriteString(const std::string &string);
+
 	virtual void    Close();
 
 	virtual ~TStream();

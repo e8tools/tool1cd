@@ -126,6 +126,11 @@ void TStream::Close()
 {
 }
 
+void TStream::WriteString(const std::string &string)
+{
+	Write(string.c_str(), string.size());
+}
+
 TStream::~TStream()
 {
 }
