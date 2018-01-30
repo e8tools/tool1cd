@@ -593,6 +593,10 @@ bool try_store_blob_data(const TableRecord &record,
 		return true;
 	}
 
+	if (!hash_field) {
+		return false;
+	}
+
 	bool found = false;
 	out = pack_directory.get_data(record.get_string(hash_field), found);
 	return found;
