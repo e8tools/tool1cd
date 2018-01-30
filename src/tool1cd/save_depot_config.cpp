@@ -268,7 +268,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				TStream *out;
 
 				String sObjId = rech1->get_guid(fldh_objid).as_MS();
-				if (!try_store_blob_data(*rech1, fldh_objdata, oldformat, nullptr, pack_directory, out)) {
+				if (!try_store_blob_data(*rech1, fldh_objdata, oldformat, fldh_datahash, pack_directory, out)) {
 					msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
 						"Таблица", "HISTORY",
 						"Объект", sObjId,
@@ -343,7 +343,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						if(!ok) continue;
 
 						TStream *out;
-						if (!try_store_blob_data(*rec, flde_extdata, false, nullptr, pack_directory, out)) {
+						if (!try_store_blob_data(*rec, flde_extdata, false, flde_datahash, pack_directory, out)) {
 							msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
 								"Таблица", "EXTERNALS",
 								"Объект", ext_name,
