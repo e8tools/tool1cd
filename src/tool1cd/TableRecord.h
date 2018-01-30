@@ -28,6 +28,7 @@ public:
 
 	// owns data
 	explicit TableRecord(const Table *parent, char *data = nullptr, int data_size = -1);
+	TableRecord(const TableRecord &another);
 
 	String get_string(const Field *field) const;
 	String get_string(const String &field_name) const;

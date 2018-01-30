@@ -30,6 +30,17 @@ TableRecord::TableRecord(const Table *parent, char *data, int data_size)
 
 }
 
+TableRecord::TableRecord(const TableRecord &another)
+: data(new char [another.get_table()->get_recordlen()]),
+  table(another.get_table()),
+  data_size(another.data_size)
+{
+	auto i = data_size;
+	while (i--) {
+		data[i] = another.data[i];
+	}
+}
+
 TableRecord::~TableRecord()
 {
 	if (data) {
