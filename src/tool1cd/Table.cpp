@@ -210,7 +210,7 @@ void Table::init(int32_t block_descr)
 		tree *field_tree = f->get_first();
 		try {
 
-			fields[i] = Field::field_from_tree(field_tree, has_version, this);
+			fields.push_back(Field::field_from_tree(field_tree, has_version, this));
 
 		} catch (FieldStreamParseException &formatError) {
 			throw formatError
@@ -868,9 +868,8 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 	int32_t i;
 	uint32_t j, numr, nr;
 	bool canwriteblob = false;
-	Index* curindex;
-	int32_t ic; // image count, количество полей с типом image
-	int32_t rc; // repeat count, количество повторов имени записи подряд (для случая, если индекс не уникальный)
+	Index* curindex = nullptr;
+	int32_t repeat_count; // количество повторов имени записи подряд (для случая, если индекс не уникальный)
 
 	char UnicodeHeader[3] = {'\xef', '\xbb', '\xbf'}; // BOM UTF-8
 	String part1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!--Файл сформирован программой Tool_1CD-->\r\n<Table Name=\"";
@@ -882,6 +881,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 	String fpart2 = "\" Type=\"";
 	String fpart3 = "\" Length=\"";
 	String fpart4 = "\" Precision=\"";
+	String fpart6 = "\" NotNull=\"";
 	String fpart5 = "\"/>\r\n";
 
 	String rpart1 = "\t\t<Record>\r\n";
@@ -891,44 +891,39 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 	status += name;
 	status += " ";
 
-	TFileStream* f = new TFileStream(_filename, fmCreate);
+	TFileStream f(_filename, fmCreate);
 
-	f->Write(UnicodeHeader, 3);
-	f->Write(part1.c_str(), part1.GetLength());
-	f->Write(name.c_str(), name.GetLength());
-	f->Write(part2.c_str(), part2.GetLength());
+	f.Write(UnicodeHeader, 3);
+	f.WriteString(part1);
+	f.WriteString(name);
+	f.WriteString(part2);
 
-	if(num_indexes)
-	{
-		curindex = indexes[0];
-		for(i = 0; i < num_indexes; i++) if(indexes[i]->get_is_primary())
-		{
-			curindex = indexes[i];
-			break;
+	auto primary = std::find_if(indexes.begin(), indexes.end(),
+	                           [](Index *index) { return index->get_is_primary();});
+	if (primary != indexes.end()) {
+		curindex= *primary;
+	}
+
+	int image_count; // количество полей с типом image
+	for (auto field : fields) {
+		f.WriteString(fpart1);
+		f.WriteString(field->getname());
+		f.WriteString(fpart2);
+		f.WriteString(field->get_presentation_type());
+		f.WriteString(fpart3);
+		f.WriteString(String(field->getlength()));
+		f.WriteString(fpart4);
+		f.WriteString(String(field->getprecision()));
+		f.WriteString(fpart6);
+		f.WriteString(((field->getnull_exists()) ? "false" : "true"));
+		f.WriteString(fpart5);
+
+		if (field->gettype() == type_fields::tf_image) {
+			image_count++;
 		}
 	}
-	else curindex = nullptr;
 
-	ic = 0;
-	for(i = 0; i < num_fields; i++)
-	{
-		f->Write(fpart1.c_str(), fpart1.GetLength());
-		us = &(fields[i]->name);
-		f->Write(us->c_str(), us->Length());
-		f->Write(fpart2.c_str(), fpart2.GetLength());
-		s = fields[i]->get_presentation_type();
-		f->Write(s.c_str(), s.GetLength());
-		f->Write(fpart3.c_str(), fpart3.GetLength());
-		s = fields[i]->getlength();
-		f->Write(s.c_str(), s.GetLength());
-		f->Write(fpart4.c_str(), fpart4.GetLength());
-		s = fields[i]->getprecision();
-		f->Write(s.c_str(), s.GetLength());
-		f->Write(fpart5.c_str(), fpart5.GetLength());
-		if(fields[i]->type_manager->gettype() == type_fields::tf_image) ic++;
-	}
-
-	f->Write(part3.c_str(), part3.GetLength());
+	f.WriteString(part3);
 
 	if(curindex) numr = curindex->get_numrecords();
 	else numr = numrecords_found;
@@ -936,7 +931,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 	msreg_g.Status(status);
 
 	recname = "";
-	rc = 0;
+	repeat_count = 0;
 	bool dircreated = false;
 	boost::filesystem::path dir(static_cast<std::string>(_filename) + ".blob");
 
@@ -944,30 +939,27 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 	{
 		if(j % 100 == 0 && j) msreg_g.Status(status + j);
 
-		f->Write(rpart1.c_str(), rpart1.GetLength());
+		f.Write(rpart1.c_str(), rpart1.GetLength());
 		if(curindex) nr = curindex->get_numrec(j);
 		else nr = recordsindex[j];
 		std::shared_ptr<TableRecord> rec (getrecord(nr));
-		if(ic){
+		if (image_count) {
 			String filename = get_file_name_for_record(rec.get());
 			if (filename.CompareIC(recname) == 0) {
-				rc++;
+				repeat_count++;
 			} else {
 				recname = filename;
-				rc = 0;
+				repeat_count = 0;
 			}
 		}
-		for(i = 0; i < num_fields; i++)
-		{
+		for (auto field : fields) {
 			String outputvalue;
-			f->Write(rpart3.c_str(), rpart3.GetLength());
-			String *field_name = &(fields[i]->name);
-			f->Write(field_name->c_str(), field_name->Length());
+			f.WriteString(rpart3);
+			f.WriteString(field->getname());
 
 			bool output_is_null = false;
 
-			if(blob_to_file && fields[i]->type_manager->gettype() == type_fields::tf_image)
-			{
+			if (blob_to_file && field->type_manager->gettype() == type_fields::tf_image) {
 				if(!dircreated) {
 					try
 					{
@@ -990,21 +982,21 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 				if(canwriteblob)
 				{
 					outputvalue = recname;
-					if(ic > 1)
+					if(image_count > 1)
 					{
 						if (outputvalue.size()) {
 							outputvalue += "_";
 						}
-						outputvalue += fields[i]->name;
+						outputvalue += field->name;
 					}
-					if(rc)
+					if(repeat_count)
 					{
 						outputvalue += "_";
-						outputvalue += rc + 1;
+						outputvalue += repeat_count + 1;
 					}
 
 					dir /= static_cast<std::string>(outputvalue);
-					if(!fields[i]->save_blob_to_file(rec.get(), dir.string(), unpack)) {
+					if(!field->save_blob_to_file(rec.get(), dir.string(), unpack)) {
 						outputvalue = "{NULL}";
 						output_is_null = true;
 					}
@@ -1012,30 +1004,29 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 				else outputvalue = "{ERROR}";
 			}
 			else {
-				if (rec->is_null_value(fields[i])) {
+				if (rec->is_null_value(field)) {
 					outputvalue = "{NULL}";
 					output_is_null = true;
 				} else {
-					outputvalue = rec->get_xml_string(fields[i]);
+					outputvalue = rec->get_xml_string(field);
 				}
 			}
 
 			if (output_is_null) {
-				f->Write("/>\r\n", 4);
+				f.WriteString("/>\r\n");
 			} else {
-				f->Write(">", 1);
-				f->Write(outputvalue.c_str(), outputvalue.GetLength());
-				f->Write("</", 2);
-				f->Write(field_name->c_str(), field_name->Length());
-				f->Write(">\r\n", 3);
+				f.WriteString(">");
+				f.WriteString(outputvalue);
+				f.WriteString("</");
+				f.WriteString(field->getname());
+				f.WriteString(">\r\n");
 			}
 		}
-		f->Write(rpart2.c_str(), rpart2.GetLength());
+		f.WriteString(rpart2);
 
 	}
-	f->Write(part4.c_str(), part4.GetLength());
+	f.WriteString(part4);
 
-	delete f;
 	msreg_g.Status("");
 	return true;
 }

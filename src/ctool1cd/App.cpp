@@ -72,7 +72,6 @@ void App::export_all_to_xml(const ParsedCommand &pc)
 void App::export_to_xml(const ParsedCommand &pc)
 {
 	boost::regex *expr = nullptr;
-	Table *tbl = nullptr;
 
 	boost::filesystem::path root_path(static_cast<string>(pc.param1));
 	if (!directory_exists(root_path)) {
@@ -110,7 +109,7 @@ void App::export_to_xml(const ParsedCommand &pc)
 	}
 
 	for (int j = 0; j < base1CD->get_numtables(); j++) {
-		tbl = base1CD->gettable(j);
+		Table *tbl = base1CD->gettable(j);
 
 		bool b = false;
 
@@ -122,9 +121,7 @@ void App::export_to_xml(const ParsedCommand &pc)
 		}
 
 		if (b) {
-			if (!tbl->get_numindexes()) {
-				tbl->fillrecordsindex();
-			}
+			tbl->fillrecordsindex();
 
 			boost::filesystem::path filetable = root_path / static_cast<string>(tbl->getname() + ".xml");
 			tbl->export_to_xml(filetable.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
