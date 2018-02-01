@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "System.hpp"
+#include <limits>
 
 namespace System {
 
@@ -21,7 +22,7 @@ public:
 
 	String(const char *src, int limit_size);
 
-	explicit String(const std::vector<t::Byte> &bytes);
+	explicit String(const std::vector<uint8_t> &bytes, int offset = 0, int size = -1);
 
 	String(const WCHART *w_src, int limit_size);
 
@@ -71,7 +72,7 @@ public:
 
 	int ToInt() const;
 
-	int ToIntDef(int default_value) const;
+	int ToIntDef(int default_value = std::numeric_limits<int>::max()) const;
 
 	int Pos(const String &substr);
 

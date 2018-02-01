@@ -13,6 +13,7 @@
 #include "Field.h"
 #include "Index.h"
 #include "Class_1CD.h"
+#include "TableRecord.h"
 
 static const uint32_t BLOB_RECORD_LEN = 256;
 static const uint32_t BLOB_RECORD_DATA_LEN = 250;
@@ -96,7 +97,7 @@ friend changed_rec;
 friend T_1CD;
 public:
 	//--> поддержка динамического построения таблицы записей
-	uint32_t* recordsindex; // массив индексов записей по номеру (только не пустые записи)
+	std::vector<uint32_t> recordsindex; // массив индексов записей по номеру (только не пустые записи)
 	bool recordsindex_complete; // признак заполнености recordsindex
 	uint32_t numrecords_review; // количество просмотренных записей всего в поиске не пустых
 	uint32_t numrecords_found; // количество найденных непустых записей (текущий размер recordsindex)
@@ -108,16 +109,17 @@ public:
 	Table(T_1CD* _base, int32_t block_descr);
 	Table(T_1CD* _base, String _descr, int32_t block_descr = 0);
 	~Table();
-	void init(int32_t block_descr = 0);
+	void init();
+	void init(int32_t block_descr);
 
-	String getname();
-	String getdescription();
-	int32_t get_numfields();
-	int32_t get_numindexes();
+	String getname() const;
+	String getdescription() const;
+	int32_t get_numfields() const;
+	int32_t get_numindexes() const;
 	Field* getfield(int32_t numfield);
 	Index* getindex(int32_t numindex);
 	bool get_issystem();
-	int32_t get_recordlen();
+	int32_t get_recordlen() const;
 	bool get_recordlock();
 
 	uint32_t get_phys_numrecords(); // возвращает количество записей в таблице всего, вместе с удаленными
@@ -125,9 +127,10 @@ public:
 	void set_log_numrecords(uint32_t _log_numrecords); //
 	uint32_t get_added_numrecords();
 
-	char* getrecord(uint32_t phys_numrecord, char* buf); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
-	TStream* readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, bool rewrite = true);
-	uint32_t readBlob(void* _buf, uint32_t _startblock, uint32_t _length);
+	TableRecord *getrecord(uint32_t phys_numrecord); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
+	void getrecord(uint32_t phys_numrecord, char *buf);
+	TStream* readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, bool rewrite = true) const;
+	uint32_t readBlob(void* _buf, uint32_t _startblock, uint32_t _length) const;
 	void set_lockinmemory(bool _lock);
 	bool export_to_xml(String filename, bool blob_to_file, bool unpack);
 
@@ -137,12 +140,12 @@ public:
 
 	uint64_t get_fileoffset(uint32_t phys_numrecord); // получить физическое смещение в файле записи по номеру
 
-	char* get_edit_record(uint32_t phys_numrecord, char* buf); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
+	TableRecord *get_edit_record(uint32_t phys_numrecord); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
 	bool get_edit();
 
 	uint32_t get_phys_numrec(int32_t ARow, Index* cur_index); // получить физический индекс записи по номеру строки по указанному индексу
 	String get_file_name_for_field(int32_t num_field, char* rec, uint32_t numrec = 0); // получить имя файла по-умолчанию конкретного поля конкретной записи
-	String get_file_name_for_record(char* rec); // получить имя файла по-умолчанию конкретной записи
+	String get_file_name_for_record(const TableRecord *rec); // получить имя файла по-умолчанию конкретной записи
 	T_1CD* getbase(){return base;}
 
 	void begin_edit(); // переводит таблицу в режим редактирования
@@ -158,12 +161,14 @@ public:
 	void import_table(const String &path);
 
 	void delete_record(uint32_t phys_numrecord); // удаление записи
-	void insert_record(char* rec); // добавление записи
+	void insert_record(const TableRecord *rec); // добавление записи
 	void update_record(uint32_t phys_numrecord, char* rec, char* changed_fields); // изменение записи
 	char* get_record_template_test();
 
-	Field* get_field(const String& fieldname);
-	Index* get_index(const String& indexname);
+	Field* get_field (const String &fieldname) const;
+	Field* find_field(const String &fieldname) const throw();
+	Index* get_index (const String& indexname) const;
+	Index* find_index(const String& indexname) const throw();
 
 private:
 	T_1CD* base;
@@ -172,10 +177,9 @@ private:
 	String description;
 	String name;
 	int32_t num_fields;
-	int32_t num_fields2; // количество элементов в массиве fields
-	Field** fields;
+	std::vector<Field*> fields;
 	int32_t num_indexes;
-	Index** indexes;
+	std::vector<Index*> indexes;
 	bool recordlock;
 	v8object* file_data;
 	v8object* file_blob;
@@ -203,11 +207,11 @@ private:
 	void delete_data_record(uint32_t phys_numrecord); // удаление записи из файла data
 	void delete_blob_record(uint32_t blob_numrecord); // удаление записи из файла blob
 	void delete_index_record(uint32_t phys_numrecord); // удаление всех индексов записи из файла index
-	void delete_index_record(uint32_t phys_numrecord, char* rec); // удаление всех индексов записи из файла index
-	void write_data_record(uint32_t phys_numrecord, char* rec); // запись одной записи в файл data
+	void delete_index_record(uint32_t phys_numrecord, const TableRecord *rec); // удаление всех индексов записи из файла index
+	void write_data_record(uint32_t phys_numrecord, const TableRecord *rec); // запись одной записи в файл data
 	uint32_t write_blob_record(char* blob_record, uint32_t blob_len); // записывает НОВУЮ запись в файл blob, возвращает индекс новой записи
 	uint32_t write_blob_record(TStream* bstr); //  // записывает НОВУЮ запись в файл blob, возвращает индекс новой записи
-	void write_index_record(const uint32_t phys_numrecord, const char* rec); // запись индексов записи в файл index
+	void write_index_record(const uint32_t phys_numrecord, const TableRecord *rec); // запись индексов записи в файл index
 
 	bool bad; // признак битой таблицы
 };

@@ -8,7 +8,7 @@
 #include "TableFileStream.h"
 
 //---------------------------------------------------------------------------
-TableFileStream::TableFileStream(table_file* tf)
+TableFileStream::TableFileStream(TableFile* tf)
 {
 	curoffset = 0;
 	tablefile = tf;
@@ -77,7 +77,7 @@ int64_t TableFileStream::Read(void *Buffer, int64_t Count)
 }
 
 //---------------------------------------------------------------------------
-int32_t TableFileStream::Read(std::vector<System::t::Byte> Buffer, int32_t Offset, int32_t Count)
+int32_t TableFileStream::Read(std::vector<uint8_t> Buffer, int32_t Offset, int32_t Count)
 {
 	// TODO: реализовать TableFileStream::Read(System::DynamicArray<System::t::Byte> Buffer, int32_t Offset, int32_t Count)
 	return 0;

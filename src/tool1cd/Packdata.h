@@ -34,7 +34,7 @@ public:
 	explicit Packdata(boost::filesystem::path& file_path);
 	~Packdata() = default;
 
-	TStream* get_data(const char* datahash, bool &find);
+	TStream* get_data(const char* datahash, bool &found);
 private:
 	std::unique_ptr<TFileStream> pack;	// открытый на чтение файл *.pck
 	std::vector<record_data_hash> datahashes;

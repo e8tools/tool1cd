@@ -24,12 +24,6 @@ typedef int64_t          LONGLONG;
 typedef uint64_t         ULONGLONG;
 typedef long             LONG;
 
-
-
-namespace t { // в msvc конфликтует с zlib
-typedef uint8_t Byte;
-}
-
 typedef struct _FILETIME {
 
 	DWORD dwLowDateTime;
@@ -79,7 +73,7 @@ struct TGUID {
   LongWord D1;
   Word     D2;
   Word     D3;
-  t::Byte  D4[8];
+  uint8_t  D4[8];
 };
 
 bool operator == (const TGUID &a, const TGUID &b);

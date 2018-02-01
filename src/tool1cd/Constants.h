@@ -2,6 +2,7 @@
 #define CONSTANTS_H
 
 #include "String.hpp"
+#include "BinaryGuid.h"
 
 const unsigned int LIVE_CASH = 5; // время жизни кешированных данных в минутах
 
@@ -163,8 +164,8 @@ const unsigned int DATAHASH_FIELD_LENGTH = 20;
 
 
 const String EMPTY_GUID = "00000000-0000-0000-0000-000000000000";
-const String SNAPSHOT_VER1 = "3721ca9e-a272-496b-a093-206ea7629574";
-const String SNAPSHOT_VER2 = "6fdfdf78-062a-46bb-8402-62145ae55764";
+const BinaryGuid SNAPSHOT_VER1(std::string("3721ca9e-a272-496b-a093-206ea7629574"));
+const BinaryGuid SNAPSHOT_VER2(std::string("6fdfdf78-062a-46bb-8402-62145ae55764"));
 
 const String NODE_GENERAL = "9cd510cd-abfc-11d4-9434-004095e12fc7";
 

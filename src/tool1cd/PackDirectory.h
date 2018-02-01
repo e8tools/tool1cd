@@ -20,9 +20,10 @@ public:
 	virtual ~PackDirectory();
 
 	void init(boost::filesystem::path& init_path);
-	TStream* get_data(const char* datahash, bool &find);
+	TStream* get_data(const std::string &datahash, bool &found);
 private:
 	std::vector<std::shared_ptr<Packdata>> packdates;
+	boost::filesystem::path objects_path;
 };
 
 #endif /* SRC_CTOOL1CD_PACKDIRECTORY_H_ */

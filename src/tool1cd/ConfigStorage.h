@@ -2,14 +2,15 @@
 #ifndef ConfigStorageH
 #define ConfigStorageH
 
+#include <boost/filesystem.hpp>
 #include <System.Classes.hpp>
 #include <vector>
 #include <map>
 #include <set>
 
-#include "APIcfBase.h"
 #include "TableFiles.h"
 #include "Class_1CD.h"
+#include "cfapi/V8File.h"
 
 
 //---------------------------------------------------------------------------
@@ -78,9 +79,9 @@ enum class table_file_packed
 
 //---------------------------------------------------------------------------
 // Структура файла контейнера файлов
-struct container_file
+struct ContainerFile
 {
-	table_file* file;
+	TableFile* file;
 	String name; // Приведенное имя (очищенное от динамического обновления)
 	TStream* stream;
 	TStream* rstream; // raw stream (нераспакованный поток)
@@ -88,8 +89,8 @@ struct container_file
 	table_file_packed packed;
 	int dynno; // Номер (индекс) динамического обновления (0, 1 и т.д.). Если без динамического обновления, то -1, если UID динамического обновления не найден, то -2. Для пропускаемых файлов -3.
 
-	container_file(table_file* _f, const String& _name);
-	~container_file();
+	ContainerFile(TableFile* _f, const String& _name);
+	~ContainerFile();
 	bool open();
 	bool ropen(); // raw open
 	void close();
@@ -106,12 +107,13 @@ public:
 	virtual ConfigFile* readfile(const String& path) override;
 	virtual bool writefile(const String& path, TStream* str) override;
 	virtual void close(ConfigFile* cf) override;
-	bool save_config(String _filename); // сохранение конфигурации в файл
+	// сохранение конфигурации в файл
+	bool save_config(const boost::filesystem::path& file_name);
 	bool getready(){return ready;}
 	virtual bool fileexists(const String& path) override;
 
 protected:
-	std::map<String,container_file*> files;
+	std::map<String,ContainerFile*> files;
 	bool ready{false};
 private:
 	T_1CD* base; // установлена, если база принадлежит адаптеру конфигурации
@@ -161,7 +163,7 @@ private:
 class ConfigStorageTableConfigCasSave : public ConfigStorageTable
 {
 public:
-	ConfigStorageTableConfigCasSave(TableFiles* tabc, TableFiles* tabcs, const TGUID& uid, const String& configver, T_1CD* _base = nullptr);
+	ConfigStorageTableConfigCasSave(TableFiles* tabc, TableFiles* tabcs, const BinaryGuid& uid, const String& configver, T_1CD* _base = nullptr);
 	virtual String presentation() override;
 	virtual ~ConfigStorageTableConfigCasSave() = default;
 

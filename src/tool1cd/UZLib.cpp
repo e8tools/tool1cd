@@ -62,11 +62,12 @@ bool ZDeflateStream(TStream* src, TStream* dst)
 			assert(ret != Z_STREAM_ERROR);  // state not clobbered
 			have = CHUNKSIZE - strm.avail_out;
 
-			int data_written = dst->Write(out, have);
-
-			if (data_written < have) {
-				(void)deflateEnd(&strm);
-				return false; //  Z_ERRNO
+			if (have > 0) {
+				int data_written = dst->Write(out, have);
+				if (data_written < have) {
+					(void) deflateEnd(&strm);
+					return false; //  Z_ERRNO
+				}
 			}
 		} while (strm.avail_out == 0);
 		assert(strm.avail_in == 0);     // all input will be used
@@ -213,6 +214,17 @@ void ZInflateStream(TStream* src, TStream* dst)
 
 }
 
+
+void ZInflateOrCopy(TStream *src, TStream *dst)
+{
+	try {
+
+		ZInflateStream(src, dst);
+
+	} catch (ZError &zlib_error) {
+		dst->CopyFrom(src, 0);
+	}
+}
 
 /* Decompress from file source to file dest until stream ends or EOF.
    inf() returns Z_OK on success, Z_MEM_ERROR if memory could not be

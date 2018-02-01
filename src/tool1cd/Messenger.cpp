@@ -11,7 +11,7 @@ Messenger::Messenger()
 	has_error = false;
 	logfile = "";
 	noverbose = false;
-
+	minimal_state = MessageState::Empty;
 }
 
 //---------------------------------------------------------------------------
@@ -22,8 +22,12 @@ void Messenger::Status(const String& message)
 }
 
 //---------------------------------------------------------------------------
-void Messenger::AddMessage(const String& message, const MessageState mstate, TStringList* param)
+void Messenger::AddMessage(const String &message, const MessageState mstate, const TStringList *param)
 {
+	if (mstate < minimal_state) {
+		return;
+	}
+
 	shared_ptr<ostream> output (&cerr, [](...){} );
 
 	if (!logfile.IsEmpty()) {
@@ -43,4 +47,9 @@ void Messenger::setlogfile(String _logfile)
 {
 	logfile = System::Ioutils::TPath::GetFullPath(_logfile);
 	if(FileExists(logfile)) DeleteFile(logfile);
+}
+
+void Messenger::set_log_level(const MessageState _minimal_state)
+{
+	minimal_state = _minimal_state;
 }

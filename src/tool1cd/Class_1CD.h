@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "MessageRegistration.h"
-#include "APIcfBase.h"
 #include "db_ver.h"
 #include "Parse_tree.h"
 #include "V8Object.h"
@@ -16,6 +15,11 @@
 #include "Table.h"
 #include "TableFiles.h"
 #include "MemBlock.h"
+#include "cfapi/V8File.h"
+#include "cfapi/V8Catalog.h"
+#include "cfapi/TV8FileStream.h"
+#include "SupplierConfig.h"
+#include "TableRecord.h"
 
 //---------------------------------------------------------------------------
 
@@ -23,8 +27,9 @@ class T_1CD;
 class Table;
 class v8object;
 class Field;
-class table_file;
+struct TableFile;
 class TableFiles;
+class SupplierConfig;
 
 class ConfigStorageTableConfig;
 class ConfigStorageTableConfigSave;
@@ -90,16 +95,6 @@ union root
 	root_81 root81;
 };
 
-// класс конфигурации поставщика
-class SupplierConfig
-{
-public:
-	table_file* file;
-	String name; // имя конфигурация поставщика
-	String supplier; // синоним конфигурация поставщика
-	String version; // версия конфигурация поставщика
-};
-
 // Типы страниц
 enum class pagetype
 {
@@ -160,9 +155,12 @@ friend Table;
 friend Index;
 friend Field;
 public:
+
+	typedef std::vector<std::shared_ptr<SupplierConfig>> SupplierConfigs;
+
 	static bool recoveryMode;
 	char* locale; // код языка базы
-	bool is_infobase; // признак информационной базы
+	inline bool is_infobase() const { return _is_infobase; }
 	bool is_depot; // признак хранилища конфигурации
 
 	// Таблицы информационной базы
@@ -193,9 +191,6 @@ public:
 
 	String ver;
 
-	std::vector<SupplierConfig> supplier_configs; // конфигурации поставщика
-	bool supplier_configs_defined; // признак, что был произведен поиск конфигураций поставщика
-
 	T_1CD(String _filename, MessageRegistrator* mess = nullptr, bool monopoly = true);
 	T_1CD();
 	~T_1CD();
@@ -204,15 +199,13 @@ public:
 	Table* gettable(int32_t numtable);
 	db_ver getversion();
 
-	bool save_config(String filename);
-	bool save_configsave(String filename);
-	void find_supplier_configs();
-	bool save_supplier_configs(uint32_t numcon, const String& filename);
+	bool save_config(const boost::filesystem::path &file_name);
+	bool save_configsave(const boost::filesystem::path &file_name);
 	bool save_depot_config(const String& _filename, int32_t ver = 0);
 	bool save_part_depot_config(const String& _filename, int32_t ver_begin, int32_t ver_end);
 	int32_t get_ver_depot_config(int32_t ver); // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
-	bool save_config_ext(const String& _filename, const System::TGUID& uid, const String& hashname);
-	bool save_config_ext_db(const String& _filename, const String& hashname);
+	bool save_config_ext(const boost::filesystem::path &file_name, const BinaryGuid& uid, const String& hashname);
+	bool save_config_ext_db(const boost::filesystem::path &file_name, const String& hashname);
 		
 	bool get_readonly();
 	void set_readonly(bool ro);
@@ -231,8 +224,10 @@ public:
 	bool test_block_by_template(uint32_t testblock, char* tt, uint32_t num, int32_t rlen, int32_t len);
 	String& getfilename(){return filename;}
 	uint32_t getpagesize(){return pagesize;}
+
+	SupplierConfigs& supplier_configs();
 private:
-	Registrator msreg_m;
+	mutable Registrator msreg_m;
 	String filename;
 	TFileStream* fs;
 
@@ -245,6 +240,12 @@ private:
 	Table** tables; // таблицы базы
 	bool readonly;
 	pagemaprec* pagemap; // Массив длиной length
+
+	SupplierConfigs _supplier_configs; // конфигурации поставщика
+	bool supplier_configs_defined {false}; // признак, что был произведен поиск конфигураций поставщика
+	void find_supplier_configs();
+
+	bool _is_infobase; // признак информационной базы
 
 	TableFiles* _files_config;
 	TableFiles* _files_configsave;
@@ -267,7 +268,7 @@ private:
 	void set_block_as_free(uint32_t block_number); // пометить блок как свободный
 	uint32_t get_free_block(); // получить номер свободного блока (и пометить как занятый)
 
-	void add_supplier_config(table_file* file);
+	void add_supplier_config(TableFile* file);
 
 	bool recursive_test_stream_format(Table* t, uint32_t nrec);
 	bool recursive_test_stream_format2(Table* t, uint32_t nrec); // для DBSCHEMA
@@ -277,12 +278,15 @@ private:
 	void pagemapfill();
 	String pagemaprec_presentation(pagemaprec& pmr);
 
-	depot_ver get_depot_version(const char *record);
+	depot_ver get_depot_version(const TableRecord &record);
+
+	void assert_i_am_a_repository();
+	bool try_save_snapshot(const TableRecord &version_record,
+						   int ver,
+						   const BinaryGuid &rootobj,
+						   const boost::filesystem::path &root_path,
+						   const boost::filesystem::path &target_file_path) const;
 };
 
-//---------------------------------------------------------------------------
-tree* get_treeFromV8file(v8file* f);
-
-//---------------------------------------------------------------------------
 #endif
 

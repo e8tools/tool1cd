@@ -1,3 +1,15 @@
+ctool1cd (1.0.0-10~trusty) trusty; urgency=low
+
+  * Dump vendors config.
+
+ -- Sergey Batanov <sergey.batanov@dmpas.ru>  Sat, 20 Jan 2018 21:42:10 +0300
+
+ctool1cd (1.0.0-8~trusty) trusty; urgency=low
+
+  * Some test release.
+
+ -- Sergey Batanov <sergey.batanov@dmpas.ru>  Thu, 11 Jan 2018 08:11:00 +0300
+
 ctool1cd (1.0.0-6~trusty) trusty; urgency=low
 
   * Some test release.

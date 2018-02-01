@@ -6,23 +6,25 @@
 #include <sstream>
 #include <iomanip>
 
-void time1CD_to_FileTime(System::FILETIME* ft, unsigned char* time1CD);
+void time1CD_to_FileTime(System::FILETIME *ft, const void *time1CD);
 unsigned int reverse_byte_order(unsigned int value);
-String GUIDas1C(const unsigned char* fr);
-String GUIDasMS(const unsigned char* fr);
-String GUID_to_string(const System::TGUID& guid);
-bool string_to_GUID(const String& str, System::TGUID* guid);
-String GUID_to_string_flat(System::TGUID* guid);
-bool string_to_GUID_flat(const String& str, System::TGUID* guid);
 bool two_hex_digits_to_byte(const wchar_t hi, const wchar_t lo, unsigned char& res);
-bool string1C_to_date(const String& str, unsigned char* bytedate);
-bool string_to_date(const String& str, unsigned char* bytedate);
-String date_to_string1C(const unsigned char* bytedate);
-String date_to_string(const unsigned char* bytedate);
-String hexstring(char* buf, int n);
+bool string1C_to_date(const String &str, void *bytedate);
+bool string_to_date(const String &str, void *bytedate);
+String date_to_string1C(const void *bytedate);
+String date_to_string(const void *bytedate);
+String hexstring(const char *buf, int n);
 String hexstring(TStream* str);
-String toXML(String in);
+String toXML(const String &in);
 unsigned char from_hex_digit(char digit);
+
+//---------------------------------------------------------------------------
+// Структура адреса файла таблицы-контейнера файлов
+struct table_blob_file
+{
+	uint32_t blob_start;
+	uint32_t blob_length;
+};
 
 template< typename T >
 String to_hex_string( T num, bool prefix = true ) {

@@ -1,12 +1,14 @@
 #ifndef CTOOL1CD_APPH
 #define CTOOL1CD_APPH
 
+#include <boost/filesystem.hpp>
 #include <memory>
 
 #include "Class_1CD.h"
 #include "ParseCommandLine.h"
 #include "String.hpp"
 #include "Messenger.h"
+#include "cfapi/APIcfBase.h"
 
 class App {
 public:
@@ -33,8 +35,13 @@ private:
 	void export_to_binary(const ParsedCommand& pc);
 	void import_from_binary(const ParsedCommand& pc);
 
+	void save_config(const boost::filesystem::path& param_path);
 	void save_config(const ParsedCommand& pc);
+
+	void save_configsave(const boost::filesystem::path& param_path);
 	void save_configsave(const ParsedCommand& pc);
+
+	void save_vendors_configs(const boost::filesystem::path& param_path);
 	void save_vendors_configs(const ParsedCommand& pc);
 	void save_all_configs(const ParsedCommand& pc);
 
@@ -42,6 +49,8 @@ private:
 	void save_depot_config_part(const ParsedCommand& pc);
 
 	void find_and_save_lost_objects(const ParsedCommand& pc);
+
+	inline bool is_infobase() const;
 
 };
 

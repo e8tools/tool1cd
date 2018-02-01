@@ -5,37 +5,18 @@
 
 
 #include <System.Classes.hpp>
-
 #include <string>
-#include <exception>
 
+#include "DetailedException.h"
 #include "zlib.h"
 
-class ZError: public std::exception
+class ZError: public DetailedException
 {
 public:
-    explicit ZError(const char* message):
-      msg_m(message)
-      {
-      }
-
-    explicit ZError(const wchar_t* message):
-      msg_m("")
-      {
-      }
-
-    explicit ZError(const std::string& message):
-      msg_m(message)
-      {}
-
-    virtual ~ZError() noexcept {}
-
-    virtual const char* what() const noexcept {
-       return msg_m.c_str();
-    }
-
-private:
-    std::string msg_m;
+		explicit ZError(const String &message) throw()
+		: DetailedException(message)
+	{}
+		virtual ~ZError() noexcept {}
 };
 
 //---------------------------------------------------------------------------
@@ -65,14 +46,14 @@ public:
 	 *
 	 * @return true if not data are available in input
 	 */
-	bool isInEmpty() const { return z_stream_.avail_in == 0; };
+	bool isInEmpty() const { return z_stream_.avail_in == 0; }
 
 	/*!
 	 * @briet Byte available in output
 	 *
 	 * @return true if not data are available in output
 	 */
-	bool isOutEmpty() const { return z_stream_.avail_out == 0; };
+	bool isOutEmpty() const { return z_stream_.avail_out == 0; }
 
 	/*!
 	 * @brief Stream input complete on inflate
@@ -111,7 +92,7 @@ public:
 	/*!
 	 * @brief Mark as complete the write operation
 	 */
-	void flush() { flush_ = true; };
+	void flush() { flush_ = true; }
 
 protected:
 	z_stream z_stream_;
@@ -149,6 +130,8 @@ class ZInflateStream : ZStreamBase
 
 void ZInflateStream(TStream* src, TStream* dst);
 bool ZDeflateStream(TStream* src, TStream* dst);
+
+void ZInflateOrCopy(TStream *src, TStream *dst);
 
 int inf(FILE *source, FILE *dest);
 int def(FILE *source, FILE *dest, int level);
