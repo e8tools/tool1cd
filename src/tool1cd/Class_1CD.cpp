@@ -1794,9 +1794,9 @@ bool T_1CD::test_list_of_tables()
 
 		hasDBNames = true;
 
-		auto bp = (const table_blob_file *) rec->get_data(f_binary_data);
+		auto bp = rec->get<table_blob_file>(f_binary_data);
 		str = new TMemoryStream();
-		table_params->readBlob(str, bp->blob_start, bp->blob_length);
+		table_params->readBlob(str, bp.blob_start, bp.blob_length);
 
 		String slen = rec->get_string(f_data_size);
 		try

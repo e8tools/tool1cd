@@ -181,21 +181,21 @@ bool Field::save_blob_to_file(const TableRecord *rec, String _filename, bool unp
 		return false;
 	}
 
-	auto bp = (const table_blob_file *)rec->get_data(this);
-	if (bp->blob_start == 0 || bp->blob_length == 0) {
+	auto bp = rec->get<table_blob_file>(this);
+	if (bp.blob_start == 0 || bp.blob_length == 0) {
 		return false;
 	}
 
 	if(!unpack) {
 		TFileStream temp_stream(_filename, fmCreate);
-		parent->readBlob(&temp_stream, bp->blob_start, bp->blob_length);
+		parent->readBlob(&temp_stream, bp.blob_start, bp.blob_length);
 		return true;
 	}
 
-	bool usetemporaryfiles = *(uint32_t*)(rec + 4) > 10 * 1024 * 1024;
+	bool usetemporaryfiles = bp.blob_length > 10 * 1024 * 1024;
 	if(usetemporaryfiles) blob_stream = new TTempStream;
 	else blob_stream = new TMemoryStream;
-	parent->readBlob(blob_stream, bp->blob_start, bp->blob_length);
+	parent->readBlob(blob_stream, bp.blob_start, bp.blob_length);
 	if(blob_stream->GetSize() == 0)
 	{
 		delete blob_stream;

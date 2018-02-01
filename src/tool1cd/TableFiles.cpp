@@ -73,16 +73,15 @@ TableFiles::TableFiles(Table* t)
 		if(record->is_removed()) {
 			continue;
 		}
-		auto b = (const table_blob_file *)record->get_data(fld_blob_pointer);
-		if (b->blob_start == 0 || b->blob_length == 0) {
+		auto b = record->get<table_blob_file>(fld_blob_pointer);
+		if (b.blob_start == 0 || b.blob_length == 0) {
 			continue;
 		}
 
 		tr.name = record->get_string(filename);
 		if(tr.name.IsEmpty()) continue;
 
-		tr.addr.blob_start = b->blob_start;
-		tr.addr.blob_length = b->blob_length;
+		tr.addr = b;
 
 		if(partno) tr.partno = record->get_string(partno).ToIntDef(0);
 		else tr.partno = 0;

@@ -10,8 +10,8 @@
 #include "DetailedException.h"
 #include "BinaryGuid.h"
 
-class Table;
 class Field;
+class Table;
 
 class NullValueException : public DetailedException {
 public:
@@ -22,6 +22,17 @@ class FieldCannotBeNullException : public DetailedException {
 public:
 	FieldCannotBeNullException(const Field *field);
 };
+
+namespace RecordConverters {
+
+	template <typename T>
+	void convert(const char *data, T &result)
+	{
+		result = *(reinterpret_cast<const T*>(data));
+	}
+
+	void convert(const char *data, BinaryGuid &result);
+}
 
 class TableRecord {
 public:
@@ -42,17 +53,27 @@ public:
 	void set_null(const Field *field);
 	void set_data(const Field *field, const void *data);
 
-	BinaryGuid get_guid(const Field *field) const;
-	BinaryGuid get_guid(const String &field_name) const;
+	template <typename T>
+	T get (const Field *f, const T default_value = T()) const
+	{
+		if (is_null_value(f)) {
+			return default_value;
+		}
 
-	bool get_bool(const Field *field) const;
-	bool get_bool(const String &field_name) const;
+		T result;
+		RecordConverters::convert(get_data(f), result);
+		return result;
+	}
 
-	// TODO: get_raw не нужен
+	template <typename T>
+	T get(const String &field_name, const T default_value = T()) const
+	{
+		return get(get_field(field_name), default_value);
+	}
+
 	const char *get_raw(const Field *field) const;
 	const char *get_raw(const String &field_name) const;
 
-	// TODO: get_data не нужен
 	// в случае null_exists get_data вернёт get_raw + 1, иначе get_raw
 	const char *get_data(const Field *field) const;
 	const char *get_data(const String &field_name) const;
@@ -68,6 +89,8 @@ public:
 	~TableRecord();
 
 private:
+	const Field *get_field(const String &field_name) const;
+
 	char *data;
 	const Table *table;
 	int data_size;
