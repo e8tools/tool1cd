@@ -2143,14 +2143,14 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 				{
 					if (orec->is_null_value(f))
 					{
-						auto bp = (const table_blob_file *)orec->get_data(f);
-						if (bp->blob_start != 0) {
-							delete_blob_record(bp->blob_start);
+						auto bp = orec->get<table_blob_file>(f);
+						if (bp.blob_start != 0) {
+							delete_blob_record(bp.blob_start);
 						}
 					}
 					if (!rec->is_null_value(f))
 					{
-						st = (TStream**)(rec->get_data(f));
+						st = (TStream**)(rec->get_data(f)); // TODO: не забыть про сей костыль
 						if(*st)
 						{
 							new_blob.blob_length = (*st)->GetSize();
@@ -2162,12 +2162,12 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 				}
 				else
 				{
-					auto old_blob = (const table_blob_file *)orec->get_data(f);
-					if (old_blob->blob_start != 0) {
-						delete_blob_record(old_blob->blob_start);
+					auto old_blob = orec->get<table_blob_file>(f);
+					if (old_blob.blob_start != 0) {
+						delete_blob_record(old_blob.blob_start);
 					}
 
-					st = (TStream**)rec->get_data(f);
+					st = (TStream**)rec->get_data(f); // TODO: не забыть про сей костыль
 					if(*st)
 					{
 						new_blob.blob_length = (*st)->GetSize();

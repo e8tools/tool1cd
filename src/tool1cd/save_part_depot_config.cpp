@@ -230,7 +230,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 			rech = table_history->getrecord(i);
 		}
 
-		if (rech->get_guid(fldh_objid) != curobj || history_iterator == history_records)
+		if (rech->get<BinaryGuid>(fldh_objid) != curobj || history_iterator == history_records)
 		{ // это новый объект или конец таблицы
 			if(history_iterator)
 				if(hasrech2)
@@ -239,7 +239,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 					String sObjId = rech2->get_string(fldh_objid);
 
 					hasext = true;
-					bool removed = rech2->get_bool(fldh_removed);
+					//bool removed = rech2->get<bool>(fldh_removed);
+					bool removed = rech2->get<bool>(fldh_removed);
 					if (removed) {
 						if(hasrech1)
 						{
@@ -252,7 +253,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 					{
 						datapacked = false;
 						if (!rech2->is_null_value(fldh_datapacked)) {
-							if (rech2->get_bool(fldh_datapacked)) {
+							if (rech2->get<bool>(fldh_datapacked)) {
 								datapacked = true;
 							}
 						}
@@ -265,21 +266,21 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 							{
 								datapacked = false;
 								if (!rech1->is_null_value(fldh_datapacked)) {
-									if (rech1->get_bool(fldh_datapacked)) {
+									if (rech1->get<bool>(fldh_datapacked)) {
 										datapacked = true;
 									}
 								}
 								if(datapacked)
 								{
-									auto *b = (const table_blob_file *)rech1->get_data(fldh_objdata);
-									if (!rech1->is_null_value(fldh_objdata) && (b->blob_start != 0 || b->blob_length != 0)) {
+									auto b = rech1->get<table_blob_file>(fldh_objdata);
+									if (!rech1->is_null_value(fldh_objdata) && (b.blob_start != 0 || b.blob_length != 0)) {
 
-										table_history->readBlob(out, b->blob_start, b->blob_length);
+										table_history->readBlob(out, b.blob_start, b.blob_length);
 
-										auto *b2 = (const table_blob_file *)rech2->get_data(fldh_objdata);
-										if (!rech2->is_null_value(fldh_objdata) && (b2->blob_start != 0 || b2->blob_length != 0)) {
+										auto b2 = rech2->get<table_blob_file>(fldh_objdata);
+										if (!rech2->is_null_value(fldh_objdata) && (b2.blob_start != 0 || b2.blob_length != 0)) {
 										{
-											table_history->readBlob(out, b2->blob_start, b2->blob_length);
+											table_history->readBlob(out, b2.blob_start, b2.blob_length);
 											inreaded = true;
 											if (in->GetSize() == out->GetSize()) {
 												if(memcmp(in->GetMemory(), out->GetMemory(), in->GetSize()) == 0) {
@@ -305,14 +306,14 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 							{
 								ok = false;
 								deletesobj = false;
-								auto *b = (const table_blob_file *)rech2->get_data(fldh_objdata);
+								auto b = rech2->get<table_blob_file>(fldh_objdata);
 								if(inreaded)
 								{
 									sobj = in;
 									ok = true;
 								}
-								else if (!rech2->is_null_value(fldh_objdata) && (b->blob_start != 0 || b->blob_length != 0)) {
-									table_history->readBlob(in, b->blob_start, b->blob_length);
+								else if (!rech2->is_null_value(fldh_objdata) && (b.blob_start != 0 || b.blob_length != 0)) {
+									table_history->readBlob(in, b.blob_start, b.blob_length);
 									sobj = in;
 									ok = true;
 								}
@@ -348,7 +349,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 						BinaryGuid current_record_guid;
 						if (rece != nullptr) {
-							current_record_guid = rece->get_guid(flde_objid);
+							current_record_guid = rece->get<BinaryGuid>(flde_objid);
 							if (current_record_guid > curobj) {
 								break;
 							}
@@ -366,18 +367,18 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 								}
 								else
 								{
-									datapacked = rece->get_bool(flde_datapacked);
+									datapacked = rece->get<bool>(flde_datapacked);
 
 									// ==> Поиск записи о файле
 									// В случае отсутствия данных (datapacked = false) в этой записи пытаемся найти предыдущую запись с данными
 									// (с тем же objid, extname и extverid), но в пределах ver_begin <= vernum < lastver
-									BinaryGuid verid = rece->get_guid(flde_extverid);
+									BinaryGuid verid = rece->get<BinaryGuid>(flde_extverid);
 									uint32_t je = external_iterator;
 									while(!datapacked && v > ver_begin && je)
 									{
 										i = externals_pk->get_numrec(--je);
 										rece = table_externals->getrecord(i);
-										if (rece->get_guid(flde_objid) != curobj) {
+										if (rece->get<BinaryGuid>(flde_objid) != curobj) {
 											break;
 										}
 										s = rece->get_string(flde_extname);
@@ -385,13 +386,13 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 											continue;
 										}
 
-										if (verid == rece->get_guid(flde_extverid))
+										if (verid == rece->get<BinaryGuid>(flde_extverid))
 										{
 											v = rece->get_string(flde_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
 											if (v < ver_begin) {
 												break;
 											}
-											datapacked = rece->get_bool(flde_datapacked);
+											datapacked = rece->get<bool>(flde_datapacked);
 										}
 									}
 									// <== Поиск записи о файле
@@ -400,10 +401,10 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 									{
 										ok = false;
 										deletesobj = false;
-										auto b = (const table_blob_file *)rece->get_data(flde_extdata);
-										if (b->blob_start != 0 || b->blob_length != 0)
+										auto b = rece->get<table_blob_file>(flde_extdata);
+										if (b.blob_start != 0 || b.blob_length != 0)
 										{
-											table_externals->readBlob(in, b->blob_start, b->blob_length);
+											table_externals->readBlob(in, b.blob_start, b.blob_length);
 											sobj = in;
 											ok = true;
 										}
@@ -458,7 +459,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 					}
 				}
 
-			curobj = rech->get_guid(fldh_objid);
+			curobj = rech->get<BinaryGuid>(fldh_objid);
 			hasrech1 = false;
 			hasrech2 = false;
 		}

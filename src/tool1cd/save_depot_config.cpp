@@ -106,7 +106,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	}
 
 	depotVer = get_depot_version(depot_iterator.current());
-	rootobj = depot_iterator.current().get_guid(fldd_rootobjid);
+	rootobj = depot_iterator.current().get<BinaryGuid>(fldd_rootobjid);
 
 	// "Нормализуем" версию конфигурации
 	ver = get_ver_depot_config(ver);
@@ -259,13 +259,13 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 			rech2 = table_history->getrecord(num_rec);
 		}
 
-		if (rech2->get_guid(fldh_objid) != curobj || iHistory_Index == HistoryIndex_numrec) {
+		if (rech2->get<BinaryGuid>(fldh_objid) != curobj || iHistory_Index == HistoryIndex_numrec) {
 			// это новый объект или конец таблицы
 			if(!lastremoved)
 			{
 				TStream *out;
 
-				String sObjId = rech1->get_guid(fldh_objid).as_MS();
+				String sObjId = rech1->get<BinaryGuid>(fldh_objid).as_MS();
 				if (!try_store_blob_data(*rech1, fldh_objdata, oldformat, fldh_datahash, pack_directory, out)) {
 					msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
 						"Таблица", "HISTORY",
@@ -276,19 +276,19 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				{
 					if(oldformat)
 					{
-						rootmap[sObjId] = rech1->get_guid(fldh_objverid).as_MS();
+						rootmap[sObjId] = rech1->get<BinaryGuid>(fldh_objverid).as_MS();
 						metamap[sObjId] = out;
 					}
 					else
 					{
-						vermap[sObjId] = rech1->get_guid(fldh_objverid).as_MS();
+						vermap[sObjId] = rech1->get<BinaryGuid>(fldh_objverid).as_MS();
 						extmap[sObjId] = out;
 					}
 
 					// Вот тут идем по EXTERNALS
 					while (!externals_iterator.eof()) {
 						const auto &rece = externals_iterator.current();
-						BinaryGuid current_external_guid = rece.get_guid(flde_objid);
+						BinaryGuid current_external_guid = rece.get<BinaryGuid>(flde_objid);
 						if (current_external_guid > curobj) {
 							break;
 						}
@@ -296,7 +296,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						if (current_external_guid == curobj) {
 							int32_t vernum = rece.get_string(flde_vernum).ToIntDef();
 							String ext_name = rece.get_string(flde_extname);
-							if (vernum <= ver && rece.get_bool(flde_datapacked)) {
+							if (vernum <= ver && rece.get<bool>(flde_datapacked)) {
 								int32_t j;
 								bool found = false;
 								for (j = 0; j < reces.size(); j++) {
@@ -331,7 +331,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						}
 						else
 						{
-							vermap[ext_name] = rec->get_guid(flde_extverid).as_MS();
+							vermap[ext_name] = rec->get<BinaryGuid>(flde_extverid).as_MS();
 							extmap[ext_name] = out;
 						}
 
@@ -341,7 +341,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				}
 			}
 
-			curobj = rech2->get_guid(fldh_objid);
+			curobj = rech2->get<BinaryGuid>(fldh_objid);
 			lastremoved = true;
 		}
 
@@ -350,14 +350,14 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 			int32_t vernum = rech2->get_string(fldh_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
 			if(vernum <= ver)
 			{
-				if (rech2->get_bool(fldh_removed)) {
+				if (rech2->get<bool>(fldh_removed)) {
 					lastremoved = true;
 				}
 				else
 				{
 					bool datapacked = false;
 					if (!rech2->is_null_value(fldh_datapacked)) {
-						if (rech2->get_bool(fldh_datapacked)) {
+						if (rech2->get<bool>(fldh_datapacked)) {
 							datapacked = true;
 						}
 					}
@@ -465,7 +465,7 @@ bool T_1CD::try_save_snapshot(const TableRecord &version_record,
 							  const boost::filesystem::path &root_path,
 							  const boost::filesystem::path &target_file_path) const
 {
-	if (version_record.get_guid("SNAPSHOTMAKER").is_empty()) {
+	if (version_record.get<BinaryGuid>("SNAPSHOTMAKER").is_empty()) {
 		return false;
 	}
 	String name_snap = "ddb";
@@ -509,7 +509,7 @@ bool T_1CD::try_save_snapshot(const TableRecord &version_record,
 	}
 
 	snapshot_version snap_ver = snapshot_version::Ver1;
-	BinaryGuid snapshot_maker = version_record.get_guid("SNAPSHOTMAKER");
+	BinaryGuid snapshot_maker = version_record.get<BinaryGuid>("SNAPSHOTMAKER");
 
 	if (rootobj == snapshot_maker || snapshot_maker == SNAPSHOT_VER1) {
 		snap_ver = snapshot_version::Ver1;
@@ -545,7 +545,7 @@ bool T_1CD::try_save_snapshot(const TableRecord &version_record,
 		}
 	};
 
-	uint32_t snapshot_crc = *(uint32_t*)version_record.get_data("SNAPSHOTCRC");
+	uint32_t snapshot_crc = version_record.get<uint32_t>("SNAPSHOTCRC");
 	uint32_t calc_crc = _crc32(out.get());
 	if (calc_crc == snapshot_crc) {
 		return true;

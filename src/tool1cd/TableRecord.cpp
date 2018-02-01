@@ -80,23 +80,6 @@ bool TableRecord::is_removed() const
 	return data[0] != '\0';
 }
 
-BinaryGuid TableRecord::get_guid(const Field *field) const
-{
-	if (is_null_value(field)) {
-		throw NullValueException(field);
-	}
-	const char *field_raw_data = &data[field->getoffset()];
-	if (field->getnull_exists()) {
-		field_raw_data++;
-	}
-	return BinaryGuid(field_raw_data);
-}
-
-BinaryGuid TableRecord::get_guid(const String &field_name) const
-{
-	return get_guid(table->get_field(field_name));
-}
-
 const char *TableRecord::get_raw(const Field *field) const
 {
 	return &data[field->getoffset()];
@@ -116,23 +99,6 @@ const char *TableRecord::get_data(const Field *field) const
 const char *TableRecord::get_data(const String &field_name) const
 {
 	return get_data(table->get_field(field_name));
-}
-
-bool TableRecord::get_bool(const Field *field) const
-{
-	if (is_null_value(field)) {
-		throw NullValueException(field);
-	}
-	const char *field_raw_data = &data[field->getoffset()];
-	if (field->getnull_exists()) {
-		field_raw_data++;
-	}
-	return *field_raw_data != '\0';
-}
-
-bool TableRecord::get_bool(const String &field_name) const
-{
-	return get_bool(table->get_field(field_name));
 }
 
 void TableRecord::Assign(const TableRecord *another_record)
@@ -186,21 +152,31 @@ bool TableRecord::try_store_blob_data(const Field *field, TStream *&out, bool in
 	if (is_null_value(field)) {
 		return false;
 	}
-	auto *b = (const table_blob_file *)get_data(field);
-	if (b->blob_start == 0 && b->blob_length == 0) {
+	auto b = get<table_blob_file>(field);
+	if (b.blob_start == 0 && b.blob_length == 0) {
 		return false;
 	}
 
 	out = new TTempStream;
 	if (inflate_stream) {
 		TMemoryStream in;
-		table->readBlob(&in, b->blob_start, b->blob_length);
+		table->readBlob(&in, b.blob_start, b.blob_length);
 		in.Seek(0, soFromBeginning);
 		ZInflateStream(&in, out);
 	}
 	else {
-		table->readBlob(out, b->blob_start, b->blob_length);
+		table->readBlob(out, b.blob_start, b.blob_length);
 	}
 	out->Close();
 	return true;
+}
+
+const Field *TableRecord::get_field(const String &field_name) const
+{
+	return table->get_field(field_name);
+}
+
+void RecordConverters::convert(const char *data, BinaryGuid &result)
+{
+	result = BinaryGuid(data);
 }

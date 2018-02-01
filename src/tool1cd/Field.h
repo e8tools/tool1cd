@@ -13,10 +13,10 @@
 #include "Constants.h"
 #include "DetailedException.h"
 #include "FieldType.h"
-#include "TableRecord.h"
 
 class Table;
 class T_1CD;
+class TableRecord;
 
 class Field
 {
