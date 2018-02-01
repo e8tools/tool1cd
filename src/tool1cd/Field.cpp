@@ -192,7 +192,7 @@ bool Field::save_blob_to_file(const TableRecord *rec, String _filename, bool unp
 		return true;
 	}
 
-	bool usetemporaryfiles = *(uint32_t*)(rec + 4) > 10 * 1024 * 1024;
+	bool usetemporaryfiles = bp.blob_length > 10 * 1024 * 1024;
 	if(usetemporaryfiles) blob_stream = new TTempStream;
 	else blob_stream = new TMemoryStream;
 	parent->readBlob(blob_stream, bp.blob_start, bp.blob_length);
