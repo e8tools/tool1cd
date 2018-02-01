@@ -239,7 +239,6 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 					String sObjId = rech2->get_string(fldh_objid);
 
 					hasext = true;
-					//bool removed = rech2->get<bool>(fldh_removed);
 					bool removed = rech2->get<bool>(fldh_removed);
 					if (removed) {
 						if(hasrech1)
