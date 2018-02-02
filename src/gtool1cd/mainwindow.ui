@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>588</width>
+    <height>395</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="utils">
+       <attribute name="title">
+        <string>Утилиты</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QTabWidget" name="tabWidget_2">
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="saveConfigs">
+           <attribute name="title">
+            <string>Сохранение конфигураций</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QPushButton" name="pushButton">
+              <property name="text">
+               <string>Сохранить основную конфигурацию</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_2">
+              <property name="text">
+               <string>Сохранить конфигурацию базы данных</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_3">
+              <property name="text">
+               <string>Найти конфигурации поставщика</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tabFiles">
+           <attribute name="title">
+            <string>Файлы таблиц</string>
+           </attribute>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QTableWidget" name="tableWidget">
+              <column>
+               <property name="text">
+                <string>Таблица</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Файл</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Размер</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Процент</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Максимальный размер</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="view">
+       <attribute name="title">
+        <string>Просмотр</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QListWidget" name="listWidget_2"/>
+        </item>
+        <item>
+         <widget class="QWidget" name="widget" native="true">
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QTableWidget" name="tableWidget_3"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="widget_2" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QListWidget" name="listWidget"/>
+         </item>
+         <item>
+          <widget class="QTableWidget" name="tableWidget_4"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>588</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Файл</string>
+    </property>
+    <widget class="QMenu" name="menu_4">
+     <property name="title">
+      <string>Сохранить</string>
+     </property>
+     <addaction name="saveDatabaseConfigAction"/>
+     <addaction name="saveMainConfigAction"/>
+     <addaction name="separator"/>
+     <addaction name="exportXmlAction"/>
+    </widget>
+    <addaction name="openDatabaseFileAction"/>
+    <addaction name="menu_4"/>
+    <addaction name="exitAction"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>Настройки</string>
+    </property>
+    <addaction name="blobViewParamsAction"/>
+    <addaction name="monopolySwitch"/>
+    <addaction name="easyModeSwitch"/>
+    <addaction name="BinaryAsGuidSwitch"/>
+    <addaction name="showOffsetSwitch"/>
+    <addaction name="saveBlobSwitch"/>
+    <addaction name="separator"/>
+    <addaction name="associateFilesAction"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>?</string>
+    </property>
+    <addaction name="aboutAction"/>
+    <addaction name="showCommandLineHelpAction"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_2"/>
+   <addaction name="menu_3"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="openDatabaseFileAction">
+   <property name="text">
+    <string>Открыть базу</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="aboutAction">
+   <property name="text">
+    <string>О программе</string>
+   </property>
+  </action>
+  <action name="showCommandLineHelpAction">
+   <property name="text">
+    <string>Ключи командной строки</string>
+   </property>
+  </action>
+  <action name="exitAction">
+   <property name="text">
+    <string>Выход</string>
+   </property>
+   <property name="shortcut">
+    <string>F10</string>
+   </property>
+  </action>
+  <action name="saveDatabaseConfigAction">
+   <property name="text">
+    <string>Сохранить конфигурацию базы данных</string>
+   </property>
+  </action>
+  <action name="saveMainConfigAction">
+   <property name="text">
+    <string>Сохранить основную конфигурацию</string>
+   </property>
+  </action>
+  <action name="exportXmlAction">
+   <property name="text">
+    <string>Экспорт таблицы в XML</string>
+   </property>
+  </action>
+  <action name="blobViewParamsAction">
+   <property name="text">
+    <string>Параметры просмотра BLOB-полей</string>
+   </property>
+  </action>
+  <action name="monopolySwitch">
+   <property name="text">
+    <string>Открывать базу не монопольно</string>
+   </property>
+  </action>
+  <action name="easyModeSwitch">
+   <property name="text">
+    <string>Упрощённый режим редактирования</string>
+   </property>
+  </action>
+  <action name="BinaryAsGuidSwitch">
+   <property name="text">
+    <string>Отображать Binary(16) как GUID</string>
+   </property>
+  </action>
+  <action name="showOffsetSwitch">
+   <property name="text">
+    <string>Отображать смещения в файле записей таблицы</string>
+   </property>
+  </action>
+  <action name="saveBlobSwitch">
+   <property name="text">
+    <string>При экспорте в XML сохранять BLOB в отдельные файлы</string>
+   </property>
+  </action>
+  <action name="associateFilesAction">
+   <property name="text">
+    <string>Ассоциировать файлы 1CD с Tool1CD</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>
