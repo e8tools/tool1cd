@@ -195,10 +195,10 @@ V8Catalog::V8Catalog(String name) // создать каталог из физи
 		version = 0;
 		zipped = false;
 
-		is_fatmodified = false;
+		_fatmodified = false;
 		is_emptymodified = false;
 		is_modified = false;
-		is_destructed = false;
+		_destructed = false;
 		flushed = false;
 		leave_data = false;
 	}
@@ -231,10 +231,10 @@ V8Catalog::V8Catalog(String name, bool _zipped) // создать каталог
 		version = 0;
 		zipped = false;
 
-		is_fatmodified = false;
+		_fatmodified = false;
 		is_emptymodified = false;
 		is_modified = false;
-		is_destructed = false;
+		_destructed = false;
 		flushed = false;
 		leave_data = false;
 	}
@@ -265,10 +265,10 @@ V8Catalog::V8Catalog(TStream* stream, bool _zipped, bool leave_stream) // соз
 		version = 0;
 		zipped = false;
 
-		is_fatmodified = false;
+		_fatmodified = false;
 		is_emptymodified = false;
 		is_modified = false;
-		is_destructed = false;
+		_destructed = false;
 		flushed = false;
 	}
 	leave_data = leave_stream;
@@ -281,10 +281,10 @@ V8Catalog::V8Catalog(V8File* f) // создать каталог из файла
 	is_cfu = false;
 	iscatalogdefined = false;
 	file = f;
-	Lock = file->Lock;
+	Lock = file->get_lock();
 	Lock->Acquire();
 	file->Open();
-	data = file->data;
+	data = file->get_data();
 	zipped = false;
 
 	if(IsCatalog()) initialize();
@@ -297,10 +297,10 @@ V8Catalog::V8Catalog(V8File* f) // создать каталог из файла
 		version = 0;
 		zipped = false;
 
-		is_fatmodified = false;
+		_fatmodified = false;
 		is_emptymodified = false;
 		is_modified = false;
-		is_destructed = false;
+		_destructed = false;
 		flushed = false;
 		leave_data = false;
 	}
@@ -310,7 +310,7 @@ V8Catalog::V8Catalog(V8File* f) // создать каталог из файла
 //---------------------------------------------------------------------------
 void V8Catalog::initialize()
 {
-	is_destructed = false;
+	_destructed = false;
 	catalog_header _ch;
 	String _name;
 	fat_item _fi;
@@ -361,7 +361,7 @@ void V8Catalog::initialize()
 		while(f)
 		{
 			f->Close();
-			f = f->next;
+			f = f->GetNext();
 		}
 		while(first) delete first;
 
@@ -379,10 +379,10 @@ void V8Catalog::initialize()
 
 	last = _prev;
 
-	is_fatmodified = false;
+	_fatmodified = false;
 	is_emptymodified = false;
 	is_modified = false;
-	is_destructed = false;
+	_destructed = false;
 	flushed = false;
 	leave_data = false;
 }
@@ -395,12 +395,12 @@ void V8Catalog::DeleteFile(const String& FileName)
 	V8File* f = first;
 	while(f)
 	{
-		if(!f->name.CompareIC(FileName))
+		if(!f->GetFileName().CompareIC(FileName))
 		{
 			f->DeleteFile();
 			delete f;
 		}
-		f = f->next;
+		f = f->GetNext();
 	}
 	Lock->Release();
 }
@@ -437,9 +437,9 @@ V8File* V8Catalog::createFile(const String& FileName, bool _selfzipped){
 	{
 		setCurrentTime(&v8t);
 		f = new V8File(this, FileName, last, 0, 0, &v8t, &v8t);
-		f->selfzipped = _selfzipped;
+		f->self_zipped(_selfzipped);
 		last = f;
-		is_fatmodified = true;
+		_fatmodified = true;
 	}
 	Lock->Release();
 	return f;
@@ -449,8 +449,10 @@ V8File* V8Catalog::createFile(const String& FileName, bool _selfzipped){
 // получить родительский каталог
 V8Catalog* V8Catalog::GetParentCatalog()
 {
-	if(!file) return nullptr;
-	return file->parent;
+	if(!file) {
+		return nullptr;
+	}
+	return file->GetParentCatalog();
 }
 
 //---------------------------------------------------------------------------
@@ -711,18 +713,18 @@ V8Catalog::~V8Catalog()
 	TMemoryStream* fat = nullptr;
 
 	Lock->Acquire();
-	is_destructed = true;
+	_destructed = true;
 
 	f = first;
 	while(f)
 	{
 		f->Close();
-		f = f->next;
+		f = f->GetNext();
 	}
 
 	if(data)
 	{
-		if(is_fatmodified)
+		if(_fatmodified)
 		{
 			try
 			{
@@ -731,10 +733,10 @@ V8Catalog::~V8Catalog()
 				f = first;
 				while(f)
 				{
-					fi.header_start = f->start_header;
-					fi.data_start = f->start_data;
+					fi.header_start = f->get_start_header();
+					fi.data_start = f->get_start_data();
 					fat->WriteBuffer(&fi, 12);
-					f = f->next;
+					f = f->GetNext();
 				}
 				write_block(fat, CATALOG_HEADER_LEN, true);
 			}
@@ -765,9 +767,9 @@ V8Catalog::~V8Catalog()
 	if(file){
 		if(is_modified)
 		{
-			file->is_datamodified = true;
+			file->datamodified(true);
 		}
-		if(!file->is_destructed) file->Close();
+		if(!file->is_destructed()) file->Close();
 	}
 	else
 	{
@@ -836,13 +838,13 @@ void V8Catalog::SaveToDir(const boost::filesystem::path &dir) const
 	while(f)
 	{
 		if(f->IsCatalog()) {
-			f->GetCatalog()->SaveToDir(dir / static_cast<std::string>(f->name));
+			f->GetCatalog()->SaveToDir(dir / static_cast<std::string>(f->GetFileName()));
 		}
 		else {
-			f->SaveToFile(dir / static_cast<std::string>(f->name));
+			f->SaveToFile(dir / static_cast<std::string>(f->GetFileName()));
 		}
 		f->Close();
-		f = f->next;
+		f = f->GetNext();
 	}
 	Lock->Release();
 }
@@ -873,25 +875,25 @@ void V8Catalog::Flush()
 	while(f)
 	{
 		f->Flush();
-		f = f->next;
+		f = f->GetNext();
 	}
 
 	if(data)
 	{
-		if(is_fatmodified)
+		if(_fatmodified)
 		{
 			TMemoryStream* fat = new TMemoryStream;
 			fi.ff = LAST_BLOCK;
 			f = first;
 			while(f)
 			{
-				fi.header_start = f->start_header;
-				fi.data_start = f->start_data;
+				fi.header_start = f->get_start_header();
+				fi.data_start = f->get_start_data();
 				fat->WriteBuffer(&fi, 12);
-				f = f->next;
+				f = f->GetNext();
 			}
 			write_block(fat, CATALOG_HEADER_LEN, true);
-			is_fatmodified = false;
+			_fatmodified = false;
 		}
 
 		if(is_emptymodified)
@@ -911,7 +913,7 @@ void V8Catalog::Flush()
 	if(file){
 		if(is_modified)
 		{
-			file->is_datamodified = true;
+			file->datamodified(true);
 		}
 		file->Flush();
 	}
@@ -980,4 +982,37 @@ V8File* V8Catalog::get_last_file()
 void V8Catalog::last_file(V8File *value)
 {
 	last = value;
+}
+
+V8Catalog::V8Files& V8Catalog::v8files() {
+	return files;
+}
+
+String V8Catalog::get_full_name() {
+	String result;
+
+	if(file != nullptr) {
+		result = file->GetFullName();
+	}
+	return result;
+}
+
+bool V8Catalog::data_empty() const {
+	return (data == nullptr);
+}
+
+void V8Catalog::erase_data() {
+	data = nullptr;
+}
+
+bool V8Catalog::is_fatmodified() const {
+	return _fatmodified;
+}
+
+void V8Catalog::fatmodified(const bool value) {
+	_fatmodified = value;
+}
+
+bool V8Catalog::is_destructed() const {
+	return _destructed;
 }

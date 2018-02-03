@@ -10,7 +10,7 @@ using namespace System;
 V8File::V8File(V8Catalog* _parent, const String& _name, V8File* _previous, int _start_data, int _start_header, int64_t* _time_create, int64_t* _time_modify)
 {
 	Lock = new TCriticalSection();
-	is_destructed = false;
+	_destructed = false;
 	flushed  = false;
 	parent   = _parent;
 	name     = _name;
@@ -19,20 +19,22 @@ V8File::V8File(V8Catalog* _parent, const String& _name, V8File* _previous, int _
 	data     = nullptr;
 	start_data        = _start_data;
 	start_header      = _start_header;
-	is_datamodified   = !start_data;
+	_datamodified   = !start_data;
 	is_headermodified = !start_header;
 	if(previous)
 		previous->next = this;
 	else
-		parent->first = this;
+		parent->first_file(this);
 	iscatalog = FileIsCatalog::unknown;
 	self = nullptr;
 	is_opened = false;
 	time_create = *_time_create;
 	time_modify = *_time_modify;
-	selfzipped = false;
-	if(parent)
-		parent->files[name.UpperCase()] = this;
+	_selfzipped = false;
+	if(parent) {
+		V8Catalog::V8Files& files = parent->v8files();
+		files[name.UpperCase()] = this;
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -183,7 +185,7 @@ int64_t V8File::Write(const void* Buffer, int Start, int Length) // дозапи
 	}
 	setCurrentTime(&time_modify);
 	is_headermodified = true;
-	is_datamodified   = true;
+	_datamodified   = true;
 	data->Seek(Start, soFromBeginning);
 	ret = data->Write(Buffer, Length);
 	Lock->Release();
@@ -202,7 +204,7 @@ int64_t V8File::Write(std::vector<uint8_t> Buffer, int Start, int Length) // д�
 	}
 	setCurrentTime(&time_modify);
 	is_headermodified = true;
-	is_datamodified   = true;
+	_datamodified   = true;
 	data->Seek(Start, soFromBeginning);
 	ret = data->Write(Buffer, Length);
 	Lock->Release();
@@ -221,7 +223,7 @@ int64_t V8File::Write(const void* Buffer, int Length) // перезапись ц
 	}
 	setCurrentTime(&time_modify);
 	is_headermodified = true;
-	is_datamodified = true;
+	_datamodified = true;
 	if (data->GetSize() > Length) data->SetSize(Length);
 	data->Seek(0, soFromBeginning);
 	ret = data->Write(Buffer, Length);
@@ -241,7 +243,7 @@ int64_t V8File::Write(TStream* Stream, int Start, int Length) // дозапис�
 	}
 	setCurrentTime(&time_modify);
 	is_headermodified = true;
-	is_datamodified   = true;
+	_datamodified   = true;
 	data->Seek(Start, soFromBeginning);
 	ret = data->CopyFrom(Stream, Length);
 	Lock->Release();
@@ -260,7 +262,7 @@ int64_t V8File::Write(TStream* Stream) // перезапись целиком
 	}
 	setCurrentTime(&time_modify);
 	is_headermodified = true;
-	is_datamodified   = true;
+	_datamodified   = true;
 	if (data->GetSize() > Stream->GetSize()) data->SetSize(Stream->GetSize());
 	data->Seek(0, soFromBeginning);
 	ret = data->CopyFrom(Stream, 0);
@@ -281,9 +283,8 @@ String V8File::GetFileName()
 // возвращает полное имя
 String V8File::GetFullName()
 {
-	if(parent) if(parent->file)
-	{
-		String fulln = parent->file->GetFullName();
+	if(parent != nullptr) {
+		String fulln = parent->get_full_name();
 		if(!fulln.IsEmpty())
 		{
 			fulln += "\\";
@@ -406,33 +407,38 @@ void V8File::DeleteFile()
 	Lock->Acquire();
 	if(parent)
 	{
-		parent->Lock->Acquire();
+		parent->Acquire();
 		if(next)
 		{
 			next->Lock->Acquire();
 			next->previous = previous;
 			next->Lock->Release();
 		}
-		else parent->last = previous;
-		if(previous)
-		{
+		else parent->last_file(previous);
+		if(previous) {
 			previous->Lock->Acquire();
 			previous->next = next;
 			previous->Lock->Release();
 		}
-		else parent->first = next;
-		parent->is_fatmodified = true;
+		else {
+			parent->first_file(next);
+		}
+
+		parent->fatmodified(true);
 		parent->free_block(start_data);
 		parent->free_block(start_header);
-		parent->files.erase(name.UpperCase());
-		parent->Lock->Release();
+
+		V8Catalog::V8Files& files = parent->v8files();
+		files.erase(name.UpperCase());
+
+		parent->Release();
 		parent = nullptr;
 	}
 	delete data;
 	data = nullptr;
 	if(self)
 	{
-		self->data = nullptr;
+		self->erase_data(); // TODO: разобраться, зачем обнуляется указатель
 		delete self;
 		self = nullptr;
 	}
@@ -442,7 +448,7 @@ void V8File::DeleteFile()
 	is_opened = false;
 	start_data = 0;
 	start_header = 0;
-	is_datamodified = false;
+	_datamodified = false;
 	is_headermodified = false;
 }
 
@@ -478,20 +484,18 @@ void V8File::Close(){
 	Lock->Acquire();
 	if(!is_opened) return;
 
-	if(self) if(!self->is_destructed)
-	{
+	if( self && !self->is_destructed() ) {
 		delete self;
 	}
 	self = nullptr;
 
-	if(parent->data)
-	{
-		if(is_datamodified || is_headermodified)
+	if(!parent->data_empty()) {
+		if(_datamodified || is_headermodified)
 		{
-			parent->Lock->Acquire();
-			if(is_datamodified)
+			parent->Acquire();
+			if(_datamodified)
 			{
-				start_data = parent->write_datablock(data, start_data, selfzipped);
+				start_data = parent->write_datablock(data, start_data, _selfzipped);
 			}
 			if(is_headermodified)
 			{
@@ -513,14 +517,14 @@ void V8File::Close(){
 				start_header = parent->write_block(hs, start_header, false);
 				delete hs;
 			}
-			parent->Lock->Release();
+			parent->Release();
 		}
 	}
 	delete data;
 	data = nullptr;
 	iscatalog = FileIsCatalog::unknown;
 	is_opened = false;
-	is_datamodified = false;
+	_datamodified = false;
 	is_headermodified = false;
 	Lock->Release();
 }
@@ -550,14 +554,13 @@ int64_t V8File::WriteAndClose(TStream* Stream, int Length)
 	delete data;
 	data = nullptr;
 
-	if (parent->data)
-	{
+	if (!parent->data_empty()) {
 		int name_size = name.WideCharBufSize();
 		WCHART *wname = new WCHART[name_size];
 		name.WideChar(wname, name.Length());
 
-		parent->Lock->Acquire();
-		start_data = parent->write_datablock(Stream, start_data, selfzipped, Length);
+		parent->Acquire();
+		start_data = parent->write_datablock(Stream, start_data, _selfzipped, Length);
 		TMemoryStream hs;
 		hs.Write(&time_create, 8);
 		hs.Write(&time_modify, 8);
@@ -565,12 +568,12 @@ int64_t V8File::WriteAndClose(TStream* Stream, int Length)
 		hs.Write(wname, name.Length() * sizeof(WCHART));
 		hs.Write(&_4bzero, 4);
 		start_header = parent->write_block(&hs, start_header, false);
-		parent->Lock->Release();
+		parent->Release();
 		delete[]wname;
 	}
 	iscatalog = FileIsCatalog::unknown;
 	is_opened = false;
-	is_datamodified = false;
+	_datamodified = false;
 	is_headermodified = false;
 	Lock->Release();
 
@@ -585,9 +588,11 @@ V8File::~V8File()
 	std::set<TV8FileStream*>::iterator istreams;
 
 	Lock->Acquire();
-	is_destructed = true;
-	for(istreams = streams.begin(); istreams != streams.end(); ++istreams) delete *istreams;
-	streams.clear();
+	_destructed = true;
+	for(istreams = _streams.begin(); istreams != _streams.end(); ++istreams) {
+		delete *istreams;
+	}
+	_streams.clear();
 
 	Close();
 
@@ -601,9 +606,9 @@ V8File::~V8File()
 		}
 		else
 		{
-			parent->Lock->Acquire();
-			parent->last = previous;
-			parent->Lock->Release();
+			parent->Acquire();
+			parent->last_file(previous);
+			parent->Release();
 		}
 		if(previous)
 		{
@@ -613,9 +618,9 @@ V8File::~V8File()
 		}
 		else
 		{
-			parent->Lock->Acquire();
-			parent->first = next;
-			parent->Lock->Release();
+			parent->Acquire();
+			parent->first_file(next);
+			parent->Release();
 		}
 	}
 	delete Lock;
@@ -647,15 +652,14 @@ void V8File::Flush()
 	flushed = true;
 	if(self) self->Flush();
 
-	if(parent->data)
-	{
-		if(is_datamodified || is_headermodified)
+	if( !parent->data_empty() )	{
+		if(_datamodified || is_headermodified)
 		{
-			parent->Lock->Acquire();
-			if(is_datamodified)
+			parent->Acquire();
+			if(_datamodified)
 			{
-				start_data = parent->write_datablock(data, start_data, selfzipped);
-				is_datamodified = false;
+				start_data = parent->write_datablock(data, start_data, _selfzipped);
+				_datamodified = false;
 			}
 			if(is_headermodified)
 			{
@@ -678,7 +682,7 @@ void V8File::Flush()
 				delete hs;
 				is_headermodified = false;
 			}
-			parent->Lock->Release();
+			parent->Release();
 		}
 	}
 	flushed = false;
@@ -704,4 +708,48 @@ tree* V8File::get_tree()
 	tree* rt = parse_1Ctext(text, GetFullName());
 
 	return rt;
+}
+
+TCriticalSection* V8File::get_lock() {
+	return Lock;
+}
+
+TStream* V8File::get_data() {
+	return data;
+}
+
+int V8File::get_start_data() const {
+	return start_data;
+}
+
+int V8File::get_start_header() const {
+	return start_header;
+}
+
+bool V8File::is_datamodified() const {
+	return _datamodified;
+}
+
+void V8File::datamodified(const bool value) {
+	_datamodified = value;
+}
+
+bool V8File::is_destructed() const {
+	return _destructed;
+}
+
+void V8File::destructed(const bool value) {
+	_destructed = value;
+}
+
+bool V8File::is_self_zipped() const {
+	return _selfzipped;
+}
+
+void V8File::self_zipped(const bool value) {
+	_selfzipped = value;
+}
+
+V8File::TV8FileStreams& V8File::streams() {
+	return _streams;
 }
