@@ -276,7 +276,7 @@ v8catalog::v8catalog(TStream* stream, bool _zipped, bool leave_stream) // соз
 
 //---------------------------------------------------------------------------
 // конструктор
-v8catalog::v8catalog(v8file* f) // создать каталог из файла
+v8catalog::v8catalog(V8File* f) // создать каталог из файла
 {
 	is_cfu = false;
 	iscatalogdefined = false;
@@ -317,9 +317,9 @@ void v8catalog::initialize()
 	char* _temp_buf;
 	TMemoryStream* _file_header;
 	TStream* _fat;
-	v8file* _prev;
-	v8file* _file;
-	v8file* f;
+	V8File* _prev;
+	V8File* _file;
+	V8File* f;
 	int64_t _countfiles;
 
 	data->Seek(0, soFromBeginning);
@@ -346,7 +346,7 @@ void v8catalog::initialize()
 				_temp_buf = new char[_file_header->GetSize()];
 				_file_header->Read(_temp_buf, _file_header->GetSize());
 				_name = (WCHART*)(_temp_buf + 20);
-				_file = new v8file(this, _name, _prev, _fi.data_start, _fi.header_start, (int64_t*)_temp_buf, (int64_t*)(_temp_buf + 8));
+				_file = new V8File(this, _name, _prev, _fi.data_start, _fi.header_start, (int64_t*)_temp_buf, (int64_t*)(_temp_buf + 8));
 				delete[] _temp_buf;
 				if(!_prev) first = _file;
 				_prev = _file;
@@ -392,7 +392,7 @@ void v8catalog::initialize()
 void v8catalog::DeleteFile(const String& FileName)
 {
 	Lock->Acquire();
-	v8file* f = first;
+	V8File* f = first;
 	while(f)
 	{
 		if(!f->name.CompareIC(FileName))
@@ -407,11 +407,11 @@ void v8catalog::DeleteFile(const String& FileName)
 
 //---------------------------------------------------------------------------
 // получить файл
-v8file* v8catalog::GetFile(const String& FileName)
+V8File* v8catalog::GetFile(const String& FileName)
 {
-	v8file* ret;
+	V8File* ret;
 	Lock->Acquire();
-	std::map<String,v8file*>::const_iterator it;
+	std::map<String,V8File*>::const_iterator it;
 	it = files.find(FileName.UpperCase());
 	if(it == files.end()) ret = nullptr;
 	else ret = it->second;
@@ -421,22 +421,22 @@ v8file* v8catalog::GetFile(const String& FileName)
 
 //---------------------------------------------------------------------------
 // получить первого
-v8file* v8catalog::GetFirst(){
+V8File* v8catalog::GetFirst(){
 	return first;
 }
 
 //---------------------------------------------------------------------------
 // создать файл
-v8file* v8catalog::createFile(const String& FileName, bool _selfzipped){
+V8File* v8catalog::createFile(const String& FileName, bool _selfzipped){
 	int64_t v8t;
-	v8file* f;
+	V8File* f;
 
 	Lock->Acquire();
 	f = GetFile(FileName);
 	if(!f)
 	{
 		setCurrentTime(&v8t);
-		f = new v8file(this, FileName, last, 0, 0, &v8t, &v8t);
+		f = new V8File(this, FileName, last, 0, 0, &v8t, &v8t);
 		f->selfzipped = _selfzipped;
 		last = f;
 		is_fatmodified = true;
@@ -707,7 +707,7 @@ int v8catalog::write_block(TStream* block, int start, bool use_page_size, int le
 v8catalog::~v8catalog()
 {
 	fat_item fi;
-	v8file* f;
+	V8File* f;
 	TMemoryStream* fat = nullptr;
 
 	Lock->Acquire();
@@ -798,7 +798,7 @@ v8catalog::~v8catalog()
 
 //---------------------------------------------------------------------------
 // получить файл собственный
-v8file* v8catalog::GetSelfFile()
+V8File* v8catalog::GetSelfFile()
 {
 	return file;
 }
@@ -809,7 +809,7 @@ v8catalog* v8catalog::CreateCatalog(const String& FileName, bool _selfzipped)
 {
 	v8catalog* ret;
 	Lock->Acquire();
-	v8file* f = createFile(FileName, _selfzipped);
+	V8File* f = createFile(FileName, _selfzipped);
 	if(f->GetFileLength() > 0)
 	{
 		if(f->IsCatalog()) ret = f->GetCatalog();
@@ -832,7 +832,7 @@ void v8catalog::SaveToDir(const boost::filesystem::path &dir) const
 		boost::filesystem::create_directories(dir);
 	}
 	Lock->Acquire();
-	v8file* f = first;
+	V8File* f = first;
 	while(f)
 	{
 		if(f->IsCatalog()) {
@@ -859,7 +859,7 @@ bool v8catalog::isOpen() const
 void v8catalog::Flush()
 {
 	fat_item fi;
-	v8file* f;
+	V8File* f;
 
 	Lock->Acquire();
 	if(flushed)
@@ -962,22 +962,22 @@ void v8catalog::HalfOpen(const String& name)
 	Lock->Release();
 }
 
-v8file* v8catalog::get_first_file()
+V8File* v8catalog::get_first_file()
 {
 	return first;
 }
 
-void v8catalog::first_file(v8file* value)
+void v8catalog::first_file(V8File* value)
 {
 	first = value;
 }
 
-v8file* v8catalog::get_last_file()
+V8File* v8catalog::get_last_file()
 {
 	return last;
 }
 
-void v8catalog::last_file(v8file *value)
+void v8catalog::last_file(V8File *value)
 {
 	last = value;
 }

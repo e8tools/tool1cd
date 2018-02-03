@@ -19,11 +19,11 @@ enum class FileIsCatalog {
 	no
 };
 
-class v8file {
+class V8File {
 public:
-		v8file(v8catalog* _parent, const String& _name, v8file* _previous, int _start_data, int _start_header, int64_t* _time_create, int64_t* _time_modify);
+		V8File(v8catalog* _parent, const String& _name, V8File* _previous, int _start_data, int _start_header, int64_t* _time_create, int64_t* _time_modify);
 
-		~v8file();
+		~V8File();
 		bool IsCatalog();
 		v8catalog* GetCatalog();
 		int64_t GetFileLength();
@@ -43,7 +43,7 @@ public:
 		void SetFileName(const String& _name);
 		v8catalog* GetParentCatalog();
 		void DeleteFile();
-		v8file* GetNext();
+		V8File* GetNext();
 		bool Open();
 		void Close();
 
@@ -71,8 +71,8 @@ private:
 		FileIsCatalog iscatalog;
 
 		v8catalog* self;        // указатель на каталог, если файл является каталогом
-		v8file* next;           // следующий файл в каталоге
-		v8file* previous;       // предыдущий файл в каталоге
+		V8File* next;           // следующий файл в каталоге
+		V8File* previous;       // предыдущий файл в каталоге
 		bool is_opened;         // признак открытого файла (инициализирован поток data)
 		int start_data;         // начало блока данных файла в каталоге (0 означает, что файл в каталоге не записан)
 		int start_header;       // начало блока заголовка файла в каталоге

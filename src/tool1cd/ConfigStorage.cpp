@@ -98,7 +98,7 @@ ConfigStorageCFFile::~ConfigStorageCFFile()
 ConfigFile* ConfigStorageCFFile::readfile(const String& path)
 {
 	v8catalog* c;
-	v8file* f;
+	V8File* f;
 	int i;
 	ConfigFile* cf;
 
@@ -129,7 +129,7 @@ ConfigFile* ConfigStorageCFFile::readfile(const String& path)
 bool ConfigStorageCFFile::writefile(const String& path, TStream* str)
 {
 	v8catalog* c;
-	v8file* f;
+	V8File* f;
 	int i;
 
 	if(!cat->isOpen()) return false;
@@ -155,9 +155,9 @@ String ConfigStorageCFFile::presentation()
 //---------------------------------------------------------------------------
 void ConfigStorageCFFile::close(ConfigFile* cf)
 {
-	v8file* f;
+	V8File* f;
 
-	f = (v8file*)cf->addin;
+	f = (V8File*)cf->addin;
 	f->Close();
 	delete cf;
 }
@@ -169,7 +169,7 @@ bool ConfigStorageCFFile::fileexists(const String& path)
 	// Это неправильно для формата 8.0 с файлом каталогом metadata. Но метод fileexists используется только для внешних файлов,
 	// поэтому такой проверки достаточно
 
-	v8file* f;
+	V8File* f;
 	int i;
 
 	if(!cat->isOpen()) return false;
@@ -350,7 +350,7 @@ bool ContainerFile::isPacked()
 enum class ConfigStorageTableAddinVariant
 {
 	ContainerFile,
-	v8file
+	V8File
 };
 
 //---------------------------------------------------------------------------
@@ -360,7 +360,7 @@ struct ConfigStorageTable_addin
 	union
 	{
 		ContainerFile* tf;
-		v8file* f;
+		V8File* f;
 	};
 };
 
@@ -386,7 +386,7 @@ ConfigFile* ConfigStorageTable::readfile(const String& path)
 	ContainerFile* tf;
 	std::map<String,ContainerFile*>::iterator pfiles;
 	v8catalog* c;
-	v8file* f;
+	V8File* f;
 	int i;
 	String fname;
 	String r_name;
@@ -430,7 +430,7 @@ ConfigFile* ConfigStorageTable::readfile(const String& path)
 		if(!f->Open()) return nullptr;
 		cf = new ConfigFile;
 		cfa = new ConfigStorageTable_addin;
-		cfa->variant = ConfigStorageTableAddinVariant::v8file;
+		cfa->variant = ConfigStorageTableAddinVariant::V8File;
 		cfa->f = f;
 		cf->str = f->get_stream();
 		cf->str->Seek(0l, soBeginning);
@@ -467,7 +467,7 @@ void ConfigStorageTable::close(ConfigFile* cf)
 	{
 		cfa->tf->close();
 	}
-	else if(cfa->variant == ConfigStorageTableAddinVariant::v8file)
+	else if(cfa->variant == ConfigStorageTableAddinVariant::V8File)
 	{
 		cfa->f->Close();
 	}
@@ -503,7 +503,7 @@ bool ConfigStorageTable::save_config(const boost::filesystem::path &file_name)
 		ContainerFile* tf = pfiles.second;
 		if(tf->ropen())
 		{
-			v8file* f = catalog->createFile(tf->name);
+			V8File* f = catalog->createFile(tf->name);
 			f->SetTimeCreate(&tf->file->ft_create);
 			f->SetTimeModify(&tf->file->ft_modify);
 			f->WriteAndClose(tf->rstream);

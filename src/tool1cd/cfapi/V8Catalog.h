@@ -6,7 +6,7 @@
 #include "V8File.h"
 #include <boost/filesystem.hpp>
 
-class v8file;
+class V8File;
 
 //---------------------------------------------------------------------------
 struct fat_item{
@@ -17,7 +17,7 @@ struct fat_item{
 
 class v8catalog {
 public:
-		explicit v8catalog(v8file* f);   // создать каталог из файла
+		explicit v8catalog(V8File* f);   // создать каталог из файла
 		explicit v8catalog(String name); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
 		v8catalog(String name, bool _zipped); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
 		v8catalog(TStream* stream, bool _zipped, bool leave_stream = false); // создать каталог из потока
@@ -26,34 +26,34 @@ public:
 
 		~v8catalog();
 
-		v8file* GetFile(const String& FileName);
-		v8file* GetFirst();
-		v8file* createFile(const String& FileName, bool _selfzipped = false); // CreateFile в win64 определяется как CreateFileW, пришлось заменить на маленькую букву
+		V8File* GetFile(const String& FileName);
+		V8File* GetFirst();
+		V8File* createFile(const String& FileName, bool _selfzipped = false); // CreateFile в win64 определяется как CreateFileW, пришлось заменить на маленькую букву
 		v8catalog* CreateCatalog(const String& FileName, bool _selfzipped = false);
 		void DeleteFile(const String& FileName);
 		v8catalog* GetParentCatalog();
-		v8file* GetSelfFile();
+		V8File* GetSelfFile();
 		void SaveToDir(const boost::filesystem::path &dir) const;
 		bool isOpen() const;
 		void Flush();
 		void HalfClose();
 		void HalfOpen(const String& name);
 
-		v8file* get_first_file();
-		void first_file(v8file *value);
+		V8File* get_first_file();
+		void first_file(V8File *value);
 
-		v8file* get_last_file();
-		void last_file(v8file* value);
+		V8File* get_last_file();
+		void last_file(V8File* value);
 private:
-		friend v8file;
+		friend V8File;
 		TCriticalSection *Lock;
-		v8file* file;  // файл, которым является каталог. Для корневого каталога NULL
+		V8File* file;  // файл, которым является каталог. Для корневого каталога NULL
 		TStream* data; // поток каталога. Если file не NULL (каталог не корневой), совпадает с file->data
 		TStream* cfu;  // поток файла cfu. Существует только при is_cfu == true
 		void initialize();
-		v8file* first; // первый файл в каталоге
-		v8file* last;  // последний файл в каталоге
-		std::map<String,v8file*> files; // Соответствие имен и файлов
+		V8File* first; // первый файл в каталоге
+		V8File* last;  // последний файл в каталоге
+		std::map<String,V8File*> files; // Соответствие имен и файлов
 		int64_t start_empty; // начало первого пустого блока
 		int page_size;   // размер страницы по умолчанию
 		int version;     // версия

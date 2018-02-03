@@ -532,7 +532,7 @@ void T_1CD::add_supplier_config(TableFile* tf)
 	int32_t i;
 	v8catalog* cat = nullptr;
 	v8catalog* cat2;
-	v8file* file;
+	V8File* file;
 	tree* tr = nullptr;
 	String filenamemeta;
 	String nodetype;
@@ -1402,8 +1402,8 @@ bool T_1CD::recursive_test_stream_format(v8catalog* cat, String path)
 	v8catalog* c;
 	bool result;
 
-	v8file* v8f;
-	v8file* v8fp;
+	V8File* v8f;
+	V8File* v8fp;
 	String fname;
 
 	result = true;
