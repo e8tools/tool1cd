@@ -7,7 +7,7 @@ extern Registrator msreg_g;
 
 using namespace System;
 
-V8File::V8File(v8catalog* _parent, const String& _name, V8File* _previous, int _start_data, int _start_header, int64_t* _time_create, int64_t* _time_modify)
+V8File::V8File(V8Catalog* _parent, const String& _name, V8File* _previous, int _start_data, int _start_header, int64_t* _time_create, int64_t* _time_modify)
 {
 	Lock = new TCriticalSection();
 	is_destructed = false;
@@ -375,15 +375,15 @@ bool V8File::IsCatalog()
 
 //---------------------------------------------------------------------------
 // получение "каталога"
-v8catalog* V8File::GetCatalog(){
-	v8catalog* ret;
+V8Catalog* V8File::GetCatalog(){
+	V8Catalog* ret;
 
 	Lock->Acquire();
 	if(IsCatalog())
 	{
 		if(!self)
 		{
-			self = new v8catalog(this);
+			self = new V8Catalog(this);
 		}
 		ret = self;
 	}
@@ -394,7 +394,7 @@ v8catalog* V8File::GetCatalog(){
 
 //---------------------------------------------------------------------------
 // получение родительского контейнера
-v8catalog* V8File::GetParentCatalog()
+V8Catalog* V8File::GetParentCatalog()
 {
 	return parent;
 }

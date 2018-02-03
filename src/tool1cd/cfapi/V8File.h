@@ -10,7 +10,7 @@
 #include "../Parse_tree.h"
 #include <boost/filesystem.hpp>
 
-class v8catalog;
+class V8Catalog;
 class TV8FileStream;
 
 enum class FileIsCatalog {
@@ -21,11 +21,11 @@ enum class FileIsCatalog {
 
 class V8File {
 public:
-		V8File(v8catalog* _parent, const String& _name, V8File* _previous, int _start_data, int _start_header, int64_t* _time_create, int64_t* _time_modify);
+		V8File(V8Catalog* _parent, const String& _name, V8File* _previous, int _start_data, int _start_header, int64_t* _time_create, int64_t* _time_modify);
 
 		~V8File();
 		bool IsCatalog();
-		v8catalog* GetCatalog();
+		V8Catalog* GetCatalog();
 		int64_t GetFileLength();
 
 		int64_t Read(void* Buffer, int Start, int Length);
@@ -41,7 +41,7 @@ public:
 		String GetFullName();
 
 		void SetFileName(const String& _name);
-		v8catalog* GetParentCatalog();
+		V8Catalog* GetParentCatalog();
 		void DeleteFile();
 		V8File* GetNext();
 		bool Open();
@@ -60,17 +60,17 @@ public:
 
 		tree* get_tree();
 private:
-		friend v8catalog;
+		friend V8Catalog;
 		friend TV8FileStream;
 		String name;
 		int64_t time_create;
 		int64_t time_modify;
 		TCriticalSection *Lock;
 		TStream* data;
-		v8catalog* parent;
+		V8Catalog* parent;
 		FileIsCatalog iscatalog;
 
-		v8catalog* self;        // указатель на каталог, если файл является каталогом
+		V8Catalog* self;        // указатель на каталог, если файл является каталогом
 		V8File* next;           // следующий файл в каталоге
 		V8File* previous;       // предыдущий файл в каталоге
 		bool is_opened;         // признак открытого файла (инициализирован поток data)

@@ -70,8 +70,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	depot_ver depotVer;
 	uint32_t configVerMajor, configVerMinor;
 	PackDirectory pack_directory;
-	v8catalog* cat;
-	v8catalog* cath;
+	V8Catalog* cat;
+	V8Catalog* cath;
 	bool oldformat;
 	tree* tv; // корень дерева файла versions
 	tree* tvc; // тек. элемент дерева файла versions
@@ -201,7 +201,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	if (boost::filesystem::exists(filepath)) {
 		boost::filesystem::remove(filepath);
 	}
-	cat = new v8catalog(filepath.string(), false);
+	cat = new V8Catalog(filepath.string(), false);
 
 	// root, versions
 

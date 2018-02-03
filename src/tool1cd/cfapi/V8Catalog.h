@@ -15,23 +15,23 @@ struct fat_item{
 	int32_t ff;            // всегда 7fffffff
 };
 
-class v8catalog {
+class V8Catalog {
 public:
-		explicit v8catalog(V8File* f);   // создать каталог из файла
-		explicit v8catalog(String name); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
-		v8catalog(String name, bool _zipped); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
-		v8catalog(TStream* stream, bool _zipped, bool leave_stream = false); // создать каталог из потока
+		explicit V8Catalog(V8File* f);   // создать каталог из файла
+		explicit V8Catalog(String name); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
+		V8Catalog(String name, bool _zipped); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
+		V8Catalog(TStream* stream, bool _zipped, bool leave_stream = false); // создать каталог из потока
 
 		bool IsCatalog() const;
 
-		~v8catalog();
+		~V8Catalog();
 
 		V8File* GetFile(const String& FileName);
 		V8File* GetFirst();
 		V8File* createFile(const String& FileName, bool _selfzipped = false); // CreateFile в win64 определяется как CreateFileW, пришлось заменить на маленькую букву
-		v8catalog* CreateCatalog(const String& FileName, bool _selfzipped = false);
+		V8Catalog* CreateCatalog(const String& FileName, bool _selfzipped = false);
 		void DeleteFile(const String& FileName);
-		v8catalog* GetParentCatalog();
+		V8Catalog* GetParentCatalog();
 		V8File* GetSelfFile();
 		void SaveToDir(const boost::filesystem::path &dir) const;
 		bool isOpen() const;

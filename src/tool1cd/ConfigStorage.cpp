@@ -85,7 +85,7 @@ bool ConfigStorageDirectory::fileexists(const String& path)
 ConfigStorageCFFile::ConfigStorageCFFile(const String& fname)
 {
 	filename = fname;
-	cat = new v8catalog(filename);
+	cat = new V8Catalog(filename);
 }
 
 //---------------------------------------------------------------------------
@@ -97,7 +97,7 @@ ConfigStorageCFFile::~ConfigStorageCFFile()
 //---------------------------------------------------------------------------
 ConfigFile* ConfigStorageCFFile::readfile(const String& path)
 {
-	v8catalog* c;
+	V8Catalog* c;
 	V8File* f;
 	int i;
 	ConfigFile* cf;
@@ -128,7 +128,7 @@ ConfigFile* ConfigStorageCFFile::readfile(const String& path)
 //---------------------------------------------------------------------------
 bool ConfigStorageCFFile::writefile(const String& path, TStream* str)
 {
-	v8catalog* c;
+	V8Catalog* c;
 	V8File* f;
 	int i;
 
@@ -385,7 +385,7 @@ ConfigFile* ConfigStorageTable::readfile(const String& path)
 {
 	ContainerFile* tf;
 	std::map<String,ContainerFile*>::iterator pfiles;
-	v8catalog* c;
+	V8Catalog* c;
 	V8File* f;
 	int i;
 	String fname;
@@ -415,7 +415,7 @@ ConfigFile* ConfigStorageTable::readfile(const String& path)
 	tf->open();
 	if(!fname.IsEmpty())
 	{
-		if(!tf->cat) tf->cat = new v8catalog(tf->stream, false, true);
+		if(!tf->cat) tf->cat = new V8Catalog(tf->stream, false, true);
 		c = tf->cat;
 		for(i = fname.Pos("\\"); i; i = fname.Pos("\\"))
 		{
@@ -489,7 +489,7 @@ bool ConfigStorageTable::save_config(const boost::filesystem::path &file_name)
 	size_t prevj = 101;
 	size_t i = 1;
 
-	std::unique_ptr<v8catalog> catalog (new v8catalog(file_name.string(), false));
+	std::unique_ptr<V8Catalog> catalog (new V8Catalog(file_name.string(), false));
 	for(auto pfiles: files)
 	{
 		++i;

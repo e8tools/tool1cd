@@ -78,7 +78,7 @@ TStream* read_block(TStream* stream_from, int start, TStream* stream_to = nullpt
 }
 
 // определение каталога
-bool v8catalog::IsCatalog() const
+bool V8Catalog::IsCatalog() const
 {
 	int64_t _filelen;
 	uint32_t _startempty = (uint32_t)(-1);
@@ -147,7 +147,7 @@ bool v8catalog::IsCatalog() const
 
 //---------------------------------------------------------------------------
 // конструктор
-v8catalog::v8catalog(String name) // создать каталог из физического файла .cf
+V8Catalog::V8Catalog(String name) // создать каталог из физического файла .cf
 {
 	Lock = new TCriticalSection();
 	iscatalogdefined = false;
@@ -206,7 +206,7 @@ v8catalog::v8catalog(String name) // создать каталог из физи
 
 //---------------------------------------------------------------------------
 // конструктор
-v8catalog::v8catalog(String name, bool _zipped) // создать каталог из физического файла
+V8Catalog::V8Catalog(String name, bool _zipped) // создать каталог из физического файла
 {
 	Lock = new TCriticalSection();
 	iscatalogdefined = false;
@@ -242,7 +242,7 @@ v8catalog::v8catalog(String name, bool _zipped) // создать каталог
 
 //---------------------------------------------------------------------------
 // конструктор
-v8catalog::v8catalog(TStream* stream, bool _zipped, bool leave_stream) // создать каталог из потока
+V8Catalog::V8Catalog(TStream* stream, bool _zipped, bool leave_stream) // создать каталог из потока
 {
 	Lock = new TCriticalSection();
 	is_cfu = false;
@@ -276,7 +276,7 @@ v8catalog::v8catalog(TStream* stream, bool _zipped, bool leave_stream) // соз
 
 //---------------------------------------------------------------------------
 // конструктор
-v8catalog::v8catalog(V8File* f) // создать каталог из файла
+V8Catalog::V8Catalog(V8File* f) // создать каталог из файла
 {
 	is_cfu = false;
 	iscatalogdefined = false;
@@ -308,7 +308,7 @@ v8catalog::v8catalog(V8File* f) // создать каталог из файла
 }
 
 //---------------------------------------------------------------------------
-void v8catalog::initialize()
+void V8Catalog::initialize()
 {
 	is_destructed = false;
 	catalog_header _ch;
@@ -389,7 +389,7 @@ void v8catalog::initialize()
 
 //---------------------------------------------------------------------------
 // удалить файл
-void v8catalog::DeleteFile(const String& FileName)
+void V8Catalog::DeleteFile(const String& FileName)
 {
 	Lock->Acquire();
 	V8File* f = first;
@@ -407,7 +407,7 @@ void v8catalog::DeleteFile(const String& FileName)
 
 //---------------------------------------------------------------------------
 // получить файл
-V8File* v8catalog::GetFile(const String& FileName)
+V8File* V8Catalog::GetFile(const String& FileName)
 {
 	V8File* ret;
 	Lock->Acquire();
@@ -421,13 +421,13 @@ V8File* v8catalog::GetFile(const String& FileName)
 
 //---------------------------------------------------------------------------
 // получить первого
-V8File* v8catalog::GetFirst(){
+V8File* V8Catalog::GetFirst(){
 	return first;
 }
 
 //---------------------------------------------------------------------------
 // создать файл
-V8File* v8catalog::createFile(const String& FileName, bool _selfzipped){
+V8File* V8Catalog::createFile(const String& FileName, bool _selfzipped){
 	int64_t v8t;
 	V8File* f;
 
@@ -447,7 +447,7 @@ V8File* v8catalog::createFile(const String& FileName, bool _selfzipped){
 
 //---------------------------------------------------------------------------
 // получить родительский каталог
-v8catalog* v8catalog::GetParentCatalog()
+V8Catalog* V8Catalog::GetParentCatalog()
 {
 	if(!file) return nullptr;
 	return file->parent;
@@ -455,7 +455,7 @@ v8catalog* v8catalog::GetParentCatalog()
 
 //---------------------------------------------------------------------------
 // чтение блока данных
-TStream* v8catalog::read_datablock(int start)
+TStream* V8Catalog::read_datablock(int start)
 {
 	TStream* stream;
 	TStream* stream2;
@@ -478,7 +478,7 @@ TStream* v8catalog::read_datablock(int start)
 
 //---------------------------------------------------------------------------
 // освобождение блока
-void v8catalog::free_block(int start){
+void V8Catalog::free_block(int start){
 	std::array<char, BLOCK_HEADER_LEN> temp_buf;
 	int nextstart;
 	int prevempty;
@@ -524,7 +524,7 @@ void v8catalog::free_block(int start){
 
 //---------------------------------------------------------------------------
 // запись блока данных
-int v8catalog::write_datablock(TStream* block, int start, bool _zipped, int len)
+int V8Catalog::write_datablock(TStream* block, int start, bool _zipped, int len)
 {
 	TMemoryStream* stream2;
 	TMemoryStream* stream;
@@ -570,7 +570,7 @@ int v8catalog::write_datablock(TStream* block, int start, bool _zipped, int len)
 
 //---------------------------------------------------------------------------
 // получить следующий блок
-int64_t v8catalog::get_nextblock(int64_t start)
+int64_t V8Catalog::get_nextblock(int64_t start)
 {
 	int64_t ret;
 
@@ -587,7 +587,7 @@ int64_t v8catalog::get_nextblock(int64_t start)
 
 //---------------------------------------------------------------------------
 // записать блок
-int v8catalog::write_block(TStream* block, int start, bool use_page_size, int len)
+int V8Catalog::write_block(TStream* block, int start, bool use_page_size, int len)
 {
 	std::array<char, BLOCK_HEADER_LEN> temp_buf;
 	char* _t;
@@ -704,7 +704,7 @@ int v8catalog::write_block(TStream* block, int start, bool use_page_size, int le
 
 //---------------------------------------------------------------------------
 // деструктор
-v8catalog::~v8catalog()
+V8Catalog::~V8Catalog()
 {
 	fat_item fi;
 	V8File* f;
@@ -798,16 +798,16 @@ v8catalog::~v8catalog()
 
 //---------------------------------------------------------------------------
 // получить файл собственный
-V8File* v8catalog::GetSelfFile()
+V8File* V8Catalog::GetSelfFile()
 {
 	return file;
 }
 
 //---------------------------------------------------------------------------
 // создать каталог
-v8catalog* v8catalog::CreateCatalog(const String& FileName, bool _selfzipped)
+V8Catalog* V8Catalog::CreateCatalog(const String& FileName, bool _selfzipped)
 {
-	v8catalog* ret;
+	V8Catalog* ret;
 	Lock->Acquire();
 	V8File* f = createFile(FileName, _selfzipped);
 	if(f->GetFileLength() > 0)
@@ -826,7 +826,7 @@ v8catalog* v8catalog::CreateCatalog(const String& FileName, bool _selfzipped)
 
 //---------------------------------------------------------------------------
 // сохранить в файловую систему
-void v8catalog::SaveToDir(const boost::filesystem::path &dir) const
+void V8Catalog::SaveToDir(const boost::filesystem::path &dir) const
 {
 	if (!boost::filesystem::exists(dir)) {
 		boost::filesystem::create_directories(dir);
@@ -849,14 +849,14 @@ void v8catalog::SaveToDir(const boost::filesystem::path &dir) const
 
 //---------------------------------------------------------------------------
 // возвращает признак открытости
-bool v8catalog::isOpen() const
+bool V8Catalog::isOpen() const
 {
 	return IsCatalog();
 }
 
 //---------------------------------------------------------------------------
 // сбросить
-void v8catalog::Flush()
+void V8Catalog::Flush()
 {
 	fat_item fi;
 	V8File* f;
@@ -935,7 +935,7 @@ void v8catalog::Flush()
 
 //---------------------------------------------------------------------------
 // закрыть наполовину
-void v8catalog::HalfClose()
+void V8Catalog::HalfClose()
 {
 	Lock->Acquire();
 	Flush();
@@ -954,7 +954,7 @@ void v8catalog::HalfClose()
 
 //---------------------------------------------------------------------------
 // половину открыть
-void v8catalog::HalfOpen(const String& name)
+void V8Catalog::HalfOpen(const String& name)
 {
 	Lock->Acquire();
 	if(is_cfu) cfu = new TFileStream(name, fmOpenReadWrite);
@@ -962,22 +962,22 @@ void v8catalog::HalfOpen(const String& name)
 	Lock->Release();
 }
 
-V8File* v8catalog::get_first_file()
+V8File* V8Catalog::get_first_file()
 {
 	return first;
 }
 
-void v8catalog::first_file(V8File* value)
+void V8Catalog::first_file(V8File* value)
 {
 	first = value;
 }
 
-V8File* v8catalog::get_last_file()
+V8File* V8Catalog::get_last_file()
 {
 	return last;
 }
 
-void v8catalog::last_file(V8File *value)
+void V8Catalog::last_file(V8File *value)
 {
 	last = value;
 }
