@@ -530,9 +530,9 @@ void T_1CD::add_supplier_config(TableFile* tf)
 	ContainerFile* f;
 	TStream* s;
 	int32_t i;
-	v8catalog* cat = nullptr;
-	v8catalog* cat2;
-	v8file* file;
+	V8Catalog* cat = nullptr;
+	V8Catalog* cat2;
+	V8File* file;
 	tree* tr = nullptr;
 	String filenamemeta;
 	String nodetype;
@@ -567,7 +567,7 @@ void T_1CD::add_supplier_config(TableFile* tf)
 		delete f;
 		f = nullptr;
 
-		cat = new v8catalog(s, true);
+		cat = new V8Catalog(s, true);
 		s = nullptr;
 		file = cat->GetFile("version");
 		if(!file)
@@ -1245,7 +1245,7 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 	TEncoding *enc;
 	std::vector<uint8_t> bytes1;
 	std::vector<uint8_t> bytes2;
-	v8catalog* cat;
+	V8Catalog* cat;
 	int32_t offset;
 	String sf;
 	wchar_t first_symbol;
@@ -1302,7 +1302,7 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 
 	try
 	{
-		cat = new v8catalog(_s, zipped2, true);
+		cat = new V8Catalog(_s, zipped2, true);
 	}
 	catch (...)
 	{
@@ -1397,13 +1397,13 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::recursive_test_stream_format(v8catalog* cat, String path)
+bool T_1CD::recursive_test_stream_format(V8Catalog* cat, String path)
 {
-	v8catalog* c;
+	V8Catalog* c;
 	bool result;
 
-	v8file* v8f;
-	v8file* v8fp;
+	V8File* v8f;
+	V8File* v8fp;
 	String fname;
 
 	result = true;

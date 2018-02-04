@@ -57,7 +57,7 @@ class ConfigStorageCFFile : public ConfigStorage
 {
 private:
 	String filename;
-	v8catalog* cat;
+	V8Catalog* cat;
 public:
 	explicit ConfigStorageCFFile(const String& fname);
 	virtual ~ConfigStorageCFFile();
@@ -85,7 +85,7 @@ struct ContainerFile
 	String name; // Приведенное имя (очищенное от динамического обновления)
 	TStream* stream;
 	TStream* rstream; // raw stream (нераспакованный поток)
-	v8catalog* cat;
+	V8Catalog* cat;
 	table_file_packed packed;
 	int dynno; // Номер (индекс) динамического обновления (0, 1 и т.д.). Если без динамического обновления, то -1, если UID динамического обновления не найден, то -2. Для пропускаемых файлов -3.
 

@@ -2,10 +2,10 @@
 
 using namespace System;
 
-TV8FileStream::TV8FileStream(v8file* f, bool ownfile) : TStream(), file(f), own(ownfile)
+TV8FileStream::TV8FileStream(V8File* f, bool ownfile) : TStream(), file(f), own(ownfile)
 {
 	pos = 0l;
-	file->streams.insert(this);
+	file->streams().insert(this);
 }
 
 //---------------------------------------------------------------------------
@@ -13,7 +13,7 @@ TV8FileStream::TV8FileStream(v8file* f, bool ownfile) : TStream(), file(f), own(
 TV8FileStream::~TV8FileStream()
 {
 	if(own) delete file;
-	else file->streams.erase(this);
+	else file->streams().erase(this);
 }
 
 //---------------------------------------------------------------------------

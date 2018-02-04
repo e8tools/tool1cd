@@ -56,7 +56,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	TMemoryStream* sd;
 	bool hasdeleted;
 	PackDirectory pack_directory;
-	v8catalog* cat;
+	V8Catalog* cat;
 	TFileStream* f;
 
 	union
@@ -427,7 +427,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 											iscatalog = false;
 											if(out->GetSize() > 0)
 											{
-												cat = new v8catalog(out, false, true);
+												cat = new V8Catalog(out, false, true);
 												iscatalog = cat->IsCatalog();
 											}
 											if(iscatalog) cat->SaveToDir((cath / static_cast<string>(ext_name)).string());
