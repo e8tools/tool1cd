@@ -59,9 +59,6 @@ enum class block_header: int {
 };
 
 unsigned WindowsTickToUnixSeconds(long long windowsTicks);
-void V8timeToFileTime(const int64_t* v8t, FILETIME* ft);
-void FileTimeToV8time(const FILETIME* ft, int64_t* v8t);
-void setCurrentTime(int64_t* v8t);
 
 #endif
 

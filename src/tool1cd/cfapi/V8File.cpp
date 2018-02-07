@@ -7,7 +7,7 @@ extern Registrator msreg_g;
 
 using namespace System;
 
-V8File::V8File(V8Catalog* _parent, const String& _name, V8File* _previous, int _start_data, int _start_header, int64_t* _time_create, int64_t* _time_modify)
+V8File::V8File(V8Catalog* _parent, const String& _name, V8File* _previous, int _start_data, int _start_header, int64_t time_create, int64_t time_modify)
 {
 	Lock = new TCriticalSection();
 	_destructed = false;
@@ -28,8 +28,8 @@ V8File::V8File(V8Catalog* _parent, const String& _name, V8File* _previous, int _
 	iscatalog = FileIsCatalog::unknown;
 	self = nullptr;
 	is_opened = false;
-	time_create = *_time_create;
-	time_modify = *_time_modify;
+	_time_create = V8Time(time_create);
+	_time_modify = V8Time(time_modify);
 	_selfzipped = false;
 	if(parent) {
 		V8Catalog::V8Files& files = parent->v8files();
@@ -37,40 +37,38 @@ V8File::V8File(V8Catalog* _parent, const String& _name, V8File* _previous, int _
 	}
 }
 
-//---------------------------------------------------------------------------
 // получить время создания
-void V8File::GetTimeCreate(FILETIME* ft)
-{
-	V8timeToFileTime(&time_create, ft);
+System::FILETIME V8File::get_time_create() const {
+	return _time_create.to_file_time();
 }
 
-//---------------------------------------------------------------------------
 // получить время модификации
-void V8File::GetTimeModify(FILETIME* ft)
-{
-	V8timeToFileTime(&time_modify, ft);
+System::FILETIME V8File::get_time_modify() const {
+	return _time_modify.to_file_time();
 }
 
-//---------------------------------------------------------------------------
 // установить время создания
-void V8File::SetTimeCreate(FILETIME* ft)
-{
-	FileTimeToV8time(ft, &time_create);
+void V8File::time_create(const System::FILETIME &file_time) {
+	_time_create.from_file_time(file_time);
 }
 
-//---------------------------------------------------------------------------
+void V8File::time_create(const V8Time &time) {
+	_time_create = time;
+}
+
 // установить время модификации
-void V8File::SetTimeModify(FILETIME* ft)
-{
-	FileTimeToV8time(ft, &time_modify);
+void V8File::time_modify(const System::FILETIME &file_time) {
+	_time_modify.from_file_time(file_time);
+}
+
+void V8File::time_modify(const V8Time &time) {
+	_time_modify = time;
 }
 
 //---------------------------------------------------------------------------
 // сохранить в файл
 void V8File::SaveToFile(const boost::filesystem::path &FileName)
 {
-	FILETIME create, modify;
-
 #ifdef _MSC_VER
 
 		struct _utimbuf ut;
@@ -91,8 +89,8 @@ void V8File::SaveToFile(const boost::filesystem::path &FileName)
 	fs.Close();
 	Lock->Release();
 
-	GetTimeCreate(&create);
-	GetTimeModify(&modify);
+	FILETIME create = get_time_create();
+	FILETIME modify = get_time_create();
 
 	time_t RawtimeCreate = FileTime_to_POSIX(&create);
 	struct tm * ptm_create = localtime(&RawtimeCreate);
@@ -183,7 +181,8 @@ int64_t V8File::Write(const void* Buffer, int Start, int Length) // дозапи
 	if (!try_open()){
 		return ret;
 	}
-	setCurrentTime(&time_modify);
+	_time_modify = V8Time::current_time();
+
 	is_headermodified = true;
 	_datamodified   = true;
 	data->Seek(Start, soFromBeginning);
@@ -202,7 +201,8 @@ int64_t V8File::Write(std::vector<uint8_t> Buffer, int Start, int Length) // д�
 	if (!try_open()){
 		return ret;
 	}
-	setCurrentTime(&time_modify);
+	_time_modify = V8Time::current_time();
+
 	is_headermodified = true;
 	_datamodified   = true;
 	data->Seek(Start, soFromBeginning);
@@ -221,7 +221,8 @@ int64_t V8File::Write(const void* Buffer, int Length) // перезапись ц
 	if (!try_open()) {
 		return ret;
 	}
-	setCurrentTime(&time_modify);
+	_time_modify = V8Time::current_time();
+
 	is_headermodified = true;
 	_datamodified = true;
 	if (data->GetSize() > Length) data->SetSize(Length);
@@ -241,7 +242,8 @@ int64_t V8File::Write(TStream* Stream, int Start, int Length) // дозапис�
 	if (!try_open()) {
 		return ret;
 	}
-	setCurrentTime(&time_modify);
+	_time_modify = V8Time::current_time();
+
 	is_headermodified = true;
 	_datamodified   = true;
 	data->Seek(Start, soFromBeginning);
@@ -260,7 +262,8 @@ int64_t V8File::Write(TStream* Stream) // перезапись целиком
 	if (!try_open()) {
 		return ret;
 	}
-	setCurrentTime(&time_modify);
+	_time_modify = V8Time::current_time();
+
 	is_headermodified = true;
 	_datamodified   = true;
 	if (data->GetSize() > Stream->GetSize()) data->SetSize(Stream->GetSize());
@@ -500,8 +503,8 @@ void V8File::Close(){
 			if(is_headermodified)
 			{
 				TMemoryStream* hs = new TMemoryStream();
-				hs->Write(&time_create, 8);
-				hs->Write(&time_modify, 8);
+				_time_create.write_to_stream(hs);
+				_time_modify.write_to_stream(hs);
 				hs->Write(&_t, 4);
 				#ifndef _DELPHI_STRING_UNICODE // FIXME: определится используем WCHART или char
 				int ws = name.WideCharBufSize();
@@ -562,8 +565,8 @@ int64_t V8File::WriteAndClose(TStream* Stream, int Length)
 		parent->Acquire();
 		start_data = parent->write_datablock(Stream, start_data, _selfzipped, Length);
 		TMemoryStream hs;
-		hs.Write(&time_create, 8);
-		hs.Write(&time_modify, 8);
+		_time_create.write_to_stream(&hs);
+		_time_modify.write_to_stream(&hs);
 		hs.Write(&_4bzero, 4);
 		hs.Write(wname, name.Length() * sizeof(WCHART));
 		hs.Write(&_4bzero, 4);
@@ -664,8 +667,8 @@ void V8File::Flush()
 			if(is_headermodified)
 			{
 				TMemoryStream* hs = new TMemoryStream();
-				hs->Write(&time_create, 8);
-				hs->Write(&time_modify, 8);
+				_time_create.write_to_stream(hs);
+				_time_modify.write_to_stream(hs);
 				hs->Write(&_t, 4);
 				#ifndef _DELPHI_STRING_UNICODE
 				int ws = name.WideCharBufSize();
