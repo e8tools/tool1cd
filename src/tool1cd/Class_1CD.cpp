@@ -219,12 +219,12 @@ T_1CD::~T_1CD()
 //---------------------------------------------------------------------------
 T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 {
-	char* b;
-	uint32_t* table_blocks;
+	char* b = nullptr;
+	uint32_t* table_blocks = nullptr;
 	int32_t i, j;
-	TMemoryStream* tstr;
-	root_80* root80;
-	root_81* root81;
+	TMemoryStream* tstr = nullptr;
+	root_80* root80 = nullptr;
+	root_81* root81 = nullptr;
 
 	msreg_m.AddMessageRegistrator(mess);
 
@@ -1674,7 +1674,6 @@ void T_1CD::set_readonly(bool ro)
 bool T_1CD::test_list_of_tables()
 {
 	char* rec;
-	char* orec;
 	Field* f_name;
 	Field* f_data_size;
 	Field* f_binary_data;
@@ -2149,16 +2148,14 @@ bool T_1CD::delete_object(v8object* ob)
 //---------------------------------------------------------------------------
 void T_1CD::find_and_create_lost_tables()
 {
-	uint32_t i, k;
-	int32_t j, numlosttables;
+	uint32_t k;
 	char buf[8];
-	v8object* v8obj;
+	v8object* v8obj = nullptr;
 	bool block_is_find;
 	vector<uint32_t> losttables;
-	char* b;
-
-	numlosttables = 0;
-	for(i = 1; i < length; i++)
+	
+	size_t numlosttables = 0;
+	for(uint32_t i = 1; i < length; i++)
 	{
 		getblock(buf, i, 8);
 		if(memcmp(buf, SIG_OBJ, 8) == 0)
@@ -2198,23 +2195,23 @@ void T_1CD::find_and_create_lost_tables()
 
 	if(numlosttables)
 	{
-		i = root_object->getlen();
-		b = new char[i + numlosttables * 4];
-		root_object->getdata(b, 0, i);
+		uint64_t root_object_len = root_object->getlen();
+		char* b = new char[root_object_len + numlosttables * 4];
+		root_object->getdata(b, 0, root_object_len);
 
 		if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0)
 		{
 			root_80* root80 = (root_80*)b;
-			for(j = 0, k = root80->numblocks; j < numlosttables; j++, k++) root80->blocks[k] = losttables[j];
+			for(int32_t j = 0, k = root80->numblocks; j < numlosttables; j++, k++) root80->blocks[k] = losttables[j];
 			root80->numblocks += numlosttables;
 		}
 		else
 		{
 			root_81* root81 = (root_81*)b;
-			for(j = 0, k = root81->numblocks; j < numlosttables; j++, k++) root81->blocks[k] = losttables[j];
+			for(int32_t j = 0, k = root81->numblocks; j < numlosttables; j++, k++) root81->blocks[k] = losttables[j];
 			root81->numblocks += numlosttables;
 		}
-		root_object->setdata(b, i + numlosttables * 4);
+		root_object->setdata(b, root_object_len + numlosttables * 4);
 		delete[] b;
 
 	}
@@ -2260,7 +2257,7 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 
 	Index *ind = table_versions->get_index("PK");
 
-	int32_t i = ind->get_numrecords();
+	uint32_t i = ind->get_numrecords();
 	if (i <= (uint32_t)(-ver)) {
 		DetailedException error("Запрошенной версии конфигурации не существует");
 		error.add_detail("Всего версий в хранилище", i);

@@ -14,7 +14,7 @@ public:
 	virtual int Read(std::vector<uint8_t> Buffer, int Offset, int Count);
 	virtual int64_t Write(const void *Buffer, int64_t Count) override;
 	virtual int Write(const std::vector<uint8_t> Buffer, int Offset, int Count);
-	virtual int64_t Seek(const int64_t Offset, TSeekOrigin Origin) override;
+	virtual int64_t Seek(const int64_t Offset, const TSeekOrigin Origin) override;
 protected:
 	V8File* file;
 	bool own;

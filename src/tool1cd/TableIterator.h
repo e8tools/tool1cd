@@ -28,7 +28,7 @@ private:
 	Table *table;
 	char *buf;
 	TableRecord _current_record;
-	int phys_record_num;
+	uint32_t phys_record_num;
 	bool _eof;
 };
 
@@ -51,7 +51,7 @@ private:
 	Index *index;
 	char *buf;
 	TableRecord _current_record;
-	int index_record_num;
+	uint32_t index_record_num;
 	bool _eof;
 };
 

@@ -175,8 +175,7 @@ bool Field::save_blob_to_file(const TableRecord *rec, String _filename, bool unp
 	TStream* _s2;
 	TStream* _sx;
 	TStream* _sx2;
-	uint32_t k, l;
-
+	
 	if (rec->is_null_value(this)) {
 		return false;
 	}
