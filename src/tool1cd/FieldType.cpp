@@ -587,7 +587,7 @@ bool CommonFieldType::get_binary_value(char *binary_value, const String &value) 
 		}
 
 		case type_fields::tf_char: {
-			int32_t i = std::min(value.GetLength(), length);
+			int32_t i = std::min(value.GetLength(), (size_t)length);
 			memcpy(fr, value.c_str(), i << 1);
 			while(i < length) {
 				((WCHART*)fr)[i++] = L' ';
@@ -595,7 +595,7 @@ bool CommonFieldType::get_binary_value(char *binary_value, const String &value) 
 			break;
 		}
 		case type_fields::tf_varchar: {
-			int32_t i = std::min(value.GetLength(), length);
+			int32_t i = std::min(value.GetLength(), (size_t)length);
 			*(int16_t*)fr = i;
 			memcpy(fr + 2, value.c_str(), i * 2);
 			while(i < length) {

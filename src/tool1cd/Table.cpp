@@ -128,15 +128,11 @@ void Table::init(int32_t block_descr)
 {
 	tree* t;
 	tree* f;
-	tree* in;
 	tree* rt;
-	int32_t i, j, k;
+	int32_t j;
 	uint32_t m;
 	uint64_t s;
-	Index* ind;
-	int32_t numrec;
 	int32_t blockfile[3];
-	Field* fld;
 	uint32_t* buf;
 
 	init();
@@ -197,7 +193,7 @@ void Table::init(int32_t block_descr)
 				.add_detail("Узел", f->get_value());
 	}
 
-	for(i = 0; i < num_fields; i++)
+	for(int32_t i = 0; i < num_fields; i++)
 	{
 		f = f->get_next();
 		if(f->get_num_subnode() != 6) {
@@ -303,7 +299,7 @@ void Table::init(int32_t block_descr)
 				.add_detail("Узел", f->get_value());
 	}
 
-	for(i = 0; i < 3; i++)
+	for(int32_t i = 0; i < 3; i++)
 	{
 		f = f->get_next();
 		if (f->get_type() != node_type::nd_number) {
@@ -367,7 +363,7 @@ void Table::init(int32_t block_descr)
 			}
 			else
 			{
-				for(i = 1; i <= num_indexes; i++)
+				for(int32_t i = 1; i <= num_indexes; i++)
 				{
 					if(base->version < db_ver::ver8_3_8_0)
 					{
@@ -415,7 +411,7 @@ void Table::init(int32_t block_descr)
 	// вычисляем длину записи таблицы как сумму длинн полей и проставим смещения полей в записи
 	recordlen = 1; // первый байт записи - признак удаленности
 	// сначала идут поля (поле) с типом "версия"
-	for(i = 0; i < num_fields; i++) {
+	for(int32_t i = 0; i < num_fields; i++) {
 		if (fields[i]->type_manager->gettype() == type_fields::tf_version
 			|| fields[i]->type_manager->gettype() == type_fields::tf_version8) {
 			fields[i]->offset = recordlen;
@@ -423,7 +419,7 @@ void Table::init(int32_t block_descr)
 		}
 	}
 	// затем идут все остальные поля
-	for(i = 0; i < num_fields; i++) {
+	for(int32_t i = 0; i < num_fields; i++) {
 		if (fields[i]->type_manager->gettype() != type_fields::tf_version
 			&& fields[i]->type_manager->gettype() != type_fields::tf_version8) {
 			fields[i]->offset = recordlen;
@@ -455,7 +451,7 @@ void Table::init(int32_t block_descr)
 	}
 
 	// Инициализация данных индекса
-	for(i = 0; i < num_indexes; i++) indexes[i]->get_length();
+	for(int32_t i = 0; i < num_indexes; i++) indexes[i]->get_length();
 
 	bad = false;
 
@@ -862,10 +858,8 @@ uint32_t Table::readBlob(void* buf, uint32_t _startblock, uint32_t _length) cons
 //---------------------------------------------------------------------------
 bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 {
-	String* us;
 	String s;
 	String recname;
-	int32_t i;
 	uint32_t j, numr, nr;
 	bool canwriteblob = false;
 	Index* curindex = nullptr;
@@ -1669,7 +1663,6 @@ void Table::refresh_descr_table()
 //---------------------------------------------------------------------------
 void Table::delete_data_record(uint32_t phys_numrecord)
 {
-	char* rec;
 	int32_t first_empty_rec;
 
 	if(!edit)
@@ -2039,7 +2032,7 @@ void Table::insert_record(const TableRecord *nrec)
 	char* j;
 	type_fields tf;
 	uint32_t phys_numrecord;
-	uint32_t k, l;
+	uint32_t k;
 
 	TableRecord *rec = new TableRecord(this);
 	rec->Assign(nrec);
@@ -2130,7 +2123,6 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 	delete_index_record(phys_numrecord, orec);
 	for(i = 0; i < num_fields; i++)
 	{
-		uint32_t k, l;
 		table_blob_file new_blob = {0, 0};
 		Field *f = fields[i];
 		tf = f->type_manager->gettype();
@@ -2329,7 +2321,7 @@ void Table::fillrecordsindex()
 	}
 	recordsindex.clear();
 
-	for (int i = 0; i < phys_numrecords; i++) {
+	for (uint32_t i = 0; i < phys_numrecords; i++) {
 		std::shared_ptr<TableRecord> rec(getrecord(i));
 		if (rec->is_removed()) {
 			continue;

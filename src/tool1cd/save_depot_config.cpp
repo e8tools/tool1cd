@@ -297,7 +297,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 							int32_t vernum = rece.get_string(flde_vernum).ToIntDef();
 							String ext_name = rece.get_string(flde_extname);
 							if (vernum <= ver && rece.get<bool>(flde_datapacked)) {
-								int32_t j;
+								size_t j;
 								bool found = false;
 								for (j = 0; j < reces.size(); j++) {
 									if (ext_name.CompareIC(reces[j]->get_string(flde_extname)) == 0) {

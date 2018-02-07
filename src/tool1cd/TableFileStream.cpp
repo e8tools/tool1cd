@@ -91,7 +91,7 @@ int32_t TableFileStream::Seek(int32_t Offset, System::Word Origin)
 }
 
 //---------------------------------------------------------------------------
-int64_t TableFileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
+int64_t TableFileStream::Seek(const int64_t Offset, const TSeekOrigin Origin)
 {
 	// TODO: реализовать TableFileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
 	return 0;

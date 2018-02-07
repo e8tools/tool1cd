@@ -21,8 +21,8 @@ int main(int argc, char* argv[])
 
 	App app(argv, argc, mess);
 
-	bool result = app.Run();
-	if (!result) {
+	int result = app.Run();
+	if (result != 0) {
 		return result;
 	}
 
