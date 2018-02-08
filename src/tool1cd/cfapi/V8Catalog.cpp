@@ -346,7 +346,9 @@ void V8Catalog::initialize()
 				_temp_buf = new char[_file_header->GetSize()];
 				_file_header->Read(_temp_buf, _file_header->GetSize());
 				_name = (WCHART*)(_temp_buf + 20);
-				_file = new V8File(this, _name, _prev, _fi.data_start, _fi.header_start, (int64_t*)_temp_buf, (int64_t*)(_temp_buf + 8));
+				int64_t time_create = *(int64_t*)_temp_buf;
+				int64_t time_modify = *(int64_t*)_temp_buf +8;
+				_file = new V8File(this, _name, _prev, _fi.data_start, _fi.header_start, time_create, time_modify);
 				delete[] _temp_buf;
 				if(!_prev) first = _file;
 				_prev = _file;
@@ -435,8 +437,11 @@ V8File* V8Catalog::createFile(const String& FileName, bool _selfzipped){
 	f = GetFile(FileName);
 	if(!f)
 	{
-		setCurrentTime(&v8t);
-		f = new V8File(this, FileName, last, 0, 0, &v8t, &v8t);
+		V8Time v8t = V8Time::current_time();
+
+		f = new V8File(this, FileName, last, 0, 0, 0, 0);
+		f->time_create(v8t);
+		f->time_modify(v8t);
 		f->self_zipped(_selfzipped);
 		last = f;
 		_fatmodified = true;

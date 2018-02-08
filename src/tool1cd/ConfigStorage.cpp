@@ -504,8 +504,8 @@ bool ConfigStorageTable::save_config(const boost::filesystem::path &file_name)
 		if(tf->ropen())
 		{
 			V8File* f = catalog->createFile(tf->name);
-			f->SetTimeCreate(&tf->file->ft_create);
-			f->SetTimeModify(&tf->file->ft_modify);
+			f->time_create(tf->file->ft_create);
+			f->time_modify(tf->file->ft_modify);
 			f->WriteAndClose(tf->rstream);
 
 			tf->close();
