@@ -2,11 +2,14 @@
 #include "ConfigStorage.h"
 #include "System.Classes.hpp"
 #include "TempStream.h"
+#include "DetailedException.h"
 #include "UZLib.h"
 
 extern Registrator msreg_g;
 
-const String NODE_GENERAL = "9cd510cd-abfc-11d4-9434-004095e12fc7";
+String NODE_GENERAL() {
+	return String("9cd510cd-abfc-11d4-9434-004095e12fc7");
+}
 
 SupplierConfigBuilder::SupplierConfigBuilder(TableFile *table_file)
 	: _table_file(table_file)
@@ -21,10 +24,9 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 
 	V8File* root_file = get_file("root");
 	if(!root_file) {
-		msreg_g.AddError("Не найден файл root в конфигурации поставщика",
-			"Таблица", _table_file->t->getname(),
-			"Имя файла", _table_file->name);
-		return nullptr;
+		throw SupplierConfigReadException("Не найден файл root в конфигурации поставщика")
+				.add_detail("Таблица", _table_file->t->getname())
+				.add_detail("Имя файла", _table_file->name);
 	}
 
 	String file_name_meta;
@@ -35,11 +37,10 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 
 	V8File* meta_file = get_file(file_name_meta);
 	if(!meta_file) {
-		msreg_g.AddError("Не найден файл метаданных в конфигурации поставщика",
-			"Таблица", _table_file->t->getname(),
-			"Имя файла", _table_file->name,
-			"Имя мета", file_name_meta);
-		return nullptr;
+		throw SupplierConfigReadException("Не найден файл метаданных в конфигурации поставщика")
+				.add_detail("Таблица", _table_file->t->getname())
+				.add_detail("Имя файла", _table_file->name)
+				.add_detail("Имя мета", file_name_meta);
 	}
 
 	#ifdef _DEBUG
@@ -51,11 +52,11 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 
 	std::unique_ptr<tree> meta_tree ( meta_file->get_tree() );
 	int32_t numnode = (*meta_tree)[0][2].get_value().ToInt();
-	int32_t i = 0;
-	for(i = 0; i < numnode; i++) {
-		tree& node = (*meta_tree)[0][3 + i];
+	int32_t current_node_number = 0;
+	for(current_node_number = 0; current_node_number < numnode; current_node_number++) {
+		tree& node = (*meta_tree)[0][3 + current_node_number];
 		String nodetype = node[0].get_value();
-		if(nodetype.CompareIC(NODE_GENERAL) == 0) { // узел "Общие"
+		if(nodetype.CompareIC(NODE_GENERAL()) == 0) { // узел "Общие"
 			tree& confinfo = node[1][1];
 			int32_t verconfinfo = confinfo[0].get_value().ToInt();
 			switch(verconfinfo)	{
@@ -79,8 +80,8 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 					_version = confinfo[15].get_value();
 					#ifdef _DEBUG
 					msreg_g.AddDebugMessage("Неизвестная версия свойств конфигурации поставщика", MessageState::Info,
-						"Таблица", table_file->t->getname(),
-						"Имя файла", table_file->name,
+						"Таблица", _table_file->t->getname(),
+						"Имя файла", _table_file->name,
 						"Имя мета", file_name_meta,
 						"Версия свойств", verconfinfo);
 					#endif
@@ -90,8 +91,8 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 		}
 	}
 
-	if(i >= numnode) {
-		msreg_g.AddError("Не найден узел Общие в метаданных конфигурации поставщика",
+	if(current_node_number >= numnode) {
+		msreg_g.AddError("Не найден узел Общие в метаданных конфигурации поставщика", // TODO: критичная ошибка? Обработка на месте?
 			"Таблица", _table_file->t->getname(),
 			"Имя файла", _table_file->name,
 			"Имя мета", file_name_meta);
@@ -117,7 +118,8 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 void SupplierConfigBuilder::create_main_catalog() {
 	std::unique_ptr<ContainerFile> container_file( new ContainerFile(_table_file, _table_file->name) );
 	if(!container_file->open()) {
-		return;
+		throw SupplierConfigReadException("Ошибка открытия конейнера файлов")
+				.add_detail("Имя", container_file->name);
 	}
 
 	std::unique_ptr<TStream> out_stream( new TTempStream );
@@ -125,11 +127,10 @@ void SupplierConfigBuilder::create_main_catalog() {
 	try {
 		ZInflateStream(container_file->stream, out_stream.get());
 	}
-	catch(...) {
-		msreg_g.AddError("Ошибка распаковки конфигурации поставщика",
-			"Таблица", _table_file->t->getname(),
-			"Имя", _table_file->name);
-		return;
+	catch(ZError) {
+		throw SupplierConfigReadException("Ошибка распаковки конфигурации поставщика")
+				.add_detail("Таблица", _table_file->t->getname())
+				.add_detail("Имя", _table_file->name);
 	}
 
 	container_file->close();
@@ -140,10 +141,9 @@ void SupplierConfigBuilder::create_main_catalog() {
 int32_t SupplierConfigBuilder::get_version() const {
 	V8File* version_file = main_catalog->GetFile("version");
 	if(!version_file) {
-		msreg_g.AddError("Не найден файл version в конфигурации поставщика",
-			"Таблица", _table_file->t->getname(),
-			"Имя файла", _table_file->name);
-		return 0;
+		throw SupplierConfigReadException("Не найден файл version в конфигурации поставщика")
+				.add_detail("Таблица", _table_file->t->getname())
+				.add_detail("Имя файла", _table_file->name);
 	}
 
 	std::unique_ptr<tree> version_tree ( version_file->get_tree() );
@@ -153,7 +153,7 @@ int32_t SupplierConfigBuilder::get_version() const {
 msreg_g.AddDebugMessage("Найдена версия контейнера конфигурации поставщика", MessageState::Info,
 	"Таблица", _table_file->t->getname(),
 	"Имя файла", _table_file->name,
-	"Версия", i);
+	"Версия", result);
 #endif
 
 	return result;
@@ -165,18 +165,16 @@ V8File* SupplierConfigBuilder::get_file(const String &file_name) const {
 	if(get_version() < 100) { // 8.0
 		V8File* metadata_file = main_catalog->GetFile("metadata");
 		if(metadata_file == nullptr) {
-			msreg_g.AddError("Не найден каталог metadata в конфигурации поставщика",
-				"Таблица", _table_file->t->getname(),
-				"Имя файла", _table_file->name);
-			return nullptr;
+			throw SupplierConfigReadException("Не найден каталог metadata в конфигурации поставщика")
+					.add_detail("Таблица", _table_file->t->getname())
+					.add_detail("Имя файла", _table_file->name);
 		}
 
 		V8Catalog* cat2 = metadata_file->GetCatalog();
 		if(cat2 == nullptr) {
-			msreg_g.AddError("Файл metadata не является каталогом в конфигурации поставщика",
-				"Таблица", _table_file->t->getname(),
-				"Имя файла", _table_file->name);
-			return nullptr;
+			throw SupplierConfigReadException("Файл metadata не является каталогом в конфигурации поставщика")
+					.add_detail("Таблица", _table_file->t->getname())
+					.add_detail("Имя файла", _table_file->name);
 		}
 
 		result = cat2->GetFile(file_name);

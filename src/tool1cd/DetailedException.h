@@ -39,7 +39,13 @@ public:
 class PackDirectoryDoesNotExistException : public DetailedException
 {
 public:
-		PackDirectoryDoesNotExistException(const String &message) throw();
+	 PackDirectoryDoesNotExistException(const String &message) throw();
+};
+
+class SupplierConfigReadException : public DetailedException
+{
+public:
+	SupplierConfigReadException(const String &message) throw();
 };
 
 #endif //TOOL1CD_PROJECT_DETAILEDEXCEPTION_H

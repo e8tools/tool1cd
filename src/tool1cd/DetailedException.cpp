@@ -48,3 +48,8 @@ PackDirectoryDoesNotExistException::PackDirectoryDoesNotExistException(const Sys
 		: DetailedException(message)
 {
 }
+
+SupplierConfigReadException::SupplierConfigReadException(const System::String &message) throw()
+	: DetailedException(message)
+{
+}
