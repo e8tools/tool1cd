@@ -22,6 +22,8 @@ public:
 	String supplier() const;
 	String version() const;
 
+	static std::shared_ptr<SupplierConfig> create_supplier_config(TableFile* table_file);
+
 private:
 	TableFile* _file {nullptr};
 	String _name;     // имя конфигурация поставщика

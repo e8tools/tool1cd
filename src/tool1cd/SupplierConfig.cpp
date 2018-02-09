@@ -3,6 +3,7 @@
 #include "MessageRegistration.h"
 #include "SupplierConfig.h"
 #include "ConfigStorage.h"
+#include "SupplierConfigBuilder.h"
 #include "UZLib.h"
 
 extern Registrator msreg_g;
@@ -60,4 +61,11 @@ String SupplierConfig::supplier() const {
 
 String SupplierConfig::version() const {
 	return _version;
+}
+
+
+std::shared_ptr<SupplierConfig> SupplierConfig::create_supplier_config(TableFile *table_file) {
+	SupplierConfigBuilder builder(table_file);
+
+	return builder.build();
 }
