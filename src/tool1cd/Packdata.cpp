@@ -49,7 +49,7 @@ TStream* Packdata::get_data(const char* datahash, bool &found) {
 			pack->Seek(record.offset, soBeginning);
 			int64_t packlen = 0;
 			pack->Read(&packlen, sizeof(packlen));
-			buffer = new TTempStream;
+			buffer = new TStream;
 			buffer->CopyFrom(pack.get(), packlen);
 			buffer->Close();
 			found = true;
