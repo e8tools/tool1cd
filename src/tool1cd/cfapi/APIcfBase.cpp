@@ -1,13 +1,4 @@
-#include <algorithm>
-#include <iterator>
-#include <sstream>
-#include <iomanip>
-#include <array>
-#include <stdexcept>
-
 #include "APIcfBase.h"
-
-using namespace System;
 
 //---------------------------------------------------------------------------
 // возвращает секунды от эпохи UNIX
