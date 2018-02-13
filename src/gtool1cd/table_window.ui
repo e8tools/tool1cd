@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>TableWindow</class>
+ <widget class="QMainWindow" name="TableWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -10,14 +10,8 @@
     <height>395</height>
    </rect>
   </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
-  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Tool 1CD</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
@@ -28,10 +22,7 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QTableView" name="tableListView"/>
-    </item>
-    <item>
-     <widget class="QListView" name="logList"/>
+     <widget class="QTableView" name="fieldsView"/>
     </item>
    </layout>
   </widget>
@@ -44,46 +35,6 @@
      <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu">
-    <property name="title">
-     <string>Файл</string>
-    </property>
-    <widget class="QMenu" name="menu_4">
-     <property name="title">
-      <string>Сохранить</string>
-     </property>
-     <addaction name="saveDatabaseConfigAction"/>
-     <addaction name="saveMainConfigAction"/>
-     <addaction name="separator"/>
-     <addaction name="exportXmlAction"/>
-    </widget>
-    <addaction name="openDatabaseFileAction"/>
-    <addaction name="menu_4"/>
-    <addaction name="exitAction"/>
-   </widget>
-   <widget class="QMenu" name="menu_2">
-    <property name="title">
-     <string>Настройки</string>
-    </property>
-    <addaction name="blobViewParamsAction"/>
-    <addaction name="monopolySwitch"/>
-    <addaction name="easyModeSwitch"/>
-    <addaction name="BinaryAsGuidSwitch"/>
-    <addaction name="showOffsetSwitch"/>
-    <addaction name="saveBlobSwitch"/>
-    <addaction name="separator"/>
-    <addaction name="associateFilesAction"/>
-   </widget>
-   <widget class="QMenu" name="menu_3">
-    <property name="title">
-     <string>?</string>
-    </property>
-    <addaction name="aboutAction"/>
-    <addaction name="showCommandLineHelpAction"/>
-   </widget>
-   <addaction name="menu"/>
-   <addaction name="menu_2"/>
-   <addaction name="menu_3"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="openDatabaseFileAction">

@@ -5,6 +5,7 @@
 #include <QStringListModel>
 #include "starter.h"
 #include "cache.h"
+#include "table_window.h"
 
 Registrator msreg_g;
 
@@ -53,6 +54,7 @@ void MainWindow::open(T_1CD *database)
 {
 	db = database;
 	ui->tableListView->setModel(new TablesListModel(db));
+	setWindowTitle(QString::fromStdString(static_cast<std::string>(db->getfilename())));
 	// refresh data
 }
 
@@ -63,6 +65,9 @@ void MainWindow::addLogMessage(const QString &message)
 
 void MainWindow::on_exitAction_triggered()
 {
+	for (auto w : table_windows) {
+		delete w;
+	}
 	close();
 }
 
@@ -71,4 +76,14 @@ void MainWindow::on_openDatabaseFileAction_triggered()
 	StarterWindow *w = new StarterWindow();
 	w->setCache(new Cache());
 	w->show();
+}
+
+void MainWindow::on_tableListView_doubleClicked(const QModelIndex &index)
+{
+	Table *t = db->gettable(index.row());
+	if (table_windows.find(t) == table_windows.end()) {
+		table_windows[t] = new TableWindow(this, t);
+	}
+	table_windows[t]->show();
+	table_windows[t]->activateWindow();
 }

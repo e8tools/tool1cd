@@ -49,7 +49,7 @@ public:
 			return QVariant();
 		}
 		if (role == Qt::DisplayRole) {
-			Table *t = reinterpret_cast<Table *>(db->gettable(index.row()));
+			Table *t = db->gettable(index.row());
 			switch (index.column()) {
 			case 0:
 				return QVariant::fromValue(QString::fromStdString(
@@ -121,10 +121,13 @@ private slots:
 
 	void on_openDatabaseFileAction_triggered();
 
+	void on_tableListView_doubleClicked(const QModelIndex &index);
+
 private:
 	Ui::MainWindow *ui;
 	T_1CD *db;
 	QStringList logData;
+	QMap<Table *, QWidget *> table_windows;
 };
 
 #endif // MAINWINDOW_H
