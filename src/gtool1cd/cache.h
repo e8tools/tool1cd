@@ -8,7 +8,8 @@ class Cache
 {
 public:
 
-	Cache(const QString &cacheFileName);
+	Cache();
+	explicit Cache(const QString &cacheFileName);
 
 	QStringList getCachedList() const;
 	void addDbToList(const QString &dbFileName);

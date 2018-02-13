@@ -7,6 +7,8 @@
 #include "littlelogwindow.h"
 #include "cache.h"
 
+Cache *global_cache = nullptr;
+
 StarterWindow::StarterWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::StarterWindow)

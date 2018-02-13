@@ -22,7 +22,10 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QListWidget" name="logList"/>
+     <widget class="QTableView" name="tableListView"/>
+    </item>
+    <item>
+     <widget class="QListView" name="logList"/>
     </item>
    </layout>
   </widget>

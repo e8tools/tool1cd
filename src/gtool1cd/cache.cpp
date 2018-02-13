@@ -3,7 +3,25 @@
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
+#include <QDebug>
 
+QString getCacheFilename()
+{
+	QDir cacheDir = QDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+	if (!cacheDir.exists()) {
+		qDebug() << cacheDir.path();
+		cacheDir.mkpath(".");
+	}
+	QString cacheFileName = QDir::cleanPath(cacheDir.absoluteFilePath(".gtool1cd.list"));
+	qDebug() << cacheFileName;
+	return cacheFileName;
+}
+
+Cache::Cache()
+    : Cache(getCacheFilename())
+{
+
+}
 
 Cache::Cache(const QString &cacheFileName)
     : cacheFileName(cacheFileName)

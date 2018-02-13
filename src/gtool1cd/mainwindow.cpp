@@ -2,6 +2,9 @@
 #include "ui_mainwindow.h"
 #include <QFileDialog>
 #include <QDebug>
+#include <QStringListModel>
+#include "starter.h"
+#include "cache.h"
 
 Registrator msreg_g;
 
@@ -38,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
+	ui->logList->setModel(new QStringListModel(logData));
 }
 
 MainWindow::~MainWindow()
@@ -48,10 +52,23 @@ MainWindow::~MainWindow()
 void MainWindow::open(T_1CD *database)
 {
 	db = database;
+	ui->tableListView->setModel(new TablesListModel(db));
 	// refresh data
 }
 
 void MainWindow::addLogMessage(const QString &message)
 {
-	//ui->logList->addItem(message);
+	logData.append(message);
+}
+
+void MainWindow::on_exitAction_triggered()
+{
+	close();
+}
+
+void MainWindow::on_openDatabaseFileAction_triggered()
+{
+	StarterWindow *w = new StarterWindow();
+	w->setCache(new Cache());
+	w->show();
 }
