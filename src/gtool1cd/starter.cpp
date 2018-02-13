@@ -2,8 +2,10 @@
 #include "ui_starter.h"
 #include <QFileDialog>
 #include <QDebug>
+#include <QStringListModel>
 #include "mainwindow.h"
 #include "littlelogwindow.h"
+#include "cache.h"
 
 StarterWindow::StarterWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -25,19 +27,34 @@ void StarterWindow::on_openNewButton_clicked()
 	if (filename == nullptr) {
 		return;
 	}
-	openDatabase(filename);
+	if (openDatabase(filename)) {
+		this->cache->addDbToList(filename);
+	}
 }
 
-void StarterWindow::openDatabase(const QString &filename)
+void StarterWindow::setCache(Cache *cache)
+{
+	this->cache = cache;
+	QStringList list = this->cache->getCachedList();
+	ui->listView->setModel(new QStringListModel(list));
+}
+
+bool StarterWindow::openDatabase(const QString &filename)
 {
 	LittleLogWindow *lw = new LittleLogWindow(this);
 	T_1CD *db = new T_1CD(filename.toStdString(), lw);
 	if (!db->is_open()) {
 		lw->show();
-		return;
+		return false;
 	}
 	MainWindow *db_window = new MainWindow(nullptr);
 	db_window->open(db);
 	db_window->show();
 	close();
+	return true;
+}
+
+void StarterWindow::on_listView_doubleClicked(const QModelIndex &index)
+{
+	openDatabase(index.data().toString());
 }

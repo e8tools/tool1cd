@@ -53,5 +53,5 @@ void MainWindow::open(T_1CD *database)
 
 void MainWindow::addLogMessage(const QString &message)
 {
-	ui->logList->addItem(message);
+	//ui->logList->addItem(message);
 }

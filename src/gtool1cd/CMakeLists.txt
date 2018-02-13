@@ -7,9 +7,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt5Widgets REQUIRED)
 
-set(HEADER_FILES mainwindow.h starter.h littlelogwindow.h)
+set(HEADER_FILES mainwindow.h starter.h littlelogwindow.h cache.h)
 set(UI_FILES mainwindow.ui starter.ui littlelogwindow.ui)
-set(SOURCE_FILES main.cpp mainwindow.cpp starter.cpp littlelogwindow.cpp)
+set(SOURCE_FILES main.cpp mainwindow.cpp starter.cpp littlelogwindow.cpp cache.cpp)
 
 add_executable(gtool1cd ${SOURCE_FILES} ${HEADER_FILES} ${UI_FILES})
 
