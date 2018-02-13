@@ -69,16 +69,6 @@ void V8File::time_modify(const V8Time &time) {
 // сохранить в файл
 void V8File::SaveToFile(const boost::filesystem::path &FileName)
 {
-#ifdef _MSC_VER
-
-		struct _utimbuf ut;
-
-#else
-
-		struct utimbuf ut;
-
-#endif // _MSC_VER
-
 	if (!try_open()){
 		return;
 	}
@@ -89,24 +79,15 @@ void V8File::SaveToFile(const boost::filesystem::path &FileName)
 	fs.Close();
 	Lock->Release();
 
-	FILETIME create = get_time_create();
-	FILETIME modify = get_time_create();
-
-	time_t RawtimeCreate = FileTime_to_POSIX(&create);
-	struct tm * ptm_create = localtime(&RawtimeCreate);
-	ut.actime = mktime(ptm_create);
-
-	time_t RawtimeModified = FileTime_to_POSIX(&create);
-	struct tm * ptm_modified = localtime(&RawtimeModified);
-	ut.modtime = mktime(ptm_modified);
-
 	#ifdef _MSC_VER
 
-		_utime(FileName.string().c_str(), &ut);
+	auto file_times = V8Time::to_file_times(_time_create, _time_modify);
+	_utime(FileName.string().c_str(), &file_times);
 
 	#else
 
-		utime(FileName.string().c_str(), &ut);
+	auto file_times = V8Time::to_file_times(_time_create, _time_modify);
+	utime(FileName.string().c_str(), &file_times);
 
 	#endif // _MSC_VER
 }

@@ -62,3 +62,45 @@ int64_t V8Time::inner_from_file_time(const FILETIME &value) {
 size_t V8Time::write_to_stream(TMemoryStream *out_stream) const {
 	return out_stream->Write(&_data, sizeof(_data));
 }
+
+
+#ifdef _MSC_VER
+
+_utimbuf V8Time::to_file_times(const V8Time &create, const V8Time &modify) {
+	struct _utimbuf ut;
+
+	FILETIME _create = create.to_file_time();
+	FILETIME _modify = modify.to_file_time();
+
+	time_t RawtimeCreate = FileTime_to_POSIX(&_create);
+	struct tm * ptm_create = localtime(&RawtimeCreate);
+	ut.actime = mktime(ptm_create);
+
+	time_t RawtimeModified = FileTime_to_POSIX(&_modify);
+	struct tm * ptm_modified = localtime(&RawtimeModified);
+	ut.modtime = mktime(ptm_modified);
+
+	return ut;
+
+}
+
+#else
+
+utimbuf V8Time::to_file_times(const V8Time &create, const V8Time &modify) {
+	struct utimbuf ut;
+
+	FILETIME _create = create.to_file_time();
+	FILETIME _modify = modify.to_file_time();
+
+	time_t RawtimeCreate = FileTime_to_POSIX(&_create);
+	struct tm * ptm_create = localtime(&RawtimeCreate);
+	ut.actime = mktime(ptm_create);
+
+	time_t RawtimeModified = FileTime_to_POSIX(&_modify);
+	struct tm * ptm_modified = localtime(&RawtimeModified);
+	ut.modtime = mktime(ptm_modified);
+
+	return ut;
+}
+
+#endif // _MSC_VER
