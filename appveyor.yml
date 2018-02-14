@@ -51,8 +51,8 @@ build_script:
     -DBOOST_LIBRARYDIR="%MY_BOOST_LIBRARYDIR%"
     -DBOOST_INCLUDEDIR="%MY_BOOST_INCLUDEDIR%"
     -DQt5Widgets_DIR="%MY_Qt5Widgets_DIR%"
-    -DZLIB_INCLUDE_DIR="%MINGW_ROOT%\include"
-    -DZLIB_LIBRARY="%MINGW_ROOT%\lib\libz.a" .
+    -DZLIB_INCLUDE_DIR="%MINGW_ROOT%\\i686-w64-mingw32\include"
+    -DZLIB_LIBRARY="%MINGW_ROOT%\i686-w64-mingw32\lib\libz.a" .
 
     cmake --build . --config Release
 
