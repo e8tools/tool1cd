@@ -12,6 +12,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BINARY_DIR}/lib")
 # Это нужно, чтобы под Windows Tool1CD не требовал vcredist
 if (MSVC)
 
+	add_definitions (-DBOOST_ALL_NO_LIB)
+	set (Boost_USE_STATIC_LIBS ON)
+	set (Boost_USE_MULTITHREADED OFF)
+	set (Boost_USE_STATIC_RUNTIME ON)
+
 	foreach (flag_var
 			CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
 			CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)

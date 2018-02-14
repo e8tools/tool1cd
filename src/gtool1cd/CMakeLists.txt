@@ -11,7 +11,7 @@ set(HEADER_FILES mainwindow.h starter.h littlelogwindow.h cache.h table_window.h
 set(UI_FILES mainwindow.ui starter.ui littlelogwindow.ui table_window.ui)
 set(SOURCE_FILES main.cpp mainwindow.cpp starter.cpp littlelogwindow.cpp cache.cpp table_window.cpp)
 
-add_executable(gtool1cd ${SOURCE_FILES} ${HEADER_FILES} ${UI_FILES})
+add_executable(gtool1cd WIN32 ${SOURCE_FILES} ${HEADER_FILES} ${UI_FILES})
 
 include_directories (${SOURCE_DIR}/SystemClasses)
 target_link_libraries (gtool1cd SystemClasses)
@@ -19,10 +19,6 @@ target_link_libraries (gtool1cd SystemClasses)
 include_directories (${SOURCE_DIR}/tool1cd)
 target_link_libraries (gtool1cd tool1cd)
 
-add_definitions (-DBOOST_ALL_NO_LIB)
-set (Boost_USE_STATIC_LIBS ON)
-set (Boost_USE_MULTITHREADED OFF)
-set (Boost_USE_STATIC_RUNTIME ON)
 
 find_package (Boost 1.53 REQUIRED COMPONENTS filesystem regex system)
 include_directories (${Boost_INCLUDE_DIRS})
