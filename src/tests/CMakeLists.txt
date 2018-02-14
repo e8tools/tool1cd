@@ -15,11 +15,6 @@ target_link_libraries (testproject SystemClasses)
 include_directories (${SOURCE_DIR}/tool1cd)
 target_link_libraries (testproject tool1cd)
 
-add_definitions (-DBOOST_ALL_NO_LIB)
-set (Boost_USE_STATIC_LIBS ON)
-set (Boost_USE_MULTITHREADED ON)
-set (Boost_USE_STATIC_RUNTIME OFF)
-
 find_package (Boost 1.53 REQUIRED COMPONENTS filesystem regex system)
 include_directories (${Boost_INCLUDE_DIRS})
 target_link_libraries (testproject ${Boost_LIBRARIES})
