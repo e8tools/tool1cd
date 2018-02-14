@@ -57,7 +57,7 @@ build_script:
     cmake --build . --config Release
 
 test_script:
-- bin\Release\testproject.exe --reporter junit --out junit.xml
+- bin\testproject.exe --reporter junit --out junit.xml
 
 on_finish:
 - ps: >-
@@ -74,8 +74,10 @@ after_build:
     light -out tool1cd-%APPVEYOR_BUILD_VERSION%.msi tool1cd.wixobj
 
 artifacts:
-- path: bin\Release\ctool1cd.exe
+- path: bin\ctool1cd.exe
   name: ctool1cd.exe
+- path: bin\gtool1cd.exe
+  name: gtool1cd.exe
 - path: tool1cd-*.msi
   name: installer
 deploy: off
