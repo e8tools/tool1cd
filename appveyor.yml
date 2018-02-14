@@ -23,6 +23,8 @@ init:
 - ps: Restart-Computer
 install:
 - cmd: >-
+    echo %PATH%
+
     set PATH=%PATH%;%ADD_PATH%
 
     cd ..
