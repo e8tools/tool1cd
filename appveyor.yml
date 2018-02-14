@@ -8,10 +8,11 @@ environment:
   MY_BOOST_LIBRARYDIR: C:\projects\boost\stage\lib
   matrix:
     - ID: minw32-x86-boost1.63
-      GENERATOR: MSYS Makefiles
+      GENERATOR: MinGW Makefiles
       BOOST_VERSION: 1_63_0
       BOOST_DOT_VERSION: 1.63.0
-      ADD_PATH: C:\MinGW\bin;C:\MinGW\msys\1.0\bin
+      MINGW_ROOT: C:\mingw-w64\i686-5.3.0-posix-dwarf-rt_v4-rev0\mingw32
+      ADD_PATH: C:\mingw-w64\i686-5.3.0-posix-dwarf-rt_v4-rev0\mingw32\bin
       BOOST_TOOLSET: gcc
       ALLOW_FAILURE: no
       MY_Qt5Widgets_DIR: C:\Qt\5.10.0\mingw53_32\lib\cmake\Qt5Widgets
@@ -48,8 +49,8 @@ build_script:
     -DBOOST_LIBRARYDIR="%MY_BOOST_LIBRARYDIR%"
     -DBOOST_INCLUDEDIR="%MY_BOOST_INCLUDEDIR%"
     -DQt5Widgets_DIR="%MY_Qt5Widgets_DIR%"
-    -DZLIB_INCLUDE_DIR="C:\MinGW\include"
-    -DZLIB_LIBRARY="C:\MinGW\lib\libz.a" .
+    -DZLIB_INCLUDE_DIR="%MINGW_ROOT%\include"
+    -DZLIB_LIBRARY="%MINGW_ROOT%\lib\libz.a" .
 
     cmake --build . --config Release
 
