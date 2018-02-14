@@ -11,7 +11,7 @@ set(HEADER_FILES mainwindow.h starter.h littlelogwindow.h cache.h table_window.h
 set(UI_FILES mainwindow.ui starter.ui littlelogwindow.ui table_window.ui)
 set(SOURCE_FILES main.cpp mainwindow.cpp starter.cpp littlelogwindow.cpp cache.cpp table_window.cpp)
 
-add_executable(gtool1cd ${SOURCE_FILES} ${HEADER_FILES} ${UI_FILES})
+add_executable(gtool1cd WIN32 ${SOURCE_FILES} ${HEADER_FILES} ${UI_FILES})
 
 include_directories (${SOURCE_DIR}/SystemClasses)
 target_link_libraries (gtool1cd SystemClasses)
