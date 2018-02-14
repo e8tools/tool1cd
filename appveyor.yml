@@ -41,10 +41,6 @@ install:
 
     cd %APPVEYOR_BUILD_FOLDER%
 
-    cmake -G "%GENERATOR%" -DBOOST_ROOT="%MY_BOOST_ROOT%" -DBOOST_LIBRARYDIR="%MY_BOOST_LIBRARYDIR%" -DBOOST_INCLUDEDIR="%MY_BOOST_INCLUDEDIR%" .
-
-    cmake --build . --config Release
-
 build_script:
 - cmd: >-
     cmake -G "%GENERATOR%" -DBOOST_ROOT="%MY_BOOST_ROOT%"
