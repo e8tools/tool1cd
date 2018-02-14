@@ -14,6 +14,7 @@ environment:
       ADD_PATH: C:\MinGW\bin;C:\MinGW\msys\1.0\bin
       BOOST_TOOLSET: gcc
       ALLOW_FAILURE: no
+      MY_Qt5Widgets_DIR: C:\Qt\5.10.0\mingw53_32\lib\cmake\Qt5Widgets
 
 init:
 - ps: Set-WinSystemLocale ru-RU
@@ -46,6 +47,7 @@ build_script:
     cmake -G "%GENERATOR%" -DBOOST_ROOT="%MY_BOOST_ROOT%"
     -DBOOST_LIBRARYDIR="%MY_BOOST_LIBRARYDIR%"
     -DBOOST_INCLUDEDIR="%MY_BOOST_INCLUDEDIR%"
+    -DQt5Widgets_DIR="%MY_Qt5Widgets_DIR%"
     -DZLIB_LIBRARY="C:\MinGW\include"
     -DZLIB_INCLUDE_DIR="C:\MinGW\lib\libz.a" .
 
