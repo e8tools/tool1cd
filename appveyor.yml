@@ -25,7 +25,7 @@ install:
 - cmd: >-
     echo %PATH%
 
-    set PATH=%PATH%;%ADD_PATH%
+    set PATH=%PATH:C:\Program Files\Git\usr\bin;=%;%ADD_PATH%
 
     cd ..
 
