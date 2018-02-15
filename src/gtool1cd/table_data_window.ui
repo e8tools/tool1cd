@@ -38,6 +38,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="exportToXmlButton">
+         <property name="text">
+          <string>Экспорт в XML</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="descriptionButton">
          <property name="text">
           <string>Описание</string>

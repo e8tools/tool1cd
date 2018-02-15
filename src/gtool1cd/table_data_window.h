@@ -24,6 +24,8 @@ private slots:
 
 	void on_fieldsButton_clicked();
 
+	void on_exportToXmlButton_clicked();
+
 private:
 	Table *table;
 	Ui::TableDataWindow *ui;
