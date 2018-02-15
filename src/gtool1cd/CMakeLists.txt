@@ -7,9 +7,12 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt5Widgets REQUIRED)
 
-set(HEADER_FILES mainwindow.h starter.h littlelogwindow.h cache.h table_window.h table_data_window.h)
-set(UI_FILES mainwindow.ui starter.ui littlelogwindow.ui table_window.ui table_data_window.ui)
-set(SOURCE_FILES main.cpp mainwindow.cpp starter.cpp littlelogwindow.cpp cache.cpp table_window.cpp table_data_window.cpp)
+set(HEADER_FILES mainwindow.h starter.h littlelogwindow.h cache.h table_window.h table_data_window.h
+	skobkatextwindow.h)
+set(UI_FILES mainwindow.ui starter.ui littlelogwindow.ui table_window.ui table_data_window.ui
+	skobkatextwindow.ui)
+set(SOURCE_FILES main.cpp mainwindow.cpp starter.cpp littlelogwindow.cpp cache.cpp table_window.cpp table_data_window.cpp
+	skobkatextwindow.cpp)
 
 add_executable(gtool1cd WIN32 ${SOURCE_FILES} ${HEADER_FILES} ${UI_FILES})
 
