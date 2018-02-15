@@ -32,6 +32,12 @@ namespace RecordConverters {
 	}
 
 	void convert(const char *data, BinaryGuid &result);
+
+	template <typename T>
+	void put(char *data, const T value)
+	{
+		*(reinterpret_cast<T*>(data)) = value;
+	}
 }
 
 class TableRecord {
@@ -71,6 +77,18 @@ public:
 		return get(get_field(field_name), default_value);
 	}
 
+	template <typename T>
+	void set(const Field *f, const T value)
+	{
+		RecordConverters::put(__get_data(f), value);
+	}
+
+	template <typename T>
+	void set(const String &field_name, const T value)
+	{
+		set(get_field(field_name), value);
+	}
+
 	const char *get_raw(const Field *field) const;
 	const char *get_raw(const String &field_name) const;
 
@@ -90,6 +108,7 @@ public:
 
 private:
 	const Field *get_field(const String &field_name) const;
+	char *__get_data(const Field *field);
 
 	char *data;
 	const Table *table;
