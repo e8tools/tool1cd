@@ -77,19 +77,19 @@ public:
 		if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
 			switch (section) {
 			case 0:
-				return tr("Name");
+				return tr("Таблица");
 			case 1:
-				return tr("Len");
+				return tr("Длина записи");
 			case 2:
 				return tr("RECORDLOCK");
 			case 3:
-				return tr("DATA file size");
+				return tr("Размер файла данных");
 			case 4:
-				return tr("BLOB file size");
+				return tr("Размер файла BLOB");
 			case 5:
-				return tr("INDEX file size");
+				return tr("Размер файла индексов");
 			case 6:
-				return tr("TOTAL size");
+				return tr("Суммарный размер");
 			}
 		}
 		return QVariant();

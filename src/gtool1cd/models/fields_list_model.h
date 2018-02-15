@@ -64,17 +64,17 @@ public:
 		if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
 			switch (section) {
 			case 0:
-				return tr("Name");
+				return tr("Имя");
 			case 1:
-				return tr("Type");
+				return tr("Тип");
 			case 2:
-				return tr("Length");
+				return tr("Длина");
 			case 3:
-				return tr("Precision");
+				return tr("Точность");
 			case 4:
-				return tr("NULL");
+				return tr("м.б. NULL");
 			case 5:
-				return tr("Case Sensitivity");
+				return tr("РегистроЧувствительность");
 			}
 		}
 		return QVariant();
