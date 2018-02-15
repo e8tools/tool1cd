@@ -300,7 +300,7 @@ int String::ToIntDef(int default_value) const
  *      @const String &substr - подстрока поиска
  *
  */
-int String::Pos(const String &substr)
+size_t String::Pos(const String &substr)
 {
 	auto index = find(substr);
 	if (index == npos) {
@@ -313,16 +313,16 @@ int String::Pos(const String &substr)
  *      @params - нет
  *
  */
-int String::GetLength() const
+size_t String::GetLength() const
 {
 	return this->size();
 }
 
 /** Функция устанавливает длину строки.
- *      @int NewLength - новая длина строки
+ *      @size_t NewLength - новая длина строки
  *
  */
-void String::SetLength(int NewLength)
+void String::SetLength(size_t NewLength)
 {
 	resize(NewLength);
 }

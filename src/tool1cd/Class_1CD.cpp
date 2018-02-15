@@ -219,12 +219,12 @@ T_1CD::~T_1CD()
 //---------------------------------------------------------------------------
 T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 {
-	char* b;
-	uint32_t* table_blocks;
+	char* b = nullptr;
+	uint32_t* table_blocks = nullptr;
 	int32_t i, j;
-	TMemoryStream* tstr;
-	root_80* root80;
-	root_81* root81;
+	TMemoryStream* tstr = nullptr;
+	root_80* root80 = nullptr;
+	root_81* root81 = nullptr;
 
 	msreg_m.AddMessageRegistrator(mess);
 
@@ -525,211 +525,10 @@ void T_1CD::find_supplier_configs()
 }
 
 //---------------------------------------------------------------------------
-void T_1CD::add_supplier_config(TableFile* tf)
+void T_1CD::add_supplier_config(TableFile* table_file)
 {
-	ContainerFile* f;
-	TStream* s;
-	int32_t i;
-	v8catalog* cat = nullptr;
-	v8catalog* cat2;
-	v8file* file;
-	tree* tr = nullptr;
-	String filenamemeta;
-	String nodetype;
-	String _name; // имя конфигурация поставщика
-	String _supplier; // синоним конфигурация поставщика
-	String _version; // версия конфигурация поставщика
-
-	f = new ContainerFile(tf, tf->name);
-	if(!f->open())
-	{
-		delete f;
-		return;
-	}
-
-	s = new TTempStream;
-
-	try
-	{
-		try
-		{
-			ZInflateStream(f->stream, s);
-		}
-		catch(...)
-		{
-			msreg_m.AddError("Ошибка распаковки конфигурации поставщика",
-				"Таблица", tf->t->getname(),
-				"Имя", tf->name);
-			delete s;
-			return;
-		}
-		f->close();
-		delete f;
-		f = nullptr;
-
-		cat = new v8catalog(s, true);
-		s = nullptr;
-		file = cat->GetFile("version");
-		if(!file)
-		{
-			msreg_m.AddError("Не найден файл version в конфигурации поставщика",
-				"Таблица", tf->t->getname(),
-				"Имя файла", tf->name);
-			delete cat;
-			return;
-		}
-
-		tr = file->get_tree();
-		i = (*tr)[0][0][0].get_value().ToInt();
-		delete tr;
-		tr = nullptr;
-
-		#ifdef _DEBUG
-		msreg_m.AddDebugMessage("Найдена версия контейнера конфигурации поставщика", MessageState::Info,
-			"Таблица", tf->t->getname(),
-			"Имя файла", tf->name,
-			"Версия", i);
-		#endif
-
-		if(i < 100) // 8.0
-		{
-			file = cat->GetFile("metadata");
-			if(!file)
-			{
-				msreg_m.AddError("Не найден каталог metadata в конфигурации поставщика",
-					"Таблица", tf->t->getname(),
-					"Имя файла", tf->name);
-				delete cat;
-				return;
-			}
-			cat2 = file->GetCatalog();
-			if(!cat2)
-			{
-				msreg_m.AddError("Файл metadata не является каталогом в конфигурации поставщика",
-					"Таблица", tf->t->getname(),
-					"Имя файла", tf->name);
-				delete cat;
-				return;
-			}
-
-		}
-		else cat2 = cat; // else 8.1 или 8.2
-
-		file = cat2->GetFile("root");
-		if(!file)
-		{
-			msreg_m.AddError("Не найден файл root в конфигурации поставщика",
-				"Таблица", tf->t->getname(),
-				"Имя файла", tf->name);
-			delete cat;
-			return;
-		}
-
-		tr = file->get_tree();
-		filenamemeta = (*tr)[0][1].get_value();
-		delete tr;
-		tr = nullptr;
-
-		file = cat2->GetFile(filenamemeta);
-		if(!file)
-		{
-			msreg_m.AddError("Не найден файл метаданных в конфигурации поставщика",
-				"Таблица", tf->t->getname(),
-				"Имя файла", tf->name,
-				"Имя мета", filenamemeta);
-			delete cat;
-			return;
-		}
-
-		#ifdef _DEBUG
-		msreg_m.AddDebugMessage("Найден файл метаданных в конфигурации поставщика", MessageState::Info,
-			"Таблица", tf->t->getname(),
-			"Имя файла", tf->name,
-			"Имя мета", filenamemeta);
-		#endif
-
-		tr = file->get_tree();
-		int32_t numnode = (*tr)[0][2].get_value().ToInt();
-		for(i = 0; i < numnode; i++)
-		{
-			tree& node = (*tr)[0][3 + i];
-			nodetype = node[0].get_value();
-			if(nodetype.CompareIC(NODE_GENERAL) == 0) // узел "Общие"
-			{
-				tree& confinfo = node[1][1];
-				int32_t verconfinfo = confinfo[0].get_value().ToInt();
-				switch(verconfinfo)
-				{
-					case 15:
-						_name = confinfo[1][1][2].get_value();
-						_supplier = confinfo[11].get_value();
-						_version = confinfo[12].get_value();
-						break;
-					case 22:
-					case 32:
-					case 34:
-					case 36:
-					case 37:
-						_name = confinfo[1][1][2].get_value();
-						_supplier = confinfo[14].get_value();
-						_version = confinfo[15].get_value();
-						break;
-					default:
-						_name = confinfo[1][1][2].get_value();
-						_supplier = confinfo[14].get_value();
-						_version = confinfo[15].get_value();
-						#ifdef _DEBUG
-						msreg_m.AddDebugMessage("Неизвестная версия свойств конфигурации поставщика", MessageState::Info,
-							"Таблица", tf->t->getname(),
-							"Имя файла", tf->name,
-							"Имя мета", filenamemeta,
-							"Версия свойств", verconfinfo);
-						#endif
-						break;
-				}
-				break;
-			}
-		}
-		delete tr;
-		tr = nullptr;
-
-		if(i >= numnode)
-		{
-			msreg_m.AddError("Не найден узел Общие в метаданных конфигурации поставщика",
-				"Таблица", tf->t->getname(),
-				"Имя файла", tf->name,
-				"Имя мета", filenamemeta);
-			_supplier = "";
-			_version = "";
-		}
-		#ifdef _DEBUG
-		else
-		{
-			msreg_m.AddDebugMessage("Найдена конфигурация поставщика", MessageState::Info,
-				"Таблица", tf->t->getname(),
-				"Имя файла", tf->name,
-				"Имя", _name,
-				"Версия", _version,
-				"Поставщик", _supplier);
-		}
-		#endif
-
-		std::shared_ptr<SupplierConfig> sup_conf = std::make_shared<SupplierConfig>(tf, _name, _supplier, _version);
-		_supplier_configs.push_back(sup_conf);
-
-		delete cat;
-		cat = nullptr;
-	}
-	catch(...)
-	{
-		msreg_m.AddError("Произошла ошибка при разборе конфигурации поставщика",
-			"Таблица", tf->t->getname(),
-			"Имя файла", tf->name);
-		delete cat;
-		delete s;
-		delete tr;
-		delete f;
-	}
+	auto sup_conf = SupplierConfig::create_supplier_config(table_file);
+	_supplier_configs.push_back(sup_conf);
 }
 
 //---------------------------------------------------------------------------
@@ -1245,7 +1044,7 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 	TEncoding *enc;
 	std::vector<uint8_t> bytes1;
 	std::vector<uint8_t> bytes2;
-	v8catalog* cat;
+	V8Catalog* cat;
 	int32_t offset;
 	String sf;
 	wchar_t first_symbol;
@@ -1302,7 +1101,7 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 
 	try
 	{
-		cat = new v8catalog(_s, zipped2, true);
+		cat = new V8Catalog(_s, zipped2, true);
 	}
 	catch (...)
 	{
@@ -1397,13 +1196,13 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::recursive_test_stream_format(v8catalog* cat, String path)
+bool T_1CD::recursive_test_stream_format(V8Catalog* cat, String path)
 {
-	v8catalog* c;
+	V8Catalog* c;
 	bool result;
 
-	v8file* v8f;
-	v8file* v8fp;
+	V8File* v8f;
+	V8File* v8fp;
 	String fname;
 
 	result = true;
@@ -1674,7 +1473,6 @@ void T_1CD::set_readonly(bool ro)
 bool T_1CD::test_list_of_tables()
 {
 	char* rec;
-	char* orec;
 	Field* f_name;
 	Field* f_data_size;
 	Field* f_binary_data;
@@ -2149,16 +1947,14 @@ bool T_1CD::delete_object(v8object* ob)
 //---------------------------------------------------------------------------
 void T_1CD::find_and_create_lost_tables()
 {
-	uint32_t i, k;
-	int32_t j, numlosttables;
+	uint32_t k;
 	char buf[8];
-	v8object* v8obj;
+	v8object* v8obj = nullptr;
 	bool block_is_find;
 	vector<uint32_t> losttables;
-	char* b;
-
-	numlosttables = 0;
-	for(i = 1; i < length; i++)
+	
+	size_t numlosttables = 0;
+	for(uint32_t i = 1; i < length; i++)
 	{
 		getblock(buf, i, 8);
 		if(memcmp(buf, SIG_OBJ, 8) == 0)
@@ -2198,23 +1994,23 @@ void T_1CD::find_and_create_lost_tables()
 
 	if(numlosttables)
 	{
-		i = root_object->getlen();
-		b = new char[i + numlosttables * 4];
-		root_object->getdata(b, 0, i);
+		uint64_t root_object_len = root_object->getlen();
+		char* b = new char[root_object_len + numlosttables * 4];
+		root_object->getdata(b, 0, root_object_len);
 
 		if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0)
 		{
 			root_80* root80 = (root_80*)b;
-			for(j = 0, k = root80->numblocks; j < numlosttables; j++, k++) root80->blocks[k] = losttables[j];
+			for(int32_t j = 0, k = root80->numblocks; j < numlosttables; j++, k++) root80->blocks[k] = losttables[j];
 			root80->numblocks += numlosttables;
 		}
 		else
 		{
 			root_81* root81 = (root_81*)b;
-			for(j = 0, k = root81->numblocks; j < numlosttables; j++, k++) root81->blocks[k] = losttables[j];
+			for(int32_t j = 0, k = root81->numblocks; j < numlosttables; j++, k++) root81->blocks[k] = losttables[j];
 			root81->numblocks += numlosttables;
 		}
-		root_object->setdata(b, i + numlosttables * 4);
+		root_object->setdata(b, root_object_len + numlosttables * 4);
 		delete[] b;
 
 	}
@@ -2260,7 +2056,7 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 
 	Index *ind = table_versions->get_index("PK");
 
-	int32_t i = ind->get_numrecords();
+	uint32_t i = ind->get_numrecords();
 	if (i <= (uint32_t)(-ver)) {
 		DetailedException error("Запрошенной версии конфигурации не существует");
 		error.add_detail("Всего версий в хранилище", i);

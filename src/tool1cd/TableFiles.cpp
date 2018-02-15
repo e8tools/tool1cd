@@ -67,7 +67,7 @@ TableFiles::TableFiles(Table* t)
 	if(table->get_numfields() > 6) partno = table->getfield(6);
 	else partno = nullptr;
 
-	for (int i = 0; i < table->get_phys_numrecords(); ++i) {
+	for (uint32_t i = 0; i < table->get_phys_numrecords(); ++i) {
 
 		std::shared_ptr<TableRecord> record (table->getrecord(i));
 		if(record->is_removed()) {
@@ -101,7 +101,7 @@ TableFiles::TableFiles(Table* t)
 		allfiles[pmaxpartno.first] = tf;
 	}
 
-	for (int j = 0; j < allrec.size(); ++j) {
+	for (size_t j = 0; j < allrec.size(); ++j) {
 		ptr = &(allrec[j]);
 		pfilesmap = allfiles.find(ptr->name.UpperCase());
 		tf = pfilesmap->second;

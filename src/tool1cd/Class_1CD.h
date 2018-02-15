@@ -268,12 +268,12 @@ private:
 	void set_block_as_free(uint32_t block_number); // пометить блок как свободный
 	uint32_t get_free_block(); // получить номер свободного блока (и пометить как занятый)
 
-	void add_supplier_config(TableFile* file);
+	void add_supplier_config(TableFile* table_file);
 
 	bool recursive_test_stream_format(Table* t, uint32_t nrec);
 	bool recursive_test_stream_format2(Table* t, uint32_t nrec); // для DBSCHEMA
 	bool recursive_test_stream_format(TStream* str, String path, bool maybezipped2 = false);
-	bool recursive_test_stream_format(v8catalog* cat, String path);
+	bool recursive_test_stream_format(V8Catalog* cat, String path);
 
 	void pagemapfill();
 	String pagemaprec_presentation(pagemaprec& pmr);

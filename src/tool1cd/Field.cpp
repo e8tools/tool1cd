@@ -175,8 +175,7 @@ bool Field::save_blob_to_file(const TableRecord *rec, String _filename, bool unp
 	TStream* _s2;
 	TStream* _sx;
 	TStream* _sx2;
-	uint32_t k, l;
-
+	
 	if (rec->is_null_value(this)) {
 		return false;
 	}
@@ -301,7 +300,7 @@ bool Field::save_blob_to_file(const TableRecord *rec, String _filename, bool unp
 				}
 			}
 
-			v8catalog *cat = new v8catalog(_sx2, zippedContainer, true);
+			V8Catalog *cat = new V8Catalog(_sx2, zippedContainer, true);
 			if(!cat->GetFirst())
 			{
 				TFileStream temp_stream(_filename, fmCreate);

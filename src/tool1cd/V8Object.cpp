@@ -1259,7 +1259,7 @@ void v8object::set_block_as_free(uint32_t block_number)
 		return;
 	}
 
-	int32_t j = len >> 10; // length / 1024
+	uint32_t j = len >> 10; // length / 1024
 	int32_t i = len & 0x3ff; // length % 1024
 
 	v8ob *ob = (v8ob*)base->getblock_for_write(block, true);

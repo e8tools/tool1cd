@@ -68,16 +68,6 @@ bool FileTimeToLocalFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileT
 
 void GetSystemTime(LPSYSTEMTIME lpSystemTime);
 
-
-struct TGUID {
-  LongWord D1;
-  Word     D2;
-  Word     D3;
-  uint8_t  D4[8];
-};
-
-bool operator == (const TGUID &a, const TGUID &b);
-
 enum TReplaceFlags {
 	rfReplaceAll = 1,
 	rfIgnoreCase = 2
@@ -85,7 +75,6 @@ enum TReplaceFlags {
 
 } // System
 
-using System::TGUID;
 using System::WCHART;
 
 #include "String.hpp"

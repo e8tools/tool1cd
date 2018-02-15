@@ -63,7 +63,7 @@ bool ZDeflateStream(TStream* src, TStream* dst)
 			have = CHUNKSIZE - strm.avail_out;
 
 			if (have > 0) {
-				int data_written = dst->Write(out, have);
+				uint32_t data_written = dst->Write(out, have);
 				if (data_written < have) {
 					(void) deflateEnd(&strm);
 					return false; //  Z_ERRNO

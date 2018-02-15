@@ -36,16 +36,14 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	Field* flde_datahash;
 
 	bool ok;
-	bool removed;
 	bool datapacked;
 	bool deletesobj;
 	bool iscatalog;
-	bool inreaded;
 	bool hasext;
 	char emptyimage[8];
 
 	uint32_t i;
-	int32_t v, res, lastver, n;
+	int32_t v, lastver, n;
 	String s, ss, sn, se;
 	depot_ver depotVer;
 	uint32_t configVerMajor, configVerMinor;
@@ -56,7 +54,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	TMemoryStream* sd;
 	bool hasdeleted;
 	PackDirectory pack_directory;
-	v8catalog* cat;
+	V8Catalog* cat;
 	TFileStream* f;
 
 	union
@@ -108,7 +106,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 	rec = nullptr;
 	n = 0;
-	for (int i = 0; i < table_versions->get_phys_numrecords(); i++)
+	for (uint32_t i = 0; i < table_versions->get_phys_numrecords(); i++)
 	{
 		rec = table_versions->getrecord(i);
 		if (rec->is_removed()) {
@@ -427,7 +425,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 											iscatalog = false;
 											if(out->GetSize() > 0)
 											{
-												cat = new v8catalog(out, false, true);
+												cat = new V8Catalog(out, false, true);
 												iscatalog = cat->IsCatalog();
 											}
 											if(iscatalog) cat->SaveToDir((cath / static_cast<string>(ext_name)).string());

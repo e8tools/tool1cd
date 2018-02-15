@@ -85,7 +85,7 @@ bool ConfigStorageDirectory::fileexists(const String& path)
 ConfigStorageCFFile::ConfigStorageCFFile(const String& fname)
 {
 	filename = fname;
-	cat = new v8catalog(filename);
+	cat = new V8Catalog(filename);
 }
 
 //---------------------------------------------------------------------------
@@ -97,8 +97,8 @@ ConfigStorageCFFile::~ConfigStorageCFFile()
 //---------------------------------------------------------------------------
 ConfigFile* ConfigStorageCFFile::readfile(const String& path)
 {
-	v8catalog* c;
-	v8file* f;
+	V8Catalog* c;
+	V8File* f;
 	int i;
 	ConfigFile* cf;
 
@@ -128,8 +128,8 @@ ConfigFile* ConfigStorageCFFile::readfile(const String& path)
 //---------------------------------------------------------------------------
 bool ConfigStorageCFFile::writefile(const String& path, TStream* str)
 {
-	v8catalog* c;
-	v8file* f;
+	V8Catalog* c;
+	V8File* f;
 	int i;
 
 	if(!cat->isOpen()) return false;
@@ -155,9 +155,9 @@ String ConfigStorageCFFile::presentation()
 //---------------------------------------------------------------------------
 void ConfigStorageCFFile::close(ConfigFile* cf)
 {
-	v8file* f;
+	V8File* f;
 
-	f = (v8file*)cf->addin;
+	f = (V8File*)cf->addin;
 	f->Close();
 	delete cf;
 }
@@ -169,7 +169,7 @@ bool ConfigStorageCFFile::fileexists(const String& path)
 	// Это неправильно для формата 8.0 с файлом каталогом metadata. Но метод fileexists используется только для внешних файлов,
 	// поэтому такой проверки достаточно
 
-	v8file* f;
+	V8File* f;
 	int i;
 
 	if(!cat->isOpen()) return false;
@@ -350,7 +350,7 @@ bool ContainerFile::isPacked()
 enum class ConfigStorageTableAddinVariant
 {
 	ContainerFile,
-	v8file
+	V8File
 };
 
 //---------------------------------------------------------------------------
@@ -360,7 +360,7 @@ struct ConfigStorageTable_addin
 	union
 	{
 		ContainerFile* tf;
-		v8file* f;
+		V8File* f;
 	};
 };
 
@@ -385,8 +385,8 @@ ConfigFile* ConfigStorageTable::readfile(const String& path)
 {
 	ContainerFile* tf;
 	std::map<String,ContainerFile*>::iterator pfiles;
-	v8catalog* c;
-	v8file* f;
+	V8Catalog* c;
+	V8File* f;
 	int i;
 	String fname;
 	String r_name;
@@ -415,7 +415,7 @@ ConfigFile* ConfigStorageTable::readfile(const String& path)
 	tf->open();
 	if(!fname.IsEmpty())
 	{
-		if(!tf->cat) tf->cat = new v8catalog(tf->stream, false, true);
+		if(!tf->cat) tf->cat = new V8Catalog(tf->stream, false, true);
 		c = tf->cat;
 		for(i = fname.Pos("\\"); i; i = fname.Pos("\\"))
 		{
@@ -430,7 +430,7 @@ ConfigFile* ConfigStorageTable::readfile(const String& path)
 		if(!f->Open()) return nullptr;
 		cf = new ConfigFile;
 		cfa = new ConfigStorageTable_addin;
-		cfa->variant = ConfigStorageTableAddinVariant::v8file;
+		cfa->variant = ConfigStorageTableAddinVariant::V8File;
 		cfa->f = f;
 		cf->str = f->get_stream();
 		cf->str->Seek(0l, soBeginning);
@@ -467,7 +467,7 @@ void ConfigStorageTable::close(ConfigFile* cf)
 	{
 		cfa->tf->close();
 	}
-	else if(cfa->variant == ConfigStorageTableAddinVariant::v8file)
+	else if(cfa->variant == ConfigStorageTableAddinVariant::V8File)
 	{
 		cfa->f->Close();
 	}
@@ -489,7 +489,7 @@ bool ConfigStorageTable::save_config(const boost::filesystem::path &file_name)
 	size_t prevj = 101;
 	size_t i = 1;
 
-	std::unique_ptr<v8catalog> catalog (new v8catalog(file_name.string(), false));
+	std::unique_ptr<V8Catalog> catalog (new V8Catalog(file_name.string(), false));
 	for(auto pfiles: files)
 	{
 		++i;
@@ -503,9 +503,9 @@ bool ConfigStorageTable::save_config(const boost::filesystem::path &file_name)
 		ContainerFile* tf = pfiles.second;
 		if(tf->ropen())
 		{
-			v8file* f = catalog->createFile(tf->name);
-			f->SetTimeCreate(&tf->file->ft_create);
-			f->SetTimeModify(&tf->file->ft_modify);
+			V8File* f = catalog->createFile(tf->name);
+			f->time_create(tf->file->ft_create);
+			f->time_modify(tf->file->ft_modify);
 			f->WriteAndClose(tf->rstream);
 
 			tf->close();

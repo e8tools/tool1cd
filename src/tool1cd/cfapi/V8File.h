@@ -2,15 +2,16 @@
 #define V8FILEH
 
 #include <System.Classes.hpp>
+#include <boost/filesystem.hpp>
 #include <vector>
 #include <set>
 
 #include "V8Catalog.h"
 #include "TV8FileStream.h"
 #include "../Parse_tree.h"
-#include <boost/filesystem.hpp>
+#include "V8Time.h"
 
-class v8catalog;
+class V8Catalog;
 class TV8FileStream;
 
 enum class FileIsCatalog {
@@ -19,71 +20,93 @@ enum class FileIsCatalog {
 	no
 };
 
-class v8file {
+class V8File {
 public:
-		v8file(v8catalog* _parent, const String& _name, v8file* _previous, int _start_data, int _start_header, int64_t* _time_create, int64_t* _time_modify);
+	typedef std::set<TV8FileStream*> TV8FileStreams;
 
-		~v8file();
-		bool IsCatalog();
-		v8catalog* GetCatalog();
-		int64_t GetFileLength();
+	V8File(V8Catalog* _parent, const String& _name, V8File* _previous, int _start_data, int _start_header, int64_t time_create, int64_t time_modify);
 
-		int64_t Read(void* Buffer, int Start, int Length);
-		int64_t Read(std::vector<uint8_t> Buffer, int Start, int Length);
+	~V8File();
+	bool IsCatalog();
+	V8Catalog* GetCatalog();
+	int64_t GetFileLength();
 
-		int64_t Write(const void* Buffer, int Start, int Length);                           // дозапись/перезапись частично
-		int64_t Write(std::vector<uint8_t> Buffer, int Start, int Length); // дозапись/перезапись частично
-		int64_t Write(const void* Buffer, int Length);                                      // перезапись целиком
-		int64_t Write(TStream* Stream, int Start, int Length);                              // дозапись/перезапись частично
-		int64_t Write(TStream* Stream);                                                     // перезапись целиком
+	int64_t Read(void* Buffer, int Start, int Length);
+	int64_t Read(std::vector<uint8_t> Buffer, int Start, int Length);
 
-		String GetFileName();
-		String GetFullName();
+	int64_t Write(const void* Buffer, int Start, int Length);                           // дозапись/перезапись частично
+	int64_t Write(std::vector<uint8_t> Buffer, int Start, int Length); // дозапись/перезапись частично
+	int64_t Write(const void* Buffer, int Length);                                      // перезапись целиком
+	int64_t Write(TStream* Stream, int Start, int Length);                              // дозапись/перезапись частично
+	int64_t Write(TStream* Stream);                                                     // перезапись целиком
 
-		void SetFileName(const String& _name);
-		v8catalog* GetParentCatalog();
-		void DeleteFile();
-		v8file* GetNext();
-		bool Open();
-		void Close();
+	String GetFileName();
+	String GetFullName();
 
-		int64_t WriteAndClose(TStream* Stream, int Length = -1); // перезапись целиком и закрытие файла (для экономии памяти не используется data файла)
+	void SetFileName(const String& _name);
+	V8Catalog* GetParentCatalog();
+	void DeleteFile();
+	V8File* GetNext();
+	bool Open();
+	void Close();
 
-		void GetTimeCreate(System::FILETIME* ft);
-		void GetTimeModify(System::FILETIME* ft);
-		void SetTimeCreate(System::FILETIME* ft);
-		void SetTimeModify(System::FILETIME* ft);
-		void SaveToFile(const boost::filesystem::path &FileName);
-		void SaveToStream(TStream* stream);
-		TV8FileStream* get_stream(bool own = false);
-		void Flush();
+	int64_t WriteAndClose(TStream* Stream, int Length = -1); // перезапись целиком и закрытие файла (для экономии памяти не используется data файла)
 
-		tree* get_tree();
+	System::FILETIME get_time_create() const;
+	void time_create(const System::FILETIME &file_time);
+	void time_create(const V8Time &time);
+
+	System::FILETIME get_time_modify() const;
+	void time_modify(const System::FILETIME &file_time);
+	void time_modify(const V8Time &time);
+
+	void SaveToFile(const boost::filesystem::path &FileName);
+	void SaveToStream(TStream* stream);
+	TV8FileStream* get_stream(bool own = false);
+	void Flush();
+
+	tree* get_tree();
+
+	TCriticalSection* get_lock();
+	TStream* get_data();
+	int get_start_data() const;
+	int get_start_header() const;
+
+	bool is_datamodified() const;
+	void datamodified(const bool value);
+
+	bool is_destructed() const;
+	void destructed(const bool value);
+
+	bool is_self_zipped() const;
+	void self_zipped(const bool value);
+
+	TV8FileStreams& streams();
+
 private:
-		friend v8catalog;
-		friend TV8FileStream;
-		String name;
-		int64_t time_create;
-		int64_t time_modify;
-		TCriticalSection *Lock;
-		TStream* data;
-		v8catalog* parent;
-		FileIsCatalog iscatalog;
+	String name;
 
-		v8catalog* self;        // указатель на каталог, если файл является каталогом
-		v8file* next;           // следующий файл в каталоге
-		v8file* previous;       // предыдущий файл в каталоге
-		bool is_opened;         // признак открытого файла (инициализирован поток data)
-		int start_data;         // начало блока данных файла в каталоге (0 означает, что файл в каталоге не записан)
-		int start_header;       // начало блока заголовка файла в каталоге
-		bool is_datamodified;   // признак модифицированности данных файла (требуется запись в каталог при закрытии)
-		bool is_headermodified; // признак модифицированности заголовка файла (требуется запись в каталог при закрытии)
-		bool is_destructed;     // признак, что работает деструктор
-		bool flushed;           // признак, что происходит сброс
-		bool selfzipped;        // Признак, что файл является запакованным независимо от признака zipped каталога
-		std::set<TV8FileStream*> streams;
+	V8Time _time_create;
+	V8Time _time_modify;
+	TCriticalSection *Lock;
+	TStream* data;
+	V8Catalog* parent;
+	FileIsCatalog iscatalog;
 
-		inline bool try_open() { return (!is_opened) ? Open() : true; }
+	V8Catalog* self;        // указатель на каталог, если файл является каталогом
+	V8File* next;           // следующий файл в каталоге
+	V8File* previous;       // предыдущий файл в каталоге
+	bool is_opened;         // признак открытого файла (инициализирован поток data)
+	int start_data;         // начало блока данных файла в каталоге (0 означает, что файл в каталоге не записан)
+	int start_header;       // начало блока заголовка файла в каталоге
+	bool _datamodified;   // признак модифицированности данных файла (требуется запись в каталог при закрытии)
+	bool is_headermodified; // признак модифицированности заголовка файла (требуется запись в каталог при закрытии)
+	bool _destructed;     // признак, что работает деструктор
+	bool flushed;           // признак, что происходит сброс
+	bool _selfzipped;        // Признак, что файл является запакованным независимо от признака zipped каталога
+	TV8FileStreams _streams;
+
+	inline bool try_open() { return (!is_opened) ? Open() : true; }
 };
 
 #endif

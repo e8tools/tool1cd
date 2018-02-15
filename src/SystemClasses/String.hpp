@@ -74,10 +74,10 @@ public:
 
 	int ToIntDef(int default_value = std::numeric_limits<int>::max()) const;
 
-	int Pos(const String &substr);
+	size_t Pos(const String &substr);
 
-	int GetLength() const;
-	void SetLength(int NewLength);
+	size_t GetLength() const;
+	void SetLength(size_t NewLength);
 
 	int LastDelimiter(const String &delimiters) const;
 
