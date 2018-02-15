@@ -6,6 +6,7 @@
 #include "starter.h"
 #include "cache.h"
 #include "table_window.h"
+#include "table_data_window.h"
 
 Registrator msreg_g;
 
@@ -82,7 +83,7 @@ void MainWindow::on_tableListView_doubleClicked(const QModelIndex &index)
 {
 	Table *t = db->gettable(index.row());
 	if (table_windows.find(t) == table_windows.end()) {
-		table_windows[t] = new TableWindow(this, t);
+		table_windows[t] = new TableDataWindow(this, t);
 	}
 	table_windows[t]->show();
 	table_windows[t]->activateWindow();
