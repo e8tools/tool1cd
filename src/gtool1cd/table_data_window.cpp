@@ -3,6 +3,7 @@
 #include "table_window.h"
 #include <Table.h>
 #include "skobkatextwindow.h"
+#include "models/table_data_model.h"
 
 TableDataWindow::TableDataWindow(QWidget *parent, Table *table)
     : QMainWindow(parent), table(table),

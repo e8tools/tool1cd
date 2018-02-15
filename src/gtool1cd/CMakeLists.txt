@@ -8,7 +8,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Widgets REQUIRED)
 
 set(HEADER_FILES mainwindow.h starter.h littlelogwindow.h cache.h table_window.h table_data_window.h
-	skobkatextwindow.h)
+	skobkatextwindow.h models/tables_list_model.h models/fields_list_model.h models/table_data_model.h)
 set(UI_FILES mainwindow.ui starter.ui littlelogwindow.ui table_window.ui table_data_window.ui
 	skobkatextwindow.ui)
 set(SOURCE_FILES main.cpp mainwindow.cpp starter.cpp littlelogwindow.cpp cache.cpp table_window.cpp table_data_window.cpp

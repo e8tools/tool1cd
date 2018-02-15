@@ -1,6 +1,7 @@
 #include "table_window.h"
 #include "ui_table_window.h"
 #include <Table.h>
+#include "models/fields_list_model.h"
 
 TableWindow::TableWindow(QWidget *parent, Table *table)
     : QMainWindow(parent), table(table),
