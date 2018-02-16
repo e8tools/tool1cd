@@ -8,11 +8,12 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Widgets REQUIRED)
 
 set(HEADER_FILES mainwindow.h starter.h littlelogwindow.h cache.h table_fields_window.h table_data_window.h
-	skobkatextwindow.h models/tables_list_model.h models/fields_list_model.h models/table_data_model.h)
+	skobkatextwindow.h models/tables_list_model.h models/fields_list_model.h models/table_data_model.h
+	export_table_to_xml_dialog.h)
 set(UI_FILES mainwindow.ui starter.ui littlelogwindow.ui table_fields_window.ui table_data_window.ui
-	skobkatextwindow.ui)
+	skobkatextwindow.ui export_table_to_xml_dialog.ui)
 set(SOURCE_FILES main.cpp mainwindow.cpp starter.cpp littlelogwindow.cpp cache.cpp table_fields_window.cpp table_data_window.cpp
-	skobkatextwindow.cpp)
+	skobkatextwindow.cpp export_table_to_xml_dialog.cpp)
 
 add_executable(gtool1cd WIN32 ${SOURCE_FILES} ${HEADER_FILES} ${UI_FILES})
 

@@ -4,7 +4,7 @@
 #include <Table.h>
 #include "skobkatextwindow.h"
 #include "models/table_data_model.h"
-#include <QFileDialog>
+#include "export_table_to_xml_dialog.h"
 
 TableDataWindow::TableDataWindow(QWidget *parent, Table *table)
     : QMainWindow(parent), table(table),
@@ -41,12 +41,6 @@ void TableDataWindow::on_fieldsButton_clicked()
 
 void TableDataWindow::on_exportToXmlButton_clicked()
 {
-	QString exportFileName = QFileDialog::getSaveFileName(this,
-	                             tr("Экспорт таблицы"),
-	                             "", "*.xml");
-	if (exportFileName.isNull()) {
-		return;
-	}
-	table->fillrecordsindex();
-	table->export_to_xml(exportFileName.toStdString(), true, false);
+	ExportTableToXmlDialog *export_dialog = new ExportTableToXmlDialog(table, this);
+	export_dialog->show_with_file_dialog();
 }
