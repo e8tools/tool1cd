@@ -417,7 +417,7 @@ std::string UpperCase(const std::string &src)
 	return string(result_data.data());
 }
 
-	int Compare(const std::string &a, const std::string &b)
+int Compare(const std::string &a, const std::string &b)
 {
 	return a.compare(b);
 }
