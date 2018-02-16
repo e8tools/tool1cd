@@ -62,8 +62,14 @@ virtual std::vector<uint8_t> fromUtf8(const String &data)
 {
 	auto data_first = data.c_str();
 	auto data_last = data_first + data.size();
-	std::vector<uint8_t> result_vector;
-	utf8::utf8to16(data_first, data_last, back_inserter(result_vector));
+	vector<uint16_t> _vector;
+	utf8::utf8to16(data_first, data_last, back_inserter(_vector));
+
+	vector<uint8_t> result_vector;
+	for (auto u16 : _vector) {
+		result_vector.push_back(static_cast<uint8_t>(u16 & 0xff));
+		result_vector.push_back(static_cast<uint8_t>(u16 >> 8));
+	}
 	return result_vector;
 }
 
@@ -85,7 +91,7 @@ TStringBuilder *TStringBuilder::Replace(const String &substring, const String &r
 	return this;
 }
 
-String TStringBuilder::ToString() const
+string TStringBuilder::ToString() const
 {
 	return value;
 }
@@ -95,7 +101,7 @@ void TStringBuilder::Clear()
 	value = "";
 }
 
-void TStringBuilder::Append(const String &s)
+void TStringBuilder::Append(const string &s)
 {
 	value += s;
 }
@@ -164,7 +170,7 @@ int StrToInt(const String &s)
 	return stoi(s.c_str());
 }
 
-String ExtractFileExt(const String &filename)
+string ExtractFileExt(const string &filename)
 {
 	boost::filesystem::path _p(filename.c_str());
 	return _p.extension().string();

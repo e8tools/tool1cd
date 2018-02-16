@@ -222,13 +222,13 @@ bool BinaryFieldType::get_binary_value(char* binary_value, const String& value) 
 	switch(type)
 	{
 		case type_fields::tf_binary: {
-			if(value.GetLength() == 0) {
+			if(value.size() == 0) {
 				break;
 			}
 			int32_t j = 1;
 			if(length == 16 && showGUID) // TODO Надо доделать для showGUIDasMS
 			{
-				if(value.GetLength() < GUID_LEN) {
+				if(value.size() < GUID_LEN) {
 					break;
 				}
 				for(int32_t ind = 12; ind < 16; ind++) {
@@ -252,7 +252,7 @@ bool BinaryFieldType::get_binary_value(char* binary_value, const String& value) 
 				}
 			}
 			else {
-				if(value.GetLength() < length * 2) {
+				if(value.size() < length * 2) {
 					break;
 				}
 				for(int32_t ind = 0; ind < length; ind++) {
@@ -400,7 +400,7 @@ uint32_t BinaryFieldType::getSortKey(const char* rec, unsigned char* SortKey, in
 
 bool NumericFieldType::get_binary_value(char* binary_value, const String& value) const
 {
-	int32_t l = value.GetLength();
+	int32_t l = value.size();
 	if(!l) {
 		return true;
 	}
@@ -497,7 +497,7 @@ bool DatetimeFieldType::get_binary_value(char* binary_value, const String& value
 	unsigned char* fr = (unsigned char*)binary_value;
 	memset(fr, 0, len);
 
-	if (value.GetLength() < 19) {
+	if (value.size() < 19) {
 		fr[1] = 1;
 		fr[2] = 1;
 		fr[3] = 1;
@@ -587,7 +587,7 @@ bool CommonFieldType::get_binary_value(char *binary_value, const String &value) 
 		}
 
 		case type_fields::tf_char: {
-			int32_t i = std::min(value.GetLength(), (size_t)length);
+			int32_t i = std::min(value.size(), (size_t)length);
 			memcpy(fr, value.c_str(), i << 1);
 			while(i < length) {
 				((WCHART*)fr)[i++] = L' ';
@@ -595,7 +595,7 @@ bool CommonFieldType::get_binary_value(char *binary_value, const String &value) 
 			break;
 		}
 		case type_fields::tf_varchar: {
-			int32_t i = std::min(value.GetLength(), (size_t)length);
+			int32_t i = std::min(value.size(), (size_t)length);
 			*(int16_t*)fr = i;
 			memcpy(fr + 2, value.c_str(), i * 2);
 			while(i < length) {

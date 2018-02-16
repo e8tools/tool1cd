@@ -41,10 +41,10 @@ bool try_store_blob_data(const TableRecord &record,
 						 TStream *&out);
 
 
-bool contains_ic(const vector<String> &vector, const String &string_to_find)
+bool contains_ic(const vector<string> &vector, const string &string_to_find)
 {
-	for (auto value : vector) {
-		if (value.CompareIC(string_to_find) == 0) {
+	for (auto &value : vector) {
+		if (CompareIC(value, string_to_find) == 0) {
 			return true;
 		}
 	}
@@ -56,7 +56,7 @@ bool contains_ic(const vector<String> &vector, const String &string_to_find)
 // ver - номер версии сохраняемой конфигурации
 // ver > 0 - используется переданный номер версии
 // ver <= 0 - номер версии от последней конфигурации. 0 - последняя конфигурация, -1 - предпоследняя и т.д., т.е. Номер версии определяется как номер последней + ver
-bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
+bool T_1CD::save_depot_config(const string &_filename, int32_t ver)
 {
 	Field* fldd_rootobjid;
 
@@ -65,7 +65,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	Field* flde_datahash;
 	vector<TableRecord*> reces;
-	vector<String> extnames;
+	vector<string> extnames;
 
 	depot_ver depotVer;
 	uint32_t configVerMajor, configVerMinor;
@@ -117,7 +117,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	TableIterator versions_iterator(table_versions);
 	while (!versions_iterator.eof()) {
-		int32_t vernum = versions_iterator.current().get_string(fldv_vernum).ToIntDef(0);
+		int32_t vernum = ToIntDef(versions_iterator.current().get_string(fldv_vernum), 0);
 		if (vernum == ver) {
 			break;
 		}
@@ -129,8 +129,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				.add_detail("Требуемая версия", ver);
 	}
 
-	boost::filesystem::path filepath = boost::filesystem::path(static_cast<std::string>(_filename));
-	boost::filesystem::path root_path(static_cast<std::string>(filename)); // путь к 1cd
+	boost::filesystem::path filepath = boost::filesystem::path(_filename);
+	boost::filesystem::path root_path(filename); // путь к 1cd
 
 
 	if (try_save_snapshot(versions_iterator.current(), ver, rootobj, root_path, filepath)) {
@@ -265,7 +265,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 			{
 				TStream *out;
 
-				String sObjId = rech1->get<BinaryGuid>(fldh_objid).as_MS();
+				string sObjId = rech1->get<BinaryGuid>(fldh_objid).as_MS();
 				if (!try_store_blob_data(*rech1, fldh_objdata, oldformat, fldh_datahash, pack_directory, out)) {
 					msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
 						"Таблица", "HISTORY",
@@ -294,13 +294,13 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						}
 
 						if (current_external_guid == curobj) {
-							int32_t vernum = rece.get_string(flde_vernum).ToIntDef();
-							String ext_name = rece.get_string(flde_extname);
+							int32_t vernum = ToIntDef(rece.get_string(flde_vernum), numeric_limits<int32_t>::max());
+							string ext_name = rece.get_string(flde_extname);
 							if (vernum <= ver && rece.get<bool>(flde_datapacked)) {
 								size_t j;
 								bool found = false;
 								for (j = 0; j < reces.size(); j++) {
-									if (ext_name.CompareIC(reces[j]->get_string(flde_extname)) == 0) {
+									if (CompareIC(ext_name, reces[j]->get_string(flde_extname)) == 0) {
 										reces[j] = new TableRecord(rece);
 										found = true;
 										break;
@@ -347,7 +347,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 		if(iHistory_Index < HistoryIndex_numrec)
 		{
-			int32_t vernum = rech2->get_string(fldh_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
+			int32_t vernum = ToIntDef(rech2->get_string(fldh_vernum), numeric_limits<int32_t>::max());
 			if(vernum <= ver)
 			{
 				if (rech2->get<bool>(fldh_removed)) {
@@ -468,13 +468,10 @@ bool T_1CD::try_save_snapshot(const TableRecord &version_record,
 	if (version_record.get<BinaryGuid>("SNAPSHOTMAKER").is_empty()) {
 		return false;
 	}
-	String name_snap = "ddb";
-	String ver_part  = "00000";
-	ver_part  += ver;
-	name_snap += ver_part.SubString(ver_part.GetLength() - 4, 5);
-	name_snap += ".snp";
+	string ver_part  = string("00000").append(to_string(ver));
+	string name_snap = string("ddb").append(ver_part.substr(ver_part.size() - 5, 5)).append(".snp");
 
-	boost::filesystem::path file_snap = root_path.parent_path() / "cache" / static_cast<std::string>(name_snap);
+	boost::filesystem::path file_snap = root_path.parent_path() / "cache" / name_snap;
 
 	msreg_m.AddMessage_("Попытка открытия файла снэпшота", MessageState::Info,
 						"Файл", file_snap.string());

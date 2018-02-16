@@ -28,7 +28,7 @@ private:
 	bool ActionXMLSaveBLOBToFileChecked{ false };
 	bool ActionXMLUnpackBLOBChecked{ true };
 
-	bool IsTrueString(const String &str) const;
+	bool IsTrueString(const std::string &str) const;
 	void export_all_to_xml(const ParsedCommand& pc);
 	void export_to_xml(const ParsedCommand& pc);
 

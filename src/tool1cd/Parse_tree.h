@@ -21,19 +21,19 @@ public:
 	tree* add_child(const String& _value, const node_type _type);
 	tree* add_child();
 	tree* add_node();
-	String& get_value();
+	std::string get_value() const;
 	node_type get_type();
 	int get_num_subnode();
 	tree* get_subnode(int _index);
-	tree* get_subnode(const String& node_name);
+	tree* get_subnode(const std::string &node_name);
 	tree* get_next();
 	tree* get_parent();
 	tree* get_first();
 	tree* get_last();
 	tree& operator [](int _index);
 	void set_value(const String& v, const node_type t);
-	void outtext(String& text);
-	String path();
+	void outtext(std::string &text);
+	std::string path() const;
 
 private:
 	String value;
@@ -53,7 +53,7 @@ typedef tree* treeptr;
 tree* parse_1Ctext(const String& text, const String& path);
 tree* parse_1Cstream(TStream* str, const String& path);
 bool test_parse_1Ctext(TStream* str, const String& path);
-String outtext(tree* t);
+std::string outtext(tree *t);
 
 #endif
 

@@ -5,20 +5,22 @@
 #pragma package(smart_init)
 #endif
 
-String TTempStream::tempcat;
+using namespace std;
+
+string TTempStream::tempcat;
 long TTempStream::tempno = 0;
 TTempStreamStaticInit TempStreamStaticInit;
 
 //---------------------------------------------------------------------------
 TTempStreamStaticInit::TTempStreamStaticInit()
 {
-	if(TTempStream::tempcat.IsEmpty())
-	{
-		boost::filesystem::path p_tempcat = boost::filesystem::temp_directory_path() / "awa";
-		TTempStream::tempcat = p_tempcat.string();
-		DeleteFile(TTempStream::tempcat);
-		CreateDir(TTempStream::tempcat);
+	if (!TTempStream::tempcat.empty()) {
+		return;
 	}
+	boost::filesystem::path p_tempcat = boost::filesystem::temp_directory_path() / "awa";
+	TTempStream::tempcat = p_tempcat.string();
+	DeleteFile(TTempStream::tempcat);
+	CreateDir(TTempStream::tempcat);
 }
 
 //---------------------------------------------------------------------------
@@ -39,9 +41,9 @@ TTempStream::~TTempStream()
 
 //---------------------------------------------------------------------------
 
-String TTempStream::gettempname()
+std::string TTempStream::gettempname()
 {
-	return (boost::filesystem::path(tempcat.c_str()) / boost::filesystem::unique_path()).string();
+	return (boost::filesystem::path(tempcat) / boost::filesystem::unique_path()).string();
 }
 
 //---------------------------------------------------------------------------

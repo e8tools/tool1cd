@@ -5,6 +5,7 @@
 #include "APIcfBase.h"
 #include "../UZLib.h"
 #include "../Common.h"
+using namespace std;
 
 //---------------------------------------------------------------------------
 // читает блок из потока каталога stream_from, собирая его по страницам
@@ -152,8 +153,8 @@ V8Catalog::V8Catalog(String name) // создать каталог из физи
 	Lock = new TCriticalSection();
 	iscatalogdefined = false;
 
-	String ext = ExtractFileExt(name).LowerCase();
-	if(ext == CFU_STR)
+	string ext = LowerCase(ExtractFileExt(name));
+	if (ext == CFU_STR)
 	{
 		is_cfu = true;
 		zipped = false;
@@ -397,8 +398,7 @@ void V8Catalog::DeleteFile(const String& FileName)
 	V8File* f = first;
 	while(f)
 	{
-		if(!f->GetFileName().CompareIC(FileName))
-		{
+		if (CompareIC(f->GetFileName(), FileName) == 0) {
 			f->DeleteFile();
 			delete f;
 		}
@@ -409,12 +409,12 @@ void V8Catalog::DeleteFile(const String& FileName)
 
 //---------------------------------------------------------------------------
 // получить файл
-V8File* V8Catalog::GetFile(const String& FileName)
+V8File* V8Catalog::GetFile(const std::string &FileName)
 {
 	V8File* ret;
 	Lock->Acquire();
 	std::map<String,V8File*>::const_iterator it;
-	it = files.find(FileName.UpperCase());
+	it = files.find(LowerCase(FileName));
 	if(it == files.end()) ret = nullptr;
 	else ret = it->second;
 	Lock->Release();
@@ -843,10 +843,10 @@ void V8Catalog::SaveToDir(const boost::filesystem::path &dir) const
 	while(f)
 	{
 		if(f->IsCatalog()) {
-			f->GetCatalog()->SaveToDir(dir / static_cast<std::string>(f->GetFileName()));
+			f->GetCatalog()->SaveToDir(dir / f->GetFileName());
 		}
 		else {
-			f->SaveToFile(dir / static_cast<std::string>(f->GetFileName()));
+			f->SaveToFile(dir / f->GetFileName());
 		}
 		f->Close();
 		f = f->GetNext();

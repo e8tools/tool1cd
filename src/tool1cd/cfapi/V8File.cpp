@@ -6,8 +6,10 @@
 extern Registrator msreg_g;
 
 using namespace System;
+using namespace std;
 
-V8File::V8File(V8Catalog* _parent, const String& _name, V8File* _previous, int _start_data, int _start_header, int64_t time_create, int64_t time_modify)
+V8File::V8File(V8Catalog *_parent, const std::string &_name, V8File *_previous, int _start_data, int _start_header,
+			   int64_t time_create, int64_t time_modify)
 {
 	Lock = new TCriticalSection();
 	_destructed = false;
@@ -33,7 +35,7 @@ V8File::V8File(V8Catalog* _parent, const String& _name, V8File* _previous, int _
 	_selfzipped = false;
 	if(parent) {
 		V8Catalog::V8Files& files = parent->v8files();
-		files[name.UpperCase()] = this;
+		files[LowerCase(name)] = this;
 	}
 }
 
@@ -258,18 +260,18 @@ int64_t V8File::Write(TStream* Stream) // перезапись целиком
 
 //---------------------------------------------------------------------------
 // возвращает имя
-String V8File::GetFileName()
+std::string V8File::GetFileName()
 {
 	return name;
 }
 
 //---------------------------------------------------------------------------
 // возвращает полное имя
-String V8File::GetFullName()
+std::string V8File::GetFullName()
 {
 	if(parent != nullptr) {
-		String fulln = parent->get_full_name();
-		if(!fulln.IsEmpty())
+		string fulln = parent->get_full_name();
+		if(!fulln.empty())
 		{
 			fulln += "\\";
 			fulln += name;
@@ -413,7 +415,7 @@ void V8File::DeleteFile()
 		parent->free_block(start_header);
 
 		V8Catalog::V8Files& files = parent->v8files();
-		files.erase(name.UpperCase());
+		files.erase(LowerCase(name));
 
 		parent->Release();
 		parent = nullptr;
@@ -462,7 +464,7 @@ bool V8File::Open(){
 //---------------------------------------------------------------------------
 // закрыть файл
 void V8File::Close(){
-	int _t = 0;
+	uint32_t zero4b = 0;
 
 	if(!parent) return;
 	Lock->Acquire();
@@ -486,17 +488,10 @@ void V8File::Close(){
 				TMemoryStream* hs = new TMemoryStream();
 				_time_create.write_to_stream(hs);
 				_time_modify.write_to_stream(hs);
-				hs->Write(&_t, 4);
-				#ifndef _DELPHI_STRING_UNICODE // FIXME: определится используем WCHART или char
-				int ws = name.WideCharBufSize();
-				char* tb = new char[ws];
-				name.WideChar((WCHART*)tb, ws);
-				hs->Write((char*)tb, ws);
-				delete[] tb;
-				#else
-				hs->Write(name.c_str(), name.Length() * 2);
-				#endif
-				hs->Write(&_t, 4);
+				hs->Write(&zero4b, 4);
+				auto tb = SysUtils::TEncoding::Unicode->fromUtf8(name);
+				hs->Write(tb.data(), tb.size());
+				hs->Write(&zero4b, 4);
 
 				start_header = parent->write_block(hs, start_header, false);
 				delete hs;
@@ -539,9 +534,7 @@ int64_t V8File::WriteAndClose(TStream* Stream, int Length)
 	data = nullptr;
 
 	if (!parent->data_empty()) {
-		int name_size = name.WideCharBufSize();
-		WCHART *wname = new WCHART[name_size];
-		name.WideChar(wname, name.Length());
+		auto wname = SysUtils::TEncoding::Unicode->fromUtf8(name);
 
 		parent->Acquire();
 		start_data = parent->write_datablock(Stream, start_data, _selfzipped, Length);
@@ -549,11 +542,10 @@ int64_t V8File::WriteAndClose(TStream* Stream, int Length)
 		_time_create.write_to_stream(&hs);
 		_time_modify.write_to_stream(&hs);
 		hs.Write(&_4bzero, 4);
-		hs.Write(wname, name.Length() * sizeof(WCHART));
+		hs.Write(wname.data(), wname.size());
 		hs.Write(&_4bzero, 4);
 		start_header = parent->write_block(&hs, start_header, false);
 		parent->Release();
-		delete[]wname;
 	}
 	iscatalog = FileIsCatalog::unknown;
 	is_opened = false;
@@ -614,7 +606,7 @@ V8File::~V8File()
 // сброс
 void V8File::Flush()
 {
-	int _t = 0;
+	uint32_t zero4b = 0;
 
 	Lock->Acquire();
 	if(flushed)
@@ -650,17 +642,10 @@ void V8File::Flush()
 				TMemoryStream* hs = new TMemoryStream();
 				_time_create.write_to_stream(hs);
 				_time_modify.write_to_stream(hs);
-				hs->Write(&_t, 4);
-				#ifndef _DELPHI_STRING_UNICODE
-				int ws = name.WideCharBufSize();
-				char* tb = new char[ws];
-				name.WideChar((WCHART*)tb, ws);
-				hs->Write((char*)tb, ws);
-				delete[] tb;
-				#else
-				hs->Write(name.c_str(), name.Length() * 2);
-				#endif
-				hs->Write(&_t, 4);
+				hs->Write(&zero4b, 4);
+				auto tb = SysUtils::TEncoding::Unicode->fromUtf8(name);
+				hs->Write(tb.data(), tb.size());
+				hs->Write(&zero4b, 4);
 
 				start_header = parent->write_block(hs, start_header, false);
 				delete hs;

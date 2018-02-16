@@ -24,5 +24,5 @@ TEST_CASE("File extension extracts correctly", "[SysUtils]")
 	String fileName("/some/file.name");
 	String ext = SysUtils::ExtractFileExt(fileName);
 
-	REQUIRE( ext.Compare(".name") == 0 );
+	REQUIRE( Compare(ext, ".name") == 0 );
 }

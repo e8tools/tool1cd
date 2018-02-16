@@ -4,6 +4,7 @@
 #define TempStreamH
 
 #include <System.Classes.hpp>
+#include <string>
 
 class TTempStreamStaticInit
 {
@@ -17,9 +18,9 @@ public:
 class TTempStream : public TFileStream
 {
 public:
-	static String tempcat;
+	static std::string tempcat;
 	static long tempno;
-	static String gettempname();
+	static std::string gettempname();
 
 	TTempStream();
 	virtual ~TTempStream();

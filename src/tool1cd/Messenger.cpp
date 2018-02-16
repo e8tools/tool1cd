@@ -30,8 +30,8 @@ void Messenger::AddMessage(const String &message, const MessageState mstate, con
 
 	shared_ptr<ostream> output (&cerr, [](...){} );
 
-	if (!logfile.IsEmpty()) {
-		output = make_shared<boost::filesystem::ofstream>(boost::filesystem::path(static_cast<string>(logfile)), std::ios_base::app);
+	if (!logfile.empty()) {
+		output = make_shared<boost::filesystem::ofstream>(boost::filesystem::path(logfile), std::ios_base::app);
 	}
 	*output << message << endl;
 	if (param) {
@@ -43,7 +43,7 @@ void Messenger::AddMessage(const String &message, const MessageState mstate, con
 }
 
 //---------------------------------------------------------------------------
-void Messenger::setlogfile(String _logfile)
+void Messenger::setlogfile(const string &_logfile)
 {
 	logfile = System::Ioutils::TPath::GetFullPath(_logfile);
 	if(FileExists(logfile)) DeleteFile(logfile);

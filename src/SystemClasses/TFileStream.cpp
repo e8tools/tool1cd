@@ -6,7 +6,7 @@ namespace System {
 
 namespace Classes {
 
-TFileStream::TFileStream(const String &FileName, const uint16_t fileMode)
+TFileStream::TFileStream(const std::string &FileName, const uint16_t fileMode)
 	: TWrapperStream(), filename(FileName)
 {
 	std::ios_base::openmode mode = std::ios::binary | std::ios::in | std::ios::out;

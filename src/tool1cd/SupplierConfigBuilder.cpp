@@ -7,8 +7,10 @@
 
 extern Registrator msreg_g;
 
-String NODE_GENERAL() {
-	return String("9cd510cd-abfc-11d4-9434-004095e12fc7");
+using namespace std;
+
+string NODE_GENERAL() {
+	return string("9cd510cd-abfc-11d4-9434-004095e12fc7");
 }
 
 SupplierConfigBuilder::SupplierConfigBuilder(TableFile *table_file)
@@ -51,14 +53,14 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 	#endif
 
 	std::unique_ptr<tree> meta_tree ( meta_file->get_tree() );
-	int32_t numnode = (*meta_tree)[0][2].get_value().ToInt();
+	int32_t numnode = stoi((*meta_tree)[0][2].get_value());
 	int32_t current_node_number = 0;
 	for(current_node_number = 0; current_node_number < numnode; current_node_number++) {
 		tree& node = (*meta_tree)[0][3 + current_node_number];
-		String nodetype = node[0].get_value();
-		if(nodetype.CompareIC(NODE_GENERAL()) == 0) { // узел "Общие"
+		std::string nodetype = node[0].get_value();
+		if (CompareIC(nodetype, NODE_GENERAL()) == 0) { // узел "Общие"
 			tree& confinfo = node[1][1];
-			int32_t verconfinfo = confinfo[0].get_value().ToInt();
+			int32_t verconfinfo = stoi(confinfo[0].get_value());
 			switch(verconfinfo)	{
 				case 15:
 					_name = confinfo[1][1][2].get_value();
@@ -147,7 +149,7 @@ int32_t SupplierConfigBuilder::get_version() const {
 	}
 
 	std::unique_ptr<tree> version_tree ( version_file->get_tree() );
-	int32_t result = (*version_tree)[0][0][0].get_value().ToInt();;
+	int32_t result = stoi((*version_tree)[0][0][0].get_value());
 
 #ifdef _DEBUG
 msreg_g.AddDebugMessage("Найдена версия контейнера конфигурации поставщика", MessageState::Info,
@@ -159,7 +161,7 @@ msreg_g.AddDebugMessage("Найдена версия контейнера кон
 	return result;
 }
 
-V8File* SupplierConfigBuilder::get_file(const String &file_name) const {
+V8File* SupplierConfigBuilder::get_file(const string &file_name) const {
 	V8File* result = nullptr;
 
 	if(get_version() < 100) { // 8.0

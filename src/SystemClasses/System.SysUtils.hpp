@@ -21,11 +21,11 @@ public:
 
 	TStringBuilder *Replace(const String &substring, const String &replace);
 
-	String ToString() const;
+	std::string ToString() const;
 
 	void Clear();
 
-	void Append(const String &s);
+	void Append(const std::string &s);
 
 	void Append(char c);
 
@@ -72,7 +72,7 @@ struct TSearchRec {
 	int     ExcludeAttr;
 };
 
-String ExtractFileExt(const String &filename);
+std::string ExtractFileExt(const std::string &filename);
 
 } // SysUtils
 

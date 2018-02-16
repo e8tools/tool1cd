@@ -24,7 +24,8 @@ class V8File {
 public:
 	typedef std::set<TV8FileStream*> TV8FileStreams;
 
-	V8File(V8Catalog* _parent, const String& _name, V8File* _previous, int _start_data, int _start_header, int64_t time_create, int64_t time_modify);
+	V8File(V8Catalog *_parent, const std::string &_name, V8File *_previous, int _start_data, int _start_header,
+		   int64_t time_create, int64_t time_modify);
 
 	~V8File();
 	bool IsCatalog();
@@ -40,8 +41,8 @@ public:
 	int64_t Write(TStream* Stream, int Start, int Length);                              // дозапись/перезапись частично
 	int64_t Write(TStream* Stream);                                                     // перезапись целиком
 
-	String GetFileName();
-	String GetFullName();
+	std::string GetFileName();
+	std::string GetFullName();
 
 	void SetFileName(const String& _name);
 	V8Catalog* GetParentCatalog();
@@ -84,7 +85,7 @@ public:
 	TV8FileStreams& streams();
 
 private:
-	String name;
+	std::string name;
 
 	V8Time _time_create;
 	V8Time _time_modify;

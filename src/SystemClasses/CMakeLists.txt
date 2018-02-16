@@ -8,7 +8,7 @@ set (SYSTEM_SOURCES String.cpp System.Classes.cpp System.cpp
 set (SYSTEM_HEADERS String.hpp System.Classes.hpp System.hpp
 	System.IOUtils.hpp TFileStream.hpp TMemoryStream.hpp TStream.hpp
 	TStreamReader.hpp TStreamWriter.hpp System.SysUtils.hpp
-	GetTickCount.hpp)
+	GetTickCount.hpp Exception.hpp)
 
 add_library (SystemClasses STATIC ${SYSTEM_SOURCES} ${SYSTEM_HEADERS})
 

@@ -17,6 +17,8 @@ extern Registrator msreg_g;
 extern TMultiReadExclusiveWriteSynchronizer* tr_syn;
 #endif
 
+using namespace std;
+
 //********************************************************
 // Класс changed_rec
 
@@ -137,7 +139,9 @@ void Table::init(int32_t block_descr)
 
 	init();
 
-	if(description.IsEmpty()) return;
+	if (description.empty()) {
+		return;
+	}
 
 	std::unique_ptr<tree> root(parse_1Ctext(description, String("Блок ") + block_descr));
 
@@ -161,14 +165,14 @@ void Table::init(int32_t block_descr)
 		throw TableReadError("Ошибка получения имени таблицы. Узел не является строкой.", block_descr);
 	}
 	this->name = t->get_value();
-	this->issystem = name[1] != L'_'
-		|| name.SubString(name.GetLength() - 6, 7).CompareIC("STORAGE") == 0
-		|| name.CompareIC("_SYSTEMSETTINGS") == 0
-		|| name.CompareIC("_COMMONSETTINGS") == 0
-		|| name.CompareIC("_REPSETTINGS") == 0
-		|| name.CompareIC("_REPVARSETTINGS") == 0
-		|| name.CompareIC("_FRMDTSETTINGS") == 0
-		|| name.CompareIC("_SCHEDULEDJOBS") == 0;
+	this->issystem = name[0] != '_'
+		|| CompareIC(name.substr(name.size() - 7, 7), "STORAGE") == 0
+		|| CompareIC(name, "_SYSTEMSETTINGS") == 0
+		|| CompareIC(name, "_COMMONSETTINGS") == 0
+		|| CompareIC(name, "_REPSETTINGS") == 0
+		|| CompareIC(name, "_REPVARSETTINGS") == 0
+		|| CompareIC(name, "_FRMDTSETTINGS") == 0
+		|| CompareIC(name, "_SCHEDULEDJOBS") == 0;
 
 	t = t->get_next();
 	// пропускаем узел, так как там всегда содержится "0", и что это такое, неизвестно (версия формата описания таблиц?)
@@ -269,7 +273,7 @@ void Table::init(int32_t block_descr)
 	if (f->get_type() != node_type::nd_string) {
 		throw TableReadError("Ошибка получения типа блокировки таблицы. Узел не является строкой.", block_descr, name);
 	}
-	String sTableLock = f->get_value();
+	std::string sTableLock = f->get_value();
 	if     (sTableLock == "0") recordlock = false;
 	else if(sTableLock == "1") recordlock = true;
 	else {
@@ -477,7 +481,7 @@ Table::Table(T_1CD* _base, int32_t block_descr)
 }
 
 //---------------------------------------------------------------------------
-Table::Table(T_1CD* _base, String _descr, int32_t block_descr)
+Table::Table(T_1CD *_base, const std::string &_descr, int32_t block_descr)
 {
 
 	base = _base;
@@ -553,13 +557,13 @@ Table::~Table()
 }
 
 //---------------------------------------------------------------------------
-String Table::getname() const
+std::string Table::getname() const
 {
 	return name;
 }
 
 //---------------------------------------------------------------------------
-String Table::getdescription() const
+std::string Table::getdescription() const
 {
 	return description;
 }
@@ -856,7 +860,7 @@ uint32_t Table::readBlob(void* buf, uint32_t _startblock, uint32_t _length) cons
 }
 
 //---------------------------------------------------------------------------
-bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
+bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool unpack)
 {
 	String s;
 	String recname;
@@ -885,7 +889,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 	status += name;
 	status += " ";
 
-	TFileStream f(_filename, fmCreate);
+	TFileStream f(boost::filesystem::path(_filename), fmCreate);
 
 	f.Write(UnicodeHeader, 3);
 	f.WriteString(part1);
@@ -927,19 +931,19 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 	recname = "";
 	repeat_count = 0;
 	bool dircreated = false;
-	boost::filesystem::path dir(static_cast<std::string>(_filename) + ".blob");
+	boost::filesystem::path dir(_filename + ".blob");
 
 	for(j = 0; j < numr; j++)
 	{
 		if(j % 100 == 0 && j) msreg_g.Status(status + j);
 
-		f.Write(rpart1.c_str(), rpart1.GetLength());
+		f.Write(rpart1.c_str(), rpart1.size());
 		if(curindex) nr = curindex->get_numrec(j);
 		else nr = recordsindex[j];
 		std::shared_ptr<TableRecord> rec (getrecord(nr));
 		if (image_count) {
-			String filename = get_file_name_for_record(rec.get());
-			if (filename.CompareIC(recname) == 0) {
+			std::string filename = get_file_name_for_record(rec.get());
+			if (CompareIC(filename, recname) == 0) {
 				repeat_count++;
 			} else {
 				recname = filename;
@@ -947,7 +951,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 			}
 		}
 		for (auto field : fields) {
-			String outputvalue;
+			string outputvalue;
 			f.WriteString(rpart3);
 			f.WriteString(field->getname());
 
@@ -989,7 +993,7 @@ bool Table::export_to_xml(String _filename, bool blob_to_file, bool unpack)
 						outputvalue += repeat_count + 1;
 					}
 
-					dir /= static_cast<std::string>(outputvalue);
+					dir /= outputvalue;
 					if(!field->save_blob_to_file(rec.get(), dir.string(), unpack)) {
 						outputvalue = "{NULL}";
 						output_is_null = true;
@@ -1088,12 +1092,12 @@ changed_rec_type Table::get_rec_type(uint32_t phys_numrecord, int32_t numfield)
 }
 
 //---------------------------------------------------------------------------
-void Table::export_table(const String &path) const
+void Table::export_table(const std::string &path) const
 {
 
-	boost::filesystem::path dir(static_cast<std::string>(path));
+	boost::filesystem::path dir(path);
 
-	dir /= static_cast<std::string>(name);
+	dir /= name;
 	if(!directory_exists(dir, true)) {
 		return;
 	}
@@ -1149,10 +1153,10 @@ void Table::export_table(const String &path) const
 }
 
 //---------------------------------------------------------------------------
-void Table::import_table(const String &path)
+void Table::import_table(const std::string &path)
 {
-	boost::filesystem::path dir(static_cast<std::string>(path));
-	dir /= static_cast<std::string>(name);
+	boost::filesystem::path dir(path);
+	dir /= name;
 
 	if(!directory_exists(dir)) {
 		return;
@@ -1296,7 +1300,7 @@ void Table::import_table(const String &path)
 					"Файл", (dir / "descr").string());
 				return;
 			}
-			str.SetLength(i - 1);
+			str.resize(i - 1);
 			str += "{\"Files\",";
 			str += file_data ? String(file_data->get_block_number()) : String("0");
 			str += ",";
@@ -1304,7 +1308,7 @@ void Table::import_table(const String &path)
 			str += ",";
 			str += file_index ? String(file_index->get_block_number()) : String("0");
 			str += "}\n}";
-			descr_table->setdata(str.c_str(), str.GetLength() * 2);
+			descr_table->setdata(str.c_str(), str.size() * 2);
 
 		}
 
@@ -1315,7 +1319,7 @@ void Table::import_table(const String &path)
 }
 
 //---------------------------------------------------------------------------
-void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null, String value, TStream* st)
+void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null, const std::string &value, TStream *st)
 {
 	Field* fld;
 	char* k;
@@ -1458,7 +1462,7 @@ void Table::restore_edit_value(uint32_t phys_numrecord, int32_t numfield)
 	}
 	else{
 		TableRecord *rec = getrecord(phys_numrecord);
-		memcpy(cr->rec + fld->offset, rec->get_raw(fld->offset), fld->len);
+		memcpy(cr->rec + fld->offset, rec->get_raw(fld), fld->len);
 		delete rec;
 	}
 
@@ -2272,8 +2276,8 @@ char* Table::get_record_template_test()
 				memset(curp, 1, BLOB_RECORD_LEN * 8);
 				break;
 			case type_fields::tf_datetime: // DT //7
-				if(f->getname().CompareIC("_DATE_TIME") == 0) required = true;
-				else if(f->getname().CompareIC("_NUMBERPREFIX") == 0) required = true;
+				if (CompareIC(f->getname(), "_DATE_TIME") == 0) required = true;
+				else if (CompareIC(f->getname(), "_NUMBERPREFIX") == 0) required = true;
 
 				memcpy(curp, DATE1_TEST_TEMPLATE, BLOB_RECORD_LEN);
 				curp += BLOB_RECORD_LEN;
@@ -2334,9 +2338,9 @@ void Table::fillrecordsindex()
 	log_numrecords = recordsindex.size();
 }
 
-String Table::get_file_name_for_field(int32_t num_field, char* rec, uint32_t numrec)
+std::string Table::get_file_name_for_field(int32_t num_field, char *rec, uint32_t numrec)
 {
-	String s("");
+	std::string s("");
 	int32_t i;
 	Index* ind;
 
@@ -2350,7 +2354,9 @@ String Table::get_file_name_for_field(int32_t num_field, char* rec, uint32_t num
 		}
 		for(i = 0; i < ind->num_records; i++)
 		{
-			if(s.GetLength()) s += "_";
+			if(!s.empty()) {
+				s += "_";
+			}
 			s += ind->records[i].field->get_XML_presentation(rec);
 		}
 		if(!ind->is_primary && numrec){
@@ -2358,18 +2364,23 @@ String Table::get_file_name_for_field(int32_t num_field, char* rec, uint32_t num
 			s += numrec;
 		}
 	}
-	if(!issystem || !(name.CompareIC("CONFIG") == 0 || name.CompareIC("CONFIGSAVE") == 0 || name.CompareIC("FILES") == 0 || name.CompareIC("PARAMS") == 0))
+	if(!issystem || !(CompareIC(name, "CONFIG") == 0
+					  || CompareIC(name, "CONFIGSAVE") == 0
+					  || CompareIC(name, "FILES") == 0
+					  || CompareIC(name, "PARAMS") == 0))
 	{
-		if(s.GetLength()) s += "_";
+		if (!s.empty()) {
+			s += "_";
+		}
 		s += fields[num_field]->getname();
 	}
 
 	return s;
 }
 
-String Table::get_file_name_for_record(const TableRecord *rec)
+std::string Table::get_file_name_for_record(const TableRecord *rec)
 {
-	String s("");
+	std::string s("");
 
 	int32_t i;
 	int32_t num_rec;
@@ -2392,11 +2403,11 @@ String Table::get_file_name_for_record(const TableRecord *rec)
 
 		for(i = 0; i < num_rec; i++)
 		{
-			if(s.GetLength()){
+			if (!s.empty()){
 				s += "_";
 			}
 			Field* tmp_field = ind->records[i].field;
-			String tmp_str = rec->get_string(tmp_field);
+			std::string tmp_str = rec->get_string(tmp_field);
 
 			s += tmp_str;
 
@@ -2406,7 +2417,7 @@ String Table::get_file_name_for_record(const TableRecord *rec)
 	return s;
 }
 
-Field* Table::get_field(const String &fieldname) const
+Field* Table::get_field(const std::string &fieldname) const
 {
 	Field* fld = find_field(fieldname);
 	if (fld) {
@@ -2418,11 +2429,11 @@ Field* Table::get_field(const String &fieldname) const
 	throw error;
 }
 
-Field* Table::find_field(const String &fieldname) const throw()
+Field* Table::find_field(const std::string &fieldname) const throw()
 {
 	for (int32_t j = 0; j < num_fields; j++) {
 		Field* fld = fields[j];
-		if (fld->getname().CompareIC(fieldname) == 0) {
+		if (CompareIC(fld->getname(), fieldname) == 0) {
 			return fld;
 		}
 	}
@@ -2430,7 +2441,7 @@ Field* Table::find_field(const String &fieldname) const throw()
 	return nullptr;
 }
 
-Index* Table::get_index(const String& indexname) const
+Index* Table::get_index(const std::string &indexname) const
 {
 	Index* ind = find_index(indexname);
 	if (ind) {
@@ -2443,11 +2454,11 @@ Index* Table::get_index(const String& indexname) const
 	throw error;
 }
 
-Index* Table::find_index(const String& indexname) const throw()
+Index* Table::find_index(const std::string &indexname) const throw()
 {
 	for (int32_t j = 0; j < num_indexes; j++) {
 		Index* ind = indexes[j];
-		if (ind->getname().CompareIC(indexname) == 0) {
+		if (CompareIC(ind->getname(), indexname) == 0) {
 			return ind;
 		}
 	}

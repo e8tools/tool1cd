@@ -49,7 +49,7 @@ TableRecord::~TableRecord()
 	}
 }
 
-String TableRecord::get_string(const Field *field) const
+std::string TableRecord::get_string(const Field *field) const
 {
 	if (is_null_value(field)) {
 		throw NullValueException(field);
@@ -57,7 +57,7 @@ String TableRecord::get_string(const Field *field) const
 	return field->get_presentation(data);
 }
 
-String TableRecord::get_string(const String &field_name) const
+std::string TableRecord::get_string(const std::string &field_name) const
 {
 	return get_string(table->get_field(field_name));
 }
@@ -70,7 +70,7 @@ bool TableRecord::is_null_value(const Field *field) const
 	return data[field->getoffset()] == '\0';
 }
 
-bool TableRecord::is_null_value(const String &field_name) const
+bool TableRecord::is_null_value(const std::string &field_name) const
 {
 	return is_null_value(table->get_field(field_name));
 }
@@ -85,7 +85,7 @@ const char *TableRecord::get_raw(const Field *field) const
 	return &data[field->getoffset()];
 }
 
-const char *TableRecord::get_raw(const String &field_name) const
+const char *TableRecord::get_raw(const std::string &field_name) const
 {
 	return get_raw(table->get_field(field_name));
 }
@@ -102,7 +102,7 @@ char *TableRecord::__get_data(const Field *field)
 }
 
 
-const char *TableRecord::get_data(const String &field_name) const
+const char *TableRecord::get_data(const std::string &field_name) const
 {
 	return get_data(table->get_field(field_name));
 }
@@ -148,7 +148,7 @@ String TableRecord::get_xml_string(const Field *field) const
 	return field->get_XML_presentation(data);
 }
 
-String TableRecord::get_xml_string(const String &field_name) const
+std::string TableRecord::get_xml_string(const std::string &field_name) const
 {
 	return get_xml_string(table->get_field(field_name));
 }
@@ -177,7 +177,7 @@ bool TableRecord::try_store_blob_data(const Field *field, TStream *&out, bool in
 	return true;
 }
 
-const Field *TableRecord::get_field(const String &field_name) const
+const Field *TableRecord::get_field(const std::string &field_name) const
 {
 	return table->get_field(field_name);
 }

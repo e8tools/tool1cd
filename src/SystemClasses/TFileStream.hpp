@@ -23,7 +23,7 @@ class TFileStream : public TWrapperStream
 {
 public:
 
-	TFileStream(const String &FileName, const uint16_t fileMode);
+	TFileStream(const std::string &FileName, const uint16_t fileMode);
 	TFileStream(const boost::filesystem::path &path, const uint16_t fileMode);
 
 	virtual ~TFileStream();

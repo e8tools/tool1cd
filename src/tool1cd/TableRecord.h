@@ -47,14 +47,14 @@ public:
 	explicit TableRecord(const Table *parent, char *data = nullptr, int data_size = -1);
 	TableRecord(const TableRecord &another);
 
-	String get_string(const Field *field) const;
-	String get_string(const String &field_name) const;
+	std::string get_string(const Field *field) const;
+	std::string get_string(const std::string &field_name) const;
 
 	String get_xml_string(const Field *field) const;
-	String get_xml_string(const String &field_name) const;
+	std::string get_xml_string(const std::string &field_name) const;
 
 	bool is_null_value(const Field *field) const;
-	bool is_null_value(const String &field_name) const;
+	bool is_null_value(const std::string &field_name) const;
 
 	void set_null(const Field *field);
 	void set_data(const Field *field, const void *data);
@@ -90,11 +90,11 @@ public:
 	}
 
 	const char *get_raw(const Field *field) const;
-	const char *get_raw(const String &field_name) const;
+	const char *get_raw(const std::string &field_name) const;
 
 	// в случае null_exists get_data вернёт get_raw + 1, иначе get_raw
 	const char *get_data(const Field *field) const;
-	const char *get_data(const String &field_name) const;
+	const char *get_data(const std::string &field_name) const;
 
 	bool is_removed() const;
 
@@ -107,7 +107,7 @@ public:
 	~TableRecord();
 
 private:
-	const Field *get_field(const String &field_name) const;
+	const Field *get_field(const std::string &field_name) const;
 	char *__get_data(const Field *field);
 
 	char *data;
