@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>TableWindow</class>
- <widget class="QMainWindow" name="TableWindow">
+ <class>TableFieldsWindow</class>
+ <widget class="QMainWindow" name="TableFieldsWindow">
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -5,7 +5,7 @@
 #include <QStringListModel>
 #include "starter.h"
 #include "cache.h"
-#include "table_window.h"
+#include "table_fields_window.h"
 #include "table_data_window.h"
 #include "models/tables_list_model.h"
 

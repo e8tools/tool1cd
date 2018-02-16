@@ -1,6 +1,6 @@
 #include "table_data_window.h"
 #include "ui_table_data_window.h"
-#include "table_window.h"
+#include "table_fields_window.h"
 #include <Table.h>
 #include "skobkatextwindow.h"
 #include "models/table_data_model.h"
@@ -33,7 +33,7 @@ void TableDataWindow::on_descriptionButton_clicked()
 void TableDataWindow::on_fieldsButton_clicked()
 {
 	if (tableWindow == nullptr) {
-		tableWindow = new TableWindow(this, table);
+		tableWindow = new TableFieldsWindow(this, table);
 	}
 	tableWindow->show();
 	tableWindow->activateWindow();
