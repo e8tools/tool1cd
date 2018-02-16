@@ -154,7 +154,7 @@ public:
 	changed_rec_type get_rec_type(uint32_t phys_numrecord);
 	changed_rec_type get_rec_type(uint32_t phys_numrecord, int32_t numfield);
 	void set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null, const std::string &value,
-						TStream *st = NULL);
+						TStream *st = nullptr);
 	void restore_edit_value(uint32_t phys_numrecord, int32_t numfield);
 	void set_rec_type(uint32_t phys_numrecord, changed_rec_type crt);
 
