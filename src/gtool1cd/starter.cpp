@@ -9,6 +9,36 @@
 
 Cache *global_cache = nullptr;
 
+
+class RegistratorSwitcher : public MessageRegistrator
+{
+public:
+
+	explicit RegistratorSwitcher(MessageRegistrator *target)
+	    : _target(target) {}
+
+	void setRegistrator(MessageRegistrator *target)
+	{
+		_target = target;
+	}
+
+	virtual void AddMessage(
+	        const String &description,
+	        const MessageState mstate,
+	        const TStringList *param = nullptr) override
+	{
+		qDebug() << QString(description.c_str());
+		_target->AddMessage(description, mstate, param);
+	}
+	virtual void Status(const String& message) override
+	{
+		qDebug() << QString(message.c_str());
+		_target->Status(message);
+	}
+private:
+	MessageRegistrator *_target;
+};
+
 StarterWindow::StarterWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::StarterWindow)
@@ -44,12 +74,14 @@ void StarterWindow::setCache(Cache *cache)
 bool StarterWindow::openDatabase(const QString &filename)
 {
 	LittleLogWindow *lw = new LittleLogWindow(this);
-	T_1CD *db = new T_1CD(filename.toStdString(), lw);
+	RegistratorSwitcher *reg = new RegistratorSwitcher(lw);
+	T_1CD *db = new T_1CD(filename.toStdString(), reg);
 	if (!db->is_open()) {
 		lw->show();
 		return false;
 	}
 	MainWindow *db_window = new MainWindow(nullptr);
+	reg->setRegistrator(db_window);
 	db_window->open(db);
 	db_window->show();
 	close();

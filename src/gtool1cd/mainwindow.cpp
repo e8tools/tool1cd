@@ -9,39 +9,22 @@
 #include "table_data_window.h"
 #include "models/tables_list_model.h"
 
-Registrator msreg_g;
-
-TMultiReadExclusiveWriteSynchronizer*
-tr_syn = new TMultiReadExclusiveWriteSynchronizer();
-
-class MainWindowRegistrator : public MessageRegistrator
+void MainWindow::AddMessage(
+        const String &description,
+        const MessageState mstate,
+        const TStringList *param)
 {
-public:
-	MainWindowRegistrator(MainWindow *window)
-	    : target(window)
-	{
+	this->addLogMessage(QString(description.c_str()));
+}
 
-	}
+void MainWindow::Status(const String& message)
+{
 
-	virtual void AddMessage(
-	        const String &description,
-	        const MessageState mstate,
-	        const TStringList *param = nullptr) override
-	{
-		qDebug() << QString(description.c_str());
-		target->addLogMessage(QString(description.c_str()));
-	}
-	virtual void Status(const String& message) override
-	{
-
-	}
-private:
-	MainWindow *target;
-};
+}
 
 MainWindow::MainWindow(QWidget *parent) :
-	QMainWindow(parent),
-	ui(new Ui::MainWindow)
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
 	ui->logList->setModel(new QStringListModel(logData));

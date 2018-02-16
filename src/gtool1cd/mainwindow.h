@@ -11,7 +11,7 @@ namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow, public MessageRegistrator
 {
 	Q_OBJECT
 
@@ -21,6 +21,13 @@ public:
 	~MainWindow();
 
 	void addLogMessage(const QString &message);
+
+	virtual void AddMessage(
+	        const String &description,
+	        const MessageState mstate,
+	        const TStringList *param = nullptr) override;
+
+	virtual void Status(const String& message) override;
 
 private slots:
 
