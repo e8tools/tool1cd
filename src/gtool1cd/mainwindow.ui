@@ -28,7 +28,13 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QTableView" name="tableListView"/>
+     <widget class="QTableView" name="tableListView">
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QListView" name="logList"/>

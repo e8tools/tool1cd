@@ -38,6 +38,22 @@ public:
 		return file->getlen();
 	}
 
+	static QString human_size(size_t size_in_bytes)
+	{
+		size_t modified_size = size_in_bytes;
+		QVector<QString> suffix = {tr("B"), tr("KiB"), tr("MiB"), tr("GiB"), tr("TiB")};
+		size_t frac_part = 0;
+		int suffix_index = 0;
+		while (suffix_index < suffix.size() && modified_size > 1000) {
+			size_t new_value = modified_size >> 10;
+			frac_part = modified_size - (new_value << 10);
+			suffix_index++;
+			modified_size = new_value;
+		}
+		qreal value = modified_size + frac_part / 1024.0f;
+		return QString::number(value, 'f', 2) + QString(" ") + suffix[suffix_index];
+	}
+
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
 	{
 		if (!index.isValid()) {
@@ -57,16 +73,25 @@ public:
 				return QVariant::fromValue(t->get_recordlock() ? QString("YES") : QString("NO"));
 
 			case 3:
-				return QVariant::fromValue(object_size(t->get_file_data()));
+				return human_size(object_size(t->get_file_data()));
 			case 4:
-				return QVariant::fromValue(object_size(t->get_file_blob()));
+				return human_size(object_size(t->get_file_blob()));
 			case 5:
-				return QVariant::fromValue(object_size(t->get_file_index()));
+				return human_size(object_size(t->get_file_index()));
 			case 6:
-				return QVariant::fromValue(object_size(t->get_file_data())
-				                           + object_size(t->get_file_blob())
-				                           + object_size(t->get_file_index()));
+				return human_size(object_size(t->get_file_data())
+				                + object_size(t->get_file_blob())
+				                + object_size(t->get_file_index()));
 			} // switch
+		} else if (role == Qt::TextAlignmentRole) {
+			switch (index.column()) {
+			case 1:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+				return Qt::AlignRight + Qt::AlignVCenter;
+			}
 		}
 
 		return QVariant();
