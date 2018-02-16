@@ -8,12 +8,15 @@
 class TableDataModel : public QAbstractItemModel
 {
 public:
-	TableDataModel(Table *table)
-	    : table(table) {}
+	TableDataModel(Table *table, Index *index = nullptr)
+	    : table(table), _index(index) {}
 
 	int rowCount(const QModelIndex &parent) const override
 	{
-		return table->get_phys_numrecords();
+		if (_index == nullptr) {
+			return table->get_phys_numrecords();
+		}
+		return _index->get_numrecords();
 	}
 
 	int columnCount(const QModelIndex &parent) const override
@@ -37,13 +40,22 @@ public:
 		if (!index.isValid()) {
 			return QVariant();
 		}
+		TableRecord *record = _index == nullptr
+		        ? table->getrecord(index.row())
+		        : table->getrecord(_index->get_numrec(index.row()));
 		if (role == Qt::DisplayRole) {
 			Field *f = table->getfield(index.column());
-			TableRecord *record = table->getrecord(index.row());
 			if (record->is_null_value(f)) {
 				return QString("{NULL}");
 			}
 			return QString::fromStdString(static_cast<std::string>(record->get_string(f)));
+		}
+		if (role == Qt::FontRole) {
+			if (record->is_removed()) {
+				QFont italic;
+				italic.setItalic(true);
+				return italic;
+			}
 		}
 
 		return QVariant();
@@ -59,6 +71,7 @@ public:
 	}
 
 	Table *table;
+	Index *_index;
 };
 
 

@@ -55,6 +55,9 @@
      </widget>
     </item>
     <item>
+     <widget class="QComboBox" name="indexChooseBox"/>
+    </item>
+    <item>
      <widget class="QTableView" name="dataView">
       <property name="font">
        <font>

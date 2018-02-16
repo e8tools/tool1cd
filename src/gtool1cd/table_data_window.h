@@ -26,6 +26,8 @@ private slots:
 
 	void on_exportToXmlButton_clicked();
 
+	void on_indexChooseBox_activated(int index);
+
 private:
 	Table *table;
 	Ui::TableDataWindow *ui;
