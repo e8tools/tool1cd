@@ -969,12 +969,11 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 	configinfo = new ContainerFile(_configinfo, "configinfo");
 	files["configinfo"] = configinfo;
 	configinfo->open();
-	tree *tt = parse_1Cstream(configinfo->stream, filepath);
+	shared_ptr<tree> tt(parse_1Cstream(configinfo->stream, filepath));
 	if(!tt)
 	{
 		msreg_g.AddError("Ошибка разбора файла configinfo"
 			, "Путь", filepath);
-		delete tt;
 		return;
 	}
 	ct = tt->get_first();
@@ -982,7 +981,6 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 	{
 		msreg_g.AddError("Ошибка разбора файла configinfo"
 			, "Путь", filepath);
-		delete tt;
 		return;
 	}
 	ct = ct->get_next();
@@ -990,7 +988,6 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 	{
 		msreg_g.AddError("Ошибка разбора файла configinfo"
 			, "Путь", filepath);
-		delete tt;
 		return;
 	}
 	ct = ct->get_next();
@@ -998,7 +995,6 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 	{
 		msreg_g.AddError("Ошибка разбора файла configinfo"
 			, "Путь", filepath);
-		delete tt;
 		return;
 	}
 	ct = ct->get_first();
@@ -1006,7 +1002,6 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 	{
 		msreg_g.AddError("Ошибка разбора файла configinfo"
 			, "Путь", filepath);
-		delete tt;
 		return;
 	}
 
@@ -1018,7 +1013,6 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 		{
 			msreg_g.AddError("Ошибка разбора файла configinfo"
 				, "Путь", filepath);
-			delete tt;
 			delete stream;
 			return;
 		}
@@ -1026,7 +1020,6 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 		{
 			msreg_g.AddError("Ошибка разбора файла configinfo"
 				, "Путь", filepath);
-			delete tt;
 			delete stream;
 			return;
 		}
@@ -1037,7 +1030,6 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 		{
 			msreg_g.AddError("Ошибка разбора файла configinfo"
 				, "Путь", filepath);
-			delete tt;
 			delete stream;
 			return;
 		}
@@ -1045,7 +1037,6 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 		{
 			msreg_g.AddError("Ошибка разбора файла configinfo"
 				, "Путь", filepath);
-			delete tt;
 			delete stream;
 			return;
 		}
@@ -1066,13 +1057,11 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 				, "Путь", filepath
 				, "Имя", hashname
 				, "Имя файла", name);
-			delete tt;
 			delete stream;
 			return;
 		}
 	}
 
-	delete tt;
 	delete stream;
 
 }
