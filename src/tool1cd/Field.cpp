@@ -29,7 +29,7 @@ Field::Field(Table* _parent)
 }
 
 //---------------------------------------------------------------------------
-String Field::getname() const
+std::string Field::getname() const
 {
 	return name;
 }
@@ -42,7 +42,8 @@ int32_t Field::getlen() const // возвращает длину поля в б�
 
 //---------------------------------------------------------------------------
 // При ignore_showGUID binary16 всегда преобразуется в GUID
-String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed) const
+std::string Field::get_presentation(const char *rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID,
+									bool detailed) const
 {
 	const char* fr = rec + offset;
 	if (getnull_exists()) {
@@ -58,7 +59,7 @@ String Field::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimite
 }
 
 //---------------------------------------------------------------------------
-bool Field::get_binary_value(char *binary_value, bool null, const String &value) const
+bool Field::get_binary_value(char *binary_value, bool null, const std::string &value) const
 {
 	memset(binary_value, 0, len);
 
@@ -73,7 +74,7 @@ bool Field::get_binary_value(char *binary_value, bool null, const String &value)
 }
 
 //---------------------------------------------------------------------------
-String Field::get_XML_presentation(const char *rec, bool ignore_showGUID) const
+std::string Field::get_XML_presentation(const char *rec, bool ignore_showGUID) const
 {
 	const char *fr = rec + offset;
 	if (null_exists) {
@@ -128,15 +129,18 @@ int32_t Field::getoffset() const
 }
 
 //---------------------------------------------------------------------------
-String Field::get_presentation_type() const
+std::string Field::get_presentation_type() const
 {
 	return type_manager->get_presentation_type();
 }
 
 //---------------------------------------------------------------------------
-String TrimSpacesRight(String s)
+std::string TrimSpacesRight(const std::string &s)
 {
-	while(s.SubString(s.GetLength(), 1) == " ") s.SetLength(s.GetLength() - 1);
+	std::string result = s;
+	while (result.back() == ' ') {
+		result.erase(result.size() - 1);
+	}
 	return s;
 }
 
@@ -168,7 +172,7 @@ uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxl
 }
 
 //---------------------------------------------------------------------------
-bool Field::save_blob_to_file(const TableRecord *rec, String _filename, bool unpack) const
+bool Field::save_blob_to_file(const TableRecord *rec, const std::string &_filename, bool unpack) const
 {
 	TStream* blob_stream;
 	TStream* _s;
@@ -186,7 +190,7 @@ bool Field::save_blob_to_file(const TableRecord *rec, String _filename, bool unp
 	}
 
 	if(!unpack) {
-		TFileStream temp_stream(_filename, fmCreate);
+		TFileStream temp_stream(boost::filesystem::path(_filename), fmCreate);
 		parent->readBlob(&temp_stream, bp.blob_start, bp.blob_length);
 		return true;
 	}
@@ -211,22 +215,22 @@ bool Field::save_blob_to_file(const TableRecord *rec, String _filename, bool unp
 		// спецобработка для users.usr
 		String tabname = tab->getname();
 		bool is_users_usr = false;
-		if(tabname.CompareIC("PARAMS") == 0)
+		if(CompareIC(tabname, "PARAMS") == 0)
 		{
 			Field *_f = tab->getfield(0);
-			if (rec->get_string(_f).CompareIC("users.usr") == 0) {
+			if (CompareIC(rec->get_string(_f), "users.usr") == 0) {
 				is_users_usr = true;
 			}
 		}
-		else if(tabname.CompareIC("V8USERS") == 0) {
+		else if(CompareIC(tabname, "V8USERS") == 0) {
 			is_users_usr = true;
 		}
 
 		bool maybezipped_twice = true;
-		if(tabname.CompareIC("CONFIG") == 0 || tabname.CompareIC("CONFIGSAVE") == 0)
+		if(CompareIC(tabname, "CONFIG") == 0 || CompareIC(tabname, "CONFIGSAVE") == 0)
 		{
 			Field *_f = tab->getfield(0);
-			maybezipped_twice = rec->get_string(_f).GetLength() > 72;
+			maybezipped_twice = rec->get_string(_f).size() > GUID_LEN*2;
 		}
 
 		if(is_users_usr)
@@ -248,7 +252,7 @@ bool Field::save_blob_to_file(const TableRecord *rec, String _filename, bool unp
 				}
 				_xor_buf[i] ^= _xor_mask[k];
 			}
-			TFileStream temp_stream(_filename, fmCreate);
+			TFileStream temp_stream(boost::filesystem::path(_filename), fmCreate);
 			temp_stream.SetSize(0);
 			temp_stream.WriteBuffer(_xor_buf, data_size);
 			delete[] _bb;
@@ -303,11 +307,11 @@ bool Field::save_blob_to_file(const TableRecord *rec, String _filename, bool unp
 			V8Catalog *cat = new V8Catalog(_sx2, zippedContainer, true);
 			if(!cat->GetFirst())
 			{
-				TFileStream temp_stream(_filename, fmCreate);
+				TFileStream temp_stream(boost::filesystem::path(_filename), fmCreate);
 				temp_stream.CopyFrom(_sx2, 0);
 			}
 			else {
-				cat->SaveToDir(boost::filesystem::path(static_cast<std::string>(_filename)));
+				cat->SaveToDir(boost::filesystem::path(_filename));
 			}
 			delete cat;
 			delete _sx2;
@@ -382,7 +386,7 @@ bool Field::save_blob_to_file(const TableRecord *rec, String _filename, bool unp
 			delete _s2;
 		}
 
-		TFileStream temp_stream(_filename, fmCreate);
+		TFileStream temp_stream(boost::filesystem::path(_filename), fmCreate);
 		temp_stream.CopyFrom(_s, 0);
 	}
 

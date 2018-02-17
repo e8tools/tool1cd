@@ -27,18 +27,18 @@ public:
 	Field(Table* _parent);
 
 	int32_t getlen() const; // возвращает длину поля в байтах
-	String getname() const;
+	std::string getname() const;
 
-	String get_presentation(
-			const char* rec,
+	std::string get_presentation(
+			const char *rec,
 			bool EmptyNull = false,
 			wchar_t Delimiter = 0,
 			bool ignore_showGUID = false,
 			bool detailed = false) const;
 
-	String get_XML_presentation(const char *rec, bool ignore_showGUID = false) const;
+	std::string get_XML_presentation(const char *rec, bool ignore_showGUID = false) const;
 
-	bool get_binary_value(char *buf, bool null, const String &value) const;
+	bool get_binary_value(char *buf, bool null, const std::string &value) const;
 	type_fields gettype() const;
 	Table* getparent() const;
 	bool getnull_exists() const;
@@ -46,11 +46,11 @@ public:
 	int32_t getprecision() const;
 	bool getcase_sensitive() const;
 	int32_t getoffset() const;
-	String get_presentation_type() const;
-	bool save_blob_to_file(const TableRecord *rec, String filename, bool unpack) const;
+	std::string get_presentation_type() const;
+	bool save_blob_to_file(const TableRecord *rec, const std::string &filename, bool unpack) const;
 	uint32_t getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen) const;
 private:
-	String name;
+	std::string name;
 	type_fields type;
 	bool null_exists {false};
 	FieldType *type_manager;

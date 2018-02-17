@@ -47,7 +47,7 @@ public:
        return msg_.c_str();
     }
 
-	String Message() const
+	std::string Message() const
 	{
 		return msg_;
 	}

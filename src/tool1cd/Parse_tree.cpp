@@ -5,6 +5,7 @@
 #include <boost/regex.hpp>
 
 using namespace System;
+using namespace std;
 
 const boost::regex exp_number("^-?\\d+$");
 const boost::regex exp_number_exp("^-?\\d+(\\.?\\d*)?((e|E)-?\\d+)?$");
@@ -76,7 +77,7 @@ tree* tree::add_node()
 }
 
 //---------------------------------------------------------------------------
-String& tree::get_value()
+std::string tree::get_value() const
 {
 	return value;
 }
@@ -114,12 +115,14 @@ tree* tree::get_subnode(int _index)
 }
 
 //---------------------------------------------------------------------------
-tree* tree::get_subnode(const String& node_name)
+tree* tree::get_subnode(const std::string &node_name)
 {
 	tree* t = first;
 	while(t)
 	{
-		if(t->value.Compare(node_name) == 0) return t;
+		if (Equal(t->value, node_name)) {
+			return t;
+		}
 		t = t->next;
 	}
 	return nullptr;
@@ -164,14 +167,16 @@ tree& tree::operator [](int _index)
 }
 
 //---------------------------------------------------------------------------
-void tree::outtext(String& text)
+void tree::outtext(std::string &text)
 {
 	node_type lt = node_type::nd_unknown;
 	TReplaceFlags _ReplaceAll = TReplaceFlags::rfReplaceAll;
 
 	if(num_subnode)
 	{
-		if(text.Length()) text += "\r\n";
+		if (!text.empty()) {
+			text += "\r\n";
+		}
 		text += "{";
 		tree* t = first;
 		while(t)
@@ -212,24 +217,26 @@ void tree::outtext(String& text)
 }
 
 //---------------------------------------------------------------------------
-String tree::path()
+string tree::path() const
 {
-	String p = "";
-	tree* t;
+	if (!this) {
+		return ":??"; //-V704
+	}
 
-	if(!this) return ":??"; //-V704
-	for(t = this; t->parent; t = t->parent)
+	string p = "";
+
+	for (auto t = this; t->parent; t = t->parent)
 	{
-		p = String(":") + t->index + p;
+		p = string(":").append(to_string(t->index)).append(p);
 	}
 	return p;
 }
 
 
 //---------------------------------------------------------------------------
-node_type classification_value(const String& value)
+node_type classification_value(const std::string &value)
 {
-	if(value.Length() == 0) {
+	if(value.size() == 0) {
 		return node_type::nd_empty;
 	}
 
@@ -526,9 +533,9 @@ tree* parse_1Ctext(const String& text, const String& path)
 	return parse_flow(text, path);
 }
 
-String outtext(tree* t)
+string outtext(tree *t)
 {
-	String text;
+	string text;
 	if(t) {
 		if(t->get_first()) {
 			t->get_first()->outtext(text);

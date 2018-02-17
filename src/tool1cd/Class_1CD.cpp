@@ -17,6 +17,7 @@
 #include "Constants.h"
 #include "CRC32.h"
 #include "PackDirectory.h"
+#include "TableIterator.h"
 
 using namespace std;
 using namespace System;
@@ -234,8 +235,8 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 
 	try
 	{
-		if(_monopoly) fs = new TFileStream(filename, fmOpenReadWrite | fmShareDenyWrite);
-		else fs = new TFileStream(filename, fmOpenRead | fmShareDenyNone);
+		if(_monopoly) fs = new TFileStream(boost::filesystem::path(filename), fmOpenReadWrite | fmShareDenyWrite);
+		else fs = new TFileStream(boost::filesystem::path(filename), fmOpenRead | fmShareDenyNone);
 	}
 	catch(...)
 	{
@@ -384,25 +385,25 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 			delete tables[j];
 			continue;
 		}
-		if(!tables[j]->getname().CompareIC("CONFIG")) table_config = tables[j];
-		if(!tables[j]->getname().CompareIC("CONFIGSAVE")) table_configsave = tables[j];
-		if(!tables[j]->getname().CompareIC("PARAMS")) table_params = tables[j];
-		if(!tables[j]->getname().CompareIC("FILES")) table_files = tables[j];
-		if(!tables[j]->getname().CompareIC("DBSCHEMA")) table_dbschema = tables[j];
-		if(!tables[j]->getname().CompareIC("CONFIGCAS")) table_configcas = tables[j];
-		if(!tables[j]->getname().CompareIC("CONFIGCASSAVE")) table_configcassave = tables[j];
-		if(!tables[j]->getname().CompareIC("_EXTENSIONSINFO")) table__extensionsinfo = tables[j];
+		if(!CompareIC(tables[j]->getname(), "CONFIG")) table_config = tables[j];
+		if(!CompareIC(tables[j]->getname(), "CONFIGSAVE")) table_configsave = tables[j];
+		if(!CompareIC(tables[j]->getname(), "PARAMS")) table_params = tables[j];
+		if(!CompareIC(tables[j]->getname(), "FILES")) table_files = tables[j];
+		if(!CompareIC(tables[j]->getname(), "DBSCHEMA")) table_dbschema = tables[j];
+		if(!CompareIC(tables[j]->getname(), "CONFIGCAS")) table_configcas = tables[j];
+		if(!CompareIC(tables[j]->getname(), "CONFIGCASSAVE")) table_configcassave = tables[j];
+		if(!CompareIC(tables[j]->getname(), "_EXTENSIONSINFO")) table__extensionsinfo = tables[j];
 
-		if(!tables[j]->getname().CompareIC("DEPOT")) table_depot = tables[j];
-		if(!tables[j]->getname().CompareIC("USERS")) table_users = tables[j];
-		if(!tables[j]->getname().CompareIC("OBJECTS")) table_objects = tables[j];
-		if(!tables[j]->getname().CompareIC("VERSIONS")) table_versions = tables[j];
-		if(!tables[j]->getname().CompareIC("LABELS")) table_labels = tables[j];
-		if(!tables[j]->getname().CompareIC("HISTORY")) table_history = tables[j];
-		if(!tables[j]->getname().CompareIC("LASTESTVERSIONS")) table_lastestversions = tables[j];
-		if(!tables[j]->getname().CompareIC("EXTERNALS")) table_externals = tables[j];
-		if(!tables[j]->getname().CompareIC("SELFREFS")) table_selfrefs = tables[j];
-		if(!tables[j]->getname().CompareIC("OUTREFS")) table_outrefs = tables[j];
+		if(!CompareIC(tables[j]->getname(), "DEPOT")) table_depot = tables[j];
+		if(!CompareIC(tables[j]->getname(), "USERS")) table_users = tables[j];
+		if(!CompareIC(tables[j]->getname(), "OBJECTS")) table_objects = tables[j];
+		if(!CompareIC(tables[j]->getname(), "VERSIONS")) table_versions = tables[j];
+		if(!CompareIC(tables[j]->getname(), "LABELS")) table_labels = tables[j];
+		if(!CompareIC(tables[j]->getname(), "HISTORY")) table_history = tables[j];
+		if(!CompareIC(tables[j]->getname(), "LASTESTVERSIONS")) table_lastestversions = tables[j];
+		if(!CompareIC(tables[j]->getname(), "EXTERNALS")) table_externals = tables[j];
+		if(!CompareIC(tables[j]->getname(), "SELFREFS")) table_selfrefs = tables[j];
+		if(!CompareIC(tables[j]->getname(), "OUTREFS")) table_outrefs = tables[j];
 
 		if(j % 10 == 0) msreg_m.Status(String("Чтение таблиц ") + j);
 		j++;
@@ -510,13 +511,13 @@ void T_1CD::find_supplier_configs()
 	constexpr int32_t SUPPLIER_CONFIG_NAME_LEN = 73;
 
 	for(auto& config_save: get_files_configsave()->files()) {
-		if(config_save.first.GetLength() == SUPPLIER_CONFIG_NAME_LEN) {
+		if(config_save.first.size() == SUPPLIER_CONFIG_NAME_LEN) {
 			 add_supplier_config(config_save.second);
 		}
 	}
 
 	for(auto& config : get_files_config()->files()) {
-		if(config.first.GetLength() == SUPPLIER_CONFIG_NAME_LEN) {
+		if(config.first.size() == SUPPLIER_CONFIG_NAME_LEN) {
 			add_supplier_config(config.second);
 		}
 	}
@@ -612,42 +613,42 @@ bool T_1CD::test_stream_format()
 		return false;
 	}
 
-	if(table_config->getfield(0)->getname().CompareIC("FILENAME"))
+	if (CompareIC(table_config->getfield(0)->getname(), "FILENAME"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Первое поле таблицы CONFIG не FILENAME",
 			"Поле", table_config->getfield(0)->getname());
 		return false;
 	}
 
-	if(table_config->getfield(1)->getname().CompareIC("CREATION"))
+	if (CompareIC(table_config->getfield(1)->getname(), "CREATION"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Второе поле таблицы CONFIG не CREATION",
 			"Поле", table_config->getfield(1)->getname());
 		return false;
 	}
 
-	if(table_config->getfield(2)->getname().CompareIC("MODIFIED"))
+	if (CompareIC(table_config->getfield(2)->getname(), "MODIFIED"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Третье поле таблицы CONFIG не MODIFIED",
 			"Поле", table_config->getfield(2)->getname());
 		return false;
 	}
 
-	if(table_config->getfield(3)->getname().CompareIC("ATTRIBUTES"))
+	if (CompareIC(table_config->getfield(3)->getname(), "ATTRIBUTES"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Четвертое поле таблицы CONFIG не ATTRIBUTES",
 			"Поле", table_config->getfield(3)->getname());
 		return false;
 	}
 
-	if(table_config->getfield(4)->getname().CompareIC("DATASIZE"))
+	if (CompareIC(table_config->getfield(4)->getname(), "DATASIZE"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Пятое поле таблицы CONFIG не DATASIZE",
 			"Поле", table_config->getfield(4)->getname());
 		return false;
 	}
 
-	if(table_config->getfield(5)->getname().CompareIC("BINARYDATA"))
+	if (CompareIC(table_config->getfield(5)->getname(), "BINARYDATA"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Шестое поле таблицы CONFIG не BINARYDATA",
 			"Поле", table_config->getfield(5)->getname());
@@ -656,7 +657,7 @@ bool T_1CD::test_stream_format()
 
 	if(table_config->get_numfields() > 6)
 	{
-		if(table_config->getfield(6)->getname().CompareIC("PARTNO"))
+		if (CompareIC(table_config->getfield(6)->getname(), "PARTNO"))
 		{
 			msreg_m.AddError("Ошибка тестирования. Седьмое поле таблицы CONFIG не PARTNO",
 				"Поле", table_config->getfield(6)->getname());
@@ -685,42 +686,42 @@ bool T_1CD::test_stream_format()
 		return false;
 	}
 
-	if(table_configsave->getfield(0)->getname().CompareIC("FILENAME"))
+	if (CompareIC(table_configsave->getfield(0)->getname(), "FILENAME"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Первое поле таблицы CONFIGSAVE не FILENAME",
 			"Поле", table_configsave->getfield(0)->getname());
 		return false;
 	}
 
-	if(table_configsave->getfield(1)->getname().CompareIC("CREATION"))
+	if (CompareIC(table_configsave->getfield(1)->getname(), "CREATION"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Второе поле таблицы CONFIGSAVE не CREATION",
 			"Поле", table_configsave->getfield(1)->getname());
 		return false;
 	}
 
-	if(table_configsave->getfield(2)->getname().CompareIC("MODIFIED"))
+	if (CompareIC(table_configsave->getfield(2)->getname(), "MODIFIED"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Третье поле таблицы CONFIGSAVE не MODIFIED",
 			"Поле", table_configsave->getfield(2)->getname());
 		return false;
 	}
 
-	if(table_configsave->getfield(3)->getname().CompareIC("ATTRIBUTES"))
+	if (CompareIC(table_configsave->getfield(3)->getname(), "ATTRIBUTES"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Четвертое поле таблицы CONFIGSAVE не ATTRIBUTES",
 			"Поле", table_configsave->getfield(3)->getname());
 		return false;
 	}
 
-	if(table_configsave->getfield(4)->getname().CompareIC("DATASIZE"))
+	if (CompareIC(table_configsave->getfield(4)->getname(), "DATASIZE"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Пятое поле таблицы CONFIGSAVE не DATASIZE",
 			"Поле", table_configsave->getfield(4)->getname());
 		return false;
 	}
 
-	if(table_configsave->getfield(5)->getname().CompareIC("BINARYDATA"))
+	if (CompareIC(table_configsave->getfield(5)->getname(), "BINARYDATA"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Шестое поле таблицы CONFIGSAVE не BINARYDATA",
 			"Поле", table_configsave->getfield(5)->getname());
@@ -729,7 +730,7 @@ bool T_1CD::test_stream_format()
 
 	if(table_configsave->get_numfields() > 6)
 	{
-		if(table_configsave->getfield(6)->getname().CompareIC("PARTNO"))
+		if (CompareIC(table_configsave->getfield(6)->getname(), "PARTNO"))
 		{
 			msreg_m.AddError("Ошибка тестирования. Седьмое поле таблицы CONFIGSAVE не PARTNO",
 				"Поле", table_configsave->getfield(6)->getname());
@@ -758,42 +759,42 @@ bool T_1CD::test_stream_format()
 		return false;
 	}
 
-	if(table_params->getfield(0)->getname().CompareIC("FILENAME"))
+	if (CompareIC(table_params->getfield(0)->getname(), "FILENAME"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Первое поле таблицы PARAMS не FILENAME",
 			"Поле", table_params->getfield(0)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(1)->getname().CompareIC("CREATION"))
+	if (CompareIC(table_params->getfield(1)->getname(), "CREATION"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Второе поле таблицы PARAMS не CREATION",
 			"Поле", table_params->getfield(1)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(2)->getname().CompareIC("MODIFIED"))
+	if (CompareIC(table_params->getfield(2)->getname(), "MODIFIED"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Третье поле таблицы PARAMS не MODIFIED",
 			"Поле", table_params->getfield(2)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(3)->getname().CompareIC("ATTRIBUTES"))
+	if (CompareIC(table_params->getfield(3)->getname(), "ATTRIBUTES"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Четвертое поле таблицы PARAMS не ATTRIBUTES",
 			"Поле", table_params->getfield(3)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(4)->getname().CompareIC("DATASIZE"))
+	if (CompareIC(table_params->getfield(4)->getname(), "DATASIZE"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Пятое поле таблицы PARAMS не DATASIZE",
 			"Поле", table_params->getfield(4)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(5)->getname().CompareIC("BINARYDATA"))
+	if (CompareIC(table_params->getfield(5)->getname(), "BINARYDATA"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Шестое поле таблицы PARAMS не BINARYDATA",
 			"Поле", table_params->getfield(5)->getname());
@@ -802,7 +803,7 @@ bool T_1CD::test_stream_format()
 
 	if(table_params->get_numfields() > 6)
 	{
-		if(table_params->getfield(6)->getname().CompareIC("PARTNO"))
+		if (CompareIC(table_params->getfield(6)->getname(), "PARTNO"))
 		{
 			msreg_m.AddError("Ошибка тестирования. Седьмое поле таблицы PARAMS не PARTNO",
 				"Поле", table_params->getfield(6)->getname());
@@ -831,42 +832,42 @@ bool T_1CD::test_stream_format()
 		return false;
 	}
 
-	if(table_files->getfield(0)->getname().CompareIC("FILENAME"))
+	if (CompareIC(table_files->getfield(0)->getname(), "FILENAME"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Первое поле таблицы FILES не FILENAME",
 			"Поле", table_files->getfield(0)->getname());
 		return false;
 	}
 
-	if(table_files->getfield(1)->getname().CompareIC("CREATION"))
+	if (CompareIC(table_files->getfield(1)->getname(), "CREATION"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Второе поле таблицы FILES не CREATION",
 			"Поле", table_files->getfield(1)->getname());
 		return false;
 	}
 
-	if(table_files->getfield(2)->getname().CompareIC("MODIFIED"))
+	if (CompareIC(table_files->getfield(2)->getname(), "MODIFIED"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Третье поле таблицы FILES не MODIFIED",
 			"Поле", table_files->getfield(2)->getname());
 		return false;
 	}
 
-	if(table_files->getfield(3)->getname().CompareIC("ATTRIBUTES"))
+	if (CompareIC(table_files->getfield(3)->getname(), "ATTRIBUTES"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Четвертое поле таблицы FILES не ATTRIBUTES",
 			"Поле", table_files->getfield(3)->getname());
 		return false;
 	}
 
-	if(table_files->getfield(4)->getname().CompareIC("DATASIZE"))
+	if (CompareIC(table_files->getfield(4)->getname(), "DATASIZE"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Пятое поле таблицы FILES не DATASIZE",
 			"Поле", table_files->getfield(4)->getname());
 		return false;
 	}
 
-	if(table_files->getfield(5)->getname().CompareIC("BINARYDATA"))
+	if (CompareIC(table_files->getfield(5)->getname(), "BINARYDATA"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Шестое поле таблицы FILES не BINARYDATA",
 			"Поле", table_files->getfield(5)->getname());
@@ -875,7 +876,7 @@ bool T_1CD::test_stream_format()
 
 	if(table_files->get_numfields() > 6)
 	{
-		if(table_files->getfield(6)->getname().CompareIC("PARTNO"))
+		if (CompareIC(table_files->getfield(6)->getname(), "PARTNO"))
 		{
 			msreg_m.AddError("Ошибка тестирования. Седьмое поле таблицы FILES не PARTNO",
 				"Поле", table_files->getfield(6)->getname());
@@ -897,7 +898,7 @@ bool T_1CD::test_stream_format()
 		return false;
 	}
 
-	if(table_dbschema->getfield(0)->getname().CompareIC("SERIALIZEDDATA"))
+	if (CompareIC(table_dbschema->getfield(0)->getname(), "SERIALIZEDDATA"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Первое поле таблицы DBSCHEMA не SERIALIZEDDATA",
 			"Поле", table_dbschema->getfield(0)->getname());
@@ -944,7 +945,6 @@ bool T_1CD::test_stream_format()
 bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 {
 	int32_t j;
-	String path;
 	String slen;
 	TStream* str;
 	bool result;
@@ -962,7 +962,7 @@ bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 	Field *f_data_size = t->getfield(4);
 	Field *f_binary_data = t->getfield(5);
 
-	path = t->getname() + "/" + rec->get_string(f_name);
+	std::string path = t->getname() + "/" + rec->get_string(f_name);
 
 	const char *orec = rec->get_raw(f_binary_data);
 	if(*(uint32_t*)(orec + 4) > 10 * 1024 * 1024) str = new TTempStream;
@@ -991,7 +991,7 @@ bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 		result = false;
 	}
 
-	res = recursive_test_stream_format(str, path, rec->get_string(f_name).GetLength() > 72); // вторично упакованы могут быть только конфигурации поставщика (файлы с длиной имени более 72 символов)
+	res = recursive_test_stream_format(str, path, rec->get_string(f_name).size() > GUID_LEN*2); // вторично упакованы могут быть только конфигурации поставщика (файлы с длиной имени более 72 символов)
 	result = result && res;
 
 	delete rec;
@@ -1018,9 +1018,9 @@ bool T_1CD::recursive_test_stream_format2(Table* t, uint32_t nrec)
 
 	path = t->getname();
 
-	auto bp = (const table_blob_file *)rec->get_raw(f_sd->getoffset());
+	auto bp = rec->get<table_blob_file>(f_sd);
 	str = new TMemoryStream();
-	t->readBlob(str, bp->blob_start, bp->blob_length);
+	t->readBlob(str, bp.blob_start, bp.blob_length);
 
 	result = recursive_test_stream_format(str, path);
 
@@ -1032,7 +1032,7 @@ bool T_1CD::recursive_test_stream_format2(Table* t, uint32_t nrec)
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezipped2)
+bool T_1CD::recursive_test_stream_format(TStream *str, const string &path, bool maybezipped2)
 {
 	bool zipped1;
 	bool zipped2;
@@ -1159,14 +1159,18 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 				}
 				else
 				{
-					sf = String((WCHART*)&bytes2[0], bytes2.size() / 2);
-					for(i = 1; i <= sf.GetLength(); i++)
+					string sf = String((WCHART*)&bytes2[0], bytes2.size() / 2);
+					for(i = 0; i < sf.size(); i++)
 					{
 						first_symbol = sf[i];
-						if(first_symbol != L'\r' && first_symbol != L'\n' && first_symbol != L'\t' && first_symbol != L' ') break;
+						if (first_symbol != '\r'
+							&& first_symbol != '\n'
+							&& first_symbol != '\t'
+							&& first_symbol != ' ') {
+							break;
+						}
 					}
-					if(first_symbol == L'{' && sf.SubString(i, 15).CompareIC("{ХАРАКТЕРИСТИКИ"))
-					{
+					if (first_symbol == '{' && !EqualIC(sf.substr(i, 15), "{ХАРАКТЕРИСТИКИ")) {
 						tree* rt = parse_1Ctext(sf, path);
 						if(rt)
 						{
@@ -1196,7 +1200,7 @@ bool T_1CD::recursive_test_stream_format(TStream* str, String path, bool maybezi
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::recursive_test_stream_format(V8Catalog* cat, String path)
+bool T_1CD::recursive_test_stream_format(V8Catalog *cat, const string &path)
 {
 	V8Catalog* c;
 	bool result;
@@ -1241,7 +1245,7 @@ bool T_1CD::recursive_test_stream_format(V8Catalog* cat, String path)
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::create_table(String path)
+bool T_1CD::create_table(const string &path)
 {
 	TFileStream* f;
 	bool fopen;
@@ -1257,7 +1261,7 @@ bool T_1CD::create_table(String path)
 	v8object* file_index;
 	tree* t;
 
-	boost::filesystem::path dir(static_cast<std::string>(path));
+	boost::filesystem::path dir(path);
 	if(!directory_exists(dir)) {
 		return false;
 	}
@@ -1302,9 +1306,10 @@ bool T_1CD::create_table(String path)
 	t = parse_1Ctext(str, path_descr.string());
 	str = (*t)[0][0].get_value();
 
-	for(j = 0; j < num_tables; j++) if(tables[j]->getname().CompareIC(str) == 0)
-	{
-		delete_table(tables[j]);
+	for(j = 0; j < num_tables; j++) {
+		if (CompareIC(tables[j]->getname(), str) == 0) {
+			delete_table(tables[j]);
+		}
 	}
 
 	file_data = nullptr;
@@ -1423,7 +1428,7 @@ bool T_1CD::create_table(String path)
 				delete root;
 				return false;
 			}
-			str.SetLength(i - 1);
+			str.resize(i - 1);
 			str += "{\"Files\",";
 			str += file_data ? String(file_data->get_block_number()) : String("0");
 			str += ",";
@@ -1431,7 +1436,7 @@ bool T_1CD::create_table(String path)
 			str += ",";
 			str += file_index ? String(file_index->get_block_number()) : String("0");
 			str += "}\n}";
-			descr_table->setdata(str.c_str(), str.GetLength() * 2);
+			descr_table->setdata(str.c_str(), str.size() * 2);
 
 			i = root_object->getlen();
 			buf = new char[i + 4];
@@ -1518,42 +1523,42 @@ bool T_1CD::test_list_of_tables()
 		return false;
 	}
 
-	if(table_params->getfield(0)->getname().CompareIC("FILENAME"))
+	if (CompareIC(table_params->getfield(0)->getname(), "FILENAME"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Первое поле таблицы PARAMS не FILENAME",
 			"Поле", table_params->getfield(0)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(1)->getname().CompareIC("CREATION"))
+	if (CompareIC(table_params->getfield(1)->getname(), "CREATION"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Второе поле таблицы PARAMS не CREATION",
 			"Поле", table_params->getfield(1)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(2)->getname().CompareIC("MODIFIED"))
+	if (CompareIC(table_params->getfield(2)->getname(), "MODIFIED"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Третье поле таблицы PARAMS не MODIFIED",
 			"Поле", table_params->getfield(2)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(3)->getname().CompareIC("ATTRIBUTES"))
+	if (CompareIC(table_params->getfield(3)->getname(), "ATTRIBUTES"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Четвертое поле таблицы PARAMS не ATTRIBUTES",
 			"Поле", table_params->getfield(3)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(4)->getname().CompareIC("DATASIZE"))
+	if (CompareIC(table_params->getfield(4)->getname(), "DATASIZE"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Пятое поле таблицы PARAMS не DATASIZE",
 			"Поле", table_params->getfield(4)->getname());
 		return false;
 	}
 
-	if(table_params->getfield(5)->getname().CompareIC("BINARYDATA"))
+	if (CompareIC(table_params->getfield(5)->getname(), "BINARYDATA"))
 	{
 		msreg_m.AddError("Ошибка тестирования. Шестое поле таблицы PARAMS не BINARYDATA",
 			"Поле", table_params->getfield(5)->getname());
@@ -1562,7 +1567,7 @@ bool T_1CD::test_list_of_tables()
 
 	if(table_params->get_numfields() > 6)
 	{
-		if(table_params->getfield(6)->getname().CompareIC("PARTNO"))
+		if (CompareIC(table_params->getfield(6)->getname(), "PARTNO"))
 		{
 			msreg_m.AddError("Ошибка тестирования. Седьмое поле таблицы PARAMS не PARTNO",
 				"Поле", table_params->getfield(6)->getname());
@@ -1586,7 +1591,7 @@ bool T_1CD::test_list_of_tables()
 			continue;
 		}
 
-		if (rec->get_string(f_name).CompareIC("DBNames") != 0) {
+		if (CompareIC(rec->get_string(f_name), "DBNames") != 0) {
 			continue;
 		}
 
@@ -1661,7 +1666,7 @@ bool T_1CD::test_list_of_tables()
 				else
 				{
 					sf = String((WCHART*)&bytes2[0], bytes2.size() / 2);
-					for(i = 1; i <= sf.GetLength(); i++)
+					for(i = 1; i <= sf.size(); i++)
 					{
 						first_symbol = sf[i];
 						if(first_symbol != L'\r' && first_symbol != L'\n' && first_symbol != L'\t' && first_symbol != L' ') break;
@@ -1677,24 +1682,24 @@ bool T_1CD::test_list_of_tables()
 							{
 								is_slave = false;
 								_name = t->get_subnode(1)->get_value();
-								if(_name.CompareIC("Fld") == 0) continue;
-								if(_name.CompareIC("LineNo") == 0) continue;
-								if(_name.CompareIC("Turnover") == 0) continue;
-								if(_name.CompareIC("TurnoverDt") == 0) continue;
-								if(_name.CompareIC("TurnoverCt") == 0) continue;
-								if(_name.CompareIC("ByField") == 0) continue;
-								if(_name.CompareIC("ByOwnerField") == 0) continue;
-								if(_name.CompareIC("ByParentField") == 0) continue;
-								if(_name.CompareIC("ByProperty") == 0) continue;
-								if(_name.CompareIC("ByPropRecorder") == 0) continue;
-								if(_name.CompareIC("ByResource") == 0) continue;
-								if(_name.CompareIC("ByDim") == 0) continue;
-								if(_name.CompareIC("ByDims") == 0) continue;
-								if(_name.CompareIC("ByDimension") == 0) continue;
-								if(_name.CompareIC("ByDimensions") == 0) continue;
-								if(_name.CompareIC("ByDimRecorder") == 0) continue;
-								if(_name.CompareIC("VT") == 0) is_slave = true;
-								if(_name.CompareIC("ExtDim") == 0) is_slave = true;
+								if(CompareIC(_name, "Fld") == 0) continue;
+								if(CompareIC(_name, "LineNo") == 0) continue;
+								if(CompareIC(_name, "Turnover") == 0) continue;
+								if(CompareIC(_name, "TurnoverDt") == 0) continue;
+								if(CompareIC(_name, "TurnoverCt") == 0) continue;
+								if(CompareIC(_name, "ByField") == 0) continue;
+								if(CompareIC(_name, "ByOwnerField") == 0) continue;
+								if(CompareIC(_name, "ByParentField") == 0) continue;
+								if(CompareIC(_name, "ByProperty") == 0) continue;
+								if(CompareIC(_name, "ByPropRecorder") == 0) continue;
+								if(CompareIC(_name, "ByResource") == 0) continue;
+								if(CompareIC(_name, "ByDim") == 0) continue;
+								if(CompareIC(_name, "ByDims") == 0) continue;
+								if(CompareIC(_name, "ByDimension") == 0) continue;
+								if(CompareIC(_name, "ByDimensions") == 0) continue;
+								if(CompareIC(_name, "ByDimRecorder") == 0) continue;
+								if(CompareIC(_name, "VT") == 0) is_slave = true;
+								if(CompareIC(_name, "ExtDim") == 0) is_slave = true;
 
 								_guid = t->get_subnode(0)->get_value();
 								_num = t->get_subnode(2)->get_value();
@@ -1704,22 +1709,20 @@ bool T_1CD::test_list_of_tables()
 								_tabname = "_";
 								_tabname += _name;
 								_tabname += _num;
-								l = _tabname.GetLength();
+								l = _tabname.size();
 
 								bool table_found = false;
 								for(i = 0; i < get_numtables(); i++)
 								{
 									if(is_slave)
 									{
-										sf = gettable(i)->getname();
-										l2 = sf.GetLength();
-										if(l2 > l) if(sf.SubString(l2 - l + 1, l).CompareIC(_tabname) == 0)
-										{
+										std::string sf = gettable(i)->getname();
+										if (EndsWithIC(sf, _tabname)) {
 											table_found = true;
 											break;
 										}
 									}
-									else if(gettable(i)->getname().CompareIC(_tabname) == 0)
+									else if (CompareIC(gettable(i)->getname(), _tabname) == 0)
 									{
 										table_found = true;
 										break;
@@ -1773,76 +1776,68 @@ bool T_1CD::test_list_of_tables()
 bool T_1CD::replaceTREF(String mapfile)
 {
 	vector<int32_t> map; // динамический массив соответствия номеров
-	int32_t i,j,m;
-	int32_t k, l;
-	uint32_t ii, kk;
-	char* rec;
 	String str;
-	TStringList* list;
 	Table* t;
 	Field* f;
 	bool editsave;
 
-	list = new TStringList;
-	list->LoadFromFile(mapfile);
+	TStringList list;
+	list.LoadFromFile(mapfile);
 
-	m = 0;
-	for(k = 0; k < list->Count(); k++)
+	int max_size = 0;
+	for (auto &str : list)
 	{
-		str = (*list)[k];
-		l = str.Pos("\t");
-		if(!l) continue;
-		j = str.SubString(l + 1, str.GetLength() - l).ToInt();
-		if(m < j) m = j;
+		auto l = str.find("\t");
+		if (l == string::npos) {
+			continue;
+		}
+		int j = stoi(str.substr(l + 1, str.size() - l - 1));
+		if (max_size < j) {
+			max_size = j;
+		}
 	}
 
-	map.resize(m + 1);
+	map.resize(max_size + 1);
 
-	for(k = 0; k < list->Count(); k++)
-	{
-		str = (*list)[k];
-		l = str.Pos("\t");
-		if(!l) continue;
-		i = str.SubString(1, l - 1).ToInt();
-		j = str.SubString(l + 1, str.GetLength() - l).ToInt();
+	for (auto &str : list) {
+		auto l = str.find("\t");
+		if (l == string::npos) {
+			continue;
+		}
+		int i = stoi(str.substr(0, l));
+		int j = stoi(str.substr(l + 1, str.size() - l - 1));
 		map[j] = i;
 	}
 
-	delete list;
-
-	for(i = 0; i < num_tables; i++)
+	for (uint32_t i = 0; i < num_tables; i++)
 	{
 		t = gettable(i);
-		for(j = 0; j < t->get_numfields(); j ++)
+		for (uint32_t j = 0; j < t->get_numfields(); j ++)
 		{
 			f = t->getfield(j);
 			str = f->getname();
-			if(str.GetLength() > 3)
-			if(str.SubString(str.GetLength() - 3, 4).CompareIC("TREF") == 0)
-			if(f->gettype() == type_fields::tf_binary)
-			if(f->getlength() == 4)
-			{
-				msreg_m.Status(t->getname() + " : " + f->getname());
-				k = f->getoffset();
-				if(f->getnull_exists()) k++;
-				rec = new char[t->get_recordlen()];
-				editsave = t->edit;
-				t->edit = true;
-				for(kk = 0; kk < t->get_phys_numrecords(); kk++)
-				{
-					TableRecord *rec = t->getrecord(kk);
-					if (rec->is_removed()) {
-						continue;
-					}
-					ii = reverse_byte_order(*((uint32_t*)(rec + k))); // TODO: wat ???
-					if(ii == 0) continue;
-					ii = map[ii];
-					*((int32_t*)(rec + k)) = reverse_byte_order(ii);
-					t->write_data_record(kk, rec);
-					delete rec;
-				}
-				t->edit = editsave;
+			if (!EndsWithIC(str, "TREF")) {
+				continue;
 			}
+			if (f->gettype() != type_fields::tf_binary || f->getlength() != 4) {
+				continue;
+			}
+			msreg_m.Status(t->getname() + " : " + f->getname());
+			editsave = t->edit;
+			t->edit = true;
+			TableIterator it(t);
+			while (!it.eof()) {
+				TableRecord rec = it.current();
+				auto ii = reverse_byte_order(rec.get<uint32_t>(f));
+				if (ii == 0) {
+					continue;
+				}
+				ii = map[ii];
+				rec.set<uint32_t>(f, reverse_byte_order(ii));
+				// t->write_data_record(kk, rec); // TODO: выпилен кусок кода
+			}
+			t->edit = editsave;
+
 		}
 	}
 	msreg_m.Status("");
@@ -2069,7 +2064,7 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 	String version_presentation = rec->get_string("VERNUM");
 	delete rec;
 
-	int32_t version = version_presentation.ToIntDef(0);
+	int32_t version = ToIntDef(version_presentation, 0);
 	if (!version) {
 		DetailedException error("Не удалось получить реальный номер версии запрошенной конфигурации.");
 		error.add_detail("Запрошенный номер версии", ver);
@@ -2462,18 +2457,18 @@ String T_1CD::pagemaprec_presentation(pagemaprec& pmr)
 
 depot_ver T_1CD::get_depot_version(const TableRecord &record)
 {
-	String Ver = record.get_string("DEPOTVER");
+	std::string Ver = record.get_string("DEPOTVER");
 
-	if (Ver.CompareIC("0300000000000000") == 0) {
+	if (CompareIC(Ver, "0300000000000000") == 0) {
 		return depot_ver::Ver3;
 	}
-	if (Ver.CompareIC("0500000000000000") == 0) {
+	if (CompareIC(Ver, "0500000000000000") == 0) {
 		return depot_ver::Ver5;
 	}
-	if (Ver.CompareIC("0600000000000000") == 0) {
+	if (CompareIC(Ver, "0600000000000000") == 0) {
 		return depot_ver::Ver6;
 	}
-	if (Ver.CompareIC("0700000000000000") == 0) {
+	if (CompareIC(Ver, "0700000000000000") == 0) {
 		return depot_ver::Ver7;
 	}
 

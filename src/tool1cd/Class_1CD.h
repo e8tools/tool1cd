@@ -201,8 +201,8 @@ public:
 
 	bool save_config(const boost::filesystem::path &file_name);
 	bool save_configsave(const boost::filesystem::path &file_name);
-	bool save_depot_config(const String& _filename, int32_t ver = 0);
-	bool save_part_depot_config(const String& _filename, int32_t ver_begin, int32_t ver_end);
+	bool save_depot_config(const std::string &_filename, int32_t ver = 0);
+	bool save_part_depot_config(const std::string &_filename, int32_t ver_begin, int32_t ver_end);
 	int32_t get_ver_depot_config(int32_t ver); // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
 	bool save_config_ext(const boost::filesystem::path &file_name, const BinaryGuid& uid, const String& hashname);
 	bool save_config_ext_db(const boost::filesystem::path &file_name, const String& hashname);
@@ -215,20 +215,20 @@ public:
 	bool test_list_of_tables(); // проверка списка таблиц (по DBNames)
 	void find_lost_objects();
 	void find_and_save_lost_objects(boost::filesystem::path &lost_objects);
-	bool create_table(String path); // создание таблицы из файлов импорта таблиц
+	bool create_table(const std::string &path); // создание таблицы из файлов импорта таблиц
 	bool delete_table(Table* tab);
 	bool delete_object(v8object* ob);
 	bool replaceTREF(String mapfile); // замена значений полей ...TREF во всех таблицах базы
 	void find_and_create_lost_tables();
 	void restore_DATA_allocation_table(Table* tab);
 	bool test_block_by_template(uint32_t testblock, char* tt, uint32_t num, int32_t rlen, int32_t len);
-	String& getfilename(){return filename;}
-	uint32_t getpagesize(){return pagesize;}
+	std::string getfilename() const {return filename;}
+	uint32_t getpagesize() const {return pagesize;}
 
 	SupplierConfigs& supplier_configs();
 private:
 	mutable Registrator msreg_m;
-	String filename;
+	std::string filename;
 	TFileStream* fs;
 
 	db_ver version; // версия базы
@@ -272,8 +272,8 @@ private:
 
 	bool recursive_test_stream_format(Table* t, uint32_t nrec);
 	bool recursive_test_stream_format2(Table* t, uint32_t nrec); // для DBSCHEMA
-	bool recursive_test_stream_format(TStream* str, String path, bool maybezipped2 = false);
-	bool recursive_test_stream_format(V8Catalog* cat, String path);
+	bool recursive_test_stream_format(TStream *str, const std::string &path, bool maybezipped2 = false);
+	bool recursive_test_stream_format(V8Catalog *cat, const std::string &path);
 
 	void pagemapfill();
 	String pagemaprec_presentation(pagemaprec& pmr);

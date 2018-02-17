@@ -37,6 +37,6 @@ private:
 std::string GUIDas1C(const unsigned char* fr);
 std::string GUIDasMS(const unsigned char* fr);
 std::string GUID_to_string(const BinaryGuid& guid);
-bool string_to_GUID(const String& str, BinaryGuid* guid);
+bool string_to_GUID(const std::string &str, BinaryGuid *guid);
 
 #endif //TOOL1CD_PROJECT_BINARYGUID_H

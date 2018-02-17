@@ -36,21 +36,7 @@ public:
 	String(long long value);
 	String(unsigned long long value);
 
-	String UpperCase() const;
-
-	String LowerCase() const;
-
-	bool IsEmpty() const;
-
-	int Length() const;
-
-	int CompareIC(const String &b) const;
-
-	int Compare(const String &b) const;
-
 	String Replace(const String &sub, const String &replace) const;
-
-	String SubString(int StartIndex, int Count) const;
 
 	char &operator[] (int index);
 	const char &operator[] (int index) const;
@@ -72,19 +58,7 @@ public:
 
 	int ToInt() const;
 
-	int ToIntDef(int default_value = std::numeric_limits<int>::max()) const;
-
 	size_t Pos(const String &substr);
-
-	size_t GetLength() const;
-	void SetLength(size_t NewLength);
-
-	int LastDelimiter(const String &delimiters) const;
-
-	const char *LastChar() const;
-
-	int WideCharBufSize() const;
-	WCHART *WideChar(WCHART *wbuf, int destSize) const;
 
 	static String IntToHex(int n, int digits);
 	static String IntToStr(int n);
@@ -102,24 +76,33 @@ public:
 	static String ToString(unsigned long long n);
 };
 
+std::string LowerCase(const std::string &src);
+std::string UpperCase(const std::string &src);
+int CompareIC(const std::string &a, const std::string &b);
+int Compare(const std::string &a, const std::string &b);
+
+bool EndsWithIC(const std::string &str, const std::string &substr);
+bool EqualIC(const std::string &a, const std::string &b);
+bool Equal(const std::string &a, const std::string &b);
+
+int ToIntDef(const std::string &s, int default_value);
+
 template <typename char_type>
-String operator + (const std::basic_string<char_type> &text, const int value)
+std::string operator + (const std::basic_string<char_type> &text, const int value)
 {
-	String a(text);
-	a += value;
-	return a;
+	return std::string(text).append(std::to_string(value));
 }
 
-class TStringList : public std::vector<String>
+class TStringList : public std::vector<std::string>
 {
 public:
 
-	void Add(const String &item);
-	void SetText(const String &text);
+	void Add(const std::string &item);
+	void SetText(const std::string &text);
 	int Count() const;
 	void Delete(int index);
 
-	void LoadFromFile(const String &filename);
+	void LoadFromFile(const std::string &filename);
 };
 
 

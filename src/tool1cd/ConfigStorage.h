@@ -28,11 +28,11 @@ class ConfigStorage
 public:
 	ConfigStorage() = default;
 	virtual ~ConfigStorage() = default;
-	virtual ConfigFile* readfile(const String& path) = 0; // Если файл не существует, возвращается NULL
-	virtual bool writefile(const String& path, TStream* str) = 0;
-	virtual String presentation() = 0;
+	virtual ConfigFile* readfile(const std::string &path) = 0; // Если файл не существует, возвращается NULL
+	virtual bool writefile(const std::string &path, TStream *str) = 0;
+	virtual std::string presentation() = 0;
 	virtual void close(ConfigFile* cf) = 0;
-	virtual bool fileexists(const String& path) = 0;
+	virtual bool fileexists(const std::string &path) = 0;
 };
 
 //---------------------------------------------------------------------------
@@ -40,14 +40,14 @@ public:
 class ConfigStorageDirectory : public ConfigStorage
 {
 private:
-	String fdir;
+	boost::filesystem::path fdir;
 public:
-	explicit ConfigStorageDirectory(const String& _dir);
-	virtual ConfigFile* readfile(const String& path) override;
-	virtual bool writefile(const String& path, TStream* str) override;
-	virtual String presentation() override;
+	explicit ConfigStorageDirectory(const std::string &_dir);
+	virtual ConfigFile* readfile(const std::string &path) override;
+	virtual bool writefile(const std::string &path, TStream *str) override;
+	virtual std::string presentation() override;
 	virtual void close(ConfigFile* cf) override {delete cf->str; delete cf;}
-	virtual bool fileexists(const String& path) override;
+	virtual bool fileexists(const std::string &path) override;
 	virtual ~ConfigStorageDirectory() {}
 };
 
@@ -56,16 +56,16 @@ public:
 class ConfigStorageCFFile : public ConfigStorage
 {
 private:
-	String filename;
+	std::string filename;
 	V8Catalog* cat;
 public:
-	explicit ConfigStorageCFFile(const String& fname);
+	explicit ConfigStorageCFFile(const std::string &fname);
 	virtual ~ConfigStorageCFFile();
-	virtual ConfigFile* readfile(const String& path) override;
-	virtual bool writefile(const String& path, TStream* str) override;
-	virtual String presentation() override;
+	virtual ConfigFile* readfile(const std::string &path) override;
+	virtual bool writefile(const std::string &path, TStream *str) override;
+	virtual std::string presentation() override;
 	virtual void close(ConfigFile* cf) override;
-	virtual bool fileexists(const String& path) override;
+	virtual bool fileexists(const std::string &path) override;
 };
 
 //---------------------------------------------------------------------------
@@ -79,17 +79,18 @@ enum class table_file_packed
 
 //---------------------------------------------------------------------------
 // Структура файла контейнера файлов
-struct ContainerFile
+class ContainerFile
 {
+public:
 	TableFile* file;
-	String name; // Приведенное имя (очищенное от динамического обновления)
+	std::string name; // Приведенное имя (очищенное от динамического обновления)
 	TStream* stream;
 	TStream* rstream; // raw stream (нераспакованный поток)
 	V8Catalog* cat;
 	table_file_packed packed;
 	int dynno; // Номер (индекс) динамического обновления (0, 1 и т.д.). Если без динамического обновления, то -1, если UID динамического обновления не найден, то -2. Для пропускаемых файлов -3.
 
-	ContainerFile(TableFile* _f, const String& _name);
+	ContainerFile(TableFile *_f, const std::string &_name);
 	~ContainerFile();
 	bool open();
 	bool ropen(); // raw open
@@ -104,16 +105,16 @@ class ConfigStorageTable : public ConfigStorage
 public:
 	explicit ConfigStorageTable(T_1CD* _base = nullptr) : base(_base){}
 	virtual ~ConfigStorageTable();
-	virtual ConfigFile* readfile(const String& path) override;
-	virtual bool writefile(const String& path, TStream* str) override;
+	virtual ConfigFile* readfile(const std::string &path) override;
+	virtual bool writefile(const std::string &path, TStream *str) override;
 	virtual void close(ConfigFile* cf) override;
 	// сохранение конфигурации в файл
 	bool save_config(const boost::filesystem::path& file_name);
 	bool getready(){return ready;}
-	virtual bool fileexists(const String& path) override;
+	virtual bool fileexists(const std::string &path) override;
 
 protected:
-	std::map<String,ContainerFile*> files;
+	std::map<std::string,ContainerFile*> files;
 	bool ready{false};
 private:
 	T_1CD* base; // установлена, если база принадлежит адаптеру конфигурации
@@ -125,11 +126,11 @@ class ConfigStorageTableConfig : public ConfigStorageTable
 {
 public:
 	explicit ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _base = nullptr);
-	virtual String presentation() override;
+	virtual std::string presentation() override;
 	virtual ~ConfigStorageTableConfig() = default;
 
 private:
-	String present;
+	std::string present;
 };
 
 //---------------------------------------------------------------------------
@@ -138,11 +139,11 @@ class ConfigStorageTableConfigSave : public ConfigStorageTable
 {
 public:
 	ConfigStorageTableConfigSave(TableFiles* tabc, TableFiles* tabcs, T_1CD* _base = nullptr);
-	virtual String presentation() override;
+	virtual std::string presentation() override;
 	virtual ~ConfigStorageTableConfigSave() {}
 
 private:
-	String present;
+	std::string present;
 };
 
 //---------------------------------------------------------------------------
@@ -150,12 +151,12 @@ private:
 class ConfigStorageTableConfigCas : public ConfigStorageTable
 {
 public:
-	ConfigStorageTableConfigCas(TableFiles* tabc, const String& configver, T_1CD* _base = nullptr);
-	virtual String presentation() override;
+	ConfigStorageTableConfigCas(TableFiles *tabc, const std::string &configver, T_1CD *_base = nullptr);
+	virtual std::string presentation() override;
 	virtual ~ConfigStorageTableConfigCas() {}
 
 private:
-	String present;
+	std::string present;
 };
 
 //---------------------------------------------------------------------------
@@ -163,12 +164,13 @@ private:
 class ConfigStorageTableConfigCasSave : public ConfigStorageTable
 {
 public:
-	ConfigStorageTableConfigCasSave(TableFiles* tabc, TableFiles* tabcs, const BinaryGuid& uid, const String& configver, T_1CD* _base = nullptr);
-	virtual String presentation() override;
+	ConfigStorageTableConfigCasSave(TableFiles *tabc, TableFiles *tabcs, const BinaryGuid &uid,
+									const std::string &configver, T_1CD *_base = nullptr);
+	virtual std::string presentation() override;
 	virtual ~ConfigStorageTableConfigCasSave() = default;
 
 private:
-	String present;
+	std::string present;
 };
 
 

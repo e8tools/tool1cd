@@ -99,14 +99,14 @@ void base64_decode(TStream* infile, TStream* outfile)
 
 // decode
 // decode a base64 encoded stream discarding padding, line breaks and noise
-void base64_decode(const String& instr, TStream* outfile, int start)
+void base64_decode(const std::string &instr, TStream *outfile, int start)
 {
 	unsigned char in[4], out[3], v;
 	char s;
 	const char* str;
 	int i, len, is, slen;
 
-	slen = instr.Length();
+	slen = instr.size();
 	str = instr.c_str();
 	is = start;
 

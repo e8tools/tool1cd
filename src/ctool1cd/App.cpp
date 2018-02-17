@@ -20,11 +20,11 @@ using namespace System;
 // Константы
 
 const string GENERAL_CONFIG_DEFAULT_NAME() {
-	return std::string("cf") + CF_STR;
+	return string("cf") + CF_STR;
 }
 
 const string DATABASE_CONFIG_DEFAULT_NAME() {
-	return std::string("dbcf") + CF_STR;
+	return string("dbcf") + CF_STR;
 }
 
 App::App(char **szArglist, int nArgs, Messenger &mess)
@@ -34,11 +34,11 @@ App::App(char **szArglist, int nArgs, Messenger &mess)
 App::~App()
 {}
 
-bool App::IsTrueString(const String &str) const
+bool App::IsTrueString(const string &str) const
 {
-	String s = str.LowerCase();
-	return s.Compare("1") == 0 || s.Compare("y") == 0 || s.Compare("yes") == 0 || s.Compare("д") == 0 ||
-		   s.Compare("да") == 0;
+	string s = LowerCase(str);
+	return Equal(s, "1") || Equal(s, "y") || Equal(s, "yes") || Equal(s, "д") ||
+			Equal(s, "да");
 }
 
 // export_all_to_xml
@@ -46,7 +46,7 @@ void App::export_all_to_xml(const ParsedCommand &pc)
 {
 	Table *tbl = nullptr;
 
-	boost::filesystem::path root_path(static_cast<string>(pc.param1));
+	boost::filesystem::path root_path(pc.param1);
 	if (!directory_exists(root_path)) {
 		return;
 	}
@@ -58,7 +58,7 @@ void App::export_all_to_xml(const ParsedCommand &pc)
 			tbl->fillrecordsindex();
 		}
 
-		boost::filesystem::path filetable = root_path / static_cast<string>(tbl->getname() + ".xml");
+		boost::filesystem::path filetable = root_path / (tbl->getname() + ".xml");
 
 		tbl->export_to_xml(filetable.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
 
@@ -73,7 +73,7 @@ void App::export_to_xml(const ParsedCommand &pc)
 {
 	boost::regex *expr = nullptr;
 
-	boost::filesystem::path root_path(static_cast<string>(pc.param1));
+	boost::filesystem::path root_path(pc.param1);
 	if (!directory_exists(root_path)) {
 		return;
 	}
@@ -90,10 +90,10 @@ void App::export_to_xml(const ParsedCommand &pc)
 	filters.SetText(filter.ToString());
 
 	for (int m = filters.Count() - 1; m >= 0; m--) {
-		if (filters[m].Length() == 0) {
+		if (filters[m].empty()) {
 			filters.Delete(m);
 		} else {
-			filters[m] = String("^") + filters[m].UpperCase() + "$";
+			filters[m] = string("^").append(LowerCase(filters[m])).append("$");
 		}
 	}
 
@@ -105,7 +105,7 @@ void App::export_to_xml(const ParsedCommand &pc)
 
 	expr = new boost::regex[k];
 	for (int m = 0; m < k; m++) {
-		expr[m] = boost::regex(static_cast<string>(filters[m]));
+		expr[m] = boost::regex(filters[m]);
 	}
 
 	for (int j = 0; j < base1CD->get_numtables(); j++) {
@@ -114,7 +114,7 @@ void App::export_to_xml(const ParsedCommand &pc)
 		bool b = false;
 
 		for (int m = 0; m < k; m++) {
-			if (regex_match(static_cast<string>(tbl->getname().UpperCase()), expr[m])) {
+			if (regex_match(LowerCase(tbl->getname()), expr[m])) {
 				b = true;
 				break;
 			}
@@ -123,7 +123,7 @@ void App::export_to_xml(const ParsedCommand &pc)
 		if (b) {
 			tbl->fillrecordsindex();
 
-			boost::filesystem::path filetable = root_path / static_cast<string>(tbl->getname() + ".xml");
+			boost::filesystem::path filetable = root_path / (tbl->getname() + ".xml");
 			tbl->export_to_xml(filetable.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
 			msreg_g.AddMessage_("Выполнен экспорт таблицы в файл.", MessageState::Succesfull, "Таблица", tbl->getname(),
 								"Файл", filetable.string());
@@ -135,7 +135,7 @@ void App::export_to_xml(const ParsedCommand &pc)
 
 void App::export_to_binary(const ParsedCommand &pc)
 {
-	boost::filesystem::path root_path(static_cast<string>(pc.param1));
+	boost::filesystem::path root_path(pc.param1);
 	if (!directory_exists(root_path)) {
 		return;
 	}
@@ -152,10 +152,10 @@ void App::export_to_binary(const ParsedCommand &pc)
 	filters.SetText(filter.ToString());
 
 	for (int m = filters.Count() - 1; m >= 0; m--) {
-		if (filters[m].Length() == 0) {
+		if (filters[m].empty()) {
 			filters.Delete(m);
 		} else {
-			filters[m] = String("^") + filters[m].UpperCase() + "$";
+			filters[m] = string("^").append(LowerCase(filters[m])).append("$");
 		}
 	}
 
@@ -167,7 +167,7 @@ void App::export_to_binary(const ParsedCommand &pc)
 
 	vector<boost::regex> expr(k);
 	for (int m = 0; m < k; m++) {
-		expr[m] = boost::regex(static_cast<string>(filters[m]));
+		expr[m] = boost::regex(filters[m]);
 	}
 
 	for (int j = 0; j < base1CD->get_numtables(); j++) {
@@ -177,7 +177,7 @@ void App::export_to_binary(const ParsedCommand &pc)
 		bool found = false;
 
 		for (int m = 0; m < k; m++) {
-			if (regex_match(static_cast<string>(tbl->getname().UpperCase()), expr[m])) {
+			if (regex_match(LowerCase(tbl->getname()), expr[m])) {
 				found = true;
 				break;
 			}
@@ -197,7 +197,7 @@ void App::export_to_binary(const ParsedCommand &pc)
 
 void App::import_from_binary(const ParsedCommand &pc)
 {
-	boost::filesystem::path root_path(static_cast<string>(pc.param1));
+	boost::filesystem::path root_path(pc.param1);
 	if (!directory_exists(root_path)) {
 		return;
 	}
@@ -214,10 +214,10 @@ void App::import_from_binary(const ParsedCommand &pc)
 	filters.SetText(filter.ToString());
 
 	for (int m = filters.Count() - 1; m >= 0; m--) {
-		if (filters[m].Length() == 0) {
+		if (filters[m].empty()) {
 			filters.Delete(m);
 		} else {
-			filters[m] = String("^") + filters[m].UpperCase() + "$";
+			filters[m] = string("^").append(LowerCase(filters[m])).append("$");
 		}
 	}
 
@@ -229,7 +229,7 @@ void App::import_from_binary(const ParsedCommand &pc)
 
 	vector<boost::regex> expr(k);
 	for (int m = 0; m < k; m++) {
-		expr[m] = boost::regex(static_cast<string>(filters[m]));
+		expr[m] = boost::regex(filters[m]);
 	}
 
 	for (int j = 0; j < base1CD->get_numtables(); j++) {
@@ -239,7 +239,7 @@ void App::import_from_binary(const ParsedCommand &pc)
 		bool found = false;
 
 		for (int m = 0; m < k; m++) {
-			if (regex_match(static_cast<string>(tbl->getname().UpperCase()), expr[m])) {
+			if (regex_match(LowerCase(tbl->getname()), expr[m])) {
 				found = true;
 				break;
 			}
@@ -285,7 +285,7 @@ void App::save_config(const boost::filesystem::path& param_path)
 // save_config
 void App::save_config(const ParsedCommand &pc)
 {
-	boost::filesystem::path cfpath(static_cast<string>(pc.param1));
+	boost::filesystem::path cfpath(pc.param1);
 
 	save_config(cfpath);
 
@@ -316,7 +316,7 @@ void App::save_configsave(const boost::filesystem::path& param_path)
 // save_configsave
 void App::save_configsave(const ParsedCommand &pc)
 {
-	boost::filesystem::path cfpath(static_cast<string>(pc.param1));
+	boost::filesystem::path cfpath(pc.param1);
 	save_configsave(cfpath);
 
 } // save_configsave
@@ -328,8 +328,8 @@ void App::save_vendors_configs(const boost::filesystem::path& param_path) {
 	}
 
 	for (auto& supplier_config : base1CD->supplier_configs()) {
-		String file_name = supplier_config->name() + " " + supplier_config->version() + CF_STR;
-		boost::filesystem::path cfpath = param_path / static_cast<string>(file_name);
+		string file_name = supplier_config->name() + " " + supplier_config->version() + CF_STR;
+		boost::filesystem::path cfpath = param_path / file_name;
 		if ( supplier_config->save_to_file(cfpath) ) {
 			msreg_g.AddMessage_("Сохранение конфигурации поставщика завершено.", MessageState::Succesfull, "Файл",
 													cfpath.string());
@@ -343,7 +343,7 @@ void App::save_vendors_configs(const boost::filesystem::path& param_path) {
 // save_vendors_configs
 void App::save_vendors_configs(const ParsedCommand &pc)
 {
-	boost::filesystem::path param_path(static_cast<string>(pc.param1));
+	boost::filesystem::path param_path(pc.param1);
 	if (!directory_exists(param_path)) {
 		return;
 	}
@@ -355,7 +355,7 @@ void App::save_vendors_configs(const ParsedCommand &pc)
 // save_all_configs
 void App::save_all_configs(const ParsedCommand &pc)
 {
-	boost::filesystem::path param_path(static_cast<string>(pc.param1));
+	boost::filesystem::path param_path(pc.param1);
 	if (!directory_exists(param_path)) {
 		return;
 	}
@@ -381,12 +381,12 @@ void App::save_depot_config(const ParsedCommand &pc)
 		return;
 	}
 	int version_number;
-	String version_number_param = pc.param1;
+	string version_number_param = pc.param1;
 
-	if (version_number_param.Compare("0") == 0) {
+	if (Equal(version_number_param, "0")) {
 		version_number = 0;
 	} else {
-		version_number = version_number_param.ToIntDef(0);
+		version_number = ToIntDef(version_number_param, 0);
 	}
 
 	version_number = base1CD->get_ver_depot_config(version_number);
@@ -395,7 +395,7 @@ void App::save_depot_config(const ParsedCommand &pc)
 		msreg_g.AddError("Запрошенной версии конфигурации нет в хранилище конфигурации.");
 		return;
 	}
-	boost::filesystem::path cfpath(static_cast<string>(pc.param2));
+	boost::filesystem::path cfpath(pc.param2);
 
 	cfpath = boost::filesystem::absolute(cfpath);
 
@@ -403,7 +403,7 @@ void App::save_depot_config(const ParsedCommand &pc)
 		if (!directory_exists(cfpath)) {
 			return;
 		}
-		cfpath /= static_cast<string>(String(string("v") + version_number + string(CF_STR)));
+		cfpath /= string("v").append(std::to_string(version_number)).append(CF_STR);
 	}
 	if (base1CD->save_depot_config(cfpath.string(), version_number))
 		msreg_g.AddMessage_("Сохранение конфигурации хранилища завершено.", MessageState::Succesfull, "Файл",
@@ -423,21 +423,21 @@ void App::save_depot_config_part(const ParsedCommand &pc)
 		return;
 	}
 
-	String version_number_param = pc.param1;
+	std::string version_number_param = pc.param1;
 
 	int32_t begin_version = 0;
 	int32_t end_version = 0;
 
-	int32_t splitter = version_number_param.Pos(":");
-	if (splitter) {
-		end_version = version_number_param
-				.SubString(splitter + 1, version_number_param.Length() - splitter)
-				.ToIntDef(0);
-		begin_version = version_number_param
-				.SubString(1, splitter - 1)
-				.ToIntDef(0);
+	auto splitter = version_number_param.find(':');
+	if (splitter != string::npos) {
+		end_version = ToIntDef(version_number_param
+				.substr(splitter + 1, version_number_param.size() - splitter - 1)
+				, 0);
+		begin_version = ToIntDef(version_number_param
+				.substr(0, splitter - 1)
+				, 0);
 	} else {
-		begin_version = version_number_param.ToIntDef(0);
+		begin_version = ToIntDef(version_number_param, 0);
 		end_version = begin_version;
 	}
 
@@ -455,7 +455,7 @@ void App::save_depot_config_part(const ParsedCommand &pc)
 	end_version = base1CD->get_ver_depot_config(end_version);
 	if (!version_exists(end_version)) { return; }
 
-	boost::filesystem::path save_path(static_cast<string>(pc.param2));
+	boost::filesystem::path save_path(pc.param2);
 	if (!directory_exists(save_path, true)) {
 		return;
 	}
@@ -473,7 +473,7 @@ void App::save_depot_config_part(const ParsedCommand &pc)
 void App::find_and_save_lost_objects(const ParsedCommand &pc)
 {
 
-	boost::filesystem::path lost_objects(static_cast<string>(pc.param1));
+	boost::filesystem::path lost_objects(pc.param1);
 	if (!directory_exists(lost_objects)) {
 		return;
 	}
@@ -520,13 +520,13 @@ int App::Run()
 		}
 	}
 
-	String &f = comm.getfilename();
-	if (f.IsEmpty()) {
+	string f = comm.getfilename();
+	if (f.empty()) {
 		msreg_g.AddMessage("В командной строке не найден файл базы 1CD", MessageState::Error);
 		return CTOOL_1CD_INVALID_ARGUMENT;
 	}
 
-	boost::filesystem::path dbpath(static_cast<string>(f));
+	boost::filesystem::path dbpath(f);
 	dbpath = boost::filesystem::absolute(dbpath);
 	if (!boost::filesystem::exists(dbpath)) {
 		msreg_g.AddMessage("Указанный файл базы 1CD не существует", MessageState::Error);
@@ -596,7 +596,7 @@ int App::Run()
 				}
 			}
 		}
-		catch (String &s) {
+		catch (string &s) {
 			msreg_g.AddError(s);
 		}
 		catch (DetailedException &ex) {

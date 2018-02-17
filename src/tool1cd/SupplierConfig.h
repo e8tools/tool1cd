@@ -11,24 +11,24 @@ struct TableFile;
 class SupplierConfig
 {
 public:
-	SupplierConfig(TableFile* file,
-				   const String& name,
-				   const String& supplier,
-				   const String& version);
+	SupplierConfig(TableFile *file,
+				   const std::string &name,
+				   const std::string &supplier,
+				   const std::string &version);
 	~SupplierConfig() = default;
 
 	bool save_to_file(const boost::filesystem::path& file_name);
-	String name() const;
-	String supplier() const;
-	String version() const;
+	std::string name() const;
+	std::string supplier() const;
+	std::string version() const;
 
 	static std::shared_ptr<SupplierConfig> create_supplier_config(TableFile* table_file);
 
 private:
 	TableFile* _file {nullptr};
-	String _name;     // имя конфигурация поставщика
-	String _supplier; // синоним конфигурация поставщика
-	String _version;  // версия конфигурация поставщика
+	std::string _name;     // имя конфигурация поставщика
+	std::string _supplier; // синоним конфигурация поставщика
+	std::string _version;  // версия конфигурация поставщика
 };
 
 #endif // SUPPLIERCONFIG_H

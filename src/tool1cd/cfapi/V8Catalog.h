@@ -28,7 +28,7 @@ public:
 
 	~V8Catalog();
 
-	V8File* GetFile(const String& FileName);
+	V8File* GetFile(const std::string &FileName);
 	V8File* GetFirst();
 	V8File* createFile(const String& FileName, bool _selfzipped = false); // CreateFile в win64 определяется как CreateFileW, пришлось заменить на маленькую букву
 	V8Catalog* CreateCatalog(const String& FileName, bool _selfzipped = false);
