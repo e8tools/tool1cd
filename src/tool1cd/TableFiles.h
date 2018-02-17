@@ -30,13 +30,13 @@ struct table_rec
 struct TableFile
 {
 	Table* t;
-	String name; // Имя, как оно хранится в таблице
+	std::string name; // Имя, как оно хранится в таблице
 	uint32_t maxpartno;
 	table_blob_file* addr;
 	System::FILETIME ft_create;
 	System::FILETIME ft_modify;
 
-	TableFile(Table* _t, const String& _name, uint32_t _maxpartno);
+	TableFile(Table *_t, const std::string &_name, uint32_t _maxpartno);
 	~TableFile();
 };
 
@@ -49,7 +49,7 @@ public:
 	virtual ~TableFiles();
 
 	bool getready() { return ready; }
-	TableFile* getfile(const String& name);
+	TableFile* getfile(const std::string &name);
 	Table* gettable() { return table; }
 
 	std::map<String,TableFile*> &files();

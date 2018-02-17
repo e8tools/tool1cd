@@ -141,84 +141,6 @@ static uint32_t __to_upper(uint32_t code_point)
 	return code_point;
 }
 
-/** Функция перевода каждого символа в строчные (C strings).
- *      @param        - нет
- *      Переводит символы в строчные
- */
-String String::UpperCase() const
-{
-	std::vector<char> result_data(size() + 1);
-
-	auto cstr = c_str();
-	utf8::iterator<const char*> it (cstr, cstr, cstr + size()),
-		eit(cstr + size(), cstr, cstr + size());
-
-	auto rit = result_data.data();
-
-	while (it != eit) {
-		rit = utf8::append(__to_upper(*it++), rit);
-	}
-
-	return String(result_data.data(), size());
-}
-
-/** Функция перевода каждого символа в нижний регистр (C strings).
- *      @param        - нет
- *      Переводит символы в нижний регистр
- */
-String String::LowerCase() const
-{
-	std::vector<char> result_data(size());
-
-	auto cstr = c_str();
-	utf8::iterator<const char*> it (cstr, cstr, cstr + size()),
-			eit(cstr + size(), cstr, cstr + size());
-
-	auto rit = result_data.data();
-
-	while (it != eit) {
-		rit = utf8::append(__to_lower(*it++), rit);
-	}
-
-	return String(result_data.data(), size());
-}
-
-/** Функция определяет пустая строка или нет.
- *      @param        - нет
- *
- */
-bool String::IsEmpty() const
-{
-	return empty();
-}
-
-/** Функция возвращает длину строки.
- *      @param        - нет
- *
- */
-int String::Length() const
-{
-	return size();
-}
-
-/** Функция сравнивает строки.
- *      @const String &b - строка для сравнения
- *
- */
-int String::CompareIC(const String &b) const
-{
-	return LowerCase().compare(b.LowerCase());
-}
-
-/** Функция сравнивает строки.
- *      @const String &b - строка для сравнения
- *
- */
-int String::Compare(const String &b) const
-{
-	return compare(b);
-}
-
 /** Функция заменяет подстроки в строке.
  *      @const String &b - строка для сравнения
  *
@@ -238,22 +160,6 @@ String String::Replace(const String &sub, const String &replace) const
 	}
 
 	return _copy;
-}
-
-/** Функция выделяет подстроку в строке.
- *      @int StartIndex - начальный индекс
- *      @int Count      - количество символов
- *
- */
-String String::SubString(int StartIndex, int Count) const
-{
-	if (StartIndex > Length() || StartIndex <= 0) {
-
-		return String("");
-
-	}
-
-	return String(substr(StartIndex - 1, Count));
 }
 
 /** Функция позволяет обращаться со строкой как с массивом, доступ по индексу.
@@ -283,19 +189,6 @@ int String::ToInt() const
 	return stoi(*this);
 }
 
-/** Функция позволяет преобразовать строку в число int.
- *      @int default_value - значение по умолчанию
- *
- */
-int String::ToIntDef(int default_value) const
-{
-	try {
-		return ToInt();
-	} catch (const invalid_argument &) {
-		return default_value;
-	}
-}
-
 /** Функция ищет подстроку в строке.
  *      @const String &substr - подстрока поиска
  *
@@ -309,76 +202,11 @@ size_t String::Pos(const String &substr)
 	return index + 1;
 }
 
-/** Функция возвращает длину строки.
- *      @params - нет
- *
- */
-size_t String::GetLength() const
-{
-	return this->size();
-}
-
-/** Функция устанавливает длину строки.
- *      @size_t NewLength - новая длина строки
- *
- */
-void String::SetLength(size_t NewLength)
-{
-	resize(NewLength);
-}
-
-/** Функция ищет вхождение последнего разделителя в строке.
- *      @const String &delimiters - разделитель который ищем
- *
- */
-int String::LastDelimiter(const String &delimiters) const
-{
-	return 0; // TODO: реализовать функцию поиска последнего разделителя
-}
-
-/** Функция ищет вхождение последнего символа в строке.
- *      @params - нет
- *
- */
-const char *String::LastChar() const
-{
-	if (size() == 0) {
-		return nullptr;
-	}
-	return c_str() + (size() - 1);
-}
-
-/** Функция возвращает размер широких символов юникод.
- *      @params - нет
- *
- */
-int String::WideCharBufSize() const
-{
-	return sizeof(wchar_t) * (size() + 1);
-}
-
-/** Функция возвращает широкую строку символов юникод.
- *      @WCHART *wbuf - буфер
- *      @int destsize - размер
- *
- */
-WCHART *String::WideChar(WCHART *wbuf, int destSize) const
-{
-	bool limit_exceeded = false;
-	for (size_t i = 0; i < size() && !limit_exceeded; i++) {
-		wbuf[i] = c_str()[i];
-		if (destSize) {
-			limit_exceeded = --destSize == 0;
-		}
-	}
-	return wbuf;
-}
-
 /** Метод добавляющий в списко строк данные.
  *      @const String &item - строка для добавления
  *
  */
-void TStringList::Add(const String &item)
+void TStringList::Add(const string &item)
 {
 	push_back(item);
 }
@@ -387,7 +215,7 @@ void TStringList::Add(const String &item)
  *      @const String &text - строка для добавления
  *
  */
-void TStringList::SetText(const String &text)
+void TStringList::SetText(const string &text)
 {
 	clear();
 	stringstream iss(text);
@@ -419,7 +247,7 @@ void TStringList::Delete(int index)
  *      @const String &filename - имя файла для загрузки строк
  *
  */
-void TStringList::LoadFromFile(const String &filename)
+void TStringList::LoadFromFile(const string &filename)
 {
 	clear();
 	boost::filesystem::ifstream ifs(boost::filesystem::path(filename.c_str()));
@@ -553,6 +381,81 @@ String String::IntToHex(int n, int digits)
 	return String(ss.str());
 }
 
+std::string LowerCase(const std::string &src)
+{
+	std::vector<char> result_data(src.size() + 1);
+
+	auto cstr = src.c_str();
+	utf8::iterator<const char*> it (cstr, cstr, cstr + src.size()),
+			eit(cstr + src.size(), cstr, cstr + src.size());
+
+	auto rit = result_data.data();
+
+	while (it != eit) {
+		rit = utf8::append(__to_lower(*it++), rit);
+	}
+	result_data.back() = '\0';
+
+	return result_data.data();
+}
+
+std::string UpperCase(const std::string &src)
+{
+	std::vector<char> result_data(src.size() + 1);
+
+	auto cstr = src.c_str();
+	utf8::iterator<const char*> it (cstr, cstr, cstr + src.size()),
+			eit(cstr + src.size(), cstr, cstr + src.size());
+
+	auto rit = result_data.data();
+
+	while (it != eit) {
+		rit = utf8::append(__to_upper(*it++), rit);
+	}
+	result_data.back() = '\0';
+
+	return string(result_data.data());
+}
+
+int Compare(const std::string &a, const std::string &b)
+{
+	return a.compare(b);
+}
+
+int CompareIC(const std::string &a, const std::string &b)
+{
+	return Compare(LowerCase(a), LowerCase(b));
+}
+
+bool EqualIC(const std::string &a, const std::string &b)
+{
+	return CompareIC(a, b) == 0;
+}
+
+bool Equal(const std::string &a, const std::string &b)
+{
+	return Compare(a, b) == 0;
+}
+
+bool EndsWithIC(const std::string &str, const std::string &substr)
+{
+	if (substr.empty()) {
+		return true;
+	}
+	if (str.size() < substr.size()) {
+		return false;
+	}
+	return CompareIC(str.substr(str.size() - substr.size(), substr.size()), substr) == 0;
+}
+
+int ToIntDef(const std::string &s, int default_value)
+{
+	try {
+		return stoi(s);
+	} catch (const invalid_argument &) {
+		return default_value;
+	}
+}
 
 } // System
 

@@ -1,4 +1,6 @@
 #include "ParseCommandLine.h"
+#include <String.hpp>
+using namespace System;
 
 //---------------------------------------------------------------------------
 #if !defined(_WIN32)
@@ -51,7 +53,7 @@ CommandDefinition CommandParse::definitions[] =
 };
 
 
-String CommandParse::helpstring =
+std::string CommandParse::helpstring =
 "ctool1cd (с) 2009-2017 awa\r\n\
 \r\n\
 Запуск:\r\n\
@@ -128,12 +130,19 @@ ctool1cd.exe [<ключи>] <1CD файл> [<ключи>]\r\n\
 
 
 //---------------------------------------------------------------------------
-String dequote(String str)
+std::string dequote(const std::string &str)
 {
-	if(str.Length() < 2) return str;
-	if(str[1] == '\"' && str[str.Length()] == '\"') str = str.SubString(2, str.Length() - 2);
-	while(str[str.Length()] == '\"') str = str.SubString(1, str.Length() - 1);
-	return str;
+	if (str.size() < 2) {
+		return str;
+	}
+	std::string result = str;
+	if (result.front() == '\"' && result.back() == '\"') {
+		result = result.substr(1, result.size() - 2);
+	}
+	while (result.back() == '\"') {
+		result = result.substr(0, str.size() - 1);
+	}
+	return result;
 }
 
 //---------------------------------------------------------------------------
@@ -141,19 +150,19 @@ String dequote(String str)
 CommandParse::CommandParse(char **szArglist, int nArgs)
 {
 	int numdef = sizeof(definitions) / sizeof(CommandDefinition);
-	String k, p;
 
 	filename = "";
 	for (int i = 1; i < nArgs; i++)
 	{
-		p = szArglist[i];
-		// ВАЖНО: ломающие изменения. С "/" может начинаться путь к файлу.
-		// if (p[1] == '/' || p[1] == '-')
-		if (p[1] == '-')
-		{
-			k = p.SubString(2, p.Length() - 1).LowerCase();
+		std::string param = szArglist[i];
+		if (param.front() == '-') {
+			param = LowerCase(param.substr(1, param.size() - 1));
 			int j;
-			for (j = 0; j < numdef; j++) if(k.Compare(definitions[j].key) == 0) break;
+			for (j = 0; j < numdef; j++) {
+				if (Equal(param, definitions[j].key)) {
+					break;
+				}
+			}
 			if (j < numdef)
 			{
 				int n = commands.size();
@@ -186,12 +195,11 @@ CommandParse::CommandParse(char **szArglist, int nArgs)
 					else
 					{
 						msreg_g.AddMessage_("Недостаточно параметров ключа командной строки.", MessageState::Error,
-							"Ключ", k);
+							"Ключ", param);
 						// Ошибка! Недостаточно параметров ключа!
 					}
 				}
-				if(definitions[j].predefine_par.Length() > 0)
-				{
+				if (!definitions[j].predefine_par.empty()) {
 					switch(l)
 					{
 						case 0:
@@ -213,20 +221,20 @@ CommandParse::CommandParse(char **szArglist, int nArgs)
 			{
 				// Ошибка! Неизвестный ключ!
 				msreg_g.AddMessage_("Неизвестный ключ командной строки.", MessageState::Error,
-					"Ключ", k);
+					"Ключ", param);
 			}
 
 		}
 		else
 		{
-			if(filename.Length() > 0)
+			if(!filename.empty())
 			{
 				// Ошибка! Имя файла базы уже было в командной строке!
 				msreg_g.AddMessage_("Повторное имя файла базы в командной строке.", MessageState::Error,
 					"Имя файла", filename,
-					"Повторное имя файла", p);
+					"Повторное имя файла", param);
 			}
-			else filename = dequote(p);
+			else filename = dequote(param);
 		}
 	}
 }
@@ -236,12 +244,12 @@ std::vector<ParsedCommand>& CommandParse::getcommands()
 	return commands;
 }
 
-String& CommandParse::getfilename()
+std::string & CommandParse::getfilename()
 {
 	return filename;
 }
 
-String& CommandParse::gethelpstring()
+std::string & CommandParse::gethelpstring()
 {
 	return helpstring;
 }

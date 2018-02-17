@@ -94,11 +94,11 @@ BinaryGuid::BinaryGuid(const std::string &presentation)
 }
 
 //---------------------------------------------------------------------------
-bool string_to_GUID(const String& str, BinaryGuid* guid)
+bool string_to_GUID(const std::string &str, BinaryGuid *guid)
 {
 	try {
 
-		BinaryGuid bguid(static_cast<std::string> (str));
+		BinaryGuid bguid(str);
 		*guid = bguid;
 
 	} catch (WrongGuidPresentation) {

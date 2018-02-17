@@ -6,7 +6,7 @@
 class Messenger : public MessageRegistrator
 {
 private:
-	String logfile;
+	std::string logfile;
 	bool noverbose;
 	MessageState minimal_state;
 public:
@@ -14,7 +14,7 @@ public:
 	Messenger();
 	virtual void AddMessage(const String &message, const MessageState mstate, const TStringList *param = nullptr) override;
 	virtual void Status(const String& message) override;
-	void setlogfile(String _logfile);
+	void setlogfile(const std::string &_logfile);
 	void setnoverbose(bool nv){noverbose = nv;}
 	void set_log_level(const MessageState _minimal_state);
 };

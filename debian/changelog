@@ -1,3 +1,9 @@
+ctool1cd (1.0.0-11~trusty) trusty; urgency=low
+
+  * Bug fixes.
+
+ -- Sergey Batanov <sergey.batanov@dmpas.ru>  Wed, 14 Feb 2018 22:50:09 +0300
+
 ctool1cd (1.0.0-10~trusty) trusty; urgency=low
 
   * Dump vendors config.

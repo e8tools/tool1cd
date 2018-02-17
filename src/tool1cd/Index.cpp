@@ -199,7 +199,7 @@ void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 			s += ", bytes ";
 			s += recbytes;
 			s += "\r\n";
-			f->Write(s.c_str(), s.GetLength());
+			f->Write(s.c_str(), s.size());
 
 			for (unsigned i = 0; i < curlen; i++)
 			{
@@ -219,7 +219,7 @@ void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 				s = "  -";
 				s += level;
 				s += ": ";
-				f->Write(s.c_str(), s.GetLength());
+				f->Write(s.c_str(), s.size());
 				for(j = 0; j < length; j++)
 				{
 					unsigned char b = curindex[j];
@@ -237,7 +237,7 @@ void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 				s = ": ";
 				s += numrec;
 				s += "\r\n";
-				f->Write(s.c_str(), s.GetLength());
+				f->Write(s.c_str(), s.size());
 			}
 			delete[] curindex;
 
@@ -251,7 +251,7 @@ void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 			s += ", count ";
 			s += curlen;
 			s += "\r\n";
-			f->Write(s.c_str(), s.GetLength());
+			f->Write(s.c_str(), s.size());
 
 			rbuf = buf + 12;
 			for (unsigned i = 0; i < curlen; i++)
@@ -269,7 +269,7 @@ void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 				s = "  +";
 				s += level;
 				s += ": ";
-				f->Write(s.c_str(), s.GetLength());
+				f->Write(s.c_str(), s.size());
 				for (unsigned j = 0; j < length; j++)
 				{
 					unsigned char b = curindex[j];
@@ -287,7 +287,7 @@ void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 				s = ": ";
 				s += numrecx;
 				s += "\r\n";
-				f->Write(s.c_str(), s.GetLength());
+				f->Write(s.c_str(), s.size());
 
 			}
 
@@ -357,7 +357,7 @@ void Index::dump(String _filename)
 	s = "Index length ";
 	s += length;
 	s += "\r\n";
-	f->Write(s.c_str(), s.GetLength());
+	f->Write(s.c_str(), s.size());
 
 	dump_recursive(file_index, f, 0, rootblock);
 

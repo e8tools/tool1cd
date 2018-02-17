@@ -24,7 +24,7 @@ private:
 
 	void create_main_catalog();
 	int32_t get_version() const;
-	V8File* get_file(const String& file_name) const;
+	V8File* get_file(const std::string &file_name) const;
 
 
 };
