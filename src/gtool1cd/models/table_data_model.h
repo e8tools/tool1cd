@@ -48,7 +48,7 @@ public:
 			if (record->is_null_value(f)) {
 				return QString("{NULL}");
 			}
-			return QString::fromStdString(static_cast<std::string>(record->get_string(f)));
+			return QString::fromStdString(record->get_string(f));
 		}
 		if (role == Qt::FontRole) {
 			if (record->is_removed()) {
@@ -65,7 +65,7 @@ public:
 	{
 		if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
 			Field *f = table->getfield(section);
-			return QString::fromStdString(static_cast<std::string>(f->getname()));
+			return QString::fromStdString(f->getname());
 		}
 		return QVariant();
 	}

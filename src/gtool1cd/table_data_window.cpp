@@ -25,7 +25,7 @@ TableDataWindow::TableDataWindow(QWidget *parent, Table *table)
       tableWindow(nullptr)
 {
 	ui->setupUi(this);
-	setWindowTitle(QString::fromStdString(static_cast<std::string>(table->getname())));
+	setWindowTitle(QString::fromStdString(table->getname()));
 	ui->dataView->setModel(new TableDataModel(table));
 
 	QVector<Index*> indexes;
@@ -58,8 +58,8 @@ TableDataWindow::~TableDataWindow()
 void TableDataWindow::on_descriptionButton_clicked()
 {
 	SkobkaTextWindow *w = new SkobkaTextWindow(this);
-	w->setText(QString::fromStdString(static_cast<std::string>(table->getdescription())),
-	           QString::fromStdString(static_cast<std::string>(table->getname())));
+	w->setText(QString::fromStdString(table->getdescription()),
+	           QString::fromStdString(table->getname()));
 	w->show();
 }
 

@@ -40,11 +40,10 @@ public:
 			Field *f = table->getfield(index.row());
 			switch (index.column()) {
 			case 0:
-				return QString::fromStdString(
-				                               static_cast<std::string>(f->getname()));
+				return QString::fromStdString(f->getname());
 
 			case 1:
-				return QString::fromStdString(static_cast<std::string>(f->get_presentation_type()));
+				return QString::fromStdString(f->get_presentation_type());
 			case 2:
 				return QVariant::fromValue(f->getlength());
 			case 3:

@@ -39,7 +39,7 @@ void MainWindow::open(T_1CD *database)
 {
 	db = database;
 	ui->tableListView->setModel(new TablesListModel(db));
-	setWindowTitle(QString::fromStdString(static_cast<std::string>(db->getfilename())));
+	setWindowTitle(QString::fromStdString(db->getfilename()));
 	// refresh data
 }
 

@@ -63,8 +63,7 @@ public:
 			Table *t = db->gettable(index.row());
 			switch (index.column()) {
 			case 0:
-				return QVariant::fromValue(QString::fromStdString(
-				                               static_cast<std::string>(t->getname())));
+				return QVariant::fromValue(QString::fromStdString(t->getname()));
 
 			case 1:
 				return QVariant::fromValue(t->get_recordlen());
