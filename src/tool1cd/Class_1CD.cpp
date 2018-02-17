@@ -1307,7 +1307,7 @@ bool T_1CD::create_table(const string &path)
 	str = (*t)[0][0].get_value();
 
 	for(j = 0; j < num_tables; j++) {
-		if (CompareIC(tables[j]->getname(), str) == 0) {
+		if (EqualIC(tables[j]->getname(), str)) {
 			delete_table(tables[j]);
 		}
 	}
@@ -1591,7 +1591,7 @@ bool T_1CD::test_list_of_tables()
 			continue;
 		}
 
-		if (CompareIC(rec->get_string(f_name), "DBNames") != 0) {
+		if (!EqualIC(rec->get_string(f_name), "DBNames")) {
 			continue;
 		}
 
@@ -1682,24 +1682,24 @@ bool T_1CD::test_list_of_tables()
 							{
 								is_slave = false;
 								_name = t->get_subnode(1)->get_value();
-								if(CompareIC(_name, "Fld") == 0) continue;
-								if(CompareIC(_name, "LineNo") == 0) continue;
-								if(CompareIC(_name, "Turnover") == 0) continue;
-								if(CompareIC(_name, "TurnoverDt") == 0) continue;
-								if(CompareIC(_name, "TurnoverCt") == 0) continue;
-								if(CompareIC(_name, "ByField") == 0) continue;
-								if(CompareIC(_name, "ByOwnerField") == 0) continue;
-								if(CompareIC(_name, "ByParentField") == 0) continue;
-								if(CompareIC(_name, "ByProperty") == 0) continue;
-								if(CompareIC(_name, "ByPropRecorder") == 0) continue;
-								if(CompareIC(_name, "ByResource") == 0) continue;
-								if(CompareIC(_name, "ByDim") == 0) continue;
-								if(CompareIC(_name, "ByDims") == 0) continue;
-								if(CompareIC(_name, "ByDimension") == 0) continue;
-								if(CompareIC(_name, "ByDimensions") == 0) continue;
-								if(CompareIC(_name, "ByDimRecorder") == 0) continue;
-								if(CompareIC(_name, "VT") == 0) is_slave = true;
-								if(CompareIC(_name, "ExtDim") == 0) is_slave = true;
+								if(EqualIC(_name, "Fld")) continue;
+								if(EqualIC(_name, "LineNo")) continue;
+								if(EqualIC(_name, "Turnover")) continue;
+								if(EqualIC(_name, "TurnoverDt")) continue;
+								if(EqualIC(_name, "TurnoverCt")) continue;
+								if(EqualIC(_name, "ByField")) continue;
+								if(EqualIC(_name, "ByOwnerField")) continue;
+								if(EqualIC(_name, "ByParentField")) continue;
+								if(EqualIC(_name, "ByProperty")) continue;
+								if(EqualIC(_name, "ByPropRecorder")) continue;
+								if(EqualIC(_name, "ByResource")) continue;
+								if(EqualIC(_name, "ByDim")) continue;
+								if(EqualIC(_name, "ByDims")) continue;
+								if(EqualIC(_name, "ByDimension")) continue;
+								if(EqualIC(_name, "ByDimensions")) continue;
+								if(EqualIC(_name, "ByDimRecorder")) continue;
+								if(EqualIC(_name, "VT")) is_slave = true;
+								if(EqualIC(_name, "ExtDim")) is_slave = true;
 
 								_guid = t->get_subnode(0)->get_value();
 								_num = t->get_subnode(2)->get_value();
@@ -1722,7 +1722,7 @@ bool T_1CD::test_list_of_tables()
 											break;
 										}
 									}
-									else if (CompareIC(gettable(i)->getname(), _tabname) == 0)
+									else if (EqualIC(gettable(i)->getname(), _tabname))
 									{
 										table_found = true;
 										break;
@@ -2459,16 +2459,16 @@ depot_ver T_1CD::get_depot_version(const TableRecord &record)
 {
 	std::string Ver = record.get_string("DEPOTVER");
 
-	if (CompareIC(Ver, "0300000000000000") == 0) {
+	if (EqualIC(Ver, "0300000000000000")) {
 		return depot_ver::Ver3;
 	}
-	if (CompareIC(Ver, "0500000000000000") == 0) {
+	if (EqualIC(Ver, "0500000000000000")) {
 		return depot_ver::Ver5;
 	}
-	if (CompareIC(Ver, "0600000000000000") == 0) {
+	if (EqualIC(Ver, "0600000000000000")) {
 		return depot_ver::Ver6;
 	}
-	if (CompareIC(Ver, "0700000000000000") == 0) {
+	if (EqualIC(Ver, "0700000000000000")) {
 		return depot_ver::Ver7;
 	}
 
