@@ -8,6 +8,7 @@
 #include "table_fields_window.h"
 #include "table_data_window.h"
 #include "models/tables_list_model.h"
+#include "configurations_window.h"
 
 void MainWindow::AddMessage(
         const String &description,
@@ -24,7 +25,8 @@ void MainWindow::Status(const String& message)
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    configurationsWindow(nullptr)
 {
 	ui->setupUi(this);
 	ui->logList->setModel(new QStringListModel(logData));
@@ -71,4 +73,13 @@ void MainWindow::on_tableListView_doubleClicked(const QModelIndex &index)
 	}
 	table_windows[t]->show();
 	table_windows[t]->activateWindow();
+}
+
+void MainWindow::on_configurationsButton_clicked()
+{
+	if (configurationsWindow == nullptr) {
+		configurationsWindow = new ConfigurationsWindow(db, this);
+	}
+	configurationsWindow->show();
+	configurationsWindow->activateWindow();
 }

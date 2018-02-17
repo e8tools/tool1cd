@@ -38,11 +38,14 @@ private slots:
 
 	void on_tableListView_doubleClicked(const QModelIndex &index);
 
+	void on_configurationsButton_clicked();
+
 private:
 	Ui::MainWindow *ui;
 	T_1CD *db;
 	QStringList logData;
 	QMap<Table *, QWidget *> table_windows;
+	QWidget *configurationsWindow;
 };
 
 #endif // MAINWINDOW_H
