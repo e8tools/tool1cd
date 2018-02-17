@@ -12,3 +12,5 @@ Debug/*
 *.out
 
 /build/
+*.cfl
+*.lgd
