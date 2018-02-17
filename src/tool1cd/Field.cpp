@@ -215,20 +215,18 @@ bool Field::save_blob_to_file(const TableRecord *rec, const std::string &_filena
 		// спецобработка для users.usr
 		String tabname = tab->getname();
 		bool is_users_usr = false;
-		if(CompareIC(tabname, "PARAMS") == 0)
-		{
+		if (EqualIC(tabname, "PARAMS")) {
 			Field *_f = tab->getfield(0);
-			if (CompareIC(rec->get_string(_f), "users.usr") == 0) {
+			if (EqualIC(rec->get_string(_f), "users.usr")) {
 				is_users_usr = true;
 			}
 		}
-		else if(CompareIC(tabname, "V8USERS") == 0) {
+		else if(EqualIC(tabname, "V8USERS")) {
 			is_users_usr = true;
 		}
 
 		bool maybezipped_twice = true;
-		if(CompareIC(tabname, "CONFIG") == 0 || CompareIC(tabname, "CONFIGSAVE") == 0)
-		{
+		if (EqualIC(tabname, "CONFIG") || EqualIC(tabname, "CONFIGSAVE")) {
 			Field *_f = tab->getfield(0);
 			maybezipped_twice = rec->get_string(_f).size() > GUID_LEN*2;
 		}

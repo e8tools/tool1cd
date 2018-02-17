@@ -58,7 +58,7 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 	for(current_node_number = 0; current_node_number < numnode; current_node_number++) {
 		tree& node = (*meta_tree)[0][3 + current_node_number];
 		std::string nodetype = node[0].get_value();
-		if (CompareIC(nodetype, NODE_GENERAL()) == 0) { // узел "Общие"
+		if (EqualIC(nodetype, NODE_GENERAL())) { // узел "Общие"
 			tree& confinfo = node[1][1];
 			int32_t verconfinfo = stoi(confinfo[0].get_value());
 			switch(verconfinfo)	{

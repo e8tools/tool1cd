@@ -44,7 +44,7 @@ bool try_store_blob_data(const TableRecord &record,
 bool contains_ic(const vector<string> &vector, const string &string_to_find)
 {
 	for (auto &value : vector) {
-		if (CompareIC(value, string_to_find) == 0) {
+		if (EqualIC(value, string_to_find)) {
 			return true;
 		}
 	}
@@ -300,7 +300,7 @@ bool T_1CD::save_depot_config(const string &_filename, int32_t ver)
 								size_t j;
 								bool found = false;
 								for (j = 0; j < reces.size(); j++) {
-									if (CompareIC(ext_name, reces[j]->get_string(flde_extname)) == 0) {
+									if (EqualIC(ext_name, reces[j]->get_string(flde_extname))) {
 										reces[j] = new TableRecord(rece);
 										found = true;
 										break;

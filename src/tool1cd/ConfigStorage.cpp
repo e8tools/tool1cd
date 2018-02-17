@@ -642,7 +642,7 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 			}
 		}
 
-		if (CompareIC(ext, "new") == 0) {
+		if (EqualIC(ext, "new")) {
 			ext = "";
 			dynno = - 2;
 		}
