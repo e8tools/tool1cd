@@ -12,9 +12,16 @@ TEST_CASE("Сохранение конфигураций в 8.3.8", "[tool1cd][C
 
 		T_1CD base1CD(dbpath, nullptr, true);
 
-		path cfpath = boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
-
+		WHEN( "Выгружаем конфигурацию" ) {
+			path cfpath = boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
+			base1CD.save_configsave(cfpath);
+			THEN( "Получаем файл" ) {
+				REQUIRE(boost::filesystem::exists(cfpath));
+			}
+			boost::filesystem::remove(cfpath);
+		}
 		WHEN( "Выгружаем конфигурацию базы данных" ) {
+			path cfpath = boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
 			base1CD.save_config(cfpath);
 			THEN( "Получаем файл" ) {
 				REQUIRE(boost::filesystem::exists(cfpath));
