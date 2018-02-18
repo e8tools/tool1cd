@@ -166,13 +166,13 @@ void Table::init(int32_t block_descr)
 	}
 	this->name = t->get_value();
 	this->issystem = name[0] != '_'
-		|| CompareIC(name.substr(name.size() - 7, 7), "STORAGE") == 0
-		|| CompareIC(name, "_SYSTEMSETTINGS") == 0
-		|| CompareIC(name, "_COMMONSETTINGS") == 0
-		|| CompareIC(name, "_REPSETTINGS") == 0
-		|| CompareIC(name, "_REPVARSETTINGS") == 0
-		|| CompareIC(name, "_FRMDTSETTINGS") == 0
-		|| CompareIC(name, "_SCHEDULEDJOBS") == 0;
+		|| EndsWithIC(name, "STORAGE")
+		|| EqualIC(name, "_SYSTEMSETTINGS")
+		|| EqualIC(name, "_COMMONSETTINGS")
+		|| EqualIC(name, "_REPSETTINGS")
+		|| EqualIC(name, "_REPVARSETTINGS")
+		|| EqualIC(name, "_FRMDTSETTINGS")
+		|| EqualIC(name, "_SCHEDULEDJOBS");
 
 	t = t->get_next();
 	// пропускаем узел, так как там всегда содержится "0", и что это такое, неизвестно (версия формата описания таблиц?)
@@ -943,7 +943,7 @@ bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool 
 		std::shared_ptr<TableRecord> rec (getrecord(nr));
 		if (image_count) {
 			std::string filename = get_file_name_for_record(rec.get());
-			if (CompareIC(filename, recname) == 0) {
+			if (EqualIC(filename, recname)) {
 				repeat_count++;
 			} else {
 				recname = filename;
@@ -2276,8 +2276,8 @@ char* Table::get_record_template_test()
 				memset(curp, 1, BLOB_RECORD_LEN * 8);
 				break;
 			case type_fields::tf_datetime: // DT //7
-				if (CompareIC(f->getname(), "_DATE_TIME") == 0) required = true;
-				else if (CompareIC(f->getname(), "_NUMBERPREFIX") == 0) required = true;
+				if (EqualIC(f->getname(), "_DATE_TIME")) required = true;
+				else if (EqualIC(f->getname(), "_NUMBERPREFIX")) required = true;
 
 				memcpy(curp, DATE1_TEST_TEMPLATE, BLOB_RECORD_LEN);
 				curp += BLOB_RECORD_LEN;
@@ -2364,10 +2364,10 @@ std::string Table::get_file_name_for_field(int32_t num_field, char *rec, uint32_
 			s += numrec;
 		}
 	}
-	if(!issystem || !(CompareIC(name, "CONFIG") == 0
-					  || CompareIC(name, "CONFIGSAVE") == 0
-					  || CompareIC(name, "FILES") == 0
-					  || CompareIC(name, "PARAMS") == 0))
+	if(!issystem || !(EqualIC(name, "CONFIG")
+					  || EqualIC(name, "CONFIGSAVE")
+					  || EqualIC(name, "FILES")
+					  || EqualIC(name, "PARAMS")))
 	{
 		if (!s.empty()) {
 			s += "_";
@@ -2433,7 +2433,7 @@ Field* Table::find_field(const std::string &fieldname) const throw()
 {
 	for (int32_t j = 0; j < num_fields; j++) {
 		Field* fld = fields[j];
-		if (CompareIC(fld->getname(), fieldname) == 0) {
+		if (EqualIC(fld->getname(), fieldname)) {
 			return fld;
 		}
 	}
@@ -2458,7 +2458,7 @@ Index* Table::find_index(const std::string &indexname) const throw()
 {
 	for (int32_t j = 0; j < num_indexes; j++) {
 		Index* ind = indexes[j];
-		if (CompareIC(ind->getname(), indexname) == 0) {
+		if (EqualIC(ind->getname(), indexname)) {
 			return ind;
 		}
 	}

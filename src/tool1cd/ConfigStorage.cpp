@@ -334,7 +334,7 @@ bool ContainerFile::isPacked()
 	 || LowerCase(name).find("fo_version") != std::string::npos) {
 		return false;
 	}
-	auto i = name.find_last_of(".");
+	auto i = name.rfind(".");
 	if (i == std::string::npos) {
 		return true;
 	}
@@ -540,7 +540,6 @@ bool ConfigStorageTable::fileexists(const std::string &path)
 //---------------------------------------------------------------------------
 ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _base) : ConfigStorageTable(_base)
 {
-	int m;
 	String s;
 	string name, ext;
 	TableFile* tf;
@@ -611,7 +610,7 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 							if(ndynup > 0)
 							{
 								dynup.reserve(ndynup);
-								for(m = 0; m < ndynup; ++m)
+								for(int m = 0; m < ndynup; ++m)
 								{
 									ct = ct->get_next();
 									dynup.emplace_back(BinaryGuid(ct->get_value()));
@@ -632,38 +631,38 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 		if(tf == _DynamicallyUpdated) continue;
 		if(tf->addr->blob_length == 0) continue;
 		string s = tf->name;
-		m = s.find_last_of(spoint);
-		if (m != string::npos) {
-			name = s.substr(0, m);
-			ext = s.substr(m + 1, s.size() - m - 1);
-		}
-		else
 		{
-			name = s;
-			ext = "";
+			auto m = s.rfind(spoint);
+			if (m != string::npos) {
+				name = s.substr(0, m);
+				ext = s.substr(m + 1, s.size() - m - 1);
+			} else {
+				name = s;
+				ext = "";
+			}
 		}
 
-		if (CompareIC(ext, "new") == 0) {
+		if (EqualIC(ext, "new")) {
 			ext = "";
 			dynno = - 2;
 		}
 		else dynno = -1;
 
-		auto m = name.find_last_of(sdynupdate);
-		if (m != string::npos) {
-			string s = name.substr(m + lsdynupdate - 1, name.size() - m - lsdynupdate);
-			name = name.substr(0, m);
-			g = BinaryGuid(s);
-			if(!dynup.empty())
-			{
-				auto found = std::find(dynup.begin(), dynup.end(), g);
-				if (found == dynup.end()) {
-					dynno = -2;
-				} else {
-					dynno = found - dynup.begin();
-				}
+		{
+			auto m = name.rfind(sdynupdate);
+			if (m != string::npos) {
+				string s = name.substr(m + lsdynupdate - 1, name.size() - m - lsdynupdate);
+				name = name.substr(0, m);
+				g = BinaryGuid(s);
+				if (!dynup.empty()) {
+					auto found = std::find(dynup.begin(), dynup.end(), g);
+					if (found == dynup.end()) {
+						dynno = -2;
+					} else {
+						dynno = found - dynup.begin();
+					}
+				} else dynno = -2;
 			}
-			else dynno = -2;
 		}
 
 		if(!ext.empty()) {
@@ -874,7 +873,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 		pdel = del.find(LowerCase(s));
 		if(pdel != del.end()) continue;
 
-		m = s.find_last_of(spoint);
+		m = s.rfind(spoint);
 		if (m != string::npos) {
 			name = s.substr(0, m - 1);
 			ext = s.substr(m + 1, s.size() - m);

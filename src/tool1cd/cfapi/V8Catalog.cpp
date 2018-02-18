@@ -398,7 +398,7 @@ void V8Catalog::DeleteFile(const String& FileName)
 	V8File* f = first;
 	while(f)
 	{
-		if (CompareIC(f->GetFileName(), FileName) == 0) {
+		if (EqualIC(f->GetFileName(), FileName)) {
 			f->DeleteFile();
 			delete f;
 		}
