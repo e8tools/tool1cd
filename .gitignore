@@ -4,6 +4,7 @@ bin/*
 obj/*
 build/*
 Debug/*
+.vs/
 
 *.layout
 *.depend
