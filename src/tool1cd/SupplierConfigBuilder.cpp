@@ -39,9 +39,9 @@ SupplierConfigBuilder::SupplierConfigBuilder(TableFile *table_file)
 }
 
 std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
-	String _name; // имя конфигурация поставщика
-	String _supplier; // синоним конфигурация поставщика
-	String _version; // версия конфигурация поставщика
+	std::string _name; // имя конфигурация поставщика
+	std::string _supplier; // синоним конфигурация поставщика
+	std::string _version; // версия конфигурация поставщика
 
 	V8File* root_file = get_file("root");
 	if(!root_file) {
@@ -50,7 +50,7 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 				.add_detail("Имя файла", _table_file->name);
 	}
 
-	String file_name_meta;
+	std::string file_name_meta;
 	{
 		std::unique_ptr<tree> root_tree ( root_file->get_tree() );
 		file_name_meta = (*root_tree)[0][1].get_value();
