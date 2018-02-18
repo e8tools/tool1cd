@@ -36,25 +36,18 @@ TEST_CASE("Сохранение конфигураций в 8.3.8", "[tool1cd][C
 		dbpath += "/tests/db838/db02/1Cv8.1CD";
 
 		T_1CD base1CD(dbpath, nullptr, true);
+		
+		WHEN("Выгружаем конфигурации поставщиков") {
+			for (auto& supplier_config : base1CD.supplier_configs()) {
+				path cfpath = boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
+				supplier_config->save_to_file(cfpath);
 
-		WHEN("Выгружаем конфигурацию") {
-			path cfpath = boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
-			base1CD.save_configsave(cfpath);
-			THEN("Получаем файл") {
-				REQUIRE(boost::filesystem::exists(cfpath));
+				std::string then_result = std::string( "Получаем файл для " + supplier_config->name() );
+				THEN( then_result ) {
+					REQUIRE(boost::filesystem::exists(cfpath));
+				}
+				boost::filesystem::remove(cfpath);
 			}
-			boost::filesystem::remove(cfpath);
-		}
-
-		WHEN("Выгружаем конфигурацию поставщика") {
-			path cfpath = boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
-			auto supplier_config = base1CD.supplier_configs().front();
-			supplier_config->save_to_file(cfpath);
-
-			THEN("Получаем файл") {
-				REQUIRE(boost::filesystem::exists(cfpath));
-			}
-			boost::filesystem::remove(cfpath);
 		}
 
 	}
