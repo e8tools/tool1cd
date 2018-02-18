@@ -16,7 +16,26 @@ string NODE_GENERAL() {
 SupplierConfigBuilder::SupplierConfigBuilder(TableFile *table_file)
 	: _table_file(table_file)
 {
-	create_main_catalog();
+	std::unique_ptr<ContainerFile> container_file( new ContainerFile(_table_file, _table_file->name) );
+	if(!container_file->open()) {
+		throw SupplierConfigReadException("Ошибка открытия конейнера файлов")
+				.add_detail("Имя", container_file->name);
+	}
+
+	TStream *out_stream =  new TTempStream;
+
+	try {
+		ZInflateStream(container_file->stream, out_stream);
+	}
+	catch(ZError) {
+		throw SupplierConfigReadException("Ошибка распаковки конфигурации поставщика")
+				.add_detail("Таблица", _table_file->t->getname())
+				.add_detail("Имя", _table_file->name);
+	}
+
+	container_file->close();
+
+	main_catalog = std::unique_ptr<V8Catalog>( new V8Catalog(out_stream, true) );
 }
 
 std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
@@ -115,29 +134,6 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 	std::shared_ptr<SupplierConfig> sup_conf( new SupplierConfig(_table_file, _name, _supplier, _version) );
 
 	return sup_conf;
-}
-
-void SupplierConfigBuilder::create_main_catalog() {
-	std::unique_ptr<ContainerFile> container_file( new ContainerFile(_table_file, _table_file->name) );
-	if(!container_file->open()) {
-		throw SupplierConfigReadException("Ошибка открытия конейнера файлов")
-				.add_detail("Имя", container_file->name);
-	}
-
-	std::unique_ptr<TStream> out_stream( new TTempStream );
-
-	try {
-		ZInflateStream(container_file->stream, out_stream.get());
-	}
-	catch(ZError) {
-		throw SupplierConfigReadException("Ошибка распаковки конфигурации поставщика")
-				.add_detail("Таблица", _table_file->t->getname())
-				.add_detail("Имя", _table_file->name);
-	}
-
-	container_file->close();
-
-	main_catalog.reset( new V8Catalog(out_stream.get(), true) );
 }
 
 int32_t SupplierConfigBuilder::get_version() const {

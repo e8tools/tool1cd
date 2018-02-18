@@ -22,7 +22,6 @@ private:
 	TableFile *_table_file {nullptr};
 	std::unique_ptr<V8Catalog> main_catalog;
 
-	void create_main_catalog();
 	int32_t get_version() const;
 	V8File* get_file(const std::string &file_name) const;
 
