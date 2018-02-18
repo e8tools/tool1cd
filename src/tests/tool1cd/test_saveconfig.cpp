@@ -6,7 +6,7 @@ using boost::filesystem::path;
 
 TEST_CASE("Сохранение конфигураций в 8.3.8", "[tool1cd][Class_1CD][cf][8.3.8]")
 {
-	GIVEN( "Бааза tests/db838/db01/1Cv8.1CD")  {
+	GIVEN( "База tests/db838/db01/1Cv8.1CD")  {
 		std::string dbpath(CMAKE_SOURCE_DIR);
 		dbpath += "/tests/db838/db01/1Cv8.1CD";
 
