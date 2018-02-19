@@ -18,11 +18,11 @@ Messenger::Messenger()
 void Messenger::Status(const String& message)
 {
 	cout << message << endl;
-	AddMessage(message, MessageState::Empty, nullptr);
+	AddMessage(message, MessageState::Empty);
 }
 
 //---------------------------------------------------------------------------
-void Messenger::AddMessage(const String &message, const MessageState mstate, const TStringList *param)
+void Messenger::AddDetailedMessage(const String &message, const MessageState mstate, const TStringList *param)
 {
 	if (mstate < minimal_state) {
 		return;

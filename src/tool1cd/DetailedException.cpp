@@ -9,7 +9,7 @@ extern Registrator msreg_g;
 
 void DetailedException::show() const throw()
 {
-	msreg_g.AddMessage(message, MessageState::Error, &params);
+	msreg_g.AddDetailedMessage(message, MessageState::Error, &params);
 }
 
 DetailedException &DetailedException::add_detail(const String &paramName, const String &paramValue) throw()

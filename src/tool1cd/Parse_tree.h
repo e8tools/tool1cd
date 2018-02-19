@@ -50,9 +50,8 @@ private:
 typedef tree* treeptr;
 
 
-tree* parse_1Ctext(const String& text, const String& path);
-tree* parse_1Cstream(TStream* str, const String& path);
-bool test_parse_1Ctext(TStream* str, const String& path);
+tree* parse_1Ctext(const String &text, const std::string &path);
+tree* parse_1Cstream(TStream *str, const std::string &path);
 std::string outtext(tree *t);
 
 #endif

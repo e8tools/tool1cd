@@ -2,6 +2,7 @@
 
 #include"APIcfBase.h"
 #include "V8File.h"
+#include "../DetailedException.h"
 
 extern Registrator msreg_g;
 
@@ -667,9 +668,8 @@ tree* V8File::get_tree()
 	TEncoding *enc = nullptr;
 	int32_t offset = TEncoding::GetBufferEncoding(bytes_stream->GetBytes(), enc);
 	if(offset == 0 || enc == nullptr) {
-		msreg_g.AddError("Ошибка определения кодировки файла контейнера",
-			"Файл",  GetFullName());
-		return nullptr;
+		throw DetailedException("Ошибка определения кодировки файла контейнера")
+			.add_detail("Файл",  GetFullName());
 	}
 
 	String text = enc->toUtf8(bytes_stream->GetBytes(), offset);

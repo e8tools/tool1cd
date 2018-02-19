@@ -12,7 +12,7 @@ private:
 public:
 	bool has_error;
 	Messenger();
-	virtual void AddMessage(const String &message, const MessageState mstate, const TStringList *param = nullptr) override;
+	virtual void AddDetailedMessage(const String &message, const MessageState mstate, const TStringList *param = nullptr) override;
 	virtual void Status(const String& message) override;
 	void setlogfile(const std::string &_logfile);
 	void setnoverbose(bool nv){noverbose = nv;}

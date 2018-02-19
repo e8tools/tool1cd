@@ -7,6 +7,7 @@
 
 #include "TableFiles.h"
 #include "Common.h"
+#include "DetailedException.h"
 
 using namespace std;
 
@@ -133,76 +134,67 @@ bool TableFiles::test_table()
 	if(!table) return false;
 	if(table->get_numfields() < 6)
 	{
-		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. В таблице меньше 6 полей"
-			,"Таблица", table->getname()
-			,"Кол-во полей", table->get_numfields());
-		return false;
+		throw DetailedException("Ошибка проверки таблицы контейнера файлов. В таблице меньше 6 полей")
+			.add_detail("Таблица", table->getname())
+			.add_detail("Кол-во полей", table->get_numfields());
 	}
 
 	if(table->get_numfields() > 7)
 	{
-		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. В таблице больше 7 полей"
-			,"Таблица", table->getname()
-			,"Кол-во полей", table->get_numfields());
-		return false;
+		throw DetailedException("Ошибка проверки таблицы контейнера файлов. В таблице больше 7 полей")
+			.add_detail("Таблица", table->getname())
+			.add_detail("Кол-во полей", table->get_numfields());
 	}
 
 	if (CompareIC(table->getfield(0)->getname(), "FILENAME"))
 	{
-		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Первое поле таблицы не FILENAME"
-			,"Таблица", table->getname()
-			,"Поле", table->getfield(0)->getname());
-		return false;
+		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Первое поле таблицы не FILENAME")
+			.add_detail("Таблица", table->getname())
+			.add_detail("Поле", table->getfield(0)->getname());
 	}
 
 	if (CompareIC(table->getfield(1)->getname(), "CREATION"))
 	{
-		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Второе поле таблицы не CREATION"
-			,"Таблица", table->getname()
-			,"Поле", table->getfield(1)->getname());
-		return false;
+		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Второе поле таблицы не CREATION")
+			.add_detail("Таблица", table->getname())
+			.add_detail("Поле", table->getfield(1)->getname());
 	}
 
 	if (CompareIC(table->getfield(2)->getname(), "MODIFIED"))
 	{
-		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Третье поле таблицы не MODIFIED"
-			,"Таблица", table->getname()
-			,"Поле", table->getfield(2)->getname());
-		return false;
+		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Третье поле таблицы не MODIFIED")
+			.add_detail("Таблица", table->getname())
+			.add_detail("Поле", table->getfield(2)->getname());
 	}
 
 	if (CompareIC(table->getfield(3)->getname(), "ATTRIBUTES"))
 	{
-		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Четвертое поле таблицы не ATTRIBUTES"
-			,"Таблица", table->getname()
-			,"Поле", table->getfield(3)->getname());
-		return false;
+		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Четвертое поле таблицы не ATTRIBUTES")
+			.add_detail("Таблица", table->getname())
+			.add_detail("Поле", table->getfield(3)->getname());
 	}
 
 	if (CompareIC(table->getfield(4)->getname(), "DATASIZE"))
 	{
-		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Пятое поле таблицы не DATASIZE"
-			,"Таблица", table->getname()
-			,"Поле", table->getfield(4)->getname());
-		return false;
+		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Пятое поле таблицы не DATASIZE")
+			.add_detail("Таблица", table->getname())
+			.add_detail("Поле", table->getfield(4)->getname());
 	}
 
 	if (CompareIC(table->getfield(5)->getname(), "BINARYDATA"))
 	{
-		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Шестое поле таблицы не BINARYDATA"
-			,"Таблица", table->getname()
-			,"Поле", table->getfield(5)->getname());
-		return false;
+		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Шестое поле таблицы не BINARYDATA")
+			.add_detail("Таблица", table->getname())
+			.add_detail("Поле", table->getfield(5)->getname());
 	}
 
 	if(table->get_numfields() > 6)
 	{
 		if (CompareIC(table->getfield(6)->getname(), "PARTNO"))
 		{
-			msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Седьмое поле таблицы не PARTNO"
-				,"Таблица", table->getname()
-				,"Поле", table->getfield(6)->getname());
-			return false;
+			throw DetailedException("Ошибка проверки таблицы контейнера файлов. Седьмое поле таблицы не PARTNO")
+				.add_detail("Таблица", table->getname())
+				.add_detail("Поле", table->getfield(6)->getname());
 		}
 	}
 	return true;
