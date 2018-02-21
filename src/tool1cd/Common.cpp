@@ -169,11 +169,11 @@ bool directory_exists(boost::filesystem::path& check_path, bool create_directory
 			return true;
 		}
 		else {
-			msreg_g.AddMessage_("Каталог не существует.", MessageState::Error, "Каталог", check_path.string());
+			msreg_g.AddError("Каталог не существует.").with("Каталог", check_path.string());
 			return false;
 		}
 	} else if(!boost::filesystem::is_directory(check_path)) {
-		msreg_g.AddMessage_("Указанный путь не является каталогом.", MessageState::Error, "Каталог", check_path.string());
+		msreg_g.AddError("Указанный путь не является каталогом.").with("Каталог", check_path.string());
 		return false;
 	}
 

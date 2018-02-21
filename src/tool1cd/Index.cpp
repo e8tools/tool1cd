@@ -8,6 +8,9 @@
 #include "Index.h"
 #include <limits>
 #include "TableRecord.h"
+#include "DetailedException.h"
+
+using namespace std;
 
 extern Registrator msreg_g;
 
@@ -400,11 +403,10 @@ char* Index::unpack_leafpage(char* page, uint32_t& number_indexes)
 
 	if(!(header->flags & indexpage_is_leaf))
 	{
-		msreg_g.AddError("Попытка распаковки страницы индекса не являющейся листом.",
-			"Таблица", tbase->name,
-			"Индекс", name);
 		number_indexes = 0;
-		return nullptr;
+		throw DetailedException("Попытка распаковки страницы индекса не являющейся листом.")
+			.add_detail("Таблица", tbase->name)
+			.add_detail("Индекс", name);
 	}
 
 	number_indexes = header->number_indexes;
@@ -513,9 +515,9 @@ bool Index::pack_leafpage(char* unpack_index, uint32_t number_indexes, char* pag
 		{
 			if(left < length || is_primary)
 			{
-				msreg_g.AddError("Ошибка упаковки индексов на странице-листе. Индекс не уникальный либо неверно отсортирован.",
-					"Таблица", tbase->name,
-					"Индекс", name);
+				throw DetailedException("Ошибка упаковки индексов на странице-листе. Индекс не уникальный либо неверно отсортирован.")
+					.add_detail("Таблица", tbase->name)
+					.add_detail("Индекс", name);
 
 			}
 			right = length - left;
@@ -905,12 +907,11 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 			{
 				if(is_primary || *(uint32_t*)cur_index == phys_numrecord)
 				{
-					msreg_g.AddError("Ошибка записи индекса. Индекс уже существует.",
-						"Таблица", tbase->name,
-						"Индекс", name,
-						"Физический номер существующий", *(uint32_t*)cur_index,
-						"Физический номер записываемый", phys_numrecord);
-					ok = false;
+					throw DetailedException("Ошибка записи индекса. Индекс уже существует.")
+						.add_detail("Таблица", tbase->name)
+						.add_detail("Индекс", name)
+						.add_detail("Физический номер существующий", *(uint32_t*)cur_index)
+						.add_detail("Физический номер записываемый", phys_numrecord);
 				}
 				break;
 			}
@@ -1002,12 +1003,11 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 			{
 				if(is_primary)
 				{
-					msreg_g.AddError("Ошибка записи индекса. Индекс уже существует.",
-						"Таблица", tbase->name,
-						"Индекс", name,
-						"Физический номер существующий", reverse_byte_order(*(uint32_t*)(cur_index + length)),
-						"Физический номер записываемый", phys_numrecord);
-					ok = false;
+					throw DetailedException("Ошибка записи индекса. Индекс уже существует.")
+						.add_detail("Таблица", tbase->name)
+						.add_detail("Индекс", name)
+						.add_detail("Физический номер существующий", reverse_byte_order(*(uint32_t*)(cur_index + length)))
+						.add_detail("Физический номер записываемый", phys_numrecord);
 				}
 				break;
 			}
@@ -1200,7 +1200,7 @@ Index *Index::index_from_tree(tree *f, Table *parent)
 	if (index_tree->get_type() != node_type::nd_number) {
 		throw IndexReadError("Ошибка получения типа индекса таблицы. Узел не является числом.");
 	}
-	String sIsPrimaryIndex = index_tree->get_value();
+	string sIsPrimaryIndex = index_tree->get_value();
 	if     (sIsPrimaryIndex == "0") ind->is_primary = false;
 	else if(sIsPrimaryIndex == "1") ind->is_primary = true;
 	else {

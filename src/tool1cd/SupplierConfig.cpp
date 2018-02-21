@@ -18,9 +18,8 @@ SupplierConfig::SupplierConfig(TableFile *file,
 bool SupplierConfig::save_to_file(const boost::filesystem::path& file_name) {
 
 	if (_file == nullptr) {
-		msreg_g.AddError("Не указан файл таблицы",
-			"Имя файла", file_name.string());
-		return false;
+		throw DetailedException("Не указан файл таблицы")
+			.add_detail("Имя файла", file_name.string());
 	}
 
 	std::unique_ptr<ContainerFile> container_file( new ContainerFile(_file, _file->name) );
@@ -34,9 +33,8 @@ bool SupplierConfig::save_to_file(const boost::filesystem::path& file_name) {
 		file_stream.reset( new TFileStream(file_name, fmCreate) );
 	}
 	catch(...) {
-		msreg_g.AddError("Ошибка открытия файла конфигурации поставщика",
-			"Имя файла", file_name.string());
-		return false;
+		throw DetailedException("Ошибка открытия файла конфигурации поставщика")
+			.add_detail("Имя файла", file_name.string());
 	}
 
 	try {

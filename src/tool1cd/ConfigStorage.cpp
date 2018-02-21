@@ -17,6 +17,8 @@ const int lsdynupdate = sdynupdate.size();
 
 extern Registrator msreg_g;
 
+std::vector<BinaryGuid> parse_dynamically_updated_tree(tree * tt);
+
 //********************************************************
 // Класс ConfigStorageDirectory
 
@@ -566,63 +568,15 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 	{
 		ContainerFile DynamicallyUpdated(_DynamicallyUpdated, _DynamicallyUpdated->name);
 		DynamicallyUpdated.open();
-		string s = tab->getbase()->getfilename() + "\\" + tab->getname() + "\\" + DynamicallyUpdated.name;
-		tree *tt = parse_1Cstream(DynamicallyUpdated.stream, s);
-		if(!tt)
-		{
-			msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
-				, "Путь", s);
+		string detail_path_name = tab->getbase()->getfilename() + "\\" + tab->getname() + "\\" + DynamicallyUpdated.name;
+		tree *tt = parse_1Cstream(DynamicallyUpdated.stream, detail_path_name);
+		try {
+			dynup = parse_dynamically_updated_tree(tt);
+		} catch (DetailedException &ex) {
+			ex.add_detail("Путь", detail_path_name);
+			throw ex;
 		}
-		else
-		{
-			ct = tt->get_first();
-			if(!ct)
-			{
-				msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
-					, "Путь", s);
-			}
-			else
-			{
-				ct = ct->get_first();
-				if(!ct)
-				{
-					msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
-						, "Путь", s);
-				}
-				else
-				{
-					ct = ct->get_next();
-					if(!ct)
-					{
-						msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
-							, "Путь", s);
-					}
-					else
-					{
-						if(ct->get_type() != node_type::nd_number)
-						{
-							msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
-								, "Путь", s);
-						}
-						else
-						{
-							int ndynup = ToIntDef(ct->get_value(), 0);
-							if(ndynup > 0)
-							{
-								dynup.reserve(ndynup);
-								for(int m = 0; m < ndynup; ++m)
-								{
-									ct = ct->get_next();
-									dynup.emplace_back(BinaryGuid(ct->get_value()));
-								}
-							}
-							else ndynup = 0;
-						}
-
-					}
-				}
-			}
-		}
+		delete tt;
 	}
 
 	for (pfilesmap = tabf->files().begin(); pfilesmap != tabf->files().end(); ++pfilesmap)
@@ -711,8 +665,6 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 	TableFile* _deleted;
 	tree* tt;
 	tree* ct;
-	BinaryGuid* dynup;
-	int ndynup = 0;
 	BinaryGuid g;
 	Table* tab;
 	int dynno;
@@ -733,117 +685,43 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 	{
 		ContainerFile deleted(_deleted, _deleted->name);
 		deleted.open();
-		string s = tab->getbase()->getfilename()
+		string detail_path_name = tab->getbase()->getfilename()
 				   + "\\" + tab->getname()
 				   + "\\" + deleted.name;
-		tt = parse_1Cstream(deleted.stream, s);
-		if(!tt)
-		{
-			msreg_g.AddError("Ошибка разбора файла deleted"
-				, "Путь", s);
+		tree *tt = parse_1Cstream(deleted.stream, detail_path_name);
+		std::vector<BinaryGuid> dynup;
+		try {
+			dynup = parse_dynamically_updated_tree(tt);
+		} catch (DetailedException &ex) {
+			ex.add_detail("Путь", detail_path_name);
+			throw ex;
 		}
-		else
-		{
-			ct = tt->get_first();
-			if(!ct)
-			{
-				msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
-					, "Путь", s);
-			}
-			{
-				for(m = ToIntDef(ct->get_value(), 0); m; --m)
-				{
-					ct = ct->get_next();
-					if(!ct)
-					{
-						msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
-							, "Путь", s);
-						break;
-					}
-					del.insert(LowerCase(ct->get_value()));
-					ct = ct->get_next();
-					if(!ct)
-					{
-						msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
-							, "Путь", s);
-						break;
-					}
-				}
-			}
-
+		for (auto &guid : dynup) {
+			del.insert(LowerCase(guid.as_MS()));
 		}
 	}
 
 	tab = tabc->gettable();
 	_DynamicallyUpdated = tabc->getfile("DynamicallyUpdated");
 
-	dynup = nullptr;
+	std::vector<BinaryGuid> dynup;
 	if(_DynamicallyUpdated)
 	{
 		ContainerFile DynamicallyUpdated(_DynamicallyUpdated, _DynamicallyUpdated->name);
 		DynamicallyUpdated.open();
-		string s = tab->getbase()->getfilename()
+		string detail_path_name = tab->getbase()->getfilename()
 				+ "\\" + tab->getname()
 				+ "\\" + DynamicallyUpdated.name;
-		tree *tt = parse_1Cstream(DynamicallyUpdated.stream, s);
-		if(!tt)
-		{
-			msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
-				, "Путь", s);
-		}
-		else
-		{
-			ct = tt->get_first();
-			if(!ct)
-			{
-				msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
-					, "Путь", s);
-			}
-			else
-			{
-				ct = ct->get_first();
-				if(!ct)
-				{
-					msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
-						, "Путь", s);
-				}
-				else
-				{
-					ct = ct->get_next();
-					if(!ct)
-					{
-						msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
-							, "Путь", s);
-					}
-					else
-					{
-						if(ct->get_type() != node_type::nd_number)
-						{
-							msreg_g.AddError("Ошибка разбора файла DynamicallyUpdated"
-								, "Путь", s);
-						}
-						else
-						{
-							ndynup = ToIntDef(ct->get_value(), 0);
-							if(ndynup > 0)
-							{
-								dynup = new BinaryGuid[ndynup];
-								for(m = 0; m < ndynup; ++m)
-								{
-									ct = ct->get_next();
-									string_to_GUID(ct->get_value(), &dynup[m]);
-								}
-							}
-							else ndynup = 0;
-						}
-
-					}
-				}
-			}
+		tree *tt = parse_1Cstream(DynamicallyUpdated.stream, detail_path_name);
+		try {
+			dynup = parse_dynamically_updated_tree(tt);
+		} catch (DetailedException &ex) {
+			ex.add_detail("Путь", detail_path_name);
+			throw ex;
 		}
 	}
 
-	m = ndynup + 2;
+	m = dynup.size() + 2;
 
 	for (auto &pfilesmap : tabcs->files()) {
 		tf = pfilesmap.second;
@@ -859,8 +737,8 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 		}
 		else
 		{
-			msreg_g.AddError("Ошибка чтения CONFIGSAVE. Повторяющееся имя файла"
-				, "Имя файла", name);
+			throw DetailedException("Ошибка чтения CONFIGSAVE. Повторяющееся имя файла")
+				.add_detail("Имя файла", name);
 		}
 	}
 
@@ -885,7 +763,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 		}
 		if (EqualIC(ext, "new")) {
 			ext = "";
-			dynno = ndynup + 1;
+			dynno = dynup.size() + 1;
 		}
 		else dynno = -1;
 
@@ -894,10 +772,10 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 			string s = name.substr(m + lsdynupdate, name.size() - m - lsdynupdate + 1);
 			name = name.substr(0, m - 1);
 			string_to_GUID(s, &g);
-			if(dynup)
+			if (!dynup.empty())
 			{
-				for(m = 0; m < ndynup; ++m) if(g == dynup[m]) break;
-				if(m >= ndynup) dynno = -2;
+				for(m = 0; m < dynup.size(); ++m) if(g == dynup[m]) break;
+				if(m >= dynup.size()) dynno = -2;
 				else dynno = m;
 			}
 			else dynno = -2;
@@ -924,8 +802,6 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 			}
 		}
 	}
-
-	if(dynup) delete[] dynup;
 
 }
 
@@ -958,11 +834,10 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 	_configinfo = tabc->getfile(configver);
 	if(!_configinfo)
 	{
-		msreg_g.AddError("Ошибка поиска файла"
-			, "Путь", filepath
-			, "Имя", configver
-			, "Имя файла", "configinfo");
-		return;
+		throw DetailedException("Ошибка поиска файла")
+			.add_detail("Путь", filepath)
+			.add_detail("Имя", configver)
+			.add_detail("Имя файла", "configinfo");
 	}
 
 	configinfo = new ContainerFile(_configinfo, "configinfo");
@@ -971,37 +846,32 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 	shared_ptr<tree> tt(parse_1Cstream(configinfo->stream, filepath));
 	if(!tt)
 	{
-		msreg_g.AddError("Ошибка разбора файла configinfo"
-			, "Путь", filepath);
-		return;
+		throw DetailedException("Ошибка разбора файла configinfo")
+			.add_detail("Путь", filepath);
 	}
 	ct = tt->get_first();
 	if(!ct)
 	{
-		msreg_g.AddError("Ошибка разбора файла configinfo"
-			, "Путь", filepath);
-		return;
+		throw DetailedException("Ошибка разбора файла configinfo")
+			.add_detail("Путь", filepath);
 	}
 	ct = ct->get_next();
 	if(!ct)
 	{
-		msreg_g.AddError("Ошибка разбора файла configinfo"
-			, "Путь", filepath);
-		return;
+		throw DetailedException("Ошибка разбора файла configinfo")
+			.add_detail("Путь", filepath);
 	}
 	ct = ct->get_next();
 	if(!ct)
 	{
-		msreg_g.AddError("Ошибка разбора файла configinfo"
-			, "Путь", filepath);
-		return;
+		throw DetailedException("Ошибка разбора файла configinfo")
+			.add_detail("Путь", filepath);
 	}
 	ct = ct->get_first();
 	if(!ct)
 	{
-		msreg_g.AddError("Ошибка разбора файла configinfo"
-			, "Путь", filepath);
-		return;
+		throw DetailedException("Ошибка разбора файла configinfo")
+			.add_detail("Путь", filepath);
 	}
 
 	stream = new TMemoryStream;
@@ -1010,34 +880,26 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 		ct = ct->get_next();
 		if(!ct)
 		{
-			msreg_g.AddError("Ошибка разбора файла configinfo"
-				, "Путь", filepath);
-			delete stream;
-			return;
+			throw DetailedException("Ошибка разбора файла configinfo")
+				.add_detail("Путь", filepath);
 		}
 		if(ct->get_type() != node_type::nd_string)
 		{
-			msreg_g.AddError("Ошибка разбора файла configinfo"
-				, "Путь", filepath);
-			delete stream;
-			return;
+			throw DetailedException("Ошибка разбора файла configinfo")
+				.add_detail("Путь", filepath);
 		}
 		string name = ct->get_value();
 
 		ct = ct->get_next();
 		if(!ct)
 		{
-			msreg_g.AddError("Ошибка разбора файла configinfo"
-				, "Путь", filepath);
-			delete stream;
-			return;
+			throw DetailedException("Ошибка разбора файла configinfo")
+				.add_detail("Путь", filepath);
 		}
 		if(ct->get_type() != node_type::nd_binary2)
 		{
-			msreg_g.AddError("Ошибка разбора файла configinfo"
-				, "Путь", filepath);
-			delete stream;
-			return;
+			throw DetailedException("Ошибка разбора файла configinfo")
+				.add_detail("Путь", filepath);
 		}
 		stream->Seek(0l, soBeginning);
 		base64_decode(ct->get_value(), stream);
@@ -1052,12 +914,10 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 		}
 		else
 		{
-			msreg_g.AddError("Ошибка поиска файла"
-				, "Путь", filepath
-				, "Имя", hashname
-				, "Имя файла", name);
-			delete stream;
-			return;
+			throw DetailedException("Ошибка поиска файла")
+				.add_detail("Путь", filepath)
+				.add_detail("Имя", hashname)
+				.add_detail("Имя файла", name);
 		}
 	}
 
@@ -1118,10 +978,10 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 	{
 		if(files.size())
 		{
-			msreg_g.AddError("Ошибка поиска файла"
-				, "Путь", present
-				, "Имя", g + "configinfo"
-				, "Имя файла", "configinfo");
+			throw DetailedException("Ошибка поиска файла")
+				.add_detail("Путь", present)
+				.add_detail("Имя", g + "configinfo")
+				.add_detail("Имя файла", "configinfo");
 			return;
 		}
 
@@ -1129,11 +989,10 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 		_configinfo = tabc->getfile(configver);
 		if(!_configinfo)
 		{
-			msreg_g.AddError("Ошибка поиска файла"
-				, "Путь", s
-				, "Имя", configver
-				, "Имя файла", "configinfo");
-			return;
+			throw DetailedException("Ошибка поиска файла")
+				.add_detail("Путь", s)
+				.add_detail("Имя", configver)
+				.add_detail("Имя файла", "configinfo");
 		}
 
 		configinfo = new ContainerFile(_configinfo, "configinfo");
@@ -1145,42 +1004,32 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 	tt = parse_1Cstream(configinfo->stream, s);
 	if(!tt)
 	{
-		msreg_g.AddError("Ошибка разбора файла configinfo"
-			, "Путь", s);
-		delete tt;
-		return;
+		throw DetailedException("Ошибка разбора файла configinfo")
+			.add_detail("Путь", s);
 	}
 	ct = tt->get_first();
 	if(!ct)
 	{
-		msreg_g.AddError("Ошибка разбора файла configinfo"
-			, "Путь", s);
-		delete tt;
-		return;
+		throw DetailedException("Ошибка разбора файла configinfo")
+			.add_detail("Путь", s);
 	}
 	ct = ct->get_next();
 	if(!ct)
 	{
-		msreg_g.AddError("Ошибка разбора файла configinfo"
-			, "Путь", s);
-		delete tt;
-		return;
+		throw DetailedException("Ошибка разбора файла configinfo")
+			.add_detail("Путь", s);
 	}
 	ct = ct->get_next();
 	if(!ct)
 	{
-		msreg_g.AddError("Ошибка разбора файла configinfo"
-			, "Путь", s);
-		delete tt;
-		return;
+		throw DetailedException("Ошибка разбора файла configinfo")
+			.add_detail("Путь", s);
 	}
 	ct = ct->get_first();
 	if(!ct)
 	{
-		msreg_g.AddError("Ошибка разбора файла configinfo"
-			, "Путь", s);
-		delete tt;
-		return;
+		throw DetailedException("Ошибка разбора файла configinfo")
+			.add_detail("Путь", s);
 	}
 
 	stream = new TMemoryStream;
@@ -1189,19 +1038,13 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 		ct = ct->get_next();
 		if(!ct)
 		{
-			msreg_g.AddError("Ошибка разбора файла configinfo"
-				, "Путь", s);
-			delete tt;
-			delete stream;
-			return;
+			throw DetailedException("Ошибка разбора файла configinfo")
+				.add_detail("Путь", s);
 		}
 		if(ct->get_type() != node_type::nd_string)
 		{
-			msreg_g.AddError("Ошибка разбора файла configinfo"
-				, "Путь", s);
-			delete tt;
-			delete stream;
-			return;
+			throw DetailedException("Ошибка разбора файла configinfo")
+				.add_detail("Путь", s);
 		}
 		name = ct->get_value();
 
@@ -1212,19 +1055,13 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 
 		if(!ct)
 		{
-			msreg_g.AddError("Ошибка разбора файла configinfo"
-				, "Путь", s);
-			delete tt;
-			delete stream;
-			return;
+			throw DetailedException("Ошибка разбора файла configinfo")
+				.add_detail("Путь", s);
 		}
 		if(ct->get_type() != node_type::nd_binary2)
 		{
-			msreg_g.AddError("Ошибка разбора файла configinfo"
-				, "Путь", s);
-			delete tt;
-			delete stream;
-			return;
+			throw DetailedException("Ошибка разбора файла configinfo")
+				.add_detail("Путь", s);
 		}
 		stream->Seek(0l, soBeginning);
 		base64_decode(ct->get_value(), stream);
@@ -1239,13 +1076,10 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 		}
 		else
 		{
-			msreg_g.AddError("Ошибка поиска файла"
-				, "Путь", s
-				, "Имя", hashname
-				, "Имя файла", name);
-			delete tt;
-			delete stream;
-			return;
+			throw DetailedException("Ошибка поиска файла")
+				.add_detail("Путь", s)
+				.add_detail("Имя", hashname)
+				.add_detail("Имя файла", name);
 		}
 	}
 
@@ -1258,4 +1092,41 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 std::string ConfigStorageTableConfigCasSave::presentation()
 {
 	return present;
+}
+
+std::vector<BinaryGuid> parse_dynamically_updated_tree(tree * tt)
+{
+	if (!tt) {
+		throw DetailedException("Ошибка разбора файла DynamicallyUpdated");
+	}
+
+	tree *ct = tt->get_first();
+	if (!ct) {
+		throw DetailedException("Ошибка разбора файла DynamicallyUpdated");
+	}
+	ct = ct->get_first();
+	if (!ct) {
+		throw DetailedException("Ошибка разбора файла DynamicallyUpdated");
+	}
+
+	ct = ct->get_next();
+	if (!ct) {
+		throw DetailedException("Ошибка разбора файла DynamicallyUpdated");
+	}
+
+	if (ct->get_type() != node_type::nd_number) {
+		throw DetailedException("Ошибка разбора файла DynamicallyUpdated");
+	}
+
+	int ndynup = ToIntDef(ct->get_value(), 0);
+	std::vector<BinaryGuid> dynup;
+	dynup.reserve(ndynup);
+	if (ndynup > 0) {
+		dynup.reserve(ndynup);
+		while (ndynup--) {
+			ct = ct->get_next();
+			dynup.emplace_back(BinaryGuid(ct->get_value()));
+		}
+	}
+	return dynup;
 }

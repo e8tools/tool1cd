@@ -27,14 +27,14 @@ struct table_blob_file
 };
 
 template< typename T >
-String to_hex_string( T num, bool prefix = true ) {
+std::string to_hex_string( T num, bool prefix = true ) {
 	std::stringstream stream;
 	if(prefix) {
 		stream << "0x";
 	};
 	stream << std::setfill('0') << std::setw(sizeof(T) * 2)
 		   << std::hex << num;
-	return String(stream.str());
+	return stream.str();
 }
 
 template< typename T >

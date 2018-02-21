@@ -321,18 +321,15 @@ bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, i
 
 								if(!ok)
 								{
-									msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
-														"Таблица", "HISTORY",
-														"Объект", sObjId,
-														"Версия", lastver);
+									throw DetailedException("Ошибка чтения объекта конфигурации")
+														.add_detail("Таблица", "HISTORY")
+														.add_detail("Объект", sObjId)
+														.add_detail("Версия", lastver);
 								}
-								else
-								{
-									TFileStream f(cath / sObjId, fmCreate);
-									sobj->Seek(0, soFromBeginning);
-									ZInflateStream(sobj, &f);
-									if(deletesobj) delete sobj;
-								}
+								TFileStream f(cath / sObjId, fmCreate);
+								sobj->Seek(0, soFromBeginning);
+								ZInflateStream(sobj, &f);
+								if(deletesobj) delete sobj;
 							}
 						}
 					}
@@ -411,13 +408,12 @@ bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, i
 										}
 										if(!ok)
 										{
-											msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
-																"Таблица", "EXTERNALS",
-																"Объект", sObjId,
-																"Файл конфигурации", ext_name,
-																"Версия", v);
+											throw DetailedException("Ошибка чтения объекта конфигурации")
+																.add_detail("Таблица", "EXTERNALS")
+																.add_detail("Объект", sObjId)
+																.add_detail("Файл конфигурации", ext_name)
+																.add_detail("Версия", v);
 										}
-										else
 										{
 											out->SetSize(0);
 											sobj->Seek(0, soFromBeginning);

@@ -113,10 +113,11 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 	}
 
 	if(current_node_number >= numnode) {
-		msreg_g.AddError("Не найден узел Общие в метаданных конфигурации поставщика", // TODO: критичная ошибка? Обработка на месте?
-			"Таблица", _table_file->t->getname(),
-			"Имя файла", _table_file->name,
-			"Имя мета", file_name_meta);
+		// TODO: критичная ошибка? Обработка на месте?
+		msreg_g.AddMessage("Не найден узел Общие в метаданных конфигурации поставщика", MessageState::Warning)
+			.with("Таблица", _table_file->t->getname())
+			.with("Имя файла", _table_file->name)
+			.with("Имя мета", file_name_meta);
 		_supplier = "";
 		_version = "";
 	}
