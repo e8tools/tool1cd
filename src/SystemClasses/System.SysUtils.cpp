@@ -77,7 +77,7 @@ virtual std::vector<uint8_t> fromUtf8(const String &data)
 };
 
 
-	void TMultiReadExclusiveWriteSynchronizer::BeginWrite()
+void TMultiReadExclusiveWriteSynchronizer::BeginWrite()
 {
 }
 

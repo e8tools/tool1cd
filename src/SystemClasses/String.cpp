@@ -244,7 +244,7 @@ void TStringList::LoadFromFile(const string &filename)
 	}
 }
 
-	std::string LowerCase(const std::string &src)
+std::string LowerCase(const std::string &src)
 {
 	std::vector<char> result_data(src.size() + 1);
 

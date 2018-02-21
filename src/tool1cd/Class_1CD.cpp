@@ -1349,11 +1349,11 @@ bool T_1CD::create_table(const string &path)
 			}
 			descr.resize(pos_files);
 			descr += "{\"Files\",";
-			descr += file_data ? String(file_data->get_block_number()) : String("0");
+			descr += file_data ? to_string(file_data->get_block_number()) : "0";
 			descr += ",";
-			descr += file_blob ? String(file_blob->get_block_number()) : String("0");
+			descr += file_blob ? to_string(file_blob->get_block_number()) : "0";
 			descr += ",";
-			descr += file_index ? String(file_index->get_block_number()) : String("0");
+			descr += file_index ? to_string(file_index->get_block_number()) : "0";
 			descr += "}\n}";
 			descr_table->setdata(descr.c_str(), descr.size() * 2);
 

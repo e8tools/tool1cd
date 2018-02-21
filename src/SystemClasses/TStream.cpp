@@ -33,7 +33,7 @@ void TStream::SetPosition(int64_t NewPosition)
 	m_position = NewPosition;
 }
 
-	int64_t TStream::Seek(const int64_t offset, const TSeekOrigin Origin)
+int64_t TStream::Seek(const int64_t offset, const TSeekOrigin Origin)
 {
 	if (Origin == soFromBeginning) {
 
