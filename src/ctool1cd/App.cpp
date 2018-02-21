@@ -79,16 +79,16 @@ void App::export_to_xml(const ParsedCommand &pc)
 		return;
 	}
 
-	Sysutils::TStringBuilder filter(pc.param2);
-	filter.Replace("*", ".*");
-	filter.Replace("?", ".");
-	filter.Replace(" ", "\n");
-	filter.Replace("\t", "\n");
-	filter.Replace(",", "\n");
-	filter.Replace(";", "\n");
+	string filter(pc.param2);
+	filter = StringReplace(filter, "*", ".*", rfReplaceAll);
+	filter = StringReplace(filter, "?", ".", rfReplaceAll);
+	filter = StringReplace(filter, " ", "\n", rfReplaceAll);
+	filter = StringReplace(filter, "\t", "\n", rfReplaceAll);
+	filter = StringReplace(filter, ",", "\n", rfReplaceAll);
+	filter = StringReplace(filter, ";", "\n", rfReplaceAll);
 
 	TStringList filters;
-	filters.SetText(filter.ToString());
+	filters.SetText(filter);
 
 	for (int m = filters.Count() - 1; m >= 0; m--) {
 		if (filters[m].empty()) {
@@ -142,16 +142,16 @@ void App::export_to_binary(const ParsedCommand &pc)
 		return;
 	}
 
-	Sysutils::TStringBuilder filter(pc.param2);
-	filter.Replace("*", ".*");
-	filter.Replace("?", ".");
-	filter.Replace(" ", "\n");
-	filter.Replace("\t", "\n");
-	filter.Replace(",", "\n");
-	filter.Replace(";", "\n");
+	string filter(pc.param2);
+	filter = StringReplace(filter, "*", ".*", rfReplaceAll);
+	filter = StringReplace(filter, "?", ".", rfReplaceAll);
+	filter = StringReplace(filter, " ", "\n", rfReplaceAll);
+	filter = StringReplace(filter, "\t", "\n", rfReplaceAll);
+	filter = StringReplace(filter, ",", "\n", rfReplaceAll);
+	filter = StringReplace(filter, ";", "\n", rfReplaceAll);
 
 	TStringList filters;
-	filters.SetText(filter.ToString());
+	filters.SetText(filter);
 
 	for (int m = filters.Count() - 1; m >= 0; m--) {
 		if (filters[m].empty()) {
@@ -205,16 +205,16 @@ void App::import_from_binary(const ParsedCommand &pc)
 		return;
 	}
 
-	Sysutils::TStringBuilder filter(pc.param2);
-	filter.Replace("*", ".*");
-	filter.Replace("?", ".");
-	filter.Replace(" ", "\n");
-	filter.Replace("\t", "\n");
-	filter.Replace(",", "\n");
-	filter.Replace(";", "\n");
+	string filter(pc.param2);
+	filter = StringReplace(filter, "*", ".*", rfReplaceAll);
+	filter = StringReplace(filter, "?", ".", rfReplaceAll);
+	filter = StringReplace(filter, " ", "\n", rfReplaceAll);
+	filter = StringReplace(filter, "\t", "\n", rfReplaceAll);
+	filter = StringReplace(filter, ",", "\n", rfReplaceAll);
+	filter = StringReplace(filter, ";", "\n", rfReplaceAll);
 
 	TStringList filters;
-	filters.SetText(filter.ToString());
+	filters.SetText(filter);
 
 	for (int m = filters.Count() - 1; m >= 0; m--) {
 		if (filters[m].empty()) {

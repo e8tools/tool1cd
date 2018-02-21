@@ -76,44 +76,8 @@ virtual std::vector<uint8_t> fromUtf8(const String &data)
 
 };
 
-TStringBuilder::TStringBuilder()
-{
-}
 
-TStringBuilder::TStringBuilder(const String &initial)
-	: value(initial)
-{
-}
-
-TStringBuilder *TStringBuilder::Replace(const String &substring, const String &replace)
-{
-	value = value.Replace(substring, replace);
-	return this;
-}
-
-string TStringBuilder::ToString() const
-{
-	return value;
-}
-
-void TStringBuilder::Clear()
-{
-	value = "";
-}
-
-void TStringBuilder::Append(const string &s)
-{
-	value += s;
-}
-
-void TStringBuilder::Append(char c)
-{
-	value.append(1, c);
-}
-
-
-
-void TMultiReadExclusiveWriteSynchronizer::BeginWrite()
+	void TMultiReadExclusiveWriteSynchronizer::BeginWrite()
 {
 }
 

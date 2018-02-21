@@ -300,14 +300,12 @@ bool read_next_flow(const String &source, int &index, char &sym)
 template<typename flow_type>
 tree* parse_flow(flow_type source, const std::string &path)
 {
-	TStringBuilder cur_value; // TODO: избавиться от класса TStringBuilder
+	string cur_value;
 
-	String curvalue;
 	tree* ret;
 	tree* t;
 	int pos = 1;
 	char sym;
-	node_type nt;
 
 	state_type state = state_type::s_value;
 
@@ -326,7 +324,7 @@ tree* parse_flow(flow_type source, const std::string &path)
 					case '\n':
 						break;
 					case '"':
-						cur_value.Clear();
+						cur_value.clear();
 						state = state_type::s_string;
 						break;
 					case '{':
@@ -349,8 +347,8 @@ tree* parse_flow(flow_type source, const std::string &path)
 						t->add_child("", node_type::nd_empty);
 						break;
 					default:
-						cur_value.Clear();
-						cur_value.Append(sym);
+						cur_value.clear();
+						cur_value.push_back(sym);
 						state = state_type::s_nonstring;
 						break;
 				}
@@ -386,17 +384,17 @@ tree* parse_flow(flow_type source, const std::string &path)
 				if(sym == '"'){
 					state = state_type::s_quote_or_endstring;
 				}
-				else cur_value.Append(sym);
+				else cur_value.push_back(sym);
 				break;
 			case state_type::s_quote_or_endstring:
 				if(sym == '"')
 				{
-					cur_value.Append(sym);
+					cur_value.push_back(sym);
 					state = state_type::s_string;
 				}
 				else
 				{
-					t->add_child(cur_value.ToString(), node_type::nd_string);
+					t->add_child(cur_value, node_type::nd_string);
 					switch(sym)
 					{
 						case ' ': // space
@@ -429,37 +427,36 @@ tree* parse_flow(flow_type source, const std::string &path)
 			case state_type::s_nonstring:
 				switch(sym)
 				{
-					case ',':
-						curvalue = cur_value.ToString();
-						nt = classification_value(curvalue);
-						if(nt == node_type::nd_unknown) {
+					case ',': {
+						node_type nt = classification_value(cur_value);
+						if (nt == node_type::nd_unknown) {
 							throw DetailedException("Ошибка формата потока. Неизвестный тип значения.")
-											.add_detail("Значение", curvalue)
-											.add_detail("Путь", path);
+									.add_detail("Значение", cur_value)
+									.add_detail("Путь", path);
 						}
-						t->add_child(curvalue, nt);
+						t->add_child(cur_value, nt);
 						state = state_type::s_value;
 						break;
-					case '}':
-						curvalue = cur_value.ToString();
-						nt = classification_value(curvalue);
-						if(nt == node_type::nd_unknown) {
+					}
+					case '}': {
+						node_type nt = classification_value(cur_value);
+						if (nt == node_type::nd_unknown) {
 							throw DetailedException("Ошибка формата потока. Неизвестный тип значения.")
-											.add_detail("Значение", curvalue)
-											.add_detail("Путь", path);
+									.add_detail("Значение", cur_value)
+									.add_detail("Путь", path);
 						}
-						t->add_child(curvalue, nt);
+						t->add_child(cur_value, nt);
 						t = t->get_parent();
-						if(!t)
-						{
+						if (!t) {
 							throw DetailedException("Ошибка формата потока. Лишняя закрывающая скобка }.")
-											.add_detail("Позиция", pos)
-											.add_detail("Путь", path);
+									.add_detail("Позиция", pos)
+									.add_detail("Путь", path);
 						}
 						state = state_type::s_delimiter;
 						break;
+					}
 					default:
-						cur_value.Append(sym);
+						cur_value.push_back(sym);
 						break;
 				}
 				break;
@@ -473,17 +470,16 @@ tree* parse_flow(flow_type source, const std::string &path)
 
 	if(state == state_type::s_nonstring)
 	{
-		curvalue = cur_value.ToString();
-		nt = classification_value(curvalue);
+		node_type nt = classification_value(cur_value);
 		if(nt == node_type::nd_unknown) {
 			msreg_g.AddError("Ошибка формата потока. Неизвестный тип значения.")
-							.with("Значение", curvalue)
+							.with("Значение", cur_value)
 							.with("Путь", path);
 		}
-		t->add_child(curvalue, nt);
+		t->add_child(cur_value, nt);
 	}
 	else if(state == state_type::s_quote_or_endstring) {
-		t->add_child(cur_value.ToString(), node_type::nd_string);
+		t->add_child(cur_value, node_type::nd_string);
 	}
 	else if(state != state_type::s_delimiter)
 	{

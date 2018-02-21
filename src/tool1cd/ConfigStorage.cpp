@@ -101,7 +101,7 @@ ConfigFile* ConfigStorageCFFile::readfile(const std::string &path)
 
 	if(!cat->isOpen()) return nullptr;
 
-	string fname = TStringBuilder(path).Replace('/', '\\')->ToString();
+	string fname = StringReplace(path, "/", "\\", rfReplaceAll);
 	V8Catalog* c = cat;
 	for (auto i = fname.find("\\"); i != string::npos; i = fname.find("\\"))
 	{
@@ -139,7 +139,7 @@ bool ConfigStorageCFFile::writefile(const std::string &path, TStream *str)
 
 	if(!cat->isOpen()) return false;
 
-	string fname = TStringBuilder(path).Replace('/', '\\')->ToString();
+	string fname = StringReplace(path, "/", "\\", rfReplaceAll);
 	c = cat;
 	for (auto i = fname.find("\\"); i != string::npos; i = fname.find("\\"))
 	{
@@ -178,7 +178,7 @@ bool ConfigStorageCFFile::fileexists(const std::string &path)
 		return false;
 	}
 
-	string fname = TStringBuilder(path).Replace('/', '\\')->ToString();
+	string fname = StringReplace(path, "/", "\\", rfReplaceAll);
 	auto i = fname.find("\\");
 	if (i != string::npos) {
 		fname = fname.substr(0, i - 1);
@@ -395,7 +395,7 @@ ConfigFile* ConfigStorageTable::readfile(const std::string &path)
 
 	if(!ready) return nullptr;
 
-	string fname = TStringBuilder(path).Replace('/', '\\')->ToString();
+	string fname = StringReplace(path, "/", "\\", rfReplaceAll);
 	auto i = fname.find("\\");
 	if (i != string::npos) {
 		r_name = fname.substr(0, i - 1);
@@ -527,7 +527,7 @@ bool ConfigStorageTable::fileexists(const std::string &path)
 
 	if(!ready) return false;
 
-	string fname = TStringBuilder(path).Replace('/', '\\')->ToString();
+	string fname = StringReplace(path, "/", "\\", rfReplaceAll);
 	auto i = fname.find("\\");
 	if (i != string::npos) {
 		fname = fname.substr(0, i - 1);
