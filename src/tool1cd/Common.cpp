@@ -9,7 +9,7 @@
 using namespace System;
 using namespace std;
 
-const wchar_t hexdecode[] = L"0123456789abcdef";
+const char hexdecode[] = "0123456789abcdef";
 
 extern Registrator msreg_g;
 
@@ -66,7 +66,7 @@ bool two_hex_digits_to_byte(const wchar_t hi, const wchar_t lo, unsigned char& r
 
 //---------------------------------------------------------------------------
 // yyyymmddhhmmss -> char[7]
-bool string1C_to_date(const String &str, void *bytedate)
+bool string1C_to_date(const string &str, void *bytedate)
 {
 	BinaryDecimalDate bdd(str, "yyyyMMddhhmmss");
 	bdd.write_to(bytedate);
@@ -75,7 +75,7 @@ bool string1C_to_date(const String &str, void *bytedate)
 
 //---------------------------------------------------------------------------
 // dd.mm.yyyy hh:mm:ss -> char[7]
-bool string_to_date(const String &str, void *bytedate)
+bool string_to_date(const string &str, void *bytedate)
 {
 	BinaryDecimalDate bdd(str);
 	bdd.write_to(bytedate);
@@ -84,7 +84,7 @@ bool string_to_date(const String &str, void *bytedate)
 
 //---------------------------------------------------------------------------
 // char[7] -> yyyymmddhhmmss
-String date_to_string1C(const void *bytedate)
+string date_to_string1C(const void *bytedate)
 {
 	BinaryDecimalDate bdd(bytedate);
 	return bdd.get_part(0, 14);
@@ -92,54 +92,39 @@ String date_to_string1C(const void *bytedate)
 
 //---------------------------------------------------------------------------
 // char[7] -> dd.mm.yyyy hh:mm:ss
-String date_to_string(const void *bytedate)
+string date_to_string(const void *bytedate)
 {
 	BinaryDecimalDate bdd(bytedate);
 	return bdd.get_presentation();
 }
 
 //---------------------------------------------------------------------------
-String hexstring(const char *buf, int n)
+string hexstring(const char *buf, int n)
 {
-	int i;
-	String s = "";
-	wchar_t b;
-	unsigned char c;
+	string result = "";
 
-	for(i = 0; i < n; i++)
+	for (int i = 0; i < n; i++)
 	{
-		c = ((unsigned char*)buf)[i];
-		c >>= 4;
-		b = hexdecode[c];
-		s += b;
-		c = ((unsigned char*)buf)[i];
-		c &= 0xf;
-		b = hexdecode[c];
-		s += b;
-		if(i < n - 1) s += " ";
+		uint8_t d = ((unsigned char*)buf)[i];
+		result.push_back(hexdecode[d >> 4]);
+		result.push_back(hexdecode[d & 0xf]);
 	}
 
-	return s;
+	return result;
 }
 
 //---------------------------------------------------------------------------
-String hexstring(TStream* str)
+string hexstring(TStream *str)
 {
-	String s = "";
-	wchar_t b;
-	unsigned char c, d;
+	string result = "";
+	uint8_t d;
 
-	while(str->Read(&d, 1))
-	{
-		c = d >> 4;
-		b = hexdecode[c];
-		s += b;
-		c = d & 0xf;
-		b = hexdecode[c];
-		s += b;
+	while (str->Read(&d, 1)) {
+		result.push_back(hexdecode[d >> 4]);
+		result.push_back(hexdecode[d & 0xf]);
 	}
 
-	return s;
+	return result;
 }
 
 //---------------------------------------------------------------------------

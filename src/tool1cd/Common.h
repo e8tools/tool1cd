@@ -9,12 +9,12 @@
 void time1CD_to_FileTime(System::FILETIME *ft, const void *time1CD);
 unsigned int reverse_byte_order(unsigned int value);
 bool two_hex_digits_to_byte(const wchar_t hi, const wchar_t lo, unsigned char& res);
-bool string1C_to_date(const String &str, void *bytedate);
-bool string_to_date(const String &str, void *bytedate);
-String date_to_string1C(const void *bytedate);
-String date_to_string(const void *bytedate);
-String hexstring(const char *buf, int n);
-String hexstring(TStream* str);
+bool string1C_to_date(const std::string &str, void *bytedate);
+bool string_to_date(const std::string &str, void *bytedate);
+std::string date_to_string1C(const void *bytedate);
+std::string date_to_string(const void *bytedate);
+std::string hexstring(const char *buf, int n);
+std::string hexstring(TStream *str);
 std::string toXML(const std::string &in);
 unsigned char from_hex_digit(char digit);
 
