@@ -108,12 +108,12 @@ String::String(const WCHART *w_src)
 }
 
 
-String::String(int                value) : string(ToString(value)) {}
-String::String(unsigned int       value) : string(ToString(value)) {}
-String::String(long               value) : string(ToString(value)) {}
-String::String(unsigned long      value) : string(ToString(value)) {}
-String::String(long long          value) : string(ToString(value)) {}
-String::String(unsigned long long value) : string(ToString(value)) {}
+String::String(int                value) : string(to_string(value)) {}
+String::String(unsigned int       value) : string(to_string(value)) {}
+String::String(long               value) : string(to_string(value)) {}
+String::String(unsigned long      value) : string(to_string(value)) {}
+String::String(long long          value) : string(to_string(value)) {}
+String::String(unsigned long long value) : string(to_string(value)) {}
 
 // TODO: Впилить толковые строки
 static uint32_t __to_lower(uint32_t code_point)
@@ -189,19 +189,6 @@ int String::ToInt() const
 	return stoi(*this);
 }
 
-/** Функция ищет подстроку в строке.
- *      @const String &substr - подстрока поиска
- *
- */
-size_t String::Pos(const String &substr)
-{
-	auto index = find(substr);
-	if (index == npos) {
-		return 0;
-	}
-	return index + 1;
-}
-
 /** Метод добавляющий в списко строк данные.
  *      @const String &item - строка для добавления
  *
@@ -257,131 +244,7 @@ void TStringList::LoadFromFile(const string &filename)
 	}
 }
 
-/** Метод возвращает строку преобразования из числа.
- *      @int n - число для преобразования
- *
- */
-String String::IntToStr(int n)
-{
-	return to_string(n);
-}
-
-/** Метод возвращает строку преобразования из числа.
- *      @unsigned int n - число для преобразования
- *
- */
-String String::UIntToStr(unsigned int n)
-{
-	return to_string(n);
-}
-
-/** Метод возвращает строку преобразования из числа.
- *      @unsigned long n - число для преобразования
- *
- */
-String String::ULongToStr(unsigned long n)
-{
-	return to_string(n);
-}
-
-/** Метод возвращает строку преобразования из числа.
- *      @long n - число для преобразования
- *
- */
-String String::LongToStr(long n)
-{
-	return to_string(n);
-}
-
-/** Метод возвращает строку преобразования из числа.
- *      @unsigned long long n - число для преобразования
- *
- */
-String String::ULongLongToStr(unsigned long long n)
-{
-	return to_string(n);
-}
-
-/** Метод возвращает строку преобразования из числа.
- *      @long long n - число для преобразования
- *
- */
-String String::LongLongToStr(long long n)
-{
-	return to_string(n);
-}
-
-/** Метод возвращает строку преобразования из числа.
- *      @int n - число для преобразования
- *
- */
-String String::ToString(int n)
-{
-	return IntToStr(n);
-}
-/** Метод возвращает строку преобразования из числа.
- *      @unsigned int n - число для преобразования
- *
- */
-String String::ToString(unsigned int n)
-{
-	return UIntToStr(n);
-}
-
-/** Метод возвращает строку преобразования из числа.
- *      unsigned long n - число для преобразования
- *
- */
-String String::ToString(unsigned long n)
-{
-	return ULongToStr(n);
-}
-
-/** Метод возвращает строку преобразования из числа.
- *      @long n - число для преобразования
- *
- */
-String String::ToString(long n)
-{
-	return LongToStr(n);
-}
-
-/** Метод возвращает строку преобразования из числа.
- *      @unsigned long long n - число для преобразования
- *
- */
-String String::ToString(unsigned long long n)
-{
-	return ULongLongToStr(n);
-}
-
-/** Метод возвращает строку преобразования из числа.
- *      @long long n - число для преобразования
- *
- */
-String String::ToString(long long n)
-{
-	return LongLongToStr(n);
-}
-
-/** Метод возвращает строку преобразования из числа
- *    десятичного в число шестнадцатеричное
- *      @int n - число для преобразования
- *      @int digits - число цифр
- */
-String String::IntToHex(int n, int digits)
-{
-	stringstream ss;
-	ss << hex;
-	if (digits != 0) {
-		ss << setfill('0') << setw(digits);
-	}
-	ss << n;
-
-	return String(ss.str());
-}
-
-std::string LowerCase(const std::string &src)
+	std::string LowerCase(const std::string &src)
 {
 	std::vector<char> result_data(src.size() + 1);
 
