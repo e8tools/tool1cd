@@ -217,7 +217,7 @@ T_1CD::~T_1CD()
 }
 
 //---------------------------------------------------------------------------
-T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
+T_1CD::T_1CD(const string &_filename, MessageRegistrator *mess, bool _monopoly)
 {
 	char* b = nullptr;
 	uint32_t* table_blocks = nullptr;
@@ -302,7 +302,8 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 	length = fs->GetSize() / pagesize;
 	if((int64_t)length * pagesize != fs->GetSize())
 	{
-		throw DetailedException(String("Длина файла базы не кратна длине страницы (") + to_hex_string(pagesize) + ")")
+		throw DetailedException("Длина файла базы не кратна длине страницы")
+				.add_detail("Длина страницы", to_hex_string(pagesize))
 				.add_detail("Длина файла", to_hex_string(fs->GetSize()));
 		delete fs;
 		fs = nullptr;
@@ -376,7 +377,8 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 		else
 		{
 			root_object->readBlob(tstr, table_blocks[i]);
-			tables[j] = new Table(this, String((char*)(tstr->GetMemory()), tstr->GetSize()), table_blocks[i]);
+			string table_descr = TEncoding::UTF8->toUtf8(tstr->GetBytes());
+			tables[j] = new Table(this, table_descr, table_blocks[i]);
 		}
 		if(tables[j]->bad)
 		{
@@ -403,10 +405,10 @@ T_1CD::T_1CD(String _filename, MessageRegistrator* mess, bool _monopoly)
 		if(!CompareIC(tables[j]->getname(), "SELFREFS")) table_selfrefs = tables[j];
 		if(!CompareIC(tables[j]->getname(), "OUTREFS")) table_outrefs = tables[j];
 
-		if(j % 10 == 0) msreg_m.Status(String("Чтение таблиц ") + j);
+		if(j % 10 == 0) msreg_m.Status(string("Чтение таблиц ") + to_string(j));
 		j++;
 	}
-	msreg_m.Status(String("Чтение таблиц ") + j);
+	msreg_m.Status(string("Чтение таблиц ") + to_string(j));
 	num_tables = j;
 
 	if(version >= db_ver::ver8_3_8_0)
@@ -904,10 +906,7 @@ bool T_1CD::test_stream_format()
 bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 {
 	int32_t j;
-	String slen;
 	TStream* str;
-	bool result;
-	bool res;
 
 	TableRecord *rec = t->getrecord(nrec);
 	if (rec->is_removed())
@@ -923,16 +922,19 @@ bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 	std::string path = t->getname() + "/" + rec->get_string(f_name);
 
 	const char *orec = rec->get_raw(f_binary_data);
-	if(*(uint32_t*)(orec + 4) > 10 * 1024 * 1024) str = new TTempStream;
-	else str = new TMemoryStream();
-	t->readBlob(str, *(uint32_t*)orec, *(uint32_t*)(orec + 4));
+	auto bp = rec->get<table_blob_file>(f_binary_data);
+	if (bp.blob_length > 10 * 1024 * 1024) { // TODO: 10МиБ в константу
+		str = new TTempStream;
+	} else {
+		str = new TMemoryStream();
+	}
+	t->readBlob(str, bp.blob_start, bp.blob_length);
 
-	result = true;
-	slen = rec->get_string(f_data_size);
+	string slen = rec->get_string(f_data_size);
 	int file_size;
 	try
 	{
-		file_size = slen.ToInt();
+		file_size = stoi(slen);
 	}
 	catch(...)
 	{
@@ -947,8 +949,7 @@ bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 				.add_detail("Указанная длина файла", slen);
 	}
 
-	res = recursive_test_stream_format(str, path, rec->get_string(f_name).size() > GUID_LEN*2); // вторично упакованы могут быть только конфигурации поставщика (файлы с длиной имени более 72 символов)
-	result = result && res;
+	bool result = recursive_test_stream_format(str, path, rec->get_string(f_name).size() > GUID_LEN*2); // вторично упакованы могут быть только конфигурации поставщика (файлы с длиной имени более 72 символов)
 
 	delete rec;
 	delete str;
@@ -960,9 +961,7 @@ bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 //---------------------------------------------------------------------------
 bool T_1CD::recursive_test_stream_format2(Table* t, uint32_t nrec)
 {
-	String path;
 	TMemoryStream* str;
-	bool result;
 
 	TableRecord *rec = t->getrecord(nrec);
 	if (rec->is_removed()) {
@@ -972,13 +971,13 @@ bool T_1CD::recursive_test_stream_format2(Table* t, uint32_t nrec)
 
 	Field *f_sd = t->getfield(0);
 
-	path = t->getname();
+	string path = t->getname();
 
 	auto bp = rec->get<table_blob_file>(f_sd);
 	str = new TMemoryStream();
 	t->readBlob(str, bp.blob_start, bp.blob_length);
 
-	result = recursive_test_stream_format(str, path);
+	bool result = recursive_test_stream_format(str, path);
 
 	delete rec;
 	delete str;
@@ -1002,7 +1001,6 @@ bool T_1CD::recursive_test_stream_format(TStream *str, const string &path, bool 
 	std::vector<uint8_t> bytes2;
 	V8Catalog* cat;
 	int32_t offset;
-	String sf;
 	wchar_t first_symbol;
 	int32_t i;
 	bool usetempfile;
@@ -1103,15 +1101,7 @@ bool T_1CD::recursive_test_stream_format(TStream *str, const string &path, bool 
 
 		if(_sb->GetSize()-offset > 0)
 		{
-			bytes2 = TEncoding::Convert(enc, TEncoding::Unicode, _sb->GetBytes(), offset, _sb->GetSize()-offset);
-			if(bytes2.size() == 0)
-			{
-				throw DetailedException("Ошибка тестирования. Ошибка конвертации")
-					.add_detail("Путь", path);
-			}
-
-
-			string sf = String((WCHART*)&bytes2[0], bytes2.size() / 2);
+			string sf = enc->toUtf8(_sb->GetBytes(), offset);
 			for(i = 0; i < sf.size(); i++)
 			{
 				first_symbol = sf[i];
@@ -1159,7 +1149,6 @@ bool T_1CD::recursive_test_stream_format(V8Catalog *cat, const string &path)
 
 	V8File* v8f;
 	V8File* v8fp;
-	String fname;
 
 	result = true;
 	v8f = cat->GetFirst();
@@ -1178,7 +1167,7 @@ bool T_1CD::recursive_test_stream_format(V8Catalog *cat, const string &path)
 			result = recursive_test_stream_format(c, path + "/" + v8f->GetFileName());
 		} else
 		{
-			fname = v8f->GetFileName();
+			string fname = v8f->GetFileName();
 			if(fname != "module" && fname != "text")
 			{
 				result = recursive_test_stream_format(v8f->get_stream(), path + "/" + v8f->GetFileName());
@@ -1203,7 +1192,6 @@ bool T_1CD::create_table(const string &path)
 {
 	TFileStream* f;
 	bool fopen;
-	String str;
 	uint32_t i;
 	int32_t j;
 	export_import_table_root* root;
@@ -1397,14 +1385,9 @@ void T_1CD::set_readonly(bool ro)
 bool T_1CD::test_list_of_tables()
 {
 	char* rec;
-	Field* f_name;
-	Field* f_data_size;
-	Field* f_binary_data;
 	bool hasDBNames;
 	bool result;
 	bool is_slave;
-	String slen;
-	String sf;
 	TMemoryStream* str;
 	TBytesStream* _sb;
 	TEncoding *enc;
@@ -1416,11 +1399,6 @@ bool T_1CD::test_list_of_tables()
 	int32_t offset;
 	tree* t;
 	tree* firstt;
-
-	String _guid;
-	String _name;
-	String _num;
-	String _tabname;
 
 	if(!table_params)
 	{
@@ -1440,56 +1418,26 @@ bool T_1CD::test_list_of_tables()
 			.add_detail("Кол-во полей", table_params->get_numfields());
 	}
 
-	if (CompareIC(table_params->getfield(0)->getname(), "FILENAME"))
-	{
-		throw DetailedException("Ошибка тестирования. Первое поле таблицы PARAMS не FILENAME")
-			.add_detail("Поле", table_params->getfield(0)->getname());
+	vector<string> params_fields {"FILENAME", "CREATION", "MODIFIED",
+								  "ATTRIBUTES", "DATASIZE", "BINARYDATA"};
+	if(table_params->get_numfields() > 6) {
+		params_fields.push_back("PARTNO");
 	}
 
-	if (CompareIC(table_params->getfield(1)->getname(), "CREATION"))
-	{
-		throw DetailedException("Ошибка тестирования. Второе поле таблицы PARAMS не CREATION")
-			.add_detail("Поле", table_params->getfield(1)->getname());
-	}
-
-	if (CompareIC(table_params->getfield(2)->getname(), "MODIFIED"))
-	{
-		throw DetailedException("Ошибка тестирования. Третье поле таблицы PARAMS не MODIFIED")
-			.add_detail("Поле", table_params->getfield(2)->getname());
-	}
-
-	if (CompareIC(table_params->getfield(3)->getname(), "ATTRIBUTES"))
-	{
-		throw DetailedException("Ошибка тестирования. Четвертое поле таблицы PARAMS не ATTRIBUTES")
-			.add_detail("Поле", table_params->getfield(3)->getname());
-	}
-
-	if (CompareIC(table_params->getfield(4)->getname(), "DATASIZE"))
-	{
-		throw DetailedException("Ошибка тестирования. Пятое поле таблицы PARAMS не DATASIZE")
-			.add_detail("Поле", table_params->getfield(4)->getname());
-	}
-
-	if (CompareIC(table_params->getfield(5)->getname(), "BINARYDATA"))
-	{
-		throw DetailedException("Ошибка тестирования. Шестое поле таблицы PARAMS не BINARYDATA")
-			.add_detail("Поле", table_params->getfield(5)->getname());
-	}
-
-	if(table_params->get_numfields() > 6)
-	{
-		if (CompareIC(table_params->getfield(6)->getname(), "PARTNO"))
-		{
-			throw DetailedException("Ошибка тестирования. Седьмое поле таблицы PARAMS не PARTNO")
-				.add_detail("Поле", table_params->getfield(6)->getname());
+	for (int index = 0; i < params_fields.size(); i++) {
+		if (!EqualIC(table_params->getfield(i)->getname(), params_fields[i])) {
+			DetailedException test_error("Ошибка тестирования: имя поля отличается от ожидаемого");
+			test_error.add_detail("Номер поля", i);
+			test_error.add_detail("Имя поля", table_params->getfield(0)->getname());
+			test_error.add_detail("Ожидаемое имя поля", params_fields[i]);
+			throw test_error;
 		}
 	}
-
 	result = true;
 
-	f_name = table_params->getfield(0);
-	f_data_size = table_params->getfield(4);
-	f_binary_data = table_params->getfield(5);
+	Field *f_name = table_params->getfield(0);
+	Field *f_data_size = table_params->getfield(4);
+	Field *f_binary_data = table_params->getfield(5);
 	rec = new char[table_params->get_recordlen()];
 
 	hasDBNames = false;
@@ -1560,16 +1508,17 @@ bool T_1CD::test_list_of_tables()
 			if(_sb->GetSize()-offset > 0)
 			{
 				bytes2 = TEncoding::Convert(enc, TEncoding::Unicode, _sb->GetBytes(), offset, _sb->GetSize()-offset);
-				if(bytes2.size() == 0)
+				string sf = enc->toUtf8(_sb->GetBytes(), offset);
 				{
-					throw DetailedException("Ошибка тестирования. Ошибка конвертации файла PARAMS/DBNames");
-				}
-				{
-					sf = String((WCHART*)&bytes2[0], bytes2.size() / 2);
 					for(i = 1; i <= sf.size(); i++)
 					{
 						first_symbol = sf[i];
-						if(first_symbol != L'\r' && first_symbol != L'\n' && first_symbol != L'\t' && first_symbol != L' ') break;
+						if (first_symbol != L'\r'
+							&& first_symbol != L'\n'
+							&& first_symbol != L'\t'
+							&& first_symbol != L' ') {
+							break;
+						}
 					}
 					if(first_symbol == L'{')
 					{
@@ -1580,8 +1529,8 @@ bool T_1CD::test_list_of_tables()
 
 							for(t = firstt; t; t = t->get_next())
 							{
-								is_slave = false;
-								_name = t->get_subnode(1)->get_value();
+								bool is_slave = false;
+								string _name = t->get_subnode(1)->get_value();
 								if(EqualIC(_name, "Fld")) continue;
 								if(EqualIC(_name, "LineNo")) continue;
 								if(EqualIC(_name, "Turnover")) continue;
@@ -1601,23 +1550,21 @@ bool T_1CD::test_list_of_tables()
 								if(EqualIC(_name, "VT")) is_slave = true;
 								if(EqualIC(_name, "ExtDim")) is_slave = true;
 
-								_guid = t->get_subnode(0)->get_value();
-								_num = t->get_subnode(2)->get_value();
+								string _guid = t->get_subnode(0)->get_value();
+								string _num = t->get_subnode(2)->get_value();
 
-								if(_guid == "00000000-0000-0000-0000-000000000000") continue;
+								if (_guid == "00000000-0000-0000-0000-000000000000") {
+									continue;
+								}
 
-								_tabname = "_";
-								_tabname += _name;
-								_tabname += _num;
-								l = _tabname.size();
+								string _tabname = string("_") + _name + _num;
 
 								bool table_found = false;
-								for(i = 0; i < get_numtables(); i++)
+								for (int i = 0; i < get_numtables(); i++)
 								{
 									if(is_slave)
 									{
-										std::string sf = gettable(i)->getname();
-										if (EndsWithIC(sf, _tabname)) {
+										if (EndsWithIC(gettable(i)->getname(), _tabname)) {
 											table_found = true;
 											break;
 										}
@@ -1669,10 +1616,9 @@ bool T_1CD::test_list_of_tables()
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::replaceTREF(String mapfile)
+bool T_1CD::replaceTREF(const string &mapfile)
 {
 	vector<int32_t> map; // динамический массив соответствия номеров
-	String str;
 	Table* t;
 	Field* f;
 	bool editsave;
@@ -1711,7 +1657,7 @@ bool T_1CD::replaceTREF(String mapfile)
 		for (uint32_t j = 0; j < t->get_numfields(); j ++)
 		{
 			f = t->getfield(j);
-			str = f->getname();
+			string str = f->getname();
 			if (!EndsWithIC(str, "TREF")) {
 				continue;
 			}
@@ -1955,11 +1901,13 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 	i = ind->get_numrec(i + ver - 1);
 
 	TableRecord *rec = table_versions->getrecord(i);
-	String version_presentation = rec->get_string("VERNUM");
+	string version_presentation = rec->get_string("VERNUM");
 	delete rec;
 
-	int32_t version = ToIntDef(version_presentation, 0);
-	if (!version) {
+	int32_t version;
+	try {
+		version = stoi(version_presentation);
+	} catch (...) {
 		DetailedException error("Не удалось получить реальный номер версии запрошенной конфигурации.");
 		error.add_detail("Запрошенный номер версии", ver);
 		throw error;
@@ -2010,7 +1958,6 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 	int32_t j, k, m, n, rl;
 	bool ok;
 	std::vector<uint32_t> bk;
-	String s;
 
 	block = tab->get_file_data()->get_block_number();
 
@@ -2272,7 +2219,7 @@ TableFiles* T_1CD::get_files_configcassave()
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::save_config_ext(const boost::filesystem::path& file_name, const BinaryGuid& uid, const String& hashname)
+bool T_1CD::save_config_ext(const boost::filesystem::path &file_name, const BinaryGuid &uid, const string &hashname)
 {
 	std::unique_ptr<ConfigStorageTableConfigCasSave> config_save
 			( new ConfigStorageTableConfigCasSave(get_files_configcas(), get_files_configcassave(), uid, hashname) );
@@ -2284,7 +2231,7 @@ bool T_1CD::save_config_ext(const boost::filesystem::path& file_name, const Bina
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::save_config_ext_db(const boost::filesystem::path& file_name, const String& hashname)
+bool T_1CD::save_config_ext_db(const boost::filesystem::path &file_name, const string &hashname)
 {
 	std::unique_ptr<ConfigStorageTableConfigCas> config_save
 			( new ConfigStorageTableConfigCas(get_files_configcas(), hashname) );
@@ -2308,32 +2255,32 @@ void T_1CD::pagemapfill()
 }
 
 //---------------------------------------------------------------------------
-String T_1CD::pagemaprec_presentation(pagemaprec& pmr)
+string T_1CD::pagemaprec_presentation(pagemaprec& pmr)
 {
 	switch(pmr.type)
 	{
-		case pagetype::lost: return String("потерянная страница");
-		case pagetype::root: return String("корневая страница базы");
-		case pagetype::freeroot: return String("корневая страница таблицы свободных блоков");
-		case pagetype::freealloc: return String("страница размещения таблицы свободных блоков номер ") + pmr.number;
-		case pagetype::free: return String("свободная страница номер ") + pmr.number;
-		case pagetype::rootfileroot: return String("корневая страница корневого файла");
-		case pagetype::rootfilealloc: return String("страница размещения корневого файла номер ") + pmr.number;
-		case pagetype::rootfile: return String("страница данных корневого файла номер ") + pmr.number;
-		case pagetype::descrroot: return String("корневая страница файла descr таблицы ") + tables[pmr.tab]->getname();
-		case pagetype::descralloc: return String("страница размещения файла descr таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
-		case pagetype::descr: return String("страница данных файла descr таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
-		case pagetype::dataroot: return String("корневая страница файла data таблицы ") + tables[pmr.tab]->getname();
-		case pagetype::dataalloc: return String("страница размещения файла data таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
-		case pagetype::data: return String("страница данных файла data таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
-		case pagetype::indexroot: return String("корневая страница файла index таблицы ") + tables[pmr.tab]->getname();
-		case pagetype::indexalloc: return String("страница размещения файла index таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
-		case pagetype::index: return String("страница данных файла index таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
-		case pagetype::blobroot: return String("корневая страница файла blob таблицы ") + tables[pmr.tab]->getname();
-		case pagetype::bloballoc: return String("страница размещения файла blob таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
-		case pagetype::blob: return String("страница данных файла blob таблицы ") + tables[pmr.tab]->getname() + " номер " + pmr.number;
+		case pagetype::lost: return string("потерянная страница");
+		case pagetype::root: return string("корневая страница базы");
+		case pagetype::freeroot: return string("корневая страница таблицы свободных блоков");
+		case pagetype::freealloc: return string("страница размещения таблицы свободных блоков номер ") + pmr.number;
+		case pagetype::free: return string("свободная страница номер ") + pmr.number;
+		case pagetype::rootfileroot: return string("корневая страница корневого файла");
+		case pagetype::rootfilealloc: return string("страница размещения корневого файла номер ") + pmr.number;
+		case pagetype::rootfile: return string("страница данных корневого файла номер ") + pmr.number;
+		case pagetype::descrroot: return string("корневая страница файла descr таблицы ") + tables[pmr.tab]->getname();
+		case pagetype::descralloc: return string("страница размещения файла descr таблицы ") + tables[pmr.tab]->getname() + string(" номер ") + pmr.number;
+		case pagetype::descr: return string("страница данных файла descr таблицы ") + tables[pmr.tab]->getname() + string(" номер ") + pmr.number;
+		case pagetype::dataroot: return string("корневая страница файла data таблицы ") + tables[pmr.tab]->getname();
+		case pagetype::dataalloc: return string("страница размещения файла data таблицы ") + tables[pmr.tab]->getname() + string(" номер ") + pmr.number;
+		case pagetype::data: return string("страница данных файла data таблицы ") + tables[pmr.tab]->getname() + string(" номер ") + pmr.number;
+		case pagetype::indexroot: return string("корневая страница файла index таблицы ") + tables[pmr.tab]->getname();
+		case pagetype::indexalloc: return string("страница размещения файла index таблицы ") + tables[pmr.tab]->getname() + string(" номер ") + pmr.number;
+		case pagetype::index: return string("страница данных файла index таблицы ") + tables[pmr.tab]->getname() + string(" номер ") + pmr.number;
+		case pagetype::blobroot: return string("корневая страница файла blob таблицы ") + tables[pmr.tab]->getname();
+		case pagetype::bloballoc: return string("страница размещения файла blob таблицы ") + tables[pmr.tab]->getname() + string(" номер ") + pmr.number;
+		case pagetype::blob: return string("страница данных файла blob таблицы ") + tables[pmr.tab]->getname() + string(" номер ") + pmr.number;
 
-		default: return String("??? неизвестный тип страницы ???");
+		default: return string("??? неизвестный тип страницы ???");
 	}
 }
 
