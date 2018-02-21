@@ -76,42 +76,6 @@ virtual std::vector<uint8_t> fromUtf8(const String &data)
 
 };
 
-TStringBuilder::TStringBuilder()
-{
-}
-
-TStringBuilder::TStringBuilder(const String &initial)
-	: value(initial)
-{
-}
-
-TStringBuilder *TStringBuilder::Replace(const String &substring, const String &replace)
-{
-	value = value.Replace(substring, replace);
-	return this;
-}
-
-string TStringBuilder::ToString() const
-{
-	return value;
-}
-
-void TStringBuilder::Clear()
-{
-	value = "";
-}
-
-void TStringBuilder::Append(const string &s)
-{
-	value += s;
-}
-
-void TStringBuilder::Append(char c)
-{
-	value.append(1, c);
-}
-
-
 
 void TMultiReadExclusiveWriteSynchronizer::BeginWrite()
 {
@@ -176,10 +140,19 @@ string ExtractFileExt(const string &filename)
 	return _p.extension().string();
 }
 
-String StringReplace(const String &S, const String &OldPattern, const String &NewPattern, TReplaceFlags Flags)
+string StringReplace(const string &S, const string &OldPattern, const string &NewPattern, int Flags)
 {
-	// TODO: реализовать StringReplace
-	return S.Replace(OldPattern, NewPattern);
+	string result(S);
+	string::size_type spos = 0;
+	do {
+		auto pos = result.find(OldPattern, spos);
+		if (pos == string::npos) {
+			break;
+		}
+		result = result.replace(pos, OldPattern.size(), NewPattern);
+		spos = pos + NewPattern.size();
+	} while (Flags & rfReplaceAll);
+	return result;
 }
 
 

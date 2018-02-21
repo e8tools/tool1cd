@@ -58,22 +58,6 @@ public:
 
 	int ToInt() const;
 
-	size_t Pos(const String &substr);
-
-	static String IntToHex(int n, int digits);
-	static String IntToStr(int n);
-	static String UIntToStr(unsigned int n);
-	static String LongToStr(long int n);
-	static String ULongToStr(unsigned long n);
-	static String LongLongToStr(long long n);
-	static String ULongLongToStr(unsigned long long n);
-
-	static String ToString(int n);
-	static String ToString(unsigned int n);
-	static String ToString(long n);
-	static String ToString(unsigned long n);
-	static String ToString(long long n);
-	static String ToString(unsigned long long n);
 };
 
 std::string LowerCase(const std::string &src);

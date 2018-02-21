@@ -1276,13 +1276,12 @@ void Table::import_table(const std::string &path)
 			delete[] buf;
 			delete f;
 
-			i = str.Pos("{\"Files\",");
-			if(i == 0)
-			{
+			auto pos_files = str.find("{\"Files\",");
+			if (pos_files == string::npos) {
 				throw DetailedException("Ошибка поиска раздела Files в файле импорта таблицы descr")
 					.add_detail("Файл", (dir / "descr").string());
 			}
-			str.resize(i - 1);
+			str.resize(pos_files);
 			str += "{\"Files\",";
 			str += file_data ? String(file_data->get_block_number()) : String("0");
 			str += ",";

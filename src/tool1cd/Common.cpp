@@ -7,6 +7,7 @@
 #endif
 
 using namespace System;
+using namespace std;
 
 const wchar_t hexdecode[] = L"0123456789abcdef";
 
@@ -142,15 +143,15 @@ String hexstring(TStream* str)
 }
 
 //---------------------------------------------------------------------------
-String toXML(const String &in)
+std::string toXML(const std::string &in)
 {
-	return TStringBuilder(in)
-		.Replace("&", "&amp;")
-		->Replace("<", "&lt;")
-		->Replace(">", "&gt;")
-		->Replace("'", "&apos;")
-		->Replace("\"", "&quot;")
-		->ToString();
+	string result(in);
+	result = StringReplace(result, "&", "&amp;");
+	result = StringReplace(result, "<", "&lt;");
+	result = StringReplace(result, ">", "&gt;");
+	result = StringReplace(result, "'", "&apos;");
+	result = StringReplace(result, "\"", "&quot;");
+	return result;
 }
 
 //---------------------------------------------------------------------------

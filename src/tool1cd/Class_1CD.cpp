@@ -1191,13 +1191,19 @@ bool T_1CD::recursive_test_stream_format(V8Catalog *cat, const string &path)
 	return result;
 }
 
+string from_unicode_stream(TStream &f)
+{
+	vector<uint8_t> buf;
+	f.Read(buf, 0);
+	return TEncoding::Unicode->toUtf8(buf);
+}
+
 //---------------------------------------------------------------------------
 bool T_1CD::create_table(const string &path)
 {
 	TFileStream* f;
 	bool fopen;
 	String str;
-	char* buf;
 	uint32_t i;
 	int32_t j;
 	export_import_table_root* root;
@@ -1239,20 +1245,14 @@ bool T_1CD::create_table(const string &path)
 			.add_detail("Файл", path_descr.string());
 	}
 
-	i = f->GetSize();
-	buf = new char[i + 2];
-	f->Read(buf, i);
-	buf[i] = 0;
-	buf[i + 1] = 0;
-	str = String((WCHART*)buf);
-	delete[] buf;
+	string descr_data = from_unicode_stream(*f);
 	delete f;
 
-	t = parse_1Ctext(str, path_descr.string());
-	str = (*t)[0][0].get_value();
+	t = parse_1Ctext(descr_data, path_descr.string());
+	string table_name = (*t)[0][0].get_value();
 
 	for(j = 0; j < num_tables; j++) {
-		if (EqualIC(tables[j]->getname(), str)) {
+		if (EqualIC(tables[j]->getname(), table_name)) {
 			delete_table(tables[j]);
 		}
 	}
@@ -1339,33 +1339,26 @@ bool T_1CD::create_table(const string &path)
 			ob->version.version_1 = root->descr_version_1;
 			ob->version.version_2 = root->descr_version_2;
 
-			i = f->GetSize();
-			buf = new char[i + 2];
-			f->Read(buf, i);
-			buf[i] =0;
-			buf[i + 1] =0;
-			str = String((WCHART*)buf);
-			delete[] buf;
+			string descr = from_unicode_stream(*f);
 			delete f;
 
-			i = str.Pos("{\"Files\",");
-			if(i == 0)
-			{
+			auto pos_files = descr.find("{\"Files\",");
+			if (pos_files == string::npos) {
 				throw DetailedException("Ошибка поиска раздела Files в файле импорта таблицы descr")
 					.add_detail("Файл", path_descr.string());
 			}
-			str.resize(i - 1);
-			str += "{\"Files\",";
-			str += file_data ? String(file_data->get_block_number()) : String("0");
-			str += ",";
-			str += file_blob ? String(file_blob->get_block_number()) : String("0");
-			str += ",";
-			str += file_index ? String(file_index->get_block_number()) : String("0");
-			str += "}\n}";
-			descr_table->setdata(str.c_str(), str.size() * 2);
+			descr.resize(pos_files);
+			descr += "{\"Files\",";
+			descr += file_data ? to_string(file_data->get_block_number()) : "0";
+			descr += ",";
+			descr += file_blob ? to_string(file_blob->get_block_number()) : "0";
+			descr += ",";
+			descr += file_index ? to_string(file_index->get_block_number()) : "0";
+			descr += "}\n}";
+			descr_table->setdata(descr.c_str(), descr.size() * 2);
 
 			i = root_object->getlen();
-			buf = new char[i + 4];
+			char *buf = new char[i + 4];
 			root_object->getdata(buf, 0, i);
 
 			if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0)

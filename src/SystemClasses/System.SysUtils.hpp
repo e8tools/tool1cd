@@ -10,27 +10,8 @@ namespace System {
 
 namespace SysUtils {
 
-String StringReplace(const String &S, const String &OldPattern, const String &NewPattern, TReplaceFlags Flags);
-
-class TStringBuilder
-{
-public:
-	explicit TStringBuilder();
-
-	explicit TStringBuilder(const String &initial);
-
-	TStringBuilder *Replace(const String &substring, const String &replace);
-
-	std::string ToString() const;
-
-	void Clear();
-
-	void Append(const std::string &s);
-
-	void Append(char c);
-
-	String value;
-};
+std::string StringReplace(const std::string &S, const std::string &OldPattern, const std::string &NewPattern,
+						  int Flags = 0);
 
 class TMultiReadExclusiveWriteSynchronizer
 {

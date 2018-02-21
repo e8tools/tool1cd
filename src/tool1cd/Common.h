@@ -15,7 +15,7 @@ String date_to_string1C(const void *bytedate);
 String date_to_string(const void *bytedate);
 String hexstring(const char *buf, int n);
 String hexstring(TStream* str);
-String toXML(const String &in);
+std::string toXML(const std::string &in);
 unsigned char from_hex_digit(char digit);
 
 //---------------------------------------------------------------------------

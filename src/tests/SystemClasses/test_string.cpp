@@ -1,5 +1,6 @@
 #include "../catch.hpp"
 #include <String.hpp>
+#include <System.SysUtils.hpp>
 
 using namespace System;
 using namespace std;
@@ -40,4 +41,10 @@ TEST_CASE("Upper/Lower Case для каждой буквы", "[SystemClasses][St
 
 	REQUIRE(UpperCase(upcase) == upcase);
 	REQUIRE(LowerCase(lowcase) == lowcase);
+}
+
+TEST_CASE("StringReplace", "[SystemClasses][String][Replace]")
+{
+	REQUIRE(StringReplace("aaa", "a", "ba") == "baaa");
+	REQUIRE(StringReplace("aaa", "a", "ba", rfReplaceAll) == "bababa");
 }
