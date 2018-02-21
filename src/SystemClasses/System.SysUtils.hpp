@@ -10,7 +10,8 @@ namespace System {
 
 namespace SysUtils {
 
-String StringReplace(const String &S, const String &OldPattern, const String &NewPattern, TReplaceFlags Flags);
+std::string StringReplace(const std::string &S, const std::string &OldPattern, const std::string &NewPattern,
+						  int Flags = 0);
 
 class TStringBuilder
 {

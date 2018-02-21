@@ -196,9 +196,7 @@ void tree::outtext(std::string &text)
 		{
 			case node_type::nd_string:
 				text += "\"";
-				//_ReplaceAll << rfReplaceAll;
-				(_ReplaceAll << rfReplaceAll);
-				text += StringReplace(value, "\"", "\"\"", _ReplaceAll);
+				text += StringReplace(value, "\"", "\"\"", rfReplaceAll);
 				text += "\"";
 				break;
 			case node_type::nd_number:

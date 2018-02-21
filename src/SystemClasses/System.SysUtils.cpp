@@ -176,10 +176,19 @@ string ExtractFileExt(const string &filename)
 	return _p.extension().string();
 }
 
-String StringReplace(const String &S, const String &OldPattern, const String &NewPattern, TReplaceFlags Flags)
+string StringReplace(const string &S, const string &OldPattern, const string &NewPattern, int Flags)
 {
-	// TODO: реализовать StringReplace
-	return S.Replace(OldPattern, NewPattern);
+	string result(S);
+	string::size_type spos = 0;
+	do {
+		auto pos = result.find(OldPattern, spos);
+		if (pos == string::npos) {
+			break;
+		}
+		result = result.replace(pos, OldPattern.size(), NewPattern);
+		spos = pos + NewPattern.size();
+	} while (Flags & rfReplaceAll);
+	return result;
 }
 
 
