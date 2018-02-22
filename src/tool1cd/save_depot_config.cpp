@@ -205,10 +205,10 @@ bool T_1CD::save_depot_config(const string &_filename, int32_t ver)
 
 	// root, versions
 
-	std::map<String,String> vermap; // контейнер для сортировки versions
-	std::map<String,String> rootmap; // контейнер для сортировки root
-	std::map<String,TStream*> extmap; // контейнер для сортировки файлов в корне
-	std::map<String,TStream*> metamap; // контейнер для сортировки файлов в metadata
+	std::map<string,string> vermap; // контейнер для сортировки versions
+	std::map<string,string> rootmap; // контейнер для сортировки root
+	std::map<string,TStream*> extmap; // контейнер для сортировки файлов в корне
+	std::map<string,TStream*> metamap; // контейнер для сортировки файлов в metadata
 
 	tv = new tree("",  node_type::nd_list, nullptr); // корень дерева файла versions
 	tvc = new tree("", node_type::nd_list, tv); // тек. элемент дерева файла versions
@@ -380,13 +380,13 @@ bool T_1CD::save_depot_config(const string &_filename, int32_t ver)
 
 	if(oldformat)
 	{
-		tcountv->set_value(vermap.size(), node_type::nd_number);
-		tcountr->set_value(rootmap.size(), node_type::nd_number);
+		tcountv->set_value(to_string(vermap.size()), node_type::nd_number);
+		tcountr->set_value(to_string(rootmap.size()), node_type::nd_number);
 	}
 	else
 	{
 		vermap["root"] = GUIDasMS(uuid_gen().data);
-		tcountv->set_value(vermap.size(), node_type::nd_number);
+		tcountv->set_value(to_string(vermap.size()), node_type::nd_number);
 	}
 
 	// Запись root
@@ -395,7 +395,7 @@ bool T_1CD::save_depot_config(const string &_filename, int32_t ver)
 		trc->add_child(pmap.first, node_type::nd_string);
 		trc->add_child(pmap.second, node_type::nd_guid);
 	}
-	String tree_text = outtext(tr);
+	string tree_text = outtext(tr);
 	delete tr;
 	{
 		TStream *in = new TMemoryStream;
@@ -420,7 +420,7 @@ bool T_1CD::save_depot_config(const string &_filename, int32_t ver)
 		tvc->add_child(pmap.second, node_type::nd_guid);
 	}
 
-	String tv_text = outtext(tv);
+	string tv_text = outtext(tv);
 	delete tv;
 	{
 		TStream *in = new TMemoryStream;

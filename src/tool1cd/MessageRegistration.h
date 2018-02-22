@@ -18,8 +18,8 @@ enum class MessageState
 class IMessageRegistration
 {
 public:
-	virtual void AddDetailedMessage(const String &description, const MessageState mstate, const TStringList *param) = 0;
-	virtual void Status(const String& message) = 0;
+	virtual void AddDetailedMessage(const std::string &description, const MessageState mstate, const TStringList *param) = 0;
+	virtual void Status(const std::string &message) = 0;
 };
 
 class MessageDetails
@@ -35,11 +35,6 @@ public:
 		total_string.append("=").append(value);
 		data.push_back(total_string);
 		return *this;
-	}
-
-	MessageDetails &with(const std::string &param_name, const String &value)
-	{
-		return with(param_name, static_cast<std::string>(value));
 	}
 
 	template <typename value_type>
@@ -71,9 +66,9 @@ public:
 	void setDebugMode(bool dstate);
 	bool getDebugMode();
 
-	virtual MessageDetails AddMessage(const String &description, const MessageState mstate);
-	virtual MessageDetails AddError(const String& description);
-	virtual MessageDetails AddDebugMessage(const String& description, const MessageState mstate);
+	virtual MessageDetails AddMessage(const std::string &description, const MessageState mstate);
+	virtual MessageDetails AddError(const std::string &description);
+	virtual MessageDetails AddDebugMessage(const std::string &description, const MessageState mstate);
 
 };
 
@@ -90,9 +85,9 @@ public:
 class Registrator: public MessageRegistrator, public IControlMessageRegistration
 {
 public:
-	void AddDetailedMessage(const String& description, const MessageState mstate,
-					const TStringList* param) override;
-	void Status(const String& message) override;
+	void AddDetailedMessage(const std::string &description, const MessageState mstate,
+							const TStringList *param) override;
+	void Status(const std::string &message) override;
 
 	void AddMessageRegistrator(MessageRegistrator* messageregistrator);
 	void RemoveMessageRegistrator();

@@ -29,8 +29,8 @@ class TEncoding
 public:
 
 virtual std::vector<uint8_t> GetPreamble() = 0;
-virtual String toUtf8(const std::vector<uint8_t> &Buffer, int offset = 0) const = 0;
-virtual std::vector<uint8_t> fromUtf8(const String &str) = 0;
+virtual std::string toUtf8(const std::vector<uint8_t> &Buffer, int offset = 0) const = 0;
+virtual std::vector<uint8_t> fromUtf8(const std::string &str) = 0;
 
 static int GetBufferEncoding(const std::vector<uint8_t> &Buffer, TEncoding* &AEncoding);
 static std::vector<uint8_t> Convert(TEncoding * const Source, TEncoding * const Destination, const std::vector<uint8_t> &Bytes, int StartIndex, int Count);
@@ -42,15 +42,13 @@ static TEncoding *UTF8;
 
 };
 
-int StrToInt(const String &s);
-
 
 struct TSearchRec {
-	int     Time;
-	int64_t Size;
-	int     Attr;
-	String  Name;
-	int     ExcludeAttr;
+	int          Time;
+	int64_t      Size;
+	int          Attr;
+	std::string  Name;
+	int          ExcludeAttr;
 };
 
 std::string ExtractFileExt(const std::string &filename);

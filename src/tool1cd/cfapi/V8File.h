@@ -44,7 +44,7 @@ public:
 	std::string GetFileName();
 	std::string GetFullName();
 
-	void SetFileName(const String& _name);
+	void SetFileName(const std::string &_name);
 	V8Catalog* GetParentCatalog();
 	void DeleteFile();
 	V8File* GetNext();

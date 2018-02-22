@@ -4,12 +4,12 @@
 
 TEST_CASE( "Проверка Parse_tree", "[tool1cd][common][Parse_tree]" ) {
 
-	String test_tree_source = "{1,2,{3,4}\n}\n";
+	std::string test_tree_source = "{1,2,{3,4}\n}\n";
 
 	GIVEN ("Тестовое дерево") {
 
 		WHEN ("Парсим и выводим дерево через поток") {
-			String from_stream;
+			std::string from_stream;
 			TBytesStream bs(TEncoding::UTF8->fromUtf8(test_tree_source));
 			tree *tree_from_stream = parse_1Cstream(&bs, "");
 			REQUIRE(tree_from_stream != nullptr);
@@ -17,7 +17,7 @@ TEST_CASE( "Проверка Parse_tree", "[tool1cd][common][Parse_tree]" ) {
 			delete tree_from_stream;
 
 			AND_WHEN("Парсим и выводим дерево через строку") {
-				String from_string;
+				std::string from_string;
 				tree *tree_from_string = parse_1Ctext(test_tree_source, "");
 				REQUIRE(tree_from_string != nullptr);
 				tree_from_string->outtext(from_string);

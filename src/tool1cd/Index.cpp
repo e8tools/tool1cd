@@ -1237,7 +1237,7 @@ Index *Index::index_from_tree(tree *f, Table *parent)
 					.add_detail("Номер поля индекса", j + 1)
 					.add_detail("Поле индекса", field_name);
 		}
-		ind->records[j].len = StrToInt(in->get_value());
+		ind->records[j].len = stoi(in->get_value());
 	}
 
 	return ind;

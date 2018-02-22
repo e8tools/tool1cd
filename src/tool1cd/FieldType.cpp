@@ -629,7 +629,7 @@ string CommonFieldType::get_presentation(const char *rec, bool EmptyNull, wchar_
 	char sym;
 	int32_t i, m;
 
-	unsigned char* fr = (unsigned char*)rec;
+	auto fr = reinterpret_cast<const uint8_t *>(rec);
 
 	char *buf = new char[(length + 1) * 2]; // TODO: адовый костыль с утечкой памяти
 	switch(type)
@@ -637,18 +637,25 @@ string CommonFieldType::get_presentation(const char *rec, bool EmptyNull, wchar_
 		case type_fields::tf_bool:
 			if(fr[0]) return "true";
 			return "false";
-		case type_fields::tf_char:
-			return String((WCHART*)fr, length);
-		case type_fields::tf_varchar:
-			i = *(int16_t*)fr;
-			return String((WCHART*)(fr + 2), i);
-		case type_fields::tf_version:
-			return to_string(*(int32_t*)fr)
-				   + ":" + to_string(*(int32_t*)(fr + 4))
-				   + ":" + to_string(*(int32_t*)(fr + 8))
-				   + ":" + to_string(*(int32_t*)(fr + 12));
-		case type_fields::tf_version8:
-			return String(*(int32_t*)fr) + ":" + *(int32_t*)(fr + 4);
+		case type_fields::tf_char: {
+			return TEncoding::Unicode->toUtf8(vector<uint8_t>(fr, fr + (length * sizeof(WCHART))));
+		}
+		case type_fields::tf_varchar: {
+			int16_t length = *(int16_t *) fr;
+			fr += sizeof(length);
+			return TEncoding::Unicode->toUtf8(vector<uint8_t>(fr, fr + (length * sizeof(WCHART))));
+		}
+		case type_fields::tf_version: {
+			auto retyped = reinterpret_cast<const int32_t *>(fr);
+			return to_string(retyped[0])
+				   + ":" + to_string(retyped[1])
+				   + ":" + to_string(retyped[2])
+				   + ":" + to_string(retyped[3]);
+		}
+		case type_fields::tf_version8: {
+			auto retyped = reinterpret_cast<const int32_t*>(fr);
+			return to_string(retyped[0]) + string(":") + to_string(retyped[1]);
+		}
 		case type_fields::tf_string:
 			return detailed ? string("{MEMO} [") + to_hex_string(*(int32_t*)fr)
 							  + string("][") + to_hex_string(*(int32_t*)(fr + 4)) + string("]") : string("{MEMO}");
@@ -692,26 +699,19 @@ string CommonFieldType::get_XML_presentation(const char *rec, const Table *paren
 			if(fr[0]) return "true";
 			return "false";
 
-		case type_fields::tf_char:
-			return toXML(String((WCHART*)fr, length));
 		case type_fields::tf_varchar:
-			i = *(int16_t*)fr;
-			return toXML(String(((WCHART*)fr) + 1, i));
-		case type_fields::tf_version: {
-			int32_t *retyped = (int32_t*)fr;
-			return String(*(int32_t*)fr) + ":" + retyped[1] + ":" + retyped[2] + ":" + retyped[3];
-		}
-		case type_fields::tf_version8: {
-			int32_t *retyped = (int32_t*)fr;
-			return to_string(retyped[0]) + string(":") + to_string(retyped[1]);
-		}
+		case type_fields::tf_char:
+		case type_fields::tf_version:
+		case type_fields::tf_version8:
+			return toXML(get_presentation(rec, true, 0, false, false));
+
 		case type_fields::tf_string: {
 			uint32_t *retyped = (uint32_t*)fr;
 			out = new TMemoryStream();
 			parent->readBlob(out, retyped[0], retyped[1]);
-			string s = toXML(String((WCHART*)(out->GetMemory()), out->GetSize() / 2));
+			string s = TEncoding::Unicode->toUtf8(out->GetBytes());
 			delete out;
-			return s;
+			return toXML(s);
 		}
 		case type_fields::tf_text: {
 			uint32_t *retyped = (uint32_t*)fr;
@@ -727,7 +727,7 @@ string CommonFieldType::get_XML_presentation(const char *rec, const Table *paren
 			out = new TMemoryStream();
 			parent->readBlob(in, retyped[0], retyped[1]);
 			base64_encode(in, out, 72);
-			string s = String((WCHART*)(out->GetMemory()), out->GetSize() / 2);
+			string s = TEncoding::Unicode->toUtf8(out->GetBytes());
 			delete in;
 			delete out;
 			return s;
@@ -815,13 +815,13 @@ field_type_declaration field_type_declaration::parse_tree(tree *field_tree)
 	if (field_tree->get_type() != node_type::nd_number) {
 		throw FieldStreamParseException("Ошибка получения длины поля таблицы. Узел не является числом.");
 	}
-	type_declaration.length = StrToInt(field_tree->get_value());
+	type_declaration.length = stoi(field_tree->get_value());
 
 	field_tree = field_tree->get_next();
 	if(field_tree->get_type() != node_type::nd_number) {
 		throw FieldStreamParseException("Ошибка получения точности поля таблицы. Узел не является числом.");
 	}
-	type_declaration.precision = StrToInt(field_tree->get_value());
+	type_declaration.precision = stoi(field_tree->get_value());
 
 	field_tree = field_tree->get_next();
 	if(field_tree->get_type() != node_type::nd_string) {

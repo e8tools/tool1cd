@@ -19,7 +19,7 @@ const boost::regex exp_binary_d("^#data:[0-9a-zA-Z\\+=\\r\\n\\/]*$");
 extern Registrator msreg_g;
 
 //---------------------------------------------------------------------------
-tree::tree(const String& _value, const node_type _type, tree* _parent)
+tree::tree(const string &_value, const node_type _type, tree *_parent)
 {
 	value = _value;
 	type = _type;
@@ -60,7 +60,7 @@ tree::~tree()
 }
 
 //---------------------------------------------------------------------------
-tree* tree::add_child(const String& _value, const node_type _type)
+tree* tree::add_child(const string &_value, const node_type _type)
 {
 	return new tree(_value, _type, this);
 }
@@ -90,7 +90,7 @@ node_type tree::get_type()
 }
 
 //---------------------------------------------------------------------------
-void tree::set_value(const String& v, const node_type t)
+void tree::set_value(const string &v, const node_type t)
 {
 	value = v;
 	type = t;
@@ -287,7 +287,7 @@ bool read_next_flow(TStreamReader *reader, int &index, char &sym)
 }
 
 // HINT: index - с единички
-bool read_next_flow(const String &source, int &index, char &sym)
+bool read_next_flow(const string &source, int &index, char &sym)
 {
 	if (index > source.size()) {
 		return false;
@@ -503,7 +503,7 @@ tree* parse_1Cstream(TStream *str, const string &path)
 }
 
 
-tree* parse_1Ctext(const String &text, const string &path)
+tree* parse_1Ctext(const string &text, const string &path)
 {
 	return parse_flow(text, path);
 }

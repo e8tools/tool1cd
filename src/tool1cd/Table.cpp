@@ -310,7 +310,7 @@ void Table::init(int32_t block_descr)
 			throw TableReadError("Ошибка получения файла таблицы. Узел не является числом.", block_descr, name)
 					.add_detail("Номер файла", i + 1);
 		}
-		blockfile[i] = StrToInt(f->get_value());
+		blockfile[i] = stoi(f->get_value());
 	}
 
 	if (blockfile[0]) {
@@ -459,7 +459,8 @@ Table::Table(T_1CD* _base, int32_t block_descr)
 	base = _base;
 
 	descr_table = new v8object(base, block_descr);
-	description = String((WCHART*)descr_table->getdata(), descr_table->getlen() / 2);
+	auto data = descr_table->getdata();
+	description = TEncoding::Unicode->toUtf8(vector<uint8_t>(data, data + descr_table->getlen()));
 
 	try {
 
@@ -1268,12 +1269,10 @@ void Table::import_table(const std::string &path)
 			ob->version.version_1 = root.descr_version_1;
 			ob->version.version_2 = root.descr_version_2;
 
-			auto i = f->GetSize();
-			char *buf = new char[i + 2];
-			f->Read(buf, i);
-			buf[i] =0;
-			buf[i + 1] =0;
-			String str((WCHART*)buf);
+			auto buf_size = f->GetSize();
+			char *buf = new char[buf_size];
+			f->Read(buf, buf_size);
+			string str = TEncoding::Unicode->toUtf8(vector<uint8_t>(buf, buf + buf_size));
 			delete[] buf;
 			delete f;
 

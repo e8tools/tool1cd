@@ -16,8 +16,6 @@ public:
 
 	int Read();
 
-	String ReadLine();
-
 private:
 	TStream *stream;
 };

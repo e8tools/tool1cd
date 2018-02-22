@@ -140,7 +140,7 @@ void TableRecord::set_data(const Field *field, const void *new_data)
 	memcpy(data_start, new_data, field->getlen());
 }
 
-String TableRecord::get_xml_string(const Field *field) const
+std::string TableRecord::get_xml_string(const Field *field) const
 {
 	if (is_null_value(field)) {
 		throw NullValueException(field);

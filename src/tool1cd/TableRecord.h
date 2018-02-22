@@ -50,7 +50,7 @@ public:
 	std::string get_string(const Field *field) const;
 	std::string get_string(const std::string &field_name) const;
 
-	String get_xml_string(const Field *field) const;
+	std::string get_xml_string(const Field *field) const;
 	std::string get_xml_string(const std::string &field_name) const;
 
 	bool is_null_value(const Field *field) const;
@@ -72,7 +72,7 @@ public:
 	}
 
 	template <typename T>
-	T get(const String &field_name, const T default_value = T()) const
+	T get(const std::string &field_name, const T default_value = T()) const
 	{
 		return get(get_field(field_name), default_value);
 	}
@@ -84,7 +84,7 @@ public:
 	}
 
 	template <typename T>
-	void set(const String &field_name, const T value)
+	void set(const std::string &field_name, const T value)
 	{
 		set(get_field(field_name), value);
 	}

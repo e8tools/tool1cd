@@ -51,10 +51,8 @@ TableFiles::TableFiles(Table* t)
 	Field* partno;
 	table_rec tr, *ptr;
 	std::vector<table_rec> allrec;
-	std::map<String,int32_t> maxpartnos;
-	std::map<String,int32_t>::iterator pmaxpartno;
+	std::map<string,int32_t> maxpartnos;
 	TableFile* tf;
-	std::map<String,TableFile*>::iterator pfilesmap;
 
 	table = t;
 	ready = test_table();
@@ -95,7 +93,7 @@ TableFiles::TableFiles(Table* t)
 		allrec.push_back(tr);
 
 		string s = LowerCase(tr.name);
-		pmaxpartno = maxpartnos.find(s);
+		auto pmaxpartno = maxpartnos.find(s);
 		if(pmaxpartno == maxpartnos.end()) maxpartnos[s] = tr.partno;
 		else if(pmaxpartno->second < tr.partno) pmaxpartno->second = tr.partno;
 	}
@@ -107,7 +105,7 @@ TableFiles::TableFiles(Table* t)
 
 	for (size_t j = 0; j < allrec.size(); ++j) {
 		ptr = &(allrec[j]);
-		pfilesmap = allfiles.find(LowerCase(ptr->name));
+		auto pfilesmap = allfiles.find(LowerCase(ptr->name));
 		tf = pfilesmap->second;
 		tf->addr[ptr->partno] = ptr->addr;
 		if(!ptr->partno)
@@ -203,9 +201,7 @@ bool TableFiles::test_table()
 //---------------------------------------------------------------------------
 TableFile* TableFiles::getfile(const string &name)
 {
-	std::map<String,TableFile*>::iterator p;
-
-	p = allfiles.find(LowerCase(name));
+	auto p = allfiles.find(LowerCase(name));
 	if(p == allfiles.end()) {
 		return nullptr;
 	}
@@ -214,7 +210,12 @@ TableFile* TableFiles::getfile(const string &name)
 	}
 }
 
-std::map<String,TableFile*> &TableFiles::files()
+std::map<std::string,TableFile*> &TableFiles::files()
+{
+	return allfiles;
+}
+
+const map<string,TableFile*> &TableFiles::files() const
 {
 	return allfiles;
 }

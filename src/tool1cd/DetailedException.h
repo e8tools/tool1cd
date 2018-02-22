@@ -27,7 +27,7 @@ public:
 	virtual const char *what() const throw() override ;
 
 private:
-	String message;
+	std::string message;
 	TStringList params;
 };
 
