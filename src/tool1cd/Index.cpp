@@ -38,7 +38,7 @@ Index::~Index()
 }
 
 //---------------------------------------------------------------------------
-String Index::getname()
+string Index::getname() const
 {
 	return name;
 }
@@ -88,8 +88,7 @@ void Index::create_recordsindex()
 
 	if(!start) return;
 
-	String readindex("Чтение индекса ");
-	msreg_g.Status(readindex);
+	msreg_g.Status("Чтение индекса ");
 
 	buf = new char[pagesize];
 
@@ -130,7 +129,9 @@ void Index::create_recordsindex()
 			{
 				recordsindex[curindex++] = *(uint32_t*)rbuf & mask;
 				rbuf += rlen;
-				if(curindex % 10000 == 0) msreg_g.Status(readindex + curindex);
+				if(curindex % 10000 == 0) {
+					msreg_g.Status(string("Чтение индекса ") + to_string(curindex));
+				}
 			}
 			if(curblock == LAST_PAGE) break; // FIXME: разобраться LAST_PAGE == UINT_MAX, а тут uint64_t curblock
 			if(version >= db_ver::ver8_3_8_0) curblock *= pagesize;
@@ -148,12 +149,9 @@ void Index::create_recordsindex()
 //---------------------------------------------------------------------------
 void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, uint64_t curblock)
 {
-	unsigned char bf[3];
 	char* buf;
 	char* rbuf;
 	uint32_t curlen;
-
-	String s;
 
 	char* curindex;
 
@@ -163,7 +161,6 @@ void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 	buf = new char[pagesize];
 	lph = (leaf_page_header*)buf;
 	bph = (branch_page_header*)buf;
-	bf[2] = ' ';
 	file_index->getdata(buf, curblock, pagesize);
 	curlen = bph->number_indexes;
 	if(curlen)
@@ -185,24 +182,26 @@ void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 			char *ibuf = buf + pagesize;
 			unsigned previous_right = length;
 
-			s = "=";
-			s += level;
-			s += " leaf, curblock ";
-			s += curblock == LAST_PAGE ? -1 : (curblock / pagesize);
-			s += ", count ";
-			s += curlen;
-			s += ", free ";
-			s += lph->freebytes;
-			s += ", rec ";
-			s += numrecbits;
-			s += ", left ";
-			s += leftbits;
-			s += ", right ";
-			s += lph->rightbits;
-			s += ", bytes ";
-			s += recbytes;
-			s += "\r\n";
-			f->Write(s.c_str(), s.size());
+			{
+				string s = "=";
+				s += level;
+				s += " leaf, curblock ";
+				s += curblock == LAST_PAGE ? -1 : (curblock / pagesize);
+				s += ", count ";
+				s += curlen;
+				s += ", free ";
+				s += lph->freebytes;
+				s += ", rec ";
+				s += numrecbits;
+				s += ", left ";
+				s += leftbits;
+				s += ", right ";
+				s += lph->rightbits;
+				s += ", bytes ";
+				s += recbytes;
+				s += "\r\n";
+				f->WriteString(s);
+			}
 
 			for (unsigned i = 0; i < curlen; i++)
 			{
@@ -219,12 +218,13 @@ void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 				if(right > previous_right) memset(curindex + length - right, 0, right - previous_right);
 				previous_right = right;
 
-				s = "  -";
+				string s = "  -";
 				s += level;
 				s += ": ";
 				f->Write(s.c_str(), s.size());
 				for(j = 0; j < length; j++)
 				{
+					unsigned char bf[3] = {' ', ' ', ' '};
 					unsigned char b = curindex[j];
 					b >>= 4;
 					b += '0';
@@ -247,7 +247,7 @@ void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 		}
 		else
 		{
-			s = "*";
+			string s = "*";
 			s += level;
 			s += " branch, curblock ";
 			s += curblock == LAST_PAGE ? -1 : (curblock / pagesize);
@@ -275,6 +275,7 @@ void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 				f->Write(s.c_str(), s.size());
 				for (unsigned j = 0; j < length; j++)
 				{
+					unsigned char bf[3] = {' ', ' ', ' '};
 					unsigned char b = curindex[j];
 					b >>= 4;
 					b += '0';
@@ -333,11 +334,10 @@ uint32_t Index::get_length()
 }
 
 //---------------------------------------------------------------------------
-void Index::dump(String _filename)
+void Index::dump(const string &_filename)
 {
 	TFileStream* f;
 	v8object* file_index;
-	String s;
 
 	f = new TFileStream(_filename, fmCreate);
 
@@ -357,10 +357,8 @@ void Index::dump(String _filename)
 		length = *(int16_t*)(buf + 4);
 	}
 
-	s = "Index length ";
-	s += length;
-	s += "\r\n";
-	f->Write(s.c_str(), s.size());
+	string index_info = string("Index length ").append(to_string(length)).append("\r\n");
+	f->WriteString(index_info);
 
 	dump_recursive(file_index, f, 0, rootblock);
 
@@ -1165,11 +1163,11 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 class IndexReadError : public DetailedException
 {
 public:
-	IndexReadError(const String &message)
+	IndexReadError(const string &message)
 			: DetailedException(message)
 	{}
 
-	IndexReadError(const String &message, const String &index_name)
+	IndexReadError(const string &message, const string &index_name)
 			: DetailedException(message)
 	{
 		add_detail("Индекс", index_name);
@@ -1224,7 +1222,7 @@ Index *Index::index_from_tree(tree *f, Table *parent)
 					.add_detail("Номер поля индекса", j + 1);
 		}
 
-		String field_name = in->get_value();
+		string field_name = in->get_value();
 		ind->records[j].field = parent->find_field(field_name);
 
 		if (!ind->records[j].field) {

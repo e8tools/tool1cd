@@ -111,13 +111,13 @@ void Table::init()
 class TableReadError : public DetailedException
 {
 public:
-	TableReadError(const String &message, int32_t block_descr)
+	TableReadError(const string &message, int32_t block_descr)
 			: DetailedException(message)
 	{
 		add_detail("Блок", to_hex_string(block_descr));
 	}
 
-	TableReadError(const String &message, int32_t block_descr, const String &table_name)
+	TableReadError(const string &message, int32_t block_descr, const string &table_name)
 			: DetailedException(message)
 	{
 		add_detail("Блок", to_hex_string(block_descr));
@@ -143,7 +143,7 @@ void Table::init(int32_t block_descr)
 		return;
 	}
 
-	std::unique_ptr<tree> root(parse_1Ctext(description, String("Блок ") + block_descr));
+	std::unique_ptr<tree> root(parse_1Ctext(description, string("Блок ") + to_string(block_descr)));
 
 	if (!root) {
 		throw TableReadError("Ошибка разбора текста описания таблицы.", block_descr);
@@ -846,30 +846,29 @@ uint32_t Table::readBlob(void* buf, uint32_t _startblock, uint32_t _length) cons
 //---------------------------------------------------------------------------
 bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool unpack)
 {
-	String s;
-	String recname;
+	string recname;
 	uint32_t j, numr, nr;
 	bool canwriteblob = false;
 	Index* curindex = nullptr;
 	int32_t repeat_count; // количество повторов имени записи подряд (для случая, если индекс не уникальный)
 
 	char UnicodeHeader[3] = {'\xef', '\xbb', '\xbf'}; // BOM UTF-8
-	String part1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!--Файл сформирован программой Tool_1CD-->\r\n<Table Name=\"";
-	String part2 = "\">\r\n\t<Fields>\r\n";
-	String part3 = "\t</Fields>\r\n\t<Records>\r\n";
-	String part4 = "\t</Records>\r\n</Table>\r\n";
+	string part1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!--Файл сформирован программой Tool_1CD-->\r\n<Table Name=\"";
+	string part2 = "\">\r\n\t<Fields>\r\n";
+	string part3 = "\t</Fields>\r\n\t<Records>\r\n";
+	string part4 = "\t</Records>\r\n</Table>\r\n";
 
-	String fpart1 = "\t\t<Field Name=\"";
-	String fpart2 = "\" Type=\"";
-	String fpart3 = "\" Length=\"";
-	String fpart4 = "\" Precision=\"";
-	String fpart6 = "\" NotNull=\"";
-	String fpart5 = "\"/>\r\n";
+	string fpart1 = "\t\t<Field Name=\"";
+	string fpart2 = "\" Type=\"";
+	string fpart3 = "\" Length=\"";
+	string fpart4 = "\" Precision=\"";
+	string fpart6 = "\" NotNull=\"";
+	string fpart5 = "\"/>\r\n";
 
-	String rpart1 = "\t\t<Record>\r\n";
-	String rpart2 = "\t\t</Record>\r\n";
-	String rpart3 = "\t\t\t<";
-	String status = "Экспорт таблицы ";
+	string rpart1 = "\t\t<Record>\r\n";
+	string rpart2 = "\t\t</Record>\r\n";
+	string rpart3 = "\t\t\t<";
+	string status = "Экспорт таблицы ";
 	status += name;
 	status += " ";
 
@@ -893,9 +892,9 @@ bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool 
 		f.WriteString(fpart2);
 		f.WriteString(field->get_presentation_type());
 		f.WriteString(fpart3);
-		f.WriteString(String(field->getlength()));
+		f.WriteString(to_string(field->getlength()));
 		f.WriteString(fpart4);
-		f.WriteString(String(field->getprecision()));
+		f.WriteString(to_string(field->getprecision()));
 		f.WriteString(fpart6);
 		f.WriteString(((field->getnull_exists()) ? "false" : "true"));
 		f.WriteString(fpart5);
@@ -919,7 +918,9 @@ bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool 
 
 	for(j = 0; j < numr; j++)
 	{
-		if(j % 100 == 0 && j) msreg_g.Status(status + j);
+		if (j % 100 == 0 && j) {
+			msreg_g.Status(status + to_string(j));
+		}
 
 		f.Write(rpart1.c_str(), rpart1.size());
 		if(curindex) nr = curindex->get_numrec(j);
@@ -1283,13 +1284,15 @@ void Table::import_table(const std::string &path)
 			}
 			str.resize(pos_files);
 			str += "{\"Files\",";
-			str += file_data ? String(file_data->get_block_number()) : String("0");
+			str += file_data ? to_string(file_data->get_block_number()) : string("0");
 			str += ",";
-			str += file_blob ? String(file_blob->get_block_number()) : String("0");
+			str += file_blob ? to_string(file_blob->get_block_number()) : string("0");
 			str += ",";
-			str += file_index ? String(file_index->get_block_number()) : String("0");
+			str += file_index ? to_string(file_index->get_block_number()) : string("0");
 			str += "}\n}";
-			descr_table->setdata(str.c_str(), str.size() * 2);
+
+			auto data = TEncoding::Unicode->fromUtf8(str);
+			descr_table->setdata(data.data(), data.size());
 
 		}
 

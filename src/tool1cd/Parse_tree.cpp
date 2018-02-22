@@ -338,7 +338,7 @@ tree* parse_flow(flow_type source, const std::string &path)
 						if(!t)
 						{
 							throw DetailedException("Ошибка формата потока. Лишняя закрывающая скобка }.")
-								.add_detail("Позиция", pos)
+								.add_detail("Позиция", to_string(pos))
 								.add_detail("Путь", path);
 						}
 						state = state_type::s_delimiter;
@@ -369,13 +369,13 @@ tree* parse_flow(flow_type source, const std::string &path)
 						if(!t)
 						{
 							throw DetailedException("Ошибка формата потока. Лишняя закрывающая скобка }.")
-											.add_detail("Позиция", pos)
+											.add_detail("Позиция", to_string(pos))
 											.add_detail("Путь", path);
 						}
 						break;
 					default:
 						throw DetailedException("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.")
-										.add_detail("Символ", sym)
+										.add_detail("Символ", string(1, sym))
 										.add_detail("Код символа", to_hex_string(sym))
 										.add_detail("Путь", path);
 				}
@@ -411,14 +411,14 @@ tree* parse_flow(flow_type source, const std::string &path)
 							if(!t)
 							{
 								throw DetailedException("Ошибка формата потока. Лишняя закрывающая скобка }.")
-												.add_detail("Позиция", pos)
+												.add_detail("Позиция", to_string(pos))
 												.add_detail("Путь", path);
 							}
 							state = state_type::s_delimiter;
 							break;
 						default:
 							throw DetailedException("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.")
-											.add_detail("Символ", sym)
+											.add_detail("Символ", string(1, sym))
 											.add_detail("Код символа", to_hex_string(sym))
 											.add_detail("Путь", path);
 					}
@@ -449,7 +449,7 @@ tree* parse_flow(flow_type source, const std::string &path)
 						t = t->get_parent();
 						if (!t) {
 							throw DetailedException("Ошибка формата потока. Лишняя закрывающая скобка }.")
-									.add_detail("Позиция", pos)
+									.add_detail("Позиция", to_string(pos))
 									.add_detail("Путь", path);
 						}
 						state = state_type::s_delimiter;

@@ -47,7 +47,7 @@ public:
 		return case_sensitive;
 	}
 
-	virtual String get_presentation_type() const override
+	virtual string get_presentation_type() const override
 	{
 		switch(type)
 		{
@@ -89,19 +89,19 @@ public:
 		return len;
 	}
 
-	virtual String get_presentation(
-				const char* rec,
-				bool EmptyNull,
-				wchar_t Delimiter,
-				bool ignore_showGUID,
-				bool detailed) const override;
+	virtual string get_presentation(
+			const char *rec,
+			bool EmptyNull,
+			wchar_t Delimiter,
+			bool ignore_showGUID,
+			bool detailed) const override;
 
-	virtual String get_fast_presentation(
-			const char* rec) const;
+	virtual string get_fast_presentation(
+			const char *rec) const;
 
-	virtual bool get_binary_value(char *buf, const String &value) const override;
+	virtual bool get_binary_value(char *buf, const string &value) const override;
 
-	virtual String get_XML_presentation(
+	virtual string get_XML_presentation(
 			const char *rec,
 			const Table *parent,
 			bool ignore_showGUID) const override;
@@ -119,7 +119,7 @@ public:
 	mutable int32_t len {0};
 };
 
-String CommonFieldType::get_fast_presentation(const char* rec) const
+string CommonFieldType::get_fast_presentation(const char *rec) const
 {
 	return get_presentation(rec, false, 0, false, false);
 }
@@ -133,18 +133,18 @@ public:
 	{
 	}
 
-	virtual String get_presentation(
-			const char* rec,
+	virtual string get_presentation(
+			const char *rec,
 			bool EmptyNull,
 			wchar_t Delimiter,
 			bool ignore_showGUID,
 			bool detailed) const override;
 
 	virtual bool get_binary_value(
-			char* buf,
-			const String& value) const override;
+			char *buf,
+			const string &value) const override;
 
-	virtual String get_XML_presentation(
+	virtual string get_XML_presentation(
 			const char *rec,
 			const Table *parent,
 			bool ignore_showGUID) const override;
@@ -164,7 +164,7 @@ public:
 	{
 	}
 
-	virtual String get_presentation(
+	virtual string get_presentation(
 			const char* rec,
 			bool EmptyNull,
 			wchar_t Delimiter,
@@ -172,10 +172,10 @@ public:
 			bool detailed) const override;
 
 	virtual bool get_binary_value(
-			char* buf,
-			const String& value) const override;
+			char *buf,
+			const string &value) const override;
 
-	virtual String get_XML_presentation(
+	virtual string get_XML_presentation(
 			const char *rec,
 			const Table *parent,
 			bool ignore_showGUID) const override;
@@ -194,7 +194,7 @@ public:
 			{
 			}
 
-	virtual String get_presentation(
+	virtual string get_presentation(
 			const char* rec,
 			bool EmptyNull,
 			wchar_t Delimiter,
@@ -203,9 +203,9 @@ public:
 
 	virtual bool get_binary_value(
 			char* buf,
-			const String& value) const override;
+			const string& value) const override;
 
-	virtual String get_XML_presentation(
+	virtual string get_XML_presentation(
 			const char *rec,
 			const Table *parent,
 			bool ignore_showGUID) const override;
@@ -216,7 +216,7 @@ public:
 			int32_t maxlen) const override;
 };
 
-bool BinaryFieldType::get_binary_value(char* binary_value, const String& value) const
+bool BinaryFieldType::get_binary_value(char *binary_value, const string &value) const
 {
 	unsigned char* fr = (unsigned char*)binary_value;
 	memset(fr, 0, len);
@@ -271,7 +271,8 @@ bool BinaryFieldType::get_binary_value(char* binary_value, const String& value) 
 	return true;
 }
 
-String BinaryFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed) const
+string BinaryFieldType::get_presentation(const char *rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID,
+										 bool detailed) const
 {
 	char sym;
 	int32_t i, m;
@@ -319,12 +320,10 @@ String BinaryFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_
 	return "{?}";
 }
 
-String BinaryFieldType::get_XML_presentation(const char *rec, const Table *parent, bool ignore_showGUID) const
+string BinaryFieldType::get_XML_presentation(const char *rec, const Table *parent, bool ignore_showGUID) const
 {
 	char sym;
 	int32_t i, m;
-
-	String s;
 
 	unsigned char* fr = (unsigned char*)rec;
 
@@ -400,7 +399,7 @@ uint32_t BinaryFieldType::getSortKey(const char* rec, unsigned char* SortKey, in
 }
 
 
-bool NumericFieldType::get_binary_value(char* binary_value, const String& value) const
+bool NumericFieldType::get_binary_value(char *binary_value, const string &value) const
 {
 	int32_t l = value.size();
 	if(!l) {
@@ -413,13 +412,13 @@ bool NumericFieldType::get_binary_value(char* binary_value, const String& value)
 	return true;
 }
 
-String NumericFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed) const
+string NumericFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed) const
 {
 	BinaryDecimalNumber bdn(rec, length, precision, true);
 	return bdn.get_presentation();
 }
 
-String NumericFieldType::get_XML_presentation(const char *rec, const Table *parent, bool ignore_showGUID) const
+string NumericFieldType::get_XML_presentation(const char *rec, const Table *parent, bool ignore_showGUID) const
 {
 	return get_presentation(rec, false, 0, false, false);
 }
@@ -430,7 +429,6 @@ uint32_t NumericFieldType::getSortKey(const char* rec, unsigned char* SortKey, i
 	int32_t i, j;
 	bool k;
 	uint32_t addlen = 0;
-	String s;
 	unsigned char c;
 
 	unsigned char* fr = (unsigned char *)rec;
@@ -494,7 +492,7 @@ uint32_t NumericFieldType::getSortKey(const char* rec, unsigned char* SortKey, i
 
 
 // Ожидаем дату строго в формате "дд.ММ.гггг чч:мм:сс"
-bool DatetimeFieldType::get_binary_value(char* binary_value, const String& value) const
+bool DatetimeFieldType::get_binary_value(char* binary_value, const string& value) const
 {
 	unsigned char* fr = (unsigned char*)binary_value;
 	memset(fr, 0, len);
@@ -511,7 +509,7 @@ bool DatetimeFieldType::get_binary_value(char* binary_value, const String& value
 	return true;
 }
 
-String DatetimeFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed) const
+string DatetimeFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed) const
 {
 	return date_to_string(rec);
 }
@@ -525,7 +523,7 @@ std::string s02(const std::string &s)
 	return s;
 }
 
-String DatetimeFieldType::get_XML_presentation(const char *rec, const Table *parent, bool ignore_showGUID) const
+string DatetimeFieldType::get_XML_presentation(const char *rec, const Table *parent, bool ignore_showGUID) const
 {
 	BinaryDecimalDate bdd(rec);
 	string result;
@@ -549,7 +547,6 @@ uint32_t DatetimeFieldType::getSortKey(const char* rec, unsigned char* SortKey, 
 {
 
 	uint32_t addlen = 0;
-	String s;
 
 	unsigned char* fr = (unsigned char *)rec;
 
@@ -570,7 +567,7 @@ uint32_t DatetimeFieldType::getSortKey(const char* rec, unsigned char* SortKey, 
 }
 
 
-bool CommonFieldType::get_binary_value(char *binary_value, const String &value) const
+bool CommonFieldType::get_binary_value(char *binary_value, const string &value) const
 {
 	unsigned char* fr = (unsigned char*)binary_value;
 	memset(fr, 0, len);
@@ -626,7 +623,8 @@ bool CommonFieldType::get_binary_value(char *binary_value, const String &value) 
 	return true;
 }
 
-String CommonFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID, bool detailed) const
+string CommonFieldType::get_presentation(const char *rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID,
+										 bool detailed) const
 {
 	char sym;
 	int32_t i, m;
@@ -645,15 +643,21 @@ String CommonFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_
 			i = *(int16_t*)fr;
 			return String((WCHART*)(fr + 2), i);
 		case type_fields::tf_version:
-			return String(*(int32_t*)fr) + ":" + *(int32_t*)(fr + 4) + ":" + *(int32_t*)(fr + 8) + ":" + *(int32_t*)(fr + 12);
+			return to_string(*(int32_t*)fr)
+				   + ":" + to_string(*(int32_t*)(fr + 4))
+				   + ":" + to_string(*(int32_t*)(fr + 8))
+				   + ":" + to_string(*(int32_t*)(fr + 12));
 		case type_fields::tf_version8:
 			return String(*(int32_t*)fr) + ":" + *(int32_t*)(fr + 4);
 		case type_fields::tf_string:
-			return detailed ? String("{MEMO} [") + to_hex_string(*(int32_t*)fr) + "][" + to_hex_string(*(int32_t*)(fr + 4)) + "]" : String("{MEMO}");
+			return detailed ? string("{MEMO} [") + to_hex_string(*(int32_t*)fr)
+							  + string("][") + to_hex_string(*(int32_t*)(fr + 4)) + string("]") : string("{MEMO}");
 		case type_fields::tf_text:
-			return detailed ? String("{TEXT} [") + to_hex_string(*(int32_t*)fr) + "][" + to_hex_string(*(int32_t*)(fr + 4)) + "]" : String("{TEXT}");
+			return detailed ? string("{TEXT} [") + to_hex_string(*(int32_t*)fr)
+							  + string("][") + to_hex_string(*(int32_t*)(fr + 4)) + string("]") : string("{TEXT}");
 		case type_fields::tf_image:
-			return detailed ? String("{IMAGE} [") + to_hex_string(*(int32_t*)fr) + "][" + to_hex_string(*(int32_t*)(fr + 4)) + "]" : String("{IMAGE}");
+			return detailed ? string("{IMAGE} [") + to_hex_string(*(int32_t*)fr)
+							  + string("][") + to_hex_string(*(int32_t*)(fr + 4)) + "]" : string("{IMAGE}");
 		case type_fields::tf_varbinary:
 			m = *(int16_t*)fr; // длина + смещение
 			for(i = 0; i < m; i++)
@@ -672,13 +676,12 @@ String CommonFieldType::get_presentation(const char* rec, bool EmptyNull, wchar_
 	return "{?}";
 }
 
-String CommonFieldType::get_XML_presentation(const char *rec, const Table *parent, bool ignore_showGUID) const
+string CommonFieldType::get_XML_presentation(const char *rec, const Table *parent, bool ignore_showGUID) const
 {
 	int32_t i;
 
 	TMemoryStream* in;
 	TMemoryStream* out;
-	String s;
 
 	unsigned char* fr = (unsigned char*)rec;
 
@@ -700,13 +703,13 @@ String CommonFieldType::get_XML_presentation(const char *rec, const Table *paren
 		}
 		case type_fields::tf_version8: {
 			int32_t *retyped = (int32_t*)fr;
-			return String(retyped[0] + ":" + retyped[1]);
+			return to_string(retyped[0]) + string(":") + to_string(retyped[1]);
 		}
 		case type_fields::tf_string: {
 			uint32_t *retyped = (uint32_t*)fr;
 			out = new TMemoryStream();
 			parent->readBlob(out, retyped[0], retyped[1]);
-			s = toXML(String((WCHART*)(out->GetMemory()), out->GetSize() / 2));
+			string s = toXML(String((WCHART*)(out->GetMemory()), out->GetSize() / 2));
 			delete out;
 			return s;
 		}
@@ -714,7 +717,7 @@ String CommonFieldType::get_XML_presentation(const char *rec, const Table *paren
 			uint32_t *retyped = (uint32_t*)fr;
 			out = new TMemoryStream();
 			parent->readBlob(out, retyped[0], retyped[1]);
-			s = toXML(String((char*)(out->GetMemory()), out->GetSize()));
+			string s = toXML(string(static_cast<char*>(out->GetMemory()), 0, out->GetSize()));
 			delete out;
 			return s;
 		}
@@ -724,7 +727,7 @@ String CommonFieldType::get_XML_presentation(const char *rec, const Table *paren
 			out = new TMemoryStream();
 			parent->readBlob(in, retyped[0], retyped[1]);
 			base64_encode(in, out, 72);
-			s = String((WCHART*)(out->GetMemory()), out->GetSize() / 2);
+			string s = String((WCHART*)(out->GetMemory()), out->GetSize() / 2);
 			delete in;
 			delete out;
 			return s;
@@ -778,7 +781,7 @@ field_type_declaration field_type_declaration::parse_tree(tree *field_tree)
 	if(field_tree->get_type() != node_type::nd_string) {
 		throw FieldStreamParseException("Ошибка получения типа поля таблицы. Узел не является строкой.");
 	}
-	String sFieldType = field_tree->get_value();
+	string sFieldType = field_tree->get_value();
 	if     (sFieldType == "B")   type_declaration.type = type_fields::tf_binary;
 	else if(sFieldType == "L")   type_declaration.type = type_fields::tf_bool;
 	else if(sFieldType == "N")   type_declaration.type = type_fields::tf_numeric;
@@ -800,7 +803,7 @@ field_type_declaration field_type_declaration::parse_tree(tree *field_tree)
 		throw FieldStreamParseException("Ошибка получения признака NULL поля таблицы. Узел не является числом.")
 				.add_detail("Тип поля", sFieldType);
 	}
-	String sNullExists = field_tree->get_value();
+	string sNullExists = field_tree->get_value();
 	if     (sNullExists == "0") type_declaration.null_exists = false;
 	else if(sNullExists == "1") type_declaration.null_exists = true;
 	else {
@@ -825,7 +828,7 @@ field_type_declaration field_type_declaration::parse_tree(tree *field_tree)
 		throw FieldStreamParseException("Ошибка получения регистрочувствительности поля таблицы. Узел не является строкой.");
 	}
 
-	String sCaseSensitive = field_tree->get_value();
+	string sCaseSensitive = field_tree->get_value();
 	if     (sCaseSensitive == "CS") type_declaration.case_sensitive = true;
 	else if(sCaseSensitive == "CI") type_declaration.case_sensitive = false;
 	else {

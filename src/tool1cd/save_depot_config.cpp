@@ -23,13 +23,13 @@ using namespace std;
 {
 {216,0}
 }*/
-String serialize_version(int configVerMajor, int configVerMinor)
+string serialize_version(int configVerMajor, int configVerMinor)
 {
 	auto t = std::make_shared<tree>("", node_type::nd_list, nullptr);
 	auto tc = new tree("", node_type::nd_list, t.get());
 	tc = new tree("", node_type::nd_list, tc);
-	tc->add_child(String(configVerMajor), node_type::nd_number);
-	tc->add_child(String(configVerMinor), node_type::nd_number);
+	tc->add_child(to_string(configVerMajor), node_type::nd_number);
+	tc->add_child(to_string(configVerMinor), node_type::nd_number);
 	return outtext(t.get());
 }
 
@@ -316,7 +316,7 @@ bool T_1CD::save_depot_config(const string &_filename, int32_t ver)
 						externals_iterator.next();
 					}
 					for (auto rec : reces) {
-						String ext_name = rec->get_string(flde_extname);
+						string ext_name = rec->get_string(flde_extname);
 						if (!contains_ic(extnames, ext_name)) {
 							continue;
 						}
