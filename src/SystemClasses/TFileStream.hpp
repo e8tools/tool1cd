@@ -30,10 +30,10 @@ public:
 
 	int16_t GetHandle() const;
 
-	virtual void Close();
+	virtual void Close() override;
 	virtual void Reopen();
-	virtual int64_t Read(void *Buffer, int64_t Count);
-	virtual int64_t Write(const void *Buffer, int64_t Count);
+	virtual int64_t Read(void *Buffer, int64_t Count) override;
+	virtual int64_t Write(const void *Buffer, int64_t Count) override;
 
 protected:
 	std::string filename;

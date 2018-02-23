@@ -7,6 +7,7 @@
 
 #include "TableFiles.h"
 #include "Common.h"
+#include "DetailedException.h"
 
 using namespace std;
 
@@ -50,10 +51,8 @@ TableFiles::TableFiles(Table* t)
 	Field* partno;
 	table_rec tr, *ptr;
 	std::vector<table_rec> allrec;
-	std::map<String,int32_t> maxpartnos;
-	std::map<String,int32_t>::iterator pmaxpartno;
+	std::map<string,int32_t> maxpartnos;
 	TableFile* tf;
-	std::map<String,TableFile*>::iterator pfilesmap;
 
 	table = t;
 	ready = test_table();
@@ -94,7 +93,7 @@ TableFiles::TableFiles(Table* t)
 		allrec.push_back(tr);
 
 		string s = LowerCase(tr.name);
-		pmaxpartno = maxpartnos.find(s);
+		auto pmaxpartno = maxpartnos.find(s);
 		if(pmaxpartno == maxpartnos.end()) maxpartnos[s] = tr.partno;
 		else if(pmaxpartno->second < tr.partno) pmaxpartno->second = tr.partno;
 	}
@@ -106,7 +105,7 @@ TableFiles::TableFiles(Table* t)
 
 	for (size_t j = 0; j < allrec.size(); ++j) {
 		ptr = &(allrec[j]);
-		pfilesmap = allfiles.find(LowerCase(ptr->name));
+		auto pfilesmap = allfiles.find(LowerCase(ptr->name));
 		tf = pfilesmap->second;
 		tf->addr[ptr->partno] = ptr->addr;
 		if(!ptr->partno)
@@ -133,76 +132,67 @@ bool TableFiles::test_table()
 	if(!table) return false;
 	if(table->get_numfields() < 6)
 	{
-		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. В таблице меньше 6 полей"
-			,"Таблица", table->getname()
-			,"Кол-во полей", table->get_numfields());
-		return false;
+		throw DetailedException("Ошибка проверки таблицы контейнера файлов. В таблице меньше 6 полей")
+			.add_detail("Таблица", table->getname())
+			.add_detail("Кол-во полей", table->get_numfields());
 	}
 
 	if(table->get_numfields() > 7)
 	{
-		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. В таблице больше 7 полей"
-			,"Таблица", table->getname()
-			,"Кол-во полей", table->get_numfields());
-		return false;
+		throw DetailedException("Ошибка проверки таблицы контейнера файлов. В таблице больше 7 полей")
+			.add_detail("Таблица", table->getname())
+			.add_detail("Кол-во полей", table->get_numfields());
 	}
 
 	if (CompareIC(table->getfield(0)->getname(), "FILENAME"))
 	{
-		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Первое поле таблицы не FILENAME"
-			,"Таблица", table->getname()
-			,"Поле", table->getfield(0)->getname());
-		return false;
+		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Первое поле таблицы не FILENAME")
+			.add_detail("Таблица", table->getname())
+			.add_detail("Поле", table->getfield(0)->getname());
 	}
 
 	if (CompareIC(table->getfield(1)->getname(), "CREATION"))
 	{
-		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Второе поле таблицы не CREATION"
-			,"Таблица", table->getname()
-			,"Поле", table->getfield(1)->getname());
-		return false;
+		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Второе поле таблицы не CREATION")
+			.add_detail("Таблица", table->getname())
+			.add_detail("Поле", table->getfield(1)->getname());
 	}
 
 	if (CompareIC(table->getfield(2)->getname(), "MODIFIED"))
 	{
-		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Третье поле таблицы не MODIFIED"
-			,"Таблица", table->getname()
-			,"Поле", table->getfield(2)->getname());
-		return false;
+		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Третье поле таблицы не MODIFIED")
+			.add_detail("Таблица", table->getname())
+			.add_detail("Поле", table->getfield(2)->getname());
 	}
 
 	if (CompareIC(table->getfield(3)->getname(), "ATTRIBUTES"))
 	{
-		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Четвертое поле таблицы не ATTRIBUTES"
-			,"Таблица", table->getname()
-			,"Поле", table->getfield(3)->getname());
-		return false;
+		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Четвертое поле таблицы не ATTRIBUTES")
+			.add_detail("Таблица", table->getname())
+			.add_detail("Поле", table->getfield(3)->getname());
 	}
 
 	if (CompareIC(table->getfield(4)->getname(), "DATASIZE"))
 	{
-		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Пятое поле таблицы не DATASIZE"
-			,"Таблица", table->getname()
-			,"Поле", table->getfield(4)->getname());
-		return false;
+		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Пятое поле таблицы не DATASIZE")
+			.add_detail("Таблица", table->getname())
+			.add_detail("Поле", table->getfield(4)->getname());
 	}
 
 	if (CompareIC(table->getfield(5)->getname(), "BINARYDATA"))
 	{
-		msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Шестое поле таблицы не BINARYDATA"
-			,"Таблица", table->getname()
-			,"Поле", table->getfield(5)->getname());
-		return false;
+		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Шестое поле таблицы не BINARYDATA")
+			.add_detail("Таблица", table->getname())
+			.add_detail("Поле", table->getfield(5)->getname());
 	}
 
 	if(table->get_numfields() > 6)
 	{
 		if (CompareIC(table->getfield(6)->getname(), "PARTNO"))
 		{
-			msreg_g.AddError("Ошибка проверки таблицы контейнера файлов. Седьмое поле таблицы не PARTNO"
-				,"Таблица", table->getname()
-				,"Поле", table->getfield(6)->getname());
-			return false;
+			throw DetailedException("Ошибка проверки таблицы контейнера файлов. Седьмое поле таблицы не PARTNO")
+				.add_detail("Таблица", table->getname())
+				.add_detail("Поле", table->getfield(6)->getname());
 		}
 	}
 	return true;
@@ -211,9 +201,7 @@ bool TableFiles::test_table()
 //---------------------------------------------------------------------------
 TableFile* TableFiles::getfile(const string &name)
 {
-	std::map<String,TableFile*>::iterator p;
-
-	p = allfiles.find(LowerCase(name));
+	auto p = allfiles.find(LowerCase(name));
 	if(p == allfiles.end()) {
 		return nullptr;
 	}
@@ -222,7 +210,12 @@ TableFile* TableFiles::getfile(const string &name)
 	}
 }
 
-std::map<String,TableFile*> &TableFiles::files()
+std::map<std::string,TableFile*> &TableFiles::files()
+{
+	return allfiles;
+}
+
+const map<string,TableFile*> &TableFiles::files() const
 {
 	return allfiles;
 }

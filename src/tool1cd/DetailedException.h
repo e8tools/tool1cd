@@ -10,16 +10,24 @@
 
 class DetailedException : public std::exception {
 public:
-	DetailedException(const String &message) throw();
+	DetailedException(const std::string &message) throw();
 	DetailedException(const DetailedException &src) throw();
 
 	void show() const throw();
-	DetailedException &add_detail(const String &paramName, const String &paramValue) throw();
+	DetailedException &add_detail(const std::string &paramName, const std::string &paramValue) throw();
+
+	DetailedException &add_detail(const std::string &paramName, const char *paramValue) throw();
+
+	template <typename value_type>
+	DetailedException &add_detail(const std::string &paramName, value_type paramValue) throw()
+	{
+		return add_detail(paramName, std::to_string(paramValue));
+	}
 
 	virtual const char *what() const throw() override ;
 
 private:
-	String message;
+	std::string message;
 	TStringList params;
 };
 
@@ -27,25 +35,25 @@ private:
 class FieldStreamParseException : public DetailedException
 {
 public:
-	FieldStreamParseException(const String &message) throw();
+	FieldStreamParseException(const std::string &message) throw();
 };
 
 class SerializationException : public DetailedException
 {
 public:
-	SerializationException(const String &message) throw();
+	SerializationException(const std::string &message) throw();
 };
 
 class PackDirectoryDoesNotExistException : public DetailedException
 {
 public:
-	 PackDirectoryDoesNotExistException(const String &message) throw();
+	 PackDirectoryDoesNotExistException(const std::string &message) throw();
 };
 
 class SupplierConfigReadException : public DetailedException
 {
 public:
-	SupplierConfigReadException(const String &message) throw();
+	SupplierConfigReadException(const std::string &message) throw();
 };
 
 #endif //TOOL1CD_PROJECT_DETAILEDEXCEPTION_H

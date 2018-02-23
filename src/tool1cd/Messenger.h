@@ -12,8 +12,9 @@ private:
 public:
 	bool has_error;
 	Messenger();
-	virtual void AddMessage(const String &message, const MessageState mstate, const TStringList *param = nullptr) override;
-	virtual void Status(const String& message) override;
+	virtual void AddDetailedMessage(const std::string &message, const MessageState mstate,
+									const TStringList *param = nullptr) override;
+	virtual void Status(const std::string &message) override;
 	void setlogfile(const std::string &_logfile);
 	void setnoverbose(bool nv){noverbose = nv;}
 	void set_log_level(const MessageState _minimal_state);

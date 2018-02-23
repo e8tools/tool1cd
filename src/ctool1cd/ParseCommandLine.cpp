@@ -194,9 +194,9 @@ CommandParse::CommandParse(char **szArglist, int nArgs)
 					}
 					else
 					{
-						msreg_g.AddMessage_("Недостаточно параметров ключа командной строки.", MessageState::Error,
-							"Ключ", param);
-						// Ошибка! Недостаточно параметров ключа!
+						// TODO: Ошибка! Недостаточно параметров ключа!
+						msreg_g.AddMessage("Недостаточно параметров ключа командной строки.", MessageState::Error)
+							.with("Ключ", param);
 					}
 				}
 				if (!definitions[j].predefine_par.empty()) {
@@ -219,9 +219,9 @@ CommandParse::CommandParse(char **szArglist, int nArgs)
 			}
 			else
 			{
-				// Ошибка! Неизвестный ключ!
-				msreg_g.AddMessage_("Неизвестный ключ командной строки.", MessageState::Error,
-					"Ключ", param);
+				// TODO: Ошибка! Неизвестный ключ!
+				msreg_g.AddMessage("Неизвестный ключ командной строки.", MessageState::Error)
+					.with("Ключ", param);
 			}
 
 		}
@@ -229,10 +229,10 @@ CommandParse::CommandParse(char **szArglist, int nArgs)
 		{
 			if(!filename.empty())
 			{
-				// Ошибка! Имя файла базы уже было в командной строке!
-				msreg_g.AddMessage_("Повторное имя файла базы в командной строке.", MessageState::Error,
-					"Имя файла", filename,
-					"Повторное имя файла", param);
+				// TODO: Ошибка! Имя файла базы уже было в командной строке!
+				msreg_g.AddMessage("Повторное имя файла базы в командной строке.", MessageState::Error)
+					.with("Имя файла", filename)
+					.with("Повторное имя файла", param);
 			}
 			else filename = dequote(param);
 		}

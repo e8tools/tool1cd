@@ -62,8 +62,9 @@ void App::export_all_to_xml(const ParsedCommand &pc)
 
 		tbl->export_to_xml(filetable.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
 
-		msreg_g.AddMessage_("Выполнен экспорт таблицы в файл.", MessageState::Succesfull, "Таблица", tbl->getname(),
-							"Файл", filetable.string());
+		msreg_g.AddMessage("Выполнен экспорт таблицы в файл.", MessageState::Succesfull)
+				.with("Таблица", tbl->getname())
+				.with("Файл", filetable.string());
 	}
 } // export_all_to_xml
 
@@ -78,16 +79,16 @@ void App::export_to_xml(const ParsedCommand &pc)
 		return;
 	}
 
-	Sysutils::TStringBuilder filter(pc.param2);
-	filter.Replace("*", ".*");
-	filter.Replace("?", ".");
-	filter.Replace(" ", "\n");
-	filter.Replace("\t", "\n");
-	filter.Replace(",", "\n");
-	filter.Replace(";", "\n");
+	string filter(pc.param2);
+	filter = StringReplace(filter, "*", ".*", rfReplaceAll);
+	filter = StringReplace(filter, "?", ".", rfReplaceAll);
+	filter = StringReplace(filter, " ", "\n", rfReplaceAll);
+	filter = StringReplace(filter, "\t", "\n", rfReplaceAll);
+	filter = StringReplace(filter, ",", "\n", rfReplaceAll);
+	filter = StringReplace(filter, ";", "\n", rfReplaceAll);
 
 	TStringList filters;
-	filters.SetText(filter.ToString());
+	filters.SetText(filter);
 
 	for (int m = filters.Count() - 1; m >= 0; m--) {
 		if (filters[m].empty()) {
@@ -125,8 +126,9 @@ void App::export_to_xml(const ParsedCommand &pc)
 
 			boost::filesystem::path filetable = root_path / (tbl->getname() + ".xml");
 			tbl->export_to_xml(filetable.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
-			msreg_g.AddMessage_("Выполнен экспорт таблицы в файл.", MessageState::Succesfull, "Таблица", tbl->getname(),
-								"Файл", filetable.string());
+			msreg_g.AddMessage("Выполнен экспорт таблицы в файл.", MessageState::Succesfull)
+				.with("Таблица", tbl->getname())
+				.with("Файл", filetable.string());
 		}
 	}
 
@@ -140,16 +142,16 @@ void App::export_to_binary(const ParsedCommand &pc)
 		return;
 	}
 
-	Sysutils::TStringBuilder filter(pc.param2);
-	filter.Replace("*", ".*");
-	filter.Replace("?", ".");
-	filter.Replace(" ", "\n");
-	filter.Replace("\t", "\n");
-	filter.Replace(",", "\n");
-	filter.Replace(";", "\n");
+	string filter(pc.param2);
+	filter = StringReplace(filter, "*", ".*", rfReplaceAll);
+	filter = StringReplace(filter, "?", ".", rfReplaceAll);
+	filter = StringReplace(filter, " ", "\n", rfReplaceAll);
+	filter = StringReplace(filter, "\t", "\n", rfReplaceAll);
+	filter = StringReplace(filter, ",", "\n", rfReplaceAll);
+	filter = StringReplace(filter, ";", "\n", rfReplaceAll);
 
 	TStringList filters;
-	filters.SetText(filter.ToString());
+	filters.SetText(filter);
 
 	for (int m = filters.Count() - 1; m >= 0; m--) {
 		if (filters[m].empty()) {
@@ -188,8 +190,9 @@ void App::export_to_binary(const ParsedCommand &pc)
 				tbl->fillrecordsindex();
 			}
 			tbl->export_table(root_path.string());
-			msreg_g.AddMessage_("Выполнен экспорт таблицы в файл.", MessageState::Succesfull, "Таблица", tbl->getname(),
-			                    "Каталог", root_path.string());
+			msreg_g.AddMessage("Выполнен экспорт таблицы в файл.", MessageState::Succesfull)
+					.with("Таблица", tbl->getname())
+					.with("Каталог", root_path.string());
 		}
 	}
 
@@ -202,16 +205,16 @@ void App::import_from_binary(const ParsedCommand &pc)
 		return;
 	}
 
-	Sysutils::TStringBuilder filter(pc.param2);
-	filter.Replace("*", ".*");
-	filter.Replace("?", ".");
-	filter.Replace(" ", "\n");
-	filter.Replace("\t", "\n");
-	filter.Replace(",", "\n");
-	filter.Replace(";", "\n");
+	string filter(pc.param2);
+	filter = StringReplace(filter, "*", ".*", rfReplaceAll);
+	filter = StringReplace(filter, "?", ".", rfReplaceAll);
+	filter = StringReplace(filter, " ", "\n", rfReplaceAll);
+	filter = StringReplace(filter, "\t", "\n", rfReplaceAll);
+	filter = StringReplace(filter, ",", "\n", rfReplaceAll);
+	filter = StringReplace(filter, ";", "\n", rfReplaceAll);
 
 	TStringList filters;
-	filters.SetText(filter.ToString());
+	filters.SetText(filter);
 
 	for (int m = filters.Count() - 1; m >= 0; m--) {
 		if (filters[m].empty()) {
@@ -250,8 +253,9 @@ void App::import_from_binary(const ParsedCommand &pc)
 				tbl->fillrecordsindex();
 			}
 			tbl->import_table(root_path.string());
-			msreg_g.AddMessage_("Выполнен импорт таблицы из файла.", MessageState::Succesfull, "Таблица",
-			                    tbl->getname(), "Каталог", root_path.string());
+			msreg_g.AddMessage("Выполнен импорт таблицы из файла.", MessageState::Succesfull)
+					.with("Таблица", tbl->getname())
+					.with("Каталог", root_path.string());
 		}
 	}
 
@@ -273,11 +277,11 @@ void App::save_config(const boost::filesystem::path& param_path)
 	}
 
 	if (base1CD->save_config(cfpath)) {
-		msreg_g.AddMessage_("Сохранение конфигурации базы данных завершено.", MessageState::Succesfull, "Файл",
-							cfpath.string());
+		msreg_g.AddMessage("Сохранение конфигурации базы данных завершено.", MessageState::Succesfull)
+				.with("Файл", cfpath.string());
 	} else {
-		msreg_g.AddMessage_("Не удалось сохранить конфигурацию базы данных.", MessageState::Error, "Файл",
-							cfpath.string());
+		msreg_g.AddMessage("Не удалось сохранить конфигурацию базы данных.", MessageState::Error)
+				.with("Файл", cfpath.string());
 	}
 
 }
@@ -304,13 +308,13 @@ void App::save_configsave(const boost::filesystem::path& param_path)
 		}
 		cfpath /= GENERAL_CONFIG_DEFAULT_NAME();
 	}
-	if (base1CD->save_configsave(cfpath))
-		msreg_g.AddMessage_("Сохранение основной конфигурации завершено.", MessageState::Succesfull, "Файл",
-							cfpath.string());
-	else
-		msreg_g.AddMessage_("Не удалось сохранить основную конфигурацию.", MessageState::Error, "Файл",
-							cfpath.string());
-
+	if (base1CD->save_configsave(cfpath)) {
+		msreg_g.AddMessage("Сохранение основной конфигурации завершено.", MessageState::Succesfull)
+				.with("Файл", cfpath.string());
+	} else {
+		msreg_g.AddMessage("Не удалось сохранить основную конфигурацию.", MessageState::Error)
+				.with("Файл", cfpath.string());
+	}
 }
 
 // save_configsave
@@ -331,11 +335,11 @@ void App::save_vendors_configs(const boost::filesystem::path& param_path) {
 		string file_name = supplier_config->name() + " " + supplier_config->version() + CF_STR;
 		boost::filesystem::path cfpath = param_path / file_name;
 		if ( supplier_config->save_to_file(cfpath) ) {
-			msreg_g.AddMessage_("Сохранение конфигурации поставщика завершено.", MessageState::Succesfull, "Файл",
-													cfpath.string());
+			msreg_g.AddMessage("Сохранение конфигурации поставщика завершено.", MessageState::Succesfull)
+					.with("Файл", cfpath.string());
 		} else {
-			msreg_g.AddMessage_("Не удалось сохранить конфигурацию поставщика.", MessageState::Error, "Файл",
-													cfpath.string());
+			msreg_g.AddMessage("Не удалось сохранить конфигурацию поставщика.", MessageState::Error)
+					.with("Файл", cfpath.string());
 		}
 	}
 }
@@ -405,13 +409,13 @@ void App::save_depot_config(const ParsedCommand &pc)
 		}
 		cfpath /= string("v").append(std::to_string(version_number)).append(CF_STR);
 	}
-	if (base1CD->save_depot_config(cfpath.string(), version_number))
-		msreg_g.AddMessage_("Сохранение конфигурации хранилища завершено.", MessageState::Succesfull, "Файл",
-		                    cfpath.string());
-	else
-		msreg_g.AddMessage_("Не удалось сохранить конфигурацию хранилища.", MessageState::Error, "Файл",
-		                    cfpath.string());
-
+	if (base1CD->save_depot_config(cfpath.string(), version_number)) {
+		msreg_g.AddMessage("Сохранение конфигурации хранилища завершено.", MessageState::Succesfull)
+				.with("Файл", cfpath.string());
+	} else {
+		msreg_g.AddMessage("Не удалось сохранить конфигурацию хранилища.", MessageState::Error)
+				.with("Файл", cfpath.string());
+	}
 } // save_depot_config
 
 // save_depot_config_part
@@ -443,7 +447,7 @@ void App::save_depot_config_part(const ParsedCommand &pc)
 
 	auto version_exists = [&](int32_t ver) {
 		if (!ver) {
-			msreg_g.AddError("Запрошенной версии конфигурации нет в хранилище конфигурации.", "Версия", ver);
+			msreg_g.AddError("Запрошенной версии конфигурации нет в хранилище конфигурации.").with("Версия", ver);
 			return false;
 		}
 		return true;
@@ -461,11 +465,11 @@ void App::save_depot_config_part(const ParsedCommand &pc)
 	}
 
 	if (base1CD->save_part_depot_config(save_path.string(), begin_version, end_version)) {
-		msreg_g.AddMessage_("Сохранение файлов конфигурации хранилища завершено.", MessageState::Succesfull, "Файл",
-		                    save_path.string());
+		msreg_g.AddMessage("Сохранение файлов конфигурации хранилища завершено.", MessageState::Succesfull)
+				.with("Файл", save_path.string());
 	} else {
-		msreg_g.AddMessage_("Не удалось сохранить файлы конфигурации хранилища.", MessageState::Error, "Файл",
-		                    save_path.string());
+		msreg_g.AddMessage("Не удалось сохранить файлы конфигурации хранилища.", MessageState::Error)
+				.with("Файл", save_path.string());
 	}
 } // save_depot_config_part
 
@@ -536,12 +540,12 @@ int App::Run()
 	base1CD.reset(new T_1CD(dbpath.string(), &mess, !ActionOpenBaseNotMonopolyChecked));
 
 	if (base1CD->is_open()) {
-		msreg_g.AddMessage_("База данных 1CD открыта", MessageState::Succesfull,
-							"Файл", dbpath.string(),
-							"Версия базы", base1CD->ver,
-							"Locale", base1CD->locale,
-							"Режим", base1CD->get_readonly() ? "Только чтение" : "Редактирование",
-							"Количество таблиц", base1CD->get_numtables());
+		msreg_g.AddMessage ("База данных 1CD открыта", MessageState::Succesfull)
+							.with("Файл", dbpath.string())
+							.with("Версия базы", base1CD->ver)
+							.with("Locale", string(base1CD->locale))
+							.with("Режим", base1CD->get_readonly() ? string("Только чтение") : string("Редактирование"))
+							.with("Количество таблиц", base1CD->get_numtables());
 	} else {
 		msreg_g.AddError("Попытка выгрузки файлов конфигурации хранилища без открытой базы.");
 		return CTOOL_1CD_FILE_NOT_OPEN;

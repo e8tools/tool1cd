@@ -6,7 +6,7 @@ namespace System {
 namespace Classes {
 
 
-TStreamWriter::TStreamWriter(const String &Filename, TEncoding* Encoding, int BufferSize)
+TStreamWriter::TStreamWriter(const std::string &Filename, TEncoding *Encoding, int BufferSize)
 	: stream(new TFileStream(Filename, fmOpenReadWrite))
 {
 }
@@ -16,7 +16,7 @@ TStreamWriter::TStreamWriter(TStream *stream, TEncoding* Encoding, int BufferSiz
 {
 }
 
-void TStreamWriter::Write(const String &s)
+void TStreamWriter::Write(const std::string &s)
 {
 	// TODO: кодировка TEncoding::Convert()
 	stream->Write(s.c_str(), s.size());

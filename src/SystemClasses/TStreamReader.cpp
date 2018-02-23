@@ -20,12 +20,6 @@ int TStreamReader::Read()
 	return data;
 }
 
-String TStreamReader::ReadLine()
-{
-	// TODO: реализовать TStreamReader::ReadLine()
-	return String();
-}
-
 
 } // Classes
 

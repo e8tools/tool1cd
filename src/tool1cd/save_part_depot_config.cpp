@@ -44,7 +44,6 @@ bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, i
 
 	uint32_t i;
 	int32_t v, lastver, n;
-	String s, ss, sn, se;
 	depot_ver depotVer;
 	uint32_t configVerMajor, configVerMinor;
 	TMemoryStream* in;
@@ -321,18 +320,15 @@ bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, i
 
 								if(!ok)
 								{
-									msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
-														"Таблица", "HISTORY",
-														"Объект", sObjId,
-														"Версия", lastver);
+									throw DetailedException("Ошибка чтения объекта конфигурации")
+														.add_detail("Таблица", "HISTORY")
+														.add_detail("Объект", sObjId)
+														.add_detail("Версия", lastver);
 								}
-								else
-								{
-									TFileStream f(cath / sObjId, fmCreate);
-									sobj->Seek(0, soFromBeginning);
-									ZInflateStream(sobj, &f);
-									if(deletesobj) delete sobj;
-								}
+								TFileStream f(cath / sObjId, fmCreate);
+								sobj->Seek(0, soFromBeginning);
+								ZInflateStream(sobj, &f);
+								if(deletesobj) delete sobj;
 							}
 						}
 					}
@@ -378,8 +374,7 @@ bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, i
 										if (rece->get<BinaryGuid>(flde_objid) != curobj) {
 											break;
 										}
-										s = rece->get_string(flde_extname);
-										if (CompareIC(s, ext_name)) {
+										if (CompareIC(rece->get_string(flde_extname), ext_name)) {
 											continue;
 										}
 
@@ -411,13 +406,12 @@ bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, i
 										}
 										if(!ok)
 										{
-											msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
-																"Таблица", "EXTERNALS",
-																"Объект", sObjId,
-																"Файл конфигурации", ext_name,
-																"Версия", v);
+											throw DetailedException("Ошибка чтения объекта конфигурации")
+																.add_detail("Таблица", "EXTERNALS")
+																.add_detail("Объект", sObjId)
+																.add_detail("Файл конфигурации", ext_name)
+																.add_detail("Версия", v);
 										}
-										else
 										{
 											out->SetSize(0);
 											sobj->Seek(0, soFromBeginning);

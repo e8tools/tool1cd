@@ -43,11 +43,11 @@ public:
 
 public:
 
-	virtual int64_t Read(void *Buffer, int64_t Count);
+	virtual int64_t Read(void *Buffer, int64_t Count) = 0;
 
 	virtual int64_t Seek(const int64_t offset, const TSeekOrigin Origin);
 
-	virtual int64_t Write(const void *Buffer, int64_t Count);
+	virtual int64_t Write(const void *Buffer, int64_t Count) = 0;
 
 	virtual int64_t ReadBuffer(void *Buffer, int64_t Count);
 
@@ -88,9 +88,9 @@ protected:
 
 public:
 
-	virtual int64_t Read(void *Buffer, int64_t Count);
+	virtual int64_t Read(void *Buffer, int64_t Count) override ;
 
-	virtual int64_t Write(const void *Buffer, int64_t Count);
+	virtual int64_t Write(const void *Buffer, int64_t Count) override ;
 
 	virtual ~TWrapperStream();
 

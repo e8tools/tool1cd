@@ -6,6 +6,9 @@
 #include "V8Object.h"
 #include "Common.h"
 #include "Constants.h"
+#include "DetailedException.h"
+
+using namespace std;
 
 v8object* v8object::first = nullptr;
 v8object* v8object::last = nullptr;
@@ -87,9 +90,8 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 		{
 			delete t;
 			init();
-			msreg_g.AddError("Ошибка получения объекта из блока. Блок не является объектом.",
-				"Блок", to_hex_string(blockNum));
-			return;
+			throw DetailedException("Ошибка получения объекта из блока. Блок не является объектом.")
+				.add_detail("Блок", to_hex_string(blockNum));
 		}
 
 		len = t->len;
@@ -143,9 +145,8 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 		{
 			delete[] b;
 			init();
-			msreg_g.AddError("Ошибка получения файла из страницы. Страница не является заголовочной страницей файла данных.",
-				"Блок", to_hex_string(blockNum));
-			return;
+			throw DetailedException("Ошибка получения файла из страницы. Страница не является заголовочной страницей файла данных.")
+				.add_detail("Блок", to_hex_string(blockNum));
 		}
 
 		len = t->len;
@@ -154,10 +155,9 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 		{
 			delete[] b;
 			init();
-			msreg_g.AddError("Ошибка получения файла из страницы. Длина файла больше допустимой при одноуровневой таблице размещения.",
-				"Блок", to_hex_string(blockNum),
-				"Длина файла", len);
-			return;
+			throw DetailedException("Ошибка получения файла из страницы. Длина файла больше допустимой при одноуровневой таблице размещения.")
+				.add_detail("Блок", to_hex_string(blockNum))
+				.add_detail("Длина файла", len);
 		}
 		version.version_1 = t->version.version_1;
 		version.version_2 = t->version.version_2;
@@ -198,9 +198,8 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 		{
 			delete[] b;
 			init();
-			msreg_g.AddError("Ошибка получения файла из страницы. Страница не является заголовочной страницей файла свободных блоков.",
-				"Блок", to_hex_string(blockNum));
-			return;
+			throw DetailedException("Ошибка получения файла из страницы. Страница не является заголовочной страницей файла свободных блоков.")
+				.add_detail("Блок", to_hex_string(blockNum));
 		}
 
 		len = 0; // ВРЕМЕННО! Пока не понятна структура файла свободных страниц
@@ -231,12 +230,10 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 	}
 
 
-	#ifdef _DEBUG
-	msreg_g.AddDebugMessage("Создан объект", MessageState::Info,
-		"Номер блока", to_hex_string(blockNum),
-		"Длина", len,
-		"Версия данных", String(version.version_1) + ":" + version.version_2);
-	#endif
+	msreg_g.AddDebugMessage("Создан объект", MessageState::Info)
+			.with("Номер блока", to_hex_string(blockNum))
+			.with("Длина", len)
+			.with("Версия данных", to_string(version.version_1).append(":").append(to_string(version.version_2)));
 
 }
 
@@ -390,12 +387,11 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 		{
 			if(_start + _length > len * 4)
 			{
-				msreg_g.AddError("Попытка чтения данных за пределами объекта",
-					"Номер блока объекта", to_hex_string(block),
-					"Длина объекта", len * 4,
-					"Начало читаемых данных", _start,
-					"Длина читаемых данных", _length);
-				return nullptr;
+				throw DetailedException("Попытка чтения данных за пределами объекта")
+					.add_detail("Номер блока объекта", to_hex_string(block))
+					.add_detail("Длина объекта", len * 4)
+					.add_detail("Начало читаемых данных", _start)
+					.add_detail("Длина читаемых данных", _length);
 			}
 
 			curblock = _start >> 12;
@@ -421,12 +417,11 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 		{
 			if(_start + _length > len)
 			{
-				msreg_g.AddError("Попытка чтения данных за пределами объекта",
-					"Номер блока объекта", to_hex_string(block),
-					"Длина объекта", len,
-					"Начало читаемых данных", _start,
-					"Длина читаемых данных", _length);
-				return nullptr;
+				throw DetailedException("Попытка чтения данных за пределами объекта")
+					.add_detail("Номер блока объекта", to_hex_string(block))
+					.add_detail("Длина объекта", len)
+					.add_detail("Начало читаемых данных", _start)
+					.add_detail("Длина читаемых данных", _length);
 			}
 
 			curblock = _start >> 12;
@@ -465,12 +460,11 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 		{
 			if(_start + _length > len)
 			{
-				msreg_g.AddError("Попытка чтения данных за пределами объекта",
-					"Номер блока объекта", to_hex_string(block),
-					"Длина объекта", len,
-					"Начало читаемых данных", _start,
-					"Длина читаемых данных", _length);
-				return nullptr;
+				throw DetailedException("Попытка чтения данных за пределами объекта")
+					.add_detail("Номер блока объекта", to_hex_string(block))
+					.add_detail("Длина объекта", len)
+					.add_detail("Начало читаемых данных", _start)
+					.add_detail("Длина читаемых данных", _length);
 			}
 
 			curblock = _start / base->pagesize;
@@ -540,7 +534,7 @@ uint64_t v8object::getlen()
 }
 
 //---------------------------------------------------------------------------
-void v8object::savetofile(String _filename)
+void v8object::savetofile(const std::string &_filename)
 {
 	uint64_t pagesize = base->pagesize;
 	TFileStream fs(_filename, fmCreate);
@@ -629,16 +623,14 @@ bool v8object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 
 	if(base->get_readonly())
 	{
-		msreg_g.AddError("Попытка записи в файл в режиме \"Только чтение\"",
-			"Номер страницы файла", to_hex_string(block));
-		return false;
+		throw DetailedException("Попытка записи в файл в режиме \"Только чтение\"")
+			.add_detail("Номер страницы файла", to_hex_string(block));
 	}
 
 	if(type == v8objtype::free80 || type == v8objtype::free838)
 	{
-		msreg_g.AddError("Попытка прямой записи в файл свободных страниц",
-			"Номер страницы файла", to_hex_string(block));
-		return false;
+		throw DetailedException("Попытка прямой записи в файл свободных страниц")
+			.add_detail("Номер страницы файла", to_hex_string(block));
 	}
 
 	lastdataget = GetTickCount();
@@ -740,16 +732,14 @@ bool v8object::setdata(const void* _buf, uint64_t _length)
 
 	if(base->get_readonly())
 	{
-		msreg_g.AddError("Попытка записи в файл в режиме \"Только чтение\"",
-			"Номер страницы файла", to_hex_string(block));
-		return false;
+		throw DetailedException("Попытка записи в файл в режиме \"Только чтение\"")
+			.add_detail("Номер страницы файла", to_hex_string(block));
 	}
 
 	if(type == v8objtype::free80 || type == v8objtype::free838)
 	{
-		msreg_g.AddError("Попытка прямой записи в файл свободных страниц",
-			"Номер страницы файла", to_hex_string(block));
-		return false;
+		throw DetailedException("Попытка прямой записи в файл свободных страниц")
+			.add_detail("Номер страницы файла", to_hex_string(block));
 	}
 
 	delete[] data;
@@ -839,16 +829,14 @@ bool v8object::setdata(TStream* stream)
 
 	if(base->get_readonly())
 	{
-		msreg_g.AddError("Попытка записи в файл в режиме \"Только чтение\"",
-			"Номер страницы файла", to_hex_string(block));
-		return false;
+		throw DetailedException("Попытка записи в файл в режиме \"Только чтение\"")
+			.add_detail("Номер страницы файла", to_hex_string(block));
 	}
 
 	if(type == v8objtype::free80 || type == v8objtype::free838)
 	{
-		msreg_g.AddError("Попытка прямой записи в файл свободных страниц",
-			"Номер страницы файла", to_hex_string(block));
-		return false;
+		throw DetailedException("Попытка прямой записи в файл свободных страниц")
+			.add_detail("Номер страницы файла", to_hex_string(block));
 	}
 
 	delete[] data;
@@ -938,16 +926,14 @@ bool v8object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 
 	if(base->get_readonly())
 	{
-		msreg_g.AddError("Попытка записи в файл в режиме \"Только чтение\"",
-			"Номер страницы файла", to_hex_string(block));
-		return false;
+		throw DetailedException("Попытка записи в файл в режиме \"Только чтение\"")
+			.add_detail("Номер страницы файла", to_hex_string(block));
 	}
 
 	if(type == v8objtype::free80 || type == v8objtype::free838)
 	{
-		msreg_g.AddError("Попытка прямой записи в файл свободных страниц",
-			"Номер страницы файла", to_hex_string(block));
-		return false;
+		throw DetailedException("Попытка прямой записи в файл свободных страниц")
+			.add_detail("Номер страницы файла", to_hex_string(block));
 	}
 
 	lastdataget = GetTickCount();
@@ -1052,7 +1038,7 @@ void v8object::set_len(uint64_t _len)
 	if(type == v8objtype::free80 || type == v8objtype::free838)
 	{
 		// Таблица свободных блоков
-		msreg_g.AddError("Попытка установки длины в файле свободных страниц");
+		throw DetailedException("Попытка установки длины в файле свободных страниц");
 		return;
 	}
 
@@ -1127,11 +1113,10 @@ void v8object::set_len(uint64_t _len)
 		maxlen = base->pagesize * offsperpage * (offsperpage - 6);
 		if(_len > maxlen)
 		{
-			msreg_g.AddError("Попытка установки длины файла больше максимальной",
-				"Номер страницы файла", to_hex_string(block),
-				"Максимальная длина файла", maxlen,
-				"Запрошенная длина файла", to_hex_string(_len));
-			_len = maxlen;
+			throw DetailedException("Попытка установки длины файла больше максимальной")
+				.add_detail("Номер страницы файла", to_hex_string(block))
+				.add_detail("Максимальная длина файла", maxlen)
+				.add_detail("Запрошенная длина файла", to_hex_string(_len));
 		}
 
 		bd = (v838ob_data*)base->getblock_for_write(block, true);
@@ -1254,9 +1239,8 @@ void v8object::set_block_as_free(uint32_t block_number)
 	if(block != 1)
 	{
 		// Таблица свободных блоков
-		msreg_g.AddError("Попытка установки свободного блока в объекте, не являющимся таблицей свободных блоков",
-			"Блок объекта", block);
-		return;
+		throw DetailedException("Попытка установки свободного блока в объекте, не являющимся таблицей свободных блоков")
+			.add_detail("Блок объекта", block);
 	}
 
 	uint32_t j = len >> 10; // length / 1024
@@ -1289,9 +1273,8 @@ uint32_t v8object::get_free_block()
 	if(block != 1)
 	{
 		// Таблица свободных блоков
-		msreg_g.AddError("Попытка получения свободного блока в объекте, не являющимся таблицей свободных блоков",
-			"Блок объекта", block);
-		return 0;
+		throw DetailedException("Попытка получения свободного блока в объекте, не являющимся таблицей свободных блоков")
+			.add_detail("Блок объекта", block);
 	}
 
 	if(len)
@@ -1382,17 +1365,16 @@ TStream* v8object::readBlob(TStream* _str, uint32_t _startblock, uint32_t _lengt
 
 	if(!_startblock && _length)
 	{
-		msreg_g.AddError("Попытка чтения нулевого блока файла Blob",
-			"Номер страницы файла", to_hex_string(block));
-		return _str;
+		throw DetailedException("Попытка чтения нулевого блока файла Blob")
+			.add_detail("Номер страницы файла", to_hex_string(block));
 	}
 
 	_numblock = len >> 8;
 	if(_numblock << 8 != len)
 	{
-		msreg_g.AddError("Длина файла Blob не кратна 0x100",
-			"Номер страницы файла", to_hex_string(block),
-			"Длина файла", to_hex_string(len));
+		throw DetailedException("Длина файла Blob не кратна 0x100")
+			.add_detail("Номер страницы файла", to_hex_string(block))
+			.add_detail("Длина файла", to_hex_string(len));
 	}
 
 	_curb = new char[0x100];
@@ -1401,22 +1383,20 @@ TStream* v8object::readBlob(TStream* _str, uint32_t _startblock, uint32_t _lengt
 	{
 		if(_curblock >= _numblock)
 		{
-			msreg_g.AddError("Попытка чтения блока файла Blob за пределами файла",
-				"Номер страницы файла", to_hex_string(block),
-				"Всего блоков", _numblock,
-				"Читаемый блок", _curblock);
-			return _str;
+			throw DetailedException("Попытка чтения блока файла Blob за пределами файла")
+				.add_detail("Номер страницы файла", to_hex_string(block))
+				.add_detail("Всего блоков", _numblock)
+				.add_detail("Читаемый блок", _curblock);
 		}
 		getdata(_curb, _curblock << 8, 0x100);
 		_curblock = *(uint32_t*)_curb;
 		uint16_t _curlen = *(uint16_t*)(_curb + 4);
 		if(_curlen > 0xfa)
 		{
-			msreg_g.AddError("Попытка чтения из блока файла Blob более 0xfa байт",
-				"Номер страницы файла", to_hex_string(block),
-				"Индекс блока", _curblock,
-				"Читаемых байт", _curlen);
-			return _str;
+			throw DetailedException("Попытка чтения из блока файла Blob более 0xfa байт")
+				.add_detail("Номер страницы файла", to_hex_string(block))
+				.add_detail("Индекс блока", _curblock)
+				.add_detail("Читаемых байт", _curlen);
 		}
 		_str->Write(_curb + 6, _curlen);
 
@@ -1426,10 +1406,10 @@ TStream* v8object::readBlob(TStream* _str, uint32_t _startblock, uint32_t _lengt
 
 	if(_length != UINT_MAX) if(_str->GetSize() - startlen != _length)
 	{
-		msreg_g.AddError("Несовпадение длины Blob-поля, указанного в записи, с длиной практически прочитанных данных",
-			"Номер страницы файла", to_hex_string(block),
-			"Длина поля", _length,
-			"Прочитано", _str->GetSize() - startlen);
+		throw DetailedException("Несовпадение длины Blob-поля, указанного в записи, с длиной практически прочитанных данных")
+			.add_detail("Номер страницы файла", to_hex_string(block))
+			.add_detail("Длина поля", _length)
+			.add_detail("Прочитано", _str->GetSize() - startlen);
 	}
 
 	return _str;

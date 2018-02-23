@@ -9,16 +9,21 @@ extern Registrator msreg_g;
 
 void DetailedException::show() const throw()
 {
-	msreg_g.AddMessage(message, MessageState::Error, &params);
+	msreg_g.AddDetailedMessage(message, MessageState::Error, &params);
 }
 
-DetailedException &DetailedException::add_detail(const String &paramName, const String &paramValue) throw()
+DetailedException &DetailedException::add_detail(const std::string &paramName, const char *paramValue) throw()
+{
+	return add_detail(paramName, std::string(paramValue));
+}
+
+DetailedException &DetailedException::add_detail(const std::string &paramName, const std::string &paramValue) throw()
 {
 	params.Add(paramName + "=" + paramValue);
 	return *this;
 }
 
-DetailedException::DetailedException(const String &message) throw()
+DetailedException::DetailedException(const std::string &message) throw()
 	: message(message)
 {
 }
@@ -34,22 +39,22 @@ const char *DetailedException::what() const throw()
 }
 
 
-FieldStreamParseException::FieldStreamParseException(const String &message) throw()
+FieldStreamParseException::FieldStreamParseException(const std::string &message) throw()
 		: DetailedException(message)
 {
 }
 
-SerializationException::SerializationException(const String &message) throw()
+SerializationException::SerializationException(const std::string &message) throw()
 		: DetailedException(message)
 {
 }
 
-PackDirectoryDoesNotExistException::PackDirectoryDoesNotExistException(const System::String &message) throw()
+PackDirectoryDoesNotExistException::PackDirectoryDoesNotExistException(const std::string &message) throw()
 		: DetailedException(message)
 {
 }
 
-SupplierConfigReadException::SupplierConfigReadException(const System::String &message) throw()
+SupplierConfigReadException::SupplierConfigReadException(const std::string &message) throw()
 	: DetailedException(message)
 {
 }
