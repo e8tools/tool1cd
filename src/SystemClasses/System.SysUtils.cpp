@@ -23,6 +23,9 @@ virtual std::vector<uint8_t> GetPreamble()
 
 virtual string toUtf8(const std::vector<uint8_t> &Buffer, int offset = 0) const
 {
+	if (Buffer.empty()) {
+		return string("");
+	}
 	return string(reinterpret_cast<const char*>(Buffer.data()), offset, Buffer.size() - offset);
 }
 

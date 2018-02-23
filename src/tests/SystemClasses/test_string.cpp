@@ -48,3 +48,16 @@ TEST_CASE("StringReplace", "[SystemClasses][String][Replace]")
 	REQUIRE(StringReplace("aaa", "a", "ba") == "baaa");
 	REQUIRE(StringReplace("aaa", "a", "ba", rfReplaceAll) == "bababa");
 }
+
+TEST_CASE("Конвертация строк", "[SystemClasses][String][Encoding]")
+{
+	GIVEN( "Пустой вектор" ) {
+		vector<uint8_t> empty;
+		WHEN ("Вызываем UTF8->toUtf8()" ) {
+			string result = TEncoding::UTF8->toUtf8(empty);
+			THEN ( "Получаем пустую строку" ) {
+				REQUIRE (result.empty());
+			}
+		}
+	}
+}
