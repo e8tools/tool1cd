@@ -10,15 +10,15 @@
 #include "models/tables_list_model.h"
 #include "configurations_window.h"
 
-void MainWindow::AddMessage(
-        const String &description,
+void MainWindow::AddDetailedMessage(
+        const std::string &description,
         const MessageState mstate,
         const TStringList *param)
 {
 	this->addLogMessage(QString(description.c_str()));
 }
 
-void MainWindow::Status(const String& message)
+void MainWindow::Status(const std::string& message)
 {
 
 }

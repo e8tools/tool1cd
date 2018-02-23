@@ -18,14 +18,14 @@ public:
 
 	void addLogMessage(const QString &message);
 
-	virtual void AddMessage(
-	        const String &description,
+	virtual void AddDetailedMessage(
+	        const std::string &description,
 	        const MessageState mstate,
 	        const TStringList *param = nullptr) override
 	{
 		addLogMessage(QString(description.c_str()));
 	}
-	virtual void Status(const String& message) override
+	virtual void Status(const std::string& message) override
 	{
 
 	}

@@ -22,15 +22,15 @@ public:
 		_target = target;
 	}
 
-	virtual void AddMessage(
-	        const String &description,
+	virtual void AddDetailedMessage(
+	        const std::string &description,
 	        const MessageState mstate,
 	        const TStringList *param = nullptr) override
 	{
 		qDebug() << QString(description.c_str());
-		_target->AddMessage(description, mstate, param);
+		_target->AddDetailedMessage(description, mstate, param);
 	}
-	virtual void Status(const String& message) override
+	virtual void Status(const std::string& message) override
 	{
 		qDebug() << QString(message.c_str());
 		_target->Status(message);
