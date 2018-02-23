@@ -41,19 +41,19 @@ unsigned int reverse_byte_order(unsigned int value)
 }
 
 //---------------------------------------------------------------------------
-bool two_hex_digits_to_byte(const wchar_t hi, const wchar_t lo, unsigned char& res)
+bool two_hex_digits_to_byte(char hi, char lo, unsigned char &res)
 {
-	if(hi >= L'0' && hi <=L'9') res = (hi - L'0') << 4;
-	else if(hi >= L'a' && hi <=L'f') res = (hi - (L'a' - 0xa)) << 4;
-	else if(hi >= L'A' && hi <=L'F') res = (hi - (L'A' - 0xa)) << 4;
+	if(hi >= '0' && hi <='9') res = (hi - '0') << 4;
+	else if(hi >= 'a' && hi <='f') res = (hi - ('a' - 0xa)) << 4;
+	else if(hi >= 'A' && hi <='F') res = (hi - ('A' - 0xa)) << 4;
 	else{
 		res = 0;
 		return false;
 	}
 
-	if(lo >= L'0' && lo <=L'9') res += (lo - L'0');
-	else if(lo >= L'a' && lo <=L'f') res += (lo - (L'a' - 0xa));
-	else if(lo >= L'A' && lo <=L'F') res += (lo - (L'A' - 0xa));
+	if(lo >= '0' && lo <='9') res += (lo - '0');
+	else if(lo >= 'a' && lo <='f') res += (lo - ('a' - 0xa));
+	else if(lo >= 'A' && lo <='F') res += (lo - ('A' - 0xa));
 	else{
 		res = 0;
 		return false;

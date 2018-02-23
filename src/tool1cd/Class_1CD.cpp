@@ -1001,7 +1001,6 @@ bool T_1CD::recursive_test_stream_format(TStream *str, const string &path, bool 
 	std::vector<uint8_t> bytes2;
 	V8Catalog* cat;
 	int32_t offset;
-	wchar_t first_symbol;
 	int32_t i;
 	bool usetempfile;
 
@@ -1102,6 +1101,7 @@ bool T_1CD::recursive_test_stream_format(TStream *str, const string &path, bool 
 		if(_sb->GetSize()-offset > 0)
 		{
 			string sf = enc->toUtf8(_sb->GetBytes(), offset);
+			char first_symbol = '\0';
 			for(i = 0; i < sf.size(); i++)
 			{
 				first_symbol = sf[i];
@@ -1387,13 +1387,11 @@ bool T_1CD::test_list_of_tables()
 	char* rec;
 	bool hasDBNames;
 	bool result;
-	bool is_slave;
 	TMemoryStream* str;
 	TBytesStream* _sb;
 	TEncoding *enc;
 	std::vector<uint8_t> bytes1;
 	std::vector<uint8_t> bytes2;
-	wchar_t first_symbol;
 	int32_t i, j, l, l2;
 	uint32_t k;
 	int32_t offset;
@@ -1510,17 +1508,18 @@ bool T_1CD::test_list_of_tables()
 				bytes2 = TEncoding::Convert(enc, TEncoding::Unicode, _sb->GetBytes(), offset, _sb->GetSize()-offset);
 				string sf = enc->toUtf8(_sb->GetBytes(), offset);
 				{
+					char first_symbol = '\0';
 					for(i = 1; i <= sf.size(); i++)
 					{
 						first_symbol = sf[i];
-						if (first_symbol != L'\r'
-							&& first_symbol != L'\n'
-							&& first_symbol != L'\t'
-							&& first_symbol != L' ') {
+						if (first_symbol != '\r'
+							&& first_symbol != '\n'
+							&& first_symbol != '\t'
+							&& first_symbol != ' ') {
 							break;
 						}
 					}
-					if(first_symbol == L'{')
+					if(first_symbol == '{')
 					{
 						tree* rt = parse_1Ctext(sf, "PARAMS/DBNames");
 						if(rt)
