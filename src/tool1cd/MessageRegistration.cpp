@@ -58,7 +58,7 @@ void Registrator::Status(const string &message)
 }
 
 void Registrator::AddDetailedMessage(const string &description, const MessageState mstate,
-									 const TStringList *param)
+                                     const TStringList *param)
 {
 	if (msreg_m) {
 		msreg_m->AddDetailedMessage(description, mstate, param);

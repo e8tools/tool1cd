@@ -26,7 +26,7 @@ class MessageDetails
 {
 public:
 	MessageDetails(IMessageRegistration &owner, const std::string &initial_message, MessageState mstate)
-			: owner(owner), initial_message(initial_message), mstate(mstate)
+	        : owner(owner), initial_message(initial_message), mstate(mstate)
 	{}
 
 	MessageDetails &with(const std::string &param_name, const std::string &value)
@@ -86,7 +86,7 @@ class Registrator: public MessageRegistrator, public IControlMessageRegistration
 {
 public:
 	void AddDetailedMessage(const std::string &description, const MessageState mstate,
-							const TStringList *param) override;
+	                        const TStringList *param) override;
 	void Status(const std::string &message) override;
 
 	void AddMessageRegistrator(MessageRegistrator* messageregistrator);
