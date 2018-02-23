@@ -1552,7 +1552,7 @@ bool T_1CD::test_list_of_tables()
 								string _guid = t->get_subnode(0)->get_value();
 								string _num = t->get_subnode(2)->get_value();
 
-								if (_guid == "00000000-0000-0000-0000-000000000000") {
+								if (_guid == EMPTY_GUID) {
 									continue;
 								}
 
