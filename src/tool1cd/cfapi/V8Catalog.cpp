@@ -148,7 +148,7 @@ bool V8Catalog::IsCatalog() const
 
 //---------------------------------------------------------------------------
 // конструктор
-V8Catalog::V8Catalog(String name) // создать каталог из физического файла .cf
+V8Catalog::V8Catalog(const string &name) // создать каталог из физического файла .cf
 {
 	Lock = new TCriticalSection();
 	iscatalogdefined = false;
@@ -207,7 +207,7 @@ V8Catalog::V8Catalog(String name) // создать каталог из физи
 
 //---------------------------------------------------------------------------
 // конструктор
-V8Catalog::V8Catalog(String name, bool _zipped) // создать каталог из физического файла
+V8Catalog::V8Catalog(const string &name, bool _zipped) // создать каталог из физического файла
 {
 	Lock = new TCriticalSection();
 	iscatalogdefined = false;
@@ -313,7 +313,6 @@ void V8Catalog::initialize()
 {
 	_destructed = false;
 	catalog_header _ch;
-	String _name;
 	fat_item _fi;
 	char* _temp_buf;
 	TMemoryStream* _file_header;
@@ -344,9 +343,11 @@ void V8Catalog::initialize()
 				_fat->Read(&_fi, 12);
 				read_block(data, _fi.header_start, _file_header);
 				_file_header->Seek(0, soFromBeginning);
-				_temp_buf = new char[_file_header->GetSize()];
-				_file_header->Read(_temp_buf, _file_header->GetSize());
-				_name = (WCHART*)(_temp_buf + 20);
+				auto header_size = _file_header->GetSize();
+				_temp_buf = new char[header_size];
+				_file_header->Read(_temp_buf, header_size);
+				// TODO: константы 20, 8
+				string _name = TEncoding::Unicode->toUtf8(vector<uint8_t>(_temp_buf + 20, _temp_buf + header_size));
 				int64_t time_create = *(int64_t*)_temp_buf;
 				int64_t time_modify = *(int64_t*)_temp_buf +8;
 				_file = new V8File(this, _name, _prev, _fi.data_start, _fi.header_start, time_create, time_modify);
@@ -392,7 +393,7 @@ void V8Catalog::initialize()
 
 //---------------------------------------------------------------------------
 // удалить файл
-void V8Catalog::DeleteFile(const String& FileName)
+void V8Catalog::DeleteFile(const string &FileName)
 {
 	Lock->Acquire();
 	V8File* f = first;
@@ -413,8 +414,7 @@ V8File* V8Catalog::GetFile(const std::string &FileName)
 {
 	V8File* ret;
 	Lock->Acquire();
-	std::map<String,V8File*>::const_iterator it;
-	it = files.find(LowerCase(FileName));
+	auto it = files.find(LowerCase(FileName));
 	if(it == files.end()) ret = nullptr;
 	else ret = it->second;
 	Lock->Release();
@@ -429,7 +429,7 @@ V8File* V8Catalog::GetFirst(){
 
 //---------------------------------------------------------------------------
 // создать файл
-V8File* V8Catalog::createFile(const String& FileName, bool _selfzipped){
+V8File* V8Catalog::createFile(const string &FileName, bool _selfzipped){
 	int64_t v8t;
 	V8File* f;
 
@@ -812,7 +812,7 @@ V8File* V8Catalog::GetSelfFile()
 
 //---------------------------------------------------------------------------
 // создать каталог
-V8Catalog* V8Catalog::CreateCatalog(const String& FileName, bool _selfzipped)
+V8Catalog* V8Catalog::CreateCatalog(const string &FileName, bool _selfzipped)
 {
 	V8Catalog* ret;
 	Lock->Acquire();
@@ -961,7 +961,7 @@ void V8Catalog::HalfClose()
 
 //---------------------------------------------------------------------------
 // половину открыть
-void V8Catalog::HalfOpen(const String& name)
+void V8Catalog::HalfOpen(const string &name)
 {
 	Lock->Acquire();
 	if(is_cfu) cfu = new TFileStream(name, fmOpenReadWrite);
@@ -993,13 +993,11 @@ V8Catalog::V8Files& V8Catalog::v8files() {
 	return files;
 }
 
-String V8Catalog::get_full_name() {
-	String result;
-
-	if(file != nullptr) {
-		result = file->GetFullName();
+string V8Catalog::get_full_name() {
+	if (file != nullptr) {
+		return file->GetFullName();
 	}
-	return result;
+	return "";
 }
 
 bool V8Catalog::data_empty() const {

@@ -81,7 +81,7 @@ public:
 	Index(Table* _base);
 	~Index();
 
-	String getname();
+	std::string getname() const;
 	bool get_is_primary();
 	int32_t get_num_records(); // получить количество полей в индексе
 	index_record* get_records();
@@ -89,7 +89,7 @@ public:
 	uint32_t get_numrecords(); // получает количество записей, проиндексированных индексом
 	uint32_t get_numrec(uint32_t num_record); // получает физический индекс записи по порядковому индексу
 
-	void dump(String filename);
+	void dump(const std::string &filename);
 	void calcRecordIndex(const TableRecord *rec, char *indexBuf); // вычислить индекс записи rec и поместить в indexBuf. Длина буфера indexBuf должна быть не меньше length
 
 	uint32_t get_rootblock();
@@ -111,7 +111,7 @@ private:
 	db_ver version; // версия базы
 	uint32_t pagesize; // размер одной страницы (до версии 8.2.14 всегда 0x1000 (4K), начиная с версии 8.3.8 от 0x1000 (4K) до 0x10000 (64K))
 
-	String name;
+	std::string name;
 	bool is_primary;
 	int32_t num_records; // количество полей в индексе
 	index_record* records;

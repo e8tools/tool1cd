@@ -6,29 +6,29 @@ namespace System {
 namespace Ioutils {
 
 
-void CreateDir(const String &dirname)
+void CreateDir(const std::string &dirname)
 {
-	boost::filesystem::create_directory(boost::filesystem::path(dirname.c_str()));
+	boost::filesystem::create_directory(boost::filesystem::path(dirname));
 }
 
-bool FileExists(const String &filename)
+bool FileExists(const std::string &filename)
 {
-	return boost::filesystem::exists(boost::filesystem::path(filename.c_str()));
+	return boost::filesystem::exists(boost::filesystem::path(filename));
 }
 
-void DeleteFile(const String &filename)
+void DeleteFile(const std::string &filename)
 {
-	boost::filesystem::remove_all(filename.c_str());
+	boost::filesystem::remove_all(filename);
 }
 
-void RemoveDir(const String &dirname)
+void RemoveDir(const std::string &dirname)
 {
 	// boost::filesystem::remove_all(dirname.c_str());
 }
 
 namespace TDirectory {
 
-void CreateDirectory(const String &dirname)
+void CreateDirectory(const std::string &dirname)
 {
 	CreateDir(dirname);
 }
@@ -38,13 +38,13 @@ void CreateDirectory(const String &dirname)
 
 namespace TPath {
 
-String GetFullPath(const String &filename)
+std::string GetFullPath(const std::string &filename)
 {
-	auto absolute_path = boost::filesystem::absolute(boost::filesystem::path(filename.c_str()));
-	return String(absolute_path.string());
+	auto absolute_path = boost::filesystem::absolute(boost::filesystem::path(filename));
+	return absolute_path.string();
 }
 
-String GetTempPath()
+std::string GetTempPath()
 {
 	return boost::filesystem::temp_directory_path().string();
 }

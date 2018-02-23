@@ -44,7 +44,6 @@ bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, i
 
 	uint32_t i;
 	int32_t v, lastver, n;
-	String s, ss, sn, se;
 	depot_ver depotVer;
 	uint32_t configVerMajor, configVerMinor;
 	TMemoryStream* in;
@@ -375,8 +374,7 @@ bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, i
 										if (rece->get<BinaryGuid>(flde_objid) != curobj) {
 											break;
 										}
-										s = rece->get_string(flde_extname);
-										if (CompareIC(s, ext_name)) {
+										if (CompareIC(rece->get_string(flde_extname), ext_name)) {
 											continue;
 										}
 

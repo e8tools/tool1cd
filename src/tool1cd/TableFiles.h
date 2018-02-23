@@ -18,7 +18,7 @@
 // Структура записи таблицы контейнера файлов
 struct table_rec
 {
-	String name;
+	std::string name;
 	table_blob_file addr;
 	int32_t partno;
 	System::FILETIME ft_create;
@@ -52,10 +52,11 @@ public:
 	TableFile* getfile(const std::string &name);
 	Table* gettable() { return table; }
 
-	std::map<String,TableFile*> &files();
+	std::map<std::string,TableFile*> &files();
+	const std::map<std::string,TableFile*> &files() const;
 private:
 	Table* table {nullptr};
-	std::map<String,TableFile*> allfiles;
+	std::map<std::string,TableFile*> allfiles;
 	bool ready {false};
 
 	bool test_table();

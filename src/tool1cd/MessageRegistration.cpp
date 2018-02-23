@@ -4,18 +4,18 @@
 
 using namespace std;
 
-MessageDetails MessageRegistrator::AddMessage(const String &description, const MessageState mstate)
+MessageDetails MessageRegistrator::AddMessage(const string &description, const MessageState mstate)
 {
 	MessageDetails details(*this, static_cast<string>(description), mstate);
 	return details;
 }
 
-MessageDetails MessageRegistrator::AddError(const String& description)
+MessageDetails MessageRegistrator::AddError(const string &description)
 {
 	return AddMessage(description, MessageState::Error);
 }
 
-MessageDetails MessageRegistrator::AddDebugMessage(const String& description, const MessageState mstate)
+MessageDetails MessageRegistrator::AddDebugMessage(const string &description, const MessageState mstate)
 {
 	// TODO: AddDebugMessage
 	return AddMessage(description, mstate);
@@ -52,13 +52,13 @@ void Registrator::RemoveMessageRegistrator()
 	msreg_m = nullptr;
 }
 
-void Registrator::Status(const String &message)
+void Registrator::Status(const string &message)
 {
 
 }
 
-void Registrator::AddDetailedMessage(const String& description, const MessageState mstate,
-				const TStringList* param)
+void Registrator::AddDetailedMessage(const string &description, const MessageState mstate,
+                                     const TStringList *param)
 {
 	if (msreg_m) {
 		msreg_m->AddDetailedMessage(description, mstate, param);

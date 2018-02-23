@@ -8,6 +8,8 @@
 #include "Constants.h"
 #include "DetailedException.h"
 
+using namespace std;
+
 v8object* v8object::first = nullptr;
 v8object* v8object::last = nullptr;
 
@@ -228,12 +230,10 @@ void v8object::init(T_1CD* _base, int32_t blockNum)
 	}
 
 
-	#ifdef _DEBUG
-	msreg_g.AddDebugMessage("Создан объект", MessageState::Info,
-		"Номер блока", to_hex_string(blockNum),
-		"Длина", len,
-		"Версия данных", String(version.version_1) + ":" + version.version_2);
-	#endif
+	msreg_g.AddDebugMessage("Создан объект", MessageState::Info)
+			.with("Номер блока", to_hex_string(blockNum))
+			.with("Длина", len)
+			.with("Версия данных", to_string(version.version_1).append(":").append(to_string(version.version_2)));
 
 }
 
@@ -534,7 +534,7 @@ uint64_t v8object::getlen()
 }
 
 //---------------------------------------------------------------------------
-void v8object::savetofile(String _filename)
+void v8object::savetofile(const std::string &_filename)
 {
 	uint64_t pagesize = base->pagesize;
 	TFileStream fs(_filename, fmCreate);

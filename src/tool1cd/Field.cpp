@@ -6,6 +6,8 @@
 #include "UZLib.h"
 #include "Common.h"
 
+using namespace std;
+
 extern Registrator msreg_g;
 
 char Field::null_index[4096];
@@ -213,7 +215,7 @@ bool Field::save_blob_to_file(const TableRecord *rec, const std::string &_filena
 	{
 
 		// спецобработка для users.usr
-		String tabname = tab->getname();
+		string tabname = tab->getname();
 		bool is_users_usr = false;
 		if (EqualIC(tabname, "PARAMS")) {
 			Field *_f = tab->getfield(0);

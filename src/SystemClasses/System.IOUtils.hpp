@@ -6,24 +6,24 @@
 namespace System {
 namespace Ioutils {
 
-void CreateDir(const String &dirname);
+void CreateDir(const std::string &dirname);
 
-bool FileExists(const String &filename);
+bool FileExists(const std::string &filename);
 
-void DeleteFile(const String &filename);
+void DeleteFile(const std::string &filename);
 
-void RemoveDir(const String &dirname);
+void RemoveDir(const std::string &dirname);
 
 namespace TDirectory {
 
-void CreateDirectory(const String &dirname);
+void CreateDirectory(const std::string &dirname);
 
 } // TDirectory
 
 namespace TPath {
 
-String GetFullPath(const String &filename);
-String GetTempPath();
+std::string GetFullPath(const std::string &filename);
+std::string GetTempPath();
 void GetTempPath(int bufSize, char *buf);
 
 } // TPath

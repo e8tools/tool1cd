@@ -21,18 +21,18 @@ virtual std::vector<uint8_t> GetPreamble()
 	return result;
 }
 
-virtual String toUtf8(const std::vector<uint8_t> &Buffer, int offset = 0) const
+virtual string toUtf8(const std::vector<uint8_t> &Buffer, int offset = 0) const
 {
-	return String(Buffer, offset);
+	return string(reinterpret_cast<const char*>(Buffer.data()), offset, Buffer.size() - offset);
 }
 
-virtual std::vector<uint8_t> fromUtf8(const String &str)
+virtual std::vector<uint8_t> fromUtf8(const string &str)
 {
 	std::vector<uint8_t> result;
 	for (char c : str) {
 		result.push_back((uint8_t)c);
 	}
-	result.push_back(0);
+	result.push_back(0); // TODO: Вероятно, это теперь лишнее
 	return result;
 }
 
@@ -49,16 +49,16 @@ virtual std::vector<uint8_t> GetPreamble()
 	return result;
 }
 
-virtual String toUtf8(const std::vector<uint8_t> &Buffer, int offset) const
+virtual string toUtf8(const std::vector<uint8_t> &Buffer, int offset) const
 {
 	auto data_first = (const uint16_t *)(Buffer.data() + offset);
 	auto data_last  = data_first + (Buffer.size() - offset) / sizeof(uint16_t);
 	std::vector<uint8_t> result_vector;
 	utf8::utf16to8(data_first, data_last, back_inserter(result_vector));
-	return String(result_vector);
+	return TEncoding::UTF8->toUtf8(result_vector);
 }
 
-virtual std::vector<uint8_t> fromUtf8(const String &data)
+virtual std::vector<uint8_t> fromUtf8(const string &data)
 {
 	auto data_first = data.c_str();
 	auto data_last = data_first + data.size();
@@ -127,11 +127,6 @@ std::vector<uint8_t> TEncoding::Convert(TEncoding * const Source, TEncoding * co
 std::vector<uint8_t> TEncoding::GetPreamble()
 {
 	return std::vector<uint8_t>();
-}
-
-int StrToInt(const String &s)
-{
-	return stoi(s.c_str());
 }
 
 string ExtractFileExt(const string &filename)

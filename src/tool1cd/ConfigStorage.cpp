@@ -215,7 +215,6 @@ ContainerFile::~ContainerFile()
 bool ContainerFile::open()
 {
 	TStream* ts;
-	String tn;
 
 	unsigned int i;
 	Table* t;
@@ -234,7 +233,9 @@ bool ContainerFile::open()
 	if(maxpartno > 0) stream = new TTempStream;
 	else stream = new TMemoryStream;
 
-	if(packed == table_file_packed::unknown) packed = isPacked() ? table_file_packed::yes : table_file_packed::no;
+	if (packed == table_file_packed::unknown) {
+		packed = isPacked() ? table_file_packed::yes : table_file_packed::no;
+	}
 
 	if(rstream)
 	{
@@ -255,7 +256,9 @@ bool ContainerFile::open()
 		}
 		else ts = stream;
 
-		for(i = 0; i <= maxpartno; ++i) t->readBlob(ts, addr[i].blob_start, addr[i].blob_length, false);
+		for (int i = 0; i <= maxpartno; ++i) {
+			t->readBlob(ts, addr[i].blob_start, addr[i].blob_length, false);
+		}
 	}
 
 	if(packed == table_file_packed::yes)
@@ -265,7 +268,6 @@ bool ContainerFile::open()
 		if(!rstream)
 		{
 			delete ts;
-			DeleteFile(tn);
 		}
 	}
 
@@ -389,48 +391,59 @@ ConfigStorageTable::~ConfigStorageTable()
 ConfigFile* ConfigStorageTable::readfile(const std::string &path)
 {
 	V8Catalog* c;
-	String r_name;
 	ConfigFile* cf;
 	ConfigStorageTable_addin* cfa;
 
 	if(!ready) return nullptr;
 
 	string fname = StringReplace(path, "/", "\\", rfReplaceAll);
-	auto i = fname.find("\\");
-	if (i != string::npos) {
-		r_name = fname.substr(0, i - 1);
-		fname = fname.substr(i + 1, fname.size() - i - 1);
-	}
-	else
+	string top_level_name;
 	{
-		r_name = fname;
-		fname = "";
+		auto i = fname.find("\\");
+		if (i != string::npos) {
+			top_level_name = fname.substr(0, i - 1);
+			fname = fname.substr(i + 1, fname.size() - i - 1);
+		} else {
+			top_level_name = fname;
+			fname = "";
+		}
 	}
 
-	auto pfiles = files.find(LowerCase(r_name));
+	auto pfiles = files.find(LowerCase(top_level_name));
 	if (pfiles == files.end()) {
 		return nullptr;
 	}
-	ContainerFile *tf = pfiles->second;
+	ContainerFile *top_file = pfiles->second;
 
-	tf->open();
+	top_file->open();
 	if (!fname.empty()) {
-		if(!tf->cat) tf->cat = new V8Catalog(tf->stream, false, true);
-		c = tf->cat;
+		if (!top_file->cat) {
+			top_file->cat = new V8Catalog(top_file->stream, false, true);
+		}
+		V8Catalog *parent_cat = top_file->cat;
 		for (auto i = fname.find("\\"); i != string::npos; i = fname.find("\\")) {
-			V8File *f = c->GetFile(fname.substr(0, i - 1));
+			V8File *f = parent_cat->GetFile(fname.substr(0, i - 1));
 			if (!f) {
+				// TODO: бросить исключение???
 				return nullptr;
 			}
-			c = f->GetCatalog();
-			if (!c) {
+			parent_cat = f->GetCatalog();
+			if (!parent_cat) {
+				// TODO: бросить исключение???
 				return nullptr;
 			}
 			fname = fname.substr(i + 1, fname.size() - i - 1);
 		}
-		V8File *f = c->GetFile(fname);
-		if(!f) return nullptr;
-		if(!f->Open()) return nullptr;
+		V8File *f = parent_cat->GetFile(fname);
+		if (!f) {
+			// TODO: бросить исключение???
+			return nullptr;
+		}
+		if (!f->Open()) {
+			// TODO: бросить исключение???
+			return nullptr;
+		}
+
 		cf = new ConfigFile;
 		cfa = new ConfigStorageTable_addin;
 		cfa->variant = ConfigStorageTableAddinVariant::V8File;
@@ -444,8 +457,8 @@ ConfigFile* ConfigStorageTable::readfile(const std::string &path)
 		cf = new ConfigFile;
 		cfa = new ConfigStorageTable_addin;
 		cfa->variant = ConfigStorageTableAddinVariant::ContainerFile;
-		cfa->tf = tf;
-		cf->str = tf->stream;
+		cfa->tf = top_file;
+		cf->str = top_file->stream;
 		cf->str->Seek(0l, soBeginning);
 		cf->addin = cfa;
 	}
@@ -500,18 +513,18 @@ bool ConfigStorageTable::save_config(const boost::filesystem::path &file_name)
 		if(j != prevj)
 		{
 			prevj = j;
-			msreg_g.Status(String(j) + "%");
+			msreg_g.Status(to_string(j) + string("%"));
 		}
 
-		ContainerFile* tf = pfiles.second;
-		if(tf->ropen())
+		ContainerFile* top_file = pfiles.second;
+		if(top_file->ropen())
 		{
-			V8File* f = catalog->createFile(tf->name);
-			f->time_create(tf->file->ft_create);
-			f->time_modify(tf->file->ft_modify);
-			f->WriteAndClose(tf->rstream);
+			V8File* file = catalog->createFile(top_file->name);
+			file->time_create(top_file->file->ft_create);
+			file->time_modify(top_file->file->ft_modify);
+			file->WriteAndClose(top_file->rstream);
 
-			tf->close();
+			top_file->close();
 		}
 	}
 
@@ -542,10 +555,8 @@ bool ConfigStorageTable::fileexists(const std::string &path)
 //---------------------------------------------------------------------------
 ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _base) : ConfigStorageTable(_base)
 {
-	String s;
 	string name, ext;
 	TableFile* tf;
-	std::map<String,TableFile*>::iterator pfilesmap;
 	TableFile* _DynamicallyUpdated;
 	ContainerFile* DynamicallyUpdated;
 	tree* tt;
@@ -559,7 +570,7 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 	ready = tabf->getready();
 	if(!ready) return;
 
-	present = tabf->gettable()->getbase()->getfilename() + "\\CONFIG";
+	present = tabf->gettable()->getbase()->getfilename() + "\\config";
 
 	tab = tabf->gettable();
 	_DynamicallyUpdated = tabf->getfile("DynamicallyUpdated");
@@ -568,7 +579,9 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 	{
 		ContainerFile DynamicallyUpdated(_DynamicallyUpdated, _DynamicallyUpdated->name);
 		DynamicallyUpdated.open();
-		string detail_path_name = tab->getbase()->getfilename() + "\\" + tab->getname() + "\\" + DynamicallyUpdated.name;
+		string detail_path_name = tab->getbase()->getfilename()
+								  + "\\" + tab->getname()
+								  + "\\" + DynamicallyUpdated.name;
 		tree *tt = parse_1Cstream(DynamicallyUpdated.stream, detail_path_name);
 		try {
 			dynup = parse_dynamically_updated_tree(tt);
@@ -579,19 +592,22 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 		delete tt;
 	}
 
-	for (pfilesmap = tabf->files().begin(); pfilesmap != tabf->files().end(); ++pfilesmap)
-	{
-		tf = pfilesmap->second;
-		if(tf == _DynamicallyUpdated) continue;
-		if(tf->addr->blob_length == 0) continue;
-		string s = tf->name;
+	for (auto &pfilesmap : tabf->files()) {
+		TableFile *tf = pfilesmap.second;
+		if (tf == _DynamicallyUpdated) {
+			continue;
+		}
+		if (tf->addr->blob_length == 0) {
+			continue;
+		}
+		string file_name = tf->name;
 		{
-			auto m = s.rfind(spoint);
+			auto m = file_name.rfind(spoint);
 			if (m != string::npos) {
-				name = s.substr(0, m);
-				ext = s.substr(m + 1, s.size() - m - 1);
+				name = file_name.substr(0, m);
+				ext = file_name.substr(m + 1, file_name.size() - m - 1);
 			} else {
-				name = s;
+				name = file_name;
 				ext = "";
 			}
 		}
@@ -605,11 +621,13 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 		{
 			auto m = name.rfind(sdynupdate);
 			if (m != string::npos) {
-				string s = name.substr(m + lsdynupdate - 1, name.size() - m - lsdynupdate);
+				string update_id = name.substr(m + lsdynupdate - 1, name.size() - m - lsdynupdate);
 				name = name.substr(0, m);
-				g = BinaryGuid(s);
+				BinaryGuid update_guid = BinaryGuid(update_id);
 				if (!dynup.empty()) {
-					auto found = std::find(dynup.begin(), dynup.end(), g);
+
+					auto found = std::find(dynup.begin(), dynup.end(), update_guid);
+
 					if (found == dynup.end()) {
 						dynno = -2;
 					} else {
@@ -627,13 +645,13 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 		auto pfiles = files.find(LowerCase(name));
 		if (pfiles == files.end())
 		{
-			pcf = new ContainerFile(tf, name);
+			auto pcf = new ContainerFile(tf, name);
 			files[LowerCase(name)] = pcf;
 			pcf->dynno = dynno;
 		}
 		else
 		{
-			pcf = pfiles->second;
+			auto pcf = pfiles->second;
 			if(pcf->dynno < dynno)
 			{
 				pcf->file = tf;
@@ -659,8 +677,8 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 	int m;
 	string name, ext;
 	TableFile* tf;
-	std::map<String,TableFile*>::iterator pfilesmap;
-	std::map<String,ContainerFile*>::iterator pfiles;
+	std::map<string,TableFile*>::iterator pfilesmap;
+	std::map<string,ContainerFile*>::iterator pfiles;
 	TableFile* _DynamicallyUpdated;
 	TableFile* _deleted;
 	tree* tt;
@@ -940,16 +958,12 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 																 T_1CD *_base) : ConfigStorageTable(_base)
 {
 	int m;
-	String s, name, hashname;
 	TableFile* _configinfo;
 	ContainerFile* configinfo;
 	tree* tt;
 	tree* ct;
-	TableFile* tf;
-	ContainerFile* pcf;
 	TMemoryStream* stream;
-	int gl;
-	std::map<String,TableFile*>::iterator ptf;
+	std::map<string,TableFile*>::iterator ptf;
 
 
 	ready = tabc->getready();
@@ -958,15 +972,15 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 	if(!ready) return;
 
 	configinfo = nullptr;
-	present = tabcs->gettable()->getbase()->getfilename() + "\\CONFIGCASSAVE";
+	present = tabcs->gettable()->getbase()->getfilename() + "\\configcassave";
 
-	string g = uid.as_1C() + "__";
-	gl = g.size();
-	for(ptf = tabcs->files().begin(); ptf != tabcs->files().end(); ++ptf)
+	string struid = uid.as_1C() + "__";
+	auto struid_len = struid.size();
+	for (auto &ptf : tabcs->files())
 	{
-		if (EqualIC(ptf->first.substr(0, gl), g)) {
-			tf = ptf->second;
-			pcf = new ContainerFile(tf, tf->name.substr(gl, tf->name.size() - gl - 1));
+		if (EqualIC(ptf.first.substr(0, struid_len), struid)) {
+			TableFile *tf = ptf.second;
+			auto pcf = new ContainerFile(tf, tf->name.substr(struid_len, tf->name.size() - struid_len - 1));
 			if (EqualIC(pcf->name, "configinfo")) {
 				configinfo = pcf;
 			}
@@ -974,23 +988,22 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 		}
 	}
 
+	string config_info_path;
 	if(!configinfo)
 	{
-		if(files.size())
-		{
+		if(!files.empty()) {
 			throw DetailedException("Ошибка поиска файла")
 				.add_detail("Путь", present)
-				.add_detail("Имя", g + "configinfo")
+				.add_detail("Имя", struid + "configinfo")
 				.add_detail("Имя файла", "configinfo");
-			return;
 		}
 
-		s = tabc->gettable()->getbase()->getfilename() + "\\CONFIGCAS\\" + configver;
+		config_info_path = tabc->gettable()->getbase()->getfilename() + "\\configcas\\" + configver;
 		_configinfo = tabc->getfile(configver);
 		if(!_configinfo)
 		{
 			throw DetailedException("Ошибка поиска файла")
-				.add_detail("Путь", s)
+				.add_detail("Путь", config_info_path)
 				.add_detail("Имя", configver)
 				.add_detail("Имя файла", "configinfo");
 		}
@@ -998,55 +1011,57 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 		configinfo = new ContainerFile(_configinfo, "configinfo");
 		files["configinfo"] = configinfo;
 	}
-	else s = present + "\\" + gl + "configinfo";
+	else {
+		config_info_path = present + "\\" + struid_len + "configinfo";
+	}
 
 	configinfo->open();
-	tt = parse_1Cstream(configinfo->stream, s);
+	tt = parse_1Cstream(configinfo->stream, config_info_path);
 	if(!tt)
 	{
 		throw DetailedException("Ошибка разбора файла configinfo")
-			.add_detail("Путь", s);
+			.add_detail("Путь", config_info_path);
 	}
 	ct = tt->get_first();
 	if(!ct)
 	{
 		throw DetailedException("Ошибка разбора файла configinfo")
-			.add_detail("Путь", s);
+			.add_detail("Путь", config_info_path);
 	}
 	ct = ct->get_next();
 	if(!ct)
 	{
 		throw DetailedException("Ошибка разбора файла configinfo")
-			.add_detail("Путь", s);
+			.add_detail("Путь", config_info_path);
 	}
 	ct = ct->get_next();
 	if(!ct)
 	{
 		throw DetailedException("Ошибка разбора файла configinfo")
-			.add_detail("Путь", s);
+			.add_detail("Путь", config_info_path);
 	}
 	ct = ct->get_first();
 	if(!ct)
 	{
 		throw DetailedException("Ошибка разбора файла configinfo")
-			.add_detail("Путь", s);
+			.add_detail("Путь", config_info_path);
 	}
 
 	stream = new TMemoryStream;
-	for(m = ToIntDef(ct->get_value(), 0); m; --m)
+	for (auto m = ToIntDef(ct->get_value(), 0); m; --m)
 	{
 		ct = ct->get_next();
 		if(!ct)
 		{
 			throw DetailedException("Ошибка разбора файла configinfo")
-				.add_detail("Путь", s);
+				.add_detail("Путь", config_info_path);
 		}
 		if(ct->get_type() != node_type::nd_string)
 		{
 			throw DetailedException("Ошибка разбора файла configinfo")
-				.add_detail("Путь", s);
+				.add_detail("Путь", config_info_path);
 		}
-		name = ct->get_value();
+		string name = ct->get_value();
 
 		ct = ct->get_next();
 		if (files.find(LowerCase(name)) != files.end()) {
@@ -1056,28 +1071,28 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 		if(!ct)
 		{
 			throw DetailedException("Ошибка разбора файла configinfo")
-				.add_detail("Путь", s);
+				.add_detail("Путь", config_info_path);
 		}
 		if(ct->get_type() != node_type::nd_binary2)
 		{
 			throw DetailedException("Ошибка разбора файла configinfo")
-				.add_detail("Путь", s);
+				.add_detail("Путь", config_info_path);
 		}
 		stream->Seek(0l, soBeginning);
 		base64_decode(ct->get_value(), stream);
 		stream->Seek(0l, soBeginning);
-		hashname = hexstring(stream);
+		string hashname = hexstring(stream);
 
-		tf = tabc->getfile(hashname);
+		TableFile *tf = tabc->getfile(hashname);
 		if(tf)
 		{
-			pcf = new ContainerFile(tf, name);
+			auto pcf = new ContainerFile(tf, name);
 			files[LowerCase(name)] = pcf;
 		}
 		else
 		{
 			throw DetailedException("Ошибка поиска файла")
-				.add_detail("Путь", s)
+				.add_detail("Путь", config_info_path)
 				.add_detail("Имя", hashname)
 				.add_detail("Имя файла", name);
 		}

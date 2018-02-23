@@ -2,6 +2,8 @@
 #include "Exception.hpp"
 #include <cstring>
 
+using namespace std;
+
 namespace System {
 
 namespace Classes {
@@ -190,7 +192,7 @@ int64_t TWrapperStream::Write(const void *Buffer, int64_t Count)
 	_stream->write((char*)Buffer, Count);
 	_stream->flush();
 	if (_stream->bad()) {
-		String err(std::strerror(errno));
+		string err(std::strerror(errno));
 		std::cerr << err << std::endl;
 		throw Exception(err);
 	}

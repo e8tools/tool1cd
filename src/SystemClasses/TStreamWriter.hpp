@@ -13,10 +13,10 @@ class TStreamWriter
 {
 public:
 
-	TStreamWriter(const String  &Filename, TEncoding* Encoding, int BufferSize);
+	TStreamWriter(const std::string &Filename, TEncoding *Encoding, int BufferSize);
 	TStreamWriter(      TStream *stream,   TEncoding* Encoding, int BufferSize);
 
-	void Write   (const String   &s);
+	void Write(const std::string &s);
 
 private:
 	TStream *stream;

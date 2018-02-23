@@ -19,6 +19,6 @@ enum class node_type{
 	nd_unknown			// неизвестный тип
 };
 
-String get_node_type_presentation(node_type type);
+std::string get_node_type_presentation(node_type type);
 //---------------------------------------------------------------------------
 #endif

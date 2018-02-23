@@ -19,7 +19,7 @@ const boost::regex exp_binary_d("^#data:[0-9a-zA-Z\\+=\\r\\n\\/]*$");
 extern Registrator msreg_g;
 
 //---------------------------------------------------------------------------
-tree::tree(const String& _value, const node_type _type, tree* _parent)
+tree::tree(const string &_value, const node_type _type, tree *_parent)
 {
 	value = _value;
 	type = _type;
@@ -60,7 +60,7 @@ tree::~tree()
 }
 
 //---------------------------------------------------------------------------
-tree* tree::add_child(const String& _value, const node_type _type)
+tree* tree::add_child(const string &_value, const node_type _type)
 {
 	return new tree(_value, _type, this);
 }
@@ -90,7 +90,7 @@ node_type tree::get_type()
 }
 
 //---------------------------------------------------------------------------
-void tree::set_value(const String& v, const node_type t)
+void tree::set_value(const string &v, const node_type t)
 {
 	value = v;
 	type = t;
@@ -287,7 +287,7 @@ bool read_next_flow(TStreamReader *reader, int &index, char &sym)
 }
 
 // HINT: index - с единички
-bool read_next_flow(const String &source, int &index, char &sym)
+bool read_next_flow(const string &source, int &index, char &sym)
 {
 	if (index > source.size()) {
 		return false;
@@ -338,7 +338,7 @@ tree* parse_flow(flow_type source, const std::string &path)
 						if(!t)
 						{
 							throw DetailedException("Ошибка формата потока. Лишняя закрывающая скобка }.")
-								.add_detail("Позиция", pos)
+								.add_detail("Позиция", to_string(pos))
 								.add_detail("Путь", path);
 						}
 						state = state_type::s_delimiter;
@@ -369,13 +369,13 @@ tree* parse_flow(flow_type source, const std::string &path)
 						if(!t)
 						{
 							throw DetailedException("Ошибка формата потока. Лишняя закрывающая скобка }.")
-											.add_detail("Позиция", pos)
+											.add_detail("Позиция", to_string(pos))
 											.add_detail("Путь", path);
 						}
 						break;
 					default:
 						throw DetailedException("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.")
-										.add_detail("Символ", sym)
+										.add_detail("Символ", string(1, sym))
 										.add_detail("Код символа", to_hex_string(sym))
 										.add_detail("Путь", path);
 				}
@@ -411,14 +411,14 @@ tree* parse_flow(flow_type source, const std::string &path)
 							if(!t)
 							{
 								throw DetailedException("Ошибка формата потока. Лишняя закрывающая скобка }.")
-												.add_detail("Позиция", pos)
+												.add_detail("Позиция", to_string(pos))
 												.add_detail("Путь", path);
 							}
 							state = state_type::s_delimiter;
 							break;
 						default:
 							throw DetailedException("Ошибка формата потока. Ошибочный символ в режиме ожидания разделителя.")
-											.add_detail("Символ", sym)
+											.add_detail("Символ", string(1, sym))
 											.add_detail("Код символа", to_hex_string(sym))
 											.add_detail("Путь", path);
 					}
@@ -449,7 +449,7 @@ tree* parse_flow(flow_type source, const std::string &path)
 						t = t->get_parent();
 						if (!t) {
 							throw DetailedException("Ошибка формата потока. Лишняя закрывающая скобка }.")
-									.add_detail("Позиция", pos)
+									.add_detail("Позиция", to_string(pos))
 									.add_detail("Путь", path);
 						}
 						state = state_type::s_delimiter;
@@ -503,7 +503,7 @@ tree* parse_1Cstream(TStream *str, const string &path)
 }
 
 
-tree* parse_1Ctext(const String &text, const string &path)
+tree* parse_1Ctext(const string &text, const string &path)
 {
 	return parse_flow(text, path);
 }

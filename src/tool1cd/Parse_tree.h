@@ -16,9 +16,9 @@ enum class state_type {
 class tree
 {
 public:
-	tree(const String& _value, const node_type _type, tree* _parent);
+	tree(const std::string &_value, const node_type _type, tree *_parent);
 	~tree();
-	tree* add_child(const String& _value, const node_type _type);
+	tree* add_child(const std::string &_value, const node_type _type);
 	tree* add_child();
 	tree* add_node();
 	std::string get_value() const;
@@ -31,12 +31,12 @@ public:
 	tree* get_first();
 	tree* get_last();
 	tree& operator [](int _index);
-	void set_value(const String& v, const node_type t);
+	void set_value(const std::string &v, const node_type t);
 	void outtext(std::string &text);
 	std::string path() const;
 
 private:
-	String value;
+	std::string value;
 	node_type type;
 	int num_subnode; // количество подчиненных
 	tree* parent;    // +1
@@ -50,7 +50,7 @@ private:
 typedef tree* treeptr;
 
 
-tree* parse_1Ctext(const String &text, const std::string &path);
+tree* parse_1Ctext(const std::string &text, const std::string &path);
 tree* parse_1Cstream(TStream *str, const std::string &path);
 std::string outtext(tree *t);
 

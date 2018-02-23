@@ -284,7 +284,7 @@ std::string V8File::GetFullName()
 
 //---------------------------------------------------------------------------
 // устанавливает имя
-void V8File::SetFileName(const String& _name)
+void V8File::SetFileName(const string &_name)
 {
 	name = _name;
 	is_headermodified = true;
@@ -672,7 +672,7 @@ tree* V8File::get_tree()
 			.add_detail("Файл",  GetFullName());
 	}
 
-	String text = enc->toUtf8(bytes_stream->GetBytes(), offset);
+	string text = enc->toUtf8(bytes_stream->GetBytes(), offset);
 
 	tree* rt = parse_1Ctext(text, GetFullName());
 

@@ -17,11 +17,11 @@ struct fat_item{
 
 class V8Catalog {
 public:
-	typedef std::map<String,V8File*> V8Files;
+	typedef std::map<std::string,V8File*> V8Files;
 
 	explicit V8Catalog(V8File* f);   // создать каталог из файла
-	explicit V8Catalog(String name); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
-	V8Catalog(String name, bool _zipped); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
+	explicit V8Catalog(const std::string &name); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
+	V8Catalog(const std::string &name, bool _zipped); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
 	V8Catalog(TStream* stream, bool _zipped, bool leave_stream = false); // создать каталог из потока
 
 	bool IsCatalog() const;
@@ -30,16 +30,16 @@ public:
 
 	V8File* GetFile(const std::string &FileName);
 	V8File* GetFirst();
-	V8File* createFile(const String& FileName, bool _selfzipped = false); // CreateFile в win64 определяется как CreateFileW, пришлось заменить на маленькую букву
-	V8Catalog* CreateCatalog(const String& FileName, bool _selfzipped = false);
-	void DeleteFile(const String& FileName);
+	V8File* createFile(const std::string &FileName, bool _selfzipped = false); // CreateFile в win64 определяется как CreateFileW, пришлось заменить на маленькую букву
+	V8Catalog* CreateCatalog(const std::string &FileName, bool _selfzipped = false);
+	void DeleteFile(const std::string &FileName);
 	V8Catalog* GetParentCatalog();
 	V8File* GetSelfFile();
 	void SaveToDir(const boost::filesystem::path &dir) const;
 	bool isOpen() const;
 	void Flush();
 	void HalfClose();
-	void HalfOpen(const String& name);
+	void HalfOpen(const std::string &name);
 
 	V8File* get_first_file();
 	void first_file(V8File *value);
@@ -52,7 +52,7 @@ public:
 	inline void Acquire() { Lock->Acquire(); }
 	inline void Release() { Lock->Release(); }
 
-	String get_full_name();
+	std::string get_full_name();
 
 	bool data_empty() const;
 	void erase_data();
@@ -78,7 +78,7 @@ private:
 	void initialize();
 	V8File* first; // первый файл в каталоге
 	V8File* last;  // последний файл в каталоге
-	std::map<String,V8File*> files; // Соответствие имен и файлов
+	std::map<std::string,V8File*> files; // Соответствие имен и файлов
 	int64_t start_empty; // начало первого пустого блока
 	int page_size;   // размер страницы по умолчанию
 	int version;     // версия
