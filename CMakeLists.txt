@@ -4,6 +4,8 @@ project(tool1cd_project)
 
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
+option(NOGUI "disable building GUI project")
+
 set(BINARY_DIR "${CMAKE_BINARY_DIR}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BINARY_DIR}/lib")
@@ -46,5 +48,9 @@ endif()
 add_subdirectory(${SOURCE_DIR}/SystemClasses)
 add_subdirectory(${SOURCE_DIR}/tool1cd)
 add_subdirectory(${SOURCE_DIR}/ctool1cd)
-add_subdirectory(${SOURCE_DIR}/gtool1cd)
 add_subdirectory(${SOURCE_DIR}/tests)
+
+if(NOT NOGUI)
+	add_subdirectory(${SOURCE_DIR}/gtool1cd)
+endif()
+
