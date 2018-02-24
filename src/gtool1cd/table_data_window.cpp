@@ -6,7 +6,8 @@
 #include "models/table_data_model.h"
 #include "export_table_to_xml_dialog.h"
 #include <QDebug>
-#include<QItemSelection>
+#include <QItemSelection>
+#include "models/skobka_tree_model.h"
 
 QString index_presentation(Index *index)
 {
@@ -102,6 +103,20 @@ void TableDataWindow::on_dataView_activated(const QModelIndex &index)
 {
 }
 
+tree *try_parse_tree(const QVariant &data)
+{
+	std::string string_data = data.toString().toStdString();
+	if (string_data.substr(0, 1) != "{") {
+		return nullptr;
+	}
+	try {
+		tree *data_tree = parse_1Ctext(string_data, "");
+		return data_tree;
+	} catch (...) {
+		return nullptr;
+	}
+}
+
 void TableDataWindow::dataView_selection_changed(const QItemSelection &selection)
 {
 	if (selection.empty()) {
@@ -116,4 +131,13 @@ void TableDataWindow::dataView_selection_changed(const QItemSelection &selection
 	QTextDocument *qd = new QTextDocument(data.toString());
 	qd->setDocumentLayout(new QPlainTextDocumentLayout(qd));
 	ui->plainTextEdit->setDocument(qd);
+
+	tree *data_tree = try_parse_tree(data);
+	if (data_tree == nullptr) {
+		ui->treeView->setVisible(false);
+	} else {
+		ui->treeView->setModel(new SkobkaTreeModel(data_tree));
+		ui->treeView->setVisible(true);
+		ui->treeView->expandAll();
+	}
 }
