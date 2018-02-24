@@ -168,7 +168,11 @@ bool TableRecord::try_store_blob_data(const Field *field, TStream *&out, bool in
 		TMemoryStream in;
 		table->readBlob(&in, b.blob_start, b.blob_length);
 		in.Seek(0, soFromBeginning);
-		ZInflateStream(&in, out);
+		try {
+			ZInflateStream(&in, out);
+		} catch (ZError) {
+			out->CopyFrom(&in, 0);
+		}
 	}
 	else {
 		table->readBlob(out, b.blob_start, b.blob_length);

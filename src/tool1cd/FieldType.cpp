@@ -643,7 +643,11 @@ string CommonFieldType::get_presentation(const char *rec, bool EmptyNull, wchar_
 		case type_fields::tf_varchar: {
 			int16_t length = *(int16_t *) fr;
 			fr += sizeof(length);
-			return TEncoding::Unicode->toUtf8(vector<uint8_t>(fr, fr + (length * sizeof(WCHART))));
+			auto full_size = length * sizeof(WCHART);
+			if (full_size > getlen()) {
+				full_size = getlen();
+			}
+			return TEncoding::Unicode->toUtf8(vector<uint8_t>(fr, fr + full_size));
 		}
 		case type_fields::tf_version: {
 			auto retyped = reinterpret_cast<const int32_t *>(fr);
