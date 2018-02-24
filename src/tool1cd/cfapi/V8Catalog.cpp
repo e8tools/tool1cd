@@ -706,13 +706,13 @@ V8Catalog::~V8Catalog()
 		if(is_emptymodified)
 		{
 			data->Seek(0, soFromBeginning);
-			data->WriteBuffer(&file_header.next_page_addr, sizeof(uint32_t));
+			data->WriteBuffer(&file_header.next_page_addr, sizeof(file_header.next_page_addr));
 		}
 		if(is_modified)
 		{
 			file_header.storage_ver++;
 			data->Seek(8, soFromBeginning);
-			data->WriteBuffer(&file_header, sizeof(uint32_t));
+			data->WriteBuffer(&file_header.storage_ver, sizeof(file_header.storage_ver));
 		}
 	}
 
@@ -851,14 +851,14 @@ void V8Catalog::Flush()
 		if(is_emptymodified)
 		{
 			data->Seek(0, soFromBeginning);
-			data->WriteBuffer(&file_header.next_page_addr, sizeof(uint32_t));
+			data->WriteBuffer(&file_header.next_page_addr, sizeof(file_header.next_page_addr));
 			is_emptymodified = false;
 		}
 		if(is_modified)
 		{
 			file_header.storage_ver++;
 			data->Seek(8, soFromBeginning);
-			data->WriteBuffer(&file_header.storage_ver, sizeof(uint32_t));
+			data->WriteBuffer(&file_header.storage_ver, sizeof(file_header.storage_ver));
 		}
 	}
 

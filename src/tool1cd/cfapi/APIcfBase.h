@@ -33,7 +33,7 @@ struct stElemAddr
 	int32_t data_addr;
 	int32_t fffffff; //всегда 0x7fffffff ?
 
-	static const uint32_t Size()
+	constexpr static const uint32_t Size()
 	{
 		return 4 + 4 + 4;
 	}
@@ -47,7 +47,7 @@ struct stFileHeader
 	int32_t storage_ver {0};    // версия
 	int32_t reserved {0};       // всегда 0x00000000 ?
 
-	static const uint32_t Size()
+	constexpr static const uint32_t Size()
 	{
 		return 4 + 4 + 4 + 4;
 	}
@@ -74,7 +74,7 @@ struct stBlockHeader
 
 	static stBlockHeader create(uint32_t block_data_size, uint32_t page_size, uint32_t next_page_addr);
 
-	static const uint32_t Size()
+	constexpr static const uint32_t Size()
 	{
 		return 1 + 1 + 8 + 1 + 8 + 1 + 8 + 1 + 1 + 1;
 	}
