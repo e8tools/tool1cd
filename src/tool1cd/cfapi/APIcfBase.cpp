@@ -30,3 +30,20 @@ int32_t stBlockHeader::next_page_addr() const {
 
 	return std::stoi(hex, nullptr, 16);
 }
+
+stBlockHeader stBlockHeader::create(uint32_t block_data_size, uint32_t page_size, uint32_t next_page_addr)
+{
+	stBlockHeader BlockHeader;
+	char buf[9];
+
+	sprintf(buf, "%08x", block_data_size);
+	strncpy(BlockHeader.data_size_hex, buf, 8);
+
+	sprintf(buf, "%08x", page_size);
+	strncpy(BlockHeader.page_size_hex, buf, 8);
+
+	sprintf(buf, "%08x", next_page_addr);
+	strncpy(BlockHeader.next_page_addr_hex, buf, 8);
+
+	return BlockHeader;
+}
