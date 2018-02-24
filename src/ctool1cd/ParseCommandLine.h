@@ -31,18 +31,18 @@ enum class Command
 
 struct CommandDefinition
 {
-	String key;           // строковое значение ключа
-	Command command;      // команда
-	int num_add_par;      // количество доп. параметров команды в командной строке
-	String predefine_par; // значение первого доп. параметра по умолчанию (доп. параметр идет после параметров командной строки, количество которых указано в num_add_par)
+	std::string key;           // строковое значение ключа
+	Command command;           // команда
+	int num_add_par;           // количество доп. параметров команды в командной строке
+	std::string predefine_par; // значение первого доп. параметра по умолчанию (доп. параметр идет после параметров командной строки, количество которых указано в num_add_par)
 };
 
 struct ParsedCommand
 {
 	Command command;      // команда
-	String param1;        // значение первого доп. параметра
-	String param2;        // значение второго доп. параметра
-	String param3;        // значение третьего доп. параметра
+	std::string param1;        // значение первого доп. параметра
+	std::string param2;        // значение второго доп. параметра
+	std::string param3;        // значение третьего доп. параметра
 };
 
 class CommandParse
@@ -50,13 +50,13 @@ class CommandParse
 public:
 	CommandParse(char **szArglist, int nArgs);
 	std::vector<ParsedCommand>& getcommands();
-	String& getfilename();
-	static String& gethelpstring();
+	std::string & getfilename();
+	static std::string & gethelpstring();
 
 private:
 	static CommandDefinition definitions[];
-	static String helpstring;
-	String filename;
+	static std::string helpstring;
+	std::string filename;
 	std::vector<ParsedCommand> commands;
 };
 

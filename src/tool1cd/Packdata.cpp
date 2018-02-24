@@ -8,6 +8,7 @@
 
 #include "Packdata.h"
 #include "MessageRegistration.h"
+#include "DetailedException.h"
 
 extern Registrator msreg_g;
 
@@ -22,9 +23,8 @@ Packdata::Packdata(boost::filesystem::path& file_path) {
 		in->Read(datahashes.data(), count * sizeof(record_data_hash));
 	}
 	catch (...) {
-		msreg_g.AddMessage_("Ошибка открытия файла", MessageState::Error,
-				"Файл", file_path.string());
-		throw;
+		throw DetailedException("Ошибка открытия файла")
+				.add_detail("Файл", file_path.string());
 	}
 
 	boost::filesystem::path pack_item = file_path;
@@ -34,9 +34,8 @@ Packdata::Packdata(boost::filesystem::path& file_path) {
 		pack = std::move(tmp);
 	}
 	catch (...) {
-		msreg_g.AddMessage_("Ошибка открытия файла", MessageState::Error,
-				"Файл", pack_item.string());
-		throw;
+		throw DetailedException("Ошибка открытия файла")
+				.add_detail("Файл", pack_item.string());
 	}
 }
 

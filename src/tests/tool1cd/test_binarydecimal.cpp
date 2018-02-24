@@ -5,7 +5,7 @@
 TEST_CASE( "Проверка обработки Двоично-Десятичных чисел", "[tool1cd][lib][BinaryDecimal]" ) {
 
 	GIVEN ("Строка '12345'") {
-		String data = "12345";
+		std::string data = "12345";
 		WHEN ("Создаём Двоично-Десятичное число") {
 			BinaryDecimalNumber bdn(data);
 			THEN("Имеем массив {1, 2, 3, 4, 5}") {
@@ -17,7 +17,7 @@ TEST_CASE( "Проверка обработки Двоично-Десятичн�
 			}
 
 			AND_WHEN ("Получаем представление полученного числа") {
-				String presentation = bdn.get_presentation();
+				std::string presentation = bdn.get_presentation();
 				THEN ("Получаем '12345'") {
 					REQUIRE(presentation == data);
 				}

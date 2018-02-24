@@ -3,23 +3,23 @@
 #include "MessageRegistration.h"
 #include "SupplierConfig.h"
 #include "ConfigStorage.h"
+#include "SupplierConfigBuilder.h"
 #include "UZLib.h"
 
 extern Registrator msreg_g;
 
 SupplierConfig::SupplierConfig(TableFile *file,
-							   const System::String &name,
-							   const System::String &supplier,
-							   const System::String &version)
+							   const std::string &name,
+							   const std::string &supplier,
+							   const std::string &version)
 	 : _file(file), _name(name), _supplier(supplier), _version(version)
 {}
 
 bool SupplierConfig::save_to_file(const boost::filesystem::path& file_name) {
 
 	if (_file == nullptr) {
-		msreg_g.AddError("Не указан файл таблицы",
-			"Имя файла", file_name.string());
-		return false;
+		throw DetailedException("Не указан файл таблицы")
+			.add_detail("Имя файла", file_name.string());
 	}
 
 	std::unique_ptr<ContainerFile> container_file( new ContainerFile(_file, _file->name) );
@@ -33,9 +33,8 @@ bool SupplierConfig::save_to_file(const boost::filesystem::path& file_name) {
 		file_stream.reset( new TFileStream(file_name, fmCreate) );
 	}
 	catch(...) {
-		msreg_g.AddError("Ошибка открытия файла конфигурации поставщика",
-			"Имя файла", file_name.string());
-		return false;
+		throw DetailedException("Ошибка открытия файла конфигурации поставщика")
+			.add_detail("Имя файла", file_name.string());
 	}
 
 	try {
@@ -50,14 +49,21 @@ bool SupplierConfig::save_to_file(const boost::filesystem::path& file_name) {
 	return true;
 }
 
-String SupplierConfig::name() const {
+std::string SupplierConfig::name() const {
 	return _name;
 }
 
-String SupplierConfig::supplier() const {
+std::string SupplierConfig::supplier() const {
 	return _supplier;
 }
 
-String SupplierConfig::version() const {
+std::string SupplierConfig::version() const {
 	return _version;
+}
+
+
+std::shared_ptr<SupplierConfig> SupplierConfig::create_supplier_config(TableFile *table_file) {
+	SupplierConfigBuilder builder(table_file);
+
+	return builder.build();
 }

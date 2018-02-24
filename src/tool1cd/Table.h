@@ -107,13 +107,13 @@ public:
 
 	Table();
 	Table(T_1CD* _base, int32_t block_descr);
-	Table(T_1CD* _base, String _descr, int32_t block_descr = 0);
+	Table(T_1CD *_base, const std::string &_descr, int32_t block_descr = 0);
 	~Table();
 	void init();
 	void init(int32_t block_descr);
 
-	String getname() const;
-	String getdescription() const;
+	std::string getname() const;
+	std::string getdescription() const;
 	int32_t get_numfields() const;
 	int32_t get_numindexes() const;
 	Field* getfield(int32_t numfield);
@@ -132,7 +132,7 @@ public:
 	TStream* readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, bool rewrite = true) const;
 	uint32_t readBlob(void* _buf, uint32_t _startblock, uint32_t _length) const;
 	void set_lockinmemory(bool _lock);
-	bool export_to_xml(String filename, bool blob_to_file, bool unpack);
+	bool export_to_xml(const std::string &filename, bool blob_to_file, bool unpack);
 
 	v8object* get_file_data();
 	v8object* get_file_blob();
@@ -144,8 +144,8 @@ public:
 	bool get_edit();
 
 	uint32_t get_phys_numrec(int32_t ARow, Index* cur_index); // получить физический индекс записи по номеру строки по указанному индексу
-	String get_file_name_for_field(int32_t num_field, char* rec, uint32_t numrec = 0); // получить имя файла по-умолчанию конкретного поля конкретной записи
-	String get_file_name_for_record(const TableRecord *rec); // получить имя файла по-умолчанию конкретной записи
+	std::string get_file_name_for_field(int32_t num_field, char *rec, uint32_t numrec = 0); // получить имя файла по-умолчанию конкретного поля конкретной записи
+	std::string get_file_name_for_record(const TableRecord *rec); // получить имя файла по-умолчанию конкретной записи
 	T_1CD* getbase(){return base;}
 
 	void begin_edit(); // переводит таблицу в режим редактирования
@@ -153,29 +153,30 @@ public:
 	void end_edit(); // переводит таблицу в режим просмотра и сохраняет все изменения
 	changed_rec_type get_rec_type(uint32_t phys_numrecord);
 	changed_rec_type get_rec_type(uint32_t phys_numrecord, int32_t numfield);
-	void set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null, String value, TStream* st = NULL);
+	void set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null, const std::string &value,
+						TStream *st = nullptr);
 	void restore_edit_value(uint32_t phys_numrecord, int32_t numfield);
 	void set_rec_type(uint32_t phys_numrecord, changed_rec_type crt);
 
-	void export_table(const String &path) const;
-	void import_table(const String &path);
+	void export_table(const std::string &path) const;
+	void import_table(const std::string &path);
 
 	void delete_record(uint32_t phys_numrecord); // удаление записи
 	void insert_record(const TableRecord *rec); // добавление записи
 	void update_record(uint32_t phys_numrecord, char* rec, char* changed_fields); // изменение записи
 	char* get_record_template_test();
 
-	Field* get_field (const String &fieldname) const;
-	Field* find_field(const String &fieldname) const throw();
-	Index* get_index (const String& indexname) const;
-	Index* find_index(const String& indexname) const throw();
+	Field* get_field(const std::string &fieldname) const;
+	Field* find_field(const std::string &fieldname) const throw();
+	Index* get_index(const std::string &indexname) const;
+	Index* find_index(const std::string &indexname) const throw();
 
 private:
 	T_1CD* base;
 
 	v8object* descr_table; // объект с описанием структуры таблицы (только для версий с 8.0 до 8.2.14)
-	String description;
-	String name;
+	std::string description;
+	std::string name;
 	int32_t num_fields;
 	std::vector<Field*> fields;
 	int32_t num_indexes;

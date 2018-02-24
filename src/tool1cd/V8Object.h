@@ -88,7 +88,7 @@ public:
 	bool setdata(TStream* stream); // записывает поток целиком в объект, поддерживает кеширование блоков.
 	bool setdata(TStream* stream, uint64_t _start, uint64_t _length); // запись части потока в объект, поддерживает кеширование блоков.
 	uint64_t getlen();
-	void savetofile(String filename);
+	void savetofile(const std::string &filename);
 	void set_lockinmemory(bool _lock);
 	static void garbage();
 	uint64_t get_fileoffset(uint64_t offset); // получить физическое смещение в файле по смещению в объекте

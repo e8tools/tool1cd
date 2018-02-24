@@ -5,17 +5,6 @@
 #include <System.Classes.hpp>
 #include <limits>
 
-#ifdef _MSC_VER
-
-	#include <sys/utime.h>
-
-#else
-
-	#include <sys/types.h>
-	#include <utime.h>
-
-#endif // _MSC_VER
-
 using namespace System;
 
 const char CFU_STR[] = ".cfu";
@@ -32,8 +21,6 @@ const char _EMPTY_CATALOG_TEMPLATE[16] = {'\xff','\xff','\xff','\x7f',0,2,0,0,0,
 const int32_t LAST_BLOCK = std::numeric_limits<int>::max();
 const uint32_t BLOCK_HEADER_LEN = 32U;
 const uint32_t CATALOG_HEADER_LEN = 16U;
-
-const int64_t EPOCH_START_WIN = 504911232000000;
 
 constexpr uint32_t HEX_INT_LEN = sizeof(int32_t) * 2;
 
@@ -59,9 +46,6 @@ enum class block_header: int {
 };
 
 unsigned WindowsTickToUnixSeconds(long long windowsTicks);
-void V8timeToFileTime(const int64_t* v8t, FILETIME* ft);
-void FileTimeToV8time(const FILETIME* ft, int64_t* v8t);
-void setCurrentTime(int64_t* v8t);
 
 #endif
 

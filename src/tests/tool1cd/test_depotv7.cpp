@@ -5,6 +5,7 @@
 
 using boost::filesystem::path;
 using namespace System;
+using namespace std;
 
 TEST_CASE("Работа с хранилищем версии 7", "[tool1cd][Class_1CD][depotv7]")
 {
@@ -22,7 +23,7 @@ TEST_CASE("Работа с хранилищем версии 7", "[tool1cd][Clas
 		}
 
 		WHEN ("обращаемся к полю ver") {
-			String ver = base1CD.ver;
+			string ver = base1CD.ver;
 			THEN ("получаем '8.3.8.0'") {
 				REQUIRE( ver == "8.3.8.0" );
 			}

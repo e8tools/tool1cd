@@ -1,7 +1,6 @@
-#ifndef TABLEWINDOW_H
-#define TABLEWINDOW_H
+#ifndef FIELDSMODEL_H
+#define FIELDSMODEL_H
 
-#include <QMainWindow>
 #include <QAbstractItemModel>
 #include <Table.h>
 
@@ -41,11 +40,10 @@ public:
 			Field *f = table->getfield(index.row());
 			switch (index.column()) {
 			case 0:
-				return QString::fromStdString(
-				                               static_cast<std::string>(f->getname()));
+				return QString::fromStdString(f->getname());
 
 			case 1:
-				return QString::fromStdString(static_cast<std::string>(f->get_presentation_type()));
+				return QString::fromStdString(f->get_presentation_type());
 			case 2:
 				return QVariant::fromValue(f->getlength());
 			case 3:
@@ -65,17 +63,17 @@ public:
 		if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
 			switch (section) {
 			case 0:
-				return tr("Name");
+				return tr("Имя");
 			case 1:
-				return tr("Type");
+				return tr("Тип");
 			case 2:
-				return tr("Length");
+				return tr("Длина");
 			case 3:
-				return tr("Precision");
+				return tr("Точность");
 			case 4:
-				return tr("NULL");
+				return tr("м.б. NULL");
 			case 5:
-				return tr("Case Sensitivity");
+				return tr("РегистроЧувствительность");
 			}
 		}
 		return QVariant();
@@ -84,21 +82,5 @@ public:
 	Table *table;
 };
 
-namespace Ui {
-class TableWindow;
-}
 
-class TableWindow : public QMainWindow
-{
-	Q_OBJECT
-
-public:
-	explicit TableWindow(QWidget *parent, Table *table);
-	~TableWindow();
-
-private:
-	Table *table;
-	Ui::TableWindow *ui;
-};
-
-#endif // TABLEWINDOW_H
+#endif // FIELDSMODEL_H

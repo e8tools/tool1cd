@@ -8,6 +8,36 @@
 #include "cache.h"
 
 Cache *global_cache = nullptr;
+extern Registrator msreg_g;
+
+class RegistratorSwitcher : public MessageRegistrator
+{
+public:
+
+	explicit RegistratorSwitcher(MessageRegistrator *target)
+	    : _target(target) {}
+
+	void setRegistrator(MessageRegistrator *target)
+	{
+		_target = target;
+	}
+
+	virtual void AddDetailedMessage(
+	        const std::string &description,
+	        const MessageState mstate,
+	        const TStringList *param = nullptr) override
+	{
+		qDebug() << QString(description.c_str());
+		_target->AddDetailedMessage(description, mstate, param);
+	}
+	virtual void Status(const std::string& message) override
+	{
+		qDebug() << QString(message.c_str());
+		_target->Status(message);
+	}
+private:
+	MessageRegistrator *_target;
+};
 
 StarterWindow::StarterWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -44,12 +74,26 @@ void StarterWindow::setCache(Cache *cache)
 bool StarterWindow::openDatabase(const QString &filename)
 {
 	LittleLogWindow *lw = new LittleLogWindow(this);
-	T_1CD *db = new T_1CD(filename.toStdString(), lw);
-	if (!db->is_open()) {
+	RegistratorSwitcher *reg = new RegistratorSwitcher(lw);
+	msreg_g.AddMessageRegistrator(reg);
+	T_1CD *db = nullptr;
+	try {
+
+		db = new T_1CD(filename.toStdString(), reg);
+		if (!db->is_open()) {
+			lw->show();
+			return false;
+		}
+
+	} catch (DetailedException ex) {
+
+		ex.show();
 		lw->show();
 		return false;
+
 	}
 	MainWindow *db_window = new MainWindow(nullptr);
+	reg->setRegistrator(db_window);
 	db_window->open(db);
 	db_window->show();
 	close();

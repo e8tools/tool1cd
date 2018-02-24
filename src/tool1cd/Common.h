@@ -8,14 +8,14 @@
 
 void time1CD_to_FileTime(System::FILETIME *ft, const void *time1CD);
 unsigned int reverse_byte_order(unsigned int value);
-bool two_hex_digits_to_byte(const wchar_t hi, const wchar_t lo, unsigned char& res);
-bool string1C_to_date(const String &str, void *bytedate);
-bool string_to_date(const String &str, void *bytedate);
-String date_to_string1C(const void *bytedate);
-String date_to_string(const void *bytedate);
-String hexstring(const char *buf, int n);
-String hexstring(TStream* str);
-String toXML(const String &in);
+bool two_hex_digits_to_byte(char hi, char lo, unsigned char &res);
+bool string1C_to_date(const std::string &str, void *bytedate);
+bool string_to_date(const std::string &str, void *bytedate);
+std::string date_to_string1C(const void *bytedate);
+std::string date_to_string(const void *bytedate);
+std::string hexstring(const char *buf, int n);
+std::string hexstring(TStream *str);
+std::string toXML(const std::string &in);
 unsigned char from_hex_digit(char digit);
 
 //---------------------------------------------------------------------------
@@ -27,23 +27,12 @@ struct table_blob_file
 };
 
 template< typename T >
-String to_hex_string( T num, bool prefix = true ) {
+std::string to_hex_string( T num, bool prefix = true ) {
 	std::stringstream stream;
 	if(prefix) {
 		stream << "0x";
 	};
 	stream << std::setfill('0') << std::setw(sizeof(T) * 2)
-		   << std::hex << num;
-	return String(stream.str());
-}
-
-template< typename T >
-std::wstring to_hex_wstring( T num, bool prefix = true ) {
-	std::wstringstream stream;
-	if(prefix) {
-		stream << L"0x";
-	};
-	stream << std::setfill(L'0') << std::setw(sizeof(T) * 2)
 		   << std::hex << num;
 	return stream.str();
 }

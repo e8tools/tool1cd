@@ -2,10 +2,10 @@
 
 using namespace System;
 
-TV8FileStream::TV8FileStream(v8file* f, bool ownfile) : TStream(), file(f), own(ownfile)
+TV8FileStream::TV8FileStream(V8File* f, bool ownfile) : TStream(), file(f), own(ownfile)
 {
 	pos = 0l;
-	file->streams.insert(this);
+	file->streams().insert(this);
 }
 
 //---------------------------------------------------------------------------
@@ -13,14 +13,14 @@ TV8FileStream::TV8FileStream(v8file* f, bool ownfile) : TStream(), file(f), own(
 TV8FileStream::~TV8FileStream()
 {
 	if(own) delete file;
-	else file->streams.erase(this);
+	else file->streams().erase(this);
 }
 
 //---------------------------------------------------------------------------
 // чтение буфера
 int64_t TV8FileStream::Read(void *Buffer, int64_t Count)
 {
-	int r = file->Read(Buffer, pos, Count);
+	int64_t r = file->Read(Buffer, pos, Count);
 	pos += r;
 	return r;
 }
@@ -29,7 +29,7 @@ int64_t TV8FileStream::Read(void *Buffer, int64_t Count)
 // чтение буфера
 int TV8FileStream::Read(std::vector<uint8_t> Buffer, int Offset, int Count)
 {
-	int r = file->Read(Buffer, pos, Count);
+	int64_t r = file->Read(Buffer, pos, Count);
 	pos += r;
 	return r;
 }
@@ -38,7 +38,7 @@ int TV8FileStream::Read(std::vector<uint8_t> Buffer, int Offset, int Count)
 // запись буфера
 int64_t TV8FileStream::Write(const void *Buffer, int64_t Count)
 {
-	int r = file->Write(Buffer, pos, Count);
+	int64_t r = file->Write(Buffer, pos, Count);
 	pos += r;
 	return r;
 }
@@ -47,14 +47,14 @@ int64_t TV8FileStream::Write(const void *Buffer, int64_t Count)
 // запись буфера
 int TV8FileStream::Write(const std::vector<uint8_t> Buffer, int Offset, int Count)
 {
-	int r = file->Write(Buffer, pos, Count);
+	int64_t r = file->Write(Buffer, pos, Count);
 	pos += r;
 	return r;
 }
 
 //---------------------------------------------------------------------------
 // позиционирование
-int64_t TV8FileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
+int64_t TV8FileStream::Seek(const int64_t Offset, const TSeekOrigin Origin)
 {
 	int64_t len = file->GetFileLength();
 	switch(Origin)

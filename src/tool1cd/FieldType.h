@@ -28,18 +28,18 @@ public:
 	virtual int32_t getlen() const = 0;
 	virtual int32_t getprecision() const = 0;
 	virtual bool getcase_sensitive() const = 0;
-	virtual String get_presentation_type() const = 0;
+	virtual std::string get_presentation_type() const = 0;
 
-	virtual String get_presentation(
-			const char* rec,
+	virtual std::string get_presentation(
+			const char *rec,
 			bool EmptyNull,
 			wchar_t Delimiter,
 			bool ignore_showGUID,
 			bool detailed) const = 0;
 
-	virtual bool get_binary_value(char *buf, const String &value) const = 0;
+	virtual bool get_binary_value(char *buf, const std::string &value) const = 0;
 
-	virtual String get_XML_presentation(
+	virtual std::string get_XML_presentation(
 			const char *rec,
 			const Table *parent,
 			bool ignore_showGUID) const = 0;

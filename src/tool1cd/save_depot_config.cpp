@@ -23,13 +23,13 @@ using namespace std;
 {
 {216,0}
 }*/
-String serialize_version(int configVerMajor, int configVerMinor)
+string serialize_version(int configVerMajor, int configVerMinor)
 {
 	auto t = std::make_shared<tree>("", node_type::nd_list, nullptr);
 	auto tc = new tree("", node_type::nd_list, t.get());
 	tc = new tree("", node_type::nd_list, tc);
-	tc->add_child(String(configVerMajor), node_type::nd_number);
-	tc->add_child(String(configVerMinor), node_type::nd_number);
+	tc->add_child(to_string(configVerMajor), node_type::nd_number);
+	tc->add_child(to_string(configVerMinor), node_type::nd_number);
 	return outtext(t.get());
 }
 
@@ -41,10 +41,10 @@ bool try_store_blob_data(const TableRecord &record,
 						 TStream *&out);
 
 
-bool contains_ic(const vector<String> &vector, const String &string_to_find)
+bool contains_ic(const vector<string> &vector, const string &string_to_find)
 {
-	for (auto value : vector) {
-		if (value.CompareIC(string_to_find) == 0) {
+	for (auto &value : vector) {
+		if (EqualIC(value, string_to_find)) {
 			return true;
 		}
 	}
@@ -56,7 +56,7 @@ bool contains_ic(const vector<String> &vector, const String &string_to_find)
 // ver - номер версии сохраняемой конфигурации
 // ver > 0 - используется переданный номер версии
 // ver <= 0 - номер версии от последней конфигурации. 0 - последняя конфигурация, -1 - предпоследняя и т.д., т.е. Номер версии определяется как номер последней + ver
-bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
+bool T_1CD::save_depot_config(const string &_filename, int32_t ver)
 {
 	Field* fldd_rootobjid;
 
@@ -65,13 +65,13 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	Field* flde_datahash;
 	vector<TableRecord*> reces;
-	vector<String> extnames;
+	vector<string> extnames;
 
 	depot_ver depotVer;
 	uint32_t configVerMajor, configVerMinor;
 	PackDirectory pack_directory;
-	v8catalog* cat;
-	v8catalog* cath;
+	V8Catalog* cat;
+	V8Catalog* cath;
 	bool oldformat;
 	tree* tv; // корень дерева файла versions
 	tree* tvc; // тек. элемент дерева файла versions
@@ -117,7 +117,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	TableIterator versions_iterator(table_versions);
 	while (!versions_iterator.eof()) {
-		int32_t vernum = versions_iterator.current().get_string(fldv_vernum).ToIntDef(0);
+		int32_t vernum = ToIntDef(versions_iterator.current().get_string(fldv_vernum), 0);
 		if (vernum == ver) {
 			break;
 		}
@@ -129,8 +129,8 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 				.add_detail("Требуемая версия", ver);
 	}
 
-	boost::filesystem::path filepath = boost::filesystem::path(static_cast<std::string>(_filename));
-	boost::filesystem::path root_path(static_cast<std::string>(filename)); // путь к 1cd
+	boost::filesystem::path filepath = boost::filesystem::path(_filename);
+	boost::filesystem::path root_path(filename); // путь к 1cd
 
 
 	if (try_save_snapshot(versions_iterator.current(), ver, rootobj, root_path, filepath)) {
@@ -201,14 +201,14 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 	if (boost::filesystem::exists(filepath)) {
 		boost::filesystem::remove(filepath);
 	}
-	cat = new v8catalog(filepath.string(), false);
+	cat = new V8Catalog(filepath.string(), false);
 
 	// root, versions
 
-	std::map<String,String> vermap; // контейнер для сортировки versions
-	std::map<String,String> rootmap; // контейнер для сортировки root
-	std::map<String,TStream*> extmap; // контейнер для сортировки файлов в корне
-	std::map<String,TStream*> metamap; // контейнер для сортировки файлов в metadata
+	std::map<string,string> vermap; // контейнер для сортировки versions
+	std::map<string,string> rootmap; // контейнер для сортировки root
+	std::map<string,TStream*> extmap; // контейнер для сортировки файлов в корне
+	std::map<string,TStream*> metamap; // контейнер для сортировки файлов в metadata
 
 	tv = new tree("",  node_type::nd_list, nullptr); // корень дерева файла versions
 	tvc = new tree("", node_type::nd_list, tv); // тек. элемент дерева файла versions
@@ -265,14 +265,13 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 			{
 				TStream *out;
 
-				String sObjId = rech1->get<BinaryGuid>(fldh_objid).as_MS();
+				string sObjId = rech1->get<BinaryGuid>(fldh_objid).as_MS();
 				if (!try_store_blob_data(*rech1, fldh_objdata, oldformat, fldh_datahash, pack_directory, out)) {
-					msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
-						"Таблица", "HISTORY",
-						"Объект", sObjId,
-						"Версия", rech1->get_string(fldh_vernum));
+					throw DetailedException("Ошибка чтения объекта конфигурации")
+						.add_detail("Таблица", "HISTORY")
+						.add_detail("Объект", sObjId)
+						.add_detail("Версия", rech1->get_string(fldh_vernum));
 				}
-				else
 				{
 					if(oldformat)
 					{
@@ -294,13 +293,13 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						}
 
 						if (current_external_guid == curobj) {
-							int32_t vernum = rece.get_string(flde_vernum).ToIntDef();
-							String ext_name = rece.get_string(flde_extname);
+							int32_t vernum = ToIntDef(rece.get_string(flde_vernum), numeric_limits<int32_t>::max());
+							string ext_name = rece.get_string(flde_extname);
 							if (vernum <= ver && rece.get<bool>(flde_datapacked)) {
-								int32_t j;
+								size_t j;
 								bool found = false;
 								for (j = 0; j < reces.size(); j++) {
-									if (ext_name.CompareIC(reces[j]->get_string(flde_extname)) == 0) {
+									if (EqualIC(ext_name, reces[j]->get_string(flde_extname))) {
 										reces[j] = new TableRecord(rece);
 										found = true;
 										break;
@@ -317,23 +316,20 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 						externals_iterator.next();
 					}
 					for (auto rec : reces) {
-						String ext_name = rec->get_string(flde_extname);
+						string ext_name = rec->get_string(flde_extname);
 						if (!contains_ic(extnames, ext_name)) {
 							continue;
 						}
 
 						TStream *out;
 						if (!try_store_blob_data(*rec, flde_extdata, false, flde_datahash, pack_directory, out)) {
-							msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
-								"Таблица", "EXTERNALS",
-								"Объект", ext_name,
-								"Версия", rec->get_string(flde_vernum));
+							throw DetailedException("Ошибка чтения объекта конфигурации")
+								.add_detail("Таблица", "EXTERNALS")
+								.add_detail("Объект", ext_name)
+								.add_detail("Версия", rec->get_string(flde_vernum));
 						}
-						else
-						{
-							vermap[ext_name] = rec->get<BinaryGuid>(flde_extverid).as_MS();
-							extmap[ext_name] = out;
-						}
+						vermap[ext_name] = rec->get<BinaryGuid>(flde_extverid).as_MS();
+						extmap[ext_name] = out;
 
 					}
 					reces.clear();
@@ -347,7 +343,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 		if(iHistory_Index < HistoryIndex_numrec)
 		{
-			int32_t vernum = rech2->get_string(fldh_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
+			int32_t vernum = ToIntDef(rech2->get_string(fldh_vernum), numeric_limits<int32_t>::max());
 			if(vernum <= ver)
 			{
 				if (rech2->get<bool>(fldh_removed)) {
@@ -384,13 +380,13 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 
 	if(oldformat)
 	{
-		tcountv->set_value(vermap.size(), node_type::nd_number);
-		tcountr->set_value(rootmap.size(), node_type::nd_number);
+		tcountv->set_value(to_string(vermap.size()), node_type::nd_number);
+		tcountr->set_value(to_string(rootmap.size()), node_type::nd_number);
 	}
 	else
 	{
 		vermap["root"] = GUIDasMS(uuid_gen().data);
-		tcountv->set_value(vermap.size(), node_type::nd_number);
+		tcountv->set_value(to_string(vermap.size()), node_type::nd_number);
 	}
 
 	// Запись root
@@ -399,7 +395,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		trc->add_child(pmap.first, node_type::nd_string);
 		trc->add_child(pmap.second, node_type::nd_guid);
 	}
-	String tree_text = outtext(tr);
+	string tree_text = outtext(tr);
 	delete tr;
 	{
 		TStream *in = new TMemoryStream;
@@ -424,7 +420,7 @@ bool T_1CD::save_depot_config(const String& _filename, int32_t ver)
 		tvc->add_child(pmap.second, node_type::nd_guid);
 	}
 
-	String tv_text = outtext(tv);
+	string tv_text = outtext(tv);
 	delete tv;
 	{
 		TStream *in = new TMemoryStream;
@@ -468,21 +464,18 @@ bool T_1CD::try_save_snapshot(const TableRecord &version_record,
 	if (version_record.get<BinaryGuid>("SNAPSHOTMAKER").is_empty()) {
 		return false;
 	}
-	String name_snap = "ddb";
-	String ver_part  = "00000";
-	ver_part  += ver;
-	name_snap += ver_part.SubString(ver_part.GetLength() - 4, 5);
-	name_snap += ".snp";
+	string ver_part  = string("00000").append(to_string(ver));
+	string name_snap = string("ddb").append(ver_part.substr(ver_part.size() - 5, 5)).append(".snp");
 
-	boost::filesystem::path file_snap = root_path.parent_path() / "cache" / static_cast<std::string>(name_snap);
+	boost::filesystem::path file_snap = root_path.parent_path() / "cache" / name_snap;
 
-	msreg_m.AddMessage_("Попытка открытия файла снэпшота", MessageState::Info,
-						"Файл", file_snap.string());
+	msreg_m.AddMessage("Попытка открытия файла снэпшота", MessageState::Info)
+						.with("Файл", file_snap.string());
 
 	if (!boost::filesystem::exists(file_snap)){
-		msreg_m.AddMessage_("Не найден файл снэпшота", MessageState::Warning,
-							"Имя файла", file_snap.string(),
-							"Требуемая версия", ver);
+		msreg_m.AddMessage("Не найден файл снэпшота", MessageState::Warning)
+							.with("Имя файла", file_snap.string())
+							.with("Требуемая версия", ver);
 		return false;
 	}
 
@@ -491,9 +484,9 @@ bool T_1CD::try_save_snapshot(const TableRecord &version_record,
 		in.reset(new TFileStream(file_snap, fmOpenRead | fmShareDenyNone));
 	}
 	catch (...) {
-		msreg_m.AddMessage_("Не удалось открыть файл снэпшота", MessageState::Warning,
-							"Имя файла", file_snap.string(),
-							"Требуемая версия", ver);
+		msreg_m.AddMessage("Не удалось открыть файл снэпшота", MessageState::Warning)
+							.with("Имя файла", file_snap.string())
+							.with("Требуемая версия", ver);
 		return false;
 	}
 
@@ -505,7 +498,6 @@ bool T_1CD::try_save_snapshot(const TableRecord &version_record,
 	catch(...) {
 		throw DetailedException("Не удалось создать файл конфигурации")
 				.add_detail("Имя файла", target_file_path.string());
-		return false;
 	}
 
 	snapshot_version snap_ver = snapshot_version::Ver1;
@@ -525,9 +517,9 @@ bool T_1CD::try_save_snapshot(const TableRecord &version_record,
 				ZInflateStream(in.get(), out.get());
 			}
 			catch(...) {
-				msreg_m.AddMessage_("Не удалось распаковать файл снэпшота", MessageState::Warning,
-									"Имя файла", file_snap.string(),
-									"Требуемая версия", ver);
+				msreg_m.AddMessage("Не удалось распаковать файл снэпшота", MessageState::Warning)
+									.with("Имя файла", file_snap.string())
+									.with("Требуемая версия", ver);
 				return false;
 			}
 			break;
@@ -539,8 +531,8 @@ bool T_1CD::try_save_snapshot(const TableRecord &version_record,
 		}
 		default:
 		{
-			msreg_m.AddMessage_("Неизвестная версия снэпшота", MessageState::Warning,
-								"Имя файла", file_snap.string());
+			msreg_m.AddMessage("Неизвестная версия снэпшота", MessageState::Warning)
+								.with("Имя файла", file_snap.string());
 			return false;
 		}
 	};
@@ -550,11 +542,11 @@ bool T_1CD::try_save_snapshot(const TableRecord &version_record,
 	if (calc_crc == snapshot_crc) {
 		return true;
 	}
-	msreg_m.AddMessage_("Файл снэпшота испорчен (не совпала контрольная сумма)", MessageState::Warning,
-						"Имя файла", file_snap.string(),
-						"Требуемая версия", ver,
-						"Должен быть CRC32", to_hex_string(snapshot_crc),
-						"Получился CRC32", to_hex_string(calc_crc));
+	msreg_m.AddMessage("Файл снэпшота испорчен (не совпала контрольная сумма)", MessageState::Warning)
+						.with("Имя файла", file_snap.string())
+						.with("Требуемая версия", ver)
+						.with("Должен быть CRC32", to_hex_string(snapshot_crc))
+						.with("Получился CRC32", to_hex_string(calc_crc));
 	return false;
 }
 

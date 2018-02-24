@@ -1,11 +1,12 @@
 #define CATCH_CONFIG_RUNNER
 #include <System.SysUtils.hpp>
-#include <String.hpp>
+#include <string>
 #include <MessageRegistration.h>
 #include <Messenger.h>
 #include "catch.hpp"
 
 using namespace System;
+using namespace std;
 
 Registrator msreg_g;
 TMultiReadExclusiveWriteSynchronizer* tr_syn = new TMultiReadExclusiveWriteSynchronizer();
@@ -21,8 +22,8 @@ int main(int argc, char **argv)
 
 TEST_CASE("File extension extracts correctly", "[SysUtils]")
 {
-	String fileName("/some/file.name");
-	String ext = SysUtils::ExtractFileExt(fileName);
+	string fileName("/some/file.name");
+	string ext = SysUtils::ExtractFileExt(fileName);
 
-	REQUIRE( ext.Compare(".name") == 0 );
+	REQUIRE( Compare(ext, ".name") == 0 );
 }

@@ -1,24 +1,26 @@
 #include "../catch.hpp"
 #include <String.hpp>
+#include <System.SysUtils.hpp>
 
 using namespace System;
+using namespace std;
 
 TEST_CASE("Uppercase в уникоде", "[SystemClasses][String][Unicode]")
 {
 	GIVEN( "Строка 'Привет'")  {
-		String testString("Привет");
+		string testString("Привет");
 
 		WHEN ("вызываем UpperCase") {
-			String result = testString.UpperCase();
+			string result = UpperCase(testString);
 			THEN ("получаем 'ПРИВЕТ'") {
-				REQUIRE( result.Compare("ПРИВЕТ") == 0 );
+				REQUIRE( Equal(result, "ПРИВЕТ") );
 			}
 		}
 
 		WHEN ("вызываем LowerCase") {
-			String result = testString.LowerCase();
+			string result = LowerCase(testString);
 			THEN ("получаем 'привет'") {
-				REQUIRE( result.Compare("привет") == 0 );
+				REQUIRE( Equal(result, "привет") );
 			}
 		}
 	}
@@ -26,17 +28,36 @@ TEST_CASE("Uppercase в уникоде", "[SystemClasses][String][Unicode]")
 
 TEST_CASE("Upper/Lower Case для каждой буквы", "[SystemClasses][String][Unicode]")
 {
-	String lowcase("abcdefghijklmnopqrstuvwxyz01234567890"
+	string lowcase("abcdefghijklmnopqrstuvwxyz01234567890"
 								"абвгдеёжзийклмнопрстуфхцчшщъыьэюя");
-	String upcase("ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890"
+	string upcase("ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890"
 						   "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ");
 
-	REQUIRE(lowcase.UpperCase() == upcase);
-	REQUIRE(upcase.LowerCase() == lowcase);
+	REQUIRE(UpperCase(lowcase) == upcase);
+	REQUIRE(LowerCase(upcase) == lowcase);
 
-	REQUIRE(lowcase.UpperCase().LowerCase() == lowcase);
-	REQUIRE(upcase.LowerCase().UpperCase() == upcase);
+	REQUIRE(LowerCase(UpperCase(lowcase)) == lowcase);
+	REQUIRE(UpperCase(LowerCase(upcase)) == upcase);
 
-	REQUIRE(upcase.UpperCase() == upcase);
-	REQUIRE(lowcase.LowerCase() == lowcase);
+	REQUIRE(UpperCase(upcase) == upcase);
+	REQUIRE(LowerCase(lowcase) == lowcase);
+}
+
+TEST_CASE("StringReplace", "[SystemClasses][String][Replace]")
+{
+	REQUIRE(StringReplace("aaa", "a", "ba") == "baaa");
+	REQUIRE(StringReplace("aaa", "a", "ba", rfReplaceAll) == "bababa");
+}
+
+TEST_CASE("Конвертация строк", "[SystemClasses][String][Encoding]")
+{
+	GIVEN( "Пустой вектор" ) {
+		vector<uint8_t> empty;
+		WHEN ("Вызываем UTF8->toUtf8()" ) {
+			string result = TEncoding::UTF8->toUtf8(empty);
+			THEN ( "Получаем пустую строку" ) {
+				REQUIRE (result.empty());
+			}
+		}
+	}
 }

@@ -4,6 +4,7 @@ bin/*
 obj/*
 build/*
 Debug/*
+.vs/
 
 *.layout
 *.depend
@@ -12,3 +13,5 @@ Debug/*
 *.out
 
 /build/
+*.cfl
+*.lgd

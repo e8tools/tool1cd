@@ -79,6 +79,7 @@ TStream* PackDirectory::get_data(const std::string &datahash, bool &found)
 	{
 		TStream *buffer = new TFileStream(data_path, fmOpenRead | fmShareDenyNone);
 		found = true;
+		buffer->Close();
 		return buffer;
 	} catch (...) {
 	}

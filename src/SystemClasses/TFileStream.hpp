@@ -23,17 +23,17 @@ class TFileStream : public TWrapperStream
 {
 public:
 
-	TFileStream(const String &FileName, const uint16_t fileMode);
+	TFileStream(const std::string &FileName, const uint16_t fileMode);
 	TFileStream(const boost::filesystem::path &path, const uint16_t fileMode);
 
 	virtual ~TFileStream();
 
 	int16_t GetHandle() const;
 
-	virtual void Close();
+	virtual void Close() override;
 	virtual void Reopen();
-	virtual int64_t Read(void *Buffer, int64_t Count);
-	virtual int64_t Write(const void *Buffer, int64_t Count);
+	virtual int64_t Read(void *Buffer, int64_t Count) override;
+	virtual int64_t Write(const void *Buffer, int64_t Count) override;
 
 protected:
 	std::string filename;

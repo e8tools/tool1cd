@@ -24,7 +24,7 @@ using namespace std;
 // ver_end - конечный номер диапазона версий сохраняемых файлов конфигурации
 // ver_begin > 0, ver_end > 0 - используется переданный номер версии
 // ver_begin <= 0, ver_end <= 0 - номер версии от последней конфигурации. 0 - последняя конфигурация, -1 - предпоследняя и т.д., т.е. Номер версии определяется как номер последней + ver
-bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, int32_t ver_end)
+bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, int32_t ver_end)
 {
 	Field* fldv_vernum;
 	Field* fldh_datahash;
@@ -36,17 +36,14 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	Field* flde_datahash;
 
 	bool ok;
-	bool removed;
 	bool datapacked;
 	bool deletesobj;
 	bool iscatalog;
-	bool inreaded;
 	bool hasext;
 	char emptyimage[8];
 
 	uint32_t i;
-	int32_t v, res, lastver, n;
-	String s, ss, sn, se;
+	int32_t v, lastver, n;
 	depot_ver depotVer;
 	uint32_t configVerMajor, configVerMinor;
 	TMemoryStream* in;
@@ -56,7 +53,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 	TMemoryStream* sd;
 	bool hasdeleted;
 	PackDirectory pack_directory;
-	v8catalog* cat;
+	V8Catalog* cat;
 	TFileStream* f;
 
 	union
@@ -108,7 +105,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 	rec = nullptr;
 	n = 0;
-	for (int i = 0; i < table_versions->get_phys_numrecords(); i++)
+	for (uint32_t i = 0; i < table_versions->get_phys_numrecords(); i++)
 	{
 		rec = table_versions->getrecord(i);
 		if (rec->is_removed()) {
@@ -116,7 +113,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 			rec = nullptr;
 			continue;
 		}
-		int version = rec->get_string(fldv_vernum).ToIntDef(0);
+		int version = ToIntDef(rec->get_string(fldv_vernum), 0);
 		if (version == ver_begin) {
 			n++;
 		}
@@ -134,8 +131,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 				.add_detail("Версия по", ver_end);
 	}
 
-	boost::filesystem::path filepath = boost::filesystem::path(static_cast<std::string>(_filename));
-	boost::filesystem::path root_path(static_cast<std::string>(filename)); // путь к 1cd
+	boost::filesystem::path filepath = boost::filesystem::path(_filename);
+	boost::filesystem::path root_path(filename); // путь к 1cd
 
 	// Определяем версию структуры конфигурации (для файла version)
 	if (depotVer >= depot_ver::Ver5) {
@@ -235,8 +232,8 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 			if(history_iterator)
 				if(hasrech2)
 				{
-					lastver = rech2->get_string(fldh_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
-					String sObjId = rech2->get_string(fldh_objid);
+					lastver = ToIntDef(rech2->get_string(fldh_vernum), numeric_limits<int32_t>::max());
+					string sObjId = rech2->get_string(fldh_objid);
 
 					hasext = true;
 					bool removed = rech2->get<bool>(fldh_removed);
@@ -323,18 +320,15 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 								if(!ok)
 								{
-									msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
-														"Таблица", "HISTORY",
-														"Объект", sObjId,
-														"Версия", lastver);
+									throw DetailedException("Ошибка чтения объекта конфигурации")
+														.add_detail("Таблица", "HISTORY")
+														.add_detail("Объект", sObjId)
+														.add_detail("Версия", lastver);
 								}
-								else
-								{
-									TFileStream f(cath / static_cast<string>(sObjId), fmCreate);
-									sobj->Seek(0, soFromBeginning);
-									ZInflateStream(sobj, &f);
-									if(deletesobj) delete sobj;
-								}
+								TFileStream f(cath / sObjId, fmCreate);
+								sobj->Seek(0, soFromBeginning);
+								ZInflateStream(sobj, &f);
+								if(deletesobj) delete sobj;
 							}
 						}
 					}
@@ -355,10 +349,10 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 						}
 						if (rece != nullptr && current_record_guid == curobj)
 						{
-							v = rece->get_string(flde_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
+							v = ToIntDef(rece->get_string(flde_vernum), std::numeric_limits<int32_t>::max());
 							if(v == lastver)
 							{
-								String ext_name = rece->get_string(flde_extname);
+								string ext_name = rece->get_string(flde_extname);
 								if(removed)
 								{
 									sw->Write(ext_name + "\r\n");
@@ -380,14 +374,13 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 										if (rece->get<BinaryGuid>(flde_objid) != curobj) {
 											break;
 										}
-										s = rece->get_string(flde_extname);
-										if (s.CompareIC(ext_name)) {
+										if (CompareIC(rece->get_string(flde_extname), ext_name)) {
 											continue;
 										}
 
 										if (verid == rece->get<BinaryGuid>(flde_extverid))
 										{
-											v = rece->get_string(flde_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
+											v = ToIntDef(rece->get_string(flde_vernum), numeric_limits<int32_t>::max());
 											if (v < ver_begin) {
 												break;
 											}
@@ -413,13 +406,12 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 										}
 										if(!ok)
 										{
-											msreg_m.AddMessage_("Ошибка чтения объекта конфигурации", MessageState::Error,
-																"Таблица", "EXTERNALS",
-																"Объект", sObjId,
-																"Файл конфигурации", ext_name,
-																"Версия", v);
+											throw DetailedException("Ошибка чтения объекта конфигурации")
+																.add_detail("Таблица", "EXTERNALS")
+																.add_detail("Объект", sObjId)
+																.add_detail("Файл конфигурации", ext_name)
+																.add_detail("Версия", v);
 										}
-										else
 										{
 											out->SetSize(0);
 											sobj->Seek(0, soFromBeginning);
@@ -427,13 +419,13 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 											iscatalog = false;
 											if(out->GetSize() > 0)
 											{
-												cat = new v8catalog(out, false, true);
+												cat = new V8Catalog(out, false, true);
 												iscatalog = cat->IsCatalog();
 											}
-											if(iscatalog) cat->SaveToDir((cath / static_cast<string>(ext_name)).string());
+											if(iscatalog) cat->SaveToDir((cath / ext_name).string());
 											else
 											{
-												TFileStream f(cath / static_cast<string>(ext_name), fmCreate);
+												TFileStream f(cath / ext_name, fmCreate);
 												f.CopyFrom(out, 0);
 											}
 											delete cat;
@@ -465,7 +457,7 @@ bool T_1CD::save_part_depot_config(const String& _filename, int32_t ver_begin, i
 
 		if(history_iterator < history_records)
 		{
-			int v = rech->get_string(fldh_vernum).ToIntDef(std::numeric_limits<int32_t>::max());
+			int v = ToIntDef(rech->get_string(fldh_vernum), numeric_limits<int32_t>::max());
 			if (v < ver_begin)
 			{
 				rech1 = rech;

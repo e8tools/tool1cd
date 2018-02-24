@@ -5,41 +5,28 @@
 #include <QStringListModel>
 #include "starter.h"
 #include "cache.h"
-#include "table_window.h"
+#include "table_fields_window.h"
+#include "table_data_window.h"
+#include "models/tables_list_model.h"
+#include "configurations_window.h"
 
-Registrator msreg_g;
-
-TMultiReadExclusiveWriteSynchronizer*
-tr_syn = new TMultiReadExclusiveWriteSynchronizer();
-
-class MainWindowRegistrator : public MessageRegistrator
+void MainWindow::AddDetailedMessage(
+        const std::string &description,
+        const MessageState mstate,
+        const TStringList *param)
 {
-public:
-	MainWindowRegistrator(MainWindow *window)
-	    : target(window)
-	{
+	this->addLogMessage(QString(description.c_str()));
+}
 
-	}
+void MainWindow::Status(const std::string& message)
+{
 
-	virtual void AddMessage(
-	        const String &description,
-	        const MessageState mstate,
-	        const TStringList *param = nullptr) override
-	{
-		qDebug() << QString(description.c_str());
-		target->addLogMessage(QString(description.c_str()));
-	}
-	virtual void Status(const String& message) override
-	{
-
-	}
-private:
-	MainWindow *target;
-};
+}
 
 MainWindow::MainWindow(QWidget *parent) :
-	QMainWindow(parent),
-	ui(new Ui::MainWindow)
+    QMainWindow(parent),
+    ui(new Ui::MainWindow),
+    configurationsWindow(nullptr)
 {
 	ui->setupUi(this);
 	ui->logList->setModel(new QStringListModel(logData));
@@ -54,7 +41,7 @@ void MainWindow::open(T_1CD *database)
 {
 	db = database;
 	ui->tableListView->setModel(new TablesListModel(db));
-	setWindowTitle(QString::fromStdString(static_cast<std::string>(db->getfilename())));
+	setWindowTitle(QString::fromStdString(db->getfilename()));
 	// refresh data
 }
 
@@ -82,8 +69,17 @@ void MainWindow::on_tableListView_doubleClicked(const QModelIndex &index)
 {
 	Table *t = db->gettable(index.row());
 	if (table_windows.find(t) == table_windows.end()) {
-		table_windows[t] = new TableWindow(this, t);
+		table_windows[t] = new TableDataWindow(this, t);
 	}
 	table_windows[t]->show();
 	table_windows[t]->activateWindow();
+}
+
+void MainWindow::on_configurationsButton_clicked()
+{
+	if (configurationsWindow == nullptr) {
+		configurationsWindow = new ConfigurationsWindow(db, this);
+	}
+	configurationsWindow->show();
+	configurationsWindow->activateWindow();
 }

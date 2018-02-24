@@ -15,14 +15,14 @@ Messenger::Messenger()
 }
 
 //---------------------------------------------------------------------------
-void Messenger::Status(const String& message)
+void Messenger::Status(const string &message)
 {
 	cout << message << endl;
-	AddMessage(message, MessageState::Empty, nullptr);
+	AddMessage(message, MessageState::Empty);
 }
 
 //---------------------------------------------------------------------------
-void Messenger::AddMessage(const String &message, const MessageState mstate, const TStringList *param)
+void Messenger::AddDetailedMessage(const string &message, const MessageState mstate, const TStringList *param)
 {
 	if (mstate < minimal_state) {
 		return;
@@ -30,8 +30,8 @@ void Messenger::AddMessage(const String &message, const MessageState mstate, con
 
 	shared_ptr<ostream> output (&cerr, [](...){} );
 
-	if (!logfile.IsEmpty()) {
-		output = make_shared<boost::filesystem::ofstream>(boost::filesystem::path(static_cast<string>(logfile)), std::ios_base::app);
+	if (!logfile.empty()) {
+		output = make_shared<boost::filesystem::ofstream>(boost::filesystem::path(logfile), std::ios_base::app);
 	}
 	*output << message << endl;
 	if (param) {
@@ -43,7 +43,7 @@ void Messenger::AddMessage(const String &message, const MessageState mstate, con
 }
 
 //---------------------------------------------------------------------------
-void Messenger::setlogfile(String _logfile)
+void Messenger::setlogfile(const string &_logfile)
 {
 	logfile = System::Ioutils::TPath::GetFullPath(_logfile);
 	if(FileExists(logfile)) DeleteFile(logfile);

@@ -2,6 +2,8 @@
 #include "Exception.hpp"
 #include <cstring>
 
+using namespace std;
+
 namespace System {
 
 namespace Classes {
@@ -33,12 +35,6 @@ void TStream::SetPosition(int64_t NewPosition)
 	m_position = NewPosition;
 }
 
-
-int64_t TStream::Read(void *Buffer, int64_t Count)
-{
-	return 0;
-}
-
 int64_t TStream::Seek(const int64_t offset, const TSeekOrigin Origin)
 {
 	if (Origin == soFromBeginning) {
@@ -64,11 +60,6 @@ int64_t TStream::Seek(const int64_t offset, const TSeekOrigin Origin)
 		m_position += offset;
 	}
 	return m_position;
-}
-
-int64_t TStream::Write(const void *Buffer, int64_t Count)
-{
-	return 0;
 }
 
 int64_t TStream::ReadBuffer(void *Buffer, int64_t Count)
@@ -186,7 +177,7 @@ int64_t TWrapperStream::Read(void *Buffer, int64_t Count)
 	_stream->seekg(GetPosition(), std::ios_base::beg);
 	_stream->read((char*)Buffer, Count);
 	if (_stream->bad()) {
-		String err(std::strerror(errno));
+		std::string err(std::strerror(errno));
 		std::cerr << err << std::endl;
 		throw Exception(err);
 	}
@@ -201,7 +192,7 @@ int64_t TWrapperStream::Write(const void *Buffer, int64_t Count)
 	_stream->write((char*)Buffer, Count);
 	_stream->flush();
 	if (_stream->bad()) {
-		String err(std::strerror(errno));
+		string err(std::strerror(errno));
 		std::cerr << err << std::endl;
 		throw Exception(err);
 	}

@@ -13,7 +13,7 @@
 class ZError: public DetailedException
 {
 public:
-		explicit ZError(const String &message) throw()
+		explicit ZError(const std::string &message) throw()
 		: DetailedException(message)
 	{}
 		virtual ~ZError() noexcept {}

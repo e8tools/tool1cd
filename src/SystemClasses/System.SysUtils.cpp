@@ -21,18 +21,21 @@ virtual std::vector<uint8_t> GetPreamble()
 	return result;
 }
 
-virtual String toUtf8(const std::vector<uint8_t> &Buffer, int offset = 0) const
+virtual string toUtf8(const std::vector<uint8_t> &Buffer, int offset = 0) const
 {
-	return String(Buffer, offset);
+	if (Buffer.empty()) {
+		return string("");
+	}
+	return string(reinterpret_cast<const char*>(Buffer.data()), offset, Buffer.size() - offset);
 }
 
-virtual std::vector<uint8_t> fromUtf8(const String &str)
+virtual std::vector<uint8_t> fromUtf8(const string &str)
 {
 	std::vector<uint8_t> result;
 	for (char c : str) {
 		result.push_back((uint8_t)c);
 	}
-	result.push_back(0);
+	result.push_back(0); // TODO: Вероятно, это теперь лишнее
 	return result;
 }
 
@@ -49,62 +52,32 @@ virtual std::vector<uint8_t> GetPreamble()
 	return result;
 }
 
-virtual String toUtf8(const std::vector<uint8_t> &Buffer, int offset) const
+virtual string toUtf8(const std::vector<uint8_t> &Buffer, int offset) const
 {
 	auto data_first = (const uint16_t *)(Buffer.data() + offset);
 	auto data_last  = data_first + (Buffer.size() - offset) / sizeof(uint16_t);
 	std::vector<uint8_t> result_vector;
 	utf8::utf16to8(data_first, data_last, back_inserter(result_vector));
-	return String(result_vector);
+	return TEncoding::UTF8->toUtf8(result_vector);
 }
 
-virtual std::vector<uint8_t> fromUtf8(const String &data)
+virtual std::vector<uint8_t> fromUtf8(const string &data)
 {
 	auto data_first = data.c_str();
 	auto data_last = data_first + data.size();
-	std::vector<uint8_t> result_vector;
-	utf8::utf8to16(data_first, data_last, back_inserter(result_vector));
+	vector<uint16_t> _vector;
+	utf8::utf8to16(data_first, data_last, back_inserter(_vector));
+
+	vector<uint8_t> result_vector;
+	for (auto u16 : _vector) {
+		result_vector.push_back(static_cast<uint8_t>(u16 & 0xff));
+		result_vector.push_back(static_cast<uint8_t>(u16 >> 8));
+	}
 	return result_vector;
 }
 
 
 };
-
-TStringBuilder::TStringBuilder()
-{
-}
-
-TStringBuilder::TStringBuilder(const String &initial)
-	: value(initial)
-{
-}
-
-TStringBuilder *TStringBuilder::Replace(const String &substring, const String &replace)
-{
-	value = value.Replace(substring, replace);
-	return this;
-}
-
-String TStringBuilder::ToString() const
-{
-	return value;
-}
-
-void TStringBuilder::Clear()
-{
-	value = "";
-}
-
-void TStringBuilder::Append(const String &s)
-{
-	value += s;
-}
-
-void TStringBuilder::Append(char c)
-{
-	value.append(1, c);
-}
-
 
 
 void TMultiReadExclusiveWriteSynchronizer::BeginWrite()
@@ -159,21 +132,25 @@ std::vector<uint8_t> TEncoding::GetPreamble()
 	return std::vector<uint8_t>();
 }
 
-int StrToInt(const String &s)
-{
-	return stoi(s.c_str());
-}
-
-String ExtractFileExt(const String &filename)
+string ExtractFileExt(const string &filename)
 {
 	boost::filesystem::path _p(filename.c_str());
 	return _p.extension().string();
 }
 
-String StringReplace(const String &S, const String &OldPattern, const String &NewPattern, TReplaceFlags Flags)
+string StringReplace(const string &S, const string &OldPattern, const string &NewPattern, int Flags)
 {
-	// TODO: реализовать StringReplace
-	return S.Replace(OldPattern, NewPattern);
+	string result(S);
+	string::size_type spos = 0;
+	do {
+		auto pos = result.find(OldPattern, spos);
+		if (pos == string::npos) {
+			break;
+		}
+		result = result.replace(pos, OldPattern.size(), NewPattern);
+		spos = pos + NewPattern.size();
+	} while (Flags & rfReplaceAll);
+	return result;
 }
 
 
