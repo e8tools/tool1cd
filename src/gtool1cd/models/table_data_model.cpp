@@ -66,6 +66,11 @@ QVariant TableDataModel::data(const QModelIndex &index, int role) const
 			if (!record->try_store_blob_data(f, data_stream, true)) {
 				return QString(tr("{Error getting BLOB}"));
 			}
+
+			V8Catalog cat(data_stream, true, false);
+			if (cat.isOpen() && cat.IsCatalog()) {
+				QString result("{catalog}");
+			}
 			TMemoryStream *mem = new TMemoryStream;
 			mem->CopyFrom(data_stream, 0);
 			if (f->gettype() == type_fields::tf_image) {
@@ -103,4 +108,68 @@ QVariant TableDataModel::headerData(int section, Qt::Orientation orientation, in
 		return QString::fromStdString(f->getname());
 	}
 	return QVariant();
+}
+
+void TableDataModel::dumpBlob(const QModelIndex &index, const QString &filename) const
+{
+	Field *f = table->getfield(index.column());
+	TableRecord *record = _index == nullptr
+	        ? table->getrecord(index.row())
+	        : table->getrecord(_index->get_numrec(index.row()));
+
+	TStream *out;
+	if (!record->try_store_blob_data(f, out, true)) {
+		// TODO: ругнуться
+		return;
+	}
+	TFileStream fs(filename.toStdString(), fmCreate);
+	fs.CopyFrom(out, 0);
+	delete out;
+}
+
+bool TableDataModel::isBlobValue(const QModelIndex &index) const
+{
+	Field *f = table->getfield(index.column());
+	return f->gettype() == type_fields::tf_image;
+}
+
+bool TableDataModel::isClobValue(const QModelIndex &index) const
+{
+	Field *f = table->getfield(index.column());
+	return f->gettype() == type_fields::tf_string
+	        || f->gettype() == type_fields::tf_text;
+}
+
+V8Catalog *TableDataModel::getCatalog(const QModelIndex &index) const
+{
+	Field *f = table->getfield(index.column());
+	TableRecord *record = _index == nullptr
+	        ? table->getrecord(index.row())
+	        : table->getrecord(_index->get_numrec(index.row()));
+
+	TStream *data_stream;
+
+	if (!record->try_store_blob_data(f, data_stream, true)) {
+		if (!record->try_store_blob_data(f, data_stream, false)){
+			return nullptr;
+		}
+	}
+
+	{
+		auto *cat = new V8Catalog(data_stream, false, false);
+		if (cat->isOpen() && cat->IsCatalog()) {
+			return cat;
+		}
+		delete cat;
+	}
+
+	return nullptr;
+}
+
+const TableRecord *TableDataModel::getRecord(const QModelIndex &index) const
+{
+	return _index == nullptr
+	        ? table->getrecord(index.row())
+	        : table->getrecord(_index->get_numrec(index.row()));
+
 }

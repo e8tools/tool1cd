@@ -22,6 +22,16 @@ public:
 
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
+	void dumpBlob(const QModelIndex &index, const QString &filename) const;
+
+	bool isBlobValue(const QModelIndex &index) const;
+
+	bool isClobValue(const QModelIndex &index) const;
+
+	V8Catalog *getCatalog(const QModelIndex &index) const;
+
+	const TableRecord *getRecord(const QModelIndex &index) const;
+
 private:
 	Table *table;
 	Index *_index;

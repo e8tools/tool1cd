@@ -124,6 +124,13 @@
            <number>0</number>
           </property>
           <item>
+           <widget class="QPushButton" name="saveBlobButton">
+            <property name="text">
+             <string>Выгрузить</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPlainTextEdit" name="plainTextEdit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">

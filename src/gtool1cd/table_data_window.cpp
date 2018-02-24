@@ -8,6 +8,8 @@
 #include <QDebug>
 #include <QItemSelection>
 #include "models/skobka_tree_model.h"
+#include <QFileDialog>
+#include "models/v8catalog_tree_model.h"
 
 QString index_presentation(Index *index)
 {
@@ -126,18 +128,62 @@ void TableDataWindow::dataView_selection_changed(const QItemSelection &selection
 	auto column = range.left();
 	auto row = range.top();
 	auto index = ui->dataView->model()->index(row, column);
+	auto model = static_cast<TableDataModel*>(ui->dataView->model());
+
 	auto data = ui->dataView->model()->data(index, Qt::EditRole);
 
 	QTextDocument *qd = new QTextDocument(data.toString());
 	qd->setDocumentLayout(new QPlainTextDocumentLayout(qd));
 	ui->plainTextEdit->setDocument(qd);
+	ui->plainTextEdit->setVisible(true);
+
+	ui->treeView->setVisible(false);
+
+	if (model->isBlobValue(index)) {
+
+		auto cat = model->getCatalog(index);
+		if (cat != nullptr) {
+			QString catalog_name("{catalog}");
+
+			if (table->find_field("FILENAME") != nullptr) {
+
+				auto rec = model->getRecord(index);
+				catalog_name = QString::fromStdString(rec->get_string("FILENAME"));
+
+			} else if (table->find_field("EXTNAME") != nullptr) {
+
+				auto rec = model->getRecord(index);
+				catalog_name = QString::fromStdString(rec->get_string("EXTNAME"));
+
+			}
+			ui->plainTextEdit->setVisible(false);
+			ui->treeView->setModel(new V8CatalogTreeModel(cat, catalog_name));
+			ui->treeView->setVisible(true);
+			ui->treeView->expandAll();
+			return;
+		}
+	}
 
 	tree *data_tree = try_parse_tree(data);
-	if (data_tree == nullptr) {
-		ui->treeView->setVisible(false);
-	} else {
+	if (data_tree != nullptr) {
 		ui->treeView->setModel(new SkobkaTreeModel(data_tree));
 		ui->treeView->setVisible(true);
 		ui->treeView->expandAll();
+		return;
 	}
+
+}
+
+void TableDataWindow::on_saveBlobButton_clicked()
+{
+	auto index = ui->dataView->currentIndex();
+	if (!index.isValid()) {
+		return;
+	}
+	QString filename = QFileDialog::getSaveFileName(this, tr("Сохранение..."), "");
+	if (filename.isNull()) {
+		return;
+	}
+	auto model = static_cast<TableDataModel*>(ui->dataView->model());
+	model->dumpBlob(index, filename);
 }

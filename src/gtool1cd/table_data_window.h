@@ -33,6 +33,8 @@ private slots:
 
 	void dataView_selection_changed(const QItemSelection &selection);
 
+	void on_saveBlobButton_clicked();
+
 private:
 	Table *table;
 	Ui::TableDataWindow *ui;
