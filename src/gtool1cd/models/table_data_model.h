@@ -50,11 +50,53 @@ public:
 			}
 			return QString::fromStdString(record->get_string(f));
 		}
+		if (role == Qt::EditRole) {
+			Field *f = table->getfield(index.column());
+			if (record->is_null_value(f)) {
+				return QString("");
+			}
+
+			bool is_blob = false;
+			if (f->gettype() == type_fields::tf_string) {
+				is_blob = true;
+			}
+			if (f->gettype() == type_fields::tf_text) {
+				is_blob = true;
+			}
+			if (f->gettype() == type_fields::tf_image) {
+				is_blob = true;
+			}
+
+			if (is_blob) {
+				TStream *data_stream;
+
+				if (!record->try_store_blob_data(f, data_stream, true)) {
+					return QString(tr("{Error getting BLOB}"));
+				}
+				TMemoryStream *mem = new TMemoryStream;
+				mem->CopyFrom(data_stream, 0);
+				if (f->gettype() == type_fields::tf_image) {
+					return QString::fromStdString(TEncoding::UTF8->toUtf8(mem->GetBytes()));
+				} else {
+					return QString::fromStdString(TEncoding::Unicode->toUtf8(mem->GetBytes()));
+				}
+				delete mem;
+				delete data_stream;
+			}
+
+			return QString::fromStdString(record->get_string(f));
+		}
 		if (role == Qt::FontRole) {
 			if (record->is_removed()) {
 				QFont italic;
 				italic.setItalic(true);
 				return italic;
+			}
+		}
+		if (role == Qt::TextAlignmentRole) {
+			Field *f = table->getfield(index.column());
+			if (f->gettype() == type_fields::tf_numeric) {
+				return Qt::AlignRight + Qt::AlignVCenter;
 			}
 		}
 

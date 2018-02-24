@@ -5,6 +5,7 @@
 #include <QAbstractItemModel>
 #include <Table.h>
 #include <TableIterator.h>
+#include <QItemSelection>
 
 namespace Ui {
 class TableDataWindow;
@@ -27,6 +28,10 @@ private slots:
 	void on_exportToXmlButton_clicked();
 
 	void on_indexChooseBox_activated(int index);
+
+	void on_dataView_activated(const QModelIndex &index);
+
+	void dataView_selection_changed(const QItemSelection &selection);
 
 private:
 	Table *table;

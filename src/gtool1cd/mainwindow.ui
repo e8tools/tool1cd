@@ -56,7 +56,11 @@
      </widget>
     </item>
     <item>
-     <widget class="QListView" name="logList"/>
+     <widget class="QListView" name="logList">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

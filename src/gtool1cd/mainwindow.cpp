@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 	ui->logList->setModel(new QStringListModel(logData));
+	ui->logList->setVisible(false);
 }
 
 MainWindow::~MainWindow()

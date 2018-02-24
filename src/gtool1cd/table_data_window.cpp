@@ -5,6 +5,8 @@
 #include "skobkatextwindow.h"
 #include "models/table_data_model.h"
 #include "export_table_to_xml_dialog.h"
+#include <QDebug>
+#include<QItemSelection>
 
 QString index_presentation(Index *index)
 {
@@ -47,6 +49,9 @@ TableDataWindow::TableDataWindow(QWidget *parent, Table *table)
 		}
 		ui->indexChooseBox->addItem(index_presentation(index), QString::fromStdString(index->getname()));
 	}
+
+	connect(ui->dataView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+	        this, SLOT(dataView_selection_changed(QItemSelection)));
 }
 
 TableDataWindow::~TableDataWindow()
@@ -88,4 +93,27 @@ void TableDataWindow::on_indexChooseBox_activated(int index)
 	QString index_name = ui->indexChooseBox->itemData(index).toString();
 	Index *table_index = table->get_index(index_name.toStdString());
 	ui->dataView->setModel(new TableDataModel(table, table_index));
+
+	connect(ui->dataView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+	        this, SLOT(dataView_selection_changed(QItemSelection)));
+}
+
+void TableDataWindow::on_dataView_activated(const QModelIndex &index)
+{
+}
+
+void TableDataWindow::dataView_selection_changed(const QItemSelection &selection)
+{
+	if (selection.empty()) {
+		return;
+	}
+	auto range = selection.at(0);
+	auto column = range.left();
+	auto row = range.top();
+	auto index = ui->dataView->model()->index(row, column);
+	auto data = ui->dataView->model()->data(index, Qt::EditRole);
+
+	QTextDocument *qd = new QTextDocument(data.toString());
+	qd->setDocumentLayout(new QPlainTextDocumentLayout(qd));
+	ui->plainTextEdit->setDocument(qd);
 }
