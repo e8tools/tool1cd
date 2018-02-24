@@ -15,7 +15,8 @@ set(UI_FILES mainwindow.ui starter.ui littlelogwindow.ui table_fields_window.ui 
 	skobkatextwindow.ui export_table_to_xml_dialog.ui configurations_window.ui)
 set(SOURCE_FILES main.cpp mainwindow.cpp starter.cpp littlelogwindow.cpp cache.cpp table_fields_window.cpp table_data_window.cpp
 	skobkatextwindow.cpp export_table_to_xml_dialog.cpp configurations_window.cpp models/vendor_configurations_table_model.cpp
-	models/extensions_table_model.cpp models/skobka_tree_model.cpp)
+	models/extensions_table_model.cpp models/skobka_tree_model.cpp models/table_data_model.cpp models/tables_list_model.cpp
+	models/fields_list_model.cpp)
 
 add_executable(gtool1cd WIN32 ${SOURCE_FILES} ${HEADER_FILES} ${UI_FILES})
 
