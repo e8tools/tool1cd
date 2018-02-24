@@ -1,19 +1,15 @@
 #ifndef V8CATALOGH
 #define V8CATALOGH
 
+#include <boost/filesystem.hpp>
 #include <map>
 
 #include "V8File.h"
-#include <boost/filesystem.hpp>
+#include "APIcfBase.h"
 
 class V8File;
 
-//---------------------------------------------------------------------------
-struct fat_item{
-	int32_t header_start;
-	int32_t data_start;
-	int32_t ff;            // всегда 7fffffff
-};
+
 
 class V8Catalog {
 public:
@@ -79,9 +75,9 @@ private:
 	V8File* first; // первый файл в каталоге
 	V8File* last;  // последний файл в каталоге
 	std::map<std::string,V8File*> files; // Соответствие имен и файлов
-	int64_t start_empty; // начало первого пустого блока
-	int page_size;   // размер страницы по умолчанию
-	int version;     // версия
+
+	stFileHeader file_header;
+
 	bool zipped;     // признак зазипованности файлов каталога
 	bool is_cfu;     // признак файла cfu (файл запакован deflate'ом)
 	mutable bool iscatalog;

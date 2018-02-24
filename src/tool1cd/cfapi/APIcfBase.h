@@ -4,6 +4,7 @@
 
 #include <System.Classes.hpp>
 #include <limits>
+#include <string>
 
 using namespace System;
 
@@ -15,14 +16,9 @@ const char ERF_STR[] = ".erf";
 const char BACKSLASH_STR[] = "\\";
 
 // шаблон заголовка блока
-const char _BLOCK_HEADER_TEMPLATE[] = "\r\n00000000 00000000 00000000 \r\n";
 const char _EMPTY_CATALOG_TEMPLATE[16] = {'\xff','\xff','\xff','\x7f',0,2,0,0,0,0,0,0,0,0,0,0};
 
 const int32_t LAST_BLOCK = std::numeric_limits<int>::max();
-const uint32_t BLOCK_HEADER_LEN = 32U;
-const uint32_t CATALOG_HEADER_LEN = 16U;
-
-constexpr uint32_t HEX_INT_LEN = sizeof(int32_t) * 2;
 
 //---------------------------------------------------------------------------
 struct v8header_struct{
@@ -31,18 +27,76 @@ struct v8header_struct{
 	int32_t zero;
 };
 
-//---------------------------------------------------------------------------
-struct catalog_header {
-	int32_t start_empty; // начало первого пустого блока
-	int32_t page_size;   // размер страницы по умолчанию
-	int32_t version;     // версия
-	int32_t zero;        // всегда ноль?
+struct stElemAddr
+{
+	int32_t header_addr;
+	int32_t data_addr;
+	int32_t fffffff; //всегда 0x7fffffff ?
+
+	static const uint32_t Size()
+	{
+		return 4 + 4 + 4;
+	}
+
 };
 
-enum class block_header: int {
-	doc_len = 2,
-	block_len = 11,
-	nextblock = 20
+struct stFileHeader
+{
+	int32_t next_page_addr {0}; // начало первого пустого блока
+	int32_t page_size {0};      // размер страницы по умолчанию
+	int32_t storage_ver {0};    // версия
+	int32_t reserved {0};       // всегда 0x00000000 ?
+
+	static const uint32_t Size()
+	{
+		return 4 + 4 + 4 + 4;
+	}
+};
+
+struct stBlockHeader
+{
+	char EOL_0D;
+	char EOL_0A;
+	char data_size_hex[8];
+	char space1;
+	char page_size_hex[8];
+	char space2;
+	char next_page_addr_hex[8];
+	char space3;
+	char EOL2_0D;
+	char EOL2_0A;
+
+	stBlockHeader():
+		EOL_0D(0xd), EOL_0A(0xa),
+		space1(' '), space2(' '), space3(' '),
+		EOL2_0D(0xd), EOL2_0A(0xa)
+		{}
+
+	static stBlockHeader create(uint32_t block_data_size, uint32_t page_size, uint32_t next_page_addr);
+
+	static const uint32_t Size()
+	{
+		return 1 + 1 + 8 + 1 + 8 + 1 + 8 + 1 + 1 + 1;
+	}
+
+	bool IsCorrect() const
+	{
+		return EOL_0D == 0x0d
+			&& EOL_0A == 0x0a
+			&& space1 == 0x20
+			&& space2 == 0x20
+			&& space3 == 0x20
+			&& EOL2_0D == 0x0d
+			&& EOL2_0A == 0x0a;
+	}
+
+	int32_t data_size() const;
+	int32_t page_size() const;
+	int32_t next_page_addr() const;
+
+	static const std::string HEADER_TEMPLATE() {
+		return "\r\n00000000 00000000 00000000 \r\n";
+	}
 };
 
 unsigned WindowsTickToUnixSeconds(long long windowsTicks);

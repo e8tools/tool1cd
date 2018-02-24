@@ -296,7 +296,7 @@ bool V8File::IsCatalog()
 {
 	int64_t _filelen;
 	uint32_t _startempty = (uint32_t)(-1);
-	char _t[BLOCK_HEADER_LEN];
+	char _t[stBlockHeader::Size()];
 
 	Lock->Acquire();
 	if(iscatalog == FileIsCatalog::unknown){
@@ -307,11 +307,11 @@ bool V8File::IsCatalog()
 			return false;
 		}
 		_filelen = data->GetSize();
-		if(_filelen == CATALOG_HEADER_LEN)
+		if(_filelen == stFileHeader::Size())
 		{
 			data->Seek(0, soFromBeginning);
-			data->Read(_t, CATALOG_HEADER_LEN);
-			if(memcmp(_t, _EMPTY_CATALOG_TEMPLATE, CATALOG_HEADER_LEN) != 0)
+			data->Read(_t, stFileHeader::Size());
+			if(memcmp(_t, _EMPTY_CATALOG_TEMPLATE, stFileHeader::Size()) != 0)
 			{
 				iscatalog = FileIsCatalog::no;
 				Lock->Release();
@@ -341,12 +341,12 @@ bool V8File::IsCatalog()
 				return false;
 			}
 		}
-		if(_filelen < (BLOCK_HEADER_LEN - 1 + CATALOG_HEADER_LEN) ){
+		if(_filelen < (stBlockHeader::Size() + stFileHeader::Size()) ){
 			iscatalog = FileIsCatalog::no;
 			Lock->Release();
 			return false;
 		}
-		data->Seek(CATALOG_HEADER_LEN, soFromBeginning);
+		data->Seek(stFileHeader::Size(), soFromBeginning);
 		data->Read(_t, 31);
 		if(_t[0] != 0xd || _t[1] != 0xa || _t[10] != 0x20 || _t[19] != 0x20 || _t[28] != 0x20 || _t[29] != 0xd || _t[30] != 0xa){
 			iscatalog = FileIsCatalog::no;
