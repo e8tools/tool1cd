@@ -8,7 +8,7 @@
 #include "cache.h"
 
 Cache *global_cache = nullptr;
-
+extern Registrator msreg_g;
 
 class RegistratorSwitcher : public MessageRegistrator
 {
@@ -75,10 +75,22 @@ bool StarterWindow::openDatabase(const QString &filename)
 {
 	LittleLogWindow *lw = new LittleLogWindow(this);
 	RegistratorSwitcher *reg = new RegistratorSwitcher(lw);
-	T_1CD *db = new T_1CD(filename.toStdString(), reg);
-	if (!db->is_open()) {
+	msreg_g.AddMessageRegistrator(reg);
+	T_1CD *db = nullptr;
+	try {
+
+		db = new T_1CD(filename.toStdString(), reg);
+		if (!db->is_open()) {
+			lw->show();
+			return false;
+		}
+
+	} catch (DetailedException ex) {
+
+		ex.show();
 		lw->show();
 		return false;
+
 	}
 	MainWindow *db_window = new MainWindow(nullptr);
 	reg->setRegistrator(db_window);
