@@ -27,6 +27,14 @@ private slots:
 
 	void on_listView_doubleClicked(const QModelIndex &index);
 
+	void on_listView_activated(const QModelIndex &index);
+
+protected:
+
+	void dropEvent(QDropEvent *event) override;
+
+	void dragEnterEvent(QDragEnterEvent *event) override;
+
 private:
 	Ui::StarterWindow *ui;
 	Cache *cache;

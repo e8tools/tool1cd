@@ -6,6 +6,9 @@
 #include "mainwindow.h"
 #include "littlelogwindow.h"
 #include "cache.h"
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QMimeData>
 
 Cache *global_cache = nullptr;
 extern Registrator msreg_g;
@@ -44,6 +47,7 @@ StarterWindow::StarterWindow(QWidget *parent) :
 	ui(new Ui::StarterWindow)
 {
 	ui->setupUi(this);
+	setAcceptDrops(true);
 }
 
 StarterWindow::~StarterWindow()
@@ -103,4 +107,34 @@ bool StarterWindow::openDatabase(const QString &filename)
 void StarterWindow::on_listView_doubleClicked(const QModelIndex &index)
 {
 	openDatabase(index.data().toString());
+}
+
+void StarterWindow::on_listView_activated(const QModelIndex &index)
+{
+	openDatabase(index.data().toString());
+}
+
+void StarterWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+	event->acceptProposedAction();
+}
+
+void StarterWindow::dropEvent(QDropEvent *event)
+{
+	auto mimeData = event->mimeData();
+	if (!mimeData->hasUrls()) {
+		return;
+	}
+
+	for (auto &url: mimeData->urls()) {
+
+		if (!url.isLocalFile()) {
+			continue;
+		}
+
+		if (openDatabase(url.toLocalFile())) {
+			event->acceptProposedAction();
+			return;
+		}
+	}
 }
