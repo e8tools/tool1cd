@@ -22,6 +22,8 @@ public:
 
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
+	void saveSupplierConfigToFile(const QModelIndex &index, const QString &filename) const;
+
 private:
 	T_1CD *db;
 };

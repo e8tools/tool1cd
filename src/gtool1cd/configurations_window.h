@@ -23,6 +23,8 @@ private slots:
 
 	void on_saveDbConfigButton_clicked();
 
+	void on_saveVendorConfigButton_clicked();
+
 private:
 	Ui::ConfigurationsWindow *ui;
 	T_1CD *db;

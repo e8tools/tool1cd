@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>ConfigurationsWindow</class>
- <widget class="QMainWindow" name="TableFieldsWindow">
+ <widget class="QMainWindow" name="ConfigurationsWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -13,62 +13,61 @@
   <property name="windowTitle">
    <string>Tool 1CD</string>
   </property>
- <widget class="QWidget" name="centralWidget">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>400</width>
-    <height>372</height>
-   </rect>
-  </property>
-  <property name="windowTitle">
-   <string>Form</string>
-  </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
-   <item>
-    <widget class="QPushButton" name="saveConfigButton">
-     <property name="text">
-      <string>Сохранить основную конфигурацию</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="saveDbConfigButton">
-     <property name="text">
-      <string>Сохранить конфигурацию базы данных</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QTabWidget" name="tabWidget">
-     <property name="currentIndex">
-      <number>0</number>
-     </property>
-     <widget class="QWidget" name="vendorConfigsTab">
-      <attribute name="title">
-       <string>Конфигурации поставщика</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QTableView" name="vendorsTable"/>
-       </item>
-      </layout>
+  <widget class="QWidget" name="centralWidget">
+   <property name="windowTitle">
+    <string>Form</string>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_3">
+    <item>
+     <widget class="QPushButton" name="saveConfigButton">
+      <property name="text">
+       <string>Сохранить основную конфигурацию</string>
+      </property>
      </widget>
-     <widget class="QWidget" name="extensionsTab">
-      <attribute name="title">
-       <string>Расширения</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QTableView" name="extensionsTable"/>
-       </item>
-      </layout>
+    </item>
+    <item>
+     <widget class="QPushButton" name="saveDbConfigButton">
+      <property name="text">
+       <string>Сохранить конфигурацию базы данных</string>
+      </property>
      </widget>
-    </widget>
-   </item>
-  </layout>
- </widget>
+    </item>
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="vendorConfigsTab">
+       <attribute name="title">
+        <string>Конфигурации поставщика</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QTableView" name="vendorsTable"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="saveVendorConfigButton">
+          <property name="text">
+           <string>Сохранить конфигурацию поставщика</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="extensionsTab">
+       <attribute name="title">
+        <string>Расширения</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QTableView" name="extensionsTable"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
  </widget>
  <resources/>
  <connections/>

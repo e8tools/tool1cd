@@ -3,6 +3,7 @@
 #include <Class_1CD.h>
 #include <QFileDialog>
 #include "models/vendor_configurations_table_model.h"
+#include <QMessageBox>
 
 ConfigurationsWindow::ConfigurationsWindow(T_1CD *db, QWidget *parent) :
     QMainWindow(parent),
@@ -37,4 +38,26 @@ void ConfigurationsWindow::on_saveDbConfigButton_clicked()
 	}
 
 	db->save_config(targetFileName.toStdString());
+}
+
+void ConfigurationsWindow::on_saveVendorConfigButton_clicked()
+{
+	auto model = static_cast<VendorConfigurationsTableModel*>(ui->vendorsTable->model());
+	auto index = ui->vendorsTable->currentIndex();
+	if (!index.isValid()) {
+		return;
+	}
+
+	QString filename = QFileDialog::getSaveFileName(this, tr("Сохранение конфигурации"), "", "*.cf");
+	if (filename.isNull()) {
+		return;
+	}
+
+	try {
+
+		model->saveSupplierConfigToFile(index, filename);
+
+	} catch (...) {
+		QMessageBox::warning(this, tr("Сохранение"), tr("Ошибка сохранения конфигурации"));
+	}
 }

@@ -63,3 +63,12 @@ QVariant VendorConfigurationsTableModel::headerData(int section, Qt::Orientation
 	return QVariant();
 }
 
+void VendorConfigurationsTableModel::saveSupplierConfigToFile(const QModelIndex &index, const QString &filename) const
+{
+	if (!index.isValid()) {
+		return;
+	}
+	auto config = db->supplier_configs().at(index.row());
+	config->save_to_file(filename.toStdString());
+}
+
