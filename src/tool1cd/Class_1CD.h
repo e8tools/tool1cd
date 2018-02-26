@@ -263,7 +263,7 @@ private:
 
 	void init();
 	bool getblock(void* buf, uint32_t block_number, int32_t blocklen = -1); // буфер принадлежит вызывающей процедуре
-	char*  getblock(uint32_t block_number); // буфер не принадлежит вызывающей стороне (принадлежит memblock)
+	char*  getblock(uint32_t block_number) const; // буфер не принадлежит вызывающей стороне (принадлежит memblock)
 	char*  getblock_for_write(uint32_t block_number, bool read); // буфер не принадлежит вызывающей стороне (принадлежит memblock)
 	void set_block_as_free(uint32_t block_number); // пометить блок как свободный
 	uint32_t get_free_block(); // получить номер свободного блока (и пометить как занятый)

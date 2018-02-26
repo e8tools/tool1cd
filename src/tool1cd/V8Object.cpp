@@ -527,7 +527,7 @@ char* v8object::getdata(void* buf, uint64_t _start, uint64_t _length)
 }
 
 //---------------------------------------------------------------------------
-uint64_t v8object::getlen()
+uint64_t v8object::getlen() const
 {
 	if(type == v8objtype::free80) return len * 4;
 	else return len;
@@ -1346,7 +1346,7 @@ v8object* v8object::get_next()
 }
 
 //---------------------------------------------------------------------------
-uint32_t v8object::get_block_number()
+uint32_t v8object::get_block_number() const
 {
 	return block;
 }

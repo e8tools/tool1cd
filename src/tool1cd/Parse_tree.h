@@ -22,8 +22,8 @@ public:
 	tree* add_child();
 	tree* add_node();
 	std::string get_value() const;
-	node_type get_type();
-	int get_num_subnode();
+	node_type get_type() const;
+	int get_num_subnode() const;
 	tree* get_subnode(int _index);
 	tree* get_subnode(const std::string &node_name);
 	tree* get_next();

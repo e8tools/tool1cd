@@ -84,7 +84,7 @@ std::string tree::get_value() const
 }
 
 //---------------------------------------------------------------------------
-node_type tree::get_type()
+node_type tree::get_type() const
 {
 	return type;
 }
@@ -97,7 +97,7 @@ void tree::set_value(const string &v, const node_type t)
 }
 
 //---------------------------------------------------------------------------
-int tree::get_num_subnode()
+int tree::get_num_subnode() const
 {
 	return num_subnode;
 }

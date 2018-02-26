@@ -82,18 +82,18 @@ public:
 	~Index();
 
 	std::string getname() const;
-	bool get_is_primary();
-	int32_t get_num_records(); // получить количество полей в индексе
+	bool get_is_primary() const;
+	int32_t get_num_records() const; // получить количество полей в индексе
 	index_record* get_records();
 
-	uint32_t get_numrecords(); // получает количество записей, проиндексированных индексом
-	uint32_t get_numrec(uint32_t num_record); // получает физический индекс записи по порядковому индексу
+	uint32_t get_numrecords() const; // получает количество записей, проиндексированных индексом
+	uint32_t get_numrec(uint32_t num_record) const; // получает физический индекс записи по порядковому индексу
 
 	void dump(const std::string &filename);
 	void calcRecordIndex(const TableRecord *rec, char *indexBuf); // вычислить индекс записи rec и поместить в indexBuf. Длина буфера indexBuf должна быть не меньше length
 
-	uint32_t get_rootblock();
-	uint32_t get_length();
+	uint32_t get_rootblock() const;
+	uint32_t get_length() const;
 
 	// распаковывает одну страницу-лист индексов
 	// возвращает массив структур unpack_index_record. Количество элементов массива возвращается в number_indexes
@@ -117,11 +117,15 @@ private:
 	index_record* records;
 
 	uint64_t start; // Смещение в файле индексов блока описания индекса
-	uint64_t rootblock; // Смещение в файле индексов корневого блока индекса
-	uint32_t length; // длина в байтах одной распакованной записи индекса
-	std::vector<uint32_t> recordsindex; // динамический массив индексов записей по номеру (только не пустые записи)
-	bool recordsindex_complete; // признак заполнености recordsindex
-	void create_recordsindex();
+	// TODO: убрать mutable
+	mutable uint64_t rootblock; // Смещение в файле индексов корневого блока индекса
+
+	// TODO: убрать mutable
+
+	mutable uint32_t length; // длина в байтах одной распакованной записи индекса
+	mutable std::vector<uint32_t> recordsindex; // динамический массив индексов записей по номеру (только не пустые записи)
+	mutable bool recordsindex_complete; // признак заполнености recordsindex
+	void create_recordsindex() const;
 
 	void dump_recursive(v8object* file_index, TFileStream* f, int32_t level, uint64_t curblock);
 	void delete_index(const TableRecord *rec, const uint32_t phys_numrec); // удаление индекса записи из файла index

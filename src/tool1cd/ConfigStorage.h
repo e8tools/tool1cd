@@ -30,9 +30,9 @@ public:
 	virtual ~ConfigStorage() = default;
 	virtual ConfigFile* readfile(const std::string &path) = 0; // Если файл не существует, возвращается NULL
 	virtual bool writefile(const std::string &path, TStream *str) = 0;
-	virtual std::string presentation() = 0;
+	virtual std::string presentation() const = 0;
 	virtual void close(ConfigFile* cf) = 0;
-	virtual bool fileexists(const std::string &path) = 0;
+	virtual bool fileexists(const std::string &path) const = 0;
 };
 
 //---------------------------------------------------------------------------
@@ -45,9 +45,9 @@ public:
 	explicit ConfigStorageDirectory(const std::string &_dir);
 	virtual ConfigFile* readfile(const std::string &path) override;
 	virtual bool writefile(const std::string &path, TStream *str) override;
-	virtual std::string presentation() override;
+	virtual std::string presentation() const override;
 	virtual void close(ConfigFile* cf) override {delete cf->str; delete cf;}
-	virtual bool fileexists(const std::string &path) override;
+	virtual bool fileexists(const std::string &path) const override;
 	virtual ~ConfigStorageDirectory() {}
 };
 
@@ -63,9 +63,9 @@ public:
 	virtual ~ConfigStorageCFFile();
 	virtual ConfigFile* readfile(const std::string &path) override;
 	virtual bool writefile(const std::string &path, TStream *str) override;
-	virtual std::string presentation() override;
+	virtual std::string presentation() const override;
 	virtual void close(ConfigFile* cf) override;
-	virtual bool fileexists(const std::string &path) override;
+	virtual bool fileexists(const std::string &path) const override;
 };
 
 //---------------------------------------------------------------------------
@@ -95,7 +95,7 @@ public:
 	bool open();
 	bool ropen(); // raw open
 	void close();
-	bool isPacked();
+	bool isPacked() const;
 };
 
 //---------------------------------------------------------------------------
@@ -110,8 +110,8 @@ public:
 	virtual void close(ConfigFile* cf) override;
 	// сохранение конфигурации в файл
 	bool save_config(const boost::filesystem::path& file_name);
-	bool getready(){return ready;}
-	virtual bool fileexists(const std::string &path) override;
+	bool getready() const {return ready;}
+	virtual bool fileexists(const std::string &path) const override;
 
 protected:
 	std::map<std::string,ContainerFile*> files;
@@ -126,7 +126,7 @@ class ConfigStorageTableConfig : public ConfigStorageTable
 {
 public:
 	explicit ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _base = nullptr);
-	virtual std::string presentation() override;
+	virtual std::string presentation() const override;
 	virtual ~ConfigStorageTableConfig() = default;
 
 private:
@@ -139,7 +139,7 @@ class ConfigStorageTableConfigSave : public ConfigStorageTable
 {
 public:
 	ConfigStorageTableConfigSave(TableFiles* tabc, TableFiles* tabcs, T_1CD* _base = nullptr);
-	virtual std::string presentation() override;
+	virtual std::string presentation() const override;
 	virtual ~ConfigStorageTableConfigSave() {}
 
 private:
@@ -152,7 +152,7 @@ class ConfigStorageTableConfigCas : public ConfigStorageTable
 {
 public:
 	ConfigStorageTableConfigCas(TableFiles *tabc, const std::string &configver, T_1CD *_base = nullptr);
-	virtual std::string presentation() override;
+	virtual std::string presentation() const override;
 	virtual ~ConfigStorageTableConfigCas() {}
 
 private:
@@ -166,7 +166,7 @@ class ConfigStorageTableConfigCasSave : public ConfigStorageTable
 public:
 	ConfigStorageTableConfigCasSave(TableFiles *tabc, TableFiles *tabcs, const BinaryGuid &uid,
 									const std::string &configver, T_1CD *_base = nullptr);
-	virtual std::string presentation() override;
+	virtual std::string presentation() const override;
 	virtual ~ConfigStorageTableConfigCasSave() = default;
 
 private:
