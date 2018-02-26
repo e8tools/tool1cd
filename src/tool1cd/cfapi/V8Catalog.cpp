@@ -2,7 +2,6 @@
 #include <algorithm>
 
 #include "V8Catalog.h"
-#include "APIcfBase.h"
 #include "../UZLib.h"
 #include "../Common.h"
 using namespace std;
@@ -11,67 +10,49 @@ using namespace std;
 // читает блок из потока каталога stream_from, собирая его по страницам
 TStream* read_block(TStream* stream_from, int start, TStream* stream_to = nullptr)
 {
-	std::array<char, BLOCK_HEADER_LEN> temp_buf;
-	int len, curlen, pos, readlen;
+	stBlockHeader block_header;
 
-	if(!stream_to)
+	if(!stream_to) {
 		stream_to = new TMemoryStream;
+	}
+
 	stream_to->Seek(0, soFromBeginning);
 	stream_to->SetSize(0);
 
-	if(start < 0 || start == LAST_BLOCK || start > stream_from->GetSize())
+	if( start < 0
+			|| start == LAST_BLOCK
+			|| start > stream_from->GetSize() ) {
 		return stream_to;
+	}
 
 	stream_from->Seek(start, soFromBeginning);
-	stream_from->Read(temp_buf.data(), temp_buf.size() - 1);
+	stream_from->Read(&block_header, stBlockHeader::Size());
 
-	std::string hex_len("0x");
-	std::copy_n(temp_buf.begin() + (int)block_header::doc_len,
-				HEX_INT_LEN,
-				std::back_inserter(hex_len));
-	len = std::stoi(hex_len, nullptr, 16);
+	int32_t len = block_header.data_size();
 
-	if(!len)
+	if(len == 0) {
 		return stream_to;
+	}
 
-	std::string hex_curlen("0x");
-	std::copy_n(temp_buf.begin() + (int)block_header::block_len,
-				HEX_INT_LEN,
-				std::back_inserter(hex_curlen));
-	curlen =std::stoi(hex_curlen, nullptr, 16);
+	int32_t curlen = block_header.page_size();
+	start = block_header.next_page_addr();
 
-	std::string hex_start("0x");
-	std::copy_n(temp_buf.begin() + (int)block_header::nextblock,
-				HEX_INT_LEN,
-				std::back_inserter(hex_start));
-	start  = std::stoi(hex_start, nullptr, 16);
-
-	readlen = std::min(len, curlen);
+	int32_t readlen = std::min(len, curlen);
 	stream_to->CopyFrom(stream_from, readlen);
 
-	pos = readlen;
+	int32_t pos = readlen;
 
-	while(start != LAST_BLOCK){
-
+	while(start != LAST_BLOCK) {
 		stream_from->Seek(start, soFromBeginning);
-		stream_from->Read(temp_buf.data(), temp_buf.size() - 1);
+		stream_from->Read(&block_header, block_header.Size());
 
-		std::string hex_curlen("0x");
-		std::copy_n(temp_buf.begin() + (int)block_header::block_len,
-					HEX_INT_LEN,
-					std::back_inserter(hex_curlen));
-		curlen = std::stoi(hex_curlen, nullptr, 16);
+		curlen = block_header.page_size();
 
-		std::string hex_start("0x");
-		std::copy_n(temp_buf.begin() + (int)block_header::nextblock,
-					HEX_INT_LEN,
-					std::back_inserter(hex_start));
-		start  = std::stoi(hex_start, nullptr, 16);
+		start  = block_header.next_page_addr();
 
 		readlen = std::min(len - pos, curlen);
 		stream_to->CopyFrom(stream_from, readlen);
 		pos += readlen;
-
 	}
 
 	return stream_to;
@@ -83,7 +64,7 @@ bool V8Catalog::IsCatalog() const
 {
 	int64_t _filelen;
 	uint32_t _startempty = (uint32_t)(-1);
-	char _t[BLOCK_HEADER_LEN];
+	char _t[stBlockHeader::Size()];
 
 	Lock->Acquire();
 	if(iscatalogdefined)
@@ -96,11 +77,11 @@ bool V8Catalog::IsCatalog() const
 
 	// эмпирический метод?
 	_filelen = data->GetSize();
-	if(_filelen == CATALOG_HEADER_LEN)
+	if(_filelen == stFileHeader::Size())
 	{
 		data->Seek(0, soFromBeginning);
-		data->Read(_t, CATALOG_HEADER_LEN);
-		if(memcmp(_t, _EMPTY_CATALOG_TEMPLATE, CATALOG_HEADER_LEN) != 0)
+		data->Read(_t, stFileHeader::Size());
+		if(memcmp(_t, _EMPTY_CATALOG_TEMPLATE, stFileHeader::Size()) != 0)
 		{
 			Lock->Release();
 			return false;
@@ -129,12 +110,12 @@ bool V8Catalog::IsCatalog() const
 			return false;
 		}
 	}
-	if(_filelen < (BLOCK_HEADER_LEN - 1 + CATALOG_HEADER_LEN) )
+	if(_filelen < (stBlockHeader::Size() + stFileHeader::Size()) )
 	{
 		Lock->Release();
 		return false;
 	}
-	data->Seek(CATALOG_HEADER_LEN, soFromBeginning);
+	data->Seek(stFileHeader::Size(), soFromBeginning);
 	data->Read(_t, 31);
 	if(_t[0] != 0xd || _t[1] != 0xa || _t[10] != 0x20 || _t[19] != 0x20 || _t[28] != 0x20 || _t[29] != 0xd || _t[30] != 0xa)
 	{
@@ -162,7 +143,7 @@ V8Catalog::V8Catalog(const string &name) // создать каталог из �
 
 		if(!FileExists(name))
 		{
-			data->WriteBuffer(_EMPTY_CATALOG_TEMPLATE, CATALOG_HEADER_LEN);
+			data->WriteBuffer(_EMPTY_CATALOG_TEMPLATE, stFileHeader::Size());
 			cfu = new TFileStream(name, fmCreate);
 		}
 		else
@@ -179,7 +160,7 @@ V8Catalog::V8Catalog(const string &name) // создать каталог из �
 		if(!FileExists(name))
 		{
 			data = new TFileStream(name, fmCreate);
-			data->WriteBuffer(_EMPTY_CATALOG_TEMPLATE, CATALOG_HEADER_LEN);
+			data->WriteBuffer(_EMPTY_CATALOG_TEMPLATE, stFileHeader::Size());
 			delete data;
 		}
 		data = new TFileStream(name, fmOpenReadWrite);
@@ -191,9 +172,6 @@ V8Catalog::V8Catalog(const string &name) // создать каталог из �
 	{
 		first = nullptr;
 		last = nullptr;
-		start_empty = 0;
-		page_size = 0;
-		version = 0;
 		zipped = false;
 
 		_fatmodified = false;
@@ -217,7 +195,7 @@ V8Catalog::V8Catalog(const string &name, bool _zipped) // создать кат�
 	if(!FileExists(name))
 	{
 		data = new TFileStream(name, fmCreate);
-		data->WriteBuffer(_EMPTY_CATALOG_TEMPLATE, CATALOG_HEADER_LEN);
+		data->WriteBuffer(_EMPTY_CATALOG_TEMPLATE, stFileHeader::Size());
 		delete data;
 	}
 	data = new TFileStream(name, fmOpenReadWrite);
@@ -227,9 +205,6 @@ V8Catalog::V8Catalog(const string &name, bool _zipped) // создать кат�
 	{
 		first = nullptr;
 		last = nullptr;
-		start_empty = 0;
-		page_size = 0;
-		version = 0;
 		zipped = false;
 
 		_fatmodified = false;
@@ -253,7 +228,7 @@ V8Catalog::V8Catalog(TStream* stream, bool _zipped, bool leave_stream) // соз
 	file = nullptr;
 
 	if(!data->GetSize())
-		data->WriteBuffer(_EMPTY_CATALOG_TEMPLATE, CATALOG_HEADER_LEN);
+		data->WriteBuffer(_EMPTY_CATALOG_TEMPLATE, stFileHeader::Size());
 
 	if(IsCatalog())
 		initialize();
@@ -261,9 +236,6 @@ V8Catalog::V8Catalog(TStream* stream, bool _zipped, bool leave_stream) // соз
 	{
 		first = nullptr;
 		last = nullptr;
-		start_empty = 0;
-		page_size = 0;
-		version = 0;
 		zipped = false;
 
 		_fatmodified = false;
@@ -293,9 +265,6 @@ V8Catalog::V8Catalog(V8File* f) // создать каталог из файла
 	{
 		first = nullptr;
 		last = nullptr;
-		start_empty = 0;
-		page_size = 0;
-		version = 0;
 		zipped = false;
 
 		_fatmodified = false;
@@ -312,51 +281,51 @@ V8Catalog::V8Catalog(V8File* f) // создать каталог из файла
 void V8Catalog::initialize()
 {
 	_destructed = false;
-	catalog_header _ch;
-	fat_item _fi;
 	char* _temp_buf;
-	TMemoryStream* _file_header;
-	TStream* _fat;
+
 	V8File* _prev;
 	V8File* _file;
 	V8File* f;
-	int64_t _countfiles;
-
-	data->Seek(0, soFromBeginning);
-	data->ReadBuffer(&_ch, CATALOG_HEADER_LEN);
-	start_empty = _ch.start_empty;
-	page_size = _ch.page_size;
-	version = _ch.version;
 
 	first = nullptr;
-
-	_file_header = new TMemoryStream;
 	_prev = nullptr;
-	try
-	{
-		if(data->GetSize() > CATALOG_HEADER_LEN)
-		{
-			_fat = read_block(data, CATALOG_HEADER_LEN);
+
+	data->Seek(0, soFromBeginning);
+	data->ReadBuffer(&file_header, stFileHeader::Size());
+
+	unique_ptr<TMemoryStream> file_data( new TMemoryStream );
+
+	try {
+		if(data->GetSize() > stFileHeader::Size()) {
+			// TODO: как это работает?
+			unique_ptr<TStream> _fat( read_block(data, stFileHeader::Size()) );
 			_fat->Seek(0, soFromBeginning);
-			_countfiles = _fat->GetSize() / 12;
-			for(int i = 0; i < _countfiles; i++){
-				_fat->Read(&_fi, 12);
-				read_block(data, _fi.header_start, _file_header);
-				_file_header->Seek(0, soFromBeginning);
-				auto header_size = _file_header->GetSize();
+			int64_t count_files = _fat->GetSize() / stElemAddr::Size();
+
+			for(int i = 0; i < count_files; i++) {
+				stElemAddr elem_addr;
+
+				_fat->Read(&elem_addr, stElemAddr::Size());
+				read_block(data, elem_addr.header_addr, file_data.get());
+				file_data->Seek(0, soFromBeginning);
+				auto header_size = file_data->GetSize();
 				_temp_buf = new char[header_size];
-				_file_header->Read(_temp_buf, header_size);
+				file_data->Read(_temp_buf, header_size);
 				// TODO: константы 20, 8
+
 				string _name = TEncoding::Unicode->toUtf8(vector<uint8_t>(_temp_buf + 20, _temp_buf + header_size));
 				int64_t time_create = *(int64_t*)_temp_buf;
-				int64_t time_modify = *(int64_t*)_temp_buf +8;
-				_file = new V8File(this, _name, _prev, _fi.data_start, _fi.header_start, time_create, time_modify);
+				int64_t time_modify = *(int64_t*)_temp_buf + 8;
+
+				_file = new V8File(this, _name, _prev, elem_addr.data_addr, elem_addr.header_addr, time_create, time_modify);
 				delete[] _temp_buf;
-				if(!_prev) first = _file;
+
+				if(!_prev) {
+					first = _file;
+				}
+
 				_prev = _file;
 			}
-			delete _file_header;
-			delete _fat;
 		}
 	}
 	catch(...)
@@ -374,9 +343,6 @@ void V8Catalog::initialize()
 
 		first = nullptr;
 		last = nullptr;
-		start_empty = 0;
-		page_size = 0;
-		version = 0;
 		zipped = false;
 
 	}
@@ -486,40 +452,31 @@ TStream* V8Catalog::read_datablock(int start)
 //---------------------------------------------------------------------------
 // освобождение блока
 void V8Catalog::free_block(int start){
-	std::array<char, BLOCK_HEADER_LEN> temp_buf;
+	stBlockHeader block_header;
 	int nextstart;
 	int prevempty;
 
-	if(!start) return;
-	if(start == LAST_BLOCK) return;
+	if(start == 0 || start == LAST_BLOCK) {
+		return;
+	}
 
 	Lock->Acquire();
-	prevempty = start_empty;
-	start_empty = start;
+	prevempty = file_header.next_page_addr;
+	file_header.next_page_addr = start;
 
-	do
-	{
+	do {
 		data->Seek(start, soFromBeginning);
-		data->ReadBuffer(temp_buf.data(), temp_buf.size() - 1);
+		data->ReadBuffer(&block_header, stBlockHeader::Size());
 
-		std::string hex_nextstart("0x");
-		std::copy_n(temp_buf.begin() + (int)block_header::nextblock,
-					HEX_INT_LEN,
-					std::back_inserter(hex_nextstart));
-		nextstart = std::stoi(hex_nextstart, nullptr, 16);
+		nextstart = block_header.next_page_addr();
 
-		std::string hex_int = to_hex_string(LAST_BLOCK, false);
-		std::copy(hex_int.begin(),
-					hex_int.end(),
-					temp_buf.begin() + (int)block_header::doc_len);
+		block_header.set_data_size(LAST_BLOCK);
+
 		if (nextstart == LAST_BLOCK) {
-			std::string hex_prevempty = to_hex_string(prevempty, false);
-			std::copy(hex_prevempty.begin(),
-						hex_prevempty.end(),
-						temp_buf.begin() + (int)block_header::nextblock);
+			block_header.set_next_page_addr(prevempty);
 		}
 		data->Seek(start, soFromBeginning);
-		data->WriteBuffer(temp_buf.data(), temp_buf.size() - 1);
+		data->WriteBuffer(&block_header, stBlockHeader::Size());
 		start = nextstart;
 	}
 	while(start != LAST_BLOCK);
@@ -584,7 +541,7 @@ int64_t V8Catalog::get_nextblock(int64_t start)
 	Lock->Acquire();
 	if(start == 0 || start == LAST_BLOCK)
 	{
-		start = start_empty;
+		start = file_header.next_page_addr;
 		if(start == LAST_BLOCK) start = data->GetSize();
 	}
 	ret = start;
@@ -596,17 +553,17 @@ int64_t V8Catalog::get_nextblock(int64_t start)
 // записать блок
 int V8Catalog::write_block(TStream* block, int start, bool use_page_size, int len)
 {
-	std::array<char, BLOCK_HEADER_LEN> temp_buf;
+	stBlockHeader block_header;
 	char* _t;
 	int firststart, nextstart, blocklen, curlen;
 	bool isfirstblock = true;
 	bool addwrite = false; // признак, что надо дозаписать файл при использовании размера страницы по умолчанию
 
 	Lock->Acquire();
-	if(data->GetSize() == CATALOG_HEADER_LEN && start != CATALOG_HEADER_LEN) // если каталог пустой, надо выделить первую страницу!!!
+	if(data->GetSize() == stFileHeader::Size() && start != stFileHeader::Size()) // если каталог пустой, надо выделить первую страницу!!!
 	{
 		TMemoryStream* _ts = new TMemoryStream;
-		write_block(_ts, CATALOG_HEADER_LEN, true);
+		write_block(_ts, stFileHeader::Size(), true);
 	}
 
 	if(len == -1)
@@ -618,73 +575,52 @@ int V8Catalog::write_block(TStream* block, int start, bool use_page_size, int le
 
 	do
 	{
-		if(start == start_empty)
+		if(start == file_header.next_page_addr)
 		{// пишем в свободный блок
 			data->Seek(start, soFromBeginning);
-			data->ReadBuffer(temp_buf.data(), temp_buf.size() - 1);
+			data->ReadBuffer(&block_header, stBlockHeader::Size());
 
-			std::string hex_blocklen("0x");
-			std::copy_n(temp_buf.begin() + (int)block_header::block_len,
-						HEX_INT_LEN,
-						std::back_inserter(hex_blocklen));
-			blocklen = std::stoi(hex_blocklen, nullptr, 16);
+			blocklen = block_header.page_size();
+			nextstart = block_header.next_page_addr();
 
-			std::string hex_nextstart("0x");
-			std::copy_n(temp_buf.begin() + (int)block_header::nextblock,
-						HEX_INT_LEN,
-						std::back_inserter(hex_nextstart));
-			nextstart = std::stoi(hex_nextstart, nullptr, 16);
-
-			start_empty = nextstart;
+			file_header.next_page_addr = nextstart;
 			is_emptymodified = true;
 		}
 		else if(start == data->GetSize())
 		{// пишем в новый блок
-			memcpy(temp_buf.data(), _BLOCK_HEADER_TEMPLATE, temp_buf.size() - 1);
-			blocklen = use_page_size ? len > page_size ? len : page_size : len;
-			std::string hex_blocklen = to_hex_string(blocklen, false);
-			std::copy(hex_blocklen.begin(),
-						hex_blocklen.end(),
-						temp_buf.begin() + (int)block_header::block_len);
+			block_header = stBlockHeader::create(0, 0, 0);
+			blocklen = use_page_size ? len > file_header.page_size ? len : file_header.page_size : len;
+			block_header.set_page_size(blocklen);
+
 			nextstart = 0;
 			if(blocklen > len) addwrite = true;
 		}
 		else
 		{// пишем в существующий блок
 			data->Seek(start, soFromBeginning);
-			data->ReadBuffer(temp_buf.data(), temp_buf.size() - 1);
+			data->ReadBuffer(&block_header, stBlockHeader::Size());
 
-			std::string hex_blocklen("0x");
-			std::copy_n(temp_buf.begin() + (int)block_header::block_len,
-						HEX_INT_LEN,
-						std::back_inserter(hex_blocklen));
-			blocklen = std::stoi(hex_blocklen, nullptr, 16);
-
-			std::string hex_nextstart("0x");
-			std::copy_n(temp_buf.begin() + (int)block_header::nextblock,
-						HEX_INT_LEN,
-						std::back_inserter(hex_nextstart));
-			nextstart = std::stoi(hex_nextstart, nullptr, 16);
+			blocklen = block_header.page_size();
+			nextstart = block_header.next_page_addr();
 		}
 
-		std::string hex_first_block_len = to_hex_string(isfirstblock ? len : 0, false);
-		std::copy(hex_first_block_len.begin(),
-					hex_first_block_len.end(),
-					temp_buf.begin() + (int)block_header::doc_len);
-		curlen = std::min(blocklen, len);
-		if(!nextstart) nextstart = data->GetSize() + 31 + blocklen;
-		else nextstart = get_nextblock(nextstart);
+		block_header.set_data_size(isfirstblock ? len : 0);
 
-		std::string hex_block = to_hex_string(len <= blocklen ? LAST_BLOCK : nextstart, false);
-		std::copy(hex_block.begin(),
-					hex_block.end(),
-					temp_buf.begin() + (int)block_header::nextblock);
+		curlen = std::min(blocklen, len);
+
+		if(!nextstart) {
+			nextstart = data->GetSize() + 31 + blocklen; // TODO: 31 в константу
+		}
+		else {
+			nextstart = get_nextblock(nextstart);
+		}
+
+		block_header.set_next_page_addr(len <= blocklen ? LAST_BLOCK : nextstart);
 
 		data->Seek(start, soFromBeginning);
-		data->WriteBuffer(temp_buf.data(), temp_buf.size() - 1);
+		data->WriteBuffer(&block_header, stBlockHeader::Size());
 		data->CopyFrom(block, curlen);
-		if(addwrite)
-		{
+		if(addwrite) {
 			_t = new char [blocklen - len];
 			memset(_t, 0, blocklen - len);
 			data->WriteBuffer(_t, blocklen - len);
@@ -693,16 +629,15 @@ int V8Catalog::write_block(TStream* block, int start, bool use_page_size, int le
 
 		len -= curlen;
 
-		if(isfirstblock)
-		{
+		if(isfirstblock) {
 			firststart = start;
 			isfirstblock = false;
 		}
 		start = nextstart;
 
-	}while(len > 0);
+	} while(len > 0);
 
-	if(start < data->GetSize() && start != start_empty) free_block(start);
+	if(start < data->GetSize() && start != file_header.next_page_addr) free_block(start);
 
 	is_modified = true;
 	Lock->Release();
@@ -713,7 +648,7 @@ int V8Catalog::write_block(TStream* block, int start, bool use_page_size, int le
 // деструктор
 V8Catalog::~V8Catalog()
 {
-	fat_item fi;
+	stElemAddr elem_addr;
 	V8File* f;
 	TMemoryStream* fat = nullptr;
 
@@ -734,16 +669,16 @@ V8Catalog::~V8Catalog()
 			try
 			{
 				fat = new TMemoryStream;
-				fi.ff = LAST_BLOCK;
+				elem_addr.fffffff = LAST_BLOCK;
 				f = first;
 				while(f)
 				{
-					fi.header_start = f->get_start_header();
-					fi.data_start = f->get_start_data();
-					fat->WriteBuffer(&fi, 12);
+					elem_addr.header_addr = f->get_start_header();
+					elem_addr.data_addr = f->get_start_data();
+					fat->WriteBuffer(&elem_addr, stElemAddr::Size());
 					f = f->GetNext();
 				}
-				write_block(fat, CATALOG_HEADER_LEN, true);
+				write_block(fat, stFileHeader::Size(), true);
 			}
 			catch(...)
 			{
@@ -759,13 +694,13 @@ V8Catalog::~V8Catalog()
 		if(is_emptymodified)
 		{
 			data->Seek(0, soFromBeginning);
-			data->WriteBuffer(&start_empty, 4);
+			data->WriteBuffer(&file_header.next_page_addr, sizeof(file_header.next_page_addr));
 		}
 		if(is_modified)
 		{
-			version++;
+			file_header.storage_ver++;
 			data->Seek(8, soFromBeginning);
-			data->WriteBuffer(&version, 4);
+			data->WriteBuffer(&file_header.storage_ver, sizeof(file_header.storage_ver));
 		}
 	}
 
@@ -824,7 +759,7 @@ V8Catalog* V8Catalog::CreateCatalog(const string &FileName, bool _selfzipped)
 	}
 	else
 	{
-		f->Write(_EMPTY_CATALOG_TEMPLATE, CATALOG_HEADER_LEN);
+		f->Write(_EMPTY_CATALOG_TEMPLATE, stFileHeader::Size());
 		ret = f->GetCatalog();
 	}
 	Lock->Release();
@@ -865,7 +800,7 @@ bool V8Catalog::isOpen() const
 // сбросить
 void V8Catalog::Flush()
 {
-	fat_item fi;
+	stElemAddr elem_addr;
 	V8File* f;
 
 	Lock->Acquire();
@@ -888,30 +823,30 @@ void V8Catalog::Flush()
 		if(_fatmodified)
 		{
 			TMemoryStream* fat = new TMemoryStream;
-			fi.ff = LAST_BLOCK;
+			elem_addr.fffffff = LAST_BLOCK;
 			f = first;
 			while(f)
 			{
-				fi.header_start = f->get_start_header();
-				fi.data_start = f->get_start_data();
-				fat->WriteBuffer(&fi, 12);
+				elem_addr.header_addr = f->get_start_header();
+				elem_addr.data_addr = f->get_start_data();
+				fat->WriteBuffer(&elem_addr, stElemAddr::Size());
 				f = f->GetNext();
 			}
-			write_block(fat, CATALOG_HEADER_LEN, true);
+			write_block(fat, stFileHeader::Size(), true);
 			_fatmodified = false;
 		}
 
 		if(is_emptymodified)
 		{
 			data->Seek(0, soFromBeginning);
-			data->WriteBuffer(&start_empty, 4);
+			data->WriteBuffer(&file_header.next_page_addr, sizeof(file_header.next_page_addr));
 			is_emptymodified = false;
 		}
 		if(is_modified)
 		{
-			version++;
+			file_header.storage_ver++;
 			data->Seek(8, soFromBeginning);
-			data->WriteBuffer(&version, 4);
+			data->WriteBuffer(&file_header.storage_ver, sizeof(file_header.storage_ver));
 		}
 	}
 
