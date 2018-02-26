@@ -78,7 +78,7 @@ void changed_rec::clear()
 // Класс table
 
 //---------------------------------------------------------------------------
-bool Table::get_issystem()
+bool Table::get_issystem() const
 {
 	return issystem;
 }
@@ -599,13 +599,13 @@ Index* Table::getindex(int32_t numindex)
 }
 
 //---------------------------------------------------------------------------
-uint32_t Table::get_phys_numrecords()
+uint32_t Table::get_phys_numrecords() const
 {
 	return phys_numrecords;
 }
 
 //---------------------------------------------------------------------------
-uint32_t Table::get_log_numrecords()
+uint32_t Table::get_log_numrecords() const
 {
 	return log_numrecords;
 }
@@ -617,7 +617,7 @@ void Table::set_log_numrecords(uint32_t _log_numrecords)
 }
 
 //---------------------------------------------------------------------------
-uint32_t Table::get_added_numrecords()
+uint32_t Table::get_added_numrecords() const
 {
 	return added_numrecords;
 }
@@ -629,7 +629,7 @@ void Table::getrecord(uint32_t phys_numrecord, char *buf)
 }
 
 //---------------------------------------------------------------------------
-TableRecord * Table::getrecord(uint32_t phys_numrecord)
+TableRecord * Table::getrecord(uint32_t phys_numrecord) const
 {
 	#ifndef getcfname
 	tr_syn->BeginWrite();
@@ -649,7 +649,7 @@ int32_t Table::get_recordlen() const
 }
 
 //---------------------------------------------------------------------------
-bool Table::get_recordlock()
+bool Table::get_recordlock() const
 {
 	return recordlock;
 }
@@ -845,7 +845,7 @@ uint32_t Table::readBlob(void* buf, uint32_t _startblock, uint32_t _length) cons
 }
 
 //---------------------------------------------------------------------------
-bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool unpack)
+bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool unpack) const
 {
 	string recname;
 	uint32_t j, numr, nr;
@@ -1023,7 +1023,7 @@ uint64_t Table::get_fileoffset(uint32_t phys_numrecord)
 }
 
 //---------------------------------------------------------------------------
-bool Table::get_edit()
+bool Table::get_edit() const
 {
 	return edit;
 }
@@ -2341,7 +2341,7 @@ std::string Table::get_file_name_for_field(int32_t num_field, char *rec, uint32_
 	return s;
 }
 
-std::string Table::get_file_name_for_record(const TableRecord *rec)
+std::string Table::get_file_name_for_record(const TableRecord *rec) const
 {
 	std::string s("");
 

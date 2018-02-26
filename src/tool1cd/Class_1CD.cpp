@@ -52,7 +52,7 @@ bool T_1CD::getblock(void* buf, uint32_t block_number, int32_t blocklen)
 }
 
 //---------------------------------------------------------------------------
-char*  T_1CD::getblock(uint32_t block_number)
+char*  T_1CD::getblock(uint32_t block_number) const
 {
 	if(!fs) return nullptr;
 	if(block_number >= length)

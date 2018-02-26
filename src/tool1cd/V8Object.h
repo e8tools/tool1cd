@@ -87,7 +87,7 @@ public:
 	bool setdata(const void* buf, uint64_t _length); // запись объекта целиком, поддерживает кеширование блоков.
 	bool setdata(TStream* stream); // записывает поток целиком в объект, поддерживает кеширование блоков.
 	bool setdata(TStream* stream, uint64_t _start, uint64_t _length); // запись части потока в объект, поддерживает кеширование блоков.
-	uint64_t getlen();
+	uint64_t getlen() const;
 	void savetofile(const std::string &filename);
 	void set_lockinmemory(bool _lock);
 	static void garbage();
@@ -100,7 +100,7 @@ public:
 	static v8object* get_first();
 	static v8object* get_last();
 	v8object* get_next();
-	uint32_t get_block_number();
+	uint32_t get_block_number() const;
 	TStream* readBlob(TStream* _str, uint32_t _startblock, uint32_t _length = UINT_MAX, bool rewrite = true);
 private:
 	T_1CD* base;

@@ -44,13 +44,13 @@ string Index::getname() const
 }
 
 //---------------------------------------------------------------------------
-bool Index::get_is_primary()
+bool Index::get_is_primary() const
 {
 	return is_primary;
 }
 
 //---------------------------------------------------------------------------
-int32_t Index::get_num_records()
+int32_t Index::get_num_records() const
 {
 	return num_records;
 }
@@ -62,7 +62,7 @@ index_record* Index::get_records()
 }
 
 //---------------------------------------------------------------------------
-uint32_t Index::get_numrecords()
+uint32_t Index::get_numrecords() const
 {
 	if(!start) return 0;
 	if(!recordsindex_complete) create_recordsindex();
@@ -70,7 +70,7 @@ uint32_t Index::get_numrecords()
 }
 
 //---------------------------------------------------------------------------
-uint32_t Index::get_numrec(uint32_t num_record)
+uint32_t Index::get_numrec(uint32_t num_record) const
 {
 	if(!start) return 0;
 	if(!recordsindex_complete) create_recordsindex();
@@ -78,7 +78,7 @@ uint32_t Index::get_numrec(uint32_t num_record)
 }
 
 //---------------------------------------------------------------------------
-void Index::create_recordsindex()
+void Index::create_recordsindex() const
 {
 	char* buf;
 	int32_t curlen;
@@ -302,7 +302,7 @@ void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, 
 }
 
 //---------------------------------------------------------------------------
-uint32_t Index::get_rootblock()
+uint32_t Index::get_rootblock() const
 {
 	if(!start) return 0;
 
@@ -318,7 +318,7 @@ uint32_t Index::get_rootblock()
 }
 
 //---------------------------------------------------------------------------
-uint32_t Index::get_length()
+uint32_t Index::get_length() const
 {
 	if(!start) return 0;
 
