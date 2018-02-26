@@ -53,18 +53,9 @@ struct stFileHeader
 	}
 };
 
-struct stBlockHeader
+class stBlockHeader
 {
-	char EOL_0D;
-	char EOL_0A;
-	char data_size_hex[8];
-	char space1;
-	char page_size_hex[8];
-	char space2;
-	char next_page_addr_hex[8];
-	char space3;
-	char EOL2_0D;
-	char EOL2_0A;
+public:
 
 	stBlockHeader():
 		EOL_0D(0xd), EOL_0A(0xa),
@@ -72,7 +63,7 @@ struct stBlockHeader
 		EOL2_0D(0xd), EOL2_0A(0xa)
 		{}
 
-	static stBlockHeader create(uint32_t block_data_size, uint32_t page_size, uint32_t next_page_addr);
+	static stBlockHeader create(int32_t block_data_size, int32_t page_size, int32_t next_page_addr);
 
 	constexpr static const uint32_t Size()
 	{
@@ -91,12 +82,26 @@ struct stBlockHeader
 	}
 
 	int32_t data_size() const;
-	int32_t page_size() const;
-	int32_t next_page_addr() const;
+	void set_data_size(int32_t value);
 
-	static const std::string HEADER_TEMPLATE() {
-		return "\r\n00000000 00000000 00000000 \r\n";
-	}
+	int32_t page_size() const;
+	void set_page_size(int32_t value);
+
+	int32_t next_page_addr() const;
+	void set_next_page_addr(int32_t value);
+
+private:
+	char EOL_0D;
+	char EOL_0A;
+	char data_size_hex[8] {0};
+	char space1;
+	char page_size_hex[8] {0};
+	char space2;
+	char next_page_addr_hex[8] {0};
+	char space3;
+	char EOL2_0D;
+	char EOL2_0A;
+
 };
 
 unsigned WindowsTickToUnixSeconds(long long windowsTicks);

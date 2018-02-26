@@ -1,3 +1,4 @@
+#include "../Common.h"
 #include "APIcfBase.h"
 
 using namespace std;
@@ -17,11 +18,29 @@ int32_t stBlockHeader::data_size() const {
 	return std::stoi(hex, nullptr, 16);
 }
 
+void stBlockHeader::set_data_size(int32_t value) {
+	string hex;
+
+	hex = to_hex_string(value, false);
+	std::copy(hex.begin(),
+				hex.end(),
+				std::begin(data_size_hex));
+}
+
 int32_t stBlockHeader::page_size() const {
 	string hex("0x");
 	hex.append(page_size_hex);
 
 	return std::stoi(hex, nullptr, 16);
+}
+
+void stBlockHeader::set_page_size(int32_t value) {
+	string hex;
+
+	hex = to_hex_string(value, false);
+	std::copy(hex.begin(),
+				hex.end(),
+				std::begin(page_size_hex));
 }
 
 int32_t stBlockHeader::next_page_addr() const {
@@ -31,19 +50,23 @@ int32_t stBlockHeader::next_page_addr() const {
 	return std::stoi(hex, nullptr, 16);
 }
 
-stBlockHeader stBlockHeader::create(uint32_t block_data_size, uint32_t page_size, uint32_t next_page_addr)
+void stBlockHeader::set_next_page_addr(int32_t value) {
+	string hex;
+
+	hex = to_hex_string(value, false);
+	std::copy(hex.begin(),
+				hex.end(),
+				std::begin(next_page_addr_hex));
+}
+
+
+stBlockHeader stBlockHeader::create(int32_t block_data_size, int32_t page_size, int32_t next_page_addr)
 {
-	stBlockHeader BlockHeader;
-	char buf[9];
+	stBlockHeader block_header;
 
-	sprintf(buf, "%08x", block_data_size);
-	strncpy(BlockHeader.data_size_hex, buf, 8);
+	block_header.set_data_size(block_data_size);
+	block_header.set_page_size(page_size);
+	block_header.set_next_page_addr(next_page_addr);
 
-	sprintf(buf, "%08x", page_size);
-	strncpy(BlockHeader.page_size_hex, buf, 8);
-
-	sprintf(buf, "%08x", next_page_addr);
-	strncpy(BlockHeader.next_page_addr_hex, buf, 8);
-
-	return BlockHeader;
+	return block_header;
 }

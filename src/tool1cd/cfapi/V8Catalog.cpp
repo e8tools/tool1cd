@@ -456,10 +456,7 @@ void V8Catalog::free_block(int start){
 	int nextstart;
 	int prevempty;
 
-	if(!start) {
-		return;
-	}
-	if(start == LAST_BLOCK) {
+	if(start == 0 || start == LAST_BLOCK) {
 		return;
 	}
 
@@ -473,15 +470,10 @@ void V8Catalog::free_block(int start){
 
 		nextstart = block_header.next_page_addr();
 
-		std::string hex_int = to_hex_string(LAST_BLOCK, false);
-		std::copy(hex_int.begin(),
-					hex_int.end(),
-					std::begin(block_header.data_size_hex));
+		block_header.set_data_size(LAST_BLOCK);
+
 		if (nextstart == LAST_BLOCK) {
-			std::string hex_prevempty = to_hex_string(prevempty, false);
-			std::copy(hex_prevempty.begin(),
-						hex_prevempty.end(),
-						std::begin(block_header.next_page_addr_hex));
+			block_header.set_next_page_addr(prevempty);
 		}
 		data->Seek(start, soFromBeginning);
 		data->WriteBuffer(&block_header, stBlockHeader::Size());
@@ -596,12 +588,10 @@ int V8Catalog::write_block(TStream* block, int start, bool use_page_size, int le
 		}
 		else if(start == data->GetSize())
 		{// пишем в новый блок
-			memcpy(&block_header, stBlockHeader::HEADER_TEMPLATE().c_str(), stBlockHeader::Size());
+			block_header = stBlockHeader::create(0, 0, 0);
 			blocklen = use_page_size ? len > file_header.page_size ? len : file_header.page_size : len;
-			std::string hex_blocklen = to_hex_string(blocklen, false);
-			std::copy(hex_blocklen.begin(),
-						hex_blocklen.end(),
-						std::begin(block_header.page_size_hex));
+			block_header.set_page_size(blocklen);
+
 			nextstart = 0;
 			if(blocklen > len) addwrite = true;
 		}
@@ -614,24 +604,23 @@ int V8Catalog::write_block(TStream* block, int start, bool use_page_size, int le
 			nextstart = block_header.next_page_addr();
 		}
 
-		std::string hex_first_block_len = to_hex_string(isfirstblock ? len : 0, false);
-		std::copy(hex_first_block_len.begin(),
-					hex_first_block_len.end(),
-					std::begin(block_header.data_size_hex));
-		curlen = std::min(blocklen, len);
-		if(!nextstart) nextstart = data->GetSize() + 31 + blocklen;
-		else nextstart = get_nextblock(nextstart);
+		block_header.set_data_size(isfirstblock ? len : 0);
 
-		std::string hex_block = to_hex_string(len <= blocklen ? LAST_BLOCK : nextstart, false);
-		std::copy(hex_block.begin(),
-					hex_block.end(),
-					std::begin(block_header.next_page_addr_hex));
+		curlen = std::min(blocklen, len);
+
+		if(!nextstart) {
+			nextstart = data->GetSize() + 31 + blocklen; // TODO: 31 в константу
+		}
+		else {
+			nextstart = get_nextblock(nextstart);
+		}
+
+		block_header.set_next_page_addr(len <= blocklen ? LAST_BLOCK : nextstart);
 
 		data->Seek(start, soFromBeginning);
 		data->WriteBuffer(&block_header, stBlockHeader::Size());
 		data->CopyFrom(block, curlen);
-		if(addwrite)
-		{
+		if(addwrite) {
 			_t = new char [blocklen - len];
 			memset(_t, 0, blocklen - len);
 			data->WriteBuffer(_t, blocklen - len);
@@ -640,14 +629,13 @@ int V8Catalog::write_block(TStream* block, int start, bool use_page_size, int le
 
 		len -= curlen;
 
-		if(isfirstblock)
-		{
+		if(isfirstblock) {
 			firststart = start;
 			isfirstblock = false;
 		}
 		start = nextstart;
 
-	}while(len > 0);
+	} while(len > 0);
 
 	if(start < data->GetSize() && start != file_header.next_page_addr) free_block(start);
 
