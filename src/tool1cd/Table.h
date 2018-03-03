@@ -134,9 +134,9 @@ public:
 	void set_lockinmemory(bool _lock);
 	bool export_to_xml(const std::string &filename, bool blob_to_file, bool unpack) const;
 
-	v8object* get_file_data();
-	v8object* get_file_blob();
-	v8object* get_file_index();
+	V8Object* get_file_data();
+	V8Object* get_file_blob();
+	V8Object* get_file_index();
 
 	uint64_t get_fileoffset(uint32_t phys_numrecord); // получить физическое смещение в файле записи по номеру
 
@@ -174,7 +174,7 @@ public:
 private:
 	T_1CD* base;
 
-	v8object* descr_table; // объект с описанием структуры таблицы (только для версий с 8.0 до 8.2.14)
+	V8Object* descr_table; // объект с описанием структуры таблицы (только для версий с 8.0 до 8.2.14)
 	std::string description;
 	std::string name;
 	int32_t num_fields;
@@ -182,9 +182,9 @@ private:
 	int32_t num_indexes;
 	std::vector<Index*> indexes;
 	bool recordlock;
-	v8object* file_data;
-	v8object* file_blob;
-	v8object* file_index;
+	V8Object* file_data;
+	V8Object* file_blob;
+	V8Object* file_index;
 	int32_t recordlen; // длина записи (в байтах)
 	bool issystem; // Признак системной таблицы (имя таблицы не начинается с подчеркивания)
 	int32_t lockinmemory; // счетчик блокировок в памяти

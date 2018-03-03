@@ -73,35 +73,45 @@ enum class v8objtype
 	free838 = 4  // файл свободных страниц формата 8.3.8
 };
 
-class v8object
-{
-friend Table;
-friend T_1CD;
+class V8Object {
 public:
-	v8object(T_1CD* _base, int32_t blockNum); // конструктор существующего объекта
-	v8object(T_1CD* _base); // конструктор нового (еще не существующего) объекта
-	~v8object();
+	V8Object(T_1CD* _base, int32_t blockNum); // конструктор существующего объекта
+	explicit V8Object(T_1CD* _base); // конструктор нового (еще не существующего) объекта
+	~V8Object();
+
+	static void garbage();
+	static V8Object* get_first();
+	static V8Object* get_last();
+
 	char* getdata(); // чтение всего объекта целиком, поддерживает кеширование объектов. Буфер принадлежит объекту
 	char* getdata(void* buf, uint64_t _start, uint64_t _length); // чтение кусочка объекта, поддерживает кеширование блоков. Буфер не принадлежит объекту
 	bool setdata(const void* buf, uint64_t _start, uint64_t _length); // запись кусочка объекта, поддерживает кеширование блоков.
 	bool setdata(const void* buf, uint64_t _length); // запись объекта целиком, поддерживает кеширование блоков.
 	bool setdata(TStream* stream); // записывает поток целиком в объект, поддерживает кеширование блоков.
 	bool setdata(TStream* stream, uint64_t _start, uint64_t _length); // запись части потока в объект, поддерживает кеширование блоков.
-	uint64_t getlen() const;
+
 	void savetofile(const std::string &filename);
 	void set_lockinmemory(bool _lock);
-	static void garbage();
 	uint64_t get_fileoffset(uint64_t offset); // получить физическое смещение в файле по смещению в объекте
+
 	void set_block_as_free(uint32_t block_number); // пометить блок как свободный
 	uint32_t get_free_block(); // получить номер свободного блока (и пометить как занятый)
+
 	void get_version_rec_and_increase(_version* ver); // получает версию очередной записи и увеличивает сохраненную версию объекта
 	void get_version(_version* ver); // получает сохраненную версию объекта
 	void write_new_version(); // записывает новую версию объекта
-	static v8object* get_first();
-	static v8object* get_last();
-	v8object* get_next();
+	_version get_current_version() const;
+
+	V8Object* get_next();
+
+	uint64_t getlen() const;
+	void set_len(uint64_t _len); // установка новой длины объекта
+
 	uint32_t get_block_number() const;
+	uint32_t get_numblocks() const;
+	uint32_t get_block_by_index(const uint32_t index) const;
 	TStream* readBlob(TStream* _str, uint32_t _startblock, uint32_t _length = UINT_MAX, bool rewrite = true);
+
 private:
 	T_1CD* base;
 
@@ -117,14 +127,12 @@ private:
 	uint32_t block;             // номер блока объекта
 	char* data;                 // данные, представляемые объектом, NULL если не прочитаны или len = 0
 
-	static v8object* first;
-	static v8object* last;
-	v8object* next;
-	v8object* prev;
+	static V8Object* first;
+	static V8Object* last;
+	V8Object* next;
+	V8Object* prev;
 	uint32_t lastdataget; // время (Windows time, в миллисекундах) последнего обращения к данным объекта (data)
 	bool lockinmemory;
-
-	void set_len(uint64_t _len); // установка новой длины объекта
 
 	void init();
 	void init(T_1CD* _base, int32_t blockNum);
