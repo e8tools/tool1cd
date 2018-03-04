@@ -51,7 +51,6 @@ void V8Object::init()
 	new_version_recorded = false;
 	numblocks = 0;
 	real_numblocks = 0;
-	blocks = nullptr;
 	block = -1;
 	data = nullptr;
 	lockinmemory = false;
@@ -115,23 +114,33 @@ void V8Object::init(T_1CD* _base, int32_t blockNum)
 			// numblocks - кол-во блоков с реальными данными
 			// оставшиеся real_numblocks - numblocks блоки принадлежат объекту, но не содержат данных
 			while(t->blocks[real_numblocks]) real_numblocks++;
-			if(real_numblocks)
+			if(real_numblocks > 0)
 			{
-				blocks = new uint32_t[real_numblocks];
-				memcpy(blocks, t->blocks, real_numblocks * sizeof(*blocks));
+				blocks.clear();
+				blocks.resize(real_numblocks);
+				std::copy(std::begin(t->blocks),
+						  std::begin(t->blocks) + real_numblocks,
+						  blocks.begin());
 			}
-			else blocks = nullptr;
+			else blocks.clear();
 		}
 		else
 		{
-			if(len) numblocks = (len - 1) / 0x3ff000 + 1;
-			else numblocks = 0;
-			if(numblocks)
-			{
-				blocks = new uint32_t[numblocks];
-				memcpy(blocks, t->blocks, numblocks * sizeof(*blocks));
+			if(len) {
+				numblocks = (len - 1) / 0x3ff000 + 1; // TODO: 0x3ff000 в константу
+			} else {
+				numblocks = 0;
 			}
-			else blocks = nullptr;
+
+			if(numblocks > 0) {
+				blocks.clear();
+				blocks.resize(numblocks);
+				std::copy(std::begin(t->blocks),
+						  std::begin(t->blocks) + numblocks,
+						  blocks.begin());
+			} else {
+				blocks.clear();
+			}
 		}
 
 		delete t;
@@ -170,8 +179,7 @@ void V8Object::init(T_1CD* _base, int32_t blockNum)
 		real_numblocks = 0;
 		data = nullptr;
 
-		if(len)
-		{
+		if(len) {
 			if(fatlevel == 0) {
 				numblocks = (len - 1) / base->getpagesize() + 1;
 			}
@@ -179,13 +187,19 @@ void V8Object::init(T_1CD* _base, int32_t blockNum)
 				numblocks = (len - 1) / (base->getpagesize() / 4 * base->getpagesize()) + 1;
 			}
 		}
-		else numblocks = 0;
-		if(numblocks)
-		{
-			blocks = new uint32_t[numblocks];
-			memcpy(blocks, t->blocks, numblocks * sizeof(*blocks));
+		else {
+			numblocks = 0;
 		}
-		else blocks = nullptr;
+
+		if(numblocks > 0) {
+			blocks.clear();
+			blocks.resize(numblocks);
+			std::copy(std::begin(t->blocks),
+					  std::begin(t->blocks) + numblocks,
+					  blocks.begin());
+		} else {
+			blocks.clear();
+		}
 
 		delete[] b;
 	}
@@ -220,12 +234,15 @@ void V8Object::init(T_1CD* _base, int32_t blockNum)
 		// numblocks - кол-во блоков с реальными данными
 		// оставшиеся real_numblocks - numblocks блоки принадлежат объекту, но не содержат данных
 		while(t->blocks[real_numblocks]) real_numblocks++;
-		if(real_numblocks)
-		{
-			blocks = new uint32_t[real_numblocks];
-			memcpy(blocks, t->blocks, real_numblocks * sizeof(*blocks));
+		if(real_numblocks > 0) {
+			blocks.clear();
+			blocks.resize(real_numblocks);
+			std::copy(std::begin(t->blocks),
+					  std::begin(t->blocks) + real_numblocks,
+					  blocks.begin());
+		} else {
+			blocks.clear();
 		}
-		else blocks = nullptr;
 
 		delete[] b;
 	}
@@ -265,7 +282,6 @@ V8Object::V8Object(T_1CD* _base)
 //---------------------------------------------------------------------------
 V8Object::~V8Object()
 {
-	delete[] blocks;
 	delete[] data;
 
 	if(prev) prev->next = next;
@@ -1057,9 +1073,8 @@ void V8Object::set_len(uint64_t _len)
 
 		if(numblocks != num_blocks)
 		{
-			delete[] blocks;
-			if(num_blocks) blocks = new uint32_t[num_blocks];
-			else blocks = nullptr;
+			blocks.clear();
+			blocks.resize(num_blocks);
 		}
 
 		if(num_data_blocks > cur_data_blocks)
@@ -1104,7 +1119,11 @@ void V8Object::set_len(uint64_t _len)
 		}
 
 		len = _len;
-		if(numblocks) memcpy(blocks, b->blocks, numblocks * 4);
+		if(numblocks > 0) {
+			std::copy(std::begin(b->blocks),
+					  std::begin(b->blocks) + (numblocks * 4),
+					  blocks.begin());
+		}
 
 		write_new_version();
 	}
@@ -1138,9 +1157,8 @@ void V8Object::set_len(uint64_t _len)
 
 		if(numblocks != num_blocks)
 		{
-			delete[] blocks;
-			if(num_blocks) blocks = new uint32_t[num_blocks];
-			else blocks = nullptr;
+			blocks.clear();
+			blocks.resize(num_blocks);
 		}
 
 		if(num_data_blocks > cur_data_blocks)
@@ -1228,7 +1246,11 @@ void V8Object::set_len(uint64_t _len)
 		}
 
 		len = _len;
-		if(numblocks) memcpy(blocks, bd->blocks, numblocks * 4);
+		if(numblocks > 0) {
+			std::copy(std::begin(bd->blocks),
+					  std::begin(bd->blocks) + (numblocks * 4),
+					  blocks.begin());
+		}
 
 		write_new_version();
 	}
@@ -1260,10 +1282,12 @@ void V8Object::set_block_as_free(uint32_t block_number)
 	else
 	{
 		ob->blocks[real_numblocks] = block_number;
-		delete[] blocks;
+		blocks.clear();
 		real_numblocks++;
-		blocks = new uint32_t[real_numblocks];
-		memcpy(blocks, ob->blocks, real_numblocks * 4);
+		blocks.resize(real_numblocks);
+		std::copy(std::begin(ob->blocks),
+				  std::begin(ob->blocks) + (real_numblocks * 4),
+				  blocks.begin());
 	}
 
 }

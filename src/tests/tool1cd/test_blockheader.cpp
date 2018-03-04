@@ -9,7 +9,7 @@ TEST_CASE( "Проверка BlockHeader", "[tool1cd][lib][stBlockHeader]" ) {
 		WHEN ("Создаём массив байт") {
 			std::string bytes ( reinterpret_cast<char*>(&data) );
 			THEN("Имеем массив '\r\n00000000 00000000 00000000 \r\n'") {
-				std::cout << bytes << std::endl;
+
 				REQUIRE( Equal(bytes, "\r\n00000000 00000000 00000000 \r\n") );
 			}
 		}
