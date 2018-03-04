@@ -16,7 +16,7 @@
 #include "V8Object.h"
 #include "db_ver.h"
 
-class v8object;
+class V8Object;
 class Field;
 class TableRecord;
 
@@ -127,7 +127,7 @@ private:
 	mutable bool recordsindex_complete; // признак заполнености recordsindex
 	void create_recordsindex() const;
 
-	void dump_recursive(v8object* file_index, TFileStream* f, int32_t level, uint64_t curblock);
+	void dump_recursive(V8Object* file_index, TFileStream* f, int32_t level, uint64_t curblock);
 	void delete_index(const TableRecord *rec, const uint32_t phys_numrec); // удаление индекса записи из файла index
 	void delete_index_record(const char* index_buf, const uint32_t phys_numrec); // удаление одного индекса из файла index
 	void delete_index_record(const char* index_buf, const uint32_t phys_numrec, uint64_t block, bool& is_last_record, bool& page_is_empty, char* new_last_index_buf, uint32_t& new_last_phys_num); // рекурсивное удаление одного индекса из блока файла index

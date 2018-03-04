@@ -25,7 +25,7 @@
 
 class T_1CD;
 class Table;
-class v8object;
+class V8Object;
 class Field;
 struct TableFile;
 class TableFiles;
@@ -150,7 +150,6 @@ enum class depot_ver
 // класс базы 1CD
 class T_1CD
 {
-friend v8object;
 friend Table;
 friend Index;
 friend Field;
@@ -197,7 +196,7 @@ public:
 	bool is_open();
 	int32_t get_numtables();
 	Table* gettable(int32_t numtable);
-	db_ver getversion();
+	db_ver get_version();
 
 	bool save_config(const boost::filesystem::path &file_name);
 	bool save_configsave(const boost::filesystem::path &file_name);
@@ -217,7 +216,7 @@ public:
 	void find_and_save_lost_objects(boost::filesystem::path &lost_objects);
 	bool create_table(const std::string &path); // создание таблицы из файлов импорта таблиц
 	bool delete_table(Table* tab);
-	bool delete_object(v8object* ob);
+	bool delete_object(V8Object* ob);
 	bool replaceTREF(const std::string &mapfile); // замена значений полей ...TREF во всех таблицах базы
 	void find_and_create_lost_tables();
 	void restore_DATA_allocation_table(Table* tab);
@@ -226,6 +225,13 @@ public:
 	uint32_t getpagesize() const {return pagesize;}
 
 	SupplierConfigs& supplier_configs();
+
+	bool getblock(void* buf, uint32_t block_number, int32_t blocklen = -1); // буфер принадлежит вызывающей процедуре
+	char*  getblock(uint32_t block_number) const; // буфер не принадлежит вызывающей стороне (принадлежит memblock)
+	char*  getblock_for_write(uint32_t block_number, bool read); // буфер не принадлежит вызывающей стороне (принадлежит memblock)
+	void set_block_as_free(uint32_t block_number); // пометить блок как свободный
+	uint32_t get_free_block(); // получить номер свободного блока (и пометить как занятый)
+
 private:
 	mutable Registrator msreg_m;
 	std::string filename;
@@ -234,8 +240,8 @@ private:
 	db_ver version; // версия базы
 	uint32_t pagesize; // размер одной страницы (до версии 8.2.14 всегда 0x1000 (4K), начиная с версии 8.3.8 от 0x1000 (4K) до 0x10000 (64K))
 	uint32_t length; // длина базы в блоках
-	v8object* free_blocks; // свободные блоки
-	v8object* root_object; // корневой объект
+	V8Object* free_blocks; // свободные блоки
+	V8Object* root_object; // корневой объект
 	int32_t num_tables; // количество таблиц
 	Table** tables; // таблицы базы
 	bool readonly;
@@ -262,11 +268,6 @@ private:
 	TableFiles* get_files_configcassave();
 
 	void init();
-	bool getblock(void* buf, uint32_t block_number, int32_t blocklen = -1); // буфер принадлежит вызывающей процедуре
-	char*  getblock(uint32_t block_number) const; // буфер не принадлежит вызывающей стороне (принадлежит memblock)
-	char*  getblock_for_write(uint32_t block_number, bool read); // буфер не принадлежит вызывающей стороне (принадлежит memblock)
-	void set_block_as_free(uint32_t block_number); // пометить блок как свободный
-	uint32_t get_free_block(); // получить номер свободного блока (и пометить как занятый)
 
 	void add_supplier_config(TableFile* table_file);
 

@@ -84,7 +84,7 @@ void Index::create_recordsindex() const
 	int32_t curlen;
 	uint64_t curblock;
 	uint32_t mask;
-	v8object* file_index;
+	V8Object* file_index;
 
 	if(!start) return;
 
@@ -147,7 +147,7 @@ void Index::create_recordsindex() const
 }
 
 //---------------------------------------------------------------------------
-void Index::dump_recursive(v8object* file_index, TFileStream* f, int32_t level, uint64_t curblock)
+void Index::dump_recursive(V8Object* file_index, TFileStream* f, int32_t level, uint64_t curblock)
 {
 	char* buf;
 	char* rbuf;
@@ -337,7 +337,7 @@ uint32_t Index::get_length() const
 void Index::dump(const string &_filename)
 {
 	TFileStream* f;
-	v8object* file_index;
+	V8Object* file_index;
 
 	f = new TFileStream(_filename, fmCreate);
 
