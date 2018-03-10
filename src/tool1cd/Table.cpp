@@ -379,7 +379,7 @@ void Table::init(int32_t block_descr)
 								.add_detail("Номер индекса", i)
 								.add_detail("Смещение индекса", to_hex_string(buf[i]));
 						}
-						indexes[i - 1]->start = buf[i];
+						indexes[i - 1]->start_offset(buf[i]);
 					}
 					else
 					{
@@ -393,7 +393,7 @@ void Table::init(int32_t block_descr)
 								.add_detail("Номер индекса", i)
 								.add_detail("Смещение индекса", s);
 						}
-						indexes[i - 1]->start = s;
+						indexes[i - 1]->start_offset(s);
 					}
 				}
 			}
@@ -881,7 +881,7 @@ bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool 
 	f.WriteString(part2);
 
 	auto primary = std::find_if(indexes.begin(), indexes.end(),
-	                           [](Index *index) { return index->get_is_primary();});
+							   [](Index *index) { return index->is_primary();});
 	if (primary != indexes.end()) {
 		curindex= *primary;
 	}
@@ -2314,19 +2314,18 @@ std::string Table::get_file_name_for_field(int32_t num_field, char *rec, uint32_
 	if(num_indexes)
 	{
 		ind = indexes[0];
-		for(i = 0; i < num_indexes; i++) if(indexes[i]->is_primary)
+		for(i = 0; i < num_indexes; i++) if(indexes[i]->is_primary())
 		{
 			ind = indexes[i];
 			break;
 		}
-		for(i = 0; i < ind->num_records; i++)
-		{
+		for(auto& record : ind->get_records()) {
 			if(!s.empty()) {
 				s += "_";
 			}
-			s += ind->records[i].field->get_XML_presentation(rec);
+			s += record.field->get_XML_presentation(rec);
 		}
-		if(!ind->is_primary && numrec){
+		if(!ind->is_primary() && numrec){
 			s += "_";
 			s += numrec;
 		}
@@ -2350,7 +2349,6 @@ std::string Table::get_file_name_for_record(const TableRecord *rec) const
 	std::string s("");
 
 	int32_t i;
-	int32_t num_rec;
 
 	Index* ind;
 
@@ -2360,24 +2358,21 @@ std::string Table::get_file_name_for_record(const TableRecord *rec) const
 		for(i = 0; i < num_indexes; i++)
 		{
 
-			if(indexes[i]->is_primary)
+			if(indexes[i]->is_primary())
 			{
 				ind = indexes[i];
 				break;
 			}
 		}
-		num_rec = ind->num_records;
 
-		for(i = 0; i < num_rec; i++)
-		{
+		for(auto& record : ind->get_records()) {
 			if (!s.empty()){
 				s += "_";
 			}
-			Field* tmp_field = ind->records[i].field;
+			Field* tmp_field = record.field;
 			std::string tmp_str = rec->get_string(tmp_field);
 
 			s += tmp_str;
-
 		}
 	}
 
