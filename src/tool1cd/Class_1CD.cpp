@@ -310,8 +310,8 @@ T_1CD::T_1CD(const string &_filename, MessageRegistrator *mess, bool _monopoly)
 		return;
 	}
 
-	MemBlock::pagesize = pagesize;
-	MemBlock::maxcount = ONE_GB / pagesize; // гигабайт
+	MemBlock::set_page_size(pagesize);
+	MemBlock::set_maxcount(ONE_GB / pagesize); // гигабайт
 	MemBlock::create_memblocks(length);
 
 	if(length != cont->length)
