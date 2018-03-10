@@ -18,7 +18,6 @@ class T_1CD;
 // последний в цепочке - с самым последним обращением
 class MemBlock
 {
-friend T_1CD;
 public:
 	static uint32_t count; // текущее количество кешированных блоков
 
@@ -30,6 +29,13 @@ public:
 	static void delete_memblocks();
 	static uint64_t get_numblocks();
 	static void flush();
+
+	static uint32_t get_page_size();
+	static void set_page_size(const uint32_t value);
+
+	static uint32_t get_maxcount();
+	static void set_maxcount(const uint32_t value);
+
 private:
 	char* buf; // указатель на блок в памяти
 	static uint32_t pagesize; // размер одной страницы (до версии 8.2.14 всегда 0x1000 (4K), начиная с версии 8.3.8 от 0x1000 (4K) до 0x10000 (64K))
