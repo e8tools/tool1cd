@@ -47,7 +47,7 @@ size_t Index::get_num_records() const
 }
 
 //---------------------------------------------------------------------------
-std::vector<index_record>& Index::get_records()
+std::vector<IndexRecord>& Index::get_records()
 {
 	return records;
 }

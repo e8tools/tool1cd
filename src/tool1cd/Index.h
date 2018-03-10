@@ -20,10 +20,10 @@ class V8Object;
 class Field;
 class TableRecord;
 
-struct index_record
+struct IndexRecord
 {
-	Field* field;
-	int32_t len;
+	Field* field {nullptr};
+	int32_t len {0};
 };
 
 #pragma pack(push)
@@ -77,12 +77,12 @@ const int16_t indexpage_is_leaf = 2; // Установленный флаг оз
 class Index
 {
 public:
-	Index(Table* _base);
+	explicit Index(Table* _base);
 	~Index();
 
 	std::string getname() const;
 	size_t get_num_records() const; // получить количество полей в индексе
-	std::vector<index_record>& get_records();
+	std::vector<IndexRecord>& get_records();
 
 	uint32_t get_numrecords() const; // получает количество записей, проиндексированных индексом
 	uint32_t get_numrec(uint32_t num_record) const; // получает физический индекс записи по порядковому индексу
@@ -123,7 +123,7 @@ private:
 	std::string name;
 	bool primary {false};
 
-	std::vector<index_record> records;
+	std::vector<IndexRecord> records;
 
 	uint64_t start {0}; // Смещение в файле индексов блока описания индекса
 	// TODO: убрать mutable
