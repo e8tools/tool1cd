@@ -30,22 +30,26 @@ struct IndexRecord
 #pragma pack(1)
 
 // структура одной записи распакованного индекса страницы-листа
-struct unpack_index_record
+struct UnpackIndexRecord
 {
 	uint32_t _record_number; // номер (индекс) записи в таблице записей
 	unsigned char _index[1]; // значение индекса записи. Реальная длина значения определяется полем length класса index
 };
 
 // структура заголовка страницы-ветки индексов
-struct branch_page_header{
+struct BranchPageHeader {
 	uint16_t flags; // offset 0
 	uint16_t number_indexes; // offset 2
 	uint32_t prev_page; // offset 4 // для 8.3.8 - это номер страницы (реальное смещение = prev_page * pagesize), до 8.3.8 - это реальное смещение
 	uint32_t next_page; // offset 8 // для 8.3.8 - это номер страницы (реальное смещение = next_page * pagesize), до 8.3.8 - это реальное смещение
+
+	static constexpr uint32_t Size() {
+		return sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t) + sizeof(uint32_t);
+	}
 };
 
 // структура заголовка страницы-листа индексов
-struct leaf_page_header{
+struct LeafPageHeader {
 	int16_t flags; // offset 0
 	uint16_t number_indexes; // offset 2
 	uint32_t prev_page; // offset 4 // для 8.3.8 - это номер страницы (реальное смещение = prev_page * pagesize), до 8.3.8 - это реальное смещение

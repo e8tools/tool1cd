@@ -146,12 +146,12 @@ void Index::dump_recursive(V8Object* file_index, TFileStream* f, int32_t level, 
 
 	char* curindex;
 
-	leaf_page_header* lph;
-	branch_page_header* bph;
+	LeafPageHeader* lph;
+	BranchPageHeader* bph;
 
 	buf = new char[pagesize];
-	lph = (leaf_page_header*)buf;
-	bph = (branch_page_header*)buf;
+	lph = (LeafPageHeader*)buf;
+	bph = (BranchPageHeader*)buf;
 	file_index->getdata(buf, curblock, pagesize);
 	curlen = bph->number_indexes;
 	if(curlen)
@@ -388,7 +388,7 @@ char* Index::unpack_leafpage(char* page, uint32_t& number_indexes)
 	char* rbuf;
 	char* ibuf;
 	char* obuf;
-	leaf_page_header* header;
+	LeafPageHeader* header;
 
 	uint32_t i, j, step;
 
@@ -398,7 +398,7 @@ char* Index::unpack_leafpage(char* page, uint32_t& number_indexes)
 		return nullptr;
 	}
 
-	header = (leaf_page_header*)page;
+	header = (LeafPageHeader*)page;
 
 	if(!(header->flags & indexpage_is_leaf))
 	{
@@ -460,7 +460,7 @@ bool Index::pack_leafpage(char* unpack_index, uint32_t number_indexes, char* pag
 	uint32_t min_bits;
 	uint32_t max_numrec;
 
-	leaf_page_header* header;
+	LeafPageHeader* header;
 	uint32_t freebytes;
 	uint32_t numrecmask;
 	uint32_t leftmask;
@@ -560,7 +560,7 @@ bool Index::pack_leafpage(char* unpack_index, uint32_t number_indexes, char* pag
 	for(i = 0, leftmask = 0; i < leftbits; i++, leftmask = (leftmask << 1) | 1);
 	for(i = 0, rightmask = 0; i < rightbits; i++, rightmask = (rightmask << 1) | 1);
 
-	header = (leaf_page_header*)page_buf;
+	header = (LeafPageHeader*)page_buf;
 	header->flags = indexpage_is_leaf;
 	header->number_indexes = number_indexes;
 	header->freebytes = freebytes;
@@ -631,8 +631,8 @@ void Index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 void Index::delete_index_record(const char* index_buf, const uint32_t phys_numrec, uint64_t block, bool& is_last_record, bool& page_is_empty, char* new_last_index_buf, uint32_t& new_last_phys_num)
 {
 	char* page;
-	branch_page_header* bph;
-	leaf_page_header* lph;
+	BranchPageHeader* bph;
+	LeafPageHeader* lph;
 
 	bool _is_last_record, _page_is_empty;
 	uint32_t _new_last_phys_num;
@@ -653,7 +653,7 @@ void Index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 	if(*page & indexpage_is_leaf)
 	{
 		// страница-лист
-		lph = (leaf_page_header*)page;
+		lph = (LeafPageHeader*)page;
 		flags = lph->flags;
 		unpack_indexes_buf = unpack_leafpage(page, number_indexes);
 		cur_index = unpack_indexes_buf;
@@ -707,9 +707,9 @@ void Index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 	else
 	{
 		// страница-ветка
-		bph = (branch_page_header*)page;
+		bph = (BranchPageHeader*)page;
 
-		cur_index = page + 12; // 12 = size_of(branch_page_header)
+		cur_index = page + BranchPageHeader::Size();
 		delta = length + 8;
 		for(i = 0; i < bph->number_indexes; i++, cur_index += delta)
 		{
@@ -792,7 +792,7 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 	uint64_t new_last_block2;
 
 	char* page;
-	branch_page_header* bph;
+	BranchPageHeader* bph;
 	uint64_t block;
 	uint32_t k;
 	char* cur_index;
@@ -803,7 +803,7 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 	{
 		page = new char[pagesize];
 		memset(page, 0, pagesize);
-		bph = (branch_page_header*)page;
+		bph = (BranchPageHeader*)page;
 
 		tbase->file_index->getdata(&k, 0, 4);
 		if(k)
@@ -854,8 +854,8 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 	// 2 - произошло разбиение на 2 страницы, надо заменить на 2 записи
 
 	char* page;
-	branch_page_header* bph;
-	leaf_page_header* lph;
+	BranchPageHeader* bph;
+	LeafPageHeader* lph;
 
 	int32_t _result;
 	uint32_t _new_last_phys_num;
@@ -871,8 +871,8 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 	uint64_t next_page;
 
 
-	branch_page_header* bph2;
-	leaf_page_header* lph2;
+	BranchPageHeader* bph2;
+	LeafPageHeader* lph2;
 	uint32_t number_indexes1;
 	uint32_t number_indexes2;
 	uint64_t block1;
@@ -888,7 +888,7 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 	tbase->file_index->getdata(page, block, pagesize);
 	result = 0;
 
-	bph = (branch_page_header*)page;
+	bph = (BranchPageHeader*)page;
 	flags = bph->flags;
 	number_indexes = bph->number_indexes;
 	prev_page = bph->prev_page;
@@ -897,7 +897,7 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 	if(flags & indexpage_is_leaf)
 	{
 		// страница-лист
-		lph = (leaf_page_header*)page;
+		lph = (LeafPageHeader*)page;
 		unpack_indexes_buf = unpack_leafpage(page, number_indexes);
 		cur_index = unpack_indexes_buf;
 		delta = length + 4;
@@ -953,7 +953,7 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 				number_indexes2 = number_indexes - number_indexes1;
 				pack_leafpage(unpack_indexes_buf_new, number_indexes1, page);
 				pack_leafpage(unpack_indexes_buf_new + number_indexes1 * delta, number_indexes2, page2);
-				lph2 = (leaf_page_header*)page2;
+				lph2 = (LeafPageHeader*)page2;
 
 				tbase->file_index->getdata(&k, 0, 4);
 				if(k)
@@ -995,7 +995,7 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 	{
 		// страница-ветка
 
-		cur_index = page + 12; // 12 = size_of(branch_page_header)
+		cur_index = page + BranchPageHeader::Size();
 		delta = length + 8;
 		max_num_indexes = (pagesize - 12) / delta;
 
@@ -1090,7 +1090,7 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 					number_indexes1 = number_indexes >> 1;
 					number_indexes2 = number_indexes - number_indexes1;
 
-					bph2 = (branch_page_header*)page2;
+					bph2 = (BranchPageHeader*)page2;
 					memset(page, 0, pagesize);
 					memset(page2, 0, pagesize);
 
