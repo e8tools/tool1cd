@@ -1,6 +1,6 @@
 #include "tables_list_model.h"
 
-static int object_size(/*const */v8object *file)
+static int object_size(/*const */V8Object *file)
 {
 	if (file == nullptr) {
 		return 0;

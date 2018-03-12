@@ -38,7 +38,7 @@ TableDataWindow::TableDataWindow(QWidget *parent, Table *table)
 
 	for (int i = 0; i < table->get_numindexes(); i++) {
 		Index *index = table->getindex(i);
-		if (index->get_is_primary() && indexes[0] == nullptr) {
+		if (index->is_primary() && indexes[0] == nullptr) {
 			indexes[0] = index;
 		} else {
 			indexes.push_back(index);

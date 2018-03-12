@@ -10,7 +10,7 @@
 MemBlock* MemBlock::first = nullptr;
 MemBlock* MemBlock::last = nullptr;
 uint32_t MemBlock::count = 0;
-uint32_t MemBlock::maxcount;
+uint32_t MemBlock::maxcount = 0;
 MemBlock** MemBlock::memblocks = nullptr;
 
 uint64_t MemBlock::numblocks = 0;
@@ -43,7 +43,7 @@ MemBlock::MemBlock(TFileStream* fs, uint32_t _numblock, bool for_write, bool rea
 			fs->Seek((int64_t)numblock * pagesize, (TSeekOrigin)soFromBeginning);
 			fs->WriteBuffer(buf, pagesize);
 			fs->Seek(12, (TSeekOrigin)soFromBeginning);
-			fs->WriteBuffer(&numblock, 4);
+			fs->WriteBuffer(&numblock, sizeof(uint32_t));
 		}
 		else
 		{
@@ -194,6 +194,23 @@ void MemBlock::write()
 	is_changed = false;
 }
 
+uint32_t MemBlock::get_page_size()
+{
+	return pagesize;
+}
 
+void MemBlock::set_page_size(const uint32_t value)
+{
+	pagesize = value;
+}
 
+uint32_t MemBlock::get_maxcount()
+{
+	return maxcount;
+}
+
+void MemBlock::set_maxcount(const uint32_t value)
+{
+	maxcount = value;
+}
 

@@ -66,13 +66,13 @@ bool ConfigStorageDirectory::writefile(const std::string &path, TStream *str)
 }
 
 //---------------------------------------------------------------------------
-std::string ConfigStorageDirectory::presentation()
+std::string ConfigStorageDirectory::presentation() const
 {
 	return fdir.string();
 }
 
 //---------------------------------------------------------------------------
-bool ConfigStorageDirectory::fileexists(const std::string &path)
+bool ConfigStorageDirectory::fileexists(const std::string &path) const
 {
 	return boost::filesystem::exists(fdir / path);
 }
@@ -152,7 +152,7 @@ bool ConfigStorageCFFile::writefile(const std::string &path, TStream *str)
 }
 
 //---------------------------------------------------------------------------
-std::string ConfigStorageCFFile::presentation()
+std::string ConfigStorageCFFile::presentation() const
 {
 	return filename;
 }
@@ -168,7 +168,7 @@ void ConfigStorageCFFile::close(ConfigFile* cf)
 }
 
 //---------------------------------------------------------------------------
-bool ConfigStorageCFFile::fileexists(const std::string &path)
+bool ConfigStorageCFFile::fileexists(const std::string &path) const
 {
 	// По сути, проверяется существование только каталога (файла верхнего уровня)
 	// Это неправильно для формата 8.0 с файлом каталогом metadata. Но метод fileexists используется только для внешних файлов,
@@ -327,7 +327,7 @@ void ContainerFile::close()
 }
 
 //---------------------------------------------------------------------------
-bool ContainerFile::isPacked()
+bool ContainerFile::isPacked() const
 {
 
 	if (EqualIC(name, "DynamicallyUpdated")
@@ -533,7 +533,7 @@ bool ConfigStorageTable::save_config(const boost::filesystem::path &file_name)
 }
 
 //---------------------------------------------------------------------------
-bool ConfigStorageTable::fileexists(const std::string &path)
+bool ConfigStorageTable::fileexists(const std::string &path) const
 {
 	// По сути, проверяется существование только каталога (файла записи верхнего уровня)
 	// Это неправильно для формата 8.0 с файлом каталогом metadata. Но метод fileexists используется только для внешних файлов, поэтому такой проверки достаточно
@@ -663,7 +663,7 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 }
 
 //---------------------------------------------------------------------------
-std::string ConfigStorageTableConfig::presentation()
+std::string ConfigStorageTableConfig::presentation() const
 {
 	return present;
 }
@@ -824,7 +824,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 }
 
 //---------------------------------------------------------------------------
-std::string ConfigStorageTableConfigSave::presentation()
+std::string ConfigStorageTableConfigSave::presentation() const
 {
 	return present;
 }
@@ -944,7 +944,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 }
 
 //---------------------------------------------------------------------------
-std::string ConfigStorageTableConfigCas::presentation()
+std::string ConfigStorageTableConfigCas::presentation() const
 {
 	return present;
 }
@@ -1104,7 +1104,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 }
 
 //---------------------------------------------------------------------------
-std::string ConfigStorageTableConfigCasSave::presentation()
+std::string ConfigStorageTableConfigCasSave::presentation() const
 {
 	return present;
 }

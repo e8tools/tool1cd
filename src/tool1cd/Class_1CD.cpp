@@ -52,7 +52,7 @@ bool T_1CD::getblock(void* buf, uint32_t block_number, int32_t blocklen)
 }
 
 //---------------------------------------------------------------------------
-char*  T_1CD::getblock(uint32_t block_number)
+char*  T_1CD::getblock(uint32_t block_number) const
 {
 	if(!fs) return nullptr;
 	if(block_number >= length)
@@ -310,8 +310,8 @@ T_1CD::T_1CD(const string &_filename, MessageRegistrator *mess, bool _monopoly)
 		return;
 	}
 
-	MemBlock::pagesize = pagesize;
-	MemBlock::maxcount = ONE_GB / pagesize; // гигабайт
+	MemBlock::set_page_size(pagesize);
+	MemBlock::set_maxcount(ONE_GB / pagesize); // гигабайт
 	MemBlock::create_memblocks(length);
 
 	if(length != cont->length)
@@ -321,8 +321,8 @@ T_1CD::T_1CD(const string &_filename, MessageRegistrator *mess, bool _monopoly)
 				.add_detail("Блоков в заголовке", cont->length);
 	}
 
-	free_blocks = new v8object(this, 1);
-	root_object = new v8object(this, 2);
+	free_blocks = new V8Object(this, 1);
+	root_object = new V8Object(this, 2);
 
 
 	if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0)
@@ -471,7 +471,7 @@ bool T_1CD::is_open()
 }
 
 //---------------------------------------------------------------------------
-db_ver T_1CD::getversion()
+db_ver T_1CD::get_version()
 {
 	return version;
 }
@@ -562,7 +562,7 @@ void T_1CD::find_lost_objects()
 {
 	uint32_t i;
 	char buf[8];
-	v8object* v8obj;
+	V8Object* v8obj;
 	bool block_is_find;
 
 	for(i = 1; i < length; i++)
@@ -571,7 +571,7 @@ void T_1CD::find_lost_objects()
 		if(memcmp(buf, SIG_OBJ, 8) == 0)
 		{
 			block_is_find = false;
-			for(v8obj = v8object::get_first(); v8obj; v8obj = v8obj->get_next())
+			for(v8obj = V8Object::get_first(); v8obj; v8obj = v8obj->get_next())
 			{
 				if(v8obj->get_block_number() == i)
 				{
@@ -1196,10 +1196,10 @@ bool T_1CD::create_table(const string &path)
 	int32_t j;
 	export_import_table_root* root;
 	v8ob* ob;
-	v8object* descr_table;
-	v8object* file_data;
-	v8object* file_blob;
-	v8object* file_index;
+	V8Object* descr_table;
+	V8Object* file_data;
+	V8Object* file_blob;
+	V8Object* file_index;
 	tree* t;
 
 	boost::filesystem::path dir(path);
@@ -1261,7 +1261,7 @@ bool T_1CD::create_table(const string &path)
 			throw DetailedException("Ошибка открытия файла импорта таблицы data")
 				.add_detail("Файл", path_data.string());
 		}
-		file_data = new v8object(this);
+		file_data = new V8Object(this);
 		file_data->setdata(f);
 		ob = (v8ob*)getblock_for_write(file_data->get_block_number(), true);
 		ob->version.version_1 = root->data_version_1;
@@ -1281,7 +1281,7 @@ bool T_1CD::create_table(const string &path)
 			throw DetailedException("Ошибка открытия файла импорта таблицы blob")
 				.add_detail("Файл", path_blob.string());
 		}
-		file_blob = new v8object(this);
+		file_blob = new V8Object(this);
 		file_blob->setdata(f);
 		ob = (v8ob*)getblock_for_write(file_blob->get_block_number(), true);
 		ob->version.version_1 = root->blob_version_1;
@@ -1301,7 +1301,7 @@ bool T_1CD::create_table(const string &path)
 			throw DetailedException("Ошибка открытия файла импорта таблицы index")
 				.add_detail("Файл", path_index.string());
 		}
-		file_index = new v8object(this);
+		file_index = new V8Object(this);
 		file_index->setdata(f);
 		ob = (v8ob*)getblock_for_write(file_index->get_block_number(), true);
 		ob->version.version_1 = root->index_version_1;
@@ -1322,7 +1322,7 @@ bool T_1CD::create_table(const string &path)
 		}
 		if(fopen)
 		{
-			descr_table = new v8object(this);
+			descr_table = new V8Object(this);
 			ob = (v8ob*)getblock_for_write(descr_table->get_block_number(), true);
 			ob->version.version_1 = root->descr_version_1;
 			ob->version.version_2 = root->descr_version_2;
@@ -1697,7 +1697,7 @@ bool T_1CD::delete_table(Table* tab)
 	char* buf;
 	bool res = num_tables > 0;
 
-	bl = tab->descr_table->block;
+	bl = tab->descr_table->get_block_number();
 
 	res = res && delete_object(tab->descr_table);
 	if(res) res = res && delete_object(tab->file_data);
@@ -1744,33 +1744,36 @@ bool T_1CD::delete_table(Table* tab)
 }
 
 //---------------------------------------------------------------------------
-bool T_1CD::delete_object(v8object* ob)
+bool T_1CD::delete_object(V8Object* ob)
 {
 	objtab* b;
-	uint32_t i;
-	int32_t j;
 
 	if(!ob) return true;
 
-	if(ob->block == 1)
-	{
+	if(ob->get_block_number() == 1) {
 		throw DetailedException("Попытка удаления объекта таблицы свободных блоков")
-			.add_detail("Номер блока объекта", ob->block);
+			.add_detail("Номер блока объекта", ob->get_block_number());
 	}
 
-	if(ob->block == 2)
-	{
+	if(ob->get_block_number() == 2) {
 		throw DetailedException("Попытка удаления корневого объекта")
-			.add_detail("Номер блока объекта", ob->block);
+			.add_detail("Номер блока объекта", ob->get_block_number());
 	}
 
-	for(i = 0; i < ob->numblocks; i++)
-	{
-		b = (objtab*)getblock(ob->blocks[i]);
-		for(j = 0; j < b->numblocks; j++) set_block_as_free(b->blocks[j]);
+	for(uint32_t i = 0; i < ob->get_numblocks(); i++) {
+		b = (objtab*)getblock(ob->get_block_by_index(i));
+		for(uint32_t j = 0; j < b->numblocks; j++) {
+			set_block_as_free(b->blocks[j]);
+		}
 	}
-	for(i = 0; i < ob->numblocks; i++) set_block_as_free(ob->blocks[i]);
-	for(i = 0; i < ob->numblocks; i++) set_block_as_free(ob->block);
+
+	for(uint32_t i = 0; i < ob->get_numblocks(); i++) {
+		set_block_as_free(ob->get_block_by_index(i));
+	}
+
+	for(uint32_t i = 0; i < ob->get_numblocks(); i++) {
+		set_block_as_free(ob->get_block_number());
+	}
 
 	delete ob;
 
@@ -1783,7 +1786,7 @@ void T_1CD::find_and_create_lost_tables()
 {
 	uint32_t k;
 	char buf[8];
-	v8object* v8obj = nullptr;
+	V8Object* v8obj = nullptr;
 	bool block_is_find;
 	vector<uint32_t> losttables;
 	
@@ -1794,7 +1797,7 @@ void T_1CD::find_and_create_lost_tables()
 		if(memcmp(buf, SIG_OBJ, 8) == 0)
 		{
 			block_is_find = false;
-			for(v8obj = v8object::get_first(); v8obj; v8obj = v8obj->get_next())
+			for(v8obj = V8Object::get_first(); v8obj; v8obj = v8obj->get_next())
 			{
 				if(v8obj->get_block_number() == i)
 				{
@@ -1804,8 +1807,8 @@ void T_1CD::find_and_create_lost_tables()
 			}
 			if(!block_is_find)
 			{
-				v8obj = new v8object(this, i);
-				if(v8obj->len > 3)
+				v8obj = new V8Object(this, i);
+				if(v8obj->getlen() > 3)
 				{
 					try
 					{
@@ -1862,14 +1865,14 @@ void T_1CD::find_and_save_lost_objects(boost::filesystem::path &lost_objects)
 		getblock(buf, i, 8);
 		if(memcmp(buf, SIG_OBJ, 8) == 0) {
 			bool block_is_find = false;
-			for(auto v8obj = v8object::get_first(); v8obj; v8obj = v8obj->get_next()) {
+			for(auto v8obj = V8Object::get_first(); v8obj; v8obj = v8obj->get_next()) {
 				if(v8obj->get_block_number() == i) {
 					block_is_find = true;
 					break;
 				}
 			}
 			if(!block_is_find) {
-				unique_ptr<v8object> find_v8obj(new v8object(this, i));
+				unique_ptr<V8Object> find_v8obj(new V8Object(this, i));
 				find_v8obj->savetofile(lost_objects.string() + "block" + to_string(i));
 			}
 		}

@@ -48,7 +48,7 @@ public:
 	explicit TableFiles(Table* t);
 	virtual ~TableFiles();
 
-	bool getready() { return ready; }
+	bool getready() const { return ready; }
 	TableFile* getfile(const std::string &name);
 	Table* gettable() { return table; }
 

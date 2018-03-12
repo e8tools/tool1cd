@@ -118,34 +118,34 @@ public:
 	int32_t get_numindexes() const;
 	Field* getfield(int32_t numfield);
 	Index* getindex(int32_t numindex);
-	bool get_issystem();
+	bool get_issystem() const;
 	int32_t get_recordlen() const;
-	bool get_recordlock();
+	bool get_recordlock() const;
 
-	uint32_t get_phys_numrecords(); // возвращает количество записей в таблице всего, вместе с удаленными
-	uint32_t get_log_numrecords(); // возвращает количество записей в таблице всего, без удаленных
+	uint32_t get_phys_numrecords() const; // возвращает количество записей в таблице всего, вместе с удаленными
+	uint32_t get_log_numrecords() const; // возвращает количество записей в таблице всего, без удаленных
 	void set_log_numrecords(uint32_t _log_numrecords); //
-	uint32_t get_added_numrecords();
+	uint32_t get_added_numrecords() const;
 
-	TableRecord *getrecord(uint32_t phys_numrecord); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
+	TableRecord *getrecord(uint32_t phys_numrecord) const; // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
 	void getrecord(uint32_t phys_numrecord, char *buf);
 	TStream* readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, bool rewrite = true) const;
 	uint32_t readBlob(void* _buf, uint32_t _startblock, uint32_t _length) const;
 	void set_lockinmemory(bool _lock);
-	bool export_to_xml(const std::string &filename, bool blob_to_file, bool unpack);
+	bool export_to_xml(const std::string &filename, bool blob_to_file, bool unpack) const;
 
-	v8object* get_file_data();
-	v8object* get_file_blob();
-	v8object* get_file_index();
+	V8Object* get_file_data();
+	V8Object* get_file_blob();
+	V8Object* get_file_index();
 
 	uint64_t get_fileoffset(uint32_t phys_numrecord); // получить физическое смещение в файле записи по номеру
 
 	TableRecord *get_edit_record(uint32_t phys_numrecord); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
-	bool get_edit();
+	bool get_edit() const;
 
 	uint32_t get_phys_numrec(int32_t ARow, Index* cur_index); // получить физический индекс записи по номеру строки по указанному индексу
 	std::string get_file_name_for_field(int32_t num_field, char *rec, uint32_t numrec = 0); // получить имя файла по-умолчанию конкретного поля конкретной записи
-	std::string get_file_name_for_record(const TableRecord *rec); // получить имя файла по-умолчанию конкретной записи
+	std::string get_file_name_for_record(const TableRecord *rec) const; // получить имя файла по-умолчанию конкретной записи
 	T_1CD* getbase(){return base;}
 
 	void begin_edit(); // переводит таблицу в режим редактирования
@@ -174,7 +174,7 @@ public:
 private:
 	T_1CD* base;
 
-	v8object* descr_table; // объект с описанием структуры таблицы (только для версий с 8.0 до 8.2.14)
+	V8Object* descr_table; // объект с описанием структуры таблицы (только для версий с 8.0 до 8.2.14)
 	std::string description;
 	std::string name;
 	int32_t num_fields;
@@ -182,9 +182,9 @@ private:
 	int32_t num_indexes;
 	std::vector<Index*> indexes;
 	bool recordlock;
-	v8object* file_data;
-	v8object* file_blob;
-	v8object* file_index;
+	V8Object* file_data;
+	V8Object* file_blob;
+	V8Object* file_index;
 	int32_t recordlen; // длина записи (в байтах)
 	bool issystem; // Признак системной таблицы (имя таблицы не начинается с подчеркивания)
 	int32_t lockinmemory; // счетчик блокировок в памяти

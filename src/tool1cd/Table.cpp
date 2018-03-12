@@ -78,7 +78,7 @@ void changed_rec::clear()
 // Класс table
 
 //---------------------------------------------------------------------------
-bool Table::get_issystem()
+bool Table::get_issystem() const
 {
 	return issystem;
 }
@@ -314,13 +314,13 @@ void Table::init(int32_t block_descr)
 	}
 
 	if (blockfile[0]) {
-		file_data = new v8object(base, blockfile[0]);
+		file_data = new V8Object(base, blockfile[0]);
 	}
 	if (blockfile[1]) {
-		file_blob = new v8object(base, blockfile[1]);
+		file_blob = new V8Object(base, blockfile[1]);
 	}
 	if (blockfile[2]) {
-		file_index = new v8object(base, blockfile[2]);
+		file_index = new V8Object(base, blockfile[2]);
 	}
 
 	if(num_indexes && !file_index)
@@ -379,7 +379,7 @@ void Table::init(int32_t block_descr)
 								.add_detail("Номер индекса", i)
 								.add_detail("Смещение индекса", to_hex_string(buf[i]));
 						}
-						indexes[i - 1]->start = buf[i];
+						indexes[i - 1]->start_offset(buf[i]);
 					}
 					else
 					{
@@ -393,7 +393,7 @@ void Table::init(int32_t block_descr)
 								.add_detail("Номер индекса", i)
 								.add_detail("Смещение индекса", s);
 						}
-						indexes[i - 1]->start = s;
+						indexes[i - 1]->start_offset(s);
 					}
 				}
 			}
@@ -458,7 +458,7 @@ Table::Table(T_1CD* _base, int32_t block_descr)
 
 	base = _base;
 
-	descr_table = new v8object(base, block_descr);
+	descr_table = new V8Object(base, block_descr);
 	auto data = descr_table->getdata();
 	description = TEncoding::Unicode->toUtf8(vector<uint8_t>(data, data + descr_table->getlen()));
 
@@ -599,13 +599,13 @@ Index* Table::getindex(int32_t numindex)
 }
 
 //---------------------------------------------------------------------------
-uint32_t Table::get_phys_numrecords()
+uint32_t Table::get_phys_numrecords() const
 {
 	return phys_numrecords;
 }
 
 //---------------------------------------------------------------------------
-uint32_t Table::get_log_numrecords()
+uint32_t Table::get_log_numrecords() const
 {
 	return log_numrecords;
 }
@@ -617,7 +617,7 @@ void Table::set_log_numrecords(uint32_t _log_numrecords)
 }
 
 //---------------------------------------------------------------------------
-uint32_t Table::get_added_numrecords()
+uint32_t Table::get_added_numrecords() const
 {
 	return added_numrecords;
 }
@@ -629,7 +629,7 @@ void Table::getrecord(uint32_t phys_numrecord, char *buf)
 }
 
 //---------------------------------------------------------------------------
-TableRecord * Table::getrecord(uint32_t phys_numrecord)
+TableRecord * Table::getrecord(uint32_t phys_numrecord) const
 {
 	#ifndef getcfname
 	tr_syn->BeginWrite();
@@ -649,25 +649,25 @@ int32_t Table::get_recordlen() const
 }
 
 //---------------------------------------------------------------------------
-bool Table::get_recordlock()
+bool Table::get_recordlock() const
 {
 	return recordlock;
 }
 
 //---------------------------------------------------------------------------
-v8object* Table::get_file_data()
+V8Object* Table::get_file_data()
 {
 	return file_data;
 }
 
 //---------------------------------------------------------------------------
-v8object* Table::get_file_blob()
+V8Object* Table::get_file_blob()
 {
 	return file_blob;
 }
 
 //---------------------------------------------------------------------------
-v8object* Table::get_file_index()
+V8Object* Table::get_file_index()
 {
 	return file_index;
 }
@@ -845,7 +845,7 @@ uint32_t Table::readBlob(void* buf, uint32_t _startblock, uint32_t _length) cons
 }
 
 //---------------------------------------------------------------------------
-bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool unpack)
+bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool unpack) const
 {
 	string recname;
 	uint32_t j, numr, nr;
@@ -881,7 +881,7 @@ bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool 
 	f.WriteString(part2);
 
 	auto primary = std::find_if(indexes.begin(), indexes.end(),
-	                           [](Index *index) { return index->get_is_primary();});
+							   [](Index *index) { return index->is_primary();});
 	if (primary != indexes.end()) {
 		curindex= *primary;
 	}
@@ -1023,7 +1023,7 @@ uint64_t Table::get_fileoffset(uint32_t phys_numrecord)
 }
 
 //---------------------------------------------------------------------------
-bool Table::get_edit()
+bool Table::get_edit() const
 {
 	return edit;
 }
@@ -1090,29 +1090,33 @@ void Table::export_table(const std::string &path) const
 	export_import_table_root root;
 	if(file_data) {
 		root.has_data = true;
-		root.data_version_1 = file_data->version.version_1;
-		root.data_version_2 = file_data->version.version_2;
+		auto version = file_data->get_current_version();
+		root.data_version_1 = version.version_1;
+		root.data_version_2 = version.version_2;
 	}
 	else root.has_data = false;
 
 	if(file_blob) {
 		root.has_blob = true;
-		root.blob_version_1 = file_blob->version.version_1;
-		root.blob_version_2 = file_blob->version.version_2;
+		auto version = file_blob->get_current_version();
+		root.blob_version_1 = version.version_1;
+		root.blob_version_2 = version.version_2;
 	}
 	else root.has_blob = false;
 
 	if(file_index) {
 		root.has_index = true;
-		root.index_version_1 = file_index->version.version_1;
-		root.index_version_2 = file_index->version.version_2;
+		auto version = file_index->get_current_version();
+		root.index_version_1 = version.version_1;
+		root.index_version_2 = version.version_2;
 	}
 	else root.has_index = false;
 
 	if(descr_table) {
 		root.has_descr = true;
-		root.descr_version_1 = descr_table->version.version_1;
-		root.descr_version_2 = descr_table->version.version_2;
+		auto version = descr_table->get_current_version();
+		root.descr_version_1 = version.version_1;
+		root.descr_version_2 = version.version_2;
 	}
 	else root.has_descr = false;
 
@@ -1183,11 +1187,11 @@ void Table::import_table(const std::string &path)
 		if(fopen)
 		{
 			if(!file_data){
-				file_data = new v8object(base);
+				file_data = new V8Object(base);
 				descr_changed = true;
 			}
 			file_data->setdata(f);
-			ob = (v8ob*)base->getblock_for_write(file_data->block, true);
+			ob = (v8ob*)base->getblock_for_write(file_data->get_block_number(), true);
 			ob->version.version_1 = root.data_version_1;
 			ob->version.version_2 = root.data_version_2;
 			delete f;
@@ -1210,11 +1214,11 @@ void Table::import_table(const std::string &path)
 		if(fopen)
 		{
 			if(!file_blob){
-				file_blob = new v8object(base);
+				file_blob = new V8Object(base);
 				descr_changed = true;
 			}
 			file_blob->setdata(f);
-			ob = (v8ob*)base->getblock_for_write(file_blob->block, true);
+			ob = (v8ob*)base->getblock_for_write(file_blob->get_block_number(), true);
 			ob->version.version_1 = root.blob_version_1;
 			ob->version.version_2 = root.blob_version_2;
 			delete f;
@@ -1237,11 +1241,11 @@ void Table::import_table(const std::string &path)
 		if(fopen)
 		{
 			if(!file_index){
-				file_index = new v8object(base);
+				file_index = new V8Object(base);
 				descr_changed = true;
 			}
 			file_index->setdata(f);
-			ob = (v8ob*)base->getblock_for_write(file_index->block, true);
+			ob = (v8ob*)base->getblock_for_write(file_index->get_block_number(), true);
 			ob->version.version_1 = root.index_version_1;
 			ob->version.version_2 = root.index_version_2;
 			delete f;
@@ -1264,7 +1268,7 @@ void Table::import_table(const std::string &path)
 		}
 		if(fopen)
 		{
-			if(!descr_table) descr_table = new v8object(base); // вообще, если descr_table == nullptr, то это огромная ошибка!
+			if(!descr_table) descr_table = new V8Object(base); // вообще, если descr_table == nullptr, то это огромная ошибка!
 			ob = (v8ob*)base->getblock_for_write(descr_table->get_block_number(), true);
 			ob->version.version_1 = root.descr_version_1;
 			ob->version.version_2 = root.descr_version_2;
@@ -1610,7 +1614,7 @@ uint32_t Table::get_phys_numrec(int32_t ARow, Index* cur_index)
 void Table::create_file_data()
 {
 	if(!file_data) return;
-	file_data = new v8object(base);
+	file_data = new V8Object(base);
 	refresh_descr_table();
 }
 
@@ -1618,7 +1622,7 @@ void Table::create_file_data()
 void Table::create_file_blob()
 {
 	if(!file_blob) return;
-	file_blob = new v8object(base);
+	file_blob = new V8Object(base);
 	refresh_descr_table();
 }
 
@@ -1626,7 +1630,7 @@ void Table::create_file_blob()
 void Table::create_file_index()
 {
 	if(!file_index) return;
-	file_index = new v8object(base);
+	file_index = new V8Object(base);
 	refresh_descr_table();
 
 }
@@ -2052,7 +2056,7 @@ void Table::insert_record(const TableRecord *nrec)
 		}
 	}
 
-	if(file_data->len == 0)
+	if(file_data->getlen() == 0)
 	{
 		j = new char[recordlen];
 		memset(j, 0, recordlen);
@@ -2069,7 +2073,7 @@ void Table::insert_record(const TableRecord *nrec)
 			file_data->getdata(&k, phys_numrecord * recordlen + 1, 4);
 			file_data->setdata(&k, 1, 4);
 		}
-		else phys_numrecord = file_data->len / recordlen;
+		else phys_numrecord = file_data->getlen() / recordlen;
 	}
 
 	write_data_record(phys_numrecord, rec);
@@ -2310,19 +2314,18 @@ std::string Table::get_file_name_for_field(int32_t num_field, char *rec, uint32_
 	if(num_indexes)
 	{
 		ind = indexes[0];
-		for(i = 0; i < num_indexes; i++) if(indexes[i]->is_primary)
+		for(i = 0; i < num_indexes; i++) if(indexes[i]->is_primary())
 		{
 			ind = indexes[i];
 			break;
 		}
-		for(i = 0; i < ind->num_records; i++)
-		{
+		for(auto& record : ind->get_records()) {
 			if(!s.empty()) {
 				s += "_";
 			}
-			s += ind->records[i].field->get_XML_presentation(rec);
+			s += record.field->get_XML_presentation(rec);
 		}
-		if(!ind->is_primary && numrec){
+		if(!ind->is_primary() && numrec){
 			s += "_";
 			s += numrec;
 		}
@@ -2341,12 +2344,11 @@ std::string Table::get_file_name_for_field(int32_t num_field, char *rec, uint32_
 	return s;
 }
 
-std::string Table::get_file_name_for_record(const TableRecord *rec)
+std::string Table::get_file_name_for_record(const TableRecord *rec) const
 {
 	std::string s("");
 
 	int32_t i;
-	int32_t num_rec;
 
 	Index* ind;
 
@@ -2356,24 +2358,21 @@ std::string Table::get_file_name_for_record(const TableRecord *rec)
 		for(i = 0; i < num_indexes; i++)
 		{
 
-			if(indexes[i]->is_primary)
+			if(indexes[i]->is_primary())
 			{
 				ind = indexes[i];
 				break;
 			}
 		}
-		num_rec = ind->num_records;
 
-		for(i = 0; i < num_rec; i++)
-		{
+		for(auto& record : ind->get_records()) {
 			if (!s.empty()){
 				s += "_";
 			}
-			Field* tmp_field = ind->records[i].field;
+			Field* tmp_field = record.field;
 			std::string tmp_str = rec->get_string(tmp_field);
 
 			s += tmp_str;
-
 		}
 	}
 
