@@ -183,7 +183,7 @@ QIODevice *TableDataModel::getBlobStream(const QModelIndex &index) const
 	        : table->getrecord(_index->get_numrec(index.row()));
 
 	TStream *out;
-	if (!record->try_store_blob_data(f, out, false)) {
+	if (!record->try_store_blob_data(f, out, true)) {
 		return nullptr;
 	}
 	return new StreamDevice(out);
