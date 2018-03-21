@@ -4,6 +4,7 @@
 #include <QAbstractItemModel>
 #include <Table.h>
 #include <TableIterator.h>
+#include <QIODevice>
 
 class TableDataModel : public QAbstractItemModel
 {
@@ -31,6 +32,8 @@ public:
 	V8Catalog *getCatalog(const QModelIndex &index) const;
 
 	const TableRecord *getRecord(const QModelIndex &index) const;
+
+	QIODevice *getBlobStream(const QModelIndex &index) const;
 
 private:
 	Table *table;

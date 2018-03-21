@@ -10,6 +10,7 @@
 #include "models/skobka_tree_model.h"
 #include <QFileDialog>
 #include "models/v8catalog_tree_model.h"
+#include "QHexEdit/qhexedit.h"
 
 QString index_presentation(Index *index)
 {
@@ -32,6 +33,11 @@ TableDataWindow::TableDataWindow(QWidget *parent, Table *table)
 	ui->setupUi(this);
 	setWindowTitle(QString::fromStdString(table->getname()));
 	ui->dataView->setModel(new TableDataModel(table));
+
+	hexedit = new QHexEdit();
+	auto layout = new QVBoxLayout();
+	layout->addWidget(hexedit);
+	ui->hexeditFrame->setLayout(layout);
 
 	QVector<Index*> indexes;
 	indexes.push_back(nullptr); // PK
@@ -138,6 +144,7 @@ void TableDataWindow::dataView_selection_changed(const QItemSelection &selection
 	ui->plainTextEdit->setVisible(true);
 
 	ui->treeView->setVisible(false);
+	hexedit->setVisible(false);
 
 	if (model->isBlobValue(index)) {
 
@@ -160,6 +167,15 @@ void TableDataWindow::dataView_selection_changed(const QItemSelection &selection
 			ui->treeView->setModel(new V8CatalogTreeModel(cat, catalog_name));
 			ui->treeView->setVisible(true);
 			ui->treeView->expandAll();
+			return;
+		}
+
+		auto stream = model->getBlobStream(index);
+		if (stream != nullptr) {
+			auto doc = QHexDocument::fromDevice(stream);
+			hexedit->setDocument(doc);
+			hexedit->setVisible(true);
+			ui->plainTextEdit->setVisible(false);
 			return;
 		}
 	}
