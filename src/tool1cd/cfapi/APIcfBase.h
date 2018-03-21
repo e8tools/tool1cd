@@ -90,6 +90,14 @@ public:
 	int32_t next_page_addr() const;
 	void set_next_page_addr(int32_t value);
 
+	const std::string toString() const
+	{
+		auto _begin = reinterpret_cast<const char *>(this);
+		auto _end = _begin + Size();
+		std::string result(_begin, _end);
+		return result;
+	}
+
 private:
 	char EOL_0D;
 	char EOL_0A;
