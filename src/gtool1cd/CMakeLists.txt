@@ -7,16 +7,53 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt5Widgets REQUIRED)
 
+set (QHEXEDIT_HEADERS
+	QHexEdit/document/commands/hexcommand.h
+	QHexEdit/document/commands/insertcommand.h
+	QHexEdit/document/commands/removecommand.h
+	QHexEdit/document/commands/replacecommand.h
+	QHexEdit/document/gapbuffer.h
+	QHexEdit/document/qhexcursor.h
+	QHexEdit/document/qhexdocument.h
+	QHexEdit/document/qhextheme.h
+	QHexEdit/paint/qhexmetrics.h
+	QHexEdit/paint/qhexpainter.h
+	QHexEdit/qhexedit.h
+	QHexEdit/qhexeditprivate.h
+	QHexEdit/document/metadata/qhexmetadataitem.h
+	QHexEdit/document/metadata/qhexmetadata.h
+)
+
+set (QHEXEDIT_SOURCES
+	QHexEdit/document/commands/hexcommand.cpp
+	QHexEdit/document/commands/insertcommand.cpp
+	QHexEdit/document/commands/removecommand.cpp
+	QHexEdit/document/commands/replacecommand.cpp
+	QHexEdit/document/gapbuffer.cpp
+	QHexEdit/document/qhexcursor.cpp
+	QHexEdit/document/qhexdocument.cpp
+	QHexEdit/document/qhextheme.cpp
+	QHexEdit/paint/qhexmetrics.cpp
+	QHexEdit/paint/qhexpainter.cpp
+	QHexEdit/qhexedit.cpp
+	QHexEdit/qhexeditprivate.cpp
+	QHexEdit/document/metadata/qhexmetadataitem.cpp
+	QHexEdit/document/metadata/qhexmetadata.cpp
+)
+
+
+file (GLOB MODEL_HEADERS "models/*.h")
+file (GLOB MODEL_SOURCES "models/*.cpp")
+
 set(HEADER_FILES mainwindow.h starter.h littlelogwindow.h cache.h table_fields_window.h table_data_window.h
 	skobkatextwindow.h models/tables_list_model.h models/fields_list_model.h models/table_data_model.h
-	export_table_to_xml_dialog.h configurations_window.h models/vendor_configurations_table_model.h
-	models/extensions_table_model.h models/skobka_tree_model.h models/v8catalog_tree_model.h)
+	export_table_to_xml_dialog.h configurations_window.h
+	${MODEL_HEADERS} ${QHEXEDIT_HEADERS})
 set(UI_FILES mainwindow.ui starter.ui littlelogwindow.ui table_fields_window.ui table_data_window.ui
 	skobkatextwindow.ui export_table_to_xml_dialog.ui configurations_window.ui)
 set(SOURCE_FILES main.cpp mainwindow.cpp starter.cpp littlelogwindow.cpp cache.cpp table_fields_window.cpp table_data_window.cpp
-	skobkatextwindow.cpp export_table_to_xml_dialog.cpp configurations_window.cpp models/vendor_configurations_table_model.cpp
-	models/extensions_table_model.cpp models/skobka_tree_model.cpp models/table_data_model.cpp models/tables_list_model.cpp
-	models/fields_list_model.cpp models/v8catalog_tree_model.cpp)
+	skobkatextwindow.cpp export_table_to_xml_dialog.cpp configurations_window.cpp
+	${MODEL_SOURCES} ${QHEXEDIT_SOURCES})
 
 add_executable(gtool1cd WIN32 ${SOURCE_FILES} ${HEADER_FILES} ${UI_FILES})
 

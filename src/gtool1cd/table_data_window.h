@@ -6,6 +6,7 @@
 #include <Table.h>
 #include <TableIterator.h>
 #include <QItemSelection>
+#include "QHexEdit/qhexedit.h"
 
 namespace Ui {
 class TableDataWindow;
@@ -39,6 +40,7 @@ private:
 	Table *table;
 	Ui::TableDataWindow *ui;
 	QWidget *tableWindow;
+	QHexEdit *hexedit;
 };
 
 #endif // TABLEDATAWINDOW_H

@@ -1,5 +1,6 @@
 #include "table_data_model.h"
 #include <QFont>
+#include "stream_device.h"
 
 TableDataModel::TableDataModel(Table *table, Index *index)
     : table(table), _index(index) {}
@@ -172,4 +173,18 @@ const TableRecord *TableDataModel::getRecord(const QModelIndex &index) const
 	        ? table->getrecord(index.row())
 	        : table->getrecord(_index->get_numrec(index.row()));
 
+}
+
+QIODevice *TableDataModel::getBlobStream(const QModelIndex &index) const
+{
+	Field *f = table->getfield(index.column());
+	TableRecord *record = _index == nullptr
+	        ? table->getrecord(index.row())
+	        : table->getrecord(_index->get_numrec(index.row()));
+
+	TStream *out;
+	if (!record->try_store_blob_data(f, out, false)) {
+		return nullptr;
+	}
+	return new StreamDevice(out);
 }
