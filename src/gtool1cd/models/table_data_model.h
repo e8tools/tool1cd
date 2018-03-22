@@ -9,7 +9,7 @@
 class TableDataModel : public QAbstractItemModel
 {
 public:
-	TableDataModel(Table *table, Index *index = nullptr);
+	explicit TableDataModel(Table *table, Index *index = nullptr);
 
 	int rowCount(const QModelIndex &parent) const override;
 

@@ -7,7 +7,7 @@
 class TablesListModel : public QAbstractItemModel
 {
 public:
-	TablesListModel(T_1CD *db);
+	explicit TablesListModel(T_1CD *db);
 
 	int rowCount(const QModelIndex &parent) const override;
 

@@ -7,7 +7,7 @@
 class FieldsListModel : public QAbstractItemModel
 {
 public:
-	FieldsListModel(Table *table);
+	explicit FieldsListModel(Table *table);
 
 	int rowCount(const QModelIndex &parent) const override;
 

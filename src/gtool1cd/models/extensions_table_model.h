@@ -8,7 +8,7 @@ class T_1CD;
 class ExtensionsTableModel : public QAbstractItemModel
 {
 public:
-	ExtensionsTableModel(T_1CD *db);
+	explicit ExtensionsTableModel(T_1CD *db);
 
 	virtual int rowCount(const QModelIndex &parent) const override;
 

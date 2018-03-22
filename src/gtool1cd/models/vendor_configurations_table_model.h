@@ -8,7 +8,7 @@ class T_1CD;
 class VendorConfigurationsTableModel : public QAbstractItemModel
 {
 public:
-	VendorConfigurationsTableModel(T_1CD *db);
+	explicit VendorConfigurationsTableModel(T_1CD *db);
 
 	virtual int rowCount(const QModelIndex &parent) const override;
 

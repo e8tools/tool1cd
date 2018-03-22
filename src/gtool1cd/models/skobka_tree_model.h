@@ -7,7 +7,7 @@
 class SkobkaTreeModel : public QAbstractItemModel
 {
 public:
-	SkobkaTreeModel(tree *data_tree);
+	explicit SkobkaTreeModel(tree *data_tree);
 
 
 	virtual int rowCount(const QModelIndex &parent) const override;

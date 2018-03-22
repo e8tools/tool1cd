@@ -7,7 +7,7 @@
 class StreamDevice : public QIODevice
 {
 public:
-	StreamDevice(TStream *stream);
+	explicit StreamDevice(TStream *stream);
 	virtual ~StreamDevice();
 
 protected:
