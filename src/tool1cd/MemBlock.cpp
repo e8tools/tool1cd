@@ -6,211 +6,191 @@
  */
 
 #include "MemBlock.h"
+#include "Constants.h"
 
-MemBlock* MemBlock::first = nullptr;
-MemBlock* MemBlock::last = nullptr;
-uint32_t MemBlock::count = 0;
-uint32_t MemBlock::maxcount = 0;
-MemBlock** MemBlock::memblocks = nullptr;
 
-uint64_t MemBlock::numblocks = 0;
-
-uint64_t MemBlock::array_numblocks = 0;
-
-uint32_t MemBlock::delta = 128;
-uint32_t MemBlock::pagesize = DEFAULT_PAGE_SIZE;
-
-//---------------------------------------------------------------------------
-MemBlock::MemBlock(TFileStream* fs, uint32_t _numblock, bool for_write, bool read)
+std::shared_ptr<MemBlock> MemBlock::create(std::shared_ptr<TFileStream> &fs, uint32_t page_size, uint32_t block_num,
+bool for_write, bool read)
 {
-	numblock = _numblock;
-	lastdataget = 0;
-	if(count >= maxcount) delete first; // если количество кешированных блоков превышает максимальное, удаляем последний, к которому было обращение
-	count++;
-	prev = last;
-	next = nullptr;
-	if(last) last->next = this;
-	else first = this;
-	last = this;
-
-	buf = new char[pagesize];
+	auto buf = new char[page_size];
 	if(for_write)
 	{
-		uint32_t fnumblocks = fs->GetSize() / pagesize;
-		if(fnumblocks <= numblock)
+		uint32_t fnumblocks = fs->GetSize() / page_size;
+		if(fnumblocks <= block_num)
 		{
-			memset(buf, 0, pagesize);
-			fs->Seek((int64_t)numblock * pagesize, (TSeekOrigin)soFromBeginning);
-			fs->WriteBuffer(buf, pagesize);
+			memset(buf, 0, page_size);
+			fs->Seek((int64_t)block_num * page_size, (TSeekOrigin)soFromBeginning);
+			fs->WriteBuffer(buf, page_size);
 			fs->Seek(12, (TSeekOrigin)soFromBeginning);
-			fs->WriteBuffer(&numblock, sizeof(uint32_t));
+			fs->WriteBuffer(&block_num, sizeof(uint32_t));
 		}
 		else
 		{
 			if(read)
 			{
-				fs->Seek((int64_t)numblock * pagesize, (TSeekOrigin)soFromBeginning);
-				fs->ReadBuffer(buf, pagesize);
+				fs->Seek((int64_t)block_num * page_size, (TSeekOrigin)soFromBeginning);
+				fs->ReadBuffer(buf, page_size);
 			}
-			else memset(buf, 0, pagesize);
+			else memset(buf, 0, page_size);
 		}
 	}
 	else
 	{
-		fs->Seek((int64_t)numblock * pagesize, (TSeekOrigin)soFromBeginning);
-		fs->ReadBuffer(buf, pagesize);
+		fs->Seek((int64_t)block_num * page_size, (TSeekOrigin)soFromBeginning);
+		fs->ReadBuffer(buf, page_size);
 	}
 
-	is_changed = for_write;
-	file = fs;
+	std::shared_ptr<MemBlock> block(new MemBlock(page_size, block_num));
+	std::copy(buf, buf + page_size, std::begin(block->data));
+	return block;
 
-	// регистрируем себя в в массиве блоков
-	memblocks[numblock] = this;
 }
 
 //---------------------------------------------------------------------------
-MemBlock::~MemBlock()
+MemBlockManager::MemBlockManager(std::shared_ptr<TFileStream> &fs)
+	: fs(fs)
 {
-	if(is_changed) write();
-
-	// удаляем себя из цепочки...
-	if(prev) prev->next = next;
-	else first = next;
-	if(next) next->prev = prev;
-	else last = prev;
-
-	// удаляем себя из массива блоков
-	memblocks[numblock] = nullptr;
-
-	count--;
-	delete[] buf;
 }
 
 //---------------------------------------------------------------------------
-char* MemBlock::getblock(bool for_write)
+void MemBlockManager::garbage(bool aggressive)
 {
-	lastdataget = GetTickCount();
-	// удаляем себя из текущего положения цепочки...
-	if(prev) prev->next = next;
-	else first = next;
-	if(next) next->prev = prev;
-	else last = prev;
-	// ... и записываем себя в конец цепочки
-	prev = last;
-	next = nullptr;
-	if(last) last->next = this;
-	else first = this;
-	last = this;
-
-	if(for_write) is_changed = true;
-
-	return buf;
-}
-
-//---------------------------------------------------------------------------
-void MemBlock::garbage()
-{
+	// TODO: блокировка на memblocks
 	uint32_t curt = GetTickCount();
-	while(MemBlock::first)
-	{
-		if(curt - first->lastdataget > LIVE_CASH * 60 * 1000) delete MemBlock::first;
-		else break;
+	for (auto &block : memblocks) {
+
+		if (!block) {
+			continue;
+		}
+		if (block->is_changed()) {
+			continue;
+		}
+
+		auto when_to_kill = block->get_last_data_get() + LIVE_CASH * 60 * 1000;
+		if (aggressive || curt >= when_to_kill) {
+			block.reset();
+		}
 	}
 }
 
 //---------------------------------------------------------------------------
-char* MemBlock::getblock(TFileStream* fs, uint32_t _numblock)
+char* MemBlockManager::getblock(uint32_t _numblock)
 {
-	if(_numblock >= numblocks) return nullptr;
-	if(!memblocks[_numblock]) new MemBlock(fs, _numblock, false, true);
+	if(_numblock >= memblocks.size()) return nullptr;
+	if (!memblocks[_numblock]) {
+		memblocks[_numblock] = MemBlock::create(fs, pagesize, _numblock, false, true);
+	}
 	return memblocks[_numblock]->getblock(false);
 }
 
 //---------------------------------------------------------------------------
-char* MemBlock::getblock_for_write(TFileStream* fs, uint32_t _numblock, bool read)
+char* MemBlockManager::getblock_for_write(uint32_t _numblock, bool read)
 {
-	if(_numblock > numblocks) return nullptr;
-	if(_numblock == numblocks) add_block();
-	if(!memblocks[_numblock]) new MemBlock(fs, _numblock, true, read);
-	else memblocks[_numblock]->is_changed = true;
+	if (_numblock > memblocks.size()) {
+		return nullptr;
+	}
+
+	if (_numblock == memblocks.size()) {
+		add_block();
+	}
+
+	if(!memblocks[_numblock]) {
+		memblocks[_numblock] = MemBlock::create(fs, pagesize, _numblock, true, read);
+	}
 	return memblocks[_numblock]->getblock(true);
 }
 
 //---------------------------------------------------------------------------
-void MemBlock::create_memblocks(uint64_t _numblocks)
+void MemBlockManager::create_memblocks(uint64_t _numblocks)
 {
-	numblocks = _numblocks;
-	array_numblocks = (numblocks / delta + 1) * delta;
-	memblocks = new MemBlock*[array_numblocks];
-	memset(memblocks, 0, array_numblocks * sizeof(MemBlock *));
+	memblocks.clear();
+	memblocks.resize(_numblocks);
+	memset(memblocks.data(), 0, memblocks.size() * sizeof(MemBlock *));
 }
 
 //---------------------------------------------------------------------------
-void MemBlock::delete_memblocks()
+void MemBlockManager::delete_memblocks()
 {
-	//while(first) delete first;
-	while (MemBlock::first) delete MemBlock::first;
-	delete[] memblocks;
-	numblocks = 0;
-	array_numblocks = 0;
+	memblocks.clear();
 }
 
 //---------------------------------------------------------------------------
-void MemBlock::add_block()
+void MemBlockManager::add_block()
 {
-	MemBlock** mb;
+	memblocks.push_back(nullptr);
+}
 
-	if(numblocks < array_numblocks) memblocks[numblocks++] = nullptr;
-	else
-	{
-		mb = new MemBlock*[array_numblocks + delta];
-		for(unsigned i = 0; i < array_numblocks; i++) mb[i] = memblocks[i];
-		for(unsigned i = array_numblocks; i < array_numblocks + delta; i++) mb[i] = nullptr;
-		array_numblocks += delta;
-		delete[] memblocks;
-		memblocks = mb;
+//---------------------------------------------------------------------------
+uint64_t MemBlockManager::get_numblocks() const
+{
+	return memblocks.size();
+}
+
+//---------------------------------------------------------------------------
+void MemBlockManager::flush()
+{
+	for (auto &block : memblocks) {
+		block->write(fs);
 	}
 }
 
 //---------------------------------------------------------------------------
-uint64_t MemBlock::get_numblocks()
+void MemBlock::write(std::shared_ptr<TFileStream> &fs)
 {
-	return numblocks;
+	if (!is_changed()) {
+		return;
+	}
+	fs->Seek((int64_t)block_num * data.size(), (TSeekOrigin)soFromBeginning);
+	fs->WriteBuffer(data.data(), data.size());
+	changed = false;
 }
 
-//---------------------------------------------------------------------------
-void MemBlock::flush()
-{
-	MemBlock* cur;
-	for(cur = first; cur; cur = cur->next) if(cur->is_changed) cur->write();
-}
-
-//---------------------------------------------------------------------------
-void MemBlock::write()
-{
-	if(!is_changed) return;
-	file->Seek((int64_t)numblock * pagesize, (TSeekOrigin)soFromBeginning);
-	file->WriteBuffer(buf, pagesize);
-	is_changed = false;
-}
-
-uint32_t MemBlock::get_page_size()
+uint32_t MemBlockManager::get_page_size() const
 {
 	return pagesize;
 }
 
-void MemBlock::set_page_size(const uint32_t value)
+void MemBlockManager::set_page_size(const uint32_t value)
 {
 	pagesize = value;
 }
 
-uint32_t MemBlock::get_maxcount()
+uint32_t MemBlockManager::get_maxcount() const
 {
 	return maxcount;
 }
 
-void MemBlock::set_maxcount(const uint32_t value)
+void MemBlockManager::set_maxcount(const uint32_t value)
 {
 	maxcount = value;
 }
 
+MemBlockManager::MemBlockManager()
+{
+
+}
+
+char *MemBlock::getblock(bool for_write)
+{
+	if (for_write) {
+		changed = true;
+	}
+	last_data_get = GetTickCount();
+	return data.data();
+}
+
+const char *MemBlock::getblock() const
+{
+	last_data_get = GetTickCount();
+	return data.data();
+}
+
+uint32_t MemBlock::get_last_data_get() const
+{
+	return last_data_get;
+}
+
+bool MemBlock::is_changed() const
+{
+	return changed;
+}

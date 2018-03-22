@@ -47,7 +47,7 @@ bool T_1CD::getblock(void* buf, uint32_t block_number, int32_t blocklen)
 			.add_detail("Всего блоков", to_hex_string(length));
 	}
 
-	memcpy(buf, MemBlock::getblock(fs, block_number), blocklen);
+	memcpy(buf, memBlockManager.getblock(block_number), blocklen);
 	return true;
 }
 
@@ -60,10 +60,9 @@ char*  T_1CD::getblock(uint32_t block_number) const
 		throw DetailedException("Попытка чтения блока за пределами файла.")
 			.add_detail("Индекс блока", to_hex_string(block_number))
 			.add_detail("Всего блоков", to_hex_string(length));
-		return nullptr;
 	}
 
-	return MemBlock::getblock(fs, block_number);
+	return memBlockManager.getblock(block_number);
 }
 
 //---------------------------------------------------------------------------
@@ -89,7 +88,7 @@ char*  T_1CD::getblock_for_write(uint32_t block_number, bool read)
 		bc->length = length;
 	}
 
-	return MemBlock::getblock_for_write(fs, block_number, read);
+	return memBlockManager.getblock_for_write(block_number, read);
 }
 
 //---------------------------------------------------------------------------
@@ -106,7 +105,6 @@ Table* T_1CD::gettable(int32_t numtable)
 		throw DetailedException("Попытка получения таблицы по номеру, превышающему количество таблиц")
 			.add_detail("Количество таблиц", num_tables)
 			.add_detail("Номер таблицы", numtable + 1);
-		return nullptr;
 	}
 	return tables[numtable];
 }
@@ -203,14 +201,7 @@ T_1CD::~T_1CD()
 	num_tables = 0;
 
 	// сначала закрываем кэшированные блоки (измененные блоки записывают себя в файл) ...
-	MemBlock::delete_memblocks();
-
-	// ... и только затем закрываем файл базы.
-	if(fs)
-	{
-		delete fs;
-		fs = nullptr;
-	}
+	memBlockManager.delete_memblocks();
 
 	delete[] locale;
 	if(pagemap) delete[] pagemap;
@@ -232,28 +223,25 @@ T_1CD::T_1CD(const string &_filename, MessageRegistrator *mess, bool _monopoly)
 
 	filename = System::Ioutils::TPath::GetFullPath(_filename);
 
+	std::shared_ptr<TFileStream> base_file;
 	try
 	{
-		if(_monopoly) fs = new TFileStream(boost::filesystem::path(filename), fmOpenReadWrite | fmShareDenyWrite);
-		else fs = new TFileStream(boost::filesystem::path(filename), fmOpenRead | fmShareDenyNone);
+		base_file.reset(
+				new TFileStream(boost::filesystem::path(filename),
+								_monopoly ? (fmOpenReadWrite | fmShareDenyWrite)
+										  : (fmOpenRead | fmShareDenyNone)));
 	}
 	catch(...)
 	{
 		throw DetailedException("Ошибка открытия файла базы (файл открыт другой программой?)");
-		fs = nullptr;
-		return;
 	}
 
 	v8con* cont = new v8con;
-	fs->Read(cont, sizeof(v8con));
+	base_file->Read(cont, sizeof(v8con));
 
 	if(memcmp(&(cont->sig), SIG_CON, 8) != 0)
 	{
 		throw DetailedException("Файл не является базой 1С (сигнатура не равна \"1CDBMSV8\")");
-		delete fs;
-		fs = nullptr;
-		delete cont;
-		return;
 	}
 
 	pagesize = DEFAULT_PAGE_SIZE;
@@ -293,26 +281,21 @@ T_1CD::T_1CD(const string &_filename, MessageRegistrator *mess, bool _monopoly)
 	else
 	{
 		throw DetailedException("Неподдерживаемая версия базы 1С").add_detail("Версия базы", ver);
-		delete fs;
-		fs = nullptr;
-		delete cont;
-		return;
 	}
 
-	length = fs->GetSize() / pagesize;
-	if((int64_t)length * pagesize != fs->GetSize())
+	length = base_file->GetSize() / pagesize;
+	if((int64_t)length * pagesize != base_file->GetSize())
 	{
 		throw DetailedException("Длина файла базы не кратна длине страницы")
 				.add_detail("Длина страницы", to_hex_string(pagesize))
-				.add_detail("Длина файла", to_hex_string(fs->GetSize()));
-		delete fs;
-		fs = nullptr;
-		return;
+				.add_detail("Длина файла", to_hex_string(base_file->GetSize()));
 	}
 
-	MemBlock::set_page_size(pagesize);
-	MemBlock::set_maxcount(ONE_GB / pagesize); // гигабайт
-	MemBlock::create_memblocks(length);
+	fs = std::move(base_file);
+	memBlockManager = MemBlockManager(fs);
+	memBlockManager.set_page_size(pagesize);
+	memBlockManager.set_maxcount(ONE_GB / pagesize); // гигабайт
+	memBlockManager.create_memblocks(length);
 
 	if(length != cont->length)
 	{
@@ -462,6 +445,7 @@ T_1CD::T_1CD(const string &_filename, MessageRegistrator *mess, bool _monopoly)
 #endif //#ifdef getcfname
 
 	delete cont;
+	memBlockManager.garbage(/*aggressive=*/true);
 }
 
 //---------------------------------------------------------------------------
@@ -553,7 +537,7 @@ uint32_t T_1CD::get_free_block()
 //---------------------------------------------------------------------------
 void T_1CD::flush()
 {
-	MemBlock::flush();
+	memBlockManager.flush();
 }
 
 //---------------------------------------------------------------------------
