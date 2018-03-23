@@ -1316,7 +1316,8 @@ uint32_t V8Object::get_free_block()
 	}
 	else
 	{
-		unsigned i = MemBlock::get_numblocks();
+		// TODO: заменить на что-нибудь вроде add_free_block
+		unsigned i = base->getMemBlockManager().get_numblocks();
 		base->getblock_for_write(i, false);
 		return i;
 	}

@@ -232,10 +232,16 @@ public:
 	void set_block_as_free(uint32_t block_number); // пометить блок как свободный
 	uint32_t get_free_block(); // получить номер свободного блока (и пометить как занятый)
 
+	const MemBlockManager &getMemBlockManager() const
+	{
+		return memBlockManager;
+	}
+
 private:
 	mutable Registrator msreg_m;
+	mutable MemBlockManager memBlockManager;
 	std::string filename;
-	TFileStream* fs;
+	std::shared_ptr<TFileStream> fs;
 
 	db_ver version; // версия базы
 	uint32_t pagesize; // размер одной страницы (до версии 8.2.14 всегда 0x1000 (4K), начиная с версии 8.3.8 от 0x1000 (4K) до 0x10000 (64K))
