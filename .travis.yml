@@ -6,5 +6,5 @@ before_install:
     - sudo apt-get -qq update
 install: sudo apt-get install -y cmake zlib1g-dev libboost-filesystem-dev libboost-system-dev libboost-regex-dev
 script:
-    - cmake . && cmake --build .
+    - cmake -DNOGUI=YES . && cmake --build . --target testproject
     - bin/testproject

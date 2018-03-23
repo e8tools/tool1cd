@@ -4,6 +4,8 @@ project(tool1cd_project)
 
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
+option(NOGUI "disable building GUI project")
+
 set(BINARY_DIR "${CMAKE_BINARY_DIR}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BINARY_DIR}/lib")
@@ -11,6 +13,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BINARY_DIR}/lib")
 # Переделываем shared-runtime на static-runtime
 # Это нужно, чтобы под Windows Tool1CD не требовал vcredist
 if (MSVC)
+
+	add_definitions (-DBOOST_ALL_NO_LIB)
+	set (Boost_USE_STATIC_LIBS ON)
+	set (Boost_USE_MULTITHREADED OFF)
+	set (Boost_USE_STATIC_RUNTIME ON)
 
 	foreach (flag_var
 			CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
@@ -42,3 +49,8 @@ add_subdirectory(${SOURCE_DIR}/SystemClasses)
 add_subdirectory(${SOURCE_DIR}/tool1cd)
 add_subdirectory(${SOURCE_DIR}/ctool1cd)
 add_subdirectory(${SOURCE_DIR}/tests)
+
+if(NOT NOGUI)
+	add_subdirectory(${SOURCE_DIR}/gtool1cd)
+endif()
+

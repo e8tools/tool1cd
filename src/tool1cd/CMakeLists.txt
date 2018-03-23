@@ -25,11 +25,6 @@ add_library (tool1cd STATIC ${TOOL1CD_SOURCES} ${TOOL1CD_HEADERS})
 include_directories (${SOURCE_DIR}/SystemClasses)
 target_link_libraries (tool1cd SystemClasses)
 
-add_definitions (-DBOOST_ALL_NO_LIB)
-set (Boost_USE_STATIC_LIBS ON)
-set (Boost_USE_MULTITHREADED OFF)
-set (Boost_USE_STATIC_RUNTIME ON)
-
 find_package (Boost 1.53 REQUIRED COMPONENTS filesystem regex system)
 include_directories (${Boost_INCLUDE_DIRS})
 target_link_libraries (tool1cd ${Boost_LIBRARIES})

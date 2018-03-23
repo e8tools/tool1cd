@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TableFieldsWindow</class>
+ <widget class="QMainWindow" name="TableFieldsWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>588</width>
+    <height>395</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Tool 1CD</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QTableView" name="fieldsView">
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>588</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="openDatabaseFileAction">
+   <property name="text">
+    <string>Открыть базу</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="aboutAction">
+   <property name="text">
+    <string>О программе</string>
+   </property>
+  </action>
+  <action name="showCommandLineHelpAction">
+   <property name="text">
+    <string>Ключи командной строки</string>
+   </property>
+  </action>
+  <action name="exitAction">
+   <property name="text">
+    <string>Выход</string>
+   </property>
+   <property name="shortcut">
+    <string>F10</string>
+   </property>
+  </action>
+  <action name="saveDatabaseConfigAction">
+   <property name="text">
+    <string>Сохранить конфигурацию базы данных</string>
+   </property>
+  </action>
+  <action name="saveMainConfigAction">
+   <property name="text">
+    <string>Сохранить основную конфигурацию</string>
+   </property>
+  </action>
+  <action name="exportXmlAction">
+   <property name="text">
+    <string>Экспорт таблицы в XML</string>
+   </property>
+  </action>
+  <action name="blobViewParamsAction">
+   <property name="text">
+    <string>Параметры просмотра BLOB-полей</string>
+   </property>
+  </action>
+  <action name="monopolySwitch">
+   <property name="text">
+    <string>Открывать базу не монопольно</string>
+   </property>
+  </action>
+  <action name="easyModeSwitch">
+   <property name="text">
+    <string>Упрощённый режим редактирования</string>
+   </property>
+  </action>
+  <action name="BinaryAsGuidSwitch">
+   <property name="text">
+    <string>Отображать Binary(16) как GUID</string>
+   </property>
+  </action>
+  <action name="showOffsetSwitch">
+   <property name="text">
+    <string>Отображать смещения в файле записей таблицы</string>
+   </property>
+  </action>
+  <action name="saveBlobSwitch">
+   <property name="text">
+    <string>При экспорте в XML сохранять BLOB в отдельные файлы</string>
+   </property>
+  </action>
+  <action name="associateFilesAction">
+   <property name="text">
+    <string>Ассоциировать файлы 1CD с Tool1CD</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

@@ -2,46 +2,62 @@ version: 1.0.0.{build}
 pull_requests:
   do_not_increment_build_number: true
 clone_depth: 1
+environment:
+  MY_BOOST_ROOT: C:\projects\boost
+  MY_BOOST_INCLUDEDIR: C:\projects\boost
+  MY_BOOST_LIBRARYDIR: C:\projects\boost\stage\lib
+  matrix:
+    - ID: minw32-x86-boost1.63
+      GENERATOR: MinGW Makefiles
+      BOOST_VERSION: 1_63_0
+      BOOST_DOT_VERSION: 1.63.0
+      MINGW_ROOT: C:\mingw-w64\i686-5.3.0-posix-dwarf-rt_v4-rev0\mingw32
+      ADD_PATH: C:\mingw-w64\i686-5.3.0-posix-dwarf-rt_v4-rev0\mingw32\bin
+      BOOST_TOOLSET: gcc
+      ALLOW_FAILURE: no
+      MY_Qt5Widgets_DIR: C:\Qt\5.10.1\mingw53_32\lib\cmake\Qt5Widgets
+
 init:
 - ps: Set-WinSystemLocale ru-RU
 - ps: Start-Sleep -s 5
 - ps: Restart-Computer
-environment:
-  VCDIR: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\
-  BOOST_ROOT: c:\Libraries\boost_1_63_0
-  BOOST_LIBRARYDIR: C:\Libraries\boost_1_63_0\lib32-msvc-14.0
-  BOOST_INCLUDEDIR: C:\Libraries\boost_1_63_0
 install:
 - cmd: >-
-    appveyor DownloadFile https://github.com/madler/zlib/archive/v1.2.8.zip -FileName zlib-1.2.8.zip
+    echo %PATH%
 
-    7z x zlib-1.2.8.zip > NUL
-
-    cd zlib-1.2.8
-
-    md build
-
-    cd build
-
-    cmake -DCMAKE_SHARED_LINKER_FLAGS="/NODEFAULTLIB:MSVCRT" -DCMAKE_C_FLAGS_RELEASE="/MT /O2 /Ob2 /D NDEBUG" ..
-
-    cmake --build . --config Release --target zlibstatic
-
-    copy zconf.h ..
+    set PATH=%PATH:C:\Program Files\Git\usr\bin;=%;%ADD_PATH%
 
     cd ..
 
-    cd ..
+    curl -o boost.7z -L 
+    https://sourceforge.net/projects/boost/files/boost/%BOOST_DOT_VERSION%/boost_%BOOST_VERSION%.7z/download
+
+    7z x boost.7z
+
+    rename boost_%BOOST_VERSION% boost
+
+- cmd: >-
+    cd boost
+
+    .\bootstrap.bat
+
+    .\b2.exe toolset=%BOOST_TOOLSET% --with-system --with-filesystem --with-regex --with-program_options
+
+    cd %APPVEYOR_BUILD_FOLDER%
+
 build_script:
 - cmd: >-
-    "%VCDIR%"\vcvarsall.bat
-
-    cmake -G "Visual Studio 14" -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DBOOST_INCLUDEDIR="%BOOST_INCLUDEDIR%" -DZLIB_LIBRARY=%APPVEYOR_BUILD_FOLDER%\zlib-1.2.8\build\Release\zlibstatic.lib -DZLIB_INCLUDE_DIR=%APPVEYOR_BUILD_FOLDER%\zlib-1.2.8 .
+    cmake -G "%GENERATOR%" -DBOOST_ROOT="%MY_BOOST_ROOT%"
+    -DBOOST_LIBRARYDIR="%MY_BOOST_LIBRARYDIR%"
+    -DBOOST_INCLUDEDIR="%MY_BOOST_INCLUDEDIR%"
+    -DQt5Widgets_DIR="%MY_Qt5Widgets_DIR%"
+    -DZLIB_INCLUDE_DIR="%MINGW_ROOT%\\i686-w64-mingw32\include"
+    -DZLIB_LIBRARY="%MINGW_ROOT%\i686-w64-mingw32\lib\libz.a" .
 
     cmake --build . --config Release
 
 test_script:
-- bin\Release\testproject.exe --reporter junit --out junit.xml
+- bin\testproject.exe --reporter junit --out junit.xml
 
 on_finish:
 - ps: >-
@@ -58,8 +74,10 @@ after_build:
     light -out tool1cd-%APPVEYOR_BUILD_VERSION%.msi tool1cd.wixobj
 
 artifacts:
-- path: bin\Release\ctool1cd.exe
+- path: bin\ctool1cd.exe
   name: ctool1cd.exe
+- path: bin\gtool1cd.exe
+  name: gtool1cd.exe
 - path: tool1cd-*.msi
   name: installer
 deploy: off
