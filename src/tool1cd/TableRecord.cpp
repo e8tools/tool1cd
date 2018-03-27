@@ -137,7 +137,7 @@ void TableRecord::set_data(const Field *field, const void *new_data)
 		data_start[0] = '\001';
 		data_start++;
 	}
-	memcpy(data_start, new_data, field->getlen());
+	memcpy(data_start, new_data, field->get_len());
 }
 
 std::string TableRecord::get_xml_string(const Field *field) const

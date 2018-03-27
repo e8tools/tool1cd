@@ -412,7 +412,7 @@ void Table::init(int32_t block_descr)
 		if (field_type == type_fields::tf_version
 			|| field_type == type_fields::tf_version8) {
 			fields[i]->set_offset(recordlen);
-			recordlen += fields[i]->getlen();
+			recordlen += fields[i]->get_len();
 		}
 	}
 	// затем идут все остальные поля
@@ -421,7 +421,7 @@ void Table::init(int32_t block_descr)
 		if (field_type != type_fields::tf_version
 			&& field_type != type_fields::tf_version8) {
 			fields[i]->set_offset(recordlen);
-			recordlen += fields[i]->getlen();
+			recordlen += fields[i]->get_len();
 		}
 	}
 	if(recordlen < 5) recordlen = 5; // Длина одной записи не может быть меньше 5 байт (1 байт признак, что запись свободна, 4 байт - индекс следующей следующей свободной записи)
@@ -1328,11 +1328,11 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 	if(tf == type_fields::tf_version || tf == type_fields::tf_version8) return;
 	if(null && !fld->getnull_exists()) return;
 
-	fldvalue = new char[fld->getlen()];
+	fldvalue = new char[fld->get_len()];
 
 	if(tf == type_fields::tf_string || tf == type_fields::tf_text || tf == type_fields::tf_image)
 	{
-		memset(fldvalue, 0, fld->getlen());
+		memset(fldvalue, 0, fld->get_len());
 		k = fldvalue;
 		if(fld->getnull_exists())
 		{
@@ -1349,7 +1349,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 	{
 		rec = getrecord(phys_numrecord);
 		// TODO: Вменяемое сравнение в соответствии с типами
-		changed = memcmp(rec->get_raw(fld), fldvalue, fld->get_len2()) != 0;
+		changed = memcmp(rec->get_raw(fld), fldvalue, fld->get_len()) != 0;
 	}
 
 	for(cr = ch_rec; cr; cr = cr->next) if(cr->numrec == phys_numrecord) break;
@@ -1381,7 +1381,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 
 	if(changed)
 	{
-		memcpy(editrec + fld->get_offset(), fldvalue, fld->get_len2());
+		memcpy(editrec + fld->get_offset(), fldvalue, fld->get_len());
 		cr->fields[numfield] = 1;
 	}
 	else
@@ -1400,7 +1400,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 			}
 			delete cr;
 		}
-		else memcpy(editrec + fld->get_offset(), fldvalue, fld->get_len2());
+		else memcpy(editrec + fld->get_offset(), fldvalue, fld->get_len());
 	}
 
 	delete[] rec;
@@ -1451,7 +1451,7 @@ void Table::restore_edit_value(uint32_t phys_numrecord, int32_t numfield)
 	}
 	else{
 		TableRecord *rec = getrecord(phys_numrecord);
-		memcpy(cr->rec + fld->get_offset(), rec->get_raw(fld), fld->get_len2());
+		memcpy(cr->rec + fld->get_offset(), rec->get_raw(fld), fld->get_len());
 		delete rec;
 	}
 
@@ -2146,7 +2146,7 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 					}
 				}
 			}
-			else memcpy(orec + f->get_offset(), rec + f->get_offset(), f->get_len2());
+			else memcpy(orec + f->get_offset(), rec + f->get_offset(), f->get_len());
 		}
 		else
 		{

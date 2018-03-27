@@ -24,8 +24,7 @@ public:
 
 	explicit Field(Table* _parent);
 
-	int32_t getlen() const; // возвращает длину поля в байтах
-	int32_t get_len2() const; // TODO: Вменяемое объяснение почему используется 2 метода получения длины поля
+	int32_t get_len() const; // возвращает длину поля в байтах
 
 	std::string get_name() const;
 	void set_name(const std::string &value);
@@ -62,9 +61,8 @@ private:
 	bool null_exists {false};
 	FieldType *type_manager;
 
-	Table* parent;
-	mutable int32_t len; // длина поля в байтах
-	int32_t offset; // смещение поля в записи
+	Table* parent {nullptr};
+	int32_t offset {0}; // смещение поля в записи
 	static char buf[];
 	static char null_index[];
 	static bool null_index_initialized;
