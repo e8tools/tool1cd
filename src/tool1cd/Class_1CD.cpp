@@ -597,48 +597,48 @@ bool T_1CD::test_stream_format()
 			.add_detail("Кол-во полей", table_config->get_numfields());
 	}
 
-	if (CompareIC(table_config->getfield(0)->getname(), "FILENAME"))
+	if (CompareIC(table_config->getfield(0)->get_name(), "FILENAME"))
 	{
 		throw DetailedException("Ошибка тестирования. Первое поле таблицы CONFIG не FILENAME")
-			.add_detail("Поле", table_config->getfield(0)->getname());
+			.add_detail("Поле", table_config->getfield(0)->get_name());
 	}
 
-	if (CompareIC(table_config->getfield(1)->getname(), "CREATION"))
+	if (CompareIC(table_config->getfield(1)->get_name(), "CREATION"))
 	{
 		throw DetailedException("Ошибка тестирования. Второе поле таблицы CONFIG не CREATION")
-			.add_detail("Поле", table_config->getfield(1)->getname());
+			.add_detail("Поле", table_config->getfield(1)->get_name());
 	}
 
-	if (CompareIC(table_config->getfield(2)->getname(), "MODIFIED"))
+	if (CompareIC(table_config->getfield(2)->get_name(), "MODIFIED"))
 	{
 		throw DetailedException("Ошибка тестирования. Третье поле таблицы CONFIG не MODIFIED")
-			.add_detail("Поле", table_config->getfield(2)->getname());
+			.add_detail("Поле", table_config->getfield(2)->get_name());
 	}
 
-	if (CompareIC(table_config->getfield(3)->getname(), "ATTRIBUTES"))
+	if (CompareIC(table_config->getfield(3)->get_name(), "ATTRIBUTES"))
 	{
 		throw DetailedException("Ошибка тестирования. Четвертое поле таблицы CONFIG не ATTRIBUTES")
-			.add_detail("Поле", table_config->getfield(3)->getname());
+			.add_detail("Поле", table_config->getfield(3)->get_name());
 	}
 
-	if (CompareIC(table_config->getfield(4)->getname(), "DATASIZE"))
+	if (CompareIC(table_config->getfield(4)->get_name(), "DATASIZE"))
 	{
 		throw DetailedException("Ошибка тестирования. Пятое поле таблицы CONFIG не DATASIZE")
-			.add_detail("Поле", table_config->getfield(4)->getname());
+			.add_detail("Поле", table_config->getfield(4)->get_name());
 	}
 
-	if (CompareIC(table_config->getfield(5)->getname(), "BINARYDATA"))
+	if (CompareIC(table_config->getfield(5)->get_name(), "BINARYDATA"))
 	{
 		throw DetailedException("Ошибка тестирования. Шестое поле таблицы CONFIG не BINARYDATA")
-			.add_detail("Поле", table_config->getfield(5)->getname());
+			.add_detail("Поле", table_config->getfield(5)->get_name());
 	}
 
 	if(table_config->get_numfields() > 6)
 	{
-		if (CompareIC(table_config->getfield(6)->getname(), "PARTNO"))
+		if (CompareIC(table_config->getfield(6)->get_name(), "PARTNO"))
 		{
 			throw DetailedException("Ошибка тестирования. Седьмое поле таблицы CONFIG не PARTNO")
-				.add_detail("Поле", table_config->getfield(6)->getname());
+				.add_detail("Поле", table_config->getfield(6)->get_name());
 		}
 	}
 
@@ -660,48 +660,48 @@ bool T_1CD::test_stream_format()
 			.add_detail("Кол-во полей", table_configsave->get_numfields());
 	}
 
-	if (CompareIC(table_configsave->getfield(0)->getname(), "FILENAME"))
+	if (CompareIC(table_configsave->getfield(0)->get_name(), "FILENAME"))
 	{
 		throw DetailedException("Ошибка тестирования. Первое поле таблицы CONFIGSAVE не FILENAME")
-			.add_detail("Поле", table_configsave->getfield(0)->getname());
+			.add_detail("Поле", table_configsave->getfield(0)->get_name());
 	}
 
-	if (CompareIC(table_configsave->getfield(1)->getname(), "CREATION"))
+	if (CompareIC(table_configsave->getfield(1)->get_name(), "CREATION"))
 	{
 		throw DetailedException("Ошибка тестирования. Второе поле таблицы CONFIGSAVE не CREATION")
-			.add_detail("Поле", table_configsave->getfield(1)->getname());
+			.add_detail("Поле", table_configsave->getfield(1)->get_name());
 	}
 
-	if (CompareIC(table_configsave->getfield(2)->getname(), "MODIFIED"))
+	if (CompareIC(table_configsave->getfield(2)->get_name(), "MODIFIED"))
 	{
 		throw DetailedException("Ошибка тестирования. Третье поле таблицы CONFIGSAVE не MODIFIED")
-			.add_detail("Поле", table_configsave->getfield(2)->getname());
+			.add_detail("Поле", table_configsave->getfield(2)->get_name());
 	}
 
-	if (CompareIC(table_configsave->getfield(3)->getname(), "ATTRIBUTES"))
+	if (CompareIC(table_configsave->getfield(3)->get_name(), "ATTRIBUTES"))
 	{
 		throw DetailedException("Ошибка тестирования. Четвертое поле таблицы CONFIGSAVE не ATTRIBUTES")
-			.add_detail("Поле", table_configsave->getfield(3)->getname());
+			.add_detail("Поле", table_configsave->getfield(3)->get_name());
 	}
 
-	if (CompareIC(table_configsave->getfield(4)->getname(), "DATASIZE"))
+	if (CompareIC(table_configsave->getfield(4)->get_name(), "DATASIZE"))
 	{
 		throw DetailedException("Ошибка тестирования. Пятое поле таблицы CONFIGSAVE не DATASIZE")
-			.add_detail("Поле", table_configsave->getfield(4)->getname());
+			.add_detail("Поле", table_configsave->getfield(4)->get_name());
 	}
 
-	if (CompareIC(table_configsave->getfield(5)->getname(), "BINARYDATA"))
+	if (CompareIC(table_configsave->getfield(5)->get_name(), "BINARYDATA"))
 	{
 		throw DetailedException("Ошибка тестирования. Шестое поле таблицы CONFIGSAVE не BINARYDATA")
-			.add_detail("Поле", table_configsave->getfield(5)->getname());
+			.add_detail("Поле", table_configsave->getfield(5)->get_name());
 	}
 
 	if(table_configsave->get_numfields() > 6)
 	{
-		if (CompareIC(table_configsave->getfield(6)->getname(), "PARTNO"))
+		if (CompareIC(table_configsave->getfield(6)->get_name(), "PARTNO"))
 		{
 			throw DetailedException("Ошибка тестирования. Седьмое поле таблицы CONFIGSAVE не PARTNO")
-				.add_detail("Поле", table_configsave->getfield(6)->getname());
+				.add_detail("Поле", table_configsave->getfield(6)->get_name());
 		}
 	}
 
@@ -723,48 +723,48 @@ bool T_1CD::test_stream_format()
 			.add_detail("Кол-во полей", table_params->get_numfields());
 	}
 
-	if (CompareIC(table_params->getfield(0)->getname(), "FILENAME"))
+	if (CompareIC(table_params->getfield(0)->get_name(), "FILENAME"))
 	{
 		throw DetailedException("Ошибка тестирования. Первое поле таблицы PARAMS не FILENAME")
-			.add_detail("Поле", table_params->getfield(0)->getname());
+			.add_detail("Поле", table_params->getfield(0)->get_name());
 	}
 
-	if (CompareIC(table_params->getfield(1)->getname(), "CREATION"))
+	if (CompareIC(table_params->getfield(1)->get_name(), "CREATION"))
 	{
 		throw DetailedException("Ошибка тестирования. Второе поле таблицы PARAMS не CREATION")
-			.add_detail("Поле", table_params->getfield(1)->getname());
+			.add_detail("Поле", table_params->getfield(1)->get_name());
 	}
 
-	if (CompareIC(table_params->getfield(2)->getname(), "MODIFIED"))
+	if (CompareIC(table_params->getfield(2)->get_name(), "MODIFIED"))
 	{
 		throw DetailedException("Ошибка тестирования. Третье поле таблицы PARAMS не MODIFIED")
-			.add_detail("Поле", table_params->getfield(2)->getname());
+			.add_detail("Поле", table_params->getfield(2)->get_name());
 	}
 
-	if (CompareIC(table_params->getfield(3)->getname(), "ATTRIBUTES"))
+	if (CompareIC(table_params->getfield(3)->get_name(), "ATTRIBUTES"))
 	{
 		throw DetailedException("Ошибка тестирования. Четвертое поле таблицы PARAMS не ATTRIBUTES")
-			.add_detail("Поле", table_params->getfield(3)->getname());
+			.add_detail("Поле", table_params->getfield(3)->get_name());
 	}
 
-	if (CompareIC(table_params->getfield(4)->getname(), "DATASIZE"))
+	if (CompareIC(table_params->getfield(4)->get_name(), "DATASIZE"))
 	{
 		throw DetailedException("Ошибка тестирования. Пятое поле таблицы PARAMS не DATASIZE")
-			.add_detail("Поле", table_params->getfield(4)->getname());
+			.add_detail("Поле", table_params->getfield(4)->get_name());
 	}
 
-	if (CompareIC(table_params->getfield(5)->getname(), "BINARYDATA"))
+	if (CompareIC(table_params->getfield(5)->get_name(), "BINARYDATA"))
 	{
 		throw DetailedException("Ошибка тестирования. Шестое поле таблицы PARAMS не BINARYDATA")
-			.add_detail("Поле", table_params->getfield(5)->getname());
+			.add_detail("Поле", table_params->getfield(5)->get_name());
 	}
 
 	if(table_params->get_numfields() > 6)
 	{
-		if (CompareIC(table_params->getfield(6)->getname(), "PARTNO"))
+		if (CompareIC(table_params->getfield(6)->get_name(), "PARTNO"))
 		{
 			throw DetailedException("Ошибка тестирования. Седьмое поле таблицы PARAMS не PARTNO")
-				.add_detail("Поле", table_params->getfield(6)->getname());
+				.add_detail("Поле", table_params->getfield(6)->get_name());
 		}
 	}
 
@@ -788,48 +788,48 @@ bool T_1CD::test_stream_format()
 		return false;
 	}
 
-	if (CompareIC(table_files->getfield(0)->getname(), "FILENAME"))
+	if (CompareIC(table_files->getfield(0)->get_name(), "FILENAME"))
 	{
 		throw DetailedException("Ошибка тестирования. Первое поле таблицы FILES не FILENAME")
-			.add_detail("Поле", table_files->getfield(0)->getname());
+			.add_detail("Поле", table_files->getfield(0)->get_name());
 	}
 
-	if (CompareIC(table_files->getfield(1)->getname(), "CREATION"))
+	if (CompareIC(table_files->getfield(1)->get_name(), "CREATION"))
 	{
 		throw DetailedException("Ошибка тестирования. Второе поле таблицы FILES не CREATION")
-			.add_detail("Поле", table_files->getfield(1)->getname());
+			.add_detail("Поле", table_files->getfield(1)->get_name());
 	}
 
-	if (CompareIC(table_files->getfield(2)->getname(), "MODIFIED"))
+	if (CompareIC(table_files->getfield(2)->get_name(), "MODIFIED"))
 	{
 		throw DetailedException("Ошибка тестирования. Третье поле таблицы FILES не MODIFIED")
-			.add_detail("Поле", table_files->getfield(2)->getname());
+			.add_detail("Поле", table_files->getfield(2)->get_name());
 	}
 
-	if (CompareIC(table_files->getfield(3)->getname(), "ATTRIBUTES"))
+	if (CompareIC(table_files->getfield(3)->get_name(), "ATTRIBUTES"))
 	{
 		throw DetailedException("Ошибка тестирования. Четвертое поле таблицы FILES не ATTRIBUTES")
-			.add_detail("Поле", table_files->getfield(3)->getname());
+			.add_detail("Поле", table_files->getfield(3)->get_name());
 	}
 
-	if (CompareIC(table_files->getfield(4)->getname(), "DATASIZE"))
+	if (CompareIC(table_files->getfield(4)->get_name(), "DATASIZE"))
 	{
 		throw DetailedException("Ошибка тестирования. Пятое поле таблицы FILES не DATASIZE")
-			.add_detail("Поле", table_files->getfield(4)->getname());
+			.add_detail("Поле", table_files->getfield(4)->get_name());
 	}
 
-	if (CompareIC(table_files->getfield(5)->getname(), "BINARYDATA"))
+	if (CompareIC(table_files->getfield(5)->get_name(), "BINARYDATA"))
 	{
 		throw DetailedException("Ошибка тестирования. Шестое поле таблицы FILES не BINARYDATA")
-			.add_detail("Поле", table_files->getfield(5)->getname());
+			.add_detail("Поле", table_files->getfield(5)->get_name());
 	}
 
 	if(table_files->get_numfields() > 6)
 	{
-		if (CompareIC(table_files->getfield(6)->getname(), "PARTNO"))
+		if (CompareIC(table_files->getfield(6)->get_name(), "PARTNO"))
 		{
 			throw DetailedException("Ошибка тестирования. Седьмое поле таблицы FILES не PARTNO")
-				.add_detail("Поле", table_files->getfield(6)->getname());
+				.add_detail("Поле", table_files->getfield(6)->get_name());
 		}
 	}
 
@@ -845,10 +845,10 @@ bool T_1CD::test_stream_format()
 			.add_detail("Кол-во полей", table_dbschema->get_numfields());
 	}
 
-	if (CompareIC(table_dbschema->getfield(0)->getname(), "SERIALIZEDDATA"))
+	if (CompareIC(table_dbschema->getfield(0)->get_name(), "SERIALIZEDDATA"))
 	{
 		throw DetailedException("Ошибка тестирования. Первое поле таблицы DBSCHEMA не SERIALIZEDDATA")
-			.add_detail("Поле", table_dbschema->getfield(0)->getname());
+			.add_detail("Поле", table_dbschema->getfield(0)->get_name());
 	}
 
 	//================
@@ -1407,10 +1407,10 @@ bool T_1CD::test_list_of_tables()
 	}
 
 	for (int index = 0; i < params_fields.size(); i++) {
-		if (!EqualIC(table_params->getfield(i)->getname(), params_fields[i])) {
+		if (!EqualIC(table_params->getfield(i)->get_name(), params_fields[i])) {
 			DetailedException test_error("Ошибка тестирования: имя поля отличается от ожидаемого");
 			test_error.add_detail("Номер поля", i);
-			test_error.add_detail("Имя поля", table_params->getfield(0)->getname());
+			test_error.add_detail("Имя поля", table_params->getfield(0)->get_name());
 			test_error.add_detail("Ожидаемое имя поля", params_fields[i]);
 			throw test_error;
 		}
@@ -1640,14 +1640,14 @@ bool T_1CD::replaceTREF(const string &mapfile)
 		for (uint32_t j = 0; j < t->get_numfields(); j ++)
 		{
 			f = t->getfield(j);
-			string str = f->getname();
+			string str = f->get_name();
 			if (!EndsWithIC(str, "TREF")) {
 				continue;
 			}
 			if (f->gettype() != type_fields::tf_binary || f->getlength() != 4) {
 				continue;
 			}
-			msreg_m.Status(t->getname() + " : " + f->getname());
+			msreg_m.Status(t->getname() + " : " + f->get_name());
 			editsave = t->edit;
 			t->edit = true;
 			TableIterator it(t);

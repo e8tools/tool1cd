@@ -20,14 +20,15 @@ class TableRecord;
 
 class Field
 {
-friend Table;
-friend T_1CD;
 public:
 
-	Field(Table* _parent);
+	explicit Field(Table* _parent);
 
 	int32_t getlen() const; // возвращает длину поля в байтах
-	std::string getname() const;
+	int32_t get_len2() const; // TODO: Вменяемое объяснение почему используется 2 метода получения длины поля
+
+	std::string get_name() const;
+	void set_name(const std::string &value);
 
 	std::string get_presentation(
 			const char *rec,
@@ -49,6 +50,12 @@ public:
 	std::string get_presentation_type() const;
 	bool save_blob_to_file(const TableRecord *rec, const std::string &filename, bool unpack) const;
 	uint32_t getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen) const;
+
+	FieldType *get_type_manager() const;
+	void set_type_manager(FieldType *value);
+
+	int32_t get_offset() const;
+	void set_offset(const int32_t value);
 private:
 	std::string name;
 	type_fields type;

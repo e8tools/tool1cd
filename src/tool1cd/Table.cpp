@@ -284,8 +284,8 @@ void Table::init(int32_t block_descr)
 	if (recordlock && !has_version) {
 		// добавляем скрытое поле версии
 		Field *fld = new Field(this);
-		fld->name = "VERSION";
-		fld->type_manager = FieldType::Version8();
+		fld->set_name("VERSION");
+		fld->set_type_manager(FieldType::Version8());
 		fields.push_back(fld);
 	}
 
@@ -408,17 +408,19 @@ void Table::init(int32_t block_descr)
 	recordlen = 1; // первый байт записи - признак удаленности
 	// сначала идут поля (поле) с типом "версия"
 	for(int32_t i = 0; i < num_fields; i++) {
-		if (fields[i]->type_manager->gettype() == type_fields::tf_version
-			|| fields[i]->type_manager->gettype() == type_fields::tf_version8) {
-			fields[i]->offset = recordlen;
+		auto field_type = fields[i]->get_type_manager()->gettype();
+		if (field_type == type_fields::tf_version
+			|| field_type == type_fields::tf_version8) {
+			fields[i]->set_offset(recordlen);
 			recordlen += fields[i]->getlen();
 		}
 	}
 	// затем идут все остальные поля
 	for(int32_t i = 0; i < num_fields; i++) {
-		if (fields[i]->type_manager->gettype() != type_fields::tf_version
-			&& fields[i]->type_manager->gettype() != type_fields::tf_version8) {
-			fields[i]->offset = recordlen;
+		auto field_type = fields[i]->get_type_manager()->gettype();
+		if (field_type != type_fields::tf_version
+			&& field_type != type_fields::tf_version8) {
+			fields[i]->set_offset(recordlen);
 			recordlen += fields[i]->getlen();
 		}
 	}
@@ -889,7 +891,7 @@ bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool 
 	int image_count; // количество полей с типом image
 	for (auto field : fields) {
 		f.WriteString(fpart1);
-		f.WriteString(field->getname());
+		f.WriteString(field->get_name());
 		f.WriteString(fpart2);
 		f.WriteString(field->get_presentation_type());
 		f.WriteString(fpart3);
@@ -939,11 +941,11 @@ bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool 
 		for (auto field : fields) {
 			string outputvalue;
 			f.WriteString(rpart3);
-			f.WriteString(field->getname());
+			f.WriteString(field->get_name());
 
 			bool output_is_null = false;
 
-			if (blob_to_file && field->type_manager->gettype() == type_fields::tf_image) {
+			if (blob_to_file && field->get_type_manager()->gettype() == type_fields::tf_image) {
 				if(!dircreated) {
 					try
 					{
@@ -971,7 +973,7 @@ bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool 
 						if (outputvalue.size()) {
 							outputvalue += "_";
 						}
-						outputvalue += field->name;
+						outputvalue += field->get_name();
 					}
 					if(repeat_count)
 					{
@@ -1002,7 +1004,7 @@ bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool 
 				f.WriteString(">");
 				f.WriteString(outputvalue);
 				f.WriteString("</");
-				f.WriteString(field->getname());
+				f.WriteString(field->get_name());
 				f.WriteString(">\r\n");
 			}
 		}
@@ -1347,7 +1349,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 	{
 		rec = getrecord(phys_numrecord);
 		// TODO: Вменяемое сравнение в соответствии с типами
-		changed = memcmp(rec->get_raw(fld), fldvalue, fld->len) != 0;
+		changed = memcmp(rec->get_raw(fld), fldvalue, fld->get_len2()) != 0;
 	}
 
 	for(cr = ch_rec; cr; cr = cr->next) if(cr->numrec == phys_numrecord) break;
@@ -1369,7 +1371,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 
 	if(cr->fields[numfield]) if(tf == type_fields::tf_string || tf == type_fields::tf_text || tf == type_fields::tf_image)
 	{
-		ost = (TStream**)(editrec + fld->offset + (fld->getnull_exists() ? 1 : 0));
+		ost = (TStream**)(editrec + fld->get_offset() + (fld->getnull_exists() ? 1 : 0));
 		if(*ost != st)
 		{
 			delete *ost;
@@ -1379,7 +1381,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 
 	if(changed)
 	{
-		memcpy(editrec + fld->offset, fldvalue, fld->len);
+		memcpy(editrec + fld->get_offset(), fldvalue, fld->get_len2());
 		cr->fields[numfield] = 1;
 	}
 	else
@@ -1398,7 +1400,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 			}
 			delete cr;
 		}
-		else memcpy(editrec + fld->offset, fldvalue, fld->len);
+		else memcpy(editrec + fld->get_offset(), fldvalue, fld->get_len2());
 	}
 
 	delete[] rec;
@@ -1427,7 +1429,7 @@ void Table::restore_edit_value(uint32_t phys_numrecord, int32_t numfield)
 	{
 		if(tf == type_fields::tf_string || tf == type_fields::tf_text || tf == type_fields::tf_image)
 		{
-			ost = (TStream**)(cr->rec + fld->offset + (fld->getnull_exists() ? 1 : 0));
+			ost = (TStream**)(cr->rec + fld->get_offset() + (fld->getnull_exists() ? 1 : 0));
 			delete *ost;
 			*ost = nullptr;
 		}
@@ -1449,7 +1451,7 @@ void Table::restore_edit_value(uint32_t phys_numrecord, int32_t numfield)
 	}
 	else{
 		TableRecord *rec = getrecord(phys_numrecord);
-		memcpy(cr->rec + fld->offset, rec->get_raw(fld), fld->len);
+		memcpy(cr->rec + fld->get_offset(), rec->get_raw(fld), fld->get_len2());
 		delete rec;
 	}
 
@@ -1972,16 +1974,14 @@ void Table::end_edit()
 //---------------------------------------------------------------------------
 void Table::delete_record(uint32_t phys_numrecord)
 {
-	int32_t i;
-	type_fields tf;
 	TableRecord *rec = getrecord(phys_numrecord);
 
 	delete_index_record(phys_numrecord, rec);
 
-	for(i = 0; i < num_fields; i++)
+	for(int32_t i = 0; i < num_fields; i++)
 	{
 		Field *f = fields[i];
-		tf = f->type_manager->gettype();
+		auto tf = f->get_type_manager()->gettype();
 		if(tf == type_fields::tf_image || tf == type_fields::tf_string || tf == type_fields::tf_text)
 		{
 			auto bp = (const table_blob_file *)rec->get_raw(f);
@@ -2013,8 +2013,8 @@ void Table::insert_record(const TableRecord *nrec)
 	for (int i = 0; i < num_fields; i++)
 	{
 		Field *f = fields[i];
-		tf = f->type_manager->gettype();
-		offset = f->offset + (f->getnull_exists() ? 1 : 0);
+		tf = f->get_type_manager()->gettype();
+		offset = f->get_offset() + (f->getnull_exists() ? 1 : 0);
 		switch(tf)
 		{
 			case type_fields::tf_image:
@@ -2096,8 +2096,8 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 	{
 		table_blob_file new_blob = {0, 0};
 		Field *f = fields[i];
-		tf = f->type_manager->gettype();
-		offset = f->offset + (f->getnull_exists() ? 1 : 0);
+		tf = f->get_type_manager()->gettype();
+		offset = f->get_offset() + (f->getnull_exists() ? 1 : 0);
 		if(changed_fields[i])
 		{
 			if(tf == type_fields::tf_image || tf == type_fields::tf_string || tf == type_fields::tf_text)
@@ -2146,7 +2146,7 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 					}
 				}
 			}
-			else memcpy(orec + f->offset, rec + f->offset, f->len);
+			else memcpy(orec + f->get_offset(), rec + f->get_offset(), f->get_len2());
 		}
 		else
 		{
@@ -2243,8 +2243,8 @@ char* Table::get_record_template_test()
 				memset(curp, 1, BLOB_RECORD_LEN * 8);
 				break;
 			case type_fields::tf_datetime: // DT //7
-				if (EqualIC(f->getname(), "_DATE_TIME")) required = true;
-				else if (EqualIC(f->getname(), "_NUMBERPREFIX")) required = true;
+				if (EqualIC(f->get_name(), "_DATE_TIME")) required = true;
+				else if (EqualIC(f->get_name(), "_NUMBERPREFIX")) required = true;
 
 				memcpy(curp, DATE1_TEST_TEMPLATE, BLOB_RECORD_LEN);
 				curp += BLOB_RECORD_LEN;
@@ -2338,7 +2338,7 @@ std::string Table::get_file_name_for_field(int32_t num_field, char *rec, uint32_
 		if (!s.empty()) {
 			s += "_";
 		}
-		s += fields[num_field]->getname();
+		s += fields[num_field]->get_name();
 	}
 
 	return s;
@@ -2395,7 +2395,7 @@ Field* Table::find_field(const std::string &fieldname) const throw()
 {
 	for (int32_t j = 0; j < num_fields; j++) {
 		Field* fld = fields[j];
-		if (EqualIC(fld->getname(), fieldname)) {
+		if (EqualIC(fld->get_name(), fieldname)) {
 			return fld;
 		}
 	}

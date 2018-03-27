@@ -106,7 +106,7 @@ QVariant TableDataModel::headerData(int section, Qt::Orientation orientation, in
 {
 	if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
 		Field *f = table->getfield(section);
-		return QString::fromStdString(f->getname());
+		return QString::fromStdString(f->get_name());
 	}
 	return QVariant();
 }

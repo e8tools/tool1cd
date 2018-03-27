@@ -11,14 +11,14 @@
 NullValueException::NullValueException(const Field *field)
 	: DetailedException("Запрошенное значение равно NULL")
 {
-	add_detail("Поле", field->getname());
+	add_detail("Поле", field->get_name());
 	add_detail("Таблица", field->getparent()->getname());
 }
 
 FieldCannotBeNullException::FieldCannotBeNullException(const Field *field)
 	: DetailedException("Поле не может быть NULL")
 {
-	add_detail("Поле", field->getname());
+	add_detail("Поле", field->get_name());
 	add_detail("Таблица", field->getparent()->getname());
 }
 

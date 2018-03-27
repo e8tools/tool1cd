@@ -33,7 +33,7 @@ QVariant FieldsListModel::data(const QModelIndex &index, int role) const
 		Field *f = table->getfield(index.row());
 		switch (index.column()) {
 		case 0:
-			return QString::fromStdString(f->getname());
+			return QString::fromStdString(f->get_name());
 
 		case 1:
 			return QString::fromStdString(f->get_presentation_type());

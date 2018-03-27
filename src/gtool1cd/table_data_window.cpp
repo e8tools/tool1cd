@@ -20,7 +20,7 @@ QString index_presentation(Index *index)
 		if (i != 0) {
 			presentation += QString(", ");
 		}
-		presentation += QString::fromStdString(index->get_records()[i].field->getname());
+		presentation += QString::fromStdString(index->get_records()[i].field->get_name());
 	}
 	return presentation;
 }

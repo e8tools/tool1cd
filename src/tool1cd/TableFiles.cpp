@@ -144,55 +144,55 @@ bool TableFiles::test_table()
 			.add_detail("Кол-во полей", table->get_numfields());
 	}
 
-	if (CompareIC(table->getfield(0)->getname(), "FILENAME"))
+	if (CompareIC(table->getfield(0)->get_name(), "FILENAME"))
 	{
 		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Первое поле таблицы не FILENAME")
 			.add_detail("Таблица", table->getname())
-			.add_detail("Поле", table->getfield(0)->getname());
+			.add_detail("Поле", table->getfield(0)->get_name());
 	}
 
-	if (CompareIC(table->getfield(1)->getname(), "CREATION"))
+	if (CompareIC(table->getfield(1)->get_name(), "CREATION"))
 	{
 		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Второе поле таблицы не CREATION")
 			.add_detail("Таблица", table->getname())
-			.add_detail("Поле", table->getfield(1)->getname());
+			.add_detail("Поле", table->getfield(1)->get_name());
 	}
 
-	if (CompareIC(table->getfield(2)->getname(), "MODIFIED"))
+	if (CompareIC(table->getfield(2)->get_name(), "MODIFIED"))
 	{
 		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Третье поле таблицы не MODIFIED")
 			.add_detail("Таблица", table->getname())
-			.add_detail("Поле", table->getfield(2)->getname());
+			.add_detail("Поле", table->getfield(2)->get_name());
 	}
 
-	if (CompareIC(table->getfield(3)->getname(), "ATTRIBUTES"))
+	if (CompareIC(table->getfield(3)->get_name(), "ATTRIBUTES"))
 	{
 		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Четвертое поле таблицы не ATTRIBUTES")
 			.add_detail("Таблица", table->getname())
-			.add_detail("Поле", table->getfield(3)->getname());
+			.add_detail("Поле", table->getfield(3)->get_name());
 	}
 
-	if (CompareIC(table->getfield(4)->getname(), "DATASIZE"))
+	if (CompareIC(table->getfield(4)->get_name(), "DATASIZE"))
 	{
 		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Пятое поле таблицы не DATASIZE")
 			.add_detail("Таблица", table->getname())
-			.add_detail("Поле", table->getfield(4)->getname());
+			.add_detail("Поле", table->getfield(4)->get_name());
 	}
 
-	if (CompareIC(table->getfield(5)->getname(), "BINARYDATA"))
+	if (CompareIC(table->getfield(5)->get_name(), "BINARYDATA"))
 	{
 		throw DetailedException("Ошибка проверки таблицы контейнера файлов. Шестое поле таблицы не BINARYDATA")
 			.add_detail("Таблица", table->getname())
-			.add_detail("Поле", table->getfield(5)->getname());
+			.add_detail("Поле", table->getfield(5)->get_name());
 	}
 
 	if(table->get_numfields() > 6)
 	{
-		if (CompareIC(table->getfield(6)->getname(), "PARTNO"))
+		if (CompareIC(table->getfield(6)->get_name(), "PARTNO"))
 		{
 			throw DetailedException("Ошибка проверки таблицы контейнера файлов. Седьмое поле таблицы не PARTNO")
 				.add_detail("Таблица", table->getname())
-				.add_detail("Поле", table->getfield(6)->getname());
+				.add_detail("Поле", table->getfield(6)->get_name());
 		}
 	}
 	return true;

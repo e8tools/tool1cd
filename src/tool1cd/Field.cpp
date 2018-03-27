@@ -31,15 +31,25 @@ Field::Field(Table* _parent)
 }
 
 //---------------------------------------------------------------------------
-std::string Field::getname() const
+std::string Field::get_name() const
 {
 	return name;
+}
+
+void Field::set_name(const string &value)
+{
+	name = value;
 }
 
 //---------------------------------------------------------------------------
 int32_t Field::getlen() const // возвращает длину поля в байтах
 {
 	return (null_exists ? 1 : 0) + type_manager->getlen();
+}
+
+int32_t Field::get_len2() const
+{
+	return len;
 }
 
 //---------------------------------------------------------------------------
@@ -171,6 +181,26 @@ uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxl
 				.show();
 	}
 	return 0;
+}
+
+FieldType *Field::get_type_manager() const
+{
+	return type_manager;
+}
+
+void Field::set_type_manager(FieldType *value)
+{
+	type_manager = value;
+}
+
+int32_t Field::get_offset() const
+{
+	return offset;
+}
+
+void Field::set_offset(const int32_t value)
+{
+	offset = value;
 }
 
 //---------------------------------------------------------------------------
