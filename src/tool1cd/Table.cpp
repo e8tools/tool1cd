@@ -62,10 +62,10 @@ void changed_rec::clear()
 	if(rec && fields) for(i = 0; i < parent->num_fields; i++) if(fields[i])
 	{
 		f = parent->fields[i];
-		tf = f->gettype();
+		tf = f->get_type();
 		if(tf == type_fields::tf_image || tf == type_fields::tf_string || tf == type_fields::tf_text)
 		{
-			b = *(TStream**)(rec + f->get_offset() + (f->getnull_exists() ? 1 : 0));
+			b = *(TStream**)(rec + f->get_offset() + (f->get_null_exists() ? 1 : 0));
 			delete b;
 		}
 	}
@@ -895,14 +895,14 @@ bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool 
 		f.WriteString(fpart2);
 		f.WriteString(field->get_presentation_type());
 		f.WriteString(fpart3);
-		f.WriteString(to_string(field->getlength()));
+		f.WriteString(to_string(field->get_length()));
 		f.WriteString(fpart4);
-		f.WriteString(to_string(field->getprecision()));
+		f.WriteString(to_string(field->get_precision()));
 		f.WriteString(fpart6);
-		f.WriteString(((field->getnull_exists()) ? "false" : "true"));
+		f.WriteString(((field->get_null_exists()) ? "false" : "true"));
 		f.WriteString(fpart5);
 
-		if (field->gettype() == type_fields::tf_image) {
+		if (field->get_type() == type_fields::tf_image) {
 			image_count++;
 		}
 	}
@@ -1324,9 +1324,9 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 	if(!edit) return;
 
 	fld = fields[numfield];
-	tf = fld->gettype();
+	tf = fld->get_type();
 	if(tf == type_fields::tf_version || tf == type_fields::tf_version8) return;
-	if(null && !fld->getnull_exists()) return;
+	if(null && !fld->get_null_exists()) return;
 
 	fldvalue = new char[fld->get_size()];
 
@@ -1334,7 +1334,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 	{
 		memset(fldvalue, 0, fld->get_size());
 		k = fldvalue;
-		if(fld->getnull_exists())
+		if(fld->get_null_exists())
 		{
 			if(!null && st) *k = 1;
 			k++;
@@ -1371,7 +1371,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 
 	if(cr->fields[numfield]) if(tf == type_fields::tf_string || tf == type_fields::tf_text || tf == type_fields::tf_image)
 	{
-		ost = (TStream**)(editrec + fld->get_offset() + (fld->getnull_exists() ? 1 : 0));
+		ost = (TStream**)(editrec + fld->get_offset() + (fld->get_null_exists() ? 1 : 0));
 		if(*ost != st)
 		{
 			delete *ost;
@@ -1424,12 +1424,12 @@ void Table::restore_edit_value(uint32_t phys_numrecord, int32_t numfield)
 	if(cr->changed_type != changed_rec_type::changed) return;
 
 	fld = fields[numfield];
-	tf = fld->gettype();
+	tf = fld->get_type();
 	if(cr->fields[numfield])
 	{
 		if(tf == type_fields::tf_string || tf == type_fields::tf_text || tf == type_fields::tf_image)
 		{
-			ost = (TStream**)(cr->rec + fld->get_offset() + (fld->getnull_exists() ? 1 : 0));
+			ost = (TStream**)(cr->rec + fld->get_offset() + (fld->get_null_exists() ? 1 : 0));
 			delete *ost;
 			*ost = nullptr;
 		}
@@ -2014,7 +2014,7 @@ void Table::insert_record(const TableRecord *nrec)
 	{
 		Field *f = fields[i];
 		tf = f->get_type_manager()->gettype();
-		offset = f->get_offset() + (f->getnull_exists() ? 1 : 0);
+		offset = f->get_offset() + (f->get_null_exists() ? 1 : 0);
 		switch(tf)
 		{
 			case type_fields::tf_image:
@@ -2028,7 +2028,7 @@ void Table::insert_record(const TableRecord *nrec)
 					delete *st;
 					*st = nullptr;
 				}
-				if (bp.blob_start == 0 && f->getnull_exists()) {
+				if (bp.blob_start == 0 && f->get_null_exists()) {
 					rec->set_null(f);
 				} else {
 					rec->set_data(f, &bp);
@@ -2097,12 +2097,12 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 		table_blob_file new_blob = {0, 0};
 		Field *f = fields[i];
 		tf = f->get_type_manager()->gettype();
-		offset = f->get_offset() + (f->getnull_exists() ? 1 : 0);
+		offset = f->get_offset() + (f->get_null_exists() ? 1 : 0);
 		if(changed_fields[i])
 		{
 			if(tf == type_fields::tf_image || tf == type_fields::tf_string || tf == type_fields::tf_text)
 			{
-				if(f->getnull_exists())
+				if(f->get_null_exists())
 				{
 					if (orec->is_null_value(f))
 					{
@@ -2141,7 +2141,7 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 				}
 				orec->set_data(f, &new_blob);
 				if (new_blob.blob_start == 0) {
-					if (f->getnull_exists()) {
+					if (f->get_null_exists()) {
 						orec->set_null(f);
 					}
 				}
@@ -2191,15 +2191,15 @@ char* Table::get_record_template_test()
 		f = fields[i];
 		curp = res + (f->get_offset() << 8);
 
-		if(f->getnull_exists())
+		if(f->get_null_exists())
 		{
 			curp[0] = 1;
 			curp[1] = 1;
 			curp += BLOB_RECORD_LEN;
 		}
 
-		l = f->getlength();
-		switch(f->gettype())
+		l = f->get_length();
+		switch(f->get_type())
 		{
 			case type_fields::tf_binary: // B // длина = length
 				memset(curp, 1, BLOB_RECORD_LEN * l);

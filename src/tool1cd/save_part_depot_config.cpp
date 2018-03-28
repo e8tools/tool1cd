@@ -291,7 +291,7 @@ bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, i
 									}
 										if (memcmp(rech2->get_data(fldh_datahash)
 												, rech1->get_data(fldh_datahash)
-												, fldh_datahash->getlength()) == 0) {
+												, fldh_datahash->get_length()) == 0) {
 											changed = false;
 										}
 									}

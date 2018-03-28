@@ -1644,7 +1644,7 @@ bool T_1CD::replaceTREF(const string &mapfile)
 			if (!EndsWithIC(str, "TREF")) {
 				continue;
 			}
-			if (f->gettype() != type_fields::tf_binary || f->getlength() != 4) {
+			if (f->get_type() != type_fields::tf_binary || f->get_length() != 4) {
 				continue;
 			}
 			msreg_m.Status(t->getname() + " : " + f->get_name());

@@ -22,10 +22,10 @@ TEST_CASE( "Проверка разбора полей", "[tool1cd][Fields]" ) {
 			Field *fld = load_field(binary16);
 			THEN("Имеем верно разобранное поле") {
 				REQUIRE(fld->get_name() == "_IDRREF");
-				REQUIRE(fld->gettype() == type_fields::tf_binary);
-				REQUIRE(fld->getlength() == 16);
+				REQUIRE(fld->get_type() == type_fields::tf_binary);
+				REQUIRE(fld->get_length() == 16);
 				REQUIRE(fld->get_size() == 16);
-				REQUIRE(fld->getnull_exists() == false);
+				REQUIRE(fld->get_null_exists() == false);
 			}
 		}
 	}
@@ -36,10 +36,10 @@ TEST_CASE( "Проверка разбора полей", "[tool1cd][Fields]" ) {
 			Field *fld = load_field(binary16);
 			THEN("Имеем верно разобранное поле") {
 				REQUIRE(fld->get_name() == "_DATA");
-				REQUIRE(fld->gettype() == type_fields::tf_binary);
-				REQUIRE(fld->getlength() == 40);
+				REQUIRE(fld->get_type() == type_fields::tf_binary);
+				REQUIRE(fld->get_length() == 40);
 				REQUIRE(fld->get_size() == 41);
-				REQUIRE(fld->getnull_exists() == true);
+				REQUIRE(fld->get_null_exists() == true);
 			}
 		}
 	}
@@ -50,8 +50,8 @@ TEST_CASE( "Проверка разбора полей", "[tool1cd][Fields]" ) {
 			Field *fld = load_field(version);
 			THEN("Имеем верно разобранное поле") {
 				REQUIRE(fld->get_name() == "_VERSION");
-				REQUIRE(fld->gettype() == type_fields::tf_version);
-				REQUIRE(fld->getnull_exists() == false);
+				REQUIRE(fld->get_type() == type_fields::tf_version);
+				REQUIRE(fld->get_null_exists() == false);
 			}
 		}
 	}

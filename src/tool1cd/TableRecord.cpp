@@ -12,14 +12,14 @@ NullValueException::NullValueException(const Field *field)
 	: DetailedException("Запрошенное значение равно NULL")
 {
 	add_detail("Поле", field->get_name());
-	add_detail("Таблица", field->getparent()->getname());
+	add_detail("Таблица", field->get_parent()->getname());
 }
 
 FieldCannotBeNullException::FieldCannotBeNullException(const Field *field)
 	: DetailedException("Поле не может быть NULL")
 {
 	add_detail("Поле", field->get_name());
-	add_detail("Таблица", field->getparent()->getname());
+	add_detail("Таблица", field->get_parent()->getname());
 }
 
 TableRecord::TableRecord(const Table *parent, char *data, int data_size)
@@ -64,7 +64,7 @@ std::string TableRecord::get_string(const std::string &field_name) const
 
 bool TableRecord::is_null_value(const Field *field) const
 {
-	if (!field->getnull_exists()) {
+	if (!field->get_null_exists()) {
 		return false;
 	}
 	return data[field->get_offset()] == '\0';
@@ -93,12 +93,12 @@ const char *TableRecord::get_raw(const std::string &field_name) const
 
 const char *TableRecord::get_data(const Field *field) const
 {
-	return &data[field->get_offset() + (field->getnull_exists() ? 1 : 0)];
+	return &data[field->get_offset() + (field->get_null_exists() ? 1 : 0)];
 }
 
 char *TableRecord::__get_data(const Field *field)
 {
-	return &data[field->get_offset() + (field->getnull_exists() ? 1 : 0)];
+	return &data[field->get_offset() + (field->get_null_exists() ? 1 : 0)];
 }
 
 
@@ -124,7 +124,7 @@ void TableRecord::Assign(const TableRecord *another_record)
 
 void TableRecord::set_null(const Field *field)
 {
-	if (!field->getnull_exists()) {
+	if (!field->get_null_exists()) {
 		throw FieldCannotBeNullException(field);
 	}
 	data[field->get_offset()] = '\0';
@@ -133,7 +133,7 @@ void TableRecord::set_null(const Field *field)
 void TableRecord::set_data(const Field *field, const void *new_data)
 {
 	char *data_start = &data[field->get_offset()];
-	if (field->getnull_exists()) {
+	if (field->get_null_exists()) {
 		data_start[0] = '\001';
 		data_start++;
 	}

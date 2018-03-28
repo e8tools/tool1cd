@@ -51,13 +51,13 @@ QVariant TableDataModel::data(const QModelIndex &index, int role) const
 		}
 
 		bool is_blob = false;
-		if (f->gettype() == type_fields::tf_string) {
+		if (f->get_type() == type_fields::tf_string) {
 			is_blob = true;
 		}
-		if (f->gettype() == type_fields::tf_text) {
+		if (f->get_type() == type_fields::tf_text) {
 			is_blob = true;
 		}
-		if (f->gettype() == type_fields::tf_image) {
+		if (f->get_type() == type_fields::tf_image) {
 			is_blob = true;
 		}
 
@@ -74,7 +74,7 @@ QVariant TableDataModel::data(const QModelIndex &index, int role) const
 			}
 			TMemoryStream *mem = new TMemoryStream;
 			mem->CopyFrom(data_stream, 0);
-			if (f->gettype() == type_fields::tf_image) {
+			if (f->get_type() == type_fields::tf_image) {
 				return QString::fromStdString(TEncoding::UTF8->toUtf8(mem->GetBytes()));
 			} else {
 				return QString::fromStdString(TEncoding::Unicode->toUtf8(mem->GetBytes()));
@@ -94,7 +94,7 @@ QVariant TableDataModel::data(const QModelIndex &index, int role) const
 	}
 	if (role == Qt::TextAlignmentRole) {
 		Field *f = table->getfield(index.column());
-		if (f->gettype() == type_fields::tf_numeric) {
+		if (f->get_type() == type_fields::tf_numeric) {
 			return Qt::AlignRight + Qt::AlignVCenter;
 		}
 	}
@@ -131,14 +131,14 @@ void TableDataModel::dumpBlob(const QModelIndex &index, const QString &filename)
 bool TableDataModel::isBlobValue(const QModelIndex &index) const
 {
 	Field *f = table->getfield(index.column());
-	return f->gettype() == type_fields::tf_image;
+	return f->get_type() == type_fields::tf_image;
 }
 
 bool TableDataModel::isClobValue(const QModelIndex &index) const
 {
 	Field *f = table->getfield(index.column());
-	return f->gettype() == type_fields::tf_string
-	        || f->gettype() == type_fields::tf_text;
+	return f->get_type() == type_fields::tf_string
+	        || f->get_type() == type_fields::tf_text;
 }
 
 V8Catalog *TableDataModel::getCatalog(const QModelIndex &index) const

@@ -51,7 +51,7 @@ std::string Field::get_presentation(const char *rec, bool EmptyNull, wchar_t Del
 									bool detailed) const
 {
 	const char* fr = rec + offset;
-	if (getnull_exists()) {
+	if (get_null_exists()) {
 		if (fr[0] == 0) {
 			return EmptyNull ? "" : "{NULL}";
 		}
@@ -92,37 +92,37 @@ std::string Field::get_XML_presentation(const char *rec, bool ignore_showGUID) c
 }
 
 //---------------------------------------------------------------------------
-type_fields Field::gettype() const
+type_fields Field::get_type() const
 {
 	return type_manager->gettype();
 }
 
 //---------------------------------------------------------------------------
-Table* Field::getparent() const
+Table* Field::get_parent() const
 {
 	return parent;
 }
 
 //---------------------------------------------------------------------------
-bool Field::getnull_exists() const
+bool Field::get_null_exists() const
 {
 	return null_exists;
 }
 
 //---------------------------------------------------------------------------
-int32_t Field::getlength() const
+int32_t Field::get_length() const
 {
 	return type_manager->getlength();
 }
 
 //---------------------------------------------------------------------------
-int32_t Field::getprecision() const
+int32_t Field::get_precision() const
 {
 	return type_manager->getprecision();
 }
 
 //---------------------------------------------------------------------------
-bool Field::getcase_sensitive() const
+bool Field::get_case_sensitive() const
 {
 	return type_manager->getcase_sensitive();
 }
@@ -144,7 +144,7 @@ std::string TrimSpacesRight(const std::string &s)
 }
 
 //---------------------------------------------------------------------------
-uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen) const
+uint32_t Field::get_sort_key(const char* rec, unsigned char* SortKey, int32_t maxlen) const
 {
 	const char *fr = rec + offset;
 	if (null_exists) {

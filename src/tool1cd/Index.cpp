@@ -597,7 +597,7 @@ void Index::calcRecordIndex(const TableRecord *rec, char *indexBuf)
 {
 	int32_t index_buf_size = length;
 	for( const auto& record : records) {
-		uint32_t k = record.field->getSortKey(rec->get_raw(record.field), (unsigned char *)indexBuf, index_buf_size);
+		uint32_t k = record.field->get_sort_key(rec->get_raw(record.field), (unsigned char *)indexBuf, index_buf_size);
 		indexBuf += k;
 		index_buf_size -= k;
 	}
