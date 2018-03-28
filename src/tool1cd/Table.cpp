@@ -379,7 +379,7 @@ void Table::init(int32_t block_descr)
 								.add_detail("Номер индекса", i)
 								.add_detail("Смещение индекса", to_hex_string(buf[i]));
 						}
-						indexes[i - 1]->start_offset(buf[i]);
+						indexes[i - 1]->set_start_offset(buf[i]);
 					}
 					else
 					{
@@ -393,7 +393,7 @@ void Table::init(int32_t block_descr)
 								.add_detail("Номер индекса", i)
 								.add_detail("Смещение индекса", s);
 						}
-						indexes[i - 1]->start_offset(s);
+						indexes[i - 1]->set_start_offset(s);
 					}
 				}
 			}
@@ -2420,7 +2420,7 @@ Index* Table::find_index(const std::string &indexname) const throw()
 {
 	for (int32_t j = 0; j < num_indexes; j++) {
 		Index* ind = indexes[j];
-		if (EqualIC(ind->getname(), indexname)) {
+		if (EqualIC(ind->get_name(), indexname)) {
 			return ind;
 		}
 	}

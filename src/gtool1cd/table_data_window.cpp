@@ -14,7 +14,7 @@
 
 QString index_presentation(Index *index)
 {
-	QString presentation = QString::fromStdString(index->getname());
+	QString presentation = QString::fromStdString(index->get_name());
 	presentation += QString(": ");
 	for (int i = 0; i < index->get_num_records(); i++) {
 		if (i != 0) {
@@ -56,7 +56,7 @@ TableDataWindow::TableDataWindow(QWidget *parent, Table *table)
 		if (index == nullptr) {
 			continue;
 		}
-		ui->indexChooseBox->addItem(index_presentation(index), QString::fromStdString(index->getname()));
+		ui->indexChooseBox->addItem(index_presentation(index), QString::fromStdString(index->get_name()));
 	}
 
 	connect(ui->dataView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),

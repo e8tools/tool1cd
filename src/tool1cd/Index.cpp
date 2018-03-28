@@ -35,7 +35,7 @@ Index::~Index()
 }
 
 //---------------------------------------------------------------------------
-string Index::getname() const
+string Index::get_name() const
 {
 	return name;
 }
@@ -329,7 +329,7 @@ uint64_t Index::get_start_offset() const
 	return start;
 }
 
-void Index::start_offset(const uint64_t value)
+void Index::set_start_offset(const uint64_t value)
 {
 	start = value;
 }

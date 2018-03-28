@@ -84,7 +84,7 @@ public:
 	explicit Index(Table* _base);
 	~Index();
 
-	std::string getname() const;
+	std::string get_name() const;
 	size_t get_num_records() const; // получить количество полей в индексе
 	std::vector<IndexRecord>& get_records();
 
@@ -98,7 +98,7 @@ public:
 	uint32_t get_length() const;
 
 	uint64_t get_start_offset() const;
-	void start_offset(const uint64_t value);
+	void set_start_offset(const uint64_t value);
 
 	// распаковывает одну страницу-лист индексов
 	// возвращает массив структур unpack_index_record. Количество элементов массива возвращается в number_indexes
