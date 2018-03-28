@@ -12,14 +12,14 @@ NullValueException::NullValueException(const Field *field)
 	: DetailedException("Запрошенное значение равно NULL")
 {
 	add_detail("Поле", field->get_name());
-	add_detail("Таблица", field->get_parent()->getname());
+	add_detail("Таблица", field->get_parent()->get_name());
 }
 
 FieldCannotBeNullException::FieldCannotBeNullException(const Field *field)
 	: DetailedException("Поле не может быть NULL")
 {
 	add_detail("Поле", field->get_name());
-	add_detail("Таблица", field->get_parent()->getname());
+	add_detail("Таблица", field->get_parent()->get_name());
 }
 
 TableRecord::TableRecord(const Table *parent, char *data, int data_size)
@@ -112,8 +112,8 @@ void TableRecord::Assign(const TableRecord *another_record)
 	if (table != nullptr) {
 		if (another_record->data_size != data_size || another_record->table != table) {
 			throw DetailedException("Попытка передать данные между записями разных таблиц!")
-					.add_detail("Таблица-приёмник", table->getname())
-					.add_detail("Таблица-источник", another_record->table->getname());
+					.add_detail("Таблица-приёмник", table->get_name())
+					.add_detail("Таблица-источник", another_record->table->get_name());
 		}
 	}
 	auto i = data_size;

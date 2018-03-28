@@ -58,7 +58,7 @@ QVariant TablesListModel::data(const QModelIndex &index, int role) const
 		Table *t = db->get_table(index.row());
 		switch (index.column()) {
 		case 0:
-			return QVariant::fromValue(QString::fromStdString(t->getname()));
+			return QVariant::fromValue(QString::fromStdString(t->get_name()));
 
 		case 1:
 			return QVariant::fromValue(t->get_recordlen());

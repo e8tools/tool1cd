@@ -31,7 +31,7 @@ TableDataWindow::TableDataWindow(QWidget *parent, Table *table)
       tableWindow(nullptr)
 {
 	ui->setupUi(this);
-	setWindowTitle(QString::fromStdString(table->getname()));
+	setWindowTitle(QString::fromStdString(table->get_name()));
 	ui->dataView->setModel(new TableDataModel(table));
 
 	hexedit = new QHexEdit();
@@ -43,7 +43,7 @@ TableDataWindow::TableDataWindow(QWidget *parent, Table *table)
 	indexes.push_back(nullptr); // PK
 
 	for (int i = 0; i < table->get_numindexes(); i++) {
-		Index *index = table->getindex(i);
+		Index *index = table->get_index(i);
 		if (index->is_primary() && indexes[0] == nullptr) {
 			indexes[0] = index;
 		} else {
@@ -72,8 +72,8 @@ TableDataWindow::~TableDataWindow()
 void TableDataWindow::on_descriptionButton_clicked()
 {
 	SkobkaTextWindow *w = new SkobkaTextWindow(this);
-	w->setText(QString::fromStdString(table->getdescription()),
-	           QString::fromStdString(table->getname()));
+	w->setText(QString::fromStdString(table->get_description()),
+	           QString::fromStdString(table->get_name()));
 	w->show();
 }
 

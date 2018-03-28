@@ -8,7 +8,7 @@ TableFieldsWindow::TableFieldsWindow(QWidget *parent, Table *table)
       ui(new Ui::TableFieldsWindow)
 {
 	ui->setupUi(this);
-	setWindowTitle(QString::fromStdString(table->getname()));
+	setWindowTitle(QString::fromStdString(table->get_name()));
 	ui->fieldsView->setModel(new FieldsListModel(table));
 }
 

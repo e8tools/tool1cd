@@ -24,7 +24,7 @@ void TableIterator::find_first_not_removed()
 			return;
 		}
 
-		table->getrecord(phys_record_num, buf);
+		table->get_record(phys_record_num, buf);
 		if (!_current_record.is_removed()) {
 			return;
 		}
@@ -80,7 +80,7 @@ void IndexedTableIterator::find_first_not_removed()
 			return;
 		}
 
-		table->getrecord(phys_record_num, buf);
+		table->get_record(phys_record_num, buf);
 		if (!_current_record.is_removed()) {
 			return;
 		}

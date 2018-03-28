@@ -368,25 +368,25 @@ T_1CD::T_1CD(const string &_filename, MessageRegistrator *mess, bool _monopoly)
 			delete tables[j];
 			continue;
 		}
-		if(!CompareIC(tables[j]->getname(), "CONFIG")) table_config = tables[j];
-		if(!CompareIC(tables[j]->getname(), "CONFIGSAVE")) table_configsave = tables[j];
-		if(!CompareIC(tables[j]->getname(), "PARAMS")) table_params = tables[j];
-		if(!CompareIC(tables[j]->getname(), "FILES")) table_files = tables[j];
-		if(!CompareIC(tables[j]->getname(), "DBSCHEMA")) table_dbschema = tables[j];
-		if(!CompareIC(tables[j]->getname(), "CONFIGCAS")) table_configcas = tables[j];
-		if(!CompareIC(tables[j]->getname(), "CONFIGCASSAVE")) table_configcassave = tables[j];
-		if(!CompareIC(tables[j]->getname(), "_EXTENSIONSINFO")) table__extensionsinfo = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "CONFIG")) table_config = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "CONFIGSAVE")) table_configsave = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "PARAMS")) table_params = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "FILES")) table_files = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "DBSCHEMA")) table_dbschema = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "CONFIGCAS")) table_configcas = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "CONFIGCASSAVE")) table_configcassave = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "_EXTENSIONSINFO")) table__extensionsinfo = tables[j];
 
-		if(!CompareIC(tables[j]->getname(), "DEPOT")) table_depot = tables[j];
-		if(!CompareIC(tables[j]->getname(), "USERS")) table_users = tables[j];
-		if(!CompareIC(tables[j]->getname(), "OBJECTS")) table_objects = tables[j];
-		if(!CompareIC(tables[j]->getname(), "VERSIONS")) table_versions = tables[j];
-		if(!CompareIC(tables[j]->getname(), "LABELS")) table_labels = tables[j];
-		if(!CompareIC(tables[j]->getname(), "HISTORY")) table_history = tables[j];
-		if(!CompareIC(tables[j]->getname(), "LASTESTVERSIONS")) table_lastestversions = tables[j];
-		if(!CompareIC(tables[j]->getname(), "EXTERNALS")) table_externals = tables[j];
-		if(!CompareIC(tables[j]->getname(), "SELFREFS")) table_selfrefs = tables[j];
-		if(!CompareIC(tables[j]->getname(), "OUTREFS")) table_outrefs = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "DEPOT")) table_depot = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "USERS")) table_users = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "OBJECTS")) table_objects = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "VERSIONS")) table_versions = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "LABELS")) table_labels = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "HISTORY")) table_history = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "LASTESTVERSIONS")) table_lastestversions = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "EXTERNALS")) table_externals = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "SELFREFS")) table_selfrefs = tables[j];
+		if(!CompareIC(tables[j]->get_name(), "OUTREFS")) table_outrefs = tables[j];
 
 		if(j % 10 == 0) msreg_m.Status(string("Чтение таблиц ") + to_string(j));
 		j++;
@@ -607,48 +607,48 @@ bool T_1CD::test_stream_format()
 			.add_detail("Кол-во полей", table_config->get_numfields());
 	}
 
-	if (CompareIC(table_config->getfield(0)->get_name(), "FILENAME"))
+	if (CompareIC(table_config->get_field(0)->get_name(), "FILENAME"))
 	{
 		throw DetailedException("Ошибка тестирования. Первое поле таблицы CONFIG не FILENAME")
-			.add_detail("Поле", table_config->getfield(0)->get_name());
+			.add_detail("Поле", table_config->get_field(0)->get_name());
 	}
 
-	if (CompareIC(table_config->getfield(1)->get_name(), "CREATION"))
+	if (CompareIC(table_config->get_field(1)->get_name(), "CREATION"))
 	{
 		throw DetailedException("Ошибка тестирования. Второе поле таблицы CONFIG не CREATION")
-			.add_detail("Поле", table_config->getfield(1)->get_name());
+			.add_detail("Поле", table_config->get_field(1)->get_name());
 	}
 
-	if (CompareIC(table_config->getfield(2)->get_name(), "MODIFIED"))
+	if (CompareIC(table_config->get_field(2)->get_name(), "MODIFIED"))
 	{
 		throw DetailedException("Ошибка тестирования. Третье поле таблицы CONFIG не MODIFIED")
-			.add_detail("Поле", table_config->getfield(2)->get_name());
+			.add_detail("Поле", table_config->get_field(2)->get_name());
 	}
 
-	if (CompareIC(table_config->getfield(3)->get_name(), "ATTRIBUTES"))
+	if (CompareIC(table_config->get_field(3)->get_name(), "ATTRIBUTES"))
 	{
 		throw DetailedException("Ошибка тестирования. Четвертое поле таблицы CONFIG не ATTRIBUTES")
-			.add_detail("Поле", table_config->getfield(3)->get_name());
+			.add_detail("Поле", table_config->get_field(3)->get_name());
 	}
 
-	if (CompareIC(table_config->getfield(4)->get_name(), "DATASIZE"))
+	if (CompareIC(table_config->get_field(4)->get_name(), "DATASIZE"))
 	{
 		throw DetailedException("Ошибка тестирования. Пятое поле таблицы CONFIG не DATASIZE")
-			.add_detail("Поле", table_config->getfield(4)->get_name());
+			.add_detail("Поле", table_config->get_field(4)->get_name());
 	}
 
-	if (CompareIC(table_config->getfield(5)->get_name(), "BINARYDATA"))
+	if (CompareIC(table_config->get_field(5)->get_name(), "BINARYDATA"))
 	{
 		throw DetailedException("Ошибка тестирования. Шестое поле таблицы CONFIG не BINARYDATA")
-			.add_detail("Поле", table_config->getfield(5)->get_name());
+			.add_detail("Поле", table_config->get_field(5)->get_name());
 	}
 
 	if(table_config->get_numfields() > 6)
 	{
-		if (CompareIC(table_config->getfield(6)->get_name(), "PARTNO"))
+		if (CompareIC(table_config->get_field(6)->get_name(), "PARTNO"))
 		{
 			throw DetailedException("Ошибка тестирования. Седьмое поле таблицы CONFIG не PARTNO")
-				.add_detail("Поле", table_config->getfield(6)->get_name());
+				.add_detail("Поле", table_config->get_field(6)->get_name());
 		}
 	}
 
@@ -670,48 +670,48 @@ bool T_1CD::test_stream_format()
 			.add_detail("Кол-во полей", table_configsave->get_numfields());
 	}
 
-	if (CompareIC(table_configsave->getfield(0)->get_name(), "FILENAME"))
+	if (CompareIC(table_configsave->get_field(0)->get_name(), "FILENAME"))
 	{
 		throw DetailedException("Ошибка тестирования. Первое поле таблицы CONFIGSAVE не FILENAME")
-			.add_detail("Поле", table_configsave->getfield(0)->get_name());
+			.add_detail("Поле", table_configsave->get_field(0)->get_name());
 	}
 
-	if (CompareIC(table_configsave->getfield(1)->get_name(), "CREATION"))
+	if (CompareIC(table_configsave->get_field(1)->get_name(), "CREATION"))
 	{
 		throw DetailedException("Ошибка тестирования. Второе поле таблицы CONFIGSAVE не CREATION")
-			.add_detail("Поле", table_configsave->getfield(1)->get_name());
+			.add_detail("Поле", table_configsave->get_field(1)->get_name());
 	}
 
-	if (CompareIC(table_configsave->getfield(2)->get_name(), "MODIFIED"))
+	if (CompareIC(table_configsave->get_field(2)->get_name(), "MODIFIED"))
 	{
 		throw DetailedException("Ошибка тестирования. Третье поле таблицы CONFIGSAVE не MODIFIED")
-			.add_detail("Поле", table_configsave->getfield(2)->get_name());
+			.add_detail("Поле", table_configsave->get_field(2)->get_name());
 	}
 
-	if (CompareIC(table_configsave->getfield(3)->get_name(), "ATTRIBUTES"))
+	if (CompareIC(table_configsave->get_field(3)->get_name(), "ATTRIBUTES"))
 	{
 		throw DetailedException("Ошибка тестирования. Четвертое поле таблицы CONFIGSAVE не ATTRIBUTES")
-			.add_detail("Поле", table_configsave->getfield(3)->get_name());
+			.add_detail("Поле", table_configsave->get_field(3)->get_name());
 	}
 
-	if (CompareIC(table_configsave->getfield(4)->get_name(), "DATASIZE"))
+	if (CompareIC(table_configsave->get_field(4)->get_name(), "DATASIZE"))
 	{
 		throw DetailedException("Ошибка тестирования. Пятое поле таблицы CONFIGSAVE не DATASIZE")
-			.add_detail("Поле", table_configsave->getfield(4)->get_name());
+			.add_detail("Поле", table_configsave->get_field(4)->get_name());
 	}
 
-	if (CompareIC(table_configsave->getfield(5)->get_name(), "BINARYDATA"))
+	if (CompareIC(table_configsave->get_field(5)->get_name(), "BINARYDATA"))
 	{
 		throw DetailedException("Ошибка тестирования. Шестое поле таблицы CONFIGSAVE не BINARYDATA")
-			.add_detail("Поле", table_configsave->getfield(5)->get_name());
+			.add_detail("Поле", table_configsave->get_field(5)->get_name());
 	}
 
 	if(table_configsave->get_numfields() > 6)
 	{
-		if (CompareIC(table_configsave->getfield(6)->get_name(), "PARTNO"))
+		if (CompareIC(table_configsave->get_field(6)->get_name(), "PARTNO"))
 		{
 			throw DetailedException("Ошибка тестирования. Седьмое поле таблицы CONFIGSAVE не PARTNO")
-				.add_detail("Поле", table_configsave->getfield(6)->get_name());
+				.add_detail("Поле", table_configsave->get_field(6)->get_name());
 		}
 	}
 
@@ -733,48 +733,48 @@ bool T_1CD::test_stream_format()
 			.add_detail("Кол-во полей", table_params->get_numfields());
 	}
 
-	if (CompareIC(table_params->getfield(0)->get_name(), "FILENAME"))
+	if (CompareIC(table_params->get_field(0)->get_name(), "FILENAME"))
 	{
 		throw DetailedException("Ошибка тестирования. Первое поле таблицы PARAMS не FILENAME")
-			.add_detail("Поле", table_params->getfield(0)->get_name());
+			.add_detail("Поле", table_params->get_field(0)->get_name());
 	}
 
-	if (CompareIC(table_params->getfield(1)->get_name(), "CREATION"))
+	if (CompareIC(table_params->get_field(1)->get_name(), "CREATION"))
 	{
 		throw DetailedException("Ошибка тестирования. Второе поле таблицы PARAMS не CREATION")
-			.add_detail("Поле", table_params->getfield(1)->get_name());
+			.add_detail("Поле", table_params->get_field(1)->get_name());
 	}
 
-	if (CompareIC(table_params->getfield(2)->get_name(), "MODIFIED"))
+	if (CompareIC(table_params->get_field(2)->get_name(), "MODIFIED"))
 	{
 		throw DetailedException("Ошибка тестирования. Третье поле таблицы PARAMS не MODIFIED")
-			.add_detail("Поле", table_params->getfield(2)->get_name());
+			.add_detail("Поле", table_params->get_field(2)->get_name());
 	}
 
-	if (CompareIC(table_params->getfield(3)->get_name(), "ATTRIBUTES"))
+	if (CompareIC(table_params->get_field(3)->get_name(), "ATTRIBUTES"))
 	{
 		throw DetailedException("Ошибка тестирования. Четвертое поле таблицы PARAMS не ATTRIBUTES")
-			.add_detail("Поле", table_params->getfield(3)->get_name());
+			.add_detail("Поле", table_params->get_field(3)->get_name());
 	}
 
-	if (CompareIC(table_params->getfield(4)->get_name(), "DATASIZE"))
+	if (CompareIC(table_params->get_field(4)->get_name(), "DATASIZE"))
 	{
 		throw DetailedException("Ошибка тестирования. Пятое поле таблицы PARAMS не DATASIZE")
-			.add_detail("Поле", table_params->getfield(4)->get_name());
+			.add_detail("Поле", table_params->get_field(4)->get_name());
 	}
 
-	if (CompareIC(table_params->getfield(5)->get_name(), "BINARYDATA"))
+	if (CompareIC(table_params->get_field(5)->get_name(), "BINARYDATA"))
 	{
 		throw DetailedException("Ошибка тестирования. Шестое поле таблицы PARAMS не BINARYDATA")
-			.add_detail("Поле", table_params->getfield(5)->get_name());
+			.add_detail("Поле", table_params->get_field(5)->get_name());
 	}
 
 	if(table_params->get_numfields() > 6)
 	{
-		if (CompareIC(table_params->getfield(6)->get_name(), "PARTNO"))
+		if (CompareIC(table_params->get_field(6)->get_name(), "PARTNO"))
 		{
 			throw DetailedException("Ошибка тестирования. Седьмое поле таблицы PARAMS не PARTNO")
-				.add_detail("Поле", table_params->getfield(6)->get_name());
+				.add_detail("Поле", table_params->get_field(6)->get_name());
 		}
 	}
 
@@ -798,48 +798,48 @@ bool T_1CD::test_stream_format()
 		return false;
 	}
 
-	if (CompareIC(table_files->getfield(0)->get_name(), "FILENAME"))
+	if (CompareIC(table_files->get_field(0)->get_name(), "FILENAME"))
 	{
 		throw DetailedException("Ошибка тестирования. Первое поле таблицы FILES не FILENAME")
-			.add_detail("Поле", table_files->getfield(0)->get_name());
+			.add_detail("Поле", table_files->get_field(0)->get_name());
 	}
 
-	if (CompareIC(table_files->getfield(1)->get_name(), "CREATION"))
+	if (CompareIC(table_files->get_field(1)->get_name(), "CREATION"))
 	{
 		throw DetailedException("Ошибка тестирования. Второе поле таблицы FILES не CREATION")
-			.add_detail("Поле", table_files->getfield(1)->get_name());
+			.add_detail("Поле", table_files->get_field(1)->get_name());
 	}
 
-	if (CompareIC(table_files->getfield(2)->get_name(), "MODIFIED"))
+	if (CompareIC(table_files->get_field(2)->get_name(), "MODIFIED"))
 	{
 		throw DetailedException("Ошибка тестирования. Третье поле таблицы FILES не MODIFIED")
-			.add_detail("Поле", table_files->getfield(2)->get_name());
+			.add_detail("Поле", table_files->get_field(2)->get_name());
 	}
 
-	if (CompareIC(table_files->getfield(3)->get_name(), "ATTRIBUTES"))
+	if (CompareIC(table_files->get_field(3)->get_name(), "ATTRIBUTES"))
 	{
 		throw DetailedException("Ошибка тестирования. Четвертое поле таблицы FILES не ATTRIBUTES")
-			.add_detail("Поле", table_files->getfield(3)->get_name());
+			.add_detail("Поле", table_files->get_field(3)->get_name());
 	}
 
-	if (CompareIC(table_files->getfield(4)->get_name(), "DATASIZE"))
+	if (CompareIC(table_files->get_field(4)->get_name(), "DATASIZE"))
 	{
 		throw DetailedException("Ошибка тестирования. Пятое поле таблицы FILES не DATASIZE")
-			.add_detail("Поле", table_files->getfield(4)->get_name());
+			.add_detail("Поле", table_files->get_field(4)->get_name());
 	}
 
-	if (CompareIC(table_files->getfield(5)->get_name(), "BINARYDATA"))
+	if (CompareIC(table_files->get_field(5)->get_name(), "BINARYDATA"))
 	{
 		throw DetailedException("Ошибка тестирования. Шестое поле таблицы FILES не BINARYDATA")
-			.add_detail("Поле", table_files->getfield(5)->get_name());
+			.add_detail("Поле", table_files->get_field(5)->get_name());
 	}
 
 	if(table_files->get_numfields() > 6)
 	{
-		if (CompareIC(table_files->getfield(6)->get_name(), "PARTNO"))
+		if (CompareIC(table_files->get_field(6)->get_name(), "PARTNO"))
 		{
 			throw DetailedException("Ошибка тестирования. Седьмое поле таблицы FILES не PARTNO")
-				.add_detail("Поле", table_files->getfield(6)->get_name());
+				.add_detail("Поле", table_files->get_field(6)->get_name());
 		}
 	}
 
@@ -855,10 +855,10 @@ bool T_1CD::test_stream_format()
 			.add_detail("Кол-во полей", table_dbschema->get_numfields());
 	}
 
-	if (CompareIC(table_dbschema->getfield(0)->get_name(), "SERIALIZEDDATA"))
+	if (CompareIC(table_dbschema->get_field(0)->get_name(), "SERIALIZEDDATA"))
 	{
 		throw DetailedException("Ошибка тестирования. Первое поле таблицы DBSCHEMA не SERIALIZEDDATA")
-			.add_detail("Поле", table_dbschema->getfield(0)->get_name());
+			.add_detail("Поле", table_dbschema->get_field(0)->get_name());
 	}
 
 	//================
@@ -902,18 +902,18 @@ bool T_1CD::recursive_test_stream_format(Table* t, uint32_t nrec)
 	int32_t j;
 	TStream* str;
 
-	TableRecord *rec = t->getrecord(nrec);
+	TableRecord *rec = t->get_record(nrec);
 	if (rec->is_removed())
 	{
 		delete rec;
 		return true;
 	}
 
-	Field *f_name = t->getfield(0);
-	Field *f_data_size = t->getfield(4);
-	Field *f_binary_data = t->getfield(5);
+	Field *f_name = t->get_field(0);
+	Field *f_data_size = t->get_field(4);
+	Field *f_binary_data = t->get_field(5);
 
-	std::string path = t->getname() + "/" + rec->get_string(f_name);
+	std::string path = t->get_name() + "/" + rec->get_string(f_name);
 
 	const char *orec = rec->get_raw(f_binary_data);
 	auto bp = rec->get<table_blob_file>(f_binary_data);
@@ -957,15 +957,15 @@ bool T_1CD::recursive_test_stream_format2(Table* t, uint32_t nrec)
 {
 	TMemoryStream* str;
 
-	TableRecord *rec = t->getrecord(nrec);
+	TableRecord *rec = t->get_record(nrec);
 	if (rec->is_removed()) {
 		delete rec;
 		return true;
 	}
 
-	Field *f_sd = t->getfield(0);
+	Field *f_sd = t->get_field(0);
 
-	string path = t->getname();
+	string path = t->get_name();
 
 	auto bp = rec->get<table_blob_file>(f_sd);
 	str = new TMemoryStream();
@@ -1234,7 +1234,7 @@ bool T_1CD::create_table(const string &path)
 	string table_name = (*t)[0][0].get_value();
 
 	for(j = 0; j < num_tables; j++) {
-		if (EqualIC(tables[j]->getname(), table_name)) {
+		if (EqualIC(tables[j]->get_name(), table_name)) {
 			delete_table(tables[j]);
 		}
 	}
@@ -1417,26 +1417,26 @@ bool T_1CD::test_list_of_tables()
 	}
 
 	for (int index = 0; i < params_fields.size(); i++) {
-		if (!EqualIC(table_params->getfield(i)->get_name(), params_fields[i])) {
+		if (!EqualIC(table_params->get_field(i)->get_name(), params_fields[i])) {
 			DetailedException test_error("Ошибка тестирования: имя поля отличается от ожидаемого");
 			test_error.add_detail("Номер поля", i);
-			test_error.add_detail("Имя поля", table_params->getfield(0)->get_name());
+			test_error.add_detail("Имя поля", table_params->get_field(0)->get_name());
 			test_error.add_detail("Ожидаемое имя поля", params_fields[i]);
 			throw test_error;
 		}
 	}
 	result = true;
 
-	Field *f_name = table_params->getfield(0);
-	Field *f_data_size = table_params->getfield(4);
-	Field *f_binary_data = table_params->getfield(5);
+	Field *f_name = table_params->get_field(0);
+	Field *f_data_size = table_params->get_field(4);
+	Field *f_binary_data = table_params->get_field(5);
 	rec = new char[table_params->get_recordlen()];
 
 	hasDBNames = false;
 	for(k = 0; k < table_params->get_phys_numrecords(); k++)
 	{
 
-		TableRecord *rec = table_params->getrecord(k);
+		TableRecord *rec = table_params->get_record(k);
 		if (rec->is_removed()) {
 			continue;
 		}
@@ -1557,12 +1557,12 @@ bool T_1CD::test_list_of_tables()
 								{
 									if(is_slave)
 									{
-										if (EndsWithIC(get_table(i)->getname(), _tabname)) {
+										if (EndsWithIC(get_table(i)->get_name(), _tabname)) {
 											table_found = true;
 											break;
 										}
 									}
-									else if (EqualIC(get_table(i)->getname(), _tabname))
+									else if (EqualIC(get_table(i)->get_name(), _tabname))
 									{
 										table_found = true;
 										break;
@@ -1649,7 +1649,7 @@ bool T_1CD::replaceTREF(const string &mapfile)
 		t = get_table(i);
 		for (uint32_t j = 0; j < t->get_numfields(); j ++)
 		{
-			f = t->getfield(j);
+			f = t->get_field(j);
 			string str = f->get_name();
 			if (!EndsWithIC(str, "TREF")) {
 				continue;
@@ -1657,7 +1657,7 @@ bool T_1CD::replaceTREF(const string &mapfile)
 			if (f->get_type() != type_fields::tf_binary || f->get_length() != 4) {
 				continue;
 			}
-			msreg_m.Status(t->getname() + " : " + f->get_name());
+			msreg_m.Status(t->get_name() + " : " + f->get_name());
 			editsave = t->edit;
 			t->edit = true;
 			TableIterator it(t);
@@ -1896,7 +1896,7 @@ int32_t T_1CD::get_ver_depot_config(int32_t ver) // Получение номе�
 	}
 	i = ind->get_numrec(i + ver - 1);
 
-	TableRecord *rec = table_versions->getrecord(i);
+	TableRecord *rec = table_versions->get_record(i);
 	string version_presentation = rec->get_string("VERNUM");
 	delete rec;
 
@@ -1960,7 +1960,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 	if(block < 5 || block >= length)
 	{
 		throw DetailedException("Номер корневого блока файла DATA некорректный")
-			.add_detail("Таблица", tab->getname())
+			.add_detail("Таблица", tab->get_name())
 			.add_detail("Номер блока", block);
 	}
 
@@ -1969,7 +1969,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 	if(memcmp(rootobj->sig, SIG_OBJ, 8))
 	{
 		throw DetailedException("Сигнатура корневого блока файла DATA некорректная.")
-			.add_detail("Таблица", tab->getname())
+			.add_detail("Таблица", tab->get_name())
 			.add_detail("Номер блока (dec)", block)
 			.add_detail("Номер блока (hex)", to_hex_string(block));
 	}
@@ -1979,7 +1979,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 	if(l / rl * rl != l)
 	{
 		throw DetailedException("Длина файла DATA не кратна длине одной записи.")
-			.add_detail("Таблица", tab->getname())
+			.add_detail("Таблица", tab->get_name())
 			.add_detail("Номер блока (dec)", block)
 			.add_detail("Номер блока (hex)", to_hex_string(block))
 			.add_detail("Длина файла", l)
@@ -1998,7 +1998,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 			if(a < 5 || a >= length)
 			{
 				msreg_m.AddMessage("Некорректный номер блока таблицы размещения файла DATA. Создана новая страница размещения", MessageState::Warning)
-					.with("Таблица", tab->getname())
+					.with("Таблица", tab->get_name())
 					.with("Индекс страницы", k)
 					.with("Номер блока", a);
 				a = length;
@@ -2013,7 +2013,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 			if(n != m)
 			{
 				msreg_m.AddMessage("Некорректное число блоков на странице размещения файла DATA. Исправлено.", MessageState::Warning)
-					.with("Таблица", tab->getname())
+					.with("Таблица", tab->get_name())
 					.with("Номер блока", a)
 					.with("Индекс страницы", k)
 					.with("Неверное количество блоков", m)
@@ -2029,7 +2029,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 		if(d < 5 || d >= length)
 		{
 			msreg_m.AddMessage("Некорректный номер страницы данных файла DATA.", MessageState::Warning)
-				.with("Таблица", tab->getname())
+				.with("Таблица", tab->get_name())
 				.with("Номер блока", a)
 				.with("Индекс страницы размещения", k - 1)
 				.with("Индекс блока на странице", j)
@@ -2042,7 +2042,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 			if(!ok)
 			{
 				msreg_m.AddMessage("Cтраница данных файла DATA не подходит по шаблону.", MessageState::Warning)
-					.with("Таблица", tab->getname())
+					.with("Таблица", tab->get_name())
 					.with("Номер блока", d)
 					.with("Индекс страницы размещения", k - 1)
 					.with("Индекс блока на странице", j)
@@ -2060,7 +2060,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 			if(bk.size() == 0)
 			{
 				throw DetailedException("Не удалось найти подходящую страницу данных файла DATA по шаблону.")
-					.add_detail("Таблица", tab->getname())
+					.add_detail("Таблица", tab->get_name())
 					.add_detail("Индекс страницы размещения", k - 1)
 					.add_detail("Индекс блока на странице", j)
 					.add_detail("Индекс страницы в файле DATA", i);
@@ -2071,7 +2071,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 				d = bk[0];
 				ca->blocks[j] = d;
 				msreg_m.AddMessage("Найдена подходящая страница данных файла DATA. Страница восстановлена", MessageState::Info)
-					.with("Таблица", tab->getname())
+					.with("Таблица", tab->get_name())
 					.with("Номер блока", d)
 					.with("Индекс страницы размещения", k - 1)
 					.with("Индекс блока на странице", j)
@@ -2087,7 +2087,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 					block_list += to_hex_string(bk[d]);
 				}
 				msreg_m.AddMessage("Найдено несколько подходящих страниц данных файла DATA.", MessageState::Hint)
-					.with("Таблица", tab->getname())
+					.with("Таблица", tab->get_name())
 					.with("Список подходящих блоков", block_list)
 					.with("Индекс страницы размещения", k - 1)
 					.with("Индекс блока на странице", j)
@@ -2273,18 +2273,18 @@ string T_1CD::pagemaprec_presentation(pagemaprec& pmr)
 		case pagetype::rootfileroot: return string("корневая страница корневого файла");
 		case pagetype::rootfilealloc: return string("страница размещения корневого файла номер ") + pmr.number;
 		case pagetype::rootfile: return string("страница данных корневого файла номер ") + pmr.number;
-		case pagetype::descrroot: return string("корневая страница файла descr таблицы ") + tables[pmr.tab]->getname();
-		case pagetype::descralloc: return string("страница размещения файла descr таблицы ") + tables[pmr.tab]->getname() + string(" номер ") + pmr.number;
-		case pagetype::descr: return string("страница данных файла descr таблицы ") + tables[pmr.tab]->getname() + string(" номер ") + pmr.number;
-		case pagetype::dataroot: return string("корневая страница файла data таблицы ") + tables[pmr.tab]->getname();
-		case pagetype::dataalloc: return string("страница размещения файла data таблицы ") + tables[pmr.tab]->getname() + string(" номер ") + pmr.number;
-		case pagetype::data: return string("страница данных файла data таблицы ") + tables[pmr.tab]->getname() + string(" номер ") + pmr.number;
-		case pagetype::indexroot: return string("корневая страница файла index таблицы ") + tables[pmr.tab]->getname();
-		case pagetype::indexalloc: return string("страница размещения файла index таблицы ") + tables[pmr.tab]->getname() + string(" номер ") + pmr.number;
-		case pagetype::index: return string("страница данных файла index таблицы ") + tables[pmr.tab]->getname() + string(" номер ") + pmr.number;
-		case pagetype::blobroot: return string("корневая страница файла blob таблицы ") + tables[pmr.tab]->getname();
-		case pagetype::bloballoc: return string("страница размещения файла blob таблицы ") + tables[pmr.tab]->getname() + string(" номер ") + pmr.number;
-		case pagetype::blob: return string("страница данных файла blob таблицы ") + tables[pmr.tab]->getname() + string(" номер ") + pmr.number;
+		case pagetype::descrroot: return string("корневая страница файла descr таблицы ") + tables[pmr.tab]->get_name();
+		case pagetype::descralloc: return string("страница размещения файла descr таблицы ") + tables[pmr.tab]->get_name() + string(" номер ") + pmr.number;
+		case pagetype::descr: return string("страница данных файла descr таблицы ") + tables[pmr.tab]->get_name() + string(" номер ") + pmr.number;
+		case pagetype::dataroot: return string("корневая страница файла data таблицы ") + tables[pmr.tab]->get_name();
+		case pagetype::dataalloc: return string("страница размещения файла data таблицы ") + tables[pmr.tab]->get_name() + string(" номер ") + pmr.number;
+		case pagetype::data: return string("страница данных файла data таблицы ") + tables[pmr.tab]->get_name() + string(" номер ") + pmr.number;
+		case pagetype::indexroot: return string("корневая страница файла index таблицы ") + tables[pmr.tab]->get_name();
+		case pagetype::indexalloc: return string("страница размещения файла index таблицы ") + tables[pmr.tab]->get_name() + string(" номер ") + pmr.number;
+		case pagetype::index: return string("страница данных файла index таблицы ") + tables[pmr.tab]->get_name() + string(" номер ") + pmr.number;
+		case pagetype::blobroot: return string("корневая страница файла blob таблицы ") + tables[pmr.tab]->get_name();
+		case pagetype::bloballoc: return string("страница размещения файла blob таблицы ") + tables[pmr.tab]->get_name() + string(" номер ") + pmr.number;
+		case pagetype::blob: return string("страница данных файла blob таблицы ") + tables[pmr.tab]->get_name() + string(" номер ") + pmr.number;
 
 		default: return string("??? неизвестный тип страницы ???");
 	}

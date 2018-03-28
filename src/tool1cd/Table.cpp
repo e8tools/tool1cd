@@ -551,13 +551,13 @@ Table::~Table()
 }
 
 //---------------------------------------------------------------------------
-std::string Table::getname() const
+std::string Table::get_name() const
 {
 	return name;
 }
 
 //---------------------------------------------------------------------------
-std::string Table::getdescription() const
+std::string Table::get_description() const
 {
 	return description;
 }
@@ -575,7 +575,7 @@ int32_t Table::get_numindexes() const
 }
 
 //---------------------------------------------------------------------------
-Field* Table::getfield(int32_t numfield)
+Field* Table::get_field(int32_t numfield)
 {
 	if(numfield >= num_fields)
 	{
@@ -588,7 +588,7 @@ Field* Table::getfield(int32_t numfield)
 }
 
 //---------------------------------------------------------------------------
-Index* Table::getindex(int32_t numindex)
+Index* Table::get_index(int32_t numindex)
 {
 	if(numindex >= num_indexes)
 	{
@@ -625,13 +625,13 @@ uint32_t Table::get_added_numrecords() const
 }
 
 //---------------------------------------------------------------------------
-void Table::getrecord(uint32_t phys_numrecord, char *buf)
+void Table::get_record(uint32_t phys_numrecord, char *buf)
 {
 	file_data->getdata(buf, phys_numrecord * recordlen, recordlen);
 }
 
 //---------------------------------------------------------------------------
-TableRecord * Table::getrecord(uint32_t phys_numrecord) const
+TableRecord * Table::get_record(uint32_t phys_numrecord) const
 {
 	#ifndef getcfname
 	tr_syn->BeginWrite();
@@ -928,7 +928,7 @@ bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool 
 		f.Write(rpart1.c_str(), rpart1.size());
 		if(curindex) nr = curindex->get_numrec(j);
 		else nr = recordsindex[j];
-		std::shared_ptr<TableRecord> rec (getrecord(nr));
+		std::shared_ptr<TableRecord> rec (get_record(nr));
 		if (image_count) {
 			std::string filename = get_file_name_for_record(rec.get());
 			if (EqualIC(filename, recname)) {
@@ -1347,7 +1347,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 	changed = true;
 	if(phys_numrecord < phys_numrecords)
 	{
-		rec = getrecord(phys_numrecord);
+		rec = get_record(phys_numrecord);
 		// TODO: Вменяемое сравнение в соответствии с типами
 		changed = memcmp(rec->get_raw(fld), fldvalue, fld->get_size()) != 0;
 	}
@@ -1450,7 +1450,7 @@ void Table::restore_edit_value(uint32_t phys_numrecord, int32_t numfield)
 		delete cr;
 	}
 	else{
-		TableRecord *rec = getrecord(phys_numrecord);
+		TableRecord *rec = get_record(phys_numrecord);
 		memcpy(cr->rec + fld->get_offset(), rec->get_raw(fld), fld->get_size());
 		delete rec;
 	}
@@ -1567,7 +1567,7 @@ TableRecord *Table::get_edit_record(uint32_t phys_numrecord)
 		}
 		break;
 	}
-	return getrecord(phys_numrecord);
+	return get_record(phys_numrecord);
 }
 
 //---------------------------------------------------------------------------
@@ -1746,7 +1746,7 @@ void Table::delete_blob_record(uint32_t blob_numrecord)
 //---------------------------------------------------------------------------
 void Table::delete_index_record(uint32_t phys_numrecord)
 {
-	TableRecord *rec = getrecord(phys_numrecord);
+	TableRecord *rec = get_record(phys_numrecord);
 	delete_index_record(phys_numrecord, rec);
 	delete rec;
 }
@@ -1974,7 +1974,7 @@ void Table::end_edit()
 //---------------------------------------------------------------------------
 void Table::delete_record(uint32_t phys_numrecord)
 {
-	TableRecord *rec = getrecord(phys_numrecord);
+	TableRecord *rec = get_record(phys_numrecord);
 
 	delete_index_record(phys_numrecord, rec);
 
@@ -2090,7 +2090,7 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 	TStream** st;
 
 	TableRecord *rec = new TableRecord(this, newdata, recordlen);
-	TableRecord *orec = getrecord(phys_numrecord);
+	TableRecord *orec = get_record(phys_numrecord);
 	delete_index_record(phys_numrecord, orec);
 	for(i = 0; i < num_fields; i++)
 	{
@@ -2293,7 +2293,7 @@ void Table::fillrecordsindex()
 	recordsindex.clear();
 
 	for (uint32_t i = 0; i < phys_numrecords; i++) {
-		std::shared_ptr<TableRecord> rec(getrecord(i));
+		std::shared_ptr<TableRecord> rec(get_record(i));
 		if (rec->is_removed()) {
 			continue;
 		}

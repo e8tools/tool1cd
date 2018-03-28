@@ -30,7 +30,7 @@ QVariant FieldsListModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 	}
 	if (role == Qt::DisplayRole) {
-		Field *f = table->getfield(index.row());
+		Field *f = table->get_field(index.row());
 		switch (index.column()) {
 		case 0:
 			return QString::fromStdString(f->get_name());

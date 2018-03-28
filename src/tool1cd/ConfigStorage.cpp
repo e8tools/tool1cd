@@ -570,7 +570,7 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 	ready = tabf->getready();
 	if(!ready) return;
 
-	present = tabf->gettable()->getbase()->get_filename() + "\\config";
+	present = tabf->gettable()->get_base()->get_filename() + "\\config";
 
 	tab = tabf->gettable();
 	_DynamicallyUpdated = tabf->getfile("DynamicallyUpdated");
@@ -579,8 +579,8 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 	{
 		ContainerFile DynamicallyUpdated(_DynamicallyUpdated, _DynamicallyUpdated->name);
 		DynamicallyUpdated.open();
-		string detail_path_name = tab->getbase()->get_filename()
-								  + "\\" + tab->getname()
+		string detail_path_name = tab->get_base()->get_filename()
+								  + "\\" + tab->get_name()
 								  + "\\" + DynamicallyUpdated.name;
 		tree *tt = parse_1Cstream(DynamicallyUpdated.stream, detail_path_name);
 		try {
@@ -695,7 +695,7 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 	ready = tabcs->getready();
 	if(!ready) return;
 
-	present = tabc->gettable()->getbase()->get_filename() + "\\configsave";
+	present = tabc->gettable()->get_base()->get_filename() + "\\configsave";
 
 	tab = tabcs->gettable();
 	_deleted = tabcs->getfile("deleted");
@@ -703,8 +703,8 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 	{
 		ContainerFile deleted(_deleted, _deleted->name);
 		deleted.open();
-		string detail_path_name = tab->getbase()->get_filename()
-				   + "\\" + tab->getname()
+		string detail_path_name = tab->get_base()->get_filename()
+				   + "\\" + tab->get_name()
 				   + "\\" + deleted.name;
 		tree *tt = parse_1Cstream(deleted.stream, detail_path_name);
 		std::vector<BinaryGuid> dynup;
@@ -727,8 +727,8 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 	{
 		ContainerFile DynamicallyUpdated(_DynamicallyUpdated, _DynamicallyUpdated->name);
 		DynamicallyUpdated.open();
-		string detail_path_name = tab->getbase()->get_filename()
-				+ "\\" + tab->getname()
+		string detail_path_name = tab->get_base()->get_filename()
+				+ "\\" + tab->get_name()
 				+ "\\" + DynamicallyUpdated.name;
 		tree *tt = parse_1Cstream(DynamicallyUpdated.stream, detail_path_name);
 		try {
@@ -846,7 +846,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 	ready = tabc->getready();
 	if(!ready) return;
 
-	present = tabc->gettable()->getbase()->get_filename() + "\\configcas";
+	present = tabc->gettable()->get_base()->get_filename() + "\\configcas";
 	string filepath = present + "\\" + configver;
 
 	_configinfo = tabc->getfile(configver);
@@ -972,7 +972,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 	if(!ready) return;
 
 	configinfo = nullptr;
-	present = tabcs->gettable()->getbase()->get_filename() + "\\configcassave";
+	present = tabcs->gettable()->get_base()->get_filename() + "\\configcassave";
 
 	string struid = uid.as_1C() + "__";
 	auto struid_len = struid.size();
@@ -998,7 +998,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 				.add_detail("Имя файла", "configinfo");
 		}
 
-		config_info_path = tabc->gettable()->getbase()->get_filename() + "\\configcas\\" + configver;
+		config_info_path = tabc->gettable()->get_base()->get_filename() + "\\configcas\\" + configver;
 		_configinfo = tabc->getfile(configver);
 		if(!_configinfo)
 		{

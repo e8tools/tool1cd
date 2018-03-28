@@ -35,17 +35,17 @@ QVariant TableDataModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 	}
 	TableRecord *record = _index == nullptr
-	        ? table->getrecord(index.row())
-	        : table->getrecord(_index->get_numrec(index.row()));
+	        ? table->get_record(index.row())
+	        : table->get_record(_index->get_numrec(index.row()));
 	if (role == Qt::DisplayRole) {
-		Field *f = table->getfield(index.column());
+		Field *f = table->get_field(index.column());
 		if (record->is_null_value(f)) {
 			return QString("{NULL}");
 		}
 		return QString::fromStdString(record->get_string(f));
 	}
 	if (role == Qt::EditRole) {
-		Field *f = table->getfield(index.column());
+		Field *f = table->get_field(index.column());
 		if (record->is_null_value(f)) {
 			return QString("");
 		}
@@ -93,7 +93,7 @@ QVariant TableDataModel::data(const QModelIndex &index, int role) const
 		}
 	}
 	if (role == Qt::TextAlignmentRole) {
-		Field *f = table->getfield(index.column());
+		Field *f = table->get_field(index.column());
 		if (f->get_type() == type_fields::tf_numeric) {
 			return Qt::AlignRight + Qt::AlignVCenter;
 		}
@@ -105,7 +105,7 @@ QVariant TableDataModel::data(const QModelIndex &index, int role) const
 QVariant TableDataModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-		Field *f = table->getfield(section);
+		Field *f = table->get_field(section);
 		return QString::fromStdString(f->get_name());
 	}
 	return QVariant();
@@ -113,10 +113,10 @@ QVariant TableDataModel::headerData(int section, Qt::Orientation orientation, in
 
 void TableDataModel::dumpBlob(const QModelIndex &index, const QString &filename) const
 {
-	Field *f = table->getfield(index.column());
+	Field *f = table->get_field(index.column());
 	TableRecord *record = _index == nullptr
-	        ? table->getrecord(index.row())
-	        : table->getrecord(_index->get_numrec(index.row()));
+	        ? table->get_record(index.row())
+	        : table->get_record(_index->get_numrec(index.row()));
 
 	TStream *out;
 	if (!record->try_store_blob_data(f, out, true)) {
@@ -130,23 +130,23 @@ void TableDataModel::dumpBlob(const QModelIndex &index, const QString &filename)
 
 bool TableDataModel::isBlobValue(const QModelIndex &index) const
 {
-	Field *f = table->getfield(index.column());
+	Field *f = table->get_field(index.column());
 	return f->get_type() == type_fields::tf_image;
 }
 
 bool TableDataModel::isClobValue(const QModelIndex &index) const
 {
-	Field *f = table->getfield(index.column());
+	Field *f = table->get_field(index.column());
 	return f->get_type() == type_fields::tf_string
 	        || f->get_type() == type_fields::tf_text;
 }
 
 V8Catalog *TableDataModel::getCatalog(const QModelIndex &index) const
 {
-	Field *f = table->getfield(index.column());
+	Field *f = table->get_field(index.column());
 	TableRecord *record = _index == nullptr
-	        ? table->getrecord(index.row())
-	        : table->getrecord(_index->get_numrec(index.row()));
+	        ? table->get_record(index.row())
+	        : table->get_record(_index->get_numrec(index.row()));
 
 	TStream *data_stream;
 
@@ -170,17 +170,17 @@ V8Catalog *TableDataModel::getCatalog(const QModelIndex &index) const
 const TableRecord *TableDataModel::getRecord(const QModelIndex &index) const
 {
 	return _index == nullptr
-	        ? table->getrecord(index.row())
-	        : table->getrecord(_index->get_numrec(index.row()));
+	        ? table->get_record(index.row())
+	        : table->get_record(_index->get_numrec(index.row()));
 
 }
 
 QIODevice *TableDataModel::getBlobStream(const QModelIndex &index) const
 {
-	Field *f = table->getfield(index.column());
+	Field *f = table->get_field(index.column());
 	TableRecord *record = _index == nullptr
-	        ? table->getrecord(index.row())
-	        : table->getrecord(_index->get_numrec(index.row()));
+	        ? table->get_record(index.row())
+	        : table->get_record(_index->get_numrec(index.row()));
 
 	TStream *out;
 	if (!record->try_store_blob_data(f, out, true)) {
