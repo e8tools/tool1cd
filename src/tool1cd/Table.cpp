@@ -408,7 +408,7 @@ void Table::init(int32_t block_descr)
 	recordlen = 1; // первый байт записи - признак удаленности
 	// сначала идут поля (поле) с типом "версия"
 	for(int32_t i = 0; i < num_fields; i++) {
-		auto field_type = fields[i]->get_type_manager()->gettype();
+		auto field_type = fields[i]->get_type_manager()->get_type();
 		if (field_type == type_fields::tf_version
 			|| field_type == type_fields::tf_version8) {
 			fields[i]->set_offset(recordlen);
@@ -417,7 +417,7 @@ void Table::init(int32_t block_descr)
 	}
 	// затем идут все остальные поля
 	for(int32_t i = 0; i < num_fields; i++) {
-		auto field_type = fields[i]->get_type_manager()->gettype();
+		auto field_type = fields[i]->get_type_manager()->get_type();
 		if (field_type != type_fields::tf_version
 			&& field_type != type_fields::tf_version8) {
 			fields[i]->set_offset(recordlen);
@@ -945,7 +945,7 @@ bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool 
 
 			bool output_is_null = false;
 
-			if (blob_to_file && field->get_type_manager()->gettype() == type_fields::tf_image) {
+			if (blob_to_file && field->get_type_manager()->get_type() == type_fields::tf_image) {
 				if(!dircreated) {
 					try
 					{
@@ -1981,7 +1981,7 @@ void Table::delete_record(uint32_t phys_numrecord)
 	for(int32_t i = 0; i < num_fields; i++)
 	{
 		Field *f = fields[i];
-		auto tf = f->get_type_manager()->gettype();
+		auto tf = f->get_type_manager()->get_type();
 		if(tf == type_fields::tf_image || tf == type_fields::tf_string || tf == type_fields::tf_text)
 		{
 			auto bp = (const table_blob_file *)rec->get_raw(f);
@@ -2013,7 +2013,7 @@ void Table::insert_record(const TableRecord *nrec)
 	for (int i = 0; i < num_fields; i++)
 	{
 		Field *f = fields[i];
-		tf = f->get_type_manager()->gettype();
+		tf = f->get_type_manager()->get_type();
 		offset = f->get_offset() + (f->get_null_exists() ? 1 : 0);
 		switch(tf)
 		{
@@ -2096,7 +2096,7 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 	{
 		table_blob_file new_blob = {0, 0};
 		Field *f = fields[i];
-		tf = f->get_type_manager()->gettype();
+		tf = f->get_type_manager()->get_type();
 		offset = f->get_offset() + (f->get_null_exists() ? 1 : 0);
 		if(changed_fields[i])
 		{

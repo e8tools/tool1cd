@@ -42,7 +42,7 @@ void Field::set_name(const string &value)
 //---------------------------------------------------------------------------
 int32_t Field::get_size() const // возвращает длину поля в байтах
 {
-	return (null_exists ? 1 : 0) + type_manager->getlen();
+	return (null_exists ? 1 : 0) + type_manager->get_size();
 }
 
 //---------------------------------------------------------------------------
@@ -94,7 +94,7 @@ std::string Field::get_XML_presentation(const char *rec, bool ignore_showGUID) c
 //---------------------------------------------------------------------------
 type_fields Field::get_type() const
 {
-	return type_manager->gettype();
+	return type_manager->get_type();
 }
 
 //---------------------------------------------------------------------------
@@ -112,19 +112,19 @@ bool Field::get_null_exists() const
 //---------------------------------------------------------------------------
 int32_t Field::get_length() const
 {
-	return type_manager->getlength();
+	return type_manager->get_length();
 }
 
 //---------------------------------------------------------------------------
 int32_t Field::get_precision() const
 {
-	return type_manager->getprecision();
+	return type_manager->get_precision();
 }
 
 //---------------------------------------------------------------------------
 bool Field::get_case_sensitive() const
 {
-	return type_manager->getcase_sensitive();
+	return type_manager->get_case_sensitive();
 }
 
 //---------------------------------------------------------------------------
@@ -160,7 +160,7 @@ uint32_t Field::get_sort_key(const char* rec, unsigned char* SortKey, int32_t ma
 
 	try {
 
-		return type_manager->getSortKey(fr, SortKey, maxlen);
+		return type_manager->get_sort_key(fr, SortKey, maxlen);
 
 	} catch (SerializationException &exception) {
 		exception.add_detail("Таблица", parent->name)

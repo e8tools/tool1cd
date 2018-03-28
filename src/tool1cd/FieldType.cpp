@@ -27,22 +27,22 @@ public:
 			  case_sensitive(declaration.case_sensitive)
 	{}
 
-	virtual type_fields gettype() const override
+	virtual type_fields get_type() const override
 	{
 		return type;
 	}
 
-	virtual int32_t getlength() const override
+	virtual int32_t get_length() const override
 	{
 		return length;
 	}
 
-	virtual int32_t getprecision() const override
+	virtual int32_t get_precision() const override
 	{
 		return precision;
 	}
 
-	virtual bool getcase_sensitive() const override
+	virtual bool get_case_sensitive() const override
 	{
 		return case_sensitive;
 	}
@@ -67,7 +67,7 @@ public:
 		return "{?}";
 	}
 	//---------------------------------------------------------------------------
-	virtual int32_t getlen() const override
+	virtual int32_t get_size() const override
 	{
 		if(len) return len;
 
@@ -106,7 +106,7 @@ public:
 			const Table *parent,
 			bool ignore_showGUID) const override;
 
-	virtual uint32_t getSortKey(
+	virtual uint32_t get_sort_key(
 			const char* rec,
 			unsigned char* SortKey,
 			int32_t maxlen) const override;
@@ -149,7 +149,7 @@ public:
 			const Table *parent,
 			bool ignore_showGUID) const override;
 
-	virtual uint32_t getSortKey(
+	virtual uint32_t get_sort_key(
 			const char* rec,
 			unsigned char* SortKey,
 			int32_t maxlen) const override;
@@ -180,7 +180,7 @@ public:
 			const Table *parent,
 			bool ignore_showGUID) const override;
 
-	virtual uint32_t getSortKey(
+	virtual uint32_t get_sort_key(
 			const char* rec,
 			unsigned char* SortKey,
 			int32_t maxlen) const override;
@@ -210,7 +210,7 @@ public:
 			const Table *parent,
 			bool ignore_showGUID) const override;
 
-	virtual uint32_t getSortKey(
+	virtual uint32_t get_sort_key(
 			const char* rec,
 			unsigned char* SortKey,
 			int32_t maxlen) const override;
@@ -370,7 +370,7 @@ string BinaryFieldType::get_XML_presentation(const char *rec, const Table *paren
 	return "{?}";
 }
 
-uint32_t BinaryFieldType::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen) const
+uint32_t BinaryFieldType::get_sort_key(const char* rec, unsigned char* SortKey, int32_t maxlen) const
 {
 	if (!maxlen) {
 		throw SerializationException("Ошибка получения ключа сортировки поля. Нулевая длина буфера.")
@@ -406,7 +406,7 @@ bool NumericFieldType::get_binary_value(char *binary_value, const string &value)
 		return true;
 	}
 
-	BinaryDecimalNumber bdn(value, true, getlength(), getprecision());
+	BinaryDecimalNumber bdn(value, true, get_length(), get_precision());
 	bdn.write_to(binary_value);
 
 	return true;
@@ -423,7 +423,7 @@ string NumericFieldType::get_XML_presentation(const char *rec, const Table *pare
 	return get_presentation(rec, false, 0, false, false);
 }
 
-uint32_t NumericFieldType::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen) const
+uint32_t NumericFieldType::get_sort_key(const char* rec, unsigned char* SortKey, int32_t maxlen) const
 {
 
 	int32_t i, j;
@@ -543,7 +543,7 @@ string DatetimeFieldType::get_XML_presentation(const char *rec, const Table *par
 	return result;
 }
 
-uint32_t DatetimeFieldType::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen) const
+uint32_t DatetimeFieldType::get_sort_key(const char* rec, unsigned char* SortKey, int32_t maxlen) const
 {
 
 	uint32_t addlen = 0;
@@ -644,8 +644,8 @@ string CommonFieldType::get_presentation(const char *rec, bool EmptyNull, wchar_
 			int16_t length = *(int16_t *) fr;
 			fr += sizeof(length);
 			auto full_size = length * sizeof(WCHART);
-			if (full_size > getlen()) {
-				full_size = getlen();
+			if (full_size > get_size()) {
+				full_size = get_size();
 			}
 			return TEncoding::Unicode->toUtf8(vector<uint8_t>(fr, fr + full_size));
 		}
@@ -741,7 +741,7 @@ string CommonFieldType::get_XML_presentation(const char *rec, const Table *paren
 	return "{?}";
 }
 
-uint32_t CommonFieldType::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen) const
+uint32_t CommonFieldType::get_sort_key(const char* rec, unsigned char* SortKey, int32_t maxlen) const
 {
 	uint32_t addlen = 0;
 
