@@ -40,7 +40,7 @@ void Field::set_name(const string &value)
 }
 
 //---------------------------------------------------------------------------
-int32_t Field::get_len() const // возвращает длину поля в байтах
+int32_t Field::get_size() const // возвращает длину поля в байтах
 {
 	return (null_exists ? 1 : 0) + type_manager->getlen();
 }
@@ -66,7 +66,7 @@ std::string Field::get_presentation(const char *rec, bool EmptyNull, wchar_t Del
 //---------------------------------------------------------------------------
 bool Field::get_binary_value(char *binary_value, bool null, const std::string &value) const
 {
-	memset(binary_value, 0, get_len());
+	memset(binary_value, 0, get_size());
 
 	if (null_exists) {
 		if (null) {
@@ -128,12 +128,6 @@ bool Field::getcase_sensitive() const
 }
 
 //---------------------------------------------------------------------------
-int32_t Field::getoffset() const
-{
-	return offset;
-}
-
-//---------------------------------------------------------------------------
 std::string Field::get_presentation_type() const
 {
 	return type_manager->get_presentation_type();
@@ -156,7 +150,7 @@ uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxl
 	if (null_exists) {
 		if (*fr == 0) {
 			*(SortKey++) = 0;
-			memcpy(SortKey, (void *)null_index, get_len());
+			memcpy(SortKey, (void *)null_index, get_size());
 			return 0;
 		}
 		*(SortKey++) = 1;

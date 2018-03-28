@@ -67,7 +67,7 @@ bool TableRecord::is_null_value(const Field *field) const
 	if (!field->getnull_exists()) {
 		return false;
 	}
-	return data[field->getoffset()] == '\0';
+	return data[field->get_offset()] == '\0';
 }
 
 bool TableRecord::is_null_value(const std::string &field_name) const
@@ -82,7 +82,7 @@ bool TableRecord::is_removed() const
 
 const char *TableRecord::get_raw(const Field *field) const
 {
-	return &data[field->getoffset()];
+	return &data[field->get_offset()];
 }
 
 const char *TableRecord::get_raw(const std::string &field_name) const
@@ -93,12 +93,12 @@ const char *TableRecord::get_raw(const std::string &field_name) const
 
 const char *TableRecord::get_data(const Field *field) const
 {
-	return &data[field->getoffset() + (field->getnull_exists() ? 1 : 0)];
+	return &data[field->get_offset() + (field->getnull_exists() ? 1 : 0)];
 }
 
 char *TableRecord::__get_data(const Field *field)
 {
-	return &data[field->getoffset() + (field->getnull_exists() ? 1 : 0)];
+	return &data[field->get_offset() + (field->getnull_exists() ? 1 : 0)];
 }
 
 
@@ -127,17 +127,17 @@ void TableRecord::set_null(const Field *field)
 	if (!field->getnull_exists()) {
 		throw FieldCannotBeNullException(field);
 	}
-	data[field->getoffset()] = '\0';
+	data[field->get_offset()] = '\0';
 }
 
 void TableRecord::set_data(const Field *field, const void *new_data)
 {
-	char *data_start = &data[field->getoffset()];
+	char *data_start = &data[field->get_offset()];
 	if (field->getnull_exists()) {
 		data_start[0] = '\001';
 		data_start++;
 	}
-	memcpy(data_start, new_data, field->get_len());
+	memcpy(data_start, new_data, field->get_size());
 }
 
 std::string TableRecord::get_xml_string(const Field *field) const

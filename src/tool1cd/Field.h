@@ -24,7 +24,7 @@ public:
 
 	explicit Field(Table* _parent);
 
-	int32_t get_len() const; // возвращает длину поля в байтах
+	int32_t get_size() const; // возвращает длину поля в байтах
 
 	std::string get_name() const;
 	void set_name(const std::string &value);
@@ -45,7 +45,6 @@ public:
 	int32_t getlength() const;
 	int32_t getprecision() const;
 	bool getcase_sensitive() const;
-	int32_t getoffset() const;
 	std::string get_presentation_type() const;
 	bool save_blob_to_file(const TableRecord *rec, const std::string &filename, bool unpack) const;
 	uint32_t getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen) const;

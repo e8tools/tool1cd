@@ -24,7 +24,7 @@ TEST_CASE( "Проверка разбора полей", "[tool1cd][Fields]" ) {
 				REQUIRE(fld->get_name() == "_IDRREF");
 				REQUIRE(fld->gettype() == type_fields::tf_binary);
 				REQUIRE(fld->getlength() == 16);
-				REQUIRE(fld->get_len() == 16);
+				REQUIRE(fld->get_size() == 16);
 				REQUIRE(fld->getnull_exists() == false);
 			}
 		}
@@ -38,7 +38,7 @@ TEST_CASE( "Проверка разбора полей", "[tool1cd][Fields]" ) {
 				REQUIRE(fld->get_name() == "_DATA");
 				REQUIRE(fld->gettype() == type_fields::tf_binary);
 				REQUIRE(fld->getlength() == 40);
-				REQUIRE(fld->get_len() == 41);
+				REQUIRE(fld->get_size() == 41);
 				REQUIRE(fld->getnull_exists() == true);
 			}
 		}
