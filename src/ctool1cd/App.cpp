@@ -52,7 +52,7 @@ void App::export_all_to_xml(const ParsedCommand &pc)
 	}
 
 	for (int j = 0; j < base1CD->get_numtables(); j++) {
-		tbl = base1CD->gettable(j);
+		tbl = base1CD->get_table(j);
 
 		if (!tbl->get_numindexes()) {
 			tbl->fillrecordsindex();
@@ -110,7 +110,7 @@ void App::export_to_xml(const ParsedCommand &pc)
 	}
 
 	for (int j = 0; j < base1CD->get_numtables(); j++) {
-		Table *tbl = base1CD->gettable(j);
+		Table *tbl = base1CD->get_table(j);
 
 		bool b = false;
 
@@ -174,7 +174,7 @@ void App::export_to_binary(const ParsedCommand &pc)
 
 	for (int j = 0; j < base1CD->get_numtables(); j++) {
 
-		Table *tbl = base1CD->gettable(j);
+		Table *tbl = base1CD->get_table(j);
 
 		bool found = false;
 
@@ -237,7 +237,7 @@ void App::import_from_binary(const ParsedCommand &pc)
 
 	for (int j = 0; j < base1CD->get_numtables(); j++) {
 
-		Table *tbl = base1CD->gettable(j);
+		Table *tbl = base1CD->get_table(j);
 
 		bool found = false;
 

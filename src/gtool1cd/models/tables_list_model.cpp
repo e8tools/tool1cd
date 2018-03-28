@@ -55,7 +55,7 @@ QVariant TablesListModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 	}
 	if (role == Qt::DisplayRole) {
-		Table *t = db->gettable(index.row());
+		Table *t = db->get_table(index.row());
 		switch (index.column()) {
 		case 0:
 			return QVariant::fromValue(QString::fromStdString(t->getname()));

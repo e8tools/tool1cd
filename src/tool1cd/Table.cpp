@@ -1193,7 +1193,7 @@ void Table::import_table(const std::string &path)
 				descr_changed = true;
 			}
 			file_data->setdata(f);
-			ob = (v8ob*)base->getblock_for_write(file_data->get_block_number(), true);
+			ob = (v8ob*)base->get_block_for_write(file_data->get_block_number(), true);
 			ob->version.version_1 = root.data_version_1;
 			ob->version.version_2 = root.data_version_2;
 			delete f;
@@ -1220,7 +1220,7 @@ void Table::import_table(const std::string &path)
 				descr_changed = true;
 			}
 			file_blob->setdata(f);
-			ob = (v8ob*)base->getblock_for_write(file_blob->get_block_number(), true);
+			ob = (v8ob*)base->get_block_for_write(file_blob->get_block_number(), true);
 			ob->version.version_1 = root.blob_version_1;
 			ob->version.version_2 = root.blob_version_2;
 			delete f;
@@ -1247,7 +1247,7 @@ void Table::import_table(const std::string &path)
 				descr_changed = true;
 			}
 			file_index->setdata(f);
-			ob = (v8ob*)base->getblock_for_write(file_index->get_block_number(), true);
+			ob = (v8ob*)base->get_block_for_write(file_index->get_block_number(), true);
 			ob->version.version_1 = root.index_version_1;
 			ob->version.version_2 = root.index_version_2;
 			delete f;
@@ -1271,7 +1271,7 @@ void Table::import_table(const std::string &path)
 		if(fopen)
 		{
 			if(!descr_table) descr_table = new V8Object(base); // вообще, если descr_table == nullptr, то это огромная ошибка!
-			ob = (v8ob*)base->getblock_for_write(descr_table->get_block_number(), true);
+			ob = (v8ob*)base->get_block_for_write(descr_table->get_block_number(), true);
 			ob->version.version_1 = root.descr_version_1;
 			ob->version.version_2 = root.descr_version_2;
 

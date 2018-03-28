@@ -36,7 +36,7 @@ const uint32_t ONE_GB = 1073741824;
 // Класс T_1CD
 
 //---------------------------------------------------------------------------
-bool T_1CD::getblock(void* buf, uint32_t block_number, int32_t blocklen)
+bool T_1CD::get_block(void* buf, uint32_t block_number, int32_t blocklen)
 {
 	if(!fs) return false;
 	if(blocklen < 0) blocklen = pagesize;
@@ -52,7 +52,7 @@ bool T_1CD::getblock(void* buf, uint32_t block_number, int32_t blocklen)
 }
 
 //---------------------------------------------------------------------------
-char*  T_1CD::getblock(uint32_t block_number) const
+char*  T_1CD::get_block(uint32_t block_number) const
 {
 	if(!fs) return nullptr;
 	if(block_number >= length)
@@ -66,7 +66,7 @@ char*  T_1CD::getblock(uint32_t block_number) const
 }
 
 //---------------------------------------------------------------------------
-char*  T_1CD::getblock_for_write(uint32_t block_number, bool read)
+char*  T_1CD::get_block_for_write(uint32_t block_number, bool read)
 {
 	v8con* bc;
 
@@ -84,7 +84,7 @@ char*  T_1CD::getblock_for_write(uint32_t block_number, bool read)
 	{
 		length++;
 		fs->SetSize(fs->GetSize() + pagesize);
-		bc = (v8con*)getblock_for_write(0, true);
+		bc = (v8con*)get_block_for_write(0, true);
 		bc->length = length;
 	}
 
@@ -98,7 +98,7 @@ int32_t T_1CD::get_numtables()
 }
 
 //---------------------------------------------------------------------------
-Table* T_1CD::gettable(int32_t numtable)
+Table* T_1CD::get_table(int32_t numtable)
 {
 	if(numtable >= num_tables)
 	{
@@ -454,6 +454,11 @@ bool T_1CD::is_open()
 	return fs != nullptr;
 }
 
+bool T_1CD::is_infobase() const
+{
+	return _is_infobase;
+}
+
 //---------------------------------------------------------------------------
 db_ver T_1CD::get_version()
 {
@@ -534,6 +539,11 @@ uint32_t T_1CD::get_free_block()
 	return free_blocks->get_free_block();
 }
 
+const MemBlockManager & T_1CD::getMemBlockManager() const
+{
+	return memBlockManager;
+}
+
 //---------------------------------------------------------------------------
 void T_1CD::flush()
 {
@@ -551,7 +561,7 @@ void T_1CD::find_lost_objects()
 
 	for(i = 1; i < length; i++)
 	{
-		getblock(buf, i, 8);
+		get_block(buf, i, 8);
 		if(memcmp(buf, SIG_OBJ, 8) == 0)
 		{
 			block_is_find = false;
@@ -1247,7 +1257,7 @@ bool T_1CD::create_table(const string &path)
 		}
 		file_data = new V8Object(this);
 		file_data->setdata(f);
-		ob = (v8ob*)getblock_for_write(file_data->get_block_number(), true);
+		ob = (v8ob*)get_block_for_write(file_data->get_block_number(), true);
 		ob->version.version_1 = root->data_version_1;
 		ob->version.version_2 = root->data_version_2;
 		delete f;
@@ -1267,7 +1277,7 @@ bool T_1CD::create_table(const string &path)
 		}
 		file_blob = new V8Object(this);
 		file_blob->setdata(f);
-		ob = (v8ob*)getblock_for_write(file_blob->get_block_number(), true);
+		ob = (v8ob*)get_block_for_write(file_blob->get_block_number(), true);
 		ob->version.version_1 = root->blob_version_1;
 		ob->version.version_2 = root->blob_version_2;
 		delete f;
@@ -1287,7 +1297,7 @@ bool T_1CD::create_table(const string &path)
 		}
 		file_index = new V8Object(this);
 		file_index->setdata(f);
-		ob = (v8ob*)getblock_for_write(file_index->get_block_number(), true);
+		ob = (v8ob*)get_block_for_write(file_index->get_block_number(), true);
 		ob->version.version_1 = root->index_version_1;
 		ob->version.version_2 = root->index_version_2;
 		delete f;
@@ -1307,7 +1317,7 @@ bool T_1CD::create_table(const string &path)
 		if(fopen)
 		{
 			descr_table = new V8Object(this);
-			ob = (v8ob*)getblock_for_write(descr_table->get_block_number(), true);
+			ob = (v8ob*)get_block_for_write(descr_table->get_block_number(), true);
 			ob->version.version_1 = root->descr_version_1;
 			ob->version.version_2 = root->descr_version_2;
 
@@ -1547,12 +1557,12 @@ bool T_1CD::test_list_of_tables()
 								{
 									if(is_slave)
 									{
-										if (EndsWithIC(gettable(i)->getname(), _tabname)) {
+										if (EndsWithIC(get_table(i)->getname(), _tabname)) {
 											table_found = true;
 											break;
 										}
 									}
-									else if (EqualIC(gettable(i)->getname(), _tabname))
+									else if (EqualIC(get_table(i)->getname(), _tabname))
 									{
 										table_found = true;
 										break;
@@ -1636,7 +1646,7 @@ bool T_1CD::replaceTREF(const string &mapfile)
 
 	for (uint32_t i = 0; i < num_tables; i++)
 	{
-		t = gettable(i);
+		t = get_table(i);
 		for (uint32_t j = 0; j < t->get_numfields(); j ++)
 		{
 			f = t->getfield(j);
@@ -1745,7 +1755,7 @@ bool T_1CD::delete_object(V8Object* ob)
 	}
 
 	for(uint32_t i = 0; i < ob->get_numblocks(); i++) {
-		b = (objtab*)getblock(ob->get_block_by_index(i));
+		b = (objtab*)get_block(ob->get_block_by_index(i));
 		for(uint32_t j = 0; j < b->numblocks; j++) {
 			set_block_as_free(b->blocks[j]);
 		}
@@ -1777,7 +1787,7 @@ void T_1CD::find_and_create_lost_tables()
 	size_t numlosttables = 0;
 	for(uint32_t i = 1; i < length; i++)
 	{
-		getblock(buf, i, 8);
+		get_block(buf, i, 8);
 		if(memcmp(buf, SIG_OBJ, 8) == 0)
 		{
 			block_is_find = false;
@@ -1846,7 +1856,7 @@ void T_1CD::find_and_save_lost_objects(boost::filesystem::path &lost_objects)
 {
 	for(uint32_t i = 1; i < length; i++) {
 		char buf[8];
-		getblock(buf, i, 8);
+		get_block(buf, i, 8);
 		if(memcmp(buf, SIG_OBJ, 8) == 0) {
 			bool block_is_find = false;
 			for(auto v8obj = V8Object::get_first(); v8obj; v8obj = v8obj->get_next()) {
@@ -1954,7 +1964,7 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 			.add_detail("Номер блока", block);
 	}
 
-	rootobj = (v8ob*)getblock_for_write(block, true);
+	rootobj = (v8ob*)get_block_for_write(block, true);
 
 	if(memcmp(rootobj->sig, SIG_OBJ, 8))
 	{
@@ -1992,9 +2002,9 @@ void T_1CD::restore_DATA_allocation_table(Table* tab)
 					.with("Индекс страницы", k)
 					.with("Номер блока", a);
 				a = length;
-				ca = (objtab*)getblock_for_write(a, false);
+				ca = (objtab*)get_block_for_write(a, false);
 			}
-			else ca = (objtab*)getblock_for_write(a, true);
+			else ca = (objtab*)get_block_for_write(a, true);
 
 			n = ((uint64_t)l + 0xfff) >> 12;
 			if(n > 1023) n = 1023;
@@ -2148,6 +2158,16 @@ bool T_1CD::test_block_by_template(uint32_t testblock, char* tt, uint32_t num, i
 		}
 	}
 	return true;
+}
+
+std::string T_1CD::get_filename() const
+{
+	return filename;
+}
+
+uint32_t T_1CD::get_pagesize() const
+{
+	return pagesize;
 }
 
 //---------------------------------------------------------------------------

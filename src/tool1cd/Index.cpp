@@ -25,8 +25,8 @@ Index::Index(Table* _base)
 	rootblock   = 0;
 	length      = 0;
 	recordsindex_complete = false;
-	pagesize = tbase->base->pagesize;
-	version  = tbase->base->version;
+	pagesize = tbase->base->get_pagesize();
+	version  = tbase->base->get_version();
 }
 
 //---------------------------------------------------------------------------

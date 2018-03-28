@@ -11,7 +11,7 @@ ConfigurationsWindow::ConfigurationsWindow(T_1CD *db, QWidget *parent) :
     db(db)
 {
 	ui->setupUi(this);
-	setWindowTitle(QString::fromStdString(db->getfilename()));
+	setWindowTitle(QString::fromStdString(db->get_filename()));
 	ui->vendorsTable->setModel(new VendorConfigurationsTableModel(db));
 }
 

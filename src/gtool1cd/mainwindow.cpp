@@ -42,7 +42,7 @@ void MainWindow::open(T_1CD *database)
 {
 	db = database;
 	ui->tableListView->setModel(new TablesListModel(db));
-	setWindowTitle(QString::fromStdString(db->getfilename()));
+	setWindowTitle(QString::fromStdString(db->get_filename()));
 	// refresh data
 }
 
@@ -68,7 +68,7 @@ void MainWindow::on_openDatabaseFileAction_triggered()
 
 void MainWindow::on_tableListView_doubleClicked(const QModelIndex &index)
 {
-	Table *t = db->gettable(index.row());
+	Table *t = db->get_table(index.row());
 	if (table_windows.find(t) == table_windows.end()) {
 		table_windows[t] = new TableDataWindow(this, t);
 	}

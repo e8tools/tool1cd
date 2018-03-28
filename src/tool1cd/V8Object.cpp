@@ -85,7 +85,7 @@ void V8Object::init(T_1CD* _base, int32_t blockNum)
 	{
 		fatlevel = 1;
 		v8ob* t = new v8ob;
-		base->getblock(t, blockNum);
+		base->get_block(t, blockNum);
 		if(memcmp(&(t->sig), SIG_OBJ, 8) != 0)
 		{
 			delete t;
@@ -147,9 +147,9 @@ void V8Object::init(T_1CD* _base, int32_t blockNum)
 	}
 	else if(type == v8objtype::data838)
 	{
-		char* b = new char[base->getpagesize()];
+		char* b = new char[base->get_pagesize()];
 		v838ob_data* t = (v838ob_data*)b;
-		base->getblock(t, blockNum);
+		base->get_block(t, blockNum);
 
 		if(t->sig[0] != 0x1c || t->sig[1] != 0xfd)
 		{
@@ -161,7 +161,7 @@ void V8Object::init(T_1CD* _base, int32_t blockNum)
 
 		len = t->len;
 		fatlevel = t->fatlevel;
-		if(fatlevel == 0 && len > ((base->getpagesize() / 4 - 6) * base->getpagesize()))
+		if(fatlevel == 0 && len > ((base->get_pagesize() / 4 - 6) * base->get_pagesize()))
 		{
 			delete[] b;
 			init();
@@ -181,10 +181,10 @@ void V8Object::init(T_1CD* _base, int32_t blockNum)
 
 		if(len) {
 			if(fatlevel == 0) {
-				numblocks = (len - 1) / base->getpagesize() + 1;
+				numblocks = (len - 1) / base->get_pagesize() + 1;
 			}
 			else {
-				numblocks = (len - 1) / (base->getpagesize() / 4 * base->getpagesize()) + 1;
+				numblocks = (len - 1) / (base->get_pagesize() / 4 * base->get_pagesize()) + 1;
 			}
 		}
 		else {
@@ -205,9 +205,9 @@ void V8Object::init(T_1CD* _base, int32_t blockNum)
 	}
 	else
 	{
-		char* b = new char[base->getpagesize()];
+		char* b = new char[base->get_pagesize()];
 		v838ob_free* t = (v838ob_free*)b;
-		base->getblock(t, blockNum);
+		base->get_block(t, blockNum);
 
 		if(t->sig[0] != 0x1c || t->sig[1] != 0xff)
 		{
@@ -267,8 +267,8 @@ V8Object::V8Object(T_1CD* _base)
 	char* b;
 
 	blockNum = _base->get_free_block();
-	b = _base->getblock_for_write(blockNum, false);
-	memset(b, 0, _base->getpagesize());
+	b = _base->get_block_for_write(blockNum, false);
+	memset(b, 0, _base->get_pagesize());
 	if(_base->get_version() < db_ver::ver8_3_8_0)	memcpy(((v8ob*)b)->sig, SIG_OBJ, 8);
 	else
 	{
@@ -313,11 +313,11 @@ char* V8Object::getdata()
 		i = 0;
 		while(l > DEFAULT_PAGE_SIZE)
 		{
-			base->getblock(tt, blocks[i++]);
+			base->get_block(tt, blocks[i++]);
 			tt += DEFAULT_PAGE_SIZE;
 			l -= DEFAULT_PAGE_SIZE;
 		}
-		base->getblock(tt, blocks[i], l);
+		base->get_block(tt, blocks[i], l);
 	}
 	else if(type == v8objtype::data80)
 	{
@@ -326,11 +326,11 @@ char* V8Object::getdata()
 		tt = data;
 		for(i = 0; i < numblocks; i++)
 		{
-			b = (objtab*)base->getblock(blocks[i]);
+			b = (objtab*)base->get_block(blocks[i]);
 			for(j = 0; j < b->numblocks; j++)
 			{
 				curlen = std::min(DEFAULT_PAGE_SIZE, l);
-				base->getblock(tt, b->blocks[j], curlen);
+				base->get_block(tt, b->blocks[j], curlen);
 				if(l <= curlen) break;
 				l -= curlen;
 				tt += DEFAULT_PAGE_SIZE;
@@ -340,7 +340,7 @@ char* V8Object::getdata()
 	}
 	else if(type == v8objtype::data838)
 	{
-		pagesize = base->getpagesize();
+		pagesize = base->get_pagesize();
 		blocksperpage = pagesize / 4;
 		ll = len;
 		data = new char[ll];
@@ -349,11 +349,11 @@ char* V8Object::getdata()
 		{
 			for(i = 0; i < numblocks; i++)
 			{
-				bb = (objtab838*)base->getblock(blocks[i]);
+				bb = (objtab838*)base->get_block(blocks[i]);
 				for(j = 0; j < blocksperpage; j++)
 				{
 					curlen = ll > pagesize ? pagesize : ll;
-					base->getblock(tt, bb->blocks[j], curlen);
+					base->get_block(tt, bb->blocks[j], curlen);
 					if(ll <= curlen) break;
 					ll -= curlen;
 					tt += pagesize;
@@ -366,7 +366,7 @@ char* V8Object::getdata()
 			for(i = 0; i < numblocks; i++)
 			{
 				curlen = ll > pagesize ? pagesize : ll;
-				base->getblock(tt, blocks[i], curlen);
+				base->get_block(tt, blocks[i], curlen);
 				if(ll <= curlen) break;
 				ll -= curlen;
 				tt += pagesize;
@@ -418,7 +418,7 @@ char* V8Object::getdata(void* buf, uint64_t _start, uint64_t _length)
 
 			while(_length)
 			{
-				_bu = base->getblock(blocks[curblock++]);
+				_bu = base->get_block(blocks[curblock++]);
 				if(!_bu) {
 					return nullptr;
 				}
@@ -449,13 +449,13 @@ char* V8Object::getdata(void* buf, uint64_t _start, uint64_t _length)
 			curobjblock = curblock / 1023;
 			curoffobjblock = curblock - curobjblock * 1023;
 
-			b = (objtab*) base->getblock(blocks[curobjblock++]);
+			b = (objtab*) base->get_block(blocks[curobjblock++]);
 			if(!b) {
 				return nullptr;
 			}
 			while(_length)
 			{
-				_bu = base->getblock(b->blocks[curoffobjblock++]);
+				_bu = base->get_block(b->blocks[curoffobjblock++]);
 				if(!_bu) {
 					return nullptr;
 				}
@@ -468,7 +468,7 @@ char* V8Object::getdata(void* buf, uint64_t _start, uint64_t _length)
 					if(curoffobjblock >= 1023)
 					{
 						curoffobjblock = 0;
-						b = (objtab*) base->getblock(blocks[curobjblock++]);
+						b = (objtab*) base->get_block(blocks[curobjblock++]);
 					}
 				}
 			}
@@ -484,23 +484,23 @@ char* V8Object::getdata(void* buf, uint64_t _start, uint64_t _length)
 					.add_detail("Длина читаемых данных", _length);
 			}
 
-			curblock = _start / base->getpagesize();
+			curblock = _start / base->get_pagesize();
 			_buf = (char*)buf;
-			offsperpage = base->getpagesize() / 4;
-			curoffblock = _start - (curblock * base->getpagesize());
-			curlen = std::min(static_cast<uint64_t>(base->getpagesize() - curoffblock), _length);
+			offsperpage = base->get_pagesize() / 4;
+			curoffblock = _start - (curblock * base->get_pagesize());
+			curlen = std::min(static_cast<uint64_t>(base->get_pagesize() - curoffblock), _length);
 			if(fatlevel)
 			{
 				curobjblock = curblock / offsperpage;
 				curoffobjblock = curblock - curobjblock * offsperpage;
 
-				bb = (objtab838*) base->getblock(blocks[curobjblock++]);
+				bb = (objtab838*) base->get_block(blocks[curobjblock++]);
 				if(!bb) {
 					return nullptr;
 				}
 				while(_length)
 				{
-					_bu = base->getblock(bb->blocks[curoffobjblock++]);
+					_bu = base->get_block(bb->blocks[curoffobjblock++]);
 					if(!_bu) {
 						return nullptr;
 					}
@@ -508,12 +508,12 @@ char* V8Object::getdata(void* buf, uint64_t _start, uint64_t _length)
 					_buf += curlen;
 					_length -= curlen;
 					curoffblock = 0;
-					curlen = std::min(static_cast<uint64_t>(base->getpagesize()), _length);
+					curlen = std::min(static_cast<uint64_t>(base->get_pagesize()), _length);
 					if(_length > 0) {
 						if(curoffobjblock >= offsperpage)
 						{
 							curoffobjblock = 0;
-							bb = (objtab838*) base->getblock(blocks[curobjblock++]);
+							bb = (objtab838*) base->get_block(blocks[curobjblock++]);
 						}
 					}
 				}
@@ -522,7 +522,7 @@ char* V8Object::getdata(void* buf, uint64_t _start, uint64_t _length)
 			{
 				while(_length)
 				{
-					_bu = base->getblock(blocks[curblock++]);
+					_bu = base->get_block(blocks[curblock++]);
 					if(!_bu) {
 						return nullptr;
 					}
@@ -530,7 +530,7 @@ char* V8Object::getdata(void* buf, uint64_t _start, uint64_t _length)
 					_buf += curlen;
 					_length -= curlen;
 					curoffblock = 0;
-					curlen = std::min(static_cast<uint64_t>(base->getpagesize()), _length);
+					curlen = std::min(static_cast<uint64_t>(base->get_pagesize()), _length);
 				}
 			}
 		}
@@ -553,7 +553,7 @@ uint64_t V8Object::getlen() const
 //---------------------------------------------------------------------------
 void V8Object::savetofile(const std::string &_filename)
 {
-	uint64_t pagesize = base->getpagesize();
+	uint64_t pagesize = base->get_pagesize();
 	TFileStream fs(_filename, fmCreate);
 	char *buf = new char[pagesize];
 	uint64_t total_size = getlen();
@@ -594,25 +594,25 @@ uint64_t V8Object::get_fileoffset(uint64_t offset)
 		curobjblock = curblock / 1023;
 		curoffobjblock = curblock - curobjblock * 1023;
 
-		b = (objtab*) base->getblock(blocks[curobjblock]);
+		b = (objtab*) base->get_block(blocks[curobjblock]);
 
 		return (((uint64_t)(b->blocks[curoffobjblock])) << 12) + curoffblock;
 	}
 	else if(type == v8objtype::data838)
 	{
-		curblock = _start / base->getpagesize();
-		curoffblock = _start - (curblock * base->getpagesize());
+		curblock = _start / base->get_pagesize();
+		curoffblock = _start - (curblock * base->get_pagesize());
 		if(fatlevel)
 		{
-			offsperpage = base->getpagesize() / 4;
+			offsperpage = base->get_pagesize() / 4;
 			curobjblock = curblock / offsperpage;
 			curoffobjblock = curblock - curobjblock * offsperpage;
-			bb = (objtab838*)base->getblock(blocks[curobjblock]);
-			return (((uint64_t)(bb->blocks[curoffobjblock])) * base->getpagesize()) + curoffblock;
+			bb = (objtab838*)base->get_block(blocks[curobjblock]);
+			return (((uint64_t)(bb->blocks[curoffobjblock])) * base->get_pagesize()) + curoffblock;
 		}
 		else
 		{
-			return (((uint64_t)(blocks[curblock])) * base->getpagesize()) + curoffblock;
+			return (((uint64_t)(blocks[curblock])) * base->get_pagesize()) + curoffblock;
 		}
 	}
 
@@ -668,10 +668,10 @@ bool V8Object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 		curobjblock = curblock / 1023;
 		curoffobjblock = curblock - curobjblock * 1023;
 
-		objtab *b = (objtab*) base->getblock(blocks[curobjblock++]);
+		objtab *b = (objtab*) base->get_block(blocks[curobjblock++]);
 		while(_length)
 		{
-			memcpy((char*)(base->getblock_for_write(b->blocks[curoffobjblock++], curlen != DEFAULT_PAGE_SIZE)) + curoffblock, _buf, curlen);
+			memcpy((char*)(base->get_block_for_write(b->blocks[curoffobjblock++], curlen != DEFAULT_PAGE_SIZE)) + curoffblock, _buf, curlen);
 			_buf += curlen;
 			_length -= curlen;
 			curoffblock = 0;
@@ -680,7 +680,7 @@ bool V8Object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 				if(curoffobjblock >= 1023)
 				{
 					curoffobjblock = 0;
-					b = (objtab*) base->getblock(blocks[curobjblock++]);
+					b = (objtab*) base->get_block(blocks[curobjblock++]);
 				}
 			}
 		}
@@ -690,30 +690,30 @@ bool V8Object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 	}
 	else if(type == v8objtype::data838)
 	{
-		curblock = _start / base->getpagesize();
+		curblock = _start / base->get_pagesize();
 		_buf = (char*)buf;
-		curoffblock = _start - (curblock * base->getpagesize());
-		curlen = std::min(static_cast<uint64_t>(base->getpagesize() - curoffblock), _length);
+		curoffblock = _start - (curblock * base->get_pagesize());
+		curlen = std::min(static_cast<uint64_t>(base->get_pagesize() - curoffblock), _length);
 
 		if(fatlevel)
 		{
-			offsperpage = base->getpagesize() / 4;
+			offsperpage = base->get_pagesize() / 4;
 			curobjblock = curblock / offsperpage;
 			curoffobjblock = curblock - curobjblock * offsperpage;
 
-			objtab838 *bb = (objtab838*) base->getblock(blocks[curobjblock++]);
+			objtab838 *bb = (objtab838*) base->get_block(blocks[curobjblock++]);
 			while(_length)
 			{
-				memcpy((char*)(base->getblock_for_write(bb->blocks[curoffobjblock++], curlen != base->getpagesize())) + curoffblock, _buf, curlen);
+				memcpy((char*)(base->get_block_for_write(bb->blocks[curoffobjblock++], curlen != base->get_pagesize())) + curoffblock, _buf, curlen);
 				_buf += curlen;
 				_length -= curlen;
 				curoffblock = 0;
-				curlen = std::min(static_cast<uint64_t>(base->getpagesize()), _length);
+				curlen = std::min(static_cast<uint64_t>(base->get_pagesize()), _length);
 				if(_length > 0) {
 					if(curoffobjblock >= offsperpage)
 					{
 						curoffobjblock = 0;
-						bb = (objtab838*) base->getblock(blocks[curobjblock++]);
+						bb = (objtab838*) base->get_block(blocks[curobjblock++]);
 					}
 				}
 			}
@@ -722,11 +722,11 @@ bool V8Object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 		{
 			while(_length)
 			{
-				memcpy((char*)(base->getblock_for_write(blocks[curblock++], curlen != base->getpagesize())) + curoffblock, _buf, curlen);
+				memcpy((char*)(base->get_block_for_write(blocks[curblock++], curlen != base->get_pagesize())) + curoffblock, _buf, curlen);
 				_buf += curlen;
 				_length -= curlen;
 				curoffblock = 0;
-				curlen = std::min(static_cast<uint64_t>(base->getpagesize()), _length);
+				curlen = std::min(static_cast<uint64_t>(base->get_pagesize()), _length);
 			}
 		}
 
@@ -769,11 +769,11 @@ bool V8Object::setdata(const void* _buf, uint64_t _length)
 	{
 		for (unsigned i = 0; i < numblocks; i++)
 		{
-			objtab *b = (objtab*)base->getblock(blocks[i]);
+			objtab *b = (objtab*)base->get_block(blocks[i]);
 			for(int32_t j = 0; j < b->numblocks; j++)
 			{
 				curlen = std::min(static_cast<uint64_t>(DEFAULT_PAGE_SIZE),_length);
-				char *tt = base->getblock_for_write(b->blocks[j], false);
+				char *tt = base->get_block_for_write(b->blocks[j], false);
 				memcpy(tt, buf, curlen);
 				buf += DEFAULT_PAGE_SIZE;
 				if(_length <= curlen) {
@@ -792,26 +792,26 @@ bool V8Object::setdata(const void* _buf, uint64_t _length)
 	else if(type == v8objtype::data838)
 	{
 		curblock = 0;
-		curlen = std::min(static_cast<uint64_t>(base->getpagesize()), _length);
+		curlen = std::min(static_cast<uint64_t>(base->get_pagesize()), _length);
 
 		if(fatlevel)
 		{
-			offsperpage = base->getpagesize() / 4;
+			offsperpage = base->get_pagesize() / 4;
 			curobjblock = 0;
 			curoffobjblock = 0;
 
-			objtab838 *bb = (objtab838*) base->getblock(blocks[curobjblock++]);
+			objtab838 *bb = (objtab838*) base->get_block(blocks[curobjblock++]);
 			while(_length)
 			{
-				memcpy((char*)(base->getblock_for_write(bb->blocks[curoffobjblock++], false)), buf, curlen);
+				memcpy((char*)(base->get_block_for_write(bb->blocks[curoffobjblock++], false)), buf, curlen);
 				buf += curlen;
 				_length -= curlen;
-				curlen = std::min(static_cast<uint64_t>(base->getpagesize()), _length);
+				curlen = std::min(static_cast<uint64_t>(base->get_pagesize()), _length);
 				if(_length > 0) {
 					if(curoffobjblock >= offsperpage)
 					{
 						curoffobjblock = 0;
-						bb = (objtab838*) base->getblock(blocks[curobjblock++]);
+						bb = (objtab838*) base->get_block(blocks[curobjblock++]);
 					}
 				}
 			}
@@ -820,10 +820,10 @@ bool V8Object::setdata(const void* _buf, uint64_t _length)
 		{
 			while(_length)
 			{
-				memcpy((char*)(base->getblock_for_write(blocks[curblock++], false)), buf, curlen);
+				memcpy((char*)(base->get_block_for_write(blocks[curblock++], false)), buf, curlen);
 				buf += curlen;
 				_length -= curlen;
-				curlen = std::min(static_cast<uint64_t>(base->getpagesize()), _length);
+				curlen = std::min(static_cast<uint64_t>(base->get_pagesize()), _length);
 			}
 		}
 
@@ -867,11 +867,11 @@ bool V8Object::setdata(TStream* stream)
 	{
 		for (unsigned i = 0; i < numblocks; i++)
 		{
-			objtab *b = (objtab*)base->getblock(blocks[i]);
+			objtab *b = (objtab*)base->get_block(blocks[i]);
 			for(int32_t j = 0; j < b->numblocks; j++)
 			{
 				curlen = std::min(static_cast<uint64_t>(DEFAULT_PAGE_SIZE),_length);
-				char *tt = base->getblock_for_write(b->blocks[j], false);
+				char *tt = base->get_block_for_write(b->blocks[j], false);
 				stream->ReadBuffer(tt, curlen);
 				if(_length <= curlen) {
 					break;
@@ -889,25 +889,25 @@ bool V8Object::setdata(TStream* stream)
 	else if(type == v8objtype::data838)
 	{
 		curblock = 0;
-		curlen = std::min(static_cast<uint64_t>(base->getpagesize()), _length);
+		curlen = std::min(static_cast<uint64_t>(base->get_pagesize()), _length);
 
 		if(fatlevel)
 		{
-			offsperpage = base->getpagesize() / 4;
+			offsperpage = base->get_pagesize() / 4;
 			curobjblock = 0;
 			curoffobjblock = 0;
 
-			objtab838 *bb = (objtab838*) base->getblock(blocks[curobjblock++]);
+			objtab838 *bb = (objtab838*) base->get_block(blocks[curobjblock++]);
 			while(_length)
 			{
-				stream->ReadBuffer(base->getblock_for_write(bb->blocks[curoffobjblock++], false), curlen);
+				stream->ReadBuffer(base->get_block_for_write(bb->blocks[curoffobjblock++], false), curlen);
 				_length -= curlen;
-				curlen = std::min(static_cast<uint64_t>(base->getpagesize()), _length);
+				curlen = std::min(static_cast<uint64_t>(base->get_pagesize()), _length);
 				if(_length > 0) {
 					if(curoffobjblock >= offsperpage)
 					{
 						curoffobjblock = 0;
-						bb = (objtab838*) base->getblock(blocks[curobjblock++]);
+						bb = (objtab838*) base->get_block(blocks[curobjblock++]);
 					}
 				}
 			}
@@ -916,9 +916,9 @@ bool V8Object::setdata(TStream* stream)
 		{
 			while(_length)
 			{
-				stream->ReadBuffer(base->getblock_for_write(blocks[curblock++], false), curlen);
+				stream->ReadBuffer(base->get_block_for_write(blocks[curblock++], false), curlen);
 				_length -= curlen;
-				curlen = std::min(static_cast<uint64_t>(base->getpagesize()), _length);
+				curlen = std::min(static_cast<uint64_t>(base->get_pagesize()), _length);
 			}
 		}
 
@@ -968,10 +968,10 @@ bool V8Object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 		curobjblock = curblock / 1023;
 		curoffobjblock = curblock - curobjblock * 1023;
 
-		objtab *b = (objtab*) base->getblock(blocks[curobjblock++]);
+		objtab *b = (objtab*) base->get_block(blocks[curobjblock++]);
 		while(_length)
 		{
-			stream->ReadBuffer((char*)(base->getblock_for_write(b->blocks[curoffobjblock++], curlen != DEFAULT_PAGE_SIZE)) + curoffblock, curlen);
+			stream->ReadBuffer((char*)(base->get_block_for_write(b->blocks[curoffobjblock++], curlen != DEFAULT_PAGE_SIZE)) + curoffblock, curlen);
 			_length -= curlen;
 			curoffblock = 0;
 			curlen = std::min(static_cast<uint64_t>(DEFAULT_PAGE_SIZE), _length);
@@ -979,7 +979,7 @@ bool V8Object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 				if(curoffobjblock >= 1023)
 				{
 					curoffobjblock = 0;
-					b = (objtab*) base->getblock(blocks[curobjblock++]);
+					b = (objtab*) base->get_block(blocks[curobjblock++]);
 				}
 			}
 		}
@@ -989,28 +989,28 @@ bool V8Object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 	}
 	else if(type == v8objtype::data838)
 	{
-		curblock = _start / base->getpagesize();
-		curoffblock = _start - (curblock * base->getpagesize());
-		curlen = std::min(static_cast<uint64_t>(base->getpagesize() - curoffblock), _length);
+		curblock = _start / base->get_pagesize();
+		curoffblock = _start - (curblock * base->get_pagesize());
+		curlen = std::min(static_cast<uint64_t>(base->get_pagesize() - curoffblock), _length);
 
 		if(fatlevel)
 		{
-			offsperpage = base->getpagesize() / 4;
+			offsperpage = base->get_pagesize() / 4;
 			curobjblock = curblock / offsperpage;
 			curoffobjblock = curblock - curobjblock * offsperpage;
 
-			objtab838 *bb = (objtab838*) base->getblock(blocks[curobjblock++]);
+			objtab838 *bb = (objtab838*) base->get_block(blocks[curobjblock++]);
 			while(_length)
 			{
-				stream->ReadBuffer((char*)(base->getblock_for_write(bb->blocks[curoffobjblock++], curlen != base->getpagesize())) + curoffblock, curlen);
+				stream->ReadBuffer((char*)(base->get_block_for_write(bb->blocks[curoffobjblock++], curlen != base->get_pagesize())) + curoffblock, curlen);
 				_length -= curlen;
 				curoffblock = 0;
-				curlen = std::min(static_cast<uint64_t>(base->getpagesize()), _length);
+				curlen = std::min(static_cast<uint64_t>(base->get_pagesize()), _length);
 				if(_length > 0) {
 					if(curoffobjblock >= offsperpage)
 					{
 						curoffobjblock = 0;
-						bb = (objtab838*) base->getblock(blocks[curobjblock++]);
+						bb = (objtab838*) base->get_block(blocks[curobjblock++]);
 					}
 				}
 			}
@@ -1019,10 +1019,10 @@ bool V8Object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
 		{
 			while(_length)
 			{
-				stream->ReadBuffer((char*)(base->getblock_for_write(blocks[curblock++], curlen != base->getpagesize())) + curoffblock, curlen);
+				stream->ReadBuffer((char*)(base->get_block_for_write(blocks[curblock++], curlen != base->get_pagesize())) + curoffblock, curlen);
 				_length -= curlen;
 				curoffblock = 0;
-				curlen = std::min(static_cast<uint64_t>(base->getpagesize()), _length);
+				curlen = std::min(static_cast<uint64_t>(base->get_pagesize()), _length);
 			}
 		}
 
@@ -1064,7 +1064,7 @@ void V8Object::set_len(uint64_t _len)
 
 	if(type == v8objtype::data80)
 	{
-		b = (v8ob*)base->getblock_for_write(block, true);
+		b = (v8ob*)base->get_block_for_write(block, true);
 		b->len = _len;
 
 		num_data_blocks = (_len + 0xfff) >> 12;
@@ -1081,7 +1081,7 @@ void V8Object::set_len(uint64_t _len)
 		{
 			objtab *ot;
 			// Увеличение длины объекта
-			if(numblocks) ot = (objtab*)base->getblock_for_write(b->blocks[numblocks - 1], true);
+			if(numblocks) ot = (objtab*)base->get_block_for_write(b->blocks[numblocks - 1], true);
 			for(; cur_data_blocks < num_data_blocks; cur_data_blocks++)
 			{
 				i = cur_data_blocks % 1023;
@@ -1089,11 +1089,11 @@ void V8Object::set_len(uint64_t _len)
 				{
 					bl = base->get_free_block();
 					b->blocks[numblocks++] = bl;
-					ot = (objtab*)base->getblock_for_write(bl, false);
+					ot = (objtab*)base->get_block_for_write(bl, false);
 					ot->numblocks = 0;
 				}
 				bl = base->get_free_block();
-				base->getblock_for_write(bl, false); // получаем блок без чтения, на случай, если блок вдруг в конце файла
+				base->get_block_for_write(bl, false); // получаем блок без чтения, на случай, если блок вдруг в конце файла
 				ot->blocks[i] = bl;
 				ot->numblocks = i + 1;
 			}
@@ -1101,7 +1101,7 @@ void V8Object::set_len(uint64_t _len)
 		else if(num_data_blocks < cur_data_blocks)
 		{
 			// Уменьшение длины объекта
-			objtab *ot = (objtab*)base->getblock_for_write(b->blocks[numblocks - 1], true);
+			objtab *ot = (objtab*)base->get_block_for_write(b->blocks[numblocks - 1], true);
 			for(cur_data_blocks--; cur_data_blocks >= num_data_blocks; cur_data_blocks--)
 			{
 				i = cur_data_blocks % 1023;
@@ -1112,7 +1112,7 @@ void V8Object::set_len(uint64_t _len)
 				{
 					base->set_block_as_free(b->blocks[--numblocks]);
 					b->blocks[numblocks] = 0;
-					if(numblocks) ot = (objtab*)base->getblock_for_write(b->blocks[numblocks - 1], true);
+					if(numblocks) ot = (objtab*)base->get_block_for_write(b->blocks[numblocks - 1], true);
 				}
 			}
 
@@ -1129,8 +1129,8 @@ void V8Object::set_len(uint64_t _len)
 	}
 	else if(type == v8objtype::data838)
 	{
-		offsperpage = base->getpagesize() / 4;
-		maxlen = base->getpagesize() * offsperpage * (offsperpage - 6);
+		offsperpage = base->get_pagesize() / 4;
+		maxlen = base->get_pagesize() * offsperpage * (offsperpage - 6);
 		if(_len > maxlen)
 		{
 			throw DetailedException("Попытка установки длины файла больше максимальной")
@@ -1139,10 +1139,10 @@ void V8Object::set_len(uint64_t _len)
 				.add_detail("Запрошенная длина файла", to_hex_string(_len));
 		}
 
-		bd = (v838ob_data*)base->getblock_for_write(block, true);
+		bd = (v838ob_data*)base->get_block_for_write(block, true);
 		bd->len = _len;
 
-		num_data_blocks = (_len + base->getpagesize() - 1) / base->getpagesize();
+		num_data_blocks = (_len + base->get_pagesize() - 1) / base->get_pagesize();
 		if(num_data_blocks > offsperpage - 6)
 		{
 			num_blocks = (num_data_blocks + offsperpage - 1) / offsperpage;
@@ -1153,7 +1153,7 @@ void V8Object::set_len(uint64_t _len)
 			num_blocks = num_data_blocks;
 			newfatlevel = 0;
 		}
-		cur_data_blocks = (len + base->getpagesize() - 1) / base->getpagesize();
+		cur_data_blocks = (len + base->get_pagesize() - 1) / base->get_pagesize();
 
 		if(numblocks != num_blocks)
 		{
@@ -1167,14 +1167,14 @@ void V8Object::set_len(uint64_t _len)
 			if(fatlevel == 0 && newfatlevel)
 			{
 				bl = base->get_free_block();
-				bb = (objtab838*)base->getblock_for_write(bl, false);
+				bb = (objtab838*)base->get_block_for_write(bl, false);
 				memcpy(bb->blocks, bd->blocks, numblocks * 4);
 				fatlevel = newfatlevel;
 				bd->fatlevel = newfatlevel;
 				bd->blocks[0] = bl;
 				numblocks = 1;
 			}
-			else bb = (objtab838*)base->getblock_for_write(bd->blocks[numblocks - 1], true);
+			else bb = (objtab838*)base->get_block_for_write(bd->blocks[numblocks - 1], true);
 
 			if(fatlevel)
 			{
@@ -1185,10 +1185,10 @@ void V8Object::set_len(uint64_t _len)
 					{
 						bl = base->get_free_block();
 						bd->blocks[numblocks++] = bl;
-						bb = (objtab838*)base->getblock_for_write(bl, false);
+						bb = (objtab838*)base->get_block_for_write(bl, false);
 					}
 					bl = base->get_free_block();
-					base->getblock_for_write(bl, false); // получаем блок без чтения, на случай, если блок вдруг в конце файла
+					base->get_block_for_write(bl, false); // получаем блок без чтения, на случай, если блок вдруг в конце файла
 					bb->blocks[i] = bl;
 				}
 			}
@@ -1197,7 +1197,7 @@ void V8Object::set_len(uint64_t _len)
 				for(; cur_data_blocks < num_data_blocks; cur_data_blocks++)
 				{
 					bl = base->get_free_block();
-					base->getblock_for_write(bl, false); // получаем блок без чтения, на случай, если блок вдруг в конце файла
+					base->get_block_for_write(bl, false); // получаем блок без чтения, на случай, если блок вдруг в конце файла
 					bd->blocks[cur_data_blocks] = bl;
 				}
 			}
@@ -1207,7 +1207,7 @@ void V8Object::set_len(uint64_t _len)
 			// Уменьшение длины объекта
 			if(fatlevel)
 			{
-				bb = (objtab838*)base->getblock_for_write(b->blocks[numblocks - 1], true);
+				bb = (objtab838*)base->get_block_for_write(b->blocks[numblocks - 1], true);
 				for(cur_data_blocks--; cur_data_blocks >= num_data_blocks; cur_data_blocks--)
 				{
 					i = cur_data_blocks % offsperpage;
@@ -1217,7 +1217,7 @@ void V8Object::set_len(uint64_t _len)
 					{
 						base->set_block_as_free(bd->blocks[--numblocks]);
 						bd->blocks[numblocks] = 0;
-						if(numblocks) bb = (objtab838*)base->getblock_for_write(b->blocks[numblocks - 1], true);
+						if(numblocks) bb = (objtab838*)base->get_block_for_write(b->blocks[numblocks - 1], true);
 					}
 				}
 			}
@@ -1269,13 +1269,13 @@ void V8Object::set_block_as_free(uint32_t block_number)
 	uint32_t j = len >> 10; // length / 1024
 	int32_t i = len & 0x3ff; // length % 1024
 
-	v8ob *ob = (v8ob*)base->getblock_for_write(block, true);
+	v8ob *ob = (v8ob*)base->get_block_for_write(block, true);
 
 	if(real_numblocks > j)
 	{
 		len++;
 		ob->len = len;
-		uint32_t *b = (uint32_t*)base->getblock_for_write(blocks[j], true);
+		uint32_t *b = (uint32_t*)base->get_block_for_write(blocks[j], true);
 		b[i] = block_number;
 		if(numblocks <= j) numblocks = j + 1;
 	}
@@ -1307,10 +1307,10 @@ uint32_t V8Object::get_free_block()
 		len--;
 		unsigned j = len >> 10; // length / 1024
 		unsigned i = len & 0x3ff; // length % 1024
-		uint32_t *b = (uint32_t*)base->getblock_for_write(blocks[j], true);
+		uint32_t *b = (uint32_t*)base->get_block_for_write(blocks[j], true);
 		unsigned k = b[i];
 		b[i] = 0;
-		v8ob *ob = (v8ob*)base->getblock_for_write(block, true);
+		v8ob *ob = (v8ob*)base->get_block_for_write(block, true);
 		ob->len = len;
 		return k;
 	}
@@ -1318,7 +1318,7 @@ uint32_t V8Object::get_free_block()
 	{
 		// TODO: заменить на что-нибудь вроде add_free_block
 		unsigned i = base->getMemBlockManager().get_numblocks();
-		base->getblock_for_write(i, false);
+		base->get_block_for_write(i, false);
 		return i;
 	}
 
@@ -1363,7 +1363,7 @@ void V8Object::write_new_version()
 
 	new_ver.version_1 = version.version_1 + 1;
 	new_ver.version_2 = version.version_2;
-	memcpy(base->getblock_for_write(block, true) + veroffset, &new_ver, 8);
+	memcpy(base->get_block_for_write(block, true) + veroffset, &new_ver, 8);
 	new_version_recorded = true;
 }
 
