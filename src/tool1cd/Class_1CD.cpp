@@ -47,7 +47,7 @@ bool T_1CD::get_block(void* buf, uint32_t block_number, int32_t blocklen)
 			.add_detail("Всего блоков", to_hex_string(length));
 	}
 
-	memcpy(buf, memBlockManager.getblock(block_number), blocklen);
+	memcpy(buf, memBlockManager.get_block(block_number), blocklen);
 	return true;
 }
 
@@ -62,7 +62,7 @@ char*  T_1CD::get_block(uint32_t block_number) const
 			.add_detail("Всего блоков", to_hex_string(length));
 	}
 
-	return memBlockManager.getblock(block_number);
+	return memBlockManager.get_block(block_number);
 }
 
 //---------------------------------------------------------------------------
@@ -88,7 +88,7 @@ char*  T_1CD::get_block_for_write(uint32_t block_number, bool read)
 		bc->length = length;
 	}
 
-	return memBlockManager.getblock_for_write(block_number, read);
+	return memBlockManager.get_block_for_write(block_number, read);
 }
 
 //---------------------------------------------------------------------------
