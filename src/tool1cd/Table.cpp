@@ -339,23 +339,23 @@ void Table::init(int32_t block_descr)
 	}
 	if(file_index)
 	{
-		m = file_index->getlen() / base->pagesize;
-		if(file_index->getlen() != m * base->pagesize)
+		m = file_index->get_len() / base->pagesize;
+		if(file_index->get_len() != m * base->pagesize)
 		{
 			throw DetailedException("Ошибка чтения индексов. Длина файла индексов не кратна размеру страницы")
 				.add_detail("Таблица", name)
-				.add_detail("Длина файла индексов", to_hex_string(file_index->getlen()));
+				.add_detail("Длина файла индексов", to_hex_string(file_index->get_len()));
 		}
 		{
 			int32_t buflen = num_indexes * 4 + 4;
 			buf = new uint32_t[num_indexes + 1];
-			file_index->getdata(buf, 0, buflen);
+			file_index->get_data(buf, 0, buflen);
 
-			if(buf[0] * base->pagesize >= file_index->getlen())
+			if(buf[0] * base->pagesize >= file_index->get_len())
 			{
 				throw DetailedException("Ошибка чтения индексов. Индекс первого свободного блока за пределами файла индексов")
 					.add_detail("Таблица", name)
-					.add_detail("Длина файла индексов", to_hex_string(file_index->getlen()))
+					.add_detail("Длина файла индексов", to_hex_string(file_index->get_len()))
 					.add_detail("Индекс свободной страницы", to_hex_string(buf[0]));
 			}
 			{
@@ -363,11 +363,11 @@ void Table::init(int32_t block_descr)
 				{
 					if(base->version < db_ver::ver8_3_8_0)
 					{
-						if(buf[i] >= file_index->getlen())
+						if(buf[i] >= file_index->get_len())
 						{
 							throw DetailedException("Ошибка чтения индексов. Указанное смещение индекса за пределами файла индексов")
 								.add_detail("Таблица", name)
-								.add_detail("Длина файла индексов", to_hex_string(file_index->getlen()))
+								.add_detail("Длина файла индексов", to_hex_string(file_index->get_len()))
 								.add_detail("Номер индекса", i)
 								.add_detail("Смещение индекса", to_hex_string(buf[i]));
 						}
@@ -375,7 +375,7 @@ void Table::init(int32_t block_descr)
 						{
 							throw DetailedException("Ошибка чтения индексов. Указанное смещение индекса не кратно 4 Кб")
 								.add_detail("Таблица", name)
-								.add_detail("Длина файла индексов", to_hex_string(file_index->getlen()))
+								.add_detail("Длина файла индексов", to_hex_string(file_index->get_len()))
 								.add_detail("Номер индекса", i)
 								.add_detail("Смещение индекса", to_hex_string(buf[i]));
 						}
@@ -385,11 +385,11 @@ void Table::init(int32_t block_descr)
 					{
 						s = buf[i];
 						s *= base->pagesize;
-						if(s >= file_index->getlen())
+						if(s >= file_index->get_len())
 						{
 							throw DetailedException("Ошибка чтения индексов. Указанное смещение индекса за пределами файла индексов")
 								.add_detail("Таблица", name)
-								.add_detail("Длина файла индексов", file_index->getlen())
+								.add_detail("Длина файла индексов", file_index->get_len())
 								.add_detail("Номер индекса", i)
 								.add_detail("Смещение индекса", s);
 						}
@@ -427,16 +427,16 @@ void Table::init(int32_t block_descr)
 	if(recordlen < 5) recordlen = 5; // Длина одной записи не может быть меньше 5 байт (1 байт признак, что запись свободна, 4 байт - индекс следующей следующей свободной записи)
 
 	if(!recordlen || !file_data) phys_numrecords = 0;
-	else phys_numrecords = file_data->getlen() / recordlen;;
+	else phys_numrecords = file_data->get_len() / recordlen;;
 
 	if(file_data)
 	{
-		if(phys_numrecords * recordlen != file_data->getlen())
+		if(phys_numrecords * recordlen != file_data->get_len())
 		{
 			throw DetailedException("Длина таблицы не кратна длине записи.")
 				.add_detail("Блок", to_hex_string(block_descr))
 				.add_detail("Таблица", name)
-				.add_detail("Длина таблицы", file_data->getlen())
+				.add_detail("Длина таблицы", file_data->get_len())
 				.add_detail("Длина записи", recordlen);
 		}
 	}
@@ -461,8 +461,8 @@ Table::Table(T_1CD* _base, int32_t block_descr)
 	base = _base;
 
 	descr_table = new V8Object(base, block_descr);
-	auto data = descr_table->getdata();
-	description = TEncoding::Unicode->toUtf8(vector<uint8_t>(data, data + descr_table->getlen()));
+	auto data = descr_table->get_data();
+	description = TEncoding::Unicode->toUtf8(vector<uint8_t>(data, data + descr_table->get_len()));
 
 	try {
 
@@ -627,7 +627,7 @@ uint32_t Table::get_added_numrecords() const
 //---------------------------------------------------------------------------
 void Table::get_record(uint32_t phys_numrecord, char *buf)
 {
-	file_data->getdata(buf, phys_numrecord * recordlen, recordlen);
+	file_data->get_data(buf, phys_numrecord * recordlen, recordlen);
 }
 
 //---------------------------------------------------------------------------
@@ -637,7 +637,7 @@ TableRecord * Table::get_record(uint32_t phys_numrecord) const
 	tr_syn->BeginWrite();
 	#endif
 	char *buf = new char[recordlen];
-	char* b = file_data->getdata(buf, phys_numrecord * recordlen, recordlen);
+	char* b = file_data->get_data(buf, phys_numrecord * recordlen, recordlen);
 	#ifndef getcfname
 	tr_syn->EndWrite();
 	#endif
@@ -719,7 +719,7 @@ TStream* Table::readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, 
 
 	if(file_blob)
 	{
-		_filelen = file_blob->getlen();
+		_filelen = file_blob->get_len();
 		_numblock = _filelen >> 8;
 		if(_numblock << 8 != _filelen)
 			throw DetailedException("Длина файла Blob не кратна 0x100")
@@ -737,7 +737,7 @@ TStream* Table::readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, 
 					.add_detail("Всего блоков", _numblock)
 					.add_detail("Читаемый блок", _curblock);
 			}
-			file_blob->getdata(_curb, _curblock << 8, BLOB_RECORD_LEN);
+			file_blob->get_data(_curb, _curblock << 8, BLOB_RECORD_LEN);
 			_curblock = *(uint32_t*)_curb;
 			_curlen = *(uint16_t*)(_curb + 4);
 			if(_curlen > BLOB_RECORD_DATA_LEN)
@@ -791,7 +791,7 @@ uint32_t Table::readBlob(void* buf, uint32_t _startblock, uint32_t _length) cons
 	readed = 0;
 	if(file_blob)
 	{
-		_filelen = file_blob->getlen();
+		_filelen = file_blob->get_len();
 		_numblock = _filelen >> 8;
 		if(_numblock << 8 != _filelen) {
 			throw DetailedException("Длина файла Blob не кратна 0x100")
@@ -810,7 +810,7 @@ uint32_t Table::readBlob(void* buf, uint32_t _startblock, uint32_t _length) cons
 					.add_detail("Всего блоков", _numblock)
 					.add_detail("Читаемый блок", _curblock);
 			}
-			file_blob->getdata(_curb, _curblock << 8, BLOB_RECORD_LEN);
+			file_blob->get_data(_curb, _curblock << 8, BLOB_RECORD_LEN);
 			_curblock = *(uint32_t*)_curb;
 			_curlen = *(uint16_t*)(_curb + 4);
 			if(_curlen > BLOB_RECORD_DATA_LEN)
@@ -1192,7 +1192,7 @@ void Table::import_table(const std::string &path)
 				file_data = new V8Object(base);
 				descr_changed = true;
 			}
-			file_data->setdata(f);
+			file_data->set_data(f);
 			ob = (v8ob*)base->get_block_for_write(file_data->get_block_number(), true);
 			ob->version.version_1 = root.data_version_1;
 			ob->version.version_2 = root.data_version_2;
@@ -1219,7 +1219,7 @@ void Table::import_table(const std::string &path)
 				file_blob = new V8Object(base);
 				descr_changed = true;
 			}
-			file_blob->setdata(f);
+			file_blob->set_data(f);
 			ob = (v8ob*)base->get_block_for_write(file_blob->get_block_number(), true);
 			ob->version.version_1 = root.blob_version_1;
 			ob->version.version_2 = root.blob_version_2;
@@ -1246,7 +1246,7 @@ void Table::import_table(const std::string &path)
 				file_index = new V8Object(base);
 				descr_changed = true;
 			}
-			file_index->setdata(f);
+			file_index->set_data(f);
 			ob = (v8ob*)base->get_block_for_write(file_index->get_block_number(), true);
 			ob->version.version_1 = root.index_version_1;
 			ob->version.version_2 = root.index_version_2;
@@ -1297,7 +1297,7 @@ void Table::import_table(const std::string &path)
 			str += "}\n}";
 
 			auto data = TEncoding::Unicode->fromUtf8(str);
-			descr_table->setdata(data.data(), data.size());
+			descr_table->set_data(data.data(), data.size());
 
 		}
 
@@ -1693,9 +1693,9 @@ void Table::delete_data_record(uint32_t phys_numrecord)
 		memset(tmp, 0, recordlen);
 		TableRecord *rec = new TableRecord(this, tmp, recordlen);
 
-		file_data->getdata(&first_empty_rec, 0, 4);
+		file_data->get_data(&first_empty_rec, 0, 4);
 		*((int32_t*)rec) = first_empty_rec;
-		file_data->setdata(&first_empty_rec, 0, 4);
+		file_data->set_data(&first_empty_rec, 0, 4);
 		write_data_record(phys_numrecord, rec);
 		delete rec;
 	}
@@ -1722,25 +1722,25 @@ void Table::delete_blob_record(uint32_t blob_numrecord)
 			.add_detail("Смещение удаляемой записи", blob_numrecord << 8);
 	}
 
-	if(blob_numrecord << 8 >= file_blob->getlen())
+	if(blob_numrecord << 8 >= file_blob->get_len())
 	{
 		throw DetailedException("Попытка удаления записи в файле file_blob за пределами файла.")
 			.add_detail("Таблица", name)
 			.add_detail("Смещение удаляемой записи", blob_numrecord << 8)
-			.add_detail("Длина файла", file_blob->getlen());
+			.add_detail("Длина файла", file_blob->get_len());
 	}
 
 	if(blob_numrecord == 0)
 	{
 		throw DetailedException("Попытка удаления нулевой записи в файле file_blob.")
 			.add_detail("Таблица", name)
-			.add_detail("Длина файла", file_blob->getlen());
+			.add_detail("Длина файла", file_blob->get_len());
 	}
 
-	file_blob->getdata(&prev_free_first, 0, 4); // читаем предыдущее начало свободных блоков
-	for(i = blob_numrecord; i; file_blob->getdata(&i, i << 8, 4)) j = i; // ищем последний блок в цепочке удаляемых
-	file_blob->setdata(&prev_free_first, j << 8, 4); // устанавливаем в конец цепочки удаляемых блоков старое начало цепочки свободных блоков
-	file_blob->setdata(&blob_numrecord, 0, 4); // устанавливаем новое начало цепочки свободных блоков на начало удаляемых блоков
+	file_blob->get_data(&prev_free_first, 0, 4); // читаем предыдущее начало свободных блоков
+	for(i = blob_numrecord; i; file_blob->get_data(&i, i << 8, 4)) j = i; // ищем последний блок в цепочке удаляемых
+	file_blob->set_data(&prev_free_first, j << 8, 4); // устанавливаем в конец цепочки удаляемых блоков старое начало цепочки свободных блоков
+	file_blob->set_data(&blob_numrecord, 0, 4); // устанавливаем новое начало цепочки свободных блоков на начало удаляемых блоков
 }
 
 //---------------------------------------------------------------------------
@@ -1797,10 +1797,10 @@ void Table::write_data_record(uint32_t phys_numrecord, const TableRecord *rec)
 		b = new char[recordlen];
 		memset(b, 0, recordlen);
 		b[0] = 1;
-		file_data->setdata(b, 0, recordlen);
+		file_data->set_data(b, 0, recordlen);
 		delete[] b;
 	}
-	file_data->setdata(rec, phys_numrecord * recordlen, recordlen);
+	file_data->set_data(rec, phys_numrecord * recordlen, recordlen);
 }
 
 //---------------------------------------------------------------------------
@@ -1823,12 +1823,12 @@ uint32_t Table::write_blob_record(char* blob_record, uint32_t blob_len)
 		create_file_blob();
 		char* b = new char[BLOB_RECORD_LEN];
 		memset(b, 0, BLOB_RECORD_LEN);
-		file_blob->setdata(b, 0, BLOB_RECORD_LEN);
+		file_blob->set_data(b, 0, BLOB_RECORD_LEN);
 		delete[] b;
 	}
 
-	file_blob->getdata(&first_block, 0, 4);
-	if(!first_block) first_block = file_blob->getlen() >> 8;
+	file_blob->get_data(&first_block, 0, 4);
+	if(!first_block) first_block = file_blob->get_len() >> 8;
 	prev_offset = 0;
 
 	for(cur_block = first_block; blob_len; blob_len -= cur_len, cur_block = next_block, blob_record += cur_len)
@@ -1836,21 +1836,21 @@ uint32_t Table::write_blob_record(char* blob_record, uint32_t blob_len)
 		cur_len = std::min(blob_len, BLOB_RECORD_DATA_LEN);
 		if(cur_len < BLOB_RECORD_DATA_LEN) memset(blob_record, 0, BLOB_RECORD_DATA_LEN);
 
-		if(prev_offset) file_blob->setdata(&cur_block, prev_offset, 4);
+		if(prev_offset) file_blob->set_data(&cur_block, prev_offset, 4);
 
 		cur_offset = cur_block << 8;
 		next_block = 0;
-		if(cur_offset < file_blob->getlen()) file_blob->getdata(&next_block, cur_offset, 4);
+		if(cur_offset < file_blob->get_len()) file_blob->get_data(&next_block, cur_offset, 4);
 
-		file_blob->setdata(&zero, cur_offset, 4);
-		file_blob->setdata(&cur_len, cur_offset + 4, 2);
-		file_blob->setdata(blob_record, cur_offset + 6, BLOB_RECORD_DATA_LEN);
+		file_blob->set_data(&zero, cur_offset, 4);
+		file_blob->set_data(&cur_len, cur_offset + 4, 2);
+		file_blob->set_data(blob_record, cur_offset + 6, BLOB_RECORD_DATA_LEN);
 
-		if(!next_block) next_block = file_blob->getlen() >> 8;
+		if(!next_block) next_block = file_blob->get_len() >> 8;
 		prev_offset = cur_offset;
 	}
-	if(next_block << 8 < file_blob->getlen()) file_blob->setdata(&next_block, 0, 4);
-	else file_blob->setdata(&zero, 0, 4);
+	if(next_block << 8 < file_blob->get_len()) file_blob->set_data(&next_block, 0, 4);
+	else file_blob->set_data(&zero, 0, 4);
 
 	return first_block;
 }
@@ -1879,11 +1879,11 @@ uint32_t Table::write_blob_record(TStream* bstr)
 	{
 		create_file_blob();
 		memset(blob_record, 0, BLOB_RECORD_LEN);
-		file_blob->setdata(blob_record, 0, BLOB_RECORD_LEN);
+		file_blob->set_data(blob_record, 0, BLOB_RECORD_LEN);
 	}
 
-	file_blob->getdata(&first_block, 0, 4);
-	if(!first_block) first_block = file_blob->getlen() >> 8;
+	file_blob->get_data(&first_block, 0, 4);
+	if(!first_block) first_block = file_blob->get_len() >> 8;
 	prev_offset = 0;
 
 	for(cur_block = first_block; blob_len; blob_len -= cur_len, cur_block = next_block)
@@ -1892,21 +1892,21 @@ uint32_t Table::write_blob_record(TStream* bstr)
 		if(cur_len < BLOB_RECORD_DATA_LEN) memset(blob_record, 0, BLOB_RECORD_DATA_LEN); //-V512
 		bstr->Read(blob_record, cur_len);
 
-		if(prev_offset) file_blob->setdata(&cur_block, prev_offset, 4);
+		if(prev_offset) file_blob->set_data(&cur_block, prev_offset, 4);
 
 		cur_offset = cur_block << 8;
 		next_block = 0;
-		if(cur_offset < file_blob->getlen()) file_blob->getdata(&next_block, cur_offset, 4);
+		if(cur_offset < file_blob->get_len()) file_blob->get_data(&next_block, cur_offset, 4);
 
-		file_blob->setdata(&zero, cur_offset, 4);
-		file_blob->setdata(&cur_len, cur_offset + 4, 2);
-		file_blob->setdata(blob_record, cur_offset + 6, BLOB_RECORD_DATA_LEN);
+		file_blob->set_data(&zero, cur_offset, 4);
+		file_blob->set_data(&cur_len, cur_offset + 4, 2);
+		file_blob->set_data(blob_record, cur_offset + 6, BLOB_RECORD_DATA_LEN);
 
-		if(!next_block) next_block = file_blob->getlen() >> 8;
+		if(!next_block) next_block = file_blob->get_len() >> 8;
 		prev_offset = cur_offset;
 	}
-	if(next_block << 8 < file_blob->getlen()) file_blob->setdata(&next_block, 0, 4);
-	else file_blob->setdata(&zero, 0, 4);
+	if(next_block << 8 < file_blob->get_len()) file_blob->set_data(&next_block, 0, 4);
+	else file_blob->set_data(&zero, 0, 4);
 
 	return first_block;
 }
@@ -2056,24 +2056,24 @@ void Table::insert_record(const TableRecord *nrec)
 		}
 	}
 
-	if(file_data->getlen() == 0)
+	if(file_data->get_len() == 0)
 	{
 		j = new char[recordlen];
 		memset(j, 0, recordlen);
 		*j = 1;
-		file_data->setdata(j, 0, recordlen);
+		file_data->set_data(j, 0, recordlen);
 		delete[] j;
 		phys_numrecord = 1;
 	}
 	else
 	{
-		file_data->getdata(&phys_numrecord, 1, 4);
+		file_data->get_data(&phys_numrecord, 1, 4);
 		if(phys_numrecord)
 		{
-			file_data->getdata(&k, phys_numrecord * recordlen + 1, 4);
-			file_data->setdata(&k, 1, 4);
+			file_data->get_data(&k, phys_numrecord * recordlen + 1, 4);
+			file_data->set_data(&k, 1, 4);
 		}
-		else phys_numrecord = file_data->getlen() / recordlen;
+		else phys_numrecord = file_data->get_len() / recordlen;
 	}
 
 	write_data_record(phys_numrecord, rec);

@@ -5,7 +5,7 @@ static int object_size(/*const */V8Object *file)
 	if (file == nullptr) {
 		return 0;
 	}
-	return file->getlen();
+	return file->get_len();
 }
 
 QString human_size(size_t size_in_bytes)

@@ -310,7 +310,7 @@ T_1CD::T_1CD(const string &_filename, MessageRegistrator *mess, bool _monopoly)
 
 	if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0)
 	{
-		root80 = (root_80*)root_object->getdata();
+		root80 = (root_80*)root_object->get_data();
 
 		locale = new char[strlen(root80->lang) + 1];
 
@@ -335,7 +335,7 @@ T_1CD::T_1CD(const string &_filename, MessageRegistrator *mess, bool _monopoly)
 		}
 		else
 		{
-			root81 = (root_81*)root_object->getdata();
+			root81 = (root_81*)root_object->get_data();
 		}
 
 		locale = new char[strlen(root81->lang) + 1];
@@ -1256,7 +1256,7 @@ bool T_1CD::create_table(const string &path)
 				.add_detail("Файл", path_data.string());
 		}
 		file_data = new V8Object(this);
-		file_data->setdata(f);
+		file_data->set_data(f);
 		ob = (v8ob*)get_block_for_write(file_data->get_block_number(), true);
 		ob->version.version_1 = root->data_version_1;
 		ob->version.version_2 = root->data_version_2;
@@ -1276,7 +1276,7 @@ bool T_1CD::create_table(const string &path)
 				.add_detail("Файл", path_blob.string());
 		}
 		file_blob = new V8Object(this);
-		file_blob->setdata(f);
+		file_blob->set_data(f);
 		ob = (v8ob*)get_block_for_write(file_blob->get_block_number(), true);
 		ob->version.version_1 = root->blob_version_1;
 		ob->version.version_2 = root->blob_version_2;
@@ -1296,7 +1296,7 @@ bool T_1CD::create_table(const string &path)
 				.add_detail("Файл", path_index.string());
 		}
 		file_index = new V8Object(this);
-		file_index->setdata(f);
+		file_index->set_data(f);
 		ob = (v8ob*)get_block_for_write(file_index->get_block_number(), true);
 		ob->version.version_1 = root->index_version_1;
 		ob->version.version_2 = root->index_version_2;
@@ -1337,25 +1337,25 @@ bool T_1CD::create_table(const string &path)
 			descr += ",";
 			descr += file_index ? to_string(file_index->get_block_number()) : "0";
 			descr += "}\n}";
-			descr_table->setdata(descr.c_str(), descr.size() * 2);
+			descr_table->set_data(descr.c_str(), descr.size() * 2);
 
-			i = root_object->getlen();
+			i = root_object->get_len();
 			char *buf = new char[i + 4];
-			root_object->getdata(buf, 0, i);
+			root_object->get_data(buf, 0, i);
 
 			if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0)
 			{
 				root_80* root80 = (root_80*)buf;
 				root80->blocks[root80->numblocks] = descr_table->get_block_number();
 				root80->numblocks++;
-				root_object->setdata(buf, i + 4);
+				root_object->set_data(buf, i + 4);
 			}
 			else
 			{
 				root_81* root81 = (root_81*)buf;
 				root81->blocks[root81->numblocks] = descr_table->get_block_number();
 				root81->numblocks++;
-				root_object->setdata(buf, i + 4);
+				root_object->set_data(buf, i + 4);
 			}
 		}
 	}
@@ -1711,9 +1711,9 @@ bool T_1CD::delete_table(Table* tab)
 		for(; i < num_tables; i++) tables[i] = tables[i + 1];
 		delete tab;
 
-		j = root_object->getlen();
+		j = root_object->get_len();
 		buf = new char[j];
-		root_object->getdata(buf, 0, j);
+		root_object->get_data(buf, 0, j);
 
 		if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0)
 		{
@@ -1729,7 +1729,7 @@ bool T_1CD::delete_table(Table* tab)
 			root81->numblocks--;
 			for(; i < root81->numblocks; i++) root81->blocks[i] = root81->blocks[i + 1];
 		}
-		root_object->setdata(buf, j - 4);
+		root_object->set_data(buf, j - 4);
 		delete[] buf;
 
 	}
@@ -1802,11 +1802,11 @@ void T_1CD::find_and_create_lost_tables()
 			if(!block_is_find)
 			{
 				v8obj = new V8Object(this, i);
-				if(v8obj->getlen() > 3)
+				if(v8obj->get_len() > 3)
 				{
 					try
 					{
-						v8obj->getdata(buf, 0, 4);
+						v8obj->get_data(buf, 0, 4);
 						if(memcmp(buf, SIG_TABDESCR, 4) == 0)
 						{
 							if(losttables.size() <= numlosttables) losttables.resize(losttables.size() + 1024);
@@ -1825,9 +1825,9 @@ void T_1CD::find_and_create_lost_tables()
 
 	if(numlosttables)
 	{
-		uint64_t root_object_len = root_object->getlen();
+		uint64_t root_object_len = root_object->get_len();
 		char* b = new char[root_object_len + numlosttables * 4];
-		root_object->getdata(b, 0, root_object_len);
+		root_object->get_data(b, 0, root_object_len);
 
 		if(version == db_ver::ver8_0_3_0 || version == db_ver::ver8_0_5_0)
 		{
@@ -1841,7 +1841,7 @@ void T_1CD::find_and_create_lost_tables()
 			for(int32_t j = 0, k = root81->numblocks; j < numlosttables; j++, k++) root81->blocks[k] = losttables[j];
 			root81->numblocks += numlosttables;
 		}
-		root_object->setdata(b, root_object_len + numlosttables * 4);
+		root_object->set_data(b, root_object_len + numlosttables * 4);
 		delete[] b;
 
 	}

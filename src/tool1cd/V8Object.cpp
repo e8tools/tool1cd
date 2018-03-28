@@ -291,7 +291,7 @@ V8Object::~V8Object()
 }
 
 //---------------------------------------------------------------------------
-char* V8Object::getdata()
+char* V8Object::get_data()
 {
 	char* tt;
 	objtab* b;
@@ -381,7 +381,7 @@ char* V8Object::getdata()
 }
 
 //---------------------------------------------------------------------------
-char* V8Object::getdata(void* buf, uint64_t _start, uint64_t _length)
+char* V8Object::get_data(void* buf, uint64_t _start, uint64_t _length)
 {
 	uint32_t curblock;
 	uint32_t curoffblock;
@@ -544,7 +544,7 @@ char* V8Object::getdata(void* buf, uint64_t _start, uint64_t _length)
 }
 
 //---------------------------------------------------------------------------
-uint64_t V8Object::getlen() const
+uint64_t V8Object::get_len() const
 {
 	if(type == v8objtype::free80) return len * 4;
 	else return len;
@@ -556,12 +556,12 @@ void V8Object::savetofile(const std::string &_filename)
 	uint64_t pagesize = base->get_pagesize();
 	TFileStream fs(_filename, fmCreate);
 	char *buf = new char[pagesize];
-	uint64_t total_size = getlen();
+	uint64_t total_size = get_len();
 	uint64_t remain_size = total_size;
 	for (uint64_t offset = 0; offset < total_size; offset += pagesize)
 	{
 		unsigned size_of_block = std::min(remain_size, pagesize);
-		getdata(buf, offset, size_of_block);
+		get_data(buf, offset, size_of_block);
 		fs.Write(buf, size_of_block);
 		remain_size -= pagesize;
 	}
@@ -627,7 +627,7 @@ uint64_t V8Object::get_fileoffset(uint64_t offset)
 }
 
 //---------------------------------------------------------------------------
-bool V8Object::setdata(const void* buf, uint64_t _start, uint64_t _length)
+bool V8Object::set_data(const void* buf, uint64_t _start, uint64_t _length)
 {
 	uint32_t curblock;
 	uint32_t curoffblock;
@@ -738,7 +738,7 @@ bool V8Object::setdata(const void* buf, uint64_t _start, uint64_t _length)
 }
 
 //---------------------------------------------------------------------------
-bool V8Object::setdata(const void* _buf, uint64_t _length)
+bool V8Object::set_data(const void* _buf, uint64_t _length)
 {
 	uint32_t curlen = 0;
 	char* buf;
@@ -835,7 +835,7 @@ bool V8Object::setdata(const void* _buf, uint64_t _length)
 }
 
 //---------------------------------------------------------------------------
-bool V8Object::setdata(TStream* stream)
+bool V8Object::set_data(TStream* stream)
 {
 	uint32_t curlen;
 	uint64_t _length;
@@ -931,7 +931,7 @@ bool V8Object::setdata(TStream* stream)
 }
 
 //---------------------------------------------------------------------------
-bool V8Object::setdata(TStream* stream, uint64_t _start, uint64_t _length)
+bool V8Object::set_data(TStream* stream, uint64_t _start, uint64_t _length)
 {
 	uint32_t curblock;
 	uint32_t curoffblock;
@@ -1433,7 +1433,7 @@ TStream* V8Object::readBlob(TStream* _str, uint32_t _startblock, uint32_t _lengt
 				.add_detail("Всего блоков", _numblock)
 				.add_detail("Читаемый блок", _curblock);
 		}
-		getdata(_curb, _curblock << 8, 0x100);
+		get_data(_curb, _curblock << 8, 0x100);
 		_curblock = *(uint32_t*)_curb;
 		uint16_t _curlen = *(uint16_t*)(_curb + 4);
 		if(_curlen > 0xfa)

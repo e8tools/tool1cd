@@ -30,7 +30,7 @@ TTempStreamStaticInit::~TTempStreamStaticInit()
 }
 
 //---------------------------------------------------------------------------
-TTempStream::TTempStream() : TFileStream(gettempname(), fmCreate)
+TTempStream::TTempStream() : TFileStream(get_temp_name(), fmCreate)
 {
 }
 
@@ -41,7 +41,7 @@ TTempStream::~TTempStream()
 
 //---------------------------------------------------------------------------
 
-std::string TTempStream::gettempname()
+std::string TTempStream::get_temp_name()
 {
 	return (boost::filesystem::path(tempcat) / boost::filesystem::unique_path()).string();
 }

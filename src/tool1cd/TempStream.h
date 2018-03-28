@@ -20,7 +20,7 @@ class TTempStream : public TFileStream
 public:
 	static std::string tempcat;
 	static long tempno;
-	static std::string gettempname();
+	static std::string get_temp_name();
 
 	TTempStream();
 	virtual ~TTempStream();
