@@ -199,7 +199,7 @@ bool TableFiles::test_table()
 }
 
 //---------------------------------------------------------------------------
-TableFile* TableFiles::getfile(const string &name)
+TableFile* TableFiles::get_file(const string &name)
 {
 	auto p = allfiles.find(LowerCase(name));
 	if(p == allfiles.end()) {
