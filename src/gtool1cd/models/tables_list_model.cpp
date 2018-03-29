@@ -5,7 +5,7 @@ static int object_size(/*const */V8Object *file)
 	if (file == nullptr) {
 		return 0;
 	}
-	return file->getlen();
+	return file->get_len();
 }
 
 QString human_size(size_t size_in_bytes)
@@ -55,10 +55,10 @@ QVariant TablesListModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 	}
 	if (role == Qt::DisplayRole) {
-		Table *t = db->gettable(index.row());
+		Table *t = db->get_table(index.row());
 		switch (index.column()) {
 		case 0:
-			return QVariant::fromValue(QString::fromStdString(t->getname()));
+			return QVariant::fromValue(QString::fromStdString(t->get_name()));
 
 		case 1:
 			return QVariant::fromValue(t->get_recordlen());

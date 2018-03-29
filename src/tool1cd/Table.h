@@ -112,12 +112,12 @@ public:
 	void init();
 	void init(int32_t block_descr);
 
-	std::string getname() const;
-	std::string getdescription() const;
+	std::string get_name() const;
+	std::string get_description() const;
 	int32_t get_numfields() const;
 	int32_t get_numindexes() const;
-	Field* getfield(int32_t numfield);
-	Index* getindex(int32_t numindex);
+	Field* get_field(int32_t numfield);
+	Index* get_index(int32_t numindex);
 	bool get_issystem() const;
 	int32_t get_recordlen() const;
 	bool get_recordlock() const;
@@ -127,8 +127,8 @@ public:
 	void set_log_numrecords(uint32_t _log_numrecords); //
 	uint32_t get_added_numrecords() const;
 
-	TableRecord *getrecord(uint32_t phys_numrecord) const; // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
-	void getrecord(uint32_t phys_numrecord, char *buf);
+	TableRecord *get_record(uint32_t phys_numrecord) const; // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
+	void get_record(uint32_t phys_numrecord, char *buf);
 	TStream* readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, bool rewrite = true) const;
 	uint32_t readBlob(void* _buf, uint32_t _startblock, uint32_t _length) const;
 	void set_lockinmemory(bool _lock);
@@ -146,7 +146,7 @@ public:
 	uint32_t get_phys_numrec(int32_t ARow, Index* cur_index); // получить физический индекс записи по номеру строки по указанному индексу
 	std::string get_file_name_for_field(int32_t num_field, char *rec, uint32_t numrec = 0); // получить имя файла по-умолчанию конкретного поля конкретной записи
 	std::string get_file_name_for_record(const TableRecord *rec) const; // получить имя файла по-умолчанию конкретной записи
-	T_1CD* getbase(){return base;}
+	T_1CD* get_base(){return base;}
 
 	void begin_edit(); // переводит таблицу в режим редактирования
 	void cancel_edit(); // переводит таблицу в режим просмотра и отменяет все изменения

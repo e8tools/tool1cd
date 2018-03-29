@@ -74,17 +74,17 @@ void MemBlockManager::garbage(bool aggressive)
 }
 
 //---------------------------------------------------------------------------
-char* MemBlockManager::getblock(uint32_t _numblock)
+char* MemBlockManager::get_block(uint32_t _numblock)
 {
 	if(_numblock >= memblocks.size()) return nullptr;
 	if (!memblocks[_numblock]) {
 		memblocks[_numblock] = MemBlock::create(fs, pagesize, _numblock, false, true);
 	}
-	return memblocks[_numblock]->getblock(false);
+	return memblocks[_numblock]->get_block(false);
 }
 
 //---------------------------------------------------------------------------
-char* MemBlockManager::getblock_for_write(uint32_t _numblock, bool read)
+char* MemBlockManager::get_block_for_write(uint32_t _numblock, bool read)
 {
 	if (_numblock > memblocks.size()) {
 		return nullptr;
@@ -97,7 +97,7 @@ char* MemBlockManager::getblock_for_write(uint32_t _numblock, bool read)
 	if(!memblocks[_numblock]) {
 		memblocks[_numblock] = MemBlock::create(fs, pagesize, _numblock, true, read);
 	}
-	return memblocks[_numblock]->getblock(true);
+	return memblocks[_numblock]->get_block(true);
 }
 
 //---------------------------------------------------------------------------
@@ -170,7 +170,7 @@ MemBlockManager::MemBlockManager()
 
 }
 
-char *MemBlock::getblock(bool for_write)
+char *MemBlock::get_block(bool for_write)
 {
 	if (for_write) {
 		changed = true;
@@ -179,7 +179,7 @@ char *MemBlock::getblock(bool for_write)
 	return data.data();
 }
 
-const char *MemBlock::getblock() const
+const char *MemBlock::get_block() const
 {
 	last_data_get = GetTickCount();
 	return data.data();

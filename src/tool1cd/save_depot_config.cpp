@@ -256,7 +256,7 @@ bool T_1CD::save_depot_config(const string &_filename, int32_t ver)
 		if(iHistory_Index < HistoryIndex_numrec)
 		{
 			uint32_t num_rec = index_history->get_numrec(iHistory_Index);
-			rech2 = table_history->getrecord(num_rec);
+			rech2 = table_history->get_record(num_rec);
 		}
 
 		if (rech2->get<BinaryGuid>(fldh_objid) != curobj || iHistory_Index == HistoryIndex_numrec) {

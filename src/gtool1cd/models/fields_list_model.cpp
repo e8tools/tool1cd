@@ -30,21 +30,21 @@ QVariant FieldsListModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 	}
 	if (role == Qt::DisplayRole) {
-		Field *f = table->getfield(index.row());
+		Field *f = table->get_field(index.row());
 		switch (index.column()) {
 		case 0:
-			return QString::fromStdString(f->getname());
+			return QString::fromStdString(f->get_name());
 
 		case 1:
 			return QString::fromStdString(f->get_presentation_type());
 		case 2:
-			return QVariant::fromValue(f->getlength());
+			return QVariant::fromValue(f->get_length());
 		case 3:
-			return QVariant::fromValue(f->getprecision());
+			return QVariant::fromValue(f->get_precision());
 		case 4:
-			return f->getnull_exists() ? QString("NULL") : QString("NOT NULL");
+			return f->get_null_exists() ? QString("NULL") : QString("NOT NULL");
 		case 5:
-			return f->getcase_sensitive() ? QString("CS") : QString("CI");
+			return f->get_case_sensitive() ? QString("CS") : QString("CI");
 		} // switch
 	}
 

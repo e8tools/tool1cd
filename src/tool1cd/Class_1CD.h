@@ -151,15 +151,12 @@ enum class depot_ver
 class T_1CD
 {
 friend Table;
-friend Index;
-friend Field;
 public:
 
 	typedef std::vector<std::shared_ptr<SupplierConfig>> SupplierConfigs;
 
 	static bool recoveryMode;
 	char* locale; // код языка базы
-	inline bool is_infobase() const { return _is_infobase; }
 	bool is_depot; // признак хранилища конфигурации
 
 	// Таблицы информационной базы
@@ -194,8 +191,9 @@ public:
 	T_1CD();
 	~T_1CD();
 	bool is_open();
+	bool is_infobase() const;
 	int32_t get_numtables();
-	Table* gettable(int32_t numtable);
+	Table* get_table(int32_t numtable);
 	db_ver get_version();
 
 	bool save_config(const boost::filesystem::path &file_name);
@@ -221,21 +219,18 @@ public:
 	void find_and_create_lost_tables();
 	void restore_DATA_allocation_table(Table* tab);
 	bool test_block_by_template(uint32_t testblock, char* tt, uint32_t num, int32_t rlen, int32_t len);
-	std::string getfilename() const {return filename;}
-	uint32_t getpagesize() const {return pagesize;}
+	std::string get_filename() const;
+	uint32_t get_pagesize() const;
 
 	SupplierConfigs& supplier_configs();
 
-	bool getblock(void* buf, uint32_t block_number, int32_t blocklen = -1); // буфер принадлежит вызывающей процедуре
-	char*  getblock(uint32_t block_number) const; // буфер не принадлежит вызывающей стороне (принадлежит memblock)
-	char*  getblock_for_write(uint32_t block_number, bool read); // буфер не принадлежит вызывающей стороне (принадлежит memblock)
+	bool get_block(void* buf, uint32_t block_number, int32_t blocklen = -1); // буфер принадлежит вызывающей процедуре
+	char* get_block(uint32_t block_number) const; // буфер не принадлежит вызывающей стороне (принадлежит memblock)
+	char* get_block_for_write(uint32_t block_number, bool read); // буфер не принадлежит вызывающей стороне (принадлежит memblock)
 	void set_block_as_free(uint32_t block_number); // пометить блок как свободный
 	uint32_t get_free_block(); // получить номер свободного блока (и пометить как занятый)
 
-	const MemBlockManager &getMemBlockManager() const
-	{
-		return memBlockManager;
-	}
+	const MemBlockManager &getMemBlockManager() const;
 
 private:
 	mutable Registrator msreg_m;

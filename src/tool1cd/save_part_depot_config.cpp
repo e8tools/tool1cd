@@ -75,7 +75,7 @@ bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, i
 	TableRecord *rec = nullptr;
 	for(i = 0; i < table_depot->get_phys_numrecords(); i++)
 	{
-		rec = table_depot->getrecord(i);
+		rec = table_depot->get_record(i);
 		if(!rec->is_removed()) {
 			break;
 		}
@@ -107,7 +107,7 @@ bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, i
 	n = 0;
 	for (uint32_t i = 0; i < table_versions->get_phys_numrecords(); i++)
 	{
-		rec = table_versions->getrecord(i);
+		rec = table_versions->get_record(i);
 		if (rec->is_removed()) {
 			delete rec;
 			rec = nullptr;
@@ -224,7 +224,7 @@ bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, i
 		uint32_t i;
 		if (history_iterator < history_records) {
 			i = history_pk->get_numrec(history_iterator);
-			rech = table_history->getrecord(i);
+			rech = table_history->get_record(i);
 		}
 
 		if (rech->get<BinaryGuid>(fldh_objid) != curobj || history_iterator == history_records)
@@ -291,7 +291,7 @@ bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, i
 									}
 										if (memcmp(rech2->get_data(fldh_datahash)
 												, rech1->get_data(fldh_datahash)
-												, fldh_datahash->getlength()) == 0) {
+												, fldh_datahash->get_length()) == 0) {
 											changed = false;
 										}
 									}
@@ -370,7 +370,7 @@ bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, i
 									while(!datapacked && v > ver_begin && je)
 									{
 										i = externals_pk->get_numrec(--je);
-										rece = table_externals->getrecord(i);
+										rece = table_externals->get_record(i);
 										if (rece->get<BinaryGuid>(flde_objid) != curobj) {
 											break;
 										}
@@ -446,7 +446,7 @@ bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, i
 							break;
 						}
 						i = externals_pk->get_numrec(external_iterator++);
-						rece = table_externals->getrecord(i);
+						rece = table_externals->get_record(i);
 					}
 				}
 

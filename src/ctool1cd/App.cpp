@@ -52,18 +52,18 @@ void App::export_all_to_xml(const ParsedCommand &pc)
 	}
 
 	for (int j = 0; j < base1CD->get_numtables(); j++) {
-		tbl = base1CD->gettable(j);
+		tbl = base1CD->get_table(j);
 
 		if (!tbl->get_numindexes()) {
 			tbl->fillrecordsindex();
 		}
 
-		boost::filesystem::path filetable = root_path / (tbl->getname() + ".xml");
+		boost::filesystem::path filetable = root_path / (tbl->get_name() + ".xml");
 
 		tbl->export_to_xml(filetable.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
 
 		msreg_g.AddMessage("Выполнен экспорт таблицы в файл.", MessageState::Succesfull)
-				.with("Таблица", tbl->getname())
+				.with("Таблица", tbl->get_name())
 				.with("Файл", filetable.string());
 	}
 } // export_all_to_xml
@@ -110,12 +110,12 @@ void App::export_to_xml(const ParsedCommand &pc)
 	}
 
 	for (int j = 0; j < base1CD->get_numtables(); j++) {
-		Table *tbl = base1CD->gettable(j);
+		Table *tbl = base1CD->get_table(j);
 
 		bool b = false;
 
 		for (int m = 0; m < k; m++) {
-			if (regex_match(LowerCase(tbl->getname()), expr[m])) {
+			if (regex_match(LowerCase(tbl->get_name()), expr[m])) {
 				b = true;
 				break;
 			}
@@ -124,10 +124,10 @@ void App::export_to_xml(const ParsedCommand &pc)
 		if (b) {
 			tbl->fillrecordsindex();
 
-			boost::filesystem::path filetable = root_path / (tbl->getname() + ".xml");
+			boost::filesystem::path filetable = root_path / (tbl->get_name() + ".xml");
 			tbl->export_to_xml(filetable.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
 			msreg_g.AddMessage("Выполнен экспорт таблицы в файл.", MessageState::Succesfull)
-				.with("Таблица", tbl->getname())
+				.with("Таблица", tbl->get_name())
 				.with("Файл", filetable.string());
 		}
 	}
@@ -174,12 +174,12 @@ void App::export_to_binary(const ParsedCommand &pc)
 
 	for (int j = 0; j < base1CD->get_numtables(); j++) {
 
-		Table *tbl = base1CD->gettable(j);
+		Table *tbl = base1CD->get_table(j);
 
 		bool found = false;
 
 		for (int m = 0; m < k; m++) {
-			if (regex_match(LowerCase(tbl->getname()), expr[m])) {
+			if (regex_match(LowerCase(tbl->get_name()), expr[m])) {
 				found = true;
 				break;
 			}
@@ -191,7 +191,7 @@ void App::export_to_binary(const ParsedCommand &pc)
 			}
 			tbl->export_table(root_path.string());
 			msreg_g.AddMessage("Выполнен экспорт таблицы в файл.", MessageState::Succesfull)
-					.with("Таблица", tbl->getname())
+					.with("Таблица", tbl->get_name())
 					.with("Каталог", root_path.string());
 		}
 	}
@@ -237,12 +237,12 @@ void App::import_from_binary(const ParsedCommand &pc)
 
 	for (int j = 0; j < base1CD->get_numtables(); j++) {
 
-		Table *tbl = base1CD->gettable(j);
+		Table *tbl = base1CD->get_table(j);
 
 		bool found = false;
 
 		for (int m = 0; m < k; m++) {
-			if (regex_match(LowerCase(tbl->getname()), expr[m])) {
+			if (regex_match(LowerCase(tbl->get_name()), expr[m])) {
 				found = true;
 				break;
 			}
@@ -254,7 +254,7 @@ void App::import_from_binary(const ParsedCommand &pc)
 			}
 			tbl->import_table(root_path.string());
 			msreg_g.AddMessage("Выполнен импорт таблицы из файла.", MessageState::Succesfull)
-					.with("Таблица", tbl->getname())
+					.with("Таблица", tbl->get_name())
 					.with("Каталог", root_path.string());
 		}
 	}

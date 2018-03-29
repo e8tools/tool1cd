@@ -20,9 +20,9 @@ public:
 		data.resize(page_size);
 	}
 
-	char *getblock(bool for_write);
+	char *get_block(bool for_write);
 
-	const char *getblock() const;
+	const char *get_block() const;
 
 	void write(std::shared_ptr<TFileStream> &fs);
 
@@ -57,8 +57,8 @@ public:
 	uint32_t count; // текущее количество кешированных блоков
 
 	void garbage(bool aggressive);
-	char* getblock(uint32_t _numblock);
-	char* getblock_for_write(uint32_t _numblock, bool read);
+	char* get_block(uint32_t _numblock);
+	char* get_block_for_write(uint32_t _numblock, bool read);
 	void create_memblocks(uint64_t _numblocks);
 
 	void delete_memblocks();

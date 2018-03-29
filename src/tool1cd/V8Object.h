@@ -83,12 +83,12 @@ public:
 	static V8Object* get_first();
 	static V8Object* get_last();
 
-	char* getdata(); // чтение всего объекта целиком, поддерживает кеширование объектов. Буфер принадлежит объекту
-	char* getdata(void* buf, uint64_t _start, uint64_t _length); // чтение кусочка объекта, поддерживает кеширование блоков. Буфер не принадлежит объекту
-	bool setdata(const void* buf, uint64_t _start, uint64_t _length); // запись кусочка объекта, поддерживает кеширование блоков.
-	bool setdata(const void* buf, uint64_t _length); // запись объекта целиком, поддерживает кеширование блоков.
-	bool setdata(TStream* stream); // записывает поток целиком в объект, поддерживает кеширование блоков.
-	bool setdata(TStream* stream, uint64_t _start, uint64_t _length); // запись части потока в объект, поддерживает кеширование блоков.
+	char* get_data(); // чтение всего объекта целиком, поддерживает кеширование объектов. Буфер принадлежит объекту
+	char* get_data(void* buf, uint64_t _start, uint64_t _length); // чтение кусочка объекта, поддерживает кеширование блоков. Буфер не принадлежит объекту
+	bool set_data(const void* buf, uint64_t _start, uint64_t _length); // запись кусочка объекта, поддерживает кеширование блоков.
+	bool set_data(const void* buf, uint64_t _length); // запись объекта целиком, поддерживает кеширование блоков.
+	bool set_data(TStream* stream); // записывает поток целиком в объект, поддерживает кеширование блоков.
+	bool set_data(TStream* stream, uint64_t _start, uint64_t _length); // запись части потока в объект, поддерживает кеширование блоков.
 
 	void savetofile(const std::string &filename);
 	void set_lockinmemory(bool _lock);
@@ -104,7 +104,7 @@ public:
 
 	V8Object* get_next();
 
-	uint64_t getlen() const;
+	uint64_t get_len() const;
 	void set_len(uint64_t _len); // установка новой длины объекта
 
 	uint32_t get_block_number() const;

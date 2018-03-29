@@ -14,13 +14,13 @@
 
 QString index_presentation(Index *index)
 {
-	QString presentation = QString::fromStdString(index->getname());
+	QString presentation = QString::fromStdString(index->get_name());
 	presentation += QString(": ");
 	for (int i = 0; i < index->get_num_records(); i++) {
 		if (i != 0) {
 			presentation += QString(", ");
 		}
-		presentation += QString::fromStdString(index->get_records()[i].field->getname());
+		presentation += QString::fromStdString(index->get_records()[i].field->get_name());
 	}
 	return presentation;
 }
@@ -31,7 +31,7 @@ TableDataWindow::TableDataWindow(QWidget *parent, Table *table)
       tableWindow(nullptr)
 {
 	ui->setupUi(this);
-	setWindowTitle(QString::fromStdString(table->getname()));
+	setWindowTitle(QString::fromStdString(table->get_name()));
 	ui->dataView->setModel(new TableDataModel(table));
 
 	hexedit = new QHexEdit();
@@ -43,7 +43,7 @@ TableDataWindow::TableDataWindow(QWidget *parent, Table *table)
 	indexes.push_back(nullptr); // PK
 
 	for (int i = 0; i < table->get_numindexes(); i++) {
-		Index *index = table->getindex(i);
+		Index *index = table->get_index(i);
 		if (index->is_primary() && indexes[0] == nullptr) {
 			indexes[0] = index;
 		} else {
@@ -56,7 +56,7 @@ TableDataWindow::TableDataWindow(QWidget *parent, Table *table)
 		if (index == nullptr) {
 			continue;
 		}
-		ui->indexChooseBox->addItem(index_presentation(index), QString::fromStdString(index->getname()));
+		ui->indexChooseBox->addItem(index_presentation(index), QString::fromStdString(index->get_name()));
 	}
 
 	connect(ui->dataView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
@@ -72,8 +72,8 @@ TableDataWindow::~TableDataWindow()
 void TableDataWindow::on_descriptionButton_clicked()
 {
 	SkobkaTextWindow *w = new SkobkaTextWindow(this);
-	w->setText(QString::fromStdString(table->getdescription()),
-	           QString::fromStdString(table->getname()));
+	w->setText(QString::fromStdString(table->get_description()),
+	           QString::fromStdString(table->get_name()));
 	w->show();
 }
 

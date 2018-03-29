@@ -25,21 +25,24 @@ Field::Field(Table* _parent)
 	}
 
 	parent = _parent;
-	len = 0;
-	offset = 0;
 	name = "";
 }
 
 //---------------------------------------------------------------------------
-std::string Field::getname() const
+std::string Field::get_name() const
 {
 	return name;
 }
 
-//---------------------------------------------------------------------------
-int32_t Field::getlen() const // возвращает длину поля в байтах
+void Field::set_name(const string &value)
 {
-	return (null_exists ? 1 : 0) + type_manager->getlen();
+	name = value;
+}
+
+//---------------------------------------------------------------------------
+int32_t Field::get_size() const // возвращает длину поля в байтах
+{
+	return (null_exists ? 1 : 0) + type_manager->get_size();
 }
 
 //---------------------------------------------------------------------------
@@ -48,7 +51,7 @@ std::string Field::get_presentation(const char *rec, bool EmptyNull, wchar_t Del
 									bool detailed) const
 {
 	const char* fr = rec + offset;
-	if (getnull_exists()) {
+	if (get_null_exists()) {
 		if (fr[0] == 0) {
 			return EmptyNull ? "" : "{NULL}";
 		}
@@ -63,7 +66,7 @@ std::string Field::get_presentation(const char *rec, bool EmptyNull, wchar_t Del
 //---------------------------------------------------------------------------
 bool Field::get_binary_value(char *binary_value, bool null, const std::string &value) const
 {
-	memset(binary_value, 0, len);
+	memset(binary_value, 0, get_size());
 
 	if (null_exists) {
 		if (null) {
@@ -89,45 +92,39 @@ std::string Field::get_XML_presentation(const char *rec, bool ignore_showGUID) c
 }
 
 //---------------------------------------------------------------------------
-type_fields Field::gettype() const
+type_fields Field::get_type() const
 {
-	return type_manager->gettype();
+	return type_manager->get_type();
 }
 
 //---------------------------------------------------------------------------
-Table* Field::getparent() const
+Table* Field::get_parent() const
 {
 	return parent;
 }
 
 //---------------------------------------------------------------------------
-bool Field::getnull_exists() const
+bool Field::get_null_exists() const
 {
 	return null_exists;
 }
 
 //---------------------------------------------------------------------------
-int32_t Field::getlength() const
+int32_t Field::get_length() const
 {
-	return type_manager->getlength();
+	return type_manager->get_length();
 }
 
 //---------------------------------------------------------------------------
-int32_t Field::getprecision() const
+int32_t Field::get_precision() const
 {
-	return type_manager->getprecision();
+	return type_manager->get_precision();
 }
 
 //---------------------------------------------------------------------------
-bool Field::getcase_sensitive() const
+bool Field::get_case_sensitive() const
 {
-	return type_manager->getcase_sensitive();
-}
-
-//---------------------------------------------------------------------------
-int32_t Field::getoffset() const
-{
-	return offset;
+	return type_manager->get_case_sensitive();
 }
 
 //---------------------------------------------------------------------------
@@ -147,13 +144,13 @@ std::string TrimSpacesRight(const std::string &s)
 }
 
 //---------------------------------------------------------------------------
-uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxlen) const
+uint32_t Field::get_sort_key(const char* rec, unsigned char* SortKey, int32_t maxlen) const
 {
 	const char *fr = rec + offset;
 	if (null_exists) {
 		if (*fr == 0) {
 			*(SortKey++) = 0;
-			memcpy(SortKey, (void *)null_index, len);
+			memcpy(SortKey, (void *)null_index, get_size());
 			return 0;
 		}
 		*(SortKey++) = 1;
@@ -163,7 +160,7 @@ uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxl
 
 	try {
 
-		return type_manager->getSortKey(fr, SortKey, maxlen);
+		return type_manager->get_sort_key(fr, SortKey, maxlen);
 
 	} catch (SerializationException &exception) {
 		exception.add_detail("Таблица", parent->name)
@@ -171,6 +168,26 @@ uint32_t Field::getSortKey(const char* rec, unsigned char* SortKey, int32_t maxl
 				.show();
 	}
 	return 0;
+}
+
+FieldType *Field::get_type_manager() const
+{
+	return type_manager;
+}
+
+void Field::set_type_manager(FieldType *value)
+{
+	type_manager = value;
+}
+
+int32_t Field::get_offset() const
+{
+	return offset;
+}
+
+void Field::set_offset(const int32_t value)
+{
+	offset = value;
 }
 
 //---------------------------------------------------------------------------
@@ -215,10 +232,10 @@ bool Field::save_blob_to_file(const TableRecord *rec, const std::string &_filena
 	{
 
 		// спецобработка для users.usr
-		string tabname = tab->getname();
+		string tabname = tab->get_name();
 		bool is_users_usr = false;
 		if (EqualIC(tabname, "PARAMS")) {
-			Field *_f = tab->getfield(0);
+			Field *_f = tab->get_field(0);
 			if (EqualIC(rec->get_string(_f), "users.usr")) {
 				is_users_usr = true;
 			}
@@ -229,7 +246,7 @@ bool Field::save_blob_to_file(const TableRecord *rec, const std::string &_filena
 
 		bool maybezipped_twice = true;
 		if (EqualIC(tabname, "CONFIG") || EqualIC(tabname, "CONFIGSAVE")) {
-			Field *_f = tab->getfield(0);
+			Field *_f = tab->get_field(0);
 			maybezipped_twice = rec->get_string(_f).size() > GUID_LEN*2;
 		}
 

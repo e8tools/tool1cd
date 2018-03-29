@@ -11,15 +11,15 @@
 NullValueException::NullValueException(const Field *field)
 	: DetailedException("Запрошенное значение равно NULL")
 {
-	add_detail("Поле", field->getname());
-	add_detail("Таблица", field->getparent()->getname());
+	add_detail("Поле", field->get_name());
+	add_detail("Таблица", field->get_parent()->get_name());
 }
 
 FieldCannotBeNullException::FieldCannotBeNullException(const Field *field)
 	: DetailedException("Поле не может быть NULL")
 {
-	add_detail("Поле", field->getname());
-	add_detail("Таблица", field->getparent()->getname());
+	add_detail("Поле", field->get_name());
+	add_detail("Таблица", field->get_parent()->get_name());
 }
 
 TableRecord::TableRecord(const Table *parent, char *data, int data_size)
@@ -64,10 +64,10 @@ std::string TableRecord::get_string(const std::string &field_name) const
 
 bool TableRecord::is_null_value(const Field *field) const
 {
-	if (!field->getnull_exists()) {
+	if (!field->get_null_exists()) {
 		return false;
 	}
-	return data[field->getoffset()] == '\0';
+	return data[field->get_offset()] == '\0';
 }
 
 bool TableRecord::is_null_value(const std::string &field_name) const
@@ -82,7 +82,7 @@ bool TableRecord::is_removed() const
 
 const char *TableRecord::get_raw(const Field *field) const
 {
-	return &data[field->getoffset()];
+	return &data[field->get_offset()];
 }
 
 const char *TableRecord::get_raw(const std::string &field_name) const
@@ -93,12 +93,12 @@ const char *TableRecord::get_raw(const std::string &field_name) const
 
 const char *TableRecord::get_data(const Field *field) const
 {
-	return &data[field->getoffset() + (field->getnull_exists() ? 1 : 0)];
+	return &data[field->get_offset() + (field->get_null_exists() ? 1 : 0)];
 }
 
 char *TableRecord::__get_data(const Field *field)
 {
-	return &data[field->getoffset() + (field->getnull_exists() ? 1 : 0)];
+	return &data[field->get_offset() + (field->get_null_exists() ? 1 : 0)];
 }
 
 
@@ -112,8 +112,8 @@ void TableRecord::Assign(const TableRecord *another_record)
 	if (table != nullptr) {
 		if (another_record->data_size != data_size || another_record->table != table) {
 			throw DetailedException("Попытка передать данные между записями разных таблиц!")
-					.add_detail("Таблица-приёмник", table->getname())
-					.add_detail("Таблица-источник", another_record->table->getname());
+					.add_detail("Таблица-приёмник", table->get_name())
+					.add_detail("Таблица-источник", another_record->table->get_name());
 		}
 	}
 	auto i = data_size;
@@ -124,20 +124,20 @@ void TableRecord::Assign(const TableRecord *another_record)
 
 void TableRecord::set_null(const Field *field)
 {
-	if (!field->getnull_exists()) {
+	if (!field->get_null_exists()) {
 		throw FieldCannotBeNullException(field);
 	}
-	data[field->getoffset()] = '\0';
+	data[field->get_offset()] = '\0';
 }
 
 void TableRecord::set_data(const Field *field, const void *new_data)
 {
-	char *data_start = &data[field->getoffset()];
-	if (field->getnull_exists()) {
+	char *data_start = &data[field->get_offset()];
+	if (field->get_null_exists()) {
 		data_start[0] = '\001';
 		data_start++;
 	}
-	memcpy(data_start, new_data, field->getlen());
+	memcpy(data_start, new_data, field->get_size());
 }
 
 std::string TableRecord::get_xml_string(const Field *field) const

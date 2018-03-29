@@ -567,20 +567,20 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 	int dynno;
 	ContainerFile* pcf;
 
-	ready = tabf->getready();
+	ready = tabf->get_ready();
 	if(!ready) return;
 
-	present = tabf->gettable()->getbase()->getfilename() + "\\config";
+	present = tabf->get_table()->get_base()->get_filename() + "\\config";
 
-	tab = tabf->gettable();
-	_DynamicallyUpdated = tabf->getfile("DynamicallyUpdated");
+	tab = tabf->get_table();
+	_DynamicallyUpdated = tabf->get_file("DynamicallyUpdated");
 
 	if(_DynamicallyUpdated)
 	{
 		ContainerFile DynamicallyUpdated(_DynamicallyUpdated, _DynamicallyUpdated->name);
 		DynamicallyUpdated.open();
-		string detail_path_name = tab->getbase()->getfilename()
-								  + "\\" + tab->getname()
+		string detail_path_name = tab->get_base()->get_filename()
+								  + "\\" + tab->get_name()
 								  + "\\" + DynamicallyUpdated.name;
 		tree *tt = parse_1Cstream(DynamicallyUpdated.stream, detail_path_name);
 		try {
@@ -690,21 +690,21 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 	set<string> del;
 	set<string>::iterator pdel;
 
-	ready = tabc->getready();
+	ready = tabc->get_ready();
 	if(!ready) return;
-	ready = tabcs->getready();
+	ready = tabcs->get_ready();
 	if(!ready) return;
 
-	present = tabc->gettable()->getbase()->getfilename() + "\\configsave";
+	present = tabc->get_table()->get_base()->get_filename() + "\\configsave";
 
-	tab = tabcs->gettable();
-	_deleted = tabcs->getfile("deleted");
+	tab = tabcs->get_table();
+	_deleted = tabcs->get_file("deleted");
 	if(_deleted)
 	{
 		ContainerFile deleted(_deleted, _deleted->name);
 		deleted.open();
-		string detail_path_name = tab->getbase()->getfilename()
-				   + "\\" + tab->getname()
+		string detail_path_name = tab->get_base()->get_filename()
+				   + "\\" + tab->get_name()
 				   + "\\" + deleted.name;
 		tree *tt = parse_1Cstream(deleted.stream, detail_path_name);
 		std::vector<BinaryGuid> dynup;
@@ -719,16 +719,16 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 		}
 	}
 
-	tab = tabc->gettable();
-	_DynamicallyUpdated = tabc->getfile("DynamicallyUpdated");
+	tab = tabc->get_table();
+	_DynamicallyUpdated = tabc->get_file("DynamicallyUpdated");
 
 	std::vector<BinaryGuid> dynup;
 	if(_DynamicallyUpdated)
 	{
 		ContainerFile DynamicallyUpdated(_DynamicallyUpdated, _DynamicallyUpdated->name);
 		DynamicallyUpdated.open();
-		string detail_path_name = tab->getbase()->getfilename()
-				+ "\\" + tab->getname()
+		string detail_path_name = tab->get_base()->get_filename()
+				+ "\\" + tab->get_name()
 				+ "\\" + DynamicallyUpdated.name;
 		tree *tt = parse_1Cstream(DynamicallyUpdated.stream, detail_path_name);
 		try {
@@ -843,13 +843,13 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 	ContainerFile* pcf;
 	TMemoryStream* stream;
 
-	ready = tabc->getready();
+	ready = tabc->get_ready();
 	if(!ready) return;
 
-	present = tabc->gettable()->getbase()->getfilename() + "\\configcas";
+	present = tabc->get_table()->get_base()->get_filename() + "\\configcas";
 	string filepath = present + "\\" + configver;
 
-	_configinfo = tabc->getfile(configver);
+	_configinfo = tabc->get_file(configver);
 	if(!_configinfo)
 	{
 		throw DetailedException("Ошибка поиска файла")
@@ -924,7 +924,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 		stream->Seek(0l, soBeginning);
 		string hashname = hexstring(stream);
 
-		tf = tabc->getfile(hashname);
+		tf = tabc->get_file(hashname);
 		if(tf)
 		{
 			pcf = new ContainerFile(tf, name);
@@ -966,13 +966,13 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 	std::map<string,TableFile*>::iterator ptf;
 
 
-	ready = tabc->getready();
+	ready = tabc->get_ready();
 	if(!ready) return;
-	ready = tabcs->getready();
+	ready = tabcs->get_ready();
 	if(!ready) return;
 
 	configinfo = nullptr;
-	present = tabcs->gettable()->getbase()->getfilename() + "\\configcassave";
+	present = tabcs->get_table()->get_base()->get_filename() + "\\configcassave";
 
 	string struid = uid.as_1C() + "__";
 	auto struid_len = struid.size();
@@ -998,8 +998,8 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 				.add_detail("Имя файла", "configinfo");
 		}
 
-		config_info_path = tabc->gettable()->getbase()->getfilename() + "\\configcas\\" + configver;
-		_configinfo = tabc->getfile(configver);
+		config_info_path = tabc->get_table()->get_base()->get_filename() + "\\configcas\\" + configver;
+		_configinfo = tabc->get_file(configver);
 		if(!_configinfo)
 		{
 			throw DetailedException("Ошибка поиска файла")
@@ -1083,7 +1083,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 		stream->Seek(0l, soBeginning);
 		string hashname = hexstring(stream);
 
-		TableFile *tf = tabc->getfile(hashname);
+		TableFile *tf = tabc->get_file(hashname);
 		if(tf)
 		{
 			auto pcf = new ContainerFile(tf, name);

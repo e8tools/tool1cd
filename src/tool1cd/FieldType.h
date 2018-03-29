@@ -23,11 +23,11 @@ struct field_type_declaration {
 
 class FieldType {
 public:
-	virtual type_fields gettype() const = 0;
-	virtual int32_t getlength() const = 0;
-	virtual int32_t getlen() const = 0;
-	virtual int32_t getprecision() const = 0;
-	virtual bool getcase_sensitive() const = 0;
+	virtual type_fields get_type() const = 0;
+	virtual int32_t get_length() const = 0;
+	virtual int32_t get_size() const = 0;
+	virtual int32_t get_precision() const = 0;
+	virtual bool get_case_sensitive() const = 0;
 	virtual std::string get_presentation_type() const = 0;
 
 	virtual std::string get_presentation(
@@ -44,7 +44,7 @@ public:
 			const Table *parent,
 			bool ignore_showGUID) const = 0;
 
-	virtual uint32_t getSortKey(
+	virtual uint32_t get_sort_key(
 			const char* rec,
 			unsigned char* SortKey,
 			int32_t maxlen) const = 0;
