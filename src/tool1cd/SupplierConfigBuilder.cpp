@@ -138,7 +138,7 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 }
 
 int32_t SupplierConfigBuilder::get_version() const {
-	V8File* version_file = main_catalog->GetFile("version");
+	V8File* version_file = main_catalog->get_file("version");
 	if(!version_file) {
 		throw SupplierConfigReadException("Не найден файл version в конфигурации поставщика")
 				.add_detail("Таблица", _table_file->t->get_name())
@@ -162,23 +162,23 @@ V8File* SupplierConfigBuilder::get_file(const string &file_name) const {
 	V8File* result = nullptr;
 
 	if(get_version() < 100) { // 8.0
-		V8File* metadata_file = main_catalog->GetFile("metadata");
+		V8File* metadata_file = main_catalog->get_file("metadata");
 		if(metadata_file == nullptr) {
 			throw SupplierConfigReadException("Не найден каталог metadata в конфигурации поставщика")
 					.add_detail("Таблица", _table_file->t->get_name())
 					.add_detail("Имя файла", _table_file->name);
 		}
 
-		V8Catalog* cat2 = metadata_file->GetCatalog();
+		V8Catalog* cat2 = metadata_file->get_catalog();
 		if(cat2 == nullptr) {
 			throw SupplierConfigReadException("Файл metadata не является каталогом в конфигурации поставщика")
 					.add_detail("Таблица", _table_file->t->get_name())
 					.add_detail("Имя файла", _table_file->name);
 		}
 
-		result = cat2->GetFile(file_name);
+		result = cat2->get_file(file_name);
 	} else {
-		result = main_catalog->GetFile(file_name); // else 8.1 или 8.2
+		result = main_catalog->get_file(file_name); // else 8.1 или 8.2
 	}
 
 	return result;

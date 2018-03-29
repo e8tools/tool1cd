@@ -420,7 +420,7 @@ bool T_1CD::save_part_depot_config(const string &_filename, int32_t ver_begin, i
 											if(out->GetSize() > 0)
 											{
 												cat = new V8Catalog(out, false, true);
-												iscatalog = cat->IsCatalog();
+												iscatalog = cat->is_catalog();
 											}
 											if(iscatalog) cat->SaveToDir((cath / ext_name).string());
 											else

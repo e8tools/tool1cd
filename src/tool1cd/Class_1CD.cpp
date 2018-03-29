@@ -1056,7 +1056,7 @@ bool T_1CD::recursive_test_stream_format(TStream *str, const string &path, bool 
 			.add_detail("Путь", path);
 	}
 
-	if(!cat || !cat->GetFirst())
+	if(!cat || !cat->get_first())
 	{
 
 		if(_s->GetSize() >= 16)
@@ -1145,12 +1145,12 @@ bool T_1CD::recursive_test_stream_format(V8Catalog *cat, const string &path)
 	V8File* v8fp;
 
 	result = true;
-	v8f = cat->GetFirst();
+	v8f = cat->get_first();
 	while(v8f)
 	{
 		try
 		{
-			c = v8f->GetCatalog();
+			c = v8f->get_catalog();
 		}
 		catch(...)
 		{
@@ -1158,18 +1158,18 @@ bool T_1CD::recursive_test_stream_format(V8Catalog *cat, const string &path)
 				.add_detail("Путь", path);
 		}
 		if (c) {
-			result = recursive_test_stream_format(c, path + "/" + v8f->GetFileName());
+			result = recursive_test_stream_format(c, path + "/" + v8f->get_file_name());
 		} else
 		{
-			string fname = v8f->GetFileName();
+			string fname = v8f->get_file_name();
 			if(fname != "module" && fname != "text")
 			{
-				result = recursive_test_stream_format(v8f->get_stream(), path + "/" + v8f->GetFileName());
+				result = recursive_test_stream_format(v8f->get_stream(), path + "/" + v8f->get_file_name());
 			}
 		}
 		v8fp = v8f;
-		v8f = v8f->GetNext();
-		v8fp->Close();
+		v8f = v8f->get_next();
+		v8fp->close();
 	}
 	return result;
 }

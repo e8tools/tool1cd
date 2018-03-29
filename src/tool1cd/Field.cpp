@@ -322,7 +322,7 @@ bool Field::save_blob_to_file(const TableRecord *rec, const std::string &_filena
 			}
 
 			V8Catalog *cat = new V8Catalog(_sx2, zippedContainer, true);
-			if(!cat->GetFirst())
+			if(!cat->get_first())
 			{
 				TFileStream temp_stream(boost::filesystem::path(_filename), fmCreate);
 				temp_stream.CopyFrom(_sx2, 0);
