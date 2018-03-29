@@ -150,7 +150,6 @@ enum class depot_ver
 // класс базы 1CD
 class T_1CD
 {
-friend Table;
 public:
 
 	typedef std::vector<std::shared_ptr<SupplierConfig>> SupplierConfigs;

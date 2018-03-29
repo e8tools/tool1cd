@@ -363,7 +363,7 @@ T_1CD::T_1CD(const string &_filename, MessageRegistrator *mess, bool _monopoly)
 			string table_descr = TEncoding::UTF8->toUtf8(tstr->GetBytes());
 			tables[j] = new Table(this, table_descr, table_blocks[i]);
 		}
-		if(tables[j]->bad)
+		if(tables[j]->is_bad())
 		{
 			delete tables[j];
 			continue;
@@ -595,16 +595,16 @@ bool T_1CD::test_stream_format()
 		throw DetailedException("Ошибка тестирования. В базе нет таблицы CONFIG");
 	}
 
-	if(table_config->get_numfields() < 6)
+	if(table_config->get_num_fields() < 6)
 	{
 		throw DetailedException("Ошибка тестирования. В таблице CONFIG меньше 6 полей")
-			.add_detail("Кол-во полей", table_config->get_numfields());
+			.add_detail("Кол-во полей", table_config->get_num_fields());
 	}
 
-	if(table_config->get_numfields() > 7)
+	if(table_config->get_num_fields() > 7)
 	{
 		throw DetailedException("Ошибка тестирования. В таблице CONFIG больше 7 полей")
-			.add_detail("Кол-во полей", table_config->get_numfields());
+			.add_detail("Кол-во полей", table_config->get_num_fields());
 	}
 
 	if (CompareIC(table_config->get_field(0)->get_name(), "FILENAME"))
@@ -643,7 +643,7 @@ bool T_1CD::test_stream_format()
 			.add_detail("Поле", table_config->get_field(5)->get_name());
 	}
 
-	if(table_config->get_numfields() > 6)
+	if(table_config->get_num_fields() > 6)
 	{
 		if (CompareIC(table_config->get_field(6)->get_name(), "PARTNO"))
 		{
@@ -658,16 +658,16 @@ bool T_1CD::test_stream_format()
 		throw DetailedException("Ошибка тестирования. В базе нет таблицы CONFIGSAVE");
 	}
 
-	if(table_configsave->get_numfields() < 6)
+	if(table_configsave->get_num_fields() < 6)
 	{
 		throw DetailedException("Ошибка тестирования. В таблице CONFIGSAVE меньше 6 полей")
-			.add_detail("Кол-во полей", table_configsave->get_numfields());
+			.add_detail("Кол-во полей", table_configsave->get_num_fields());
 	}
 
-	if(table_configsave->get_numfields() > 7)
+	if(table_configsave->get_num_fields() > 7)
 	{
 		throw DetailedException("Ошибка тестирования. В таблице CONFIGSAVE больше 7 полей")
-			.add_detail("Кол-во полей", table_configsave->get_numfields());
+			.add_detail("Кол-во полей", table_configsave->get_num_fields());
 	}
 
 	if (CompareIC(table_configsave->get_field(0)->get_name(), "FILENAME"))
@@ -706,7 +706,7 @@ bool T_1CD::test_stream_format()
 			.add_detail("Поле", table_configsave->get_field(5)->get_name());
 	}
 
-	if(table_configsave->get_numfields() > 6)
+	if(table_configsave->get_num_fields() > 6)
 	{
 		if (CompareIC(table_configsave->get_field(6)->get_name(), "PARTNO"))
 		{
@@ -721,16 +721,16 @@ bool T_1CD::test_stream_format()
 		throw DetailedException("Ошибка тестирования. В базе нет таблицы PARAMS");
 	}
 
-	if(table_params->get_numfields() < 6)
+	if(table_params->get_num_fields() < 6)
 	{
 		throw DetailedException("Ошибка тестирования. В таблице PARAMS меньше 6 полей")
-			.add_detail("Кол-во полей", table_params->get_numfields());
+			.add_detail("Кол-во полей", table_params->get_num_fields());
 	}
 
-	if(table_params->get_numfields() > 7)
+	if(table_params->get_num_fields() > 7)
 	{
 		throw DetailedException("Ошибка тестирования. В таблице PARAMS больше 7 полей")
-			.add_detail("Кол-во полей", table_params->get_numfields());
+			.add_detail("Кол-во полей", table_params->get_num_fields());
 	}
 
 	if (CompareIC(table_params->get_field(0)->get_name(), "FILENAME"))
@@ -769,7 +769,7 @@ bool T_1CD::test_stream_format()
 			.add_detail("Поле", table_params->get_field(5)->get_name());
 	}
 
-	if(table_params->get_numfields() > 6)
+	if(table_params->get_num_fields() > 6)
 	{
 		if (CompareIC(table_params->get_field(6)->get_name(), "PARTNO"))
 		{
@@ -784,17 +784,17 @@ bool T_1CD::test_stream_format()
 		throw DetailedException("Ошибка тестирования. В базе нет таблицы FILES");
 	}
 
-	if(table_files->get_numfields() < 6)
+	if(table_files->get_num_fields() < 6)
 	{
 		throw DetailedException("Ошибка тестирования. В таблице FILES меньше 6 полей")
-			.add_detail("Кол-во полей", table_files->get_numfields());
+			.add_detail("Кол-во полей", table_files->get_num_fields());
 		return false;
 	}
 
-	if(table_files->get_numfields() > 7)
+	if(table_files->get_num_fields() > 7)
 	{
 		throw DetailedException("Ошибка тестирования. В таблице FILES больше 7 полей")
-			.add_detail("Кол-во полей", table_files->get_numfields());
+			.add_detail("Кол-во полей", table_files->get_num_fields());
 		return false;
 	}
 
@@ -834,7 +834,7 @@ bool T_1CD::test_stream_format()
 			.add_detail("Поле", table_files->get_field(5)->get_name());
 	}
 
-	if(table_files->get_numfields() > 6)
+	if(table_files->get_num_fields() > 6)
 	{
 		if (CompareIC(table_files->get_field(6)->get_name(), "PARTNO"))
 		{
@@ -849,10 +849,10 @@ bool T_1CD::test_stream_format()
 		throw DetailedException("Ошибка тестирования. В базе нет таблицы DBSCHEMA");
 	}
 
-	if(table_dbschema->get_numfields() != 1)
+	if(table_dbschema->get_num_fields() != 1)
 	{
 		throw DetailedException("Ошибка тестирования. В таблице DBSCHEMA не 1 поле")
-			.add_detail("Кол-во полей", table_dbschema->get_numfields());
+			.add_detail("Кол-во полей", table_dbschema->get_num_fields());
 	}
 
 	if (CompareIC(table_dbschema->get_field(0)->get_name(), "SERIALIZEDDATA"))
@@ -1398,21 +1398,21 @@ bool T_1CD::test_list_of_tables()
 		return false;
 	}
 
-	if(table_params->get_numfields() < 6)
+	if(table_params->get_num_fields() < 6)
 	{
 		throw DetailedException("Ошибка тестирования. В таблице PARAMS меньше 6 полей")
-			.add_detail("Кол-во полей", table_params->get_numfields());
+			.add_detail("Кол-во полей", table_params->get_num_fields());
 	}
 
-	if(table_params->get_numfields() > 7)
+	if(table_params->get_num_fields() > 7)
 	{
 		throw DetailedException("Ошибка тестирования. В таблице PARAMS больше 7 полей")
-			.add_detail("Кол-во полей", table_params->get_numfields());
+			.add_detail("Кол-во полей", table_params->get_num_fields());
 	}
 
 	vector<string> params_fields {"FILENAME", "CREATION", "MODIFIED",
 								  "ATTRIBUTES", "DATASIZE", "BINARYDATA"};
-	if(table_params->get_numfields() > 6) {
+	if(table_params->get_num_fields() > 6) {
 		params_fields.push_back("PARTNO");
 	}
 
@@ -1647,7 +1647,7 @@ bool T_1CD::replaceTREF(const string &mapfile)
 	for (uint32_t i = 0; i < num_tables; i++)
 	{
 		t = get_table(i);
-		for (uint32_t j = 0; j < t->get_numfields(); j ++)
+		for (uint32_t j = 0; j < t->get_num_fields(); j ++)
 		{
 			f = t->get_field(j);
 			string str = f->get_name();
@@ -1658,8 +1658,8 @@ bool T_1CD::replaceTREF(const string &mapfile)
 				continue;
 			}
 			msreg_m.Status(t->get_name() + " : " + f->get_name());
-			editsave = t->edit;
-			t->edit = true;
+			editsave = t->get_edit();
+			t->set_edit(true);
 			TableIterator it(t);
 			while (!it.eof()) {
 				TableRecord rec = it.current();
@@ -1671,7 +1671,7 @@ bool T_1CD::replaceTREF(const string &mapfile)
 				rec.set<uint32_t>(f, reverse_byte_order(ii));
 				// t->write_data_record(kk, rec); // TODO: выпилен кусок кода
 			}
-			t->edit = editsave;
+			t->set_edit(editsave);
 
 		}
 	}
@@ -1691,19 +1691,19 @@ bool T_1CD::delete_table(Table* tab)
 	char* buf;
 	bool res = num_tables > 0;
 
-	bl = tab->descr_table->get_block_number();
+	bl = tab->get_descriptor_table()->get_block_number();
 
-	res = res && delete_object(tab->descr_table);
-	if(res) res = res && delete_object(tab->file_data);
-	if(res) res = res && delete_object(tab->file_blob);
-	if(res) res = res && delete_object(tab->file_index);
+	res = res && delete_object(tab->get_descriptor_table());
+	if(res) res = res && delete_object(tab->get_file_data());
+	if(res) res = res && delete_object(tab->get_file_blob());
+	if(res) res = res && delete_object(tab->get_file_index());
 
 	if(res)
 	{
-		tab->descr_table = nullptr;
-		tab->file_data = nullptr;
-		tab->file_blob = nullptr;
-		tab->file_index = nullptr;
+		tab->set_descriptor_table(nullptr);
+		tab->set_file_data(nullptr);
+		tab->set_file_blob(nullptr);
+		tab->set_file_index(nullptr);
 
 
 		for(i = 0; i < num_tables; i++) if(tables[i] == tab) break;

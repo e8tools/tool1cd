@@ -25,8 +25,8 @@ Index::Index(Table* _base)
 	rootblock   = 0;
 	length      = 0;
 	recordsindex_complete = false;
-	pagesize = tbase->base->get_pagesize();
-	version  = tbase->base->get_version();
+	pagesize = tbase->get_base()->get_pagesize();
+	version  = tbase->get_base()->get_version();
 }
 
 //---------------------------------------------------------------------------
@@ -83,7 +83,7 @@ void Index::create_recordsindex() const
 
 	buf = new char[pagesize];
 
-	file_index = tbase->file_index;
+	file_index = tbase->get_file_index();
 	file_index->get_data(buf, start, 8);
 
 	rootblock = *(uint32_t*)buf;
@@ -96,7 +96,7 @@ void Index::create_recordsindex() const
 	curlen = *(int16_t*)(buf + 2);
 	if(curlen)
 	{
-		recordsindex.resize(tbase->file_data->get_len() / tbase->recordlen);
+		recordsindex.resize(tbase->get_file_data()->get_len() / tbase->get_recordlen());
 		bool is_leaf = buf[0] & 0x2;
 		while(!is_leaf)
 		{
@@ -133,7 +133,7 @@ void Index::create_recordsindex() const
 
 	recordsindex_complete = true;
 	delete[] buf;
-	tbase->log_numrecords = recordsindex.size();
+	tbase->set_log_numrecords(recordsindex.size());
 	msreg_g.Status("");
 }
 
@@ -300,7 +300,7 @@ uint32_t Index::get_rootblock() const
 	if(rootblock == 0)
 	{
 		char buf[8];
-		tbase->file_index->get_data(buf, start, 8);
+		tbase->get_file_index()->get_data(buf, start, 8);
 		rootblock = *(uint32_t*)buf;
 		if(version >= db_ver::ver8_3_8_0) rootblock *= pagesize;
 		length = *(int16_t*)(buf + 4);
@@ -316,7 +316,7 @@ uint32_t Index::get_length() const
 	if(rootblock == 0)
 	{
 		char buf[8];
-		tbase->file_index->get_data(buf, start, 8);
+		tbase->get_file_index()->get_data(buf, start, 8);
 		rootblock = *(uint32_t*)buf;
 		if(version >= db_ver::ver8_3_8_0) rootblock *= pagesize;
 		length = *(int16_t*)(buf + 4);
@@ -348,7 +348,7 @@ void Index::dump(const string &_filename)
 		return;
 	}
 
-	file_index = tbase->file_index;
+	file_index = tbase->get_file_index();
 	if(rootblock == 0)
 	{
 		char buf[8];
@@ -372,10 +372,10 @@ char* Index::unpack_leafpage(uint64_t page_offset, uint32_t& number_indexes)
 	char* buf;
 	char* ret;
 
-	if(!tbase->file_index) return nullptr;
+	if(!tbase->get_file_index()) return nullptr;
 
 	buf = new char[pagesize];
-	tbase->file_index->get_data(buf, page_offset, pagesize);
+	tbase->get_file_index()->get_data(buf, page_offset, pagesize);
 	ret = unpack_leafpage(buf, number_indexes);
 	delete[] buf;
 	return ret;
@@ -404,7 +404,7 @@ char* Index::unpack_leafpage(char* page, uint32_t& number_indexes)
 	{
 		number_indexes = 0;
 		throw DetailedException("Попытка распаковки страницы индекса не являющейся листом.")
-			.add_detail("Таблица", tbase->name)
+			.add_detail("Таблица", tbase->get_name())
 			.add_detail("Индекс", name);
 	}
 
@@ -515,7 +515,7 @@ bool Index::pack_leafpage(char* unpack_index, uint32_t number_indexes, char* pag
 			if(left < length || primary)
 			{
 				throw DetailedException("Ошибка упаковки индексов на странице-листе. Индекс не уникальный либо неверно отсортирован.")
-					.add_detail("Таблица", tbase->name)
+					.add_detail("Таблица", tbase->get_name())
 					.add_detail("Индекс", name);
 
 			}
@@ -645,7 +645,7 @@ void Index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 	int32_t i, j, k, delta;
 
 	page = new char[pagesize];
-	tbase->file_index->get_data(page, block, pagesize);
+	tbase->get_file_index()->get_data(page, block, pagesize);
 
 	is_last_record = false;
 	page_is_empty = false;
@@ -673,18 +673,18 @@ void Index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 					page_is_empty = true;
 					if(lph->prev_page != LAST_PAGE)
 					{
-						tbase->file_index->set_data(&(lph->next_page), (version < db_ver::ver8_3_8_0 ? lph->prev_page : lph->prev_page * pagesize) + 8, 4);
+						tbase->get_file_index()->set_data(&(lph->next_page), (version < db_ver::ver8_3_8_0 ? lph->prev_page : lph->prev_page * pagesize) + 8, 4);
 					}
 					if(lph->next_page != LAST_PAGE)
 					{
-						tbase->file_index->set_data(&(lph->prev_page), (version < db_ver::ver8_3_8_0 ? lph->next_page : lph->next_page * pagesize) + 4, 4);
+						tbase->get_file_index()->set_data(&(lph->prev_page), (version < db_ver::ver8_3_8_0 ? lph->next_page : lph->next_page * pagesize) + 4, 4);
 					}
 					// TODO проверить, надо ли номера свободных страниц преобразовывать в смещения для версий от 8.0 до 8.2.14
-					tbase->file_index->get_data(&k, 0, 4);
+					tbase->get_file_index()->get_data(&k, 0, 4);
 					memset(page, 0, pagesize);
 					*(uint32_t*)page = k;
 					k = block / pagesize;
-					tbase->file_index->set_data(&k, 0, 4);
+					tbase->get_file_index()->set_data(&k, 0, 4);
 				}
 				else
 				{
@@ -697,7 +697,7 @@ void Index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 					pack_leafpage(unpack_indexes_buf, lph->number_indexes, page);
 					lph->flags = flags;
 				}
-				tbase->file_index->set_data(page, block, pagesize);
+				tbase->get_file_index()->set_data(page, block, pagesize);
 
 				break;
 			}
@@ -739,17 +739,17 @@ void Index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 					page_is_empty = true;
 					if(bph->prev_page != LAST_PAGE)
 					{
-						tbase->file_index->set_data(&(bph->next_page), (version < db_ver::ver8_3_8_0 ? bph->prev_page : bph->prev_page * pagesize) + 8, 4);
+						tbase->get_file_index()->set_data(&(bph->next_page), (version < db_ver::ver8_3_8_0 ? bph->prev_page : bph->prev_page * pagesize) + 8, 4);
 					}
 					if(bph->next_page != LAST_PAGE)
 					{
-						tbase->file_index->set_data(&(bph->prev_page), (version < db_ver::ver8_3_8_0 ? bph->next_page : bph->next_page * pagesize) + 4, 4);
+						tbase->get_file_index()->set_data(&(bph->prev_page), (version < db_ver::ver8_3_8_0 ? bph->next_page : bph->next_page * pagesize) + 4, 4);
 					}
-					tbase->file_index->get_data(&k, 0, 4);
+					tbase->get_file_index()->get_data(&k, 0, 4);
 					memset(page, 0, pagesize);
 					*(uint32_t*)page = k;
 					k = block / pagesize;
-					tbase->file_index->set_data(&k, 0, 4);
+					tbase->get_file_index()->set_data(&k, 0, 4);
 				}
 				else
 				{
@@ -760,7 +760,7 @@ void Index::delete_index_record(const char* index_buf, const uint32_t phys_numre
 						new_last_phys_num = reverse_byte_order(*(uint32_t*)(cur_index + length));
 					}
 				}
-				if(_page_is_empty || _is_last_record || page_is_empty || is_last_record) tbase->file_index->set_data(page, block, pagesize);
+				if(_page_is_empty || _is_last_record || page_is_empty || is_last_record) tbase->get_file_index()->set_data(page, block, pagesize);
 
 				break;
 			}
@@ -805,14 +805,14 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 		memset(page, 0, pagesize);
 		bph = (BranchPageHeader*)page;
 
-		tbase->file_index->get_data(&k, 0, 4);
+		tbase->get_file_index()->get_data(&k, 0, 4);
 		if(k)
 		{
 			block = k * pagesize;
-			tbase->file_index->get_data(&k, block, 4);
-			tbase->file_index->set_data(&k, 0, 4);
+			tbase->get_file_index()->get_data(&k, block, 4);
+			tbase->get_file_index()->set_data(&k, 0, 4);
 		}
-		else block = tbase->file_index->get_len();
+		else block = tbase->get_file_index()->get_len();
 
 		bph->flags = indexpage_is_root | indexpage_is_leaf;
 		bph->number_indexes = 2;
@@ -833,10 +833,10 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 		cur_index += 4;
 		*(uint32_t*)cur_index = reverse_byte_order(version < db_ver::ver8_3_8_0 ? new_last_block2 : new_last_block2 / pagesize);
 
-		tbase->file_index->set_data(page, block, pagesize);
+		tbase->get_file_index()->set_data(page, block, pagesize);
 
 		rootblock = block;
-		tbase->file_index->set_data(&rootblock, start, 4);
+		tbase->get_file_index()->set_data(&rootblock, start, 4);
 
 		delete[] page;
 	}
@@ -885,7 +885,7 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 	bool ok;
 
 	page = new char[pagesize];
-	tbase->file_index->get_data(page, block, pagesize);
+	tbase->get_file_index()->get_data(page, block, pagesize);
 	result = 0;
 
 	bph = (BranchPageHeader*)page;
@@ -912,7 +912,7 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 				if(primary || *(uint32_t*)cur_index == phys_numrecord)
 				{
 					throw DetailedException("Ошибка записи индекса. Индекс уже существует.")
-						.add_detail("Таблица", tbase->name)
+						.add_detail("Таблица", tbase->get_name())
 						.add_detail("Индекс", name)
 						.add_detail("Физический номер существующий", *(uint32_t*)cur_index)
 						.add_detail("Физический номер записываемый", phys_numrecord);
@@ -955,14 +955,14 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 				pack_leafpage(unpack_indexes_buf_new + number_indexes1 * delta, number_indexes2, page2);
 				lph2 = (LeafPageHeader*)page2;
 
-				tbase->file_index->get_data(&k, 0, 4);
+				tbase->get_file_index()->get_data(&k, 0, 4);
 				if(k)
 				{
 					new_last_block2 = k * pagesize;
-					tbase->file_index->get_data(&k, new_last_block2, 4);
-					tbase->file_index->set_data(&k, 0, 4);
+					tbase->get_file_index()->get_data(&k, new_last_block2, 4);
+					tbase->get_file_index()->set_data(&k, 0, 4);
 				}
-				else new_last_block2 = tbase->file_index->get_len();
+				else new_last_block2 = tbase->get_file_index()->get_len();
 
 				flags &= ~indexpage_is_root;
 				lph->flags = flags;
@@ -972,7 +972,7 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 				lph2->prev_page = version < db_ver::ver8_3_8_0 ? block : block / pagesize;
 				lph2->next_page = next_page;
 
-				tbase->file_index->set_data(page2, new_last_block2, pagesize);
+				tbase->get_file_index()->set_data(page2, new_last_block2, pagesize);
 
 				cur_index = unpack_indexes_buf_new + (number_indexes1 - 1) * delta;
 				memcpy(new_last_index_buf, cur_index + 4, length);
@@ -984,7 +984,7 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 				delete[] page2;
 			}
 
-			tbase->file_index->set_data(page, block, pagesize);
+			tbase->get_file_index()->set_data(page, block, pagesize);
 			delete[] unpack_indexes_buf_new;
 		}
 
@@ -1008,7 +1008,7 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 				if(primary)
 				{
 					throw DetailedException("Ошибка записи индекса. Индекс уже существует.")
-						.add_detail("Таблица", tbase->name)
+						.add_detail("Таблица", tbase->get_name())
 						.add_detail("Индекс", name)
 						.add_detail("Физический номер существующий", reverse_byte_order(*(uint32_t*)(cur_index + length)))
 						.add_detail("Физический номер записываемый", phys_numrecord);
@@ -1052,14 +1052,14 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 					result = 2;
 
 
-					tbase->file_index->get_data(&k, 0, 4);
+					tbase->get_file_index()->get_data(&k, 0, 4);
 					if(k)
 					{
 						new_last_block2 = k << 12;
-						tbase->file_index->get_data(&k, new_last_block2, 4);
-						tbase->file_index->set_data(&k, 0, 4);
+						tbase->get_file_index()->get_data(&k, new_last_block2, 4);
+						tbase->get_file_index()->set_data(&k, 0, 4);
 					}
-					else new_last_block2 = tbase->file_index->get_len();
+					else new_last_block2 = tbase->get_file_index()->get_len();
 
 					flags &= ~indexpage_is_root;
 
@@ -1106,7 +1106,7 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 					memcpy(page + 12, unpack_indexes_buf, number_indexes1 * delta);
 					memcpy(page2 + 12, unpack_indexes_buf + number_indexes1 * delta, number_indexes2 * delta);
 
-					tbase->file_index->set_data(page2, new_last_block2, pagesize);
+					tbase->get_file_index()->set_data(page2, new_last_block2, pagesize);
 
 					cur_index = unpack_indexes_buf + (number_indexes1 - 1) * delta;
 					memcpy(new_last_index_buf, cur_index, length);
@@ -1157,7 +1157,7 @@ void Index::write_index_record(const uint32_t phys_numrecord, const char* index_
 				}
 			}
 
-			if(_result) tbase->file_index->set_data(page, block, pagesize);
+			if(_result) tbase->get_file_index()->set_data(page, block, pagesize);
 		}
 
 	}

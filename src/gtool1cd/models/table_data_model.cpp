@@ -15,7 +15,7 @@ int TableDataModel::rowCount(const QModelIndex &parent) const
 
 int TableDataModel::columnCount(const QModelIndex &parent) const
 {
-	return table->get_numfields();
+	return table->get_num_fields();
 }
 
 QModelIndex TableDataModel::index(int row, int column, const QModelIndex &parent) const

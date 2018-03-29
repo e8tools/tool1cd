@@ -163,7 +163,7 @@ uint32_t Field::get_sort_key(const char* rec, unsigned char* SortKey, int32_t ma
 		return type_manager->get_sort_key(fr, SortKey, maxlen);
 
 	} catch (SerializationException &exception) {
-		exception.add_detail("Таблица", parent->name)
+		exception.add_detail("Таблица", parent->get_name())
 				.add_detail("Поле", name)
 				.show();
 	}

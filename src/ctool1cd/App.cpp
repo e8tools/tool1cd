@@ -54,8 +54,8 @@ void App::export_all_to_xml(const ParsedCommand &pc)
 	for (int j = 0; j < base1CD->get_numtables(); j++) {
 		tbl = base1CD->get_table(j);
 
-		if (!tbl->get_numindexes()) {
-			tbl->fillrecordsindex();
+		if (!tbl->get_num_indexes()) {
+			tbl->fill_records_index();
 		}
 
 		boost::filesystem::path filetable = root_path / (tbl->get_name() + ".xml");
@@ -122,7 +122,7 @@ void App::export_to_xml(const ParsedCommand &pc)
 		}
 
 		if (b) {
-			tbl->fillrecordsindex();
+			tbl->fill_records_index();
 
 			boost::filesystem::path filetable = root_path / (tbl->get_name() + ".xml");
 			tbl->export_to_xml(filetable.string(), ActionXMLSaveBLOBToFileChecked, ActionXMLUnpackBLOBChecked);
@@ -186,8 +186,8 @@ void App::export_to_binary(const ParsedCommand &pc)
 		}
 
 		if (found) {
-			if (!tbl->get_numindexes()) {
-				tbl->fillrecordsindex();
+			if (!tbl->get_num_indexes()) {
+				tbl->fill_records_index();
 			}
 			tbl->export_table(root_path.string());
 			msreg_g.AddMessage("Выполнен экспорт таблицы в файл.", MessageState::Succesfull)
@@ -249,8 +249,8 @@ void App::import_from_binary(const ParsedCommand &pc)
 		}
 
 		if (found) {
-			if (!tbl->get_numindexes()) {
-				tbl->fillrecordsindex();
+			if (!tbl->get_num_indexes()) {
+				tbl->fill_records_index();
 			}
 			tbl->import_table(root_path.string());
 			msreg_g.AddMessage("Выполнен импорт таблицы из файла.", MessageState::Succesfull)

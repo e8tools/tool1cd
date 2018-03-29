@@ -35,13 +35,13 @@ changed_rec::changed_rec(Table* _parent, changed_rec_type crt, uint32_t phys_num
 	}
 	else
 	{
-		fields = new char[parent->num_fields];
-		memset(fields, 0, parent->num_fields);
-		rec = new char[parent->recordlen];
-		memset(rec, 0, parent->recordlen);
+		fields = new char[parent->get_num_fields()];
+		memset(fields, 0, parent->get_num_fields());
+		rec = new char[parent->get_recordlen()];
+		memset(rec, 0, parent->get_recordlen());
 	}
-	next = parent->ch_rec;
-	parent->ch_rec = this;
+	next = parent->get_changed_record();
+	parent->set_changed_record(this);
 }
 //---------------------------------------------------------------------------
 changed_rec::~changed_rec()
@@ -54,18 +54,13 @@ changed_rec::~changed_rec()
 //---------------------------------------------------------------------------
 void changed_rec::clear()
 {
-	int32_t i;
-	Field* f;
-	type_fields tf;
-	TStream* b;
-
-	if(rec && fields) for(i = 0; i < parent->num_fields; i++) if(fields[i])
+	if(rec && fields) for(int32_t i = 0; i < parent->get_num_fields(); i++) if(fields[i])
 	{
-		f = parent->fields[i];
-		tf = f->get_type();
+		auto f = parent->get_field(i);
+		auto tf = f->get_type();
 		if(tf == type_fields::tf_image || tf == type_fields::tf_string || tf == type_fields::tf_text)
 		{
-			b = *(TStream**)(rec + f->get_offset() + (f->get_null_exists() ? 1 : 0));
+			TStream* b = *(TStream**)(rec + f->get_offset() + (f->get_null_exists() ? 1 : 0));
 			delete b;
 		}
 	}
@@ -339,8 +334,8 @@ void Table::init(int32_t block_descr)
 	}
 	if(file_index)
 	{
-		m = file_index->get_len() / base->pagesize;
-		if(file_index->get_len() != m * base->pagesize)
+		m = file_index->get_len() / base->get_pagesize();
+		if(file_index->get_len() != m * base->get_pagesize())
 		{
 			throw DetailedException("Ошибка чтения индексов. Длина файла индексов не кратна размеру страницы")
 				.add_detail("Таблица", name)
@@ -351,7 +346,7 @@ void Table::init(int32_t block_descr)
 			buf = new uint32_t[num_indexes + 1];
 			file_index->get_data(buf, 0, buflen);
 
-			if(buf[0] * base->pagesize >= file_index->get_len())
+			if(buf[0] * base->get_pagesize() >= file_index->get_len())
 			{
 				throw DetailedException("Ошибка чтения индексов. Индекс первого свободного блока за пределами файла индексов")
 					.add_detail("Таблица", name)
@@ -361,7 +356,7 @@ void Table::init(int32_t block_descr)
 			{
 				for(int32_t i = 1; i <= num_indexes; i++)
 				{
-					if(base->version < db_ver::ver8_3_8_0)
+					if(base->get_version() < db_ver::ver8_3_8_0)
 					{
 						if(buf[i] >= file_index->get_len())
 						{
@@ -384,7 +379,7 @@ void Table::init(int32_t block_descr)
 					else
 					{
 						s = buf[i];
-						s *= base->pagesize;
+						s *= base->get_pagesize();
 						if(s >= file_index->get_len())
 						{
 							throw DetailedException("Ошибка чтения индексов. Указанное смещение индекса за пределами файла индексов")
@@ -500,13 +495,13 @@ Table::Table()
 }
 
 //---------------------------------------------------------------------------
-void Table::deletefields()
+void Table::delete_fields()
 {
 	fields.clear();
 }
 
 //---------------------------------------------------------------------------
-void Table::deleteindexes()
+void Table::delete_indexes()
 {
 	for (auto index : indexes) {
 		delete index;
@@ -525,8 +520,8 @@ Table::~Table()
 		cr = cr2;
 	}
 
-	deletefields();
-	deleteindexes();
+	delete_fields();
+	delete_indexes();
 	if(file_data)
 	{
 		delete file_data;
@@ -563,13 +558,13 @@ std::string Table::get_description() const
 }
 
 //---------------------------------------------------------------------------
-int32_t Table::get_numfields() const
+int32_t Table::get_num_fields() const
 {
 	return num_fields;
 }
 
 //---------------------------------------------------------------------------
-int32_t Table::get_numindexes() const
+int32_t Table::get_num_indexes() const
 {
 	return num_indexes;
 }
@@ -657,25 +652,40 @@ bool Table::get_recordlock() const
 }
 
 //---------------------------------------------------------------------------
-V8Object* Table::get_file_data()
+V8Object* Table::get_file_data() const
 {
 	return file_data;
 }
 
+void Table::set_file_data(V8Object *value)
+{
+	file_data = value;
+}
+
 //---------------------------------------------------------------------------
-V8Object* Table::get_file_blob()
+V8Object* Table::get_file_blob() const
 {
 	return file_blob;
 }
 
+void Table::set_file_blob(V8Object *value)
+{
+	file_blob = value;
+}
+
 //---------------------------------------------------------------------------
-V8Object* Table::get_file_index()
+V8Object* Table::get_file_index() const
 {
 	return file_index;
 }
 
+void Table::set_file_index(V8Object *value)
+{
+	file_index = value;
+}
+
 //---------------------------------------------------------------------------
-void Table::set_lockinmemory(bool _lock)
+void Table::set_lock_inmemory(bool _lock)
 {
 	if(_lock)
 	{
@@ -1018,23 +1028,16 @@ bool Table::export_to_xml(const std::string &_filename, bool blob_to_file, bool 
 }
 
 //---------------------------------------------------------------------------
-uint64_t Table::get_fileoffset(uint32_t phys_numrecord)
+uint64_t Table::get_file_offset(uint32_t phys_numrecord)
 {
 	uint32_t _offset = phys_numrecord * recordlen;
 	return file_data->get_fileoffset(_offset);
 }
 
-//---------------------------------------------------------------------------
-bool Table::get_edit() const
-{
-	return edit;
-}
-//---------------------------------------------------------------------------
-
 void Table::begin_edit()
 {
 	if(edit) return;
-	if(base->readonly)
+	if(base->get_readonly())
 	{
 		throw DetailedException("Попытка входа в режим редактирования в режиме \"Только чтение\"")
 			.add_detail("Таблица", name);
@@ -2285,7 +2288,7 @@ char* Table::get_record_template_test()
 
 //---------------------------------------------------------------------------
 // заполнить recordsindex не динамически
-void Table::fillrecordsindex()
+void Table::fill_records_index()
 {
 	if (recordsindex_complete) {
 		return;
@@ -2426,4 +2429,39 @@ Index* Table::find_index(const std::string &indexname) const throw()
 	}
 
 	return nullptr;
+}
+
+V8Object* Table::get_descriptor_table() const
+{
+	return descr_table;
+}
+
+void Table::set_descriptor_table(V8Object *value)
+{
+	descr_table = value;
+}
+
+bool Table::get_edit() const
+{
+	return edit;
+}
+
+void Table::set_edit(bool value)
+{
+	edit = value;
+}
+
+bool Table::is_bad() const
+{
+	return bad;
+}
+
+changed_rec* Table::get_changed_record()
+{
+	return ch_rec;
+}
+
+void Table::set_changed_record(changed_rec *value)
+{
+	ch_rec = value;
 }
