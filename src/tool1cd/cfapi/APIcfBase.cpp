@@ -11,7 +11,7 @@ unsigned WindowsTickToUnixSeconds(long long windowsTicks)
 	return (unsigned)(windowsTicks / WINDOWS_TICK - SEC_TO_UNIX_EPOCH);
 }
 
-int32_t stBlockHeader::data_size() const {
+int32_t stBlockHeader::get_data_size() const {
 	string hex("0x");
 	hex.append(data_size_hex);
 
@@ -27,7 +27,7 @@ void stBlockHeader::set_data_size(int32_t value) {
 				std::begin(data_size_hex));
 }
 
-int32_t stBlockHeader::page_size() const {
+int32_t stBlockHeader::get_page_size() const {
 	string hex("0x");
 	hex.append(page_size_hex);
 
@@ -43,7 +43,7 @@ void stBlockHeader::set_page_size(int32_t value) {
 				std::begin(page_size_hex));
 }
 
-int32_t stBlockHeader::next_page_addr() const {
+int32_t stBlockHeader::get_next_page_addr() const {
 	string hex("0x");
 	hex.append(next_page_addr_hex);
 

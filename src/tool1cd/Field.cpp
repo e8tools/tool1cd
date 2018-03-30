@@ -163,7 +163,7 @@ uint32_t Field::get_sort_key(const char* rec, unsigned char* SortKey, int32_t ma
 		return type_manager->get_sort_key(fr, SortKey, maxlen);
 
 	} catch (SerializationException &exception) {
-		exception.add_detail("Таблица", parent->name)
+		exception.add_detail("Таблица", parent->get_name())
 				.add_detail("Поле", name)
 				.show();
 	}
@@ -322,7 +322,7 @@ bool Field::save_blob_to_file(const TableRecord *rec, const std::string &_filena
 			}
 
 			V8Catalog *cat = new V8Catalog(_sx2, zippedContainer, true);
-			if(!cat->GetFirst())
+			if(!cat->get_first())
 			{
 				TFileStream temp_stream(boost::filesystem::path(_filename), fmCreate);
 				temp_stream.CopyFrom(_sx2, 0);

@@ -90,11 +90,7 @@ struct export_import_table_root
 	int32_t descr_version_2; // версия изменения
 };
 
-class Table{
-friend Field;
-friend Index;
-friend changed_rec;
-friend T_1CD;
+class Table {
 public:
 	//--> поддержка динамического построения таблицы записей
 	std::vector<uint32_t> recordsindex; // массив индексов записей по номеру (только не пустые записи)
@@ -102,7 +98,7 @@ public:
 	uint32_t numrecords_review; // количество просмотренных записей всего в поиске не пустых
 	uint32_t numrecords_found; // количество найденных непустых записей (текущий размер recordsindex)
 	//<-- поддержка динамического построения таблицы записей
-	void fillrecordsindex(); // заполнить recordsindex не динамически
+	void fill_records_index(); // заполнить recordsindex не динамически
 
 
 	Table();
@@ -114,8 +110,8 @@ public:
 
 	std::string get_name() const;
 	std::string get_description() const;
-	int32_t get_numfields() const;
-	int32_t get_numindexes() const;
+	int32_t get_num_fields() const;
+	int32_t get_num_indexes() const;
 	Field* get_field(int32_t numfield);
 	Index* get_index(int32_t numindex);
 	bool get_issystem() const;
@@ -131,17 +127,21 @@ public:
 	void get_record(uint32_t phys_numrecord, char *buf);
 	TStream* readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, bool rewrite = true) const;
 	uint32_t readBlob(void* _buf, uint32_t _startblock, uint32_t _length) const;
-	void set_lockinmemory(bool _lock);
+	void set_lock_inmemory(bool _lock);
 	bool export_to_xml(const std::string &filename, bool blob_to_file, bool unpack) const;
 
-	V8Object* get_file_data();
-	V8Object* get_file_blob();
-	V8Object* get_file_index();
+	V8Object* get_file_data() const;
+	void set_file_data(V8Object *value);
 
-	uint64_t get_fileoffset(uint32_t phys_numrecord); // получить физическое смещение в файле записи по номеру
+	V8Object* get_file_blob() const;
+	void set_file_blob(V8Object *value);
+
+	V8Object* get_file_index() const;
+	void set_file_index(V8Object *value);
+
+	uint64_t get_file_offset(uint32_t phys_numrecord); // получить физическое смещение в файле записи по номеру
 
 	TableRecord *get_edit_record(uint32_t phys_numrecord); // возвращает указатель на запись, буфер принадлежит вызывающей процедуре
-	bool get_edit() const;
 
 	uint32_t get_phys_numrec(int32_t ARow, Index* cur_index); // получить физический индекс записи по номеру строки по указанному индексу
 	std::string get_file_name_for_field(int32_t num_field, char *rec, uint32_t numrec = 0); // получить имя файла по-умолчанию конкретного поля конкретной записи
@@ -171,6 +171,17 @@ public:
 	Index* get_index(const std::string &indexname) const;
 	Index* find_index(const std::string &indexname) const throw();
 
+	V8Object* get_descriptor_table() const;
+	void set_descriptor_table(V8Object *value);
+
+	bool get_edit() const;
+	void set_edit(bool value);
+
+	bool is_bad() const;
+
+	changed_rec* get_changed_record();
+	void set_changed_record(changed_rec *value);
+
 private:
 	T_1CD* base;
 
@@ -189,8 +200,8 @@ private:
 	bool issystem; // Признак системной таблицы (имя таблицы не начинается с подчеркивания)
 	int32_t lockinmemory; // счетчик блокировок в памяти
 
-	void deletefields();
-	void deleteindexes();
+	void delete_fields();
+	void delete_indexes();
 
 	changed_rec* ch_rec; // первая измененная запись в списке измененных записей
 	uint32_t added_numrecords; // количество добавленных записей в режиме редактирования
@@ -214,7 +225,7 @@ private:
 	uint32_t write_blob_record(TStream* bstr); //  // записывает НОВУЮ запись в файл blob, возвращает индекс новой записи
 	void write_index_record(const uint32_t phys_numrecord, const TableRecord *rec); // запись индексов записи в файл index
 
-	bool bad; // признак битой таблицы
+	bool bad {false}; // признак битой таблицы
 };
 
 

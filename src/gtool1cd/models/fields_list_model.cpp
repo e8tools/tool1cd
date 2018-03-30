@@ -6,7 +6,7 @@ FieldsListModel::FieldsListModel(Table *table)
 
 int FieldsListModel::rowCount(const QModelIndex &parent) const
 {
-	return table->get_numfields();
+	return table->get_num_fields();
 }
 
 int FieldsListModel::columnCount(const QModelIndex &parent) const

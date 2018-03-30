@@ -25,46 +25,46 @@ public:
 	typedef std::set<TV8FileStream*> TV8FileStreams;
 
 	V8File(V8Catalog *_parent, const std::string &_name, V8File *_previous, int _start_data, int _start_header,
-		   int64_t time_create, int64_t time_modify);
+		   int64_t set_time_create, int64_t set_time_modify);
 
 	~V8File();
-	bool IsCatalog();
-	V8Catalog* GetCatalog();
-	int64_t GetFileLength();
+	bool is_catalog();
+	V8Catalog* get_catalog();
+	int64_t get_file_length();
 
-	int64_t Read(void* Buffer, int Start, int Length);
-	int64_t Read(std::vector<uint8_t> Buffer, int Start, int Length);
+	int64_t read(void* Buffer, int Start, int Length);
+	int64_t read(std::vector<uint8_t> Buffer, int Start, int Length);
 
-	int64_t Write(const void* Buffer, int Start, int Length);                           // дозапись/перезапись частично
-	int64_t Write(std::vector<uint8_t> Buffer, int Start, int Length); // дозапись/перезапись частично
-	int64_t Write(const void* Buffer, int Length);                                      // перезапись целиком
-	int64_t Write(TStream* Stream, int Start, int Length);                              // дозапись/перезапись частично
-	int64_t Write(TStream* Stream);                                                     // перезапись целиком
+	int64_t write(const void* Buffer, int Start, int Length);                           // дозапись/перезапись частично
+	int64_t write(std::vector<uint8_t> Buffer, int Start, int Length); // дозапись/перезапись частично
+	int64_t write(const void* Buffer, int Length);                                      // перезапись целиком
+	int64_t write(TStream* Stream, int Start, int Length);                              // дозапись/перезапись частично
+	int64_t write(TStream* Stream);                                                     // перезапись целиком
 
-	std::string GetFileName();
-	std::string GetFullName();
+	std::string get_file_name();
+	void set_file_name(const std::string &_name);
+	std::string get_full_name();
 
-	void SetFileName(const std::string &_name);
-	V8Catalog* GetParentCatalog();
-	void DeleteFile();
-	V8File* GetNext();
-	bool Open();
-	void Close();
+	V8Catalog* get_parent_catalog();
+	void delete_file();
+	V8File* get_next();
+	bool open();
+	void close();
 
-	int64_t WriteAndClose(TStream* Stream, int Length = -1); // перезапись целиком и закрытие файла (для экономии памяти не используется data файла)
+	int64_t write_and_close(TStream* Stream, int Length = -1); // перезапись целиком и закрытие файла (для экономии памяти не используется data файла)
 
 	System::FILETIME get_time_create() const;
-	void time_create(const System::FILETIME &file_time);
-	void time_create(const V8Time &time);
+	void set_time_create(const System::FILETIME &file_time);
+	void set_time_create(const V8Time &time);
 
 	System::FILETIME get_time_modify() const;
-	void time_modify(const System::FILETIME &file_time);
-	void time_modify(const V8Time &time);
+	void set_time_modify(const System::FILETIME &file_time);
+	void set_time_modify(const V8Time &time);
 
-	void SaveToFile(const boost::filesystem::path &FileName);
-	void SaveToStream(TStream* stream);
+	void save_to_file(const boost::filesystem::path &FileName);
+	void save_to_stream(TStream* stream);
 	TV8FileStream* get_stream(bool own = false);
-	void Flush();
+	void flush();
 
 	tree* get_tree();
 
@@ -73,14 +73,14 @@ public:
 	int get_start_data() const;
 	int get_start_header() const;
 
-	bool is_datamodified() const;
-	void datamodified(const bool value);
+	bool get_data_modified() const;
+	void set_data_modified(const bool value);
 
-	bool is_destructed() const;
-	void destructed(const bool value);
+	bool get_destructed() const;
+	void set_destructed(const bool value);
 
-	bool is_self_zipped() const;
-	void self_zipped(const bool value);
+	bool get_self_zipped() const;
+	void set_self_zipped(const bool value);
 
 	TV8FileStreams& streams();
 
@@ -107,7 +107,7 @@ private:
 	bool _selfzipped;        // Признак, что файл является запакованным независимо от признака zipped каталога
 	TV8FileStreams _streams;
 
-	inline bool try_open() { return (!is_opened) ? Open() : true; }
+	inline bool try_open() { return (!is_opened) ? open() : true; }
 };
 
 #endif

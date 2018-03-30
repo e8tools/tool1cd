@@ -9,8 +9,6 @@
 
 class V8File;
 
-
-
 class V8Catalog {
 public:
 	typedef std::map<std::string,V8File*> V8Files;
@@ -20,17 +18,17 @@ public:
 	V8Catalog(const std::string &name, bool _zipped); // создать каталог из физического файла (cf, epf, erf, hbk, cfu)
 	V8Catalog(TStream* stream, bool _zipped, bool leave_stream = false); // создать каталог из потока
 
-	bool IsCatalog() const;
+	bool is_catalog() const;
 
 	~V8Catalog();
 
-	V8File* GetFile(const std::string &FileName);
-	V8File* GetFirst();
+	V8File* get_file(const std::string &FileName);
+	V8File* get_first();
 	V8File* createFile(const std::string &FileName, bool _selfzipped = false); // CreateFile в win64 определяется как CreateFileW, пришлось заменить на маленькую букву
 	V8Catalog* CreateCatalog(const std::string &FileName, bool _selfzipped = false);
-	void DeleteFile(const std::string &FileName);
-	V8Catalog* GetParentCatalog();
-	V8File* GetSelfFile();
+	void delete_file(const std::string &FileName);
+	V8Catalog* get_parent_catalog();
+	V8File* get_self_file();
 	void SaveToDir(const boost::filesystem::path &dir) const;
 	bool isOpen() const;
 	void Flush();

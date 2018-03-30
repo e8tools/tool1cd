@@ -64,7 +64,7 @@ TableFiles::TableFiles(Table* t)
 	Field *fld_modify = table->get_field(2);
 	Field *fld_blob_pointer = table->get_field(5);
 
-	if(table->get_numfields() > 6) partno = table->get_field(6);
+	if(table->get_num_fields() > 6) partno = table->get_field(6);
 	else partno = nullptr;
 
 	for (uint32_t i = 0; i < table->get_phys_numrecords(); ++i) {
@@ -130,18 +130,18 @@ TableFiles::~TableFiles()
 bool TableFiles::test_table()
 {
 	if(!table) return false;
-	if(table->get_numfields() < 6)
+	if(table->get_num_fields() < 6)
 	{
 		throw DetailedException("Ошибка проверки таблицы контейнера файлов. В таблице меньше 6 полей")
 			.add_detail("Таблица", table->get_name())
-			.add_detail("Кол-во полей", table->get_numfields());
+			.add_detail("Кол-во полей", table->get_num_fields());
 	}
 
-	if(table->get_numfields() > 7)
+	if(table->get_num_fields() > 7)
 	{
 		throw DetailedException("Ошибка проверки таблицы контейнера файлов. В таблице больше 7 полей")
 			.add_detail("Таблица", table->get_name())
-			.add_detail("Кол-во полей", table->get_numfields());
+			.add_detail("Кол-во полей", table->get_num_fields());
 	}
 
 	if (CompareIC(table->get_field(0)->get_name(), "FILENAME"))
@@ -186,7 +186,7 @@ bool TableFiles::test_table()
 			.add_detail("Поле", table->get_field(5)->get_name());
 	}
 
-	if(table->get_numfields() > 6)
+	if(table->get_num_fields() > 6)
 	{
 		if (CompareIC(table->get_field(6)->get_name(), "PARTNO"))
 		{

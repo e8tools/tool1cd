@@ -105,21 +105,21 @@ ConfigFile* ConfigStorageCFFile::readfile(const std::string &path)
 	V8Catalog* c = cat;
 	for (auto i = fname.find("\\"); i != string::npos; i = fname.find("\\"))
 	{
-		V8File *f = c->GetFile(fname.substr(0, i - 1));
+		V8File *f = c->get_file(fname.substr(0, i - 1));
 		if(!f) {
 			return nullptr;
 		}
-		c = f->GetCatalog();
+		c = f->get_catalog();
 		if(!c) {
 			return nullptr;
 		}
 		fname = fname.substr(i + 1, fname.size() - i - 1);
 	}
-	V8File *f = c->GetFile(fname);
+	V8File *f = c->get_file(fname);
 	if (!f) {
 		return nullptr;
 	}
-	if (!f->Open()) {
+	if (!f->open()) {
 		return nullptr;
 	}
 	cf = new ConfigFile;
@@ -147,7 +147,7 @@ bool ConfigStorageCFFile::writefile(const std::string &path, TStream *str)
 		fname = fname.substr(i + 1, fname.size() - i - 1);
 	}
 	f = c->createFile(fname);
-	f->Write(str);
+	f->write(str);
 	return true;
 }
 
@@ -163,7 +163,7 @@ void ConfigStorageCFFile::close(ConfigFile* cf)
 	V8File* f;
 
 	f = (V8File*)cf->addin;
-	f->Close();
+	f->close();
 	delete cf;
 }
 
@@ -183,7 +183,7 @@ bool ConfigStorageCFFile::fileexists(const std::string &path) const
 	if (i != string::npos) {
 		fname = fname.substr(0, i - 1);
 	}
-	V8File *f = cat->GetFile(fname);
+	V8File *f = cat->get_file(fname);
 	return f != nullptr;
 }
 
@@ -422,24 +422,24 @@ ConfigFile* ConfigStorageTable::readfile(const std::string &path)
 		}
 		V8Catalog *parent_cat = top_file->cat;
 		for (auto i = fname.find("\\"); i != string::npos; i = fname.find("\\")) {
-			V8File *f = parent_cat->GetFile(fname.substr(0, i - 1));
+			V8File *f = parent_cat->get_file(fname.substr(0, i - 1));
 			if (!f) {
 				// TODO: бросить исключение???
 				return nullptr;
 			}
-			parent_cat = f->GetCatalog();
+			parent_cat = f->get_catalog();
 			if (!parent_cat) {
 				// TODO: бросить исключение???
 				return nullptr;
 			}
 			fname = fname.substr(i + 1, fname.size() - i - 1);
 		}
-		V8File *f = parent_cat->GetFile(fname);
+		V8File *f = parent_cat->get_file(fname);
 		if (!f) {
 			// TODO: бросить исключение???
 			return nullptr;
 		}
-		if (!f->Open()) {
+		if (!f->open()) {
 			// TODO: бросить исключение???
 			return nullptr;
 		}
@@ -485,7 +485,7 @@ void ConfigStorageTable::close(ConfigFile* cf)
 	}
 	else if(cfa->variant == ConfigStorageTableAddinVariant::V8File)
 	{
-		cfa->f->Close();
+		cfa->f->close();
 	}
 	delete cfa;
 	delete cf;
@@ -520,9 +520,9 @@ bool ConfigStorageTable::save_config(const boost::filesystem::path &file_name)
 		if(top_file->ropen())
 		{
 			V8File* file = catalog->createFile(top_file->name);
-			file->time_create(top_file->file->ft_create);
-			file->time_modify(top_file->file->ft_modify);
-			file->WriteAndClose(top_file->rstream);
+			file->set_time_create(top_file->file->ft_create);
+			file->set_time_modify(top_file->file->ft_modify);
+			file->write_and_close(top_file->rstream);
 
 			top_file->close();
 		}

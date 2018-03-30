@@ -27,7 +27,7 @@ void ExportTableToXmlDialog::show_with_file_dialog()
 	}
 
 	ui->filePathEdit->setText(exportFileName);
-	table->fillrecordsindex();
+	table->fill_records_index();
 	show();
 }
 

@@ -20,7 +20,7 @@ TV8FileStream::~TV8FileStream()
 // чтение буфера
 int64_t TV8FileStream::Read(void *Buffer, int64_t Count)
 {
-	int64_t r = file->Read(Buffer, pos, Count);
+	int64_t r = file->read(Buffer, pos, Count);
 	pos += r;
 	return r;
 }
@@ -29,7 +29,7 @@ int64_t TV8FileStream::Read(void *Buffer, int64_t Count)
 // чтение буфера
 int TV8FileStream::Read(std::vector<uint8_t> Buffer, int Offset, int Count)
 {
-	int64_t r = file->Read(Buffer, pos, Count);
+	int64_t r = file->read(Buffer, pos, Count);
 	pos += r;
 	return r;
 }
@@ -38,7 +38,7 @@ int TV8FileStream::Read(std::vector<uint8_t> Buffer, int Offset, int Count)
 // запись буфера
 int64_t TV8FileStream::Write(const void *Buffer, int64_t Count)
 {
-	int64_t r = file->Write(Buffer, pos, Count);
+	int64_t r = file->write(Buffer, pos, Count);
 	pos += r;
 	return r;
 }
@@ -47,7 +47,7 @@ int64_t TV8FileStream::Write(const void *Buffer, int64_t Count)
 // запись буфера
 int TV8FileStream::Write(const std::vector<uint8_t> Buffer, int Offset, int Count)
 {
-	int64_t r = file->Write(Buffer, pos, Count);
+	int64_t r = file->write(Buffer, pos, Count);
 	pos += r;
 	return r;
 }
@@ -56,7 +56,7 @@ int TV8FileStream::Write(const std::vector<uint8_t> Buffer, int Offset, int Coun
 // позиционирование
 int64_t TV8FileStream::Seek(const int64_t Offset, const TSeekOrigin Origin)
 {
-	int64_t len = file->GetFileLength();
+	int64_t len = file->get_file_length();
 	switch(Origin)
 	{
 		case soFromBeginning:

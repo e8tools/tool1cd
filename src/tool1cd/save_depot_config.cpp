@@ -440,13 +440,13 @@ bool T_1CD::save_depot_config(const string &_filename, int32_t ver)
 		cath = cat->CreateCatalog("metadata", true);
 		for( auto& psmap: metamap )
 		{
-			cath->createFile(psmap.first)->WriteAndClose(psmap.second);
+			cath->createFile(psmap.first)->write_and_close(psmap.second);
 			delete psmap.second;
 		}
 	}
 	for( auto& psmap: extmap )
 	{
-		cat->createFile(psmap.first)->WriteAndClose(psmap.second);
+		cat->createFile(psmap.first)->write_and_close(psmap.second);
 		delete psmap.second;
 	}
 

@@ -15,7 +15,7 @@ int TableDataModel::rowCount(const QModelIndex &parent) const
 
 int TableDataModel::columnCount(const QModelIndex &parent) const
 {
-	return table->get_numfields();
+	return table->get_num_fields();
 }
 
 QModelIndex TableDataModel::index(int row, int column, const QModelIndex &parent) const
@@ -69,7 +69,7 @@ QVariant TableDataModel::data(const QModelIndex &index, int role) const
 			}
 
 			V8Catalog cat(data_stream, true, false);
-			if (cat.isOpen() && cat.IsCatalog()) {
+			if (cat.isOpen() && cat.is_catalog()) {
 				QString result("{catalog}");
 			}
 			TMemoryStream *mem = new TMemoryStream;
@@ -158,7 +158,7 @@ V8Catalog *TableDataModel::getCatalog(const QModelIndex &index) const
 
 	{
 		auto *cat = new V8Catalog(data_stream, false, false);
-		if (cat->isOpen() && cat->IsCatalog()) {
+		if (cat->isOpen() && cat->is_catalog()) {
 			return cat;
 		}
 		delete cat;

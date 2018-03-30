@@ -42,7 +42,7 @@ TableDataWindow::TableDataWindow(QWidget *parent, Table *table)
 	QVector<Index*> indexes;
 	indexes.push_back(nullptr); // PK
 
-	for (int i = 0; i < table->get_numindexes(); i++) {
+	for (int i = 0; i < table->get_num_indexes(); i++) {
 		Index *index = table->get_index(i);
 		if (index->is_primary() && indexes[0] == nullptr) {
 			indexes[0] = index;
