@@ -1,5 +1,8 @@
 #include "skobka_tree_model.h"
 
+const int PATH_COLUMN = 0;
+const int DATA_COLUMN = 1;
+
 SkobkaTreeModel::SkobkaTreeModel(tree *data_tree)
     : data_tree(data_tree)
 {
@@ -69,7 +72,7 @@ QVariant SkobkaTreeModel::data(const QModelIndex &index, int role) const
 	if (role == Qt::DisplayRole) {
 		tree *item = static_cast<tree*>(index.internalPointer());
 		switch (index.column()) {
-		case 0: {
+		case DATA_COLUMN: {
 			if (item->get_type() == node_type::nd_list) {
 				QString result = QString(tr("{Элементов: %1}")).arg(item->get_num_subnode());
 				return result;
@@ -78,7 +81,7 @@ QVariant SkobkaTreeModel::data(const QModelIndex &index, int role) const
 			item->outtext(presentation);
 			return QString::fromStdString(presentation);
 		}
-		case 1:
+		case PATH_COLUMN:
 			return QString::fromStdString(item->path());
 		}
 	}
@@ -90,9 +93,9 @@ QVariant SkobkaTreeModel::headerData(int section, Qt::Orientation orientation, i
 {
 	if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
 		switch (section) {
-		case 0:
+		case DATA_COLUMN:
 			return tr("Значение");
-		case 1:
+		case PATH_COLUMN:
 			return tr("Путь");
 		}
 	}
