@@ -4,7 +4,7 @@
 #include <QAbstractItemModel>
 #include <Table.h>
 #include <TableIterator.h>
-#include <QIODevice>
+#include <TStream.hpp>
 
 class TableDataModel : public QAbstractItemModel
 {
@@ -33,7 +33,7 @@ public:
 
 	const TableRecord *getRecord(const QModelIndex &index) const;
 
-	QIODevice *getBlobStream(const QModelIndex &index) const;
+	TStream *getBlobStream(const QModelIndex &index) const;
 
 private:
 	Table *table;

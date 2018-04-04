@@ -18,9 +18,10 @@ public:
 
 	void setText(const QString &textData);
 
-	void setStream(TStream *stream);
+	void setStream(TStream *stream, const QString &rootName);
 
 private:
+
 	Ui::BlobViewer *ui;
 };
 

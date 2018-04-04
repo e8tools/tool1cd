@@ -175,7 +175,7 @@ const TableRecord *TableDataModel::getRecord(const QModelIndex &index) const
 
 }
 
-QIODevice *TableDataModel::getBlobStream(const QModelIndex &index) const
+TStream *TableDataModel::getBlobStream(const QModelIndex &index) const
 {
 	Field *f = table->get_field(index.column());
 	TableRecord *record = _index == nullptr
@@ -186,5 +186,5 @@ QIODevice *TableDataModel::getBlobStream(const QModelIndex &index) const
 	if (!record->try_store_blob_data(f, out, true)) {
 		return nullptr;
 	}
-	return new StreamDevice(out);
+	return out;
 }

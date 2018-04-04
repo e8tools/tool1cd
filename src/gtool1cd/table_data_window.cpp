@@ -34,11 +34,6 @@ TableDataWindow::TableDataWindow(QWidget *parent, Table *table)
 	setWindowTitle(QString::fromStdString(table->get_name()));
 	ui->dataView->setModel(new TableDataModel(table));
 
-	hexedit = new QHexEdit();
-	auto layout = new QVBoxLayout();
-	layout->addWidget(hexedit);
-	ui->hexeditFrame->setLayout(layout);
-
 	QVector<Index*> indexes;
 	indexes.push_back(nullptr); // PK
 
@@ -138,55 +133,31 @@ void TableDataWindow::dataView_selection_changed(const QItemSelection &selection
 
 	auto data = ui->dataView->model()->data(index, Qt::EditRole);
 
-	QTextDocument *qd = new QTextDocument(data.toString());
-	qd->setDocumentLayout(new QPlainTextDocumentLayout(qd));
-	ui->plainTextEdit->setDocument(qd);
-	ui->plainTextEdit->setVisible(true);
-
-	ui->treeView->setVisible(false);
-	hexedit->setVisible(false);
-
 	if (model->isBlobValue(index)) {
 
-		auto cat = model->getCatalog(index);
-		if (cat != nullptr) {
-			QString catalog_name("{catalog}");
+		QString catalog_name("{catalog}");
 
-			if (table->find_field("FILENAME") != nullptr) {
+		if (table->find_field("FILENAME") != nullptr) {
 
-				auto rec = model->getRecord(index);
-				catalog_name = QString::fromStdString(rec->get_string("FILENAME"));
+			auto rec = model->getRecord(index);
+			catalog_name = QString::fromStdString(rec->get_string("FILENAME"));
 
-			} else if (table->find_field("EXTNAME") != nullptr) {
+		} else if (table->find_field("EXTNAME") != nullptr) {
 
-				auto rec = model->getRecord(index);
-				catalog_name = QString::fromStdString(rec->get_string("EXTNAME"));
+			auto rec = model->getRecord(index);
+			catalog_name = QString::fromStdString(rec->get_string("EXTNAME"));
 
-			}
-			ui->plainTextEdit->setVisible(false);
-			ui->treeView->setModel(new V8CatalogTreeModel(cat, catalog_name));
-			ui->treeView->setVisible(true);
-			ui->treeView->expandAll();
-			return;
 		}
 
 		auto stream = model->getBlobStream(index);
+
 		if (stream != nullptr) {
-			auto doc = QHexDocument::fromDevice(stream);
-			hexedit->setDocument(doc);
-			hexedit->setVisible(true);
-			ui->plainTextEdit->setVisible(false);
+			ui->dataWidget->setStream(stream, catalog_name);
 			return;
 		}
 	}
 
-	tree *data_tree = try_parse_tree(data);
-	if (data_tree != nullptr) {
-		ui->treeView->setModel(new SkobkaTreeModel(data_tree));
-		ui->treeView->setVisible(true);
-		ui->treeView->expandAll();
-		return;
-	}
+	ui->dataWidget->setText(data.toString());
 
 }
 

@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
     <number>0</number>
    </property>
@@ -31,8 +31,11 @@
    </property>
    <item>
     <widget class="QTabWidget" name="tabWidget">
+     <property name="tabPosition">
+      <enum>QTabWidget::South</enum>
+     </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>true</bool>
@@ -91,12 +94,31 @@
       <attribute name="title">
        <string>BLOB</string>
       </attribute>
-      <layout class="QHBoxLayout" name="horizontalLayout_3"/>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QHexEdit" name="frame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QHexEdit</class>
+   <extends>QFrame</extends>
+   <header>QHexEdit/qhexedit.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
