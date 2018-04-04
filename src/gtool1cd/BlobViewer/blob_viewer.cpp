@@ -45,16 +45,34 @@ void BlobViewer::setText(const QString &textData)
 	}
 }
 
-// проверяет наличие UTF-8 BOM
-bool is_text_stream(QIODevice *stream)
+QString extract_text_data(QIODevice *device)
 {
-	auto buf = stream->read(3);
+	auto buf = device->read(3);
 	if (buf.size() != 3) {
-		return false;
+		return QString::null;
 	}
-	return buf[0] == '\xEF'
-	        && buf[1] == '\xBB'
-	        && buf[2] == '\xBF';
+	if (buf[0] == '\xEF'
+	    && buf[1] == '\xBB'
+	    && buf[2] == '\xBF') {
+		return QString(device->readAll());
+	}
+
+	if (buf[0] == 'M'
+	        && buf[1] == 'O'
+	        && buf[2] == 'X') {
+		buf = device->read(3);
+		if (buf.size() != 3) {
+			return QString::null;
+		}
+		if (buf[0] == 'C'
+		        && buf[1] == 'E'
+		        && buf[2] == 'L') {
+			device->read(7); // заголовочные данные
+			device->read(3); // BOM
+			return QString(device->readAll());
+		}
+	}
+	return QString::null;
 }
 
 void BlobViewer::setStream(TStream *stream, const QString &rootName)
@@ -72,14 +90,10 @@ void BlobViewer::setStream(TStream *stream, const QString &rootName)
 	}
 
 	auto device = new StreamDevice(stream);
+	device->open(QIODevice::ReadOnly);
 
-	QString textData;
-	{
-		device->open(QIODevice::ReadOnly);
-		if (is_text_stream(device)) {
-			textData = QString(device->readAll());
-		}
-	}
+	QString textData = extract_text_data(device);
+
 	device->close();
 
 	auto doc = QHexDocument::fromDevice(device);
@@ -97,7 +111,7 @@ void BlobViewer::setStream(TStream *stream, const QString &rootName)
 			return;
 		}
 
-		if (textData.size() != 0) {
+		if (!textData.isNull()) {
 
 			ui->tabWidget->addTab(ui->textDataTab, tr("Текст"));
 			ui->tabWidget->setCurrentWidget(ui->textDataTab);
