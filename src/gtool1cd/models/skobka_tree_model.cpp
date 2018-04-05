@@ -64,13 +64,32 @@ QModelIndex SkobkaTreeModel::parent(const QModelIndex &child) const
 	return QModelIndex();
 }
 
+QString trim_item_presentation(const QString &full_presentation)
+{
+	const int MAX_PRESENTATION_LEN = 40;
+	QString result = full_presentation;
+	{
+		int k = result.indexOf('\n');
+		if (k != -1) {
+			result = result.right(k - 1);
+		}
+	}
+	if (result.size() > MAX_PRESENTATION_LEN) {
+		result = result.right(MAX_PRESENTATION_LEN - 3) + QString("...");
+	}
+	return result;
+}
+
 QVariant SkobkaTreeModel::data(const QModelIndex &index, int role) const
 {
 	if (!index.isValid()) {
 		return QVariant();
 	}
-	if (role == Qt::DisplayRole) {
-		tree *item = static_cast<tree*>(index.internalPointer());
+
+	tree *item = static_cast<tree*>(index.internalPointer());
+	if (role == Qt::DisplayRole
+	        || role == Qt::EditRole
+	        || role == Qt::ToolTipRole) {
 		switch (index.column()) {
 		case DATA_COLUMN: {
 			if (item->get_type() == node_type::nd_list) {
@@ -79,7 +98,11 @@ QVariant SkobkaTreeModel::data(const QModelIndex &index, int role) const
 			}
 			std::string presentation;
 			item->outtext(presentation);
-			return QString::fromStdString(presentation);
+			QString qp = QString::fromStdString(presentation);
+			if (role == Qt::DisplayRole) {
+				return trim_item_presentation(qp);
+			}
+			return qp;
 		}
 		case PATH_COLUMN:
 			return QString::fromStdString(item->path());
