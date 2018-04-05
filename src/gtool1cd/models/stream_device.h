@@ -13,6 +13,8 @@ public:
 	bool isSequential() const override;
 	void close() override;
 
+	TStream *get_stream();
+
 protected:
 
 	qint64 readData(char *data, qint64 maxlen) override;

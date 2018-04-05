@@ -1,4 +1,7 @@
 #include "v8catalog_tree_model.h"
+#include "stream_device.h"
+#include "UZLib.h"
+#include <TempStream.h>
 
 V8CatalogTreeModel::V8CatalogTreeModel(V8Catalog *catalog, const QString &catalogName)
     : catalog(catalog), catalogName(catalogName)
@@ -112,6 +115,14 @@ QVariant V8CatalogTreeModel::data(const QModelIndex &index, int role) const
 			}
 			return QString::fromStdString(item->get_file_name());
 		}
+		}
+	}
+	if (role == Qt::EditRole) {
+		V8File *item = static_cast<V8File*>(index.internalPointer());
+		if (item != nullptr) {
+			TStream *dst = new TTempStream();
+			ZInflateOrCopy(item->get_stream(false), dst);
+			return QVariant::fromValue(new StreamDevice(dst));
 		}
 	}
 

@@ -20,8 +20,11 @@ public:
 
 	void setStream(TStream *stream, const QString &rootName);
 
-private:
+private slots:
+	void on_treeView_doubleClicked(const QModelIndex &index);
 
+private:
+	QString rootName;
 	Ui::BlobViewer *ui;
 };
 

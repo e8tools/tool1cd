@@ -90,3 +90,8 @@ int64_t TV8FileStream::Seek(const int64_t Offset, const TSeekOrigin Origin)
 	}
 	return pos;
 }
+
+int64_t TV8FileStream::GetSize() const
+{
+	return file->get_file_length();
+}
