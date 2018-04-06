@@ -1,4 +1,6 @@
 #include "skobka_tree_model.h"
+#include <QBuffer>
+#include "stream_device.h"
 
 const int PATH_COLUMN = 0;
 const int DATA_COLUMN = 1;
@@ -71,11 +73,11 @@ QString trim_item_presentation(const QString &full_presentation)
 	{
 		int k = result.indexOf('\n');
 		if (k != -1) {
-			result = result.right(k - 1);
+			result = result.left(k - 1);
 		}
 	}
 	if (result.size() > MAX_PRESENTATION_LEN) {
-		result = result.right(MAX_PRESENTATION_LEN - 3) + QString("...");
+		result = result.left(MAX_PRESENTATION_LEN - 3) + QString("...");
 	}
 	return result;
 }
@@ -102,6 +104,19 @@ QVariant SkobkaTreeModel::data(const QModelIndex &index, int role) const
 			if (role == Qt::DisplayRole) {
 				return trim_item_presentation(qp);
 			}
+
+			if (role == Qt::EditRole) {
+				if (qp.startsWith("#base64:")) {
+					qp = qp.right(qp.size() - QString("#base64:").size());
+					auto byteArray = QByteArray::fromBase64(qp.toUtf8());
+					TMemoryStream *mems = new TMemoryStream();
+					mems->WriteBuffer(byteArray.data(), byteArray.size());
+					auto device = new StreamDevice(mems);
+
+					return QVariant::fromValue(device);
+				}
+			}
+
 			return qp;
 		}
 		case PATH_COLUMN:
