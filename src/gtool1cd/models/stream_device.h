@@ -10,6 +10,9 @@ public:
 	explicit StreamDevice(TStream *stream);
 	virtual ~StreamDevice();
 
+	bool isSequential() const override;
+	void close() override;
+
 protected:
 
 	qint64 readData(char *data, qint64 maxlen) override;
@@ -17,7 +20,6 @@ protected:
 	qint64 size() const override;
 	qint64 pos() const override;
 	bool seek(qint64 pos) override;
-	void close() override;
 
 private:
 	TStream *stream;
