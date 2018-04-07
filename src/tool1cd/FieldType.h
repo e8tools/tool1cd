@@ -17,7 +17,7 @@ struct field_type_declaration {
 	int32_t precision {0};
 	bool case_sensitive {false};
 
-	static field_type_declaration parse_tree(tree *field_tree);
+	static field_type_declaration parse_tree(Tree *field_tree);
 };
 
 

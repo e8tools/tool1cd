@@ -413,7 +413,7 @@ bool Field::save_blob_to_file(const TableRecord *rec, const std::string &_filena
 	return true;
 }
 
-Field *Field::field_from_tree(tree *field_tree, bool &has_version, Table *parent)
+Field *Field::field_from_tree(Tree *field_tree, bool &has_version, Table *parent)
 {
 	Field *fld = new Field(parent);
 

@@ -114,7 +114,7 @@ public:
 
 	bool is_primary() const;
 
-	static Index *index_from_tree(tree *f, Table *parent);
+	static Index *index_from_tree(Tree *f, Table *parent);
 
 	void write_index(const uint32_t phys_numrecord, const TableRecord *rec); // запись индекса записи
 	void delete_index(const TableRecord *rec, const uint32_t phys_numrec); // удаление индекса записи из файла index

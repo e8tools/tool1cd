@@ -6,11 +6,10 @@ using namespace std;
 
 static Field *load_field(const string &description)
 {
-	tree *field_tree = parse_1Ctext(description, "");
-	tree *first_entry = field_tree->get_first()->get_first();
+	auto field_tree = parse_1Ctext(description, "");
+	Tree *first_entry = field_tree->get_first()->get_first();
 	bool has_version = false;
 	Field *fld = Field::field_from_tree(first_entry, has_version, nullptr);
-	delete field_tree;
 	return fld;
 }
 

@@ -1107,22 +1107,18 @@ bool T_1CD::recursive_test_stream_format(TStream *str, const string &path, bool 
 				}
 			}
 			if (first_symbol == '{' && !EqualIC(sf.substr(i, 15), "{ХАРАКТЕРИСТИКИ")) {
-				tree* rt = parse_1Ctext(sf, path);
-				if(rt)
+				auto rt = parse_1Ctext(sf, path);
+				if(rt != nullptr)
 				{
 					result = true;
-					delete rt;
 				}
 				else result = false;
 			}
 			else result = true;
-
 		}
 		else result = true;
 
-
 		delete _sb;
-
 	}
 	else result = recursive_test_stream_format(cat, path);
 
@@ -1194,7 +1190,6 @@ bool T_1CD::create_table(const string &path)
 	V8Object* file_data;
 	V8Object* file_blob;
 	V8Object* file_index;
-	tree* t;
 
 	boost::filesystem::path dir(path);
 	if(!directory_exists(dir)) {
@@ -1230,8 +1225,11 @@ bool T_1CD::create_table(const string &path)
 	string descr_data = from_unicode_stream(*f);
 	delete f;
 
-	t = parse_1Ctext(descr_data, path_descr.string());
-	string table_name = (*t)[0][0].get_value();
+	string table_name;
+	{
+		auto t = parse_1Ctext(descr_data, path_descr.string());
+		table_name = (*t)[0][0].get_value();
+	}
 
 	for(j = 0; j < num_tables; j++) {
 		if (EqualIC(tables[j]->get_name(), table_name)) {
@@ -1389,8 +1387,8 @@ bool T_1CD::test_list_of_tables()
 	int32_t i, j, l, l2;
 	uint32_t k;
 	int32_t offset;
-	tree* t;
-	tree* firstt;
+	Tree* t;
+	Tree* firstt;
 
 	if(!table_params)
 	{
@@ -1515,8 +1513,8 @@ bool T_1CD::test_list_of_tables()
 					}
 					if(first_symbol == '{')
 					{
-						tree* rt = parse_1Ctext(sf, "PARAMS/DBNames");
-						if(rt)
+						auto rt = parse_1Ctext(sf, "PARAMS/DBNames");
+						if(rt != nullptr)
 						{
 							firstt = &((*rt)[0][1][1]);
 
@@ -1576,8 +1574,6 @@ bool T_1CD::test_list_of_tables()
 										.add_detail("Имя таблицы", _tabname);
 								}
 							}
-
-							delete rt;
 						}
 						else result = false;
 					}

@@ -1,9 +1,10 @@
 
+#include <boost/regex.hpp>
+
 #include "Parse_tree.h"
 #include "Common.h"
 #include "DetailedException.h"
-
-#include <boost/regex.hpp>
+#include "MessageRegistration.h"
 
 using namespace System;
 using namespace std;
@@ -19,7 +20,7 @@ const boost::regex exp_binary_d("^#data:[0-9a-zA-Z\\+=\\r\\n\\/]*$");
 extern Registrator msreg_g;
 
 //---------------------------------------------------------------------------
-tree::tree(const string &_value, const node_type _type, tree *_parent)
+Tree::Tree(const string &_value, const node_type _type, Tree *_parent)
 {
 	value = _value;
 	type = _type;
@@ -46,7 +47,7 @@ tree::tree(const string &_value, const node_type _type, tree *_parent)
 }
 
 //---------------------------------------------------------------------------
-tree::~tree()
+Tree::~Tree()
 {
 	while(last) delete last;
 	if(prev) prev->next = next;
@@ -60,53 +61,53 @@ tree::~tree()
 }
 
 //---------------------------------------------------------------------------
-tree* tree::add_child(const string &_value, const node_type _type)
+Tree* Tree::add_child(const string &_value, const node_type _type)
 {
-	return new tree(_value, _type, this);
+	return new Tree(_value, _type, this);
 }
 
 //---------------------------------------------------------------------------
-tree* tree::add_child()
+Tree* Tree::add_child()
 {
-	return new tree("", node_type::nd_empty, this);
+	return new Tree("", node_type::nd_empty, this);
 }
 
 //---------------------------------------------------------------------------
-tree* tree::add_node()
+Tree* Tree::add_node()
 {
-	return new tree("", node_type::nd_empty, this->parent);
+	return new Tree("", node_type::nd_empty, this->parent);
 }
 
 //---------------------------------------------------------------------------
-std::string tree::get_value() const
+std::string Tree::get_value() const
 {
 	return value;
 }
 
 //---------------------------------------------------------------------------
-node_type tree::get_type() const
+node_type Tree::get_type() const
 {
 	return type;
 }
 
 //---------------------------------------------------------------------------
-void tree::set_value(const string &v, const node_type t)
+void Tree::set_value(const string &v, const node_type t)
 {
 	value = v;
 	type = t;
 }
 
 //---------------------------------------------------------------------------
-int tree::get_num_subnode() const
+int Tree::get_num_subnode() const
 {
 	return num_subnode;
 }
 
 //---------------------------------------------------------------------------
-tree* tree::get_subnode(int _index)
+Tree* Tree::get_subnode(int _index)
 {
 	if(_index >= num_subnode) return nullptr;
-	tree* t = first;
+	Tree* t = first;
 	while(_index)
 	{
 		t = t->next;
@@ -116,9 +117,9 @@ tree* tree::get_subnode(int _index)
 }
 
 //---------------------------------------------------------------------------
-tree* tree::get_subnode(const std::string &node_name)
+Tree* Tree::get_subnode(const std::string &node_name)
 {
-	tree* t = first;
+	Tree* t = first;
 	while(t)
 	{
 		if (Equal(t->value, node_name)) {
@@ -130,35 +131,35 @@ tree* tree::get_subnode(const std::string &node_name)
 }
 
 //---------------------------------------------------------------------------
-tree* tree::get_next()
+Tree* Tree::get_next()
 {
 	return next;
 }
 
 //---------------------------------------------------------------------------
-tree* tree::get_parent()
+Tree* Tree::get_parent()
 {
 	return parent;
 }
 
 //---------------------------------------------------------------------------
-tree* tree::get_first()
+Tree* Tree::get_first()
 {
 	return first;
 }
 
 //---------------------------------------------------------------------------
-tree* tree::get_last()
+Tree* Tree::get_last()
 {
 	return last;
 }
 
 //---------------------------------------------------------------------------
-tree& tree::operator [](int _index)
+Tree& Tree::operator [](int _index)
 {
 	if(!this) return *this; //-V704
 
-	tree* ret = first;
+	Tree* ret = first;
 	while(_index)
 	{
 		if(ret) ret = ret->next;
@@ -168,7 +169,7 @@ tree& tree::operator [](int _index)
 }
 
 //---------------------------------------------------------------------------
-void tree::outtext(std::string &text)
+void Tree::outtext(std::string &text)
 {
 	node_type lt = node_type::nd_unknown;
 	TReplaceFlags _ReplaceAll = TReplaceFlags::rfReplaceAll;
@@ -179,7 +180,7 @@ void tree::outtext(std::string &text)
 			text += "\r\n";
 		}
 		text += "{";
-		tree* t = first;
+		Tree* t = first;
 		while(t)
 		{
 			t->outtext(text);
@@ -216,7 +217,7 @@ void tree::outtext(std::string &text)
 }
 
 //---------------------------------------------------------------------------
-string tree::path() const
+string Tree::path() const
 {
 	if (!this) {
 		return ":??"; //-V704
@@ -298,18 +299,18 @@ bool read_next_flow(const string &source, int &index, char &sym)
 }
 
 template<typename flow_type>
-tree* parse_flow(flow_type source, const std::string &path)
+Tree* parse_flow(flow_type source, const std::string &path)
 {
 	string cur_value;
 
-	tree* ret;
-	tree* t;
+	Tree* ret;
+	Tree* t;
 	int pos = 1;
 	char sym;
 
 	state_type state = state_type::s_value;
 
-	ret = new tree("", node_type::nd_list, nullptr);
+	ret = new Tree("", node_type::nd_list, nullptr);
 	t = ret;
 
 	while (read_next_flow(source, pos, sym))  {
@@ -328,7 +329,7 @@ tree* parse_flow(flow_type source, const std::string &path)
 						state = state_type::s_string;
 						break;
 					case '{':
-						t = new tree("", node_type::nd_list, t);
+						t = new Tree("", node_type::nd_list, t);
 						break;
 					case '}':
 						if(t->get_first()) {
@@ -497,18 +498,20 @@ tree* parse_flow(flow_type source, const std::string &path)
 	return ret;
 }
 
-tree* parse_1Cstream(TStream *str, const string &path)
+unique_ptr<Tree> parse_1Cstream(TStream *str, const string &path)
 {
-	return parse_flow(new TStreamReader(str, true), path);
+	unique_ptr<Tree> result( parse_flow(new TStreamReader(str, true), path) );
+	return result;
 }
 
 
-tree* parse_1Ctext(const string &text, const string &path)
+unique_ptr<Tree> parse_1Ctext(const string &text, const string &path)
 {
-	return parse_flow(text, path);
+	unique_ptr<Tree> result( parse_flow(text, path) );
+	return result;
 }
 
-string outtext(tree *t)
+string outtext(Tree *t)
 {
 	string text;
 	if(t) {

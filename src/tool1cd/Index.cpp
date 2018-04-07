@@ -1180,7 +1180,7 @@ public:
 	}
 };
 
-Index *Index::index_from_tree(tree *f, Table *parent)
+Index *Index::index_from_tree(Tree *f, Table *parent)
 {
 
 	int numrec = f->get_num_subnode() - 2;
@@ -1193,7 +1193,7 @@ Index *Index::index_from_tree(tree *f, Table *parent)
 		throw IndexReadError("Ошибка получения очередного индекса таблицы. Узел не является деревом.");
 	}
 
-	tree *index_tree = f->get_first();
+	Tree *index_tree = f->get_first();
 	if (index_tree->get_type() != node_type::nd_string) {
 		throw IndexReadError("Ошибка получения имени индекса таблицы. Узел не является строкой.");
 	}
@@ -1222,7 +1222,7 @@ Index *Index::index_from_tree(tree *f, Table *parent)
 					.add_detail("Узлов", index_tree->get_num_subnode());
 		}
 
-		tree *in = index_tree->get_first();
+		Tree *in = index_tree->get_first();
 		if (in->get_type() != node_type::nd_string) {
 			throw IndexReadError("Ошибка получения имени поля индекса таблицы. Узел не является строкой.", ind->name)
 					.add_detail("Номер поля индекса", j + 1);

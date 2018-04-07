@@ -21,7 +21,7 @@ class TableRecord;
 class Field
 {
 public:
-	static Field *field_from_tree(tree *field_tree, bool &has_version, Table *parent);
+	static Field *field_from_tree(Tree *field_tree, bool &has_version, Table *parent);
 
 	explicit Field(Table* _parent);
 
