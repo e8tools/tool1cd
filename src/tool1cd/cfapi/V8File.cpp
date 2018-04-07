@@ -2,6 +2,7 @@
 
 #include"APIcfBase.h"
 #include "V8File.h"
+#include "../MessageRegistration.h"
 #include "../DetailedException.h"
 
 extern Registrator msreg_g;
@@ -659,7 +660,7 @@ void V8File::flush()
 	Lock->Release();
 }
 
-tree* V8File::get_tree()
+unique_ptr<Tree> V8File::get_tree()
 {
 	std::vector<uint8_t> bytes;
 	std::unique_ptr<TBytesStream> bytes_stream( new TBytesStream(bytes) );
@@ -674,7 +675,7 @@ tree* V8File::get_tree()
 
 	string text = enc->toUtf8(bytes_stream->GetBytes(), offset);
 
-	tree* rt = parse_1Ctext(text, get_full_name());
+	auto rt = parse_1Ctext(text, get_full_name());
 
 	return rt;
 }

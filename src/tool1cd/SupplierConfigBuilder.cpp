@@ -52,8 +52,11 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 
 	std::string file_name_meta;
 	{
-		std::unique_ptr<tree> root_tree ( root_file->get_tree() );
-		file_name_meta = (*root_tree)[0][1].get_value();
+		auto root_tree = root_file->get_tree();
+		if(root_tree != nullptr)
+		{
+			file_name_meta = (*root_tree)[0][1].get_value();
+		}
 	}
 
 	V8File* meta_file = get_file(file_name_meta);
@@ -71,14 +74,19 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 		"Имя мета", file_name_meta);
 	#endif
 
-	std::unique_ptr<tree> meta_tree ( meta_file->get_tree() );
+	auto meta_tree = meta_file->get_tree();
+	if(meta_tree == nullptr)
+	{
+		throw SupplierConfigReadException("Ошибка чтения дерева метаданных в конфигурации поставщика")
+				.add_detail("Имя мета", meta_file->get_file_name());
+	}
 	int32_t numnode = stoi((*meta_tree)[0][2].get_value());
 	int32_t current_node_number = 0;
 	for(current_node_number = 0; current_node_number < numnode; current_node_number++) {
-		tree& node = (*meta_tree)[0][3 + current_node_number];
+		Tree& node = (*meta_tree)[0][3 + current_node_number];
 		std::string nodetype = node[0].get_value();
 		if (EqualIC(nodetype, NODE_GENERAL())) { // узел "Общие"
-			tree& confinfo = node[1][1];
+			Tree& confinfo = node[1][1];
 			int32_t verconfinfo = stoi(confinfo[0].get_value());
 			switch(verconfinfo)	{
 				case 15:
@@ -138,6 +146,8 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 }
 
 int32_t SupplierConfigBuilder::get_version() const {
+	int32_t result = 0;
+
 	V8File* version_file = main_catalog->get_file("version");
 	if(!version_file) {
 		throw SupplierConfigReadException("Не найден файл version в конфигурации поставщика")
@@ -145,8 +155,11 @@ int32_t SupplierConfigBuilder::get_version() const {
 				.add_detail("Имя файла", _table_file->name);
 	}
 
-	std::unique_ptr<tree> version_tree ( version_file->get_tree() );
-	int32_t result = stoi((*version_tree)[0][0][0].get_value());
+	auto version_tree = version_file->get_tree();
+	if(version_tree != nullptr)
+	{
+		result = stoi((*version_tree)[0][0][0].get_value());
+	}
 
 #ifdef _DEBUG
 msreg_g.AddDebugMessage("Найдена версия контейнера конфигурации поставщика", MessageState::Info,

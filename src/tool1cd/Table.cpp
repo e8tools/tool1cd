@@ -123,9 +123,9 @@ public:
 //---------------------------------------------------------------------------
 void Table::init(int32_t block_descr)
 {
-	tree* t;
-	tree* f;
-	tree* rt;
+	Tree* t;
+	Tree* f;
+	Tree* rt;
 	int32_t j;
 	uint32_t m;
 	uint64_t s;
@@ -138,7 +138,7 @@ void Table::init(int32_t block_descr)
 		return;
 	}
 
-	std::unique_ptr<tree> root(parse_1Ctext(description, string("Блок ") + to_string(block_descr)));
+	auto root = parse_1Ctext(description, string("Блок ") + to_string(block_descr));
 
 	if (!root) {
 		throw TableReadError("Ошибка разбора текста описания таблицы.", block_descr);
@@ -202,7 +202,7 @@ void Table::init(int32_t block_descr)
 					.add_detail("Узлов", f->get_num_subnode());
 		}
 
-		tree *field_tree = f->get_first();
+		Tree *field_tree = f->get_first();
 		try {
 
 			fields.push_back(Field::field_from_tree(field_tree, has_version, this));

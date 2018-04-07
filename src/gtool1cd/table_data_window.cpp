@@ -111,14 +111,14 @@ void TableDataWindow::on_dataView_activated(const QModelIndex &index)
 {
 }
 
-tree *try_parse_tree(const QVariant &data)
+unique_ptr<Tree> try_parse_tree(const QVariant &data)
 {
 	std::string string_data = data.toString().toStdString();
 	if (string_data.substr(0, 1) != "{") {
 		return nullptr;
 	}
 	try {
-		tree *data_tree = parse_1Ctext(string_data, "");
+		auto data_tree = parse_1Ctext(string_data, "");
 		return data_tree;
 	} catch (...) {
 		return nullptr;
@@ -180,9 +180,9 @@ void TableDataWindow::dataView_selection_changed(const QItemSelection &selection
 		}
 	}
 
-	tree *data_tree = try_parse_tree(data);
+	auto data_tree = try_parse_tree(data);
 	if (data_tree != nullptr) {
-		ui->treeView->setModel(new SkobkaTreeModel(data_tree));
+		ui->treeView->setModel(new SkobkaTreeModel( std::move(data_tree)) );
 		ui->treeView->setVisible(true);
 		ui->treeView->expandAll();
 		return;

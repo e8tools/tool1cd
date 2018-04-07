@@ -778,7 +778,7 @@ uint32_t CommonFieldType::get_sort_key(const char* rec, unsigned char* SortKey, 
 }
 
 
-field_type_declaration field_type_declaration::parse_tree(tree *field_tree)
+field_type_declaration field_type_declaration::parse_tree(Tree *field_tree)
 {
 	field_type_declaration type_declaration;
 
