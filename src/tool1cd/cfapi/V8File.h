@@ -66,7 +66,7 @@ public:
 	TV8FileStream* get_stream(bool own = false);
 	void flush();
 
-	tree* get_tree();
+	unique_ptr<Tree> get_tree();
 
 	TCriticalSection* get_lock();
 	TStream* get_data();

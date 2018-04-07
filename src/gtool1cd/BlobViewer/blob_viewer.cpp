@@ -35,9 +35,9 @@ void BlobViewer::setText(const QString &textData)
 
 	if (textData.startsWith("{")) {
 		try {
-			tree* t = parse_1Ctext(textData.toStdString(), "");
+			auto t = parse_1Ctext(textData.toStdString(), "");
 			if (t != nullptr) {
-				ui->treeView->setModel(new SkobkaTreeModel(t));
+				ui->treeView->setModel(new SkobkaTreeModel( std::move(t) ));
 				ui->tabWidget->addTab(ui->parsedDataTab, tr("Дерево"));
 				ui->tabWidget->setCurrentWidget(ui->parsedDataTab);
 			}
@@ -127,9 +127,9 @@ void BlobViewer::setStream(TStream *stream, const QString &rootName)
 
 			if (textData.startsWith("{")) {
 				try {
-					tree* t = parse_1Ctext(textData.toStdString(), "");
+					auto t = parse_1Ctext(textData.toStdString(), "");
 					if (t != nullptr) {
-						ui->treeView->setModel(new SkobkaTreeModel(t));
+						ui->treeView->setModel(new SkobkaTreeModel( std::move(t) ));
 						ui->treeView->expandAll();
 						ui->tabWidget->addTab(ui->parsedDataTab, tr("Дерево"));
 						ui->tabWidget->setCurrentWidget(ui->parsedDataTab);

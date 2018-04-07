@@ -25,9 +25,9 @@ using namespace std;
 }*/
 string serialize_version(int configVerMajor, int configVerMinor)
 {
-	auto t = std::make_shared<tree>("", node_type::nd_list, nullptr);
-	auto tc = new tree("", node_type::nd_list, t.get());
-	tc = new tree("", node_type::nd_list, tc);
+	auto t = std::make_shared<Tree>("", node_type::nd_list, nullptr);
+	auto tc = new Tree("", node_type::nd_list, t.get());
+	tc = new Tree("", node_type::nd_list, tc);
 	tc->add_child(to_string(configVerMajor), node_type::nd_number);
 	tc->add_child(to_string(configVerMinor), node_type::nd_number);
 	return outtext(t.get());
@@ -73,12 +73,12 @@ bool T_1CD::save_depot_config(const string &_filename, int32_t ver)
 	V8Catalog* cat;
 	V8Catalog* cath;
 	bool oldformat;
-	tree* tv; // корень дерева файла versions
-	tree* tvc; // тек. элемент дерева файла versions
-	tree* tr; // корень дерева файла root
-	tree* trc; // тек. элемент дерева файла root
-	tree* tcountv; // узел, содержащий счетчик в файле versions
-	tree* tcountr; // узел, содержащий счетчик в файле root
+	Tree* tv; // корень дерева файла versions
+	Tree* tvc; // тек. элемент дерева файла versions
+	Tree* tr; // корень дерева файла root
+	Tree* trc; // тек. элемент дерева файла root
+	Tree* tcountv; // узел, содержащий счетчик в файле versions
+	Tree* tcountr; // узел, содержащий счетчик в файле root
 
 	boost::uuids::random_generator uuid_gen;
 
@@ -210,10 +210,10 @@ bool T_1CD::save_depot_config(const string &_filename, int32_t ver)
 	std::map<string,TStream*> extmap; // контейнер для сортировки файлов в корне
 	std::map<string,TStream*> metamap; // контейнер для сортировки файлов в metadata
 
-	tv = new tree("",  node_type::nd_list, nullptr); // корень дерева файла versions
-	tvc = new tree("", node_type::nd_list, tv); // тек. элемент дерева файла versions
-	tr = new tree("",  node_type::nd_list, nullptr); // корень дерева файла root
-	trc = new tree("", node_type::nd_list, tr); // тек. элемент дерева файла root
+	tv = new Tree("",  node_type::nd_list, nullptr); // корень дерева файла versions
+	tvc = new Tree("", node_type::nd_list, tv); // тек. элемент дерева файла versions
+	tr = new Tree("",  node_type::nd_list, nullptr); // корень дерева файла root
+	trc = new Tree("", node_type::nd_list, tr); // тек. элемент дерева файла root
 
 	tvc->add_child("1", node_type::nd_number);
 	tcountv = tvc->add_child("0", node_type::nd_number); // узел, содержащий счетчик в файле versions

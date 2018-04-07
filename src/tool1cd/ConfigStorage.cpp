@@ -17,7 +17,7 @@ const int lsdynupdate = sdynupdate.size();
 
 extern Registrator msreg_g;
 
-std::vector<BinaryGuid> parse_dynamically_updated_tree(tree * tt);
+std::vector<BinaryGuid> parse_dynamically_updated_tree(unique_ptr<Tree> tt);
 
 //********************************************************
 // Класс ConfigStorageDirectory
@@ -559,8 +559,8 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 	TableFile* tf;
 	TableFile* _DynamicallyUpdated;
 	ContainerFile* DynamicallyUpdated;
-	tree* tt;
-	tree* ct;
+	Tree* tt;
+	Tree* ct;
 	std::vector<BinaryGuid> dynup;
 	BinaryGuid g;
 	Table* tab;
@@ -582,14 +582,13 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 		string detail_path_name = tab->get_base()->get_filename()
 								  + "\\" + tab->get_name()
 								  + "\\" + DynamicallyUpdated.name;
-		tree *tt = parse_1Cstream(DynamicallyUpdated.stream, detail_path_name);
+		auto tt = parse_1Cstream(DynamicallyUpdated.stream, detail_path_name);
 		try {
-			dynup = parse_dynamically_updated_tree(tt);
+			dynup = parse_dynamically_updated_tree(std::move(tt));
 		} catch (DetailedException &ex) {
 			ex.add_detail("Путь", detail_path_name);
 			throw ex;
 		}
-		delete tt;
 	}
 
 	for (auto &pfilesmap : tabf->files()) {
@@ -681,8 +680,8 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 	std::map<string,ContainerFile*>::iterator pfiles;
 	TableFile* _DynamicallyUpdated;
 	TableFile* _deleted;
-	tree* tt;
-	tree* ct;
+	Tree* tt;
+	Tree* ct;
 	BinaryGuid g;
 	Table* tab;
 	int dynno;
@@ -706,10 +705,10 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 		string detail_path_name = tab->get_base()->get_filename()
 				   + "\\" + tab->get_name()
 				   + "\\" + deleted.name;
-		tree *tt = parse_1Cstream(deleted.stream, detail_path_name);
+		auto tt = parse_1Cstream(deleted.stream, detail_path_name);
 		std::vector<BinaryGuid> dynup;
 		try {
-			dynup = parse_dynamically_updated_tree(tt);
+			dynup = parse_dynamically_updated_tree(std::move(tt));
 		} catch (DetailedException &ex) {
 			ex.add_detail("Путь", detail_path_name);
 			throw ex;
@@ -730,9 +729,9 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 		string detail_path_name = tab->get_base()->get_filename()
 				+ "\\" + tab->get_name()
 				+ "\\" + DynamicallyUpdated.name;
-		tree *tt = parse_1Cstream(DynamicallyUpdated.stream, detail_path_name);
+		auto tt = parse_1Cstream(DynamicallyUpdated.stream, detail_path_name);
 		try {
-			dynup = parse_dynamically_updated_tree(tt);
+			dynup = parse_dynamically_updated_tree(std::move(tt));
 		} catch (DetailedException &ex) {
 			ex.add_detail("Путь", detail_path_name);
 			throw ex;
@@ -838,7 +837,7 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 	int m;
 	TableFile* _configinfo;
 	ContainerFile* configinfo;
-	tree* ct;
+	Tree* ct;
 	TableFile* tf;
 	ContainerFile* pcf;
 	TMemoryStream* stream;
@@ -861,8 +860,9 @@ ConfigStorageTableConfigCas::ConfigStorageTableConfigCas(TableFiles *tabc, const
 	configinfo = new ContainerFile(_configinfo, "configinfo");
 	files["configinfo"] = configinfo;
 	configinfo->open();
-	shared_ptr<tree> tt(parse_1Cstream(configinfo->stream, filepath));
-	if(!tt)
+
+	auto tt = parse_1Cstream(configinfo->stream, filepath);
+	if(tt == nullptr)
 	{
 		throw DetailedException("Ошибка разбора файла configinfo")
 			.add_detail("Путь", filepath);
@@ -960,8 +960,7 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 	int m;
 	TableFile* _configinfo;
 	ContainerFile* configinfo;
-	tree* tt;
-	tree* ct;
+	Tree* ct;
 	TMemoryStream* stream;
 	std::map<string,TableFile*>::iterator ptf;
 
@@ -1016,8 +1015,9 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 	}
 
 	configinfo->open();
-	tt = parse_1Cstream(configinfo->stream, config_info_path);
-	if(!tt)
+
+	auto tt = parse_1Cstream(configinfo->stream, config_info_path);
+	if(tt == nullptr)
 	{
 		throw DetailedException("Ошибка разбора файла configinfo")
 			.add_detail("Путь", config_info_path);
@@ -1098,7 +1098,6 @@ ConfigStorageTableConfigCasSave::ConfigStorageTableConfigCasSave(TableFiles *tab
 		}
 	}
 
-	delete tt;
 	delete stream;
 
 }
@@ -1109,13 +1108,13 @@ std::string ConfigStorageTableConfigCasSave::presentation() const
 	return present;
 }
 
-std::vector<BinaryGuid> parse_dynamically_updated_tree(tree * tt)
+std::vector<BinaryGuid> parse_dynamically_updated_tree(unique_ptr<Tree> tt)
 {
 	if (!tt) {
 		throw DetailedException("Ошибка разбора файла DynamicallyUpdated");
 	}
 
-	tree *ct = tt->get_first();
+	Tree *ct = tt->get_first();
 	if (!ct) {
 		throw DetailedException("Ошибка разбора файла DynamicallyUpdated");
 	}

@@ -7,7 +7,7 @@
 class SkobkaTreeModel : public QAbstractItemModel
 {
 public:
-	explicit SkobkaTreeModel(tree *data_tree);
+	explicit SkobkaTreeModel(unique_ptr<Tree> data_tree);
 
 
 	virtual int rowCount(const QModelIndex &parent) const override;
@@ -23,7 +23,7 @@ public:
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
 private:
-	tree* data_tree;
+	unique_ptr<Tree> data_tree;
 };
 
 #endif // SKOBKA_TREE_MODEL_H
