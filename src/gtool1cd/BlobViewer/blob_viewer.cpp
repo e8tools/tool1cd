@@ -15,6 +15,7 @@ BlobViewer::BlobViewer(QWidget *parent) :
 	ui->setupUi(this);
 	auto font = ui->plainTextEdit->font();
 	font.setStyleHint(QFont::TypeWriter);
+	font.setFamily("Monospace");
 	ui->plainTextEdit->setFont(font);
 
 }
@@ -24,11 +25,13 @@ BlobViewer::~BlobViewer()
 	delete ui;
 }
 
-void BlobViewer::setText(const QString &textData)
+void BlobViewer::setText(const QString &textData, bool do_not_hide_tabs)
 {
-	ui->tabWidget->removeTab(0);
-	ui->tabWidget->removeTab(0);
-	ui->tabWidget->removeTab(0);
+	if (!do_not_hide_tabs) {
+		ui->tabWidget->removeTab(0);
+		ui->tabWidget->removeTab(0);
+		ui->tabWidget->removeTab(0);
+	}
 
 	ui->plainTextEdit->setPlainText(textData);
 
@@ -118,25 +121,7 @@ void BlobViewer::setStream(TStream *stream, const QString &rootName)
 		}
 
 		if (!textData.isNull()) {
-
-			ui->tabWidget->addTab(ui->textDataTab, tr("Текст"));
-			ui->tabWidget->setCurrentWidget(ui->textDataTab);
-
-			ui->plainTextEdit->setPlainText(textData);
-			ui->plainTextEdit->setDocumentTitle(rootName);
-
-			if (textData.startsWith("{")) {
-				try {
-					auto t = parse_1Ctext(textData.toStdString(), "");
-					if (t != nullptr) {
-						ui->treeView->setModel(new SkobkaTreeModel( std::move(t) ));
-						ui->treeView->expandAll();
-						ui->tabWidget->addTab(ui->parsedDataTab, tr("Дерево"));
-						ui->tabWidget->setCurrentWidget(ui->parsedDataTab);
-					}
-				} catch (...) {
-				}
-			}
+			setText(textData, /*do not hide tabs: */true);
 		}
 	}
 
