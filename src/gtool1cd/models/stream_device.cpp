@@ -47,3 +47,8 @@ void StreamDevice::close()
 	setOpenMode(NotOpen);
 }
 
+bool StreamDevice::isSequential() const
+{
+	return false;
+}
+
