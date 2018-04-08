@@ -12,7 +12,7 @@
 
 Последние тестовые сборки можно получать через публичные CI-сервера:
 
- * [Win32](https://ci.appveyor.com/api/projects/dmpas/tool1cd/artifacts/bin%2FRelease%2Fctool1cd.exe?branch=develop)
+ * [Win32](https://ci.appveyor.com/api/projects/dmpas/tool1cd/artifacts/bin%2Fctool1cd.exe?branch=develop)
  * [Ubuntu](https://launchpad.net/~dmpas/+archive/ubuntu/e8):
 ```sh
 sudo add-apt-repository ppa:dmpas/e8
