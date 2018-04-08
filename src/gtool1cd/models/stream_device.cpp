@@ -39,6 +39,11 @@ bool StreamDevice::seek(qint64 pos)
 	return true;
 }
 
+TStream *StreamDevice::get_stream()
+{
+	return stream;
+}
+
 void StreamDevice::close()
 {
 	emit aboutToClose();

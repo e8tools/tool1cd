@@ -1,4 +1,6 @@
 #include "skobka_tree_model.h"
+#include <QBuffer>
+#include "stream_device.h"
 
 const int PATH_COLUMN = 0;
 const int DATA_COLUMN = 1;
@@ -84,13 +86,32 @@ QModelIndex SkobkaTreeModel::parent(const QModelIndex &child) const
 	return QModelIndex();
 }
 
+QString trim_item_presentation(const QString &full_presentation)
+{
+	const int MAX_PRESENTATION_LEN = 40;
+	QString result = full_presentation;
+	{
+		int k = result.indexOf('\n');
+		if (k != -1) {
+			result = result.left(k - 1);
+		}
+	}
+	if (result.size() > MAX_PRESENTATION_LEN) {
+		result = result.left(MAX_PRESENTATION_LEN - 3) + QString("...");
+	}
+	return result;
+}
+
 QVariant SkobkaTreeModel::data(const QModelIndex &index, int role) const
 {
 	if (!index.isValid()) {
 		return QVariant();
 	}
-	if (role == Qt::DisplayRole) {
-		Tree *item = static_cast<Tree*>(index.internalPointer());
+
+	Tree *item = static_cast<Tree*>(index.internalPointer());
+	if (role == Qt::DisplayRole
+	        || role == Qt::EditRole
+	        || role == Qt::ToolTipRole) {
 		switch (index.column()) {
 		case DATA_COLUMN: {
 			if (item->get_type() == node_type::nd_list) {
@@ -99,7 +120,24 @@ QVariant SkobkaTreeModel::data(const QModelIndex &index, int role) const
 			}
 			std::string presentation;
 			item->outtext(presentation);
-			return QString::fromStdString(presentation);
+			QString qp = QString::fromStdString(presentation);
+			if (role == Qt::DisplayRole) {
+				return trim_item_presentation(qp);
+			}
+
+			if (role == Qt::EditRole) {
+				if (qp.startsWith("#base64:")) {
+					qp = qp.right(qp.size() - QString("#base64:").size());
+					auto byteArray = QByteArray::fromBase64(qp.toUtf8());
+					TMemoryStream *mems = new TMemoryStream();
+					mems->WriteBuffer(byteArray.data(), byteArray.size());
+					auto device = new StreamDevice(mems);
+
+					return QVariant::fromValue(device);
+				}
+			}
+
+			return qp;
 		}
 		case PATH_COLUMN:
 			return QString::fromStdString(item->path());

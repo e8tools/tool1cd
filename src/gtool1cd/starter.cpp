@@ -9,6 +9,7 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QMimeData>
+#include "container_form.h"
 
 Cache *global_cache = nullptr;
 extern Registrator msreg_g;
@@ -59,7 +60,9 @@ void StarterWindow::on_openNewButton_clicked()
 {
 	QString filename = QFileDialog::getOpenFileName(
 	            this, tr("Open database"), "",
-	            tr("Databases (*.1CD *.1cd);;All files (*.*)"));
+	            tr("Databases (*.1CD *.1cd);;"
+	               "Containers (*.epf *.erf *.cf *.cfu);;"
+	               "All files (*.*);;"));
 	if (filename == nullptr) {
 		return;
 	}
@@ -75,8 +78,30 @@ void StarterWindow::setCache(Cache *cache)
 	ui->listView->setModel(new QStringListModel(list));
 }
 
+bool is_container_file(const QString &filename)
+{
+	QFile f(filename);
+	f.open(QIODevice::ReadOnly);
+	uint32_t signature;
+	if (f.read(reinterpret_cast<char*>(&signature), 4) != 4) {
+		return false;
+	}
+	if (signature != 0x7fffffff) {
+		return false;
+	}
+	return true;
+}
+
 bool StarterWindow::openDatabase(const QString &filename)
 {
+	if (is_container_file(filename)) {
+		ContainerForm *cf_window = new ContainerForm(nullptr);
+		cf_window->open(filename);
+		cf_window->show();
+		close();
+		return true;
+	}
+
 	LittleLogWindow *lw = new LittleLogWindow(this);
 	RegistratorSwitcher *reg = new RegistratorSwitcher(lw);
 	msreg_g.AddMessageRegistrator(reg);

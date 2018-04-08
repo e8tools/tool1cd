@@ -1,6 +1,9 @@
 #include "table_data_model.h"
 #include <QFont>
 #include "stream_device.h"
+#include <TempStream.h>
+#include <UZLib.h>
+#include <QDebug>
 
 TableDataModel::TableDataModel(Table *table, Index *index)
     : table(table), _index(index) {}
@@ -141,28 +144,42 @@ bool TableDataModel::isClobValue(const QModelIndex &index) const
 	        || f->get_type() == type_fields::tf_text;
 }
 
+TStream *new_stream(int64_t needed_size)
+{
+	const int threshold = 10 * 1024 * 1024;
+	if (needed_size < threshold) {
+		return new TMemoryStream();
+	}
+	return new TTempStream();
+}
+
+int inflate_stream(TStream* &stream)
+{
+	int counter = 0;
+	while (true) {
+		TStream *unpacked_stream = new_stream(stream->GetSize());
+		stream->SetPosition(0);
+		try {
+			ZInflateStream(stream, unpacked_stream);
+		} catch (ZError &) {
+			return counter;
+		}
+		stream = unpacked_stream;
+		if (counter++ > 10) {
+			return counter;
+		}
+	}
+}
+
 V8Catalog *TableDataModel::getCatalog(const QModelIndex &index) const
 {
-	Field *f = table->get_field(index.column());
-	TableRecord *record = _index == nullptr
-	        ? table->get_record(index.row())
-	        : table->get_record(_index->get_numrec(index.row()));
+	TStream *data_stream = getBlobStream(index);
 
-	TStream *data_stream;
-
-	if (!record->try_store_blob_data(f, data_stream, true)) {
-		if (!record->try_store_blob_data(f, data_stream, false)){
-			return nullptr;
-		}
+	auto *cat = new V8Catalog(data_stream, false, false);
+	if (cat->isOpen() && cat->is_catalog()) {
+		return cat;
 	}
-
-	{
-		auto *cat = new V8Catalog(data_stream, false, false);
-		if (cat->isOpen() && cat->is_catalog()) {
-			return cat;
-		}
-		delete cat;
-	}
+	delete cat;
 
 	return nullptr;
 }
@@ -183,8 +200,12 @@ TStream *TableDataModel::getBlobStream(const QModelIndex &index) const
 	        : table->get_record(_index->get_numrec(index.row()));
 
 	TStream *out;
-	if (!record->try_store_blob_data(f, out, true)) {
+	if (!record->try_store_blob_data(f, out, false)) {
 		return nullptr;
 	}
+
+	int count = inflate_stream(out);
+	qDebug() << "Deflate count: " << count;
+
 	return out;
 }

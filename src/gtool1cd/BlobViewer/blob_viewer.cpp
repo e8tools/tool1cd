@@ -6,6 +6,7 @@
 #include "../QHexEdit/qhexedit.h"
 #include "../models/stream_device.h"
 #include <Table.h>
+#include <QDebug>
 
 BlobViewer::BlobViewer(QWidget *parent) :
     QWidget(parent),
@@ -77,6 +78,9 @@ QString extract_text_data(QIODevice *device)
 
 void BlobViewer::setStream(TStream *stream, const QString &rootName)
 {
+	this->rootName = rootName;
+	setWindowTitle(rootName);
+
 	ui->tabWidget->removeTab(0);
 	ui->tabWidget->removeTab(0);
 	ui->tabWidget->removeTab(0);
@@ -136,4 +140,17 @@ void BlobViewer::setStream(TStream *stream, const QString &rootName)
 		}
 	}
 
+}
+
+void BlobViewer::on_treeView_doubleClicked(const QModelIndex &index)
+{
+	auto model = ui->treeView->model();
+	auto data = model->data(index, Qt::EditRole);
+	auto as_stream = static_cast<StreamDevice*>(data.value<QIODevice*>());
+	if (as_stream != nullptr) {
+		QString elementName = model->data(index, Qt::DisplayRole).toString();
+		BlobViewer *new_window = new BlobViewer(nullptr);
+		new_window->setStream(as_stream->get_stream(), rootName + QString(" / ") + elementName);
+		new_window->show();
+	}
 }
