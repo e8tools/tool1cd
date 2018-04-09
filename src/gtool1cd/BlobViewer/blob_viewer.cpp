@@ -13,6 +13,10 @@ BlobViewer::BlobViewer(QWidget *parent) :
     ui(new Ui::BlobViewer)
 {
 	ui->setupUi(this);
+	auto font = ui->plainTextEdit->font();
+	font.setStyleHint(QFont::TypeWriter);
+	ui->plainTextEdit->setFont(font);
+
 }
 
 BlobViewer::~BlobViewer()
@@ -26,9 +30,7 @@ void BlobViewer::setText(const QString &textData)
 	ui->tabWidget->removeTab(0);
 	ui->tabWidget->removeTab(0);
 
-	QTextDocument *qd = new QTextDocument(textData);
-	qd->setDocumentLayout(new QPlainTextDocumentLayout(qd));
-	ui->plainTextEdit->setDocument(qd);
+	ui->plainTextEdit->setPlainText(textData);
 
 	ui->tabWidget->addTab(ui->textDataTab, tr("Текст"));
 	ui->tabWidget->setCurrentWidget(ui->textDataTab);
@@ -120,9 +122,7 @@ void BlobViewer::setStream(TStream *stream, const QString &rootName)
 			ui->tabWidget->addTab(ui->textDataTab, tr("Текст"));
 			ui->tabWidget->setCurrentWidget(ui->textDataTab);
 
-			QTextDocument *qd = new QTextDocument(textData);
-			qd->setDocumentLayout(new QPlainTextDocumentLayout(qd));
-			ui->plainTextEdit->setDocument(qd);
+			ui->plainTextEdit->setPlainText(textData);
 			ui->plainTextEdit->setDocumentTitle(rootName);
 
 			if (textData.startsWith("{")) {
