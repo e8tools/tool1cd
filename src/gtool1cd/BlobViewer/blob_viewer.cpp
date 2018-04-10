@@ -161,3 +161,8 @@ void BlobViewer::nextTabActivated()
 	int i = (w->currentIndex() + 1 + w->count()) % w->count();
 	w->setCurrentIndex(i);
 }
+
+void BlobViewer::on_treeView_activated(const QModelIndex &index)
+{
+	emit ui->treeView->doubleClicked(index);
+}

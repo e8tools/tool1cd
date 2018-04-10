@@ -25,6 +25,8 @@ private slots:
 	void prevTabActivated();
 	void nextTabActivated();
 
+	void on_treeView_activated(const QModelIndex &index);
+
 private:
 	QString rootName;
 	Ui::BlobViewer *ui;
