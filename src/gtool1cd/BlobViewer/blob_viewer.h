@@ -16,7 +16,7 @@ public:
 	explicit BlobViewer(QWidget *parent = 0);
 	~BlobViewer();
 
-	void setText(const QString &textData);
+	void setText(const QString &textData, bool do_not_hide_tabs = false);
 
 	void setStream(TStream *stream, const QString &rootName);
 
