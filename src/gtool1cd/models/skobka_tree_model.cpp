@@ -126,8 +126,17 @@ QVariant SkobkaTreeModel::data(const QModelIndex &index, int role) const
 			}
 
 			if (role == Qt::EditRole) {
-				if (qp.startsWith("#base64:")) {
-					qp = qp.right(qp.size() - QString("#base64:").size());
+				auto item_type = item->get_type();
+				if (item_type == node_type::nd_binary
+				        || item_type == node_type::nd_binary2
+				        || item_type == node_type::nd_binary_d) {
+
+					if (qp.startsWith("#base64")) {
+						qp = qp.right(qp.size() - QString("#base64:").size());
+					} else if (qp.startsWith("#data")) {
+						qp = qp.right(qp.size() - QString("#data:").size());
+					}
+
 					auto byteArray = QByteArray::fromBase64(qp.toUtf8());
 					TMemoryStream *mems = new TMemoryStream();
 					mems->WriteBuffer(byteArray.data(), byteArray.size());

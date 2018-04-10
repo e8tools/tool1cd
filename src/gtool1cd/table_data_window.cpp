@@ -56,6 +56,13 @@ TableDataWindow::TableDataWindow(QWidget *parent, Table *table)
 
 	connect(ui->dataView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
 	        this, SLOT(dataView_selection_changed(QItemSelection)));
+
+	if (indexes.size() > 1) {
+		ui->indexChooseBox->setCurrentIndex(1);
+		emit ui->indexChooseBox->activated(1);
+	}
+
+	ui->dataView->setFocus();
 }
 
 TableDataWindow::~TableDataWindow()

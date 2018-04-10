@@ -84,3 +84,8 @@ void MainWindow::on_configurationsButton_clicked()
 	configurationsWindow->show();
 	configurationsWindow->activateWindow();
 }
+
+void MainWindow::on_tableListView_activated(const QModelIndex &index)
+{
+	emit ui->tableListView->doubleClicked(index);
+}

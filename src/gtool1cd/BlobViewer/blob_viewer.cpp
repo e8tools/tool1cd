@@ -7,6 +7,7 @@
 #include "../models/stream_device.h"
 #include <Table.h>
 #include <QDebug>
+#include <QShortcut>
 
 BlobViewer::BlobViewer(QWidget *parent) :
     QWidget(parent),
@@ -17,6 +18,13 @@ BlobViewer::BlobViewer(QWidget *parent) :
 	font.setStyleHint(QFont::TypeWriter);
 	font.setFamily("Monospace");
 	ui->plainTextEdit->setFont(font);
+	ui->plainTextEdit->setTabStopWidth( ui->plainTextEdit->fontMetrics().width("    ") );
+
+	auto prevTabShortCut = new QShortcut(QKeySequence("Ctrl+PgUp"), this);
+	connect(prevTabShortCut, SIGNAL(activated()), this, SLOT(prevTabActivated()));
+
+	auto nextTabShortCut = new QShortcut(QKeySequence("Ctrl+PgDown"), this);
+	connect(nextTabShortCut, SIGNAL(activated()), this, SLOT(nextTabActivated()));
 
 }
 
@@ -43,8 +51,8 @@ void BlobViewer::setText(const QString &textData, bool do_not_hide_tabs)
 			auto t = parse_1Ctext(textData.toStdString(), "");
 			if (t != nullptr) {
 				ui->treeView->setModel(new SkobkaTreeModel( std::move(t) ));
+				ui->treeView->expandAll();
 				ui->tabWidget->addTab(ui->parsedDataTab, tr("Дерево"));
-				ui->tabWidget->setCurrentWidget(ui->parsedDataTab);
 			}
 		} catch (...) {
 		}
@@ -138,4 +146,18 @@ void BlobViewer::on_treeView_doubleClicked(const QModelIndex &index)
 		new_window->setStream(as_stream->get_stream(), rootName + QString(" / ") + elementName);
 		new_window->show();
 	}
+}
+
+void BlobViewer::prevTabActivated()
+{
+	auto w = ui->tabWidget;
+	int i = (w->currentIndex() - 1 + w->count()) % w->count();
+	w->setCurrentIndex(i);
+}
+
+void BlobViewer::nextTabActivated()
+{
+	auto w = ui->tabWidget;
+	int i = (w->currentIndex() + 1 + w->count()) % w->count();
+	w->setCurrentIndex(i);
 }
