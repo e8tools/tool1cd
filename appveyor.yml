@@ -70,8 +70,6 @@ after_build:
 - cmd: >-
     SET PATH=%PATH%;"%WIX%/bin";"%QT_PATH%/bin"
 
-    del bin\testproject.exe
-
     windeployqt.exe --release --no-compiler-runtime --no-translations
     --no-system-d3d-compiler --no-opengl-sw --no-angle --no-patchqt
     bin\gtool1cd.exe
@@ -79,6 +77,8 @@ after_build:
     call .\windeploycrt.cmd %QT_PATH%/bin bin
 
     7z a -r tool1cd-%APPVEYOR_BUILD_VERSION%.zip bin
+
+    7z d tool1cd-%APPVEYOR_BUILD_VERSION%.zip bin\testproject.exe
 
     candle tool1cd.wxs
 
