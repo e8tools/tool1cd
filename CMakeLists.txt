@@ -12,30 +12,35 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BINARY_DIR}/lib")
 
 # Переделываем shared-runtime на static-runtime
 # Это нужно, чтобы под Windows Tool1CD не требовал vcredist
-if (MSVC OR NOGUI)
+if (NOGUI)
 
 	add_definitions (-DBOOST_ALL_NO_LIB)
 	set (Boost_USE_STATIC_LIBS ON)
 	set (Boost_USE_MULTITHREADED OFF)
 	set (Boost_USE_STATIC_RUNTIME ON)
 
-endif()
+	if (MSVC)
 
-if (MSVC)
+		foreach (flag_var
+				CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+				CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
 
-	foreach (flag_var
-			CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-			CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+			if (${flag_var} MATCHES "/MD")
+				string (REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+			endif (${flag_var} MATCHES "/MD")
 
-		if (${flag_var} MATCHES "/MD")
-			string (REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-		endif (${flag_var} MATCHES "/MD")
+		endforeach(flag_var)
 
-	endforeach(flag_var)
+		set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT")
+		set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT")
+		set (CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:MSVCRTD")
 
-	set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT")
-	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT")
-	set (CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:MSVCRTD")
+	endif()
+
+	if (CMAKE_COMPILER_IS_GNUCXX)
+		set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -static -static-libstdc++ -static-libgcc")
+		set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libstdc++ -static-libgcc")
+	endif()
 
 endif()
 

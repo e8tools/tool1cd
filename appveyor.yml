@@ -67,6 +67,23 @@ build_script:
     cmake --build . --target testproject
 
     cd ..
+
+- cmd: >-
+    mkdir ctool1cd
+
+    cd ctool1cd
+
+    cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release -DNOGUI=YES
+    -DBOOST_ROOT="%MY_BOOST_ROOT%"
+    -DBOOST_LIBRARYDIR="%MY_BOOST_LIBRARYDIR%"
+    -DBOOST_INCLUDEDIR="%MY_BOOST_INCLUDEDIR%"
+    -DQt5Widgets_DIR="%MY_Qt5Widgets_DIR%"
+    -DZLIB_INCLUDE_DIR="%MINGW_ROOT%\\i686-w64-mingw32\include"
+    -DZLIB_LIBRARY="%MINGW_ROOT%\i686-w64-mingw32\lib\libz.a" ..
+
+    cmake --build . --target ctool1cd
+
+    cd ..
     
 - cmd: >-
     mkdir tool1cd
@@ -113,7 +130,7 @@ after_build:
     light -out tool1cd-%APPVEYOR_BUILD_VERSION%.msi tool1cd.wixobj
 
 artifacts:
-- path: tool1cd\bin\ctool1cd.exe
+- path: ctool1cd\bin\ctool1cd.exe
   name: ctool1cd.exe
 - path: tool1cd-*.zip
   name: tool1cd.zip
