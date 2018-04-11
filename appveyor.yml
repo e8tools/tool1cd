@@ -68,7 +68,7 @@ on_finish:
 
 after_build:
 - cmd: >-
-    SET PATH=%PATH%;"%WIX%/bin";"%QT_PATH/bin"
+    SET PATH=%PATH%;"%WIX%/bin";"%QT_PATH%/bin"
 
      windeployqt.exe --release --no-compiler-runtime --no-translations
      --no-system-d3d-compiler --no-opengl-sw --no-angle --no-plugins --no-patchqt
