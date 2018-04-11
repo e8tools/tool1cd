@@ -42,7 +42,11 @@ install:
 
     .\bootstrap.bat
 
-    .\b2.exe toolset=%BOOST_TOOLSET% --with-system --with-filesystem --with-regex --with-program_options
+    .\b2.exe toolset=%BOOST_TOOLSET% runtime-link=shared threading=multi
+    --with-system --with-filesystem --with-regex --with-program_options
+
+    .\b2.exe toolset=%BOOST_TOOLSET% runtime-link=static threading=single
+    --with-system --with-filesystem --with-regex --with-program_options
 
     cd %APPVEYOR_BUILD_FOLDER%
 
@@ -52,7 +56,7 @@ build_script:
     
     cd testproject
 
-    cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release
+    cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release -DNOGUI
     -DBOOST_ROOT="%MY_BOOST_ROOT%"
     -DBOOST_LIBRARYDIR="%MY_BOOST_LIBRARYDIR%"
     -DBOOST_INCLUDEDIR="%MY_BOOST_INCLUDEDIR%"
