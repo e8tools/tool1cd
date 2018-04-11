@@ -48,14 +48,15 @@ install:
 
 build_script:
 - cmd: >-
-    cmake -G "%GENERATOR%" -DBOOST_ROOT="%MY_BOOST_ROOT%"
+    cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release
+    -DBOOST_ROOT="%MY_BOOST_ROOT%"
     -DBOOST_LIBRARYDIR="%MY_BOOST_LIBRARYDIR%"
     -DBOOST_INCLUDEDIR="%MY_BOOST_INCLUDEDIR%"
     -DQt5Widgets_DIR="%MY_Qt5Widgets_DIR%"
     -DZLIB_INCLUDE_DIR="%MINGW_ROOT%\\i686-w64-mingw32\include"
     -DZLIB_LIBRARY="%MINGW_ROOT%\i686-w64-mingw32\lib\libz.a" .
 
-    cmake --build . --config MinSizeRel
+    cmake --build . --config Release
 
 test_script:
 - bin\testproject.exe --reporter junit --out junit.xml
