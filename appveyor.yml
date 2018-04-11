@@ -48,6 +48,27 @@ install:
 
 build_script:
 - cmd: >-
+    mkdir testproject
+    
+    cd testproject
+
+    cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release -DNOGUI=YES
+    -DBOOST_ROOT="%MY_BOOST_ROOT%"
+    -DBOOST_LIBRARYDIR="%MY_BOOST_LIBRARYDIR%"
+    -DBOOST_INCLUDEDIR="%MY_BOOST_INCLUDEDIR%"
+    -DQt5Widgets_DIR="%MY_Qt5Widgets_DIR%"
+    -DZLIB_INCLUDE_DIR="%MINGW_ROOT%\\i686-w64-mingw32\include"
+    -DZLIB_LIBRARY="%MINGW_ROOT%\i686-w64-mingw32\lib\libz.a" .
+
+    cmake --build . --target testproject
+
+    cd ..
+    
+- cmd: >-
+    mkdir tool1cd
+
+    cd tool1cd
+
     cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release
     -DBOOST_ROOT="%MY_BOOST_ROOT%"
     -DBOOST_LIBRARYDIR="%MY_BOOST_LIBRARYDIR%"
@@ -56,10 +77,14 @@ build_script:
     -DZLIB_INCLUDE_DIR="%MINGW_ROOT%\\i686-w64-mingw32\include"
     -DZLIB_LIBRARY="%MINGW_ROOT%\i686-w64-mingw32\lib\libz.a" .
 
-    cmake --build . --config Release
+    cmake --build . --target gtool1cd
+
+    cmake --build . --target ctool1cd
+
+    cd ..
 
 test_script:
-- bin\testproject.exe --reporter junit --out junit.xml
+- testproject\bin\testproject.exe --reporter junit --out junit.xml
 
 on_finish:
 - ps: >-
@@ -73,20 +98,18 @@ after_build:
 
     windeployqt.exe --release --no-compiler-runtime --no-translations
     --no-system-d3d-compiler --no-opengl-sw --no-angle --no-patchqt
-    bin\gtool1cd.exe
+    tool1cd\bin\gtool1cd.exe
 
-    call .\windeploycrt.cmd %QT_PATH%/bin bin
+    call .\windeploycrt.cmd %QT_PATH%\bin tool1cd\bin
 
-    7z a -r tool1cd-%APPVEYOR_BUILD_VERSION%.zip bin
-
-    7z d tool1cd-%APPVEYOR_BUILD_VERSION%.zip bin\testproject.exe
+    7z a -r tool1cd-%APPVEYOR_BUILD_VERSION%.zip tool1cd
 
     candle tool1cd.wxs
 
     light -out tool1cd-%APPVEYOR_BUILD_VERSION%.msi tool1cd.wixobj
 
 artifacts:
-- path: bin\ctool1cd.exe
+- path: tool1cd\bin\ctool1cd.exe
   name: ctool1cd.exe
 - path: tool1cd-*.zip
   name: tool1cd.zip
