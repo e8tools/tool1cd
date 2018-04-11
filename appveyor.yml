@@ -52,7 +52,7 @@ build_script:
     
     cd testproject
 
-    cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release -DNOGUI=YES
+    cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release
     -DBOOST_ROOT="%MY_BOOST_ROOT%"
     -DBOOST_LIBRARYDIR="%MY_BOOST_LIBRARYDIR%"
     -DBOOST_INCLUDEDIR="%MY_BOOST_INCLUDEDIR%"
