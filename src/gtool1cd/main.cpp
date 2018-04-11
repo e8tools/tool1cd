@@ -19,8 +19,11 @@ tr_syn = new TMultiReadExclusiveWriteSynchronizer();
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
+	QIcon mainIcon(":/Images/MainIcon");
+	a.setWindowIcon(mainIcon);
 
 	StarterWindow w;
+	w.setWindowIcon(mainIcon);
 	w.setCache(new Cache());
 	w.show();
 

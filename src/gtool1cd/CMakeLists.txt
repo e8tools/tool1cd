@@ -3,6 +3,7 @@ project(gtool1cd)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt5Widgets REQUIRED)
@@ -56,7 +57,7 @@ set(SOURCE_FILES main.cpp mainwindow.cpp starter.cpp littlelogwindow.cpp cache.c
 	skobkatextwindow.cpp export_table_to_xml_dialog.cpp configurations_window.cpp
 	${MODEL_SOURCES} ${QHEXEDIT_SOURCES} BlobViewer/blob_viewer.cpp container_form.cpp)
 
-set (RESOURCES gtool1cd.rc)
+set (RESOURCES gtool1cd.rc gtool1cd.qrc)
 
 add_executable(gtool1cd WIN32 ${SOURCE_FILES} ${HEADER_FILES} ${UI_FILES} ${RESOURCES})
 
