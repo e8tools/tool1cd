@@ -76,7 +76,7 @@ after_build:
 
     call .\windeploycrt.cmd %QT_PATH%/bin bin
 
-    7z a bin/tool1cd.zip bin/*.*
+    7z a tool1cd-%APPVEYOR_BUILD_VERSION%.zip bin/*.*
 
     candle tool1cd.wxs
 
@@ -85,7 +85,7 @@ after_build:
 artifacts:
 - path: bin\ctool1cd.exe
   name: ctool1cd.exe
-- path: bin\tool1cd.zip
+- path: tool1cd-*.zip
   name: tool1cd.zip
 - path: tool1cd-*.msi
   name: installer
