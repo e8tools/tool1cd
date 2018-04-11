@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 
 project(tool1cd_project)
 
@@ -12,12 +12,16 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BINARY_DIR}/lib")
 
 # Переделываем shared-runtime на static-runtime
 # Это нужно, чтобы под Windows Tool1CD не требовал vcredist
-if (MSVC)
+if (MSVC OR NOGUI)
 
 	add_definitions (-DBOOST_ALL_NO_LIB)
 	set (Boost_USE_STATIC_LIBS ON)
 	set (Boost_USE_MULTITHREADED OFF)
 	set (Boost_USE_STATIC_RUNTIME ON)
+
+endif()
+
+if (MSVC)
 
 	foreach (flag_var
 			CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
@@ -35,15 +39,9 @@ if (MSVC)
 
 endif()
 
-if (CMAKE_VERSION VERSION_LESS "3.1")
-	if(CMAKE_COMPILER_IS_GNUCXX)
-		set (CMAKE_CXX_FLAGS "--std=gnu++11 ${CMAKE_CXX_FLAGS}")
-	endif()
-else()
-	set (CMAKE_CXX_STANDARD 11)
-	set (CMAKE_CXX_STANDARD_REQUIRED YES)
-	set (CMAKE_CXX_EXTENSIONS OFF)
-endif()
+set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD_REQUIRED YES)
+set (CMAKE_CXX_EXTENSIONS OFF)
 
 add_subdirectory(${SOURCE_DIR}/SystemClasses)
 add_subdirectory(${SOURCE_DIR}/tool1cd)
