@@ -56,7 +56,9 @@ set(SOURCE_FILES main.cpp mainwindow.cpp starter.cpp littlelogwindow.cpp cache.c
 	skobkatextwindow.cpp export_table_to_xml_dialog.cpp configurations_window.cpp
 	${MODEL_SOURCES} ${QHEXEDIT_SOURCES} BlobViewer/blob_viewer.cpp container_form.cpp)
 
-add_executable(gtool1cd WIN32 ${SOURCE_FILES} ${HEADER_FILES} ${UI_FILES})
+set (RESOURCES gtool1cd.rc)
+
+add_executable(gtool1cd WIN32 ${SOURCE_FILES} ${HEADER_FILES} ${UI_FILES} ${RESOURCES})
 
 include_directories (${SOURCE_DIR}/SystemClasses)
 target_link_libraries (gtool1cd SystemClasses)
