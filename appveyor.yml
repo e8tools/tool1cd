@@ -102,7 +102,7 @@ after_build:
 
     call .\windeploycrt.cmd %QT_PATH%\bin tool1cd\bin
 
-    7z a -r tool1cd-%APPVEYOR_BUILD_VERSION%.zip tool1cd
+    7z a -r tool1cd-%APPVEYOR_BUILD_VERSION%.zip tool1cd\bin
 
     candle tool1cd.wxs
 
