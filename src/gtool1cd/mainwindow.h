@@ -40,6 +40,8 @@ private slots:
 
 	void on_configurationsButton_clicked();
 
+	void on_tableListView_activated(const QModelIndex &index);
+
 private:
 	Ui::MainWindow *ui;
 	T_1CD *db;

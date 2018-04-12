@@ -50,7 +50,9 @@ public:
 			int32_t maxlen) const = 0;
 
 
-	static FieldType *create_type_manager(const field_type_declaration &type_declaration);
+	static FieldType *create_type_manager(
+			const field_type_declaration &type_declaration,
+				  bool                    can_be_guid = false);
 	static FieldType *Version8();
 
 	// TODO: убрать это куда-нибудь

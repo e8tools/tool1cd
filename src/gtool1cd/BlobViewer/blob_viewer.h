@@ -22,6 +22,10 @@ public:
 
 private slots:
 	void on_treeView_doubleClicked(const QModelIndex &index);
+	void prevTabActivated();
+	void nextTabActivated();
+
+	void on_treeView_activated(const QModelIndex &index);
 
 private:
 	QString rootName;

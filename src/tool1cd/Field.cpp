@@ -433,9 +433,12 @@ Field *Field::field_from_tree(Tree *field_tree, bool &has_version, Table *parent
 		throw formatError.add_detail("Поле", fld->name);
 	}
 
+	bool can_be_guid = EndsWithIC(fld->get_name(), "REF")
+			|| EndsWithIC(fld->get_name(), "ID");
+
 	fld->type         = type_declaration.type;
 	fld->null_exists  = type_declaration.null_exists;
-	fld->type_manager = FieldType::create_type_manager(type_declaration);
+	fld->type_manager = FieldType::create_type_manager(type_declaration, can_be_guid);
 
 	if (fld->type == type_fields::tf_version) {
 		has_version = true;

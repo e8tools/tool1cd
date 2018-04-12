@@ -86,6 +86,13 @@ QVariant TableDataModel::data(const QModelIndex &index, int role) const
 			delete data_stream;
 		}
 
+		if (f->get_type() == type_fields::tf_binary
+		        && f->get_length() == 16
+		        && EndsWithIC(f->get_name(),"REF")) {
+			auto value = record->get<BinaryGuid>(f);
+			return QString::fromStdString(value.as_1C());
+		}
+
 		return QString::fromStdString(record->get_string(f));
 	}
 	if (role == Qt::FontRole) {

@@ -124,7 +124,6 @@ string CommonFieldType::get_fast_presentation(const char *rec) const
 	return get_presentation(rec, false, 0, false, false);
 }
 
-
 class BinaryFieldType : public CommonFieldType
 {
 public:
@@ -154,7 +153,6 @@ public:
 			unsigned char* SortKey,
 			int32_t maxlen) const override;
 };
-
 
 class NumericFieldType : public CommonFieldType
 {
@@ -214,6 +212,27 @@ public:
 			const char* rec,
 			unsigned char* SortKey,
 			int32_t maxlen) const override;
+};
+
+class GuidFieldType : public BinaryFieldType
+{
+public:
+	GuidFieldType(field_type_declaration declaration)
+		: BinaryFieldType(declaration)
+	{
+	}
+
+	virtual string get_presentation(
+			const char *rec,
+			bool EmptyNull,
+			wchar_t Delimiter,
+			bool ignore_showGUID,
+			bool detailed) const override;
+
+	virtual string get_XML_presentation(
+			const char *rec,
+			const Table *parent,
+			bool ignore_showGUID) const override;
 };
 
 bool BinaryFieldType::get_binary_value(char *binary_value, const string &value) const
@@ -777,6 +796,18 @@ uint32_t CommonFieldType::get_sort_key(const char* rec, unsigned char* SortKey, 
 			.add_detail("Значение поля", get_fast_presentation(rec));
 }
 
+string GuidFieldType::get_presentation(const char *rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID,
+										 bool detailed) const
+{
+	BinaryGuid guid(rec);
+	return guid.as_1C();
+}
+
+string GuidFieldType::get_XML_presentation(const char *rec, const Table *parent, bool ignore_showGUID) const
+{
+	return get_presentation(rec, false, 0, true, false);
+}
+
 
 field_type_declaration field_type_declaration::parse_tree(Tree *field_tree)
 {
@@ -850,11 +881,15 @@ FieldType *FieldType::Version8()
 	return new CommonFieldType(td);
 }
 
-FieldType *FieldType::create_type_manager(const field_type_declaration &type_declaration)
+FieldType *FieldType::create_type_manager(const field_type_declaration &type_declaration, bool can_be_guid)
 {
 	switch (type_declaration.type) {
 
 		case type_fields::tf_binary:
+		if (can_be_guid && type_declaration.length == GUID_BINARY_SIZE) {
+			return new GuidFieldType(type_declaration);
+		}
+		/* no break! */
 		case type_fields::tf_varbinary:
 			return new BinaryFieldType(type_declaration);
 
