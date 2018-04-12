@@ -52,40 +52,6 @@ install:
 
 build_script:
 - cmd: >-
-    mkdir testproject
-    
-    cd testproject
-
-    cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release -DNOGUI=YES
-    -DBOOST_ROOT="%MY_BOOST_ROOT%"
-    -DBOOST_LIBRARYDIR="%MY_BOOST_LIBRARYDIR%"
-    -DBOOST_INCLUDEDIR="%MY_BOOST_INCLUDEDIR%"
-    -DQt5Widgets_DIR="%MY_Qt5Widgets_DIR%"
-    -DZLIB_INCLUDE_DIR="%MINGW_ROOT%\\i686-w64-mingw32\include"
-    -DZLIB_LIBRARY="%MINGW_ROOT%\i686-w64-mingw32\lib\libz.a" ..
-
-    cmake --build . --target testproject
-
-    cd ..
-
-- cmd: >-
-    mkdir ctool1cd
-
-    cd ctool1cd
-
-    cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release -DNOGUI=YES
-    -DBOOST_ROOT="%MY_BOOST_ROOT%"
-    -DBOOST_LIBRARYDIR="%MY_BOOST_LIBRARYDIR%"
-    -DBOOST_INCLUDEDIR="%MY_BOOST_INCLUDEDIR%"
-    -DQt5Widgets_DIR="%MY_Qt5Widgets_DIR%"
-    -DZLIB_INCLUDE_DIR="%MINGW_ROOT%\\i686-w64-mingw32\include"
-    -DZLIB_LIBRARY="%MINGW_ROOT%\i686-w64-mingw32\lib\libz.a" ..
-
-    cmake --build . --target ctool1cd
-
-    cd ..
-    
-- cmd: >-
     mkdir tool1cd
 
     cd tool1cd
@@ -104,14 +70,52 @@ build_script:
 
     cd ..
 
-#test_script:
-#- testproject\bin\testproject.exe --reporter junit --out junit.xml
+- cmd: >-
+    del /f /q %MINGW_ROOT%\i686-w64-mingw32\lib\libpthread.dll.a
 
-#on_finish:
-#- ps: >-
-#    $wc = New-Object 'System.Net.WebClient'
-#
-#    $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\junit.xml))
+    mkdir testproject
+    
+    cd testproject
+
+    cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release -DNOGUI=YES
+    -DBOOST_ROOT="%MY_BOOST_ROOT%"
+    -DBOOST_LIBRARYDIR="%MY_BOOST_LIBRARYDIR%"
+    -DBOOST_INCLUDEDIR="%MY_BOOST_INCLUDEDIR%"
+    -DQt5Widgets_DIR="%MY_Qt5Widgets_DIR%"
+    -DZLIB_INCLUDE_DIR="%MINGW_ROOT%\\i686-w64-mingw32\include"
+    -DZLIB_LIBRARY="%MINGW_ROOT%\i686-w64-mingw32\lib\libz.a" ..
+
+    cmake --build . --target testproject
+
+    cd ..
+
+- cmd: >-
+    del /f /q %MINGW_ROOT%\i686-w64-mingw32\lib\libpthread.dll.a
+
+    mkdir ctool1cd
+
+    cd ctool1cd
+
+    cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release -DNOGUI=YES
+    -DBOOST_ROOT="%MY_BOOST_ROOT%"
+    -DBOOST_LIBRARYDIR="%MY_BOOST_LIBRARYDIR%"
+    -DBOOST_INCLUDEDIR="%MY_BOOST_INCLUDEDIR%"
+    -DQt5Widgets_DIR="%MY_Qt5Widgets_DIR%"
+    -DZLIB_INCLUDE_DIR="%MINGW_ROOT%\\i686-w64-mingw32\include"
+    -DZLIB_LIBRARY="%MINGW_ROOT%\i686-w64-mingw32\lib\libz.a" ..
+
+    cmake --build . --target ctool1cd
+
+    cd ..
+    
+test_script:
+- testproject\bin\testproject.exe --reporter junit --out junit.xml
+
+on_finish:
+- ps: >-
+    $wc = New-Object 'System.Net.WebClient'
+
+    $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\junit.xml))
 
 after_build:
 - cmd: >-
