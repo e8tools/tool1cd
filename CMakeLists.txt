@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 
 project(tool1cd_project)
 
@@ -10,40 +10,43 @@ set(BINARY_DIR "${CMAKE_BINARY_DIR}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BINARY_DIR}/lib")
 
+add_definitions (-DBOOST_ALL_NO_LIB)
+set (Boost_USE_STATIC_LIBS ON)
+
 # Переделываем shared-runtime на static-runtime
 # Это нужно, чтобы под Windows Tool1CD не требовал vcredist
-if (MSVC)
+if (NOGUI)
 
-	add_definitions (-DBOOST_ALL_NO_LIB)
-	set (Boost_USE_STATIC_LIBS ON)
 	set (Boost_USE_MULTITHREADED OFF)
 	set (Boost_USE_STATIC_RUNTIME ON)
 
-	foreach (flag_var
-			CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-			CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+	if (MSVC)
 
-		if (${flag_var} MATCHES "/MD")
-			string (REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-		endif (${flag_var} MATCHES "/MD")
+		foreach (flag_var
+				CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+				CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
 
-	endforeach(flag_var)
+			if (${flag_var} MATCHES "/MD")
+				string (REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+			endif (${flag_var} MATCHES "/MD")
 
-	set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT")
-	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT")
-	set (CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:MSVCRTD")
+		endforeach(flag_var)
 
-endif()
+		set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT")
+		set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT")
+		set (CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:MSVCRTD")
 
-if (CMAKE_VERSION VERSION_LESS "3.1")
-	if(CMAKE_COMPILER_IS_GNUCXX)
-		set (CMAKE_CXX_FLAGS "--std=gnu++11 ${CMAKE_CXX_FLAGS}")
 	endif()
-else()
-	set (CMAKE_CXX_STANDARD 11)
-	set (CMAKE_CXX_STANDARD_REQUIRED YES)
-	set (CMAKE_CXX_EXTENSIONS OFF)
+
+	if (CMAKE_COMPILER_IS_GNUCXX)
+		set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++ -static-libgcc")
+	endif()
+
 endif()
+
+set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD_REQUIRED YES)
+set (CMAKE_CXX_EXTENSIONS OFF)
 
 add_subdirectory(${SOURCE_DIR}/SystemClasses)
 add_subdirectory(${SOURCE_DIR}/tool1cd)
