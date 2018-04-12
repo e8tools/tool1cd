@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/Images">
+        <file alias="MainIcon">res/cTool_1CD_Icon.ico</file>
+    </qresource>
+</RCC>
