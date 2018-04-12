@@ -10,12 +10,13 @@ set(BINARY_DIR "${CMAKE_BINARY_DIR}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BINARY_DIR}/lib")
 
+add_definitions (-DBOOST_ALL_NO_LIB)
+set (Boost_USE_STATIC_LIBS ON)
+
 # Переделываем shared-runtime на static-runtime
 # Это нужно, чтобы под Windows Tool1CD не требовал vcredist
 if (NOGUI)
 
-	add_definitions (-DBOOST_ALL_NO_LIB)
-	set (Boost_USE_STATIC_LIBS ON)
 	set (Boost_USE_MULTITHREADED OFF)
 	set (Boost_USE_STATIC_RUNTIME ON)
 
@@ -38,8 +39,7 @@ if (NOGUI)
 	endif()
 
 	if (CMAKE_COMPILER_IS_GNUCXX)
-		set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -static -static-libstdc++ -static-libgcc")
-		set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libstdc++ -static-libgcc")
+		set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++ -static-libgcc")
 	endif()
 
 endif()
