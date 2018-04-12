@@ -45,14 +45,6 @@ QVariant TableDataModel::data(const QModelIndex &index, int role) const
 		if (record->is_null_value(f)) {
 			return QString("{NULL}");
 		}
-
-		if (f->get_type() == type_fields::tf_binary
-		        && f->get_length() == 16
-		        && EndsWithIC(f->get_name(),"REF")) {
-			auto value = record->get<BinaryGuid>(f);
-			return QString::fromStdString(value.as_1C());
-		}
-
 		return QString::fromStdString(record->get_string(f));
 	}
 	if (role == Qt::EditRole) {
