@@ -22,3 +22,7 @@ target_link_libraries (testproject ${Boost_LIBRARIES})
 find_package (ZLIB REQUIRED)
 include_directories (${ZLIB_INCLUDE_DIRS})
 target_link_libraries (testproject ${ZLIB_LIBRARIES})
+
+if (NOGUI AND MINGW)
+	target_link_libraries(testproject pthread -static)
+endif()
