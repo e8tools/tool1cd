@@ -495,8 +495,6 @@ int App::Run()
 		return 0;
 	}
 
-	mess.setlogfile("tool1cd.log");
-
 	// Первый цикл просмотра команд для определения ключей параметров
 	for (const auto &pc : commands) {
 		switch (pc.command) {
