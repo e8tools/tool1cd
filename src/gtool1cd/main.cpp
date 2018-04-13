@@ -9,11 +9,7 @@
 #include <MessageRegistration.h>
 #include <QCommandLineParser>
 
-Registrator msreg_g;
-
-TMultiReadExclusiveWriteSynchronizer*
-tr_syn = new TMultiReadExclusiveWriteSynchronizer();
-
+extern Registrator msreg_g;
 
 
 int main(int argc, char *argv[])

@@ -32,7 +32,8 @@ set (TOOL1CD_SOURCES MessageRegistration.cpp Class_1CD.cpp
 	V8Object.cpp Field.cpp Index.cpp Table.cpp TableFiles.cpp TableFileStream.cpp
 	MemBlock.cpp CRC32.cpp Packdata.cpp PackDirectory.cpp FieldType.cpp DetailedException.cpp
 	BinaryDecimalNumber.cpp save_depot_config.cpp save_part_depot_config.cpp
-	SupplierConfig.cpp TableRecord.cpp BinaryGuid.cpp TableIterator.cpp SupplierConfigBuilder.cpp)
+	SupplierConfig.cpp TableRecord.cpp BinaryGuid.cpp TableIterator.cpp SupplierConfigBuilder.cpp
+	main.cpp)
 
 set (TOOL1CD_HEADERS MessageRegistration.h Class_1CD.h
 	Common.h ConfigStorage.h Parse_tree.h TempStream.h Base64.h UZLib.h Messenger.h
@@ -49,7 +50,11 @@ set (TOOL1CD_HEADERS ${TOOL1CD_HEADERS} cfapi/V8File.h cfapi/V8Catalog.h cfapi/T
 set (TOOL1CD_SOURCES ${TOOL1CD_SOURCES} ${SYSTEMCLASSES_SOURCES})
 set (TOOL1CD_HEADERS ${TOOL1CD_HEADERS} ${SYSTEMCLASSES_HEADERS})
 
-add_library (tool1cd STATIC ${TOOL1CD_SOURCES} ${TOOL1CD_HEADERS})
+if (NOGUI)
+	add_library (tool1cd STATIC ${TOOL1CD_SOURCES} ${TOOL1CD_HEADERS})
+else()
+	add_library (tool1cd SHARED ${TOOL1CD_SOURCES} ${TOOL1CD_HEADERS})
+endif()
 
 set_target_properties(tool1cd PROPERTIES LINKER_LANGUAGE CXX)
 

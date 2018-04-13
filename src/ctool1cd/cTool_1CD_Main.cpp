@@ -4,9 +4,7 @@
 #include "ErrorCode.h"
 #include "App.h"
 
-TMultiReadExclusiveWriteSynchronizer* tr_syn = new TMultiReadExclusiveWriteSynchronizer();
-
-Registrator msreg_g;
+extern Registrator msreg_g;
 
 
 //***************************************************************************
