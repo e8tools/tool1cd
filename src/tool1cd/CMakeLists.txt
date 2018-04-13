@@ -1,6 +1,32 @@
 cmake_minimum_required (VERSION 2.8)
 project (tool1cd)
 
+include_directories(../SystemClasses)
+set (SYSTEMCLASSES_SOURCES ../SystemClasses/String.cpp
+		../SystemClasses/System.Classes.cpp
+		../SystemClasses/System.cpp
+		../SystemClasses/System.IOUtils.cpp
+		../SystemClasses/TFileStream.cpp
+		../SystemClasses/TMemoryStream.cpp
+		../SystemClasses/TStream.cpp
+		../SystemClasses/TStreamReader.cpp
+		../SystemClasses/TStreamWriter.cpp
+		../SystemClasses/System.SysUtils.cpp
+		../SystemClasses/GetTickCount.cpp)
+set (SYSTEMCLASSES_HEADERS ../SystemClasses/String.hpp
+		../SystemClasses/System.Classes.hpp
+		../SystemClasses/System.hpp
+		../SystemClasses/System.IOUtils.hpp
+		../SystemClasses/TFileStream.hpp
+		../SystemClasses/TMemoryStream.hpp
+		../SystemClasses/TStream.hpp
+		../SystemClasses/TStreamReader.hpp
+		../SystemClasses/TStreamWriter.hpp
+		../SystemClasses/System.SysUtils.hpp
+		../SystemClasses/GetTickCount.hpp
+		../SystemClasses/Exception.hpp)
+
+
 set (TOOL1CD_SOURCES MessageRegistration.cpp Class_1CD.cpp
 	Common.cpp ConfigStorage.cpp Parse_tree.cpp TempStream.cpp Base64.cpp UZLib.cpp Messenger.cpp
 	V8Object.cpp Field.cpp Index.cpp Table.cpp TableFiles.cpp TableFileStream.cpp
@@ -20,10 +46,12 @@ set (TOOL1CD_SOURCES ${TOOL1CD_SOURCES} cfapi/V8File.cpp cfapi/V8Catalog.cpp cfa
 set (TOOL1CD_HEADERS ${TOOL1CD_HEADERS} cfapi/V8File.h cfapi/V8Catalog.h cfapi/TV8FileStream.h
 	cfapi/APIcfBase.h cfapi/V8Time.h)
 
+set (TOOL1CD_SOURCES ${TOOL1CD_SOURCES} ${SYSTEMCLASSES_SOURCES})
+set (TOOL1CD_HEADERS ${TOOL1CD_HEADERS} ${SYSTEMCLASSES_HEADERS})
+
 add_library (tool1cd STATIC ${TOOL1CD_SOURCES} ${TOOL1CD_HEADERS})
 
-include_directories (${SOURCE_DIR}/SystemClasses)
-target_link_libraries (tool1cd SystemClasses)
+set_target_properties(tool1cd PROPERTIES LINKER_LANGUAGE CXX)
 
 find_package (Boost 1.53 REQUIRED COMPONENTS filesystem regex system)
 include_directories (${Boost_INCLUDE_DIRS})

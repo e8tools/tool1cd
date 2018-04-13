@@ -9,10 +9,8 @@ add_executable(testproject ${TEST_SYSTEM_SOURCES} ${TEST_TOOL1CD_SOURCES} catch_
 
 add_definitions (-DCMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 
-include_directories (${SOURCE_DIR}/SystemClasses)
-target_link_libraries (testproject SystemClasses)
-
 include_directories (${SOURCE_DIR}/tool1cd)
+include_directories (${SOURCE_DIR}/SystemClasses)
 target_link_libraries (testproject tool1cd)
 
 find_package (Boost 1.53 REQUIRED COMPONENTS filesystem regex system)

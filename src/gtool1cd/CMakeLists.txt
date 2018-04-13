@@ -61,10 +61,8 @@ set (RESOURCES gtool1cd.rc gtool1cd.qrc)
 
 add_executable(gtool1cd WIN32 ${SOURCE_FILES} ${HEADER_FILES} ${UI_FILES} ${RESOURCES})
 
-include_directories (${SOURCE_DIR}/SystemClasses)
-target_link_libraries (gtool1cd SystemClasses)
-
 include_directories (${SOURCE_DIR}/tool1cd)
+include_directories (${SOURCE_DIR}/SystemClasses)
 target_link_libraries (gtool1cd tool1cd)
 
 
