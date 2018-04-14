@@ -8,6 +8,7 @@
 #include <Table.h>
 #include <QDebug>
 #include <QShortcut>
+#include <QtGlobal>
 
 BlobViewer::BlobViewer(QWidget *parent) :
     QWidget(parent),
@@ -20,6 +21,9 @@ BlobViewer::BlobViewer(QWidget *parent) :
 	ui->plainTextEdit->setFont(font);
 	ui->plainTextEdit->setTabStopWidth( ui->plainTextEdit->fontMetrics().width("    ") );
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
+	ui->tabWidget->setTabBarAutoHide(true);
+#endif
 	auto prevTabShortCut = new QShortcut(QKeySequence("Ctrl+PgUp"), this);
 	connect(prevTabShortCut, SIGNAL(activated()), this, SLOT(prevTabActivated()));
 

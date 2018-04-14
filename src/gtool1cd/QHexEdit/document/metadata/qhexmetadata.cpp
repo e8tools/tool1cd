@@ -128,9 +128,9 @@ QString QHexMetadata::commentString(integer_t offset) const
 
 const QHexMetadataItem *QHexMetadata::comment(integer_t offset) const
 {
-    MetadataList metalist = this->fromOffset(offset);
+    auto metalist = this->fromOffset(offset).toStdList();
 
-    for(MetadataList::const_reverse_iterator it = metalist.crbegin(); it != metalist.crend(); it++)
+    for(auto it = metalist.crbegin(); it != metalist.crend(); it++)
     {
         if((*it)->hasComment())
             return *it;
