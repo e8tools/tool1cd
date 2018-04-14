@@ -9,5 +9,5 @@ install: >-
     libboost-filesystem-dev libboost-system-dev libboost-regex-dev
     qtbase5-dev
 script:
-    - cmake . && cmake --build . --target testproject
+    - cmake . && cmake --build .
     - bin/testproject
