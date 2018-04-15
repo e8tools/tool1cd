@@ -1346,11 +1346,11 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 	}
 	else fld->get_binary_value(fldvalue, null, value);
 
-	TableRecord *rec = nullptr;
+	unique_ptr<TableRecord> rec;
 	changed = true;
 	if(phys_numrecord < phys_numrecords)
 	{
-		rec = get_record(phys_numrecord);
+		rec.reset( get_record(phys_numrecord) );
 		// TODO: Вменяемое сравнение в соответствии с типами
 		changed = memcmp(rec->get_raw(fld), fldvalue, fld->get_size()) != 0;
 	}
@@ -1366,7 +1366,7 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 		cr = new changed_rec(this, phys_numrecord >= phys_numrecords ? changed_rec_type::inserted : changed_rec_type::changed, phys_numrecord);
 		if(phys_numrecord <= phys_numrecords) {
 			// TODO: тут должно быть что-то иное
-			memcpy(cr->rec, rec, recordlen);
+			memcpy(cr->rec, rec.get(), recordlen);
 		}
 	}
 
@@ -1406,7 +1406,6 @@ void Table::set_edit_value(uint32_t phys_numrecord, int32_t numfield, bool null,
 		else memcpy(editrec + fld->get_offset(), fldvalue, fld->get_size());
 	}
 
-	delete[] rec;
 	delete[] fldvalue;
 }
 
@@ -2093,8 +2092,8 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 	TStream** st;
 
 	TableRecord *rec = new TableRecord(this, newdata, recordlen);
-	TableRecord *orec = get_record(phys_numrecord);
-	delete_index_record(phys_numrecord, orec);
+	unique_ptr<TableRecord> orec( get_record(phys_numrecord) );
+	delete_index_record(phys_numrecord, orec.get());
 	for(i = 0; i < num_fields; i++)
 	{
 		table_blob_file new_blob = {0, 0};
@@ -2149,27 +2148,26 @@ void Table::update_record(uint32_t phys_numrecord, char* newdata, char* changed_
 					}
 				}
 			}
-			else memcpy(orec + f->get_offset(), rec + f->get_offset(), f->get_size());
+			else memcpy(orec.get() + f->get_offset(), rec + f->get_offset(), f->get_size());
 		}
 		else
 		{
 			if(tf == type_fields::tf_version)
 			{
 				file_data->get_version_rec_and_increase(&ver);
-				memcpy(orec + offset + 8, &ver, 8);
+				memcpy(orec.get() + offset + 8, &ver, 8);
 			}
 			else if(tf == type_fields::tf_version8)
 			{
 				file_data->get_version_rec_and_increase(&ver);
-				memcpy(orec + offset, &ver, 8);
+				memcpy(orec.get() + offset, &ver, 8);
 			}
 		}
 
 	}
 
-	write_index_record(phys_numrecord, orec);
-	write_data_record(phys_numrecord, orec);
-	delete[] orec;
+	write_index_record(phys_numrecord, orec.get());
+	write_data_record(phys_numrecord, orec.get());
 
 }
 
