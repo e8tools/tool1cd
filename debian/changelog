@@ -1,3 +1,9 @@
+ctool1cd (1.0.0-13~trusty) trusty; urgency=low
+
+  * Bug fixes.
+
+ -- Sergey Batanov <sergey.batanov@dmpas.ru>  Sun, 15 Apr 2018 21:45:43 +0300
+
 ctool1cd (1.0.0-11~trusty) trusty; urgency=low
 
   * Bug fixes.
