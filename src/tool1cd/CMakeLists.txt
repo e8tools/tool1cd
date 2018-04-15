@@ -65,3 +65,7 @@ target_link_libraries (tool1cd ${Boost_LIBRARIES})
 find_package (ZLIB REQUIRED)
 include_directories (${ZLIB_INCLUDE_DIRS})
 target_link_libraries (tool1cd ${ZLIB_LIBRARIES})
+
+if (NOT NOGUI)
+	install (TARGETS tool1cd DESTINATION lib)
+endif()
