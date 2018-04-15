@@ -89,8 +89,8 @@ public:
 	                        const TStringList *param) override;
 	void Status(const std::string &message) override;
 
-	void AddMessageRegistrator(MessageRegistrator* messageregistrator);
-	void RemoveMessageRegistrator();
+	void AddMessageRegistrator(MessageRegistrator* messageregistrator) override;
+	void RemoveMessageRegistrator() override;
 private:
 	MessageRegistrator* msreg_m{nullptr};
 };
