@@ -1,5 +1,5 @@
 #ifndef SYSTEM_TSTREAMREADER_HPP
-#define SYSTEM_TSTREAMREADAER_HPP
+#define SYSTEM_TSTREAMREADER_HPP
 
 #include "TStream.hpp"
 #include "System.SysUtils.hpp"

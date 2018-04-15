@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <assert.h>
-#include <malloc.h>
 #include <memory>
 
 #include "UZLib.h"

@@ -1,13 +1,18 @@
 dist: trusty
 sudo: required
 language: cpp
-compiler: gcc
+os:
+    - linux
+    - osx
+compiler:
+    - gcc
+    - clang
 before_install:
-    - sudo apt-get -qq update
-install: >-
-    sudo apt-get install -y cmake zlib1g-dev
-    libboost-filesystem-dev libboost-system-dev libboost-regex-dev
-    qtbase5-dev
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update ; fi
+install:
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y cmake zlib1g-dev libboost-filesystem-dev libboost-system-dev libboost-regex-dev qtbase5-dev ; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt5 ; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export Qt5Widgets_DIR=/usr/local/opt/qt/lib/cmake/Qt5Widgets ; fi
 script:
     - cmake . && cmake --build .
     - bin/testproject
