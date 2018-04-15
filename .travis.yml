@@ -12,6 +12,7 @@ before_install:
 install:
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y cmake zlib1g-dev libboost-filesystem-dev libboost-system-dev libboost-regex-dev qtbase5-dev ; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt5 ; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; export Qt5Widgets_DIR=/usr/local/opt/qt/lib/cmake/Qt5Widgets ; fi
 script:
     - cmake . && cmake --build .
     - bin/testproject
