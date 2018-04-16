@@ -68,10 +68,10 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 	}
 
 	#ifdef _DEBUG
-	msreg_g.AddDebugMessage("Найден файл метаданных в конфигурации поставщика", MessageState::Info,
-		"Таблица", _table_file->t->getname(),
-		"Имя файла", _table_file->name,
-		"Имя мета", file_name_meta);
+	msreg_g.AddDebugMessage("Найден файл метаданных в конфигурации поставщика", MessageState::Info)
+		.with("Таблица", _table_file->t->get_name())
+		.with("Имя файла", _table_file->name)
+		.with("Имя мета", file_name_meta);
 	#endif
 
 	auto meta_tree = meta_file->get_tree();
@@ -108,11 +108,11 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 					_supplier = confinfo[14].get_value();
 					_version = confinfo[15].get_value();
 					#ifdef _DEBUG
-					msreg_g.AddDebugMessage("Неизвестная версия свойств конфигурации поставщика", MessageState::Info,
-						"Таблица", _table_file->t->getname(),
-						"Имя файла", _table_file->name,
-						"Имя мета", file_name_meta,
-						"Версия свойств", verconfinfo);
+					msreg_g.AddDebugMessage("Неизвестная версия свойств конфигурации поставщика", MessageState::Info)
+						.with("Таблица", _table_file->t->get_name())
+						.with("Имя файла", _table_file->name)
+						.with("Имя мета", file_name_meta)
+						.with("Версия свойств", verconfinfo);
 					#endif
 					break;
 			}
@@ -131,12 +131,12 @@ std::shared_ptr<SupplierConfig> SupplierConfigBuilder::build() {
 	}
 	#ifdef _DEBUG
 	else {
-		msreg_g.AddDebugMessage("Найдена конфигурация поставщика", MessageState::Info,
-			"Таблица", _table_file->t->getname(),
-			"Имя файла", _table_file->name,
-			"Имя", _name,
-			"Версия", _version,
-			"Поставщик", _supplier);
+		msreg_g.AddDebugMessage("Найдена конфигурация поставщика", MessageState::Info)
+			.with("Таблица", _table_file->t->get_name())
+			.with("Имя файла", _table_file->name)
+			.with("Имя", _name)
+			.with("Версия", _version)
+			.with("Поставщик", _supplier);
 	}
 	#endif
 
@@ -162,10 +162,10 @@ int32_t SupplierConfigBuilder::get_version() const {
 	}
 
 #ifdef _DEBUG
-msreg_g.AddDebugMessage("Найдена версия контейнера конфигурации поставщика", MessageState::Info,
-	"Таблица", _table_file->t->getname(),
-	"Имя файла", _table_file->name,
-	"Версия", result);
+msreg_g.AddDebugMessage("Найдена версия контейнера конфигурации поставщика", MessageState::Info)
+	.with("Таблица", _table_file->t->get_name())
+	.with("Имя файла", _table_file->name)
+	.with("Версия", result);
 #endif
 
 	return result;

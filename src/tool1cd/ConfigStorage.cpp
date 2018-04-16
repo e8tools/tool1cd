@@ -7,7 +7,6 @@
 #include "cfapi/V8File.h"
 
 #include "UZLib.h"
-#pragma comment (lib, "zlibstatic.lib")
 
 using namespace std;
 
