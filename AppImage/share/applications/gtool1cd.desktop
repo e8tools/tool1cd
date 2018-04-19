@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Tool 1CD GUI App
+Comment=GUI shell for 1CD Tool
+Exec=gtool1cd
+Icon=gtool1cd
+Categories=Utility;
