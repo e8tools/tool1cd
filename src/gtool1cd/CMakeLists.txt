@@ -59,6 +59,11 @@ set(SOURCE_FILES main.cpp mainwindow.cpp starter.cpp littlelogwindow.cpp cache.c
 
 set (RESOURCES gtool1cd.rc gtool1cd.qrc)
 
+if (MSVC)
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /subsystem:windows /ENTRY:mainCRTStartup")
+	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /subsystem:windows /ENTRY:mainCRTStartup")
+endif()
+
 add_executable(gtool1cd WIN32 ${SOURCE_FILES} ${HEADER_FILES} ${UI_FILES} ${RESOURCES})
 
 include_directories (${SOURCE_DIR}/tool1cd)
