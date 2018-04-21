@@ -23,10 +23,19 @@ make install # или checkinstall
 ```
 
 Сборка deb-пакета:
-```
+
+```sh
 sudo apt-get install debhelper
 debuild -uc -us
 ```
+
+Поддержка разработки графического интерфейса пользователя.
+
+```sh
+sudo apt install mesa-common-dev
+```
+
+Скачать и установить скомпилированные библиотеки [Qt](https://www.qt.io/download)
 
 deb-пакет будет в каталоге уровнем выше с названием `ctool1cd_<версия>_<платформа>.deb`
 
