@@ -18,7 +18,8 @@ ContainerForm::~ContainerForm()
 void ContainerForm::open(const QString &filename)
 {
 	QFileInfo finfo(filename);
-	auto stream = new TFileStream(filename.toStdString(), fmOpenRead);
+	boost::filesystem::path filepath(filename.toStdWString());
+	auto stream = new TFileStream(filepath, fmOpenRead);
 	ui->widget->setStream(stream, finfo.baseName());
 	setWindowTitle(filename);
 }
