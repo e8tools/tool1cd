@@ -69,6 +69,6 @@ void VendorConfigurationsTableModel::saveSupplierConfigToFile(const QModelIndex 
 		return;
 	}
 	auto config = db->supplier_configs().at(index.row());
-	config->save_to_file(filename.toStdString());
+	config->save_to_file(boost::filesystem::path(filename.toStdWString()));
 }
 

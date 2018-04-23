@@ -11,7 +11,7 @@ ConfigurationsWindow::ConfigurationsWindow(T_1CD *db, QWidget *parent) :
     db(db)
 {
 	ui->setupUi(this);
-	setWindowTitle(QString::fromStdString(db->get_filename()));
+	setWindowTitle(QString::fromStdWString(db->get_filepath().wstring()));
 	ui->vendorsTable->setModel(new VendorConfigurationsTableModel(db));
 }
 
@@ -27,7 +27,7 @@ void ConfigurationsWindow::on_saveConfigButton_clicked()
 		return;
 	}
 
-	db->save_configsave(targetFileName.toStdString());
+	db->save_configsave(boost::filesystem::path(targetFileName.toStdWString()));
 }
 
 void ConfigurationsWindow::on_saveDbConfigButton_clicked()
@@ -37,7 +37,7 @@ void ConfigurationsWindow::on_saveDbConfigButton_clicked()
 		return;
 	}
 
-	db->save_config(targetFileName.toStdString());
+	db->save_config(boost::filesystem::path(targetFileName.toStdWString()));
 }
 
 void ConfigurationsWindow::on_saveVendorConfigButton_clicked()

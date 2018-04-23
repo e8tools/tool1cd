@@ -20,6 +20,7 @@
 #include "cfapi/TV8FileStream.h"
 #include "SupplierConfig.h"
 #include "TableRecord.h"
+#include <boost/filesystem.hpp>
 
 //---------------------------------------------------------------------------
 
@@ -186,9 +187,11 @@ public:
 
 	std::string ver;
 
-	T_1CD(const std::string &_filename, MessageRegistrator *mess = nullptr, bool monopoly = true);
+	T_1CD(const boost::filesystem::path &_filename, MessageRegistrator *mess = nullptr, bool monopoly = true);
 	T_1CD();
 	~T_1CD();
+	void open(const boost::filesystem::path &filename, bool monopoly);
+
 	bool is_open();
 	bool is_infobase() const;
 	int32_t get_numtables();
@@ -219,6 +222,7 @@ public:
 	void restore_DATA_allocation_table(Table* tab);
 	bool test_block_by_template(uint32_t testblock, char* tt, uint32_t num, int32_t rlen, int32_t len);
 	std::string get_filename() const;
+	const boost::filesystem::path &get_filepath() const;
 	uint32_t get_pagesize() const;
 
 	SupplierConfigs& supplier_configs();
@@ -234,7 +238,7 @@ public:
 private:
 	mutable Registrator msreg_m;
 	mutable MemBlockManager memBlockManager;
-	std::string filename;
+	boost::filesystem::path filename;
 	std::shared_ptr<TFileStream> fs;
 
 	db_ver version; // версия базы

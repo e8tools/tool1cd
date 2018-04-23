@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <TStream.hpp>
+#include <QMap>
 
 namespace Ui {
 class BlobViewer;
@@ -29,6 +30,7 @@ private slots:
 
 private:
 	QString rootName;
+	QMap<QString, QWidget *> widgets;
 	Ui::BlobViewer *ui;
 };
 

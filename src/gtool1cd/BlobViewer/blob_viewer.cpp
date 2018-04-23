@@ -146,7 +146,14 @@ void BlobViewer::on_treeView_doubleClicked(const QModelIndex &index)
 	auto as_stream = static_cast<StreamDevice*>(data.value<QIODevice*>());
 	if (as_stream != nullptr) {
 		QString elementName = model->data(index, Qt::DisplayRole).toString();
-		BlobViewer *new_window = new BlobViewer(nullptr);
+		BlobViewer *new_window;
+		auto found_widget = widgets.find(elementName);
+		if (found_widget == widgets.end()) {
+			new_window = new BlobViewer(nullptr);
+			widgets[elementName] = new_window;
+		} else {
+			new_window = static_cast<BlobViewer *>(*found_widget);
+		}
 		new_window->setStream(as_stream->get_stream(), rootName + QString(" / ") + elementName);
 		new_window->show();
 	}

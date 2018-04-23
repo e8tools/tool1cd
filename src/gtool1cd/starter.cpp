@@ -108,7 +108,7 @@ bool StarterWindow::openDatabase(const QString &filename)
 	T_1CD *db = nullptr;
 	try {
 
-		db = new T_1CD(filename.toStdString(), reg);
+		db = new T_1CD(boost::filesystem::path(filename.toStdWString()), reg);
 		if (!db->is_open()) {
 			lw->show();
 			return false;

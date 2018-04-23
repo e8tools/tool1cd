@@ -207,8 +207,14 @@ T_1CD::~T_1CD()
 	if(pagemap) delete[] pagemap;
 }
 
+T_1CD::T_1CD(const boost::filesystem::path &_filename, MessageRegistrator *mess, bool _monopoly)
+{
+	msreg_m.AddMessageRegistrator(mess);
+	open(_filename, _monopoly);
+}
+
 //---------------------------------------------------------------------------
-T_1CD::T_1CD(const string &_filename, MessageRegistrator *mess, bool _monopoly)
+void T_1CD::open(const boost::filesystem::path &_filename, bool _monopoly)
 {
 	char* b = nullptr;
 	uint32_t* table_blocks = nullptr;
@@ -217,17 +223,15 @@ T_1CD::T_1CD(const string &_filename, MessageRegistrator *mess, bool _monopoly)
 	root_80* root80 = nullptr;
 	root_81* root81 = nullptr;
 
-	msreg_m.AddMessageRegistrator(mess);
-
 	init();
 
-	filename = System::Ioutils::TPath::GetFullPath(_filename);
+	filename = boost::filesystem::absolute(_filename).string();
 
 	std::shared_ptr<TFileStream> base_file;
 	try
 	{
 		base_file.reset(
-				new TFileStream(boost::filesystem::path(filename),
+				new TFileStream(_filename,
 								_monopoly ? (fmOpenReadWrite | fmShareDenyWrite)
 										  : (fmOpenRead | fmShareDenyNone)));
 	}
@@ -2157,6 +2161,11 @@ bool T_1CD::test_block_by_template(uint32_t testblock, char* tt, uint32_t num, i
 }
 
 std::string T_1CD::get_filename() const
+{
+	return filename.string();
+}
+
+const boost::filesystem::path &T_1CD::get_filepath() const
 {
 	return filename;
 }
