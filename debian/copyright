@@ -3,6 +3,6 @@ Upstream-Name: ctoolcd
 Source: https://github.com/dmpas/tool1cd
 
 Files: *
-Copyright: Valeriy Ageev
-License: No license
+Copyright: Valeriy Ageev and E8 Tools contributors
+License: GPL3
 

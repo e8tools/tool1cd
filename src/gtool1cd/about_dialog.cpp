@@ -18,32 +18,17 @@
     You should have received a copy of the GNU General Public License
     along with GTool1CD.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "skobkatextwindow.h"
-#include "ui_skobkatextwindow.h"
-#include "models/skobka_tree_model.h"
-#include "BlobViewer/blob_viewer.h"
+#include "about_dialog.h"
+#include "ui_about_dialog.h"
 
-SkobkaTextWindow::SkobkaTextWindow(QWidget *parent) :
+AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::SkobkaTextWindow)
+    ui(new Ui::AboutDialog)
 {
 	ui->setupUi(this);
 }
 
-SkobkaTextWindow::~SkobkaTextWindow()
+AboutDialog::~AboutDialog()
 {
 	delete ui;
-}
-
-void SkobkaTextWindow::setText(const QString &text, const QString &title)
-{
-	BlobViewer *bv = static_cast<BlobViewer*>(ui->widget);
-	/*
-	QTextDocument *qd = new QTextDocument(text);
-	qd->setDocumentLayout(new QPlainTextDocumentLayout(qd));
-	ui->plainTextEdit->setDocument(qd);
-	ui->treeView->setModel(new SkobkaTreeModel(parse_1Ctext(text.toStdString(), title.toStdString())));
-	*/
-	bv->setText(text);
-	setWindowTitle(title);
 }
