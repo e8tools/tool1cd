@@ -29,6 +29,7 @@
 #include "table_data_window.h"
 #include "models/tables_list_model.h"
 #include "configurations_window.h"
+#include "about_dialog.h"
 
 void MainWindow::AddDetailedMessage(
         const std::string &description,
@@ -108,4 +109,12 @@ void MainWindow::on_configurationsButton_clicked()
 void MainWindow::on_tableListView_activated(const QModelIndex &index)
 {
 	emit ui->tableListView->doubleClicked(index);
+}
+
+void MainWindow::on_aboutAction_triggered()
+{
+	if (about_window == nullptr) {
+		about_window = new AboutDialog(this);
+	}
+	about_window->show();
 }

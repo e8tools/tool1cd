@@ -62,12 +62,15 @@ private slots:
 
 	void on_tableListView_activated(const QModelIndex &index);
 
+	void on_aboutAction_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	T_1CD *db;
 	QStringList logData;
 	QMap<Table *, QWidget *> table_windows;
 	QWidget *configurationsWindow;
+	QWidget *about_window {nullptr};
 };
 
 #endif // MAINWINDOW_H

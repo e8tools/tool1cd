@@ -505,13 +505,23 @@ void App::find_and_save_lost_objects(const ParsedCommand &pc)
 	base1CD->find_and_save_lost_objects(lost_objects);
 }
 
+void out_gpl_header()
+{
+	cout << "cTool_1CD  Copyright 2009-2017 awa, Copyright 2017-2018 E8 Tools Contributors"
+		 << endl
+		 << "This program comes with ABSOLUTELY NO WARRANTY; "
+				 "This is free software, and you are welcome to redistribute it under certain conditions."
+		 << endl;
+}
+
 int App::Run()
 {
 
 	vector<ParsedCommand> &commands = comm.getcommands();
 
 	if (commands.empty()) {
-		cout << "cTool_1CD (c) awa 2009 - 2017" << endl << "Запусти cTool_1CD -h для справки" << endl;
+		out_gpl_header();
+		cout << "Запусти cTool_1CD -h для справки" << endl;
 		return 0;
 	}
 
