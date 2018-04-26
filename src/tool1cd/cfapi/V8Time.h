@@ -34,8 +34,6 @@
 
 #endif // _MSC_VER
 
-using namespace System;
-
 class V8Time
 {
 public:
@@ -45,12 +43,12 @@ public:
 
 	explicit V8Time();
 	explicit V8Time(const int64_t value);
-	explicit V8Time(const FILETIME &value);
+	explicit V8Time(const System::FILETIME &value);
 
 	 ~V8Time() = default;
 
-	FILETIME to_file_time() const;
-	void from_file_time(const FILETIME &value);
+	System::FILETIME to_file_time() const;
+	void from_file_time(const System::FILETIME &value);
 	size_t write_to_stream(TMemoryStream *out_stream) const;
 
 #ifdef _MSC_VER
@@ -66,7 +64,7 @@ public:
 private:
 	int64_t _data {0};
 
-	int64_t inner_from_file_time(const FILETIME &value);
+	int64_t inner_from_file_time(const System::FILETIME &value);
 };
 
 

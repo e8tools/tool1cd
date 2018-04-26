@@ -39,7 +39,7 @@ uint64_t UInt32x32To64(int64_t a, int64_t b)
 
 //---------------------------------------------------------------------------
 // Преобразование времени FILETIME to POSIX
-uint64_t FileTime_to_POSIX(LPFILETIME pft)
+uint64_t FileTime_to_POSIX(System::FILETIME * pft)
 {
 	// takes the last modified date
 	LARGE_INTEGER date, adjust;
@@ -58,7 +58,7 @@ uint64_t FileTime_to_POSIX(LPFILETIME pft)
 
 //---------------------------------------------------------------------------
 // Преобразование времени POSIX to FILETIME
-void UnixTimeToFileTime(time_t t, LPFILETIME pft)
+void UnixTimeToFileTime(time_t t, System::FILETIME * pft)
 {
 
 	uint64_t ll = UInt32x32To64(t, 10000000) + SEC_TO_UNIX_EPOCH;
@@ -68,7 +68,7 @@ void UnixTimeToFileTime(time_t t, LPFILETIME pft)
 }
 
 
-bool SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime, LPFILETIME lpFileTime)
+bool SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime, System::FILETIME * lpFileTime)
 {
 	struct tm ttm;
 	time_t UnixTime;
@@ -89,11 +89,11 @@ bool SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime, LPFILETIME lpFileTime)
 	return true; 
 }
 
-bool LocalFileTimeToFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileTime)
+bool LocalFileTimeToFileTime(const FILETIME *lpLocalFileTime, System::FILETIME * lpFileTime)
 {
 	
 	// TODO: реализовать кроссплатформенное преобразование локального системного файлового времени в универсальное (UTC) файловое время
-	time_t rawtime  = FileTime_to_POSIX((LPFILETIME)lpLocalFileTime);
+	time_t rawtime  = FileTime_to_POSIX((System::FILETIME *)lpLocalFileTime);
 	struct tm *ptm  = gmtime(&rawtime);
 	time_t UnixTime = mktime(ptm);
 	UnixTimeToFileTime(UnixTime, lpFileTime);
@@ -102,10 +102,10 @@ bool LocalFileTimeToFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileT
 
 }
 
-bool FileTimeToLocalFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileTime)
+bool FileTimeToLocalFileTime(const FILETIME *lpLocalFileTime, System::FILETIME * lpFileTime)
 {
 	
-	time_t rawtime  = FileTime_to_POSIX((LPFILETIME)lpLocalFileTime);
+	time_t rawtime  = FileTime_to_POSIX((System::FILETIME *)lpLocalFileTime);
 	struct tm * ptm = localtime(&rawtime);
 	time_t UnixTime = mktime(ptm);
 	UnixTimeToFileTime(UnixTime, lpFileTime);
@@ -114,7 +114,7 @@ bool FileTimeToLocalFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileT
 
 }
 
-void GetSystemTime(LPSYSTEMTIME lpSystemTime)
+void GetSystemTime(System::SYSTEMTIME * lpSystemTime)
 {
 	
 	time_t CurrTime = time(NULL);

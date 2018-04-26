@@ -27,9 +27,18 @@
 
 using namespace std;
 
-string TTempStream::tempcat;
-long TTempStream::tempno = 0;
+boost::filesystem::path TTempStream::tempcat;
+bool TTempStream::cleanup = true;
 TTempStreamStaticInit TempStreamStaticInit;
+
+static void DelayedInitTempPath()
+{
+	TTempStream::tempcat = boost::filesystem::temp_directory_path() / "t1cd";
+	if (boost::filesystem::exists(TTempStream::tempcat)) {
+		boost::filesystem::remove_all(TTempStream::tempcat);
+	}
+	boost::filesystem::create_directory(TTempStream::tempcat);
+}
 
 //---------------------------------------------------------------------------
 TTempStreamStaticInit::TTempStreamStaticInit()
@@ -37,16 +46,20 @@ TTempStreamStaticInit::TTempStreamStaticInit()
 	if (!TTempStream::tempcat.empty()) {
 		return;
 	}
-	boost::filesystem::path p_tempcat = boost::filesystem::temp_directory_path() / "awa";
-	TTempStream::tempcat = p_tempcat.string();
-	DeleteFile(TTempStream::tempcat);
-	CreateDir(TTempStream::tempcat);
 }
 
 //---------------------------------------------------------------------------
 TTempStreamStaticInit::~TTempStreamStaticInit()
 {
-	RemoveDir(TTempStream::tempcat);
+	if (!TTempStream::cleanup) {
+		return;
+	}
+	try {
+		boost::filesystem::remove_all(TTempStream::tempcat);
+	}
+	catch (...) {
+
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -63,7 +76,10 @@ TTempStream::~TTempStream()
 
 std::string TTempStream::get_temp_name()
 {
-	return (boost::filesystem::path(tempcat) / boost::filesystem::unique_path()).string();
+	if (tempcat.empty()) {
+		DelayedInitTempPath();
+	}
+	return (tempcat / boost::filesystem::unique_path()).string();
 }
 
 //---------------------------------------------------------------------------
