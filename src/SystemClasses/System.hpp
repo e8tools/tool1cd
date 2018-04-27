@@ -35,44 +35,39 @@ const uint64_t SEC_TO_UNIX_EPOCH = 11644473600LL;
 
 namespace System {
 
-typedef uint32_t         LongWord;
-typedef uint16_t         Word;
-typedef uint16_t         WORD;
-typedef unsigned long    DWORD;
+
 typedef char16_t         WCHART;
-typedef int64_t          LONGLONG;
-typedef uint64_t         ULONGLONG;
-typedef long             LONG;
+
 
 typedef struct _FILETIME {
 
-	DWORD dwLowDateTime;
-	DWORD dwHighDateTime;
+	uint32_t dwLowDateTime;
+	uint32_t dwHighDateTime;
 
 } FILETIME;
 
 typedef struct _SYSTEMTIME {
-	WORD wYear;
-	WORD wMonth;
-	WORD wDayOfWeek;
-	WORD wDay;
-	WORD wHour;
-	WORD wMinute;
-	WORD wSecond;
-	WORD wMilliseconds;
+	uint16_t wYear;
+	uint16_t wMonth;
+	uint16_t wDayOfWeek;
+	uint16_t wDay;
+	uint16_t wHour;
+	uint16_t wMinute;
+	uint16_t wSecond;
+	uint16_t wMilliseconds;
 } SYSTEMTIME;
 
 
 typedef union _LARGE_INTEGER {
 	struct {
-		DWORD LowPart;
-		LONG  HighPart;
+		uint32_t LowPart;
+		long  HighPart;
 	};
 	struct {
-		DWORD LowPart;
-		LONG  HighPart;
+		uint32_t LowPart;
+		long  HighPart;
 	} u;
-	LONGLONG QuadPart;
+	int64_t QuadPart;
 } LARGE_INTEGER;
 
 

@@ -98,13 +98,6 @@ int32_t TableFileStream::Read(std::vector<uint8_t> Buffer, int32_t Offset, int32
 }
 
 //---------------------------------------------------------------------------
-int32_t TableFileStream::Seek(int32_t Offset, System::Word Origin)
-{
-	// TODO: реализовать TableFileStream::Seek(int32_t Offset, System::Word Origin)
-	return 0;
-}
-
-//---------------------------------------------------------------------------
 int64_t TableFileStream::Seek(const int64_t Offset, const TSeekOrigin Origin)
 {
 	// TODO: реализовать TableFileStream::Seek(const int64_t Offset, TSeekOrigin Origin)
