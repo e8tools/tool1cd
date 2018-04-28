@@ -72,6 +72,13 @@ set (TOOL1CD_HEADERS ${TOOL1CD_HEADERS} ${SYSTEMCLASSES_HEADERS})
 if (MSVC)
 	add_library (tool1cd STATIC ${TOOL1CD_SOURCES} ${TOOL1CD_HEADERS})
 else()
+
+	if (UNIX)
+		set_source_files_properties(${TOOL1CD_SOURCES}
+				PROPERTIES COMPILE_FLAGS
+				"-fPIC ")
+	endif()
+
 	if (NOGUI)
 		add_library (tool1cd STATIC ${TOOL1CD_SOURCES} ${TOOL1CD_HEADERS})
 	else()
