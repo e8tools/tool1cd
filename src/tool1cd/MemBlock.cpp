@@ -21,7 +21,7 @@
 
 #include "MemBlock.h"
 #include "Constants.h"
-
+#include "SystemClasses/GetTickCount.hpp"
 
 std::shared_ptr<MemBlock> MemBlock::create(std::shared_ptr<TFileStream> &fs, uint32_t page_size, uint32_t block_num,
 bool for_write, bool read)

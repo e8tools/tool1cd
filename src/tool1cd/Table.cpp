@@ -25,6 +25,7 @@
 #include "Table.h"
 #include "TableRecord.h"
 #include "Common.h"
+#include "SystemClasses/String.hpp"
 
 extern Registrator msreg_g;
 #ifndef getcfname
@@ -32,6 +33,7 @@ extern TMultiReadExclusiveWriteSynchronizer* tr_syn;
 #endif
 
 using namespace std;
+using namespace System;
 
 //********************************************************
 // Класс changed_rec

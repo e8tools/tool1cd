@@ -22,7 +22,7 @@
 #define STREAM_DEVICE_H
 
 #include <QIODevice>
-#include <TStream.hpp>
+#include <SystemClasses/TStream.hpp>
 
 class StreamDevice : public QIODevice
 {

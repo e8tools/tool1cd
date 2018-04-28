@@ -35,8 +35,10 @@
 #include "Constants.h"
 #include "CRC32.h"
 #include "PackDirectory.h"
+#include "SystemClasses/String.hpp"
 
 using namespace std;
+using namespace System;
 
 //---------------------------------------------------------------------------
 // Сохранение файлов конфигурации в каталог из хранилища конфигураций

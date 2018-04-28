@@ -21,7 +21,7 @@
 #ifndef V8OBJECT_H
 #define V8OBJECT_H
 
-#include <System.Classes.hpp>
+#include "SystemClasses/TStream.hpp"
 #include <climits>
 
 #include "MemBlock.h"

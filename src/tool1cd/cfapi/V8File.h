@@ -21,7 +21,7 @@
 #ifndef V8FILEH
 #define V8FILEH
 
-#include <System.Classes.hpp>
+#include "../SystemClasses/System.hpp"
 #include <boost/filesystem.hpp>
 #include <vector>
 #include <set>
@@ -86,7 +86,7 @@ public:
 	TV8FileStream* get_stream(bool own = false);
 	void flush();
 
-	unique_ptr<Tree> get_tree();
+	std::unique_ptr<Tree> get_tree();
 
 	TCriticalSection* get_lock();
 	TStream* get_data();

@@ -19,7 +19,7 @@
     along with test_project.  If not, see <http://www.gnu.org/licenses/>.
 */
 #define CATCH_CONFIG_RUNNER
-#include <System.SysUtils.hpp>
+#include <SystemClasses/System.SysUtils.hpp>
 #include <string>
 #include <MessageRegistration.h>
 #include <Messenger.h>

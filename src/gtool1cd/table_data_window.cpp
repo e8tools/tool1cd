@@ -133,7 +133,7 @@ void TableDataWindow::on_dataView_activated(const QModelIndex &index)
 {
 }
 
-unique_ptr<Tree> try_parse_tree(const QVariant &data)
+std::unique_ptr<Tree> try_parse_tree(const QVariant &data)
 {
 	std::string string_data = data.toString().toStdString();
 	if (string_data.substr(0, 1) != "{") {

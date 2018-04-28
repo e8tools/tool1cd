@@ -18,54 +18,33 @@
     You should have received a copy of the GNU Lesser General Public License
     along with Tool1CD Library.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef V8TIME_H
-#define V8TIME_H
+#include "GetTickCount.hpp"
 
-#include "../SystemClasses/System.Classes.hpp"
-
-#ifdef _MSC_VER
-
-	#include <sys/utime.h>
-
+#ifdef _WIN32
+#include <windows.h>
 #else
+#include <sys/time.h>
+#endif // _WIN32
 
-	#include <sys/types.h>
-	#include <utime.h>
+namespace System {
 
-#endif // _MSC_VER
+namespace Classes {
 
-class V8Time
+// (c) http://www.doctort.org/adam/nerd-notes/linux-equivalent-of-the-windows-gettickcount-function.html
+unsigned long GetTickCount()
 {
-public:
+    #ifdef _WIN32
+    return (unsigned long)(::GetTickCount());
+    #else
+    struct timeval tv;
+    if(gettimeofday(&tv, nullptr) != 0) {
+        return 0;
+    }
 
-	static const int64_t EPOCH_START_WIN;
-	static V8Time current_time();
+    return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+    #endif // _WIN32
+}
 
-	explicit V8Time();
-	explicit V8Time(const int64_t value);
-	explicit V8Time(const System::FILETIME &value);
+} // Classe
 
-	 ~V8Time() = default;
-
-	System::FILETIME to_file_time() const;
-	void from_file_time(const System::FILETIME &value);
-	size_t write_to_stream(TMemoryStream *out_stream) const;
-
-#ifdef _MSC_VER
-
-	static _utimbuf to_file_times(const V8Time &create, const V8Time &modify);
-
-#else
-
-	static utimbuf to_file_times(const V8Time &create, const V8Time &modify);
-
-#endif // _MSC_VER
-
-private:
-	int64_t _data {0};
-
-	int64_t inner_from_file_time(const System::FILETIME &value);
-};
-
-
-#endif // V8TIME_H
+} // System

@@ -18,54 +18,40 @@
     You should have received a copy of the GNU Lesser General Public License
     along with Tool1CD Library.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef V8TIME_H
-#define V8TIME_H
+#ifndef SYSTEM_IOUTILS_HPP
+#define SYSTEM_IOUTILS_HPP
 
-#include "../SystemClasses/System.Classes.hpp"
+#include "String.hpp"
 
-#ifdef _MSC_VER
+namespace System {
+namespace Ioutils {
 
-	#include <sys/utime.h>
+void CreateDir(const std::string &dirname);
 
-#else
+bool FileExists(const std::string &filename);
 
-	#include <sys/types.h>
-	#include <utime.h>
+void DeleteFile(const std::string &filename);
 
-#endif // _MSC_VER
+void RemoveDir(const std::string &dirname);
 
-class V8Time
-{
-public:
+namespace TDirectory {
 
-	static const int64_t EPOCH_START_WIN;
-	static V8Time current_time();
+void CreateDirectory(const std::string &dirname);
 
-	explicit V8Time();
-	explicit V8Time(const int64_t value);
-	explicit V8Time(const System::FILETIME &value);
+} // TDirectory
 
-	 ~V8Time() = default;
+namespace TPath {
 
-	System::FILETIME to_file_time() const;
-	void from_file_time(const System::FILETIME &value);
-	size_t write_to_stream(TMemoryStream *out_stream) const;
+std::string GetFullPath(const std::string &filename);
+std::string GetTempPath();
+void GetTempPath(int bufSize, char *buf);
 
-#ifdef _MSC_VER
+} // TPath
 
-	static _utimbuf to_file_times(const V8Time &create, const V8Time &modify);
+} // Ioutils
 
-#else
+} // System
 
-	static utimbuf to_file_times(const V8Time &create, const V8Time &modify);
+using namespace System::Ioutils;
 
-#endif // _MSC_VER
-
-private:
-	int64_t _data {0};
-
-	int64_t inner_from_file_time(const System::FILETIME &value);
-};
-
-
-#endif // V8TIME_H
+#endif

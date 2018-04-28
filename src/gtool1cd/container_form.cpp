@@ -21,7 +21,7 @@
 #include "container_form.h"
 #include "ui_container_form.h"
 #include <QFileInfo>
-#include <TFileStream.hpp>
+#include <SystemClasses/TFileStream.hpp>
 
 ContainerForm::ContainerForm(QWidget *parent) :
     QWidget(parent),

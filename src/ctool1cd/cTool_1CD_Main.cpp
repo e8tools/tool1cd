@@ -21,7 +21,6 @@
 
 #include <iosfwd>
 
-#include "cTool_1CD_Main.h"
 #include "ErrorCode.h"
 #include "App.h"
 

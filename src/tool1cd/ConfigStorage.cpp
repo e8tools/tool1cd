@@ -25,10 +25,12 @@
 #include "Base64.h"
 #include "TempStream.h"
 #include "cfapi/V8File.h"
+#include "SystemClasses/String.hpp"
 
 #include "UZLib.h"
 
 using namespace std;
+using namespace  System;
 
 const string spoint = ".";
 const string sdynupdate = "_dynupdate_";

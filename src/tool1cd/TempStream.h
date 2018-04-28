@@ -22,7 +22,7 @@
 #ifndef TempStreamH
 #define TempStreamH
 
-#include <System.Classes.hpp>
+#include "SystemClasses/TFileStream.hpp"
 #include <string>
 #include <boost/filesystem.hpp>
 

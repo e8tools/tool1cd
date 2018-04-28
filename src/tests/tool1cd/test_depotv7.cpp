@@ -21,7 +21,6 @@
 #include "../catch.hpp"
 #include <Class_1CD.h>
 #include <boost/filesystem.hpp>
-#include <String.hpp>
 
 using boost::filesystem::path;
 using namespace System;

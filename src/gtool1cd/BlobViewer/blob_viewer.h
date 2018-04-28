@@ -22,7 +22,7 @@
 #define BLOB_VIEWER_H
 
 #include <QWidget>
-#include <TStream.hpp>
+#include <SystemClasses/TStream.hpp>
 #include <QMap>
 
 namespace Ui {

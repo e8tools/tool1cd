@@ -25,8 +25,10 @@
 #include "FieldType.h"
 #include "UZLib.h"
 #include "Common.h"
+#include "SystemClasses/String.hpp"
 
 using namespace std;
+using namespace System;
 
 extern Registrator msreg_g;
 

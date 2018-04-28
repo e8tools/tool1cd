@@ -20,7 +20,8 @@
 */
 
 #include "ParseCommandLine.h"
-#include <String.hpp>
+#include "SystemClasses/String.hpp"
+
 using namespace System;
 
 //---------------------------------------------------------------------------

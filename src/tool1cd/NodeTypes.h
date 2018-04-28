@@ -22,7 +22,7 @@
 #ifndef NodeTypesH
 #define NodeTypesH
 
-#include <Classes.hpp>
+#include <string>
 //---------------------------------------------------------------------------
 enum class node_type{
 	nd_empty = 0,		// пусто

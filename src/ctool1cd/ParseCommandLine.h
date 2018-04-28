@@ -23,7 +23,7 @@
 #define ParseCommandLineH
 
 #include <vector>
-#include "String.hpp"
+#include <string>
 
 //---------------------------------------------------------------------------
 enum class Command

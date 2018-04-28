@@ -25,8 +25,7 @@
 #include <memory>
 
 #include "NodeTypes.h"
-
-using namespace std;
+#include "SystemClasses/TStream.hpp"
 
 enum class state_type {
 	s_value,        // ожидание начала значения
@@ -39,27 +38,27 @@ enum class state_type {
 class Tree
 {
 public:
-	Tree(const string &_value, const node_type _type, Tree *_parent);
+	Tree(const std::string &_value, const node_type _type, Tree *_parent);
 	~Tree();
-	Tree* add_child(const string &_value, const node_type _type);
+	Tree* add_child(const std::string &_value, const node_type _type);
 	Tree* add_child();
 	Tree* add_node();
-	string get_value() const;
+	std::string get_value() const;
 	node_type get_type() const;
 	int get_num_subnode() const;
 	Tree* get_subnode(int _index);
-	Tree* get_subnode(const string &node_name);
+	Tree* get_subnode(const std::string &node_name);
 	Tree* get_next();
 	Tree* get_parent();
 	Tree* get_first();
 	Tree* get_last();
 	Tree& operator [](int _index);
-	void set_value(const string &v, const node_type t);
-	void outtext(string &text);
-	string path() const;
+	void set_value(const std::string &v, const node_type t);
+	void outtext(std::string &text);
+	std::string path() const;
 
 private:
-	string value;
+	std::string value;
 	node_type type;
 	int num_subnode; // количество подчиненных
 	Tree* parent;    // +1
@@ -70,9 +69,9 @@ private:
 	unsigned int index;
 };
 
-unique_ptr<Tree> parse_1Ctext(const string &text, const string &path);
-unique_ptr<Tree> parse_1Cstream(TStream *str, const string &path);
-string outtext(Tree *t);
+std::unique_ptr<Tree> parse_1Ctext(const std::string &text, const std::string &path);
+std::unique_ptr<Tree> parse_1Cstream(TStream *str, const std::string &path);
+std::string outtext(Tree *t);
 
 #endif
 

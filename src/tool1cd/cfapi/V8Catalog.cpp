@@ -24,7 +24,10 @@
 #include "V8Catalog.h"
 #include "../UZLib.h"
 #include "../Common.h"
+#include "../SystemClasses/String.hpp"
+
 using namespace std;
+using namespace System;
 
 //---------------------------------------------------------------------------
 // читает блок из потока каталога stream_from, собирая его по страницам

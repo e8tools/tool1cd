@@ -36,8 +36,10 @@
 #include "CRC32.h"
 #include "PackDirectory.h"
 #include "TableIterator.h"
+#include "SystemClasses/String.hpp"
 
 using namespace std;
+using namespace System;
 
 /* возвращает текст вида
 {

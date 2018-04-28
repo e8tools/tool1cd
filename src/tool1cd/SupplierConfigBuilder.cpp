@@ -24,10 +24,12 @@
 #include "TempStream.h"
 #include "DetailedException.h"
 #include "UZLib.h"
+#include "SystemClasses/String.hpp"
 
 extern Registrator msreg_g;
 
 using namespace std;
+using namespace System;
 
 string NODE_GENERAL() {
 	return string("9cd510cd-abfc-11d4-9434-004095e12fc7");
