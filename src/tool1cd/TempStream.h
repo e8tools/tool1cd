@@ -24,6 +24,7 @@
 
 #include <System.Classes.hpp>
 #include <string>
+#include <boost/filesystem.hpp>
 
 class TTempStreamStaticInit
 {
@@ -37,8 +38,8 @@ public:
 class TTempStream : public TFileStream
 {
 public:
-	static std::string tempcat;
-	static long tempno;
+	static boost::filesystem::path tempcat;
+	static bool cleanup;
 	static std::string get_temp_name();
 
 	TTempStream();

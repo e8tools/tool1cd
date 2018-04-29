@@ -59,7 +59,6 @@ virtual std::vector<uint8_t> fromUtf8(const string &str)
 	for (char c : str) {
 		result.push_back((uint8_t)c);
 	}
-	result.push_back(0); // TODO: Вероятно, это теперь лишнее
 	return result;
 }
 

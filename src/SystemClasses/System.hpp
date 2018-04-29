@@ -30,63 +30,56 @@
 #include <climits>
 #include <ctime>
 
-#define WINDOWS_TICK 10000000
-#define SEC_TO_UNIX_EPOCH 11644473600LL
+const uint32_t WINDOWS_TICK = 10000000;
+const uint64_t SEC_TO_UNIX_EPOCH = 11644473600LL;
 
 namespace System {
 
-typedef uint32_t         LongWord;
-typedef uint16_t         Word;
-typedef uint16_t         WORD;
-typedef unsigned long    DWORD;
+
 typedef char16_t         WCHART;
-typedef int64_t          LONGLONG;
-typedef uint64_t         ULONGLONG;
-typedef long             LONG;
+
 
 typedef struct _FILETIME {
 
-	DWORD dwLowDateTime;
-	DWORD dwHighDateTime;
+	uint32_t dwLowDateTime;
+	uint32_t dwHighDateTime;
 
-} FILETIME, *LPFILETIME;
+} FILETIME;
 
 typedef struct _SYSTEMTIME {
-	WORD wYear;
-	WORD wMonth;
-	WORD wDayOfWeek;
-	WORD wDay;
-	WORD wHour;
-	WORD wMinute;
-	WORD wSecond;
-	WORD wMilliseconds;
-} SYSTEMTIME, *PSYSTEMTIME, *LPSYSTEMTIME;
+	uint16_t wYear;
+	uint16_t wMonth;
+	uint16_t wDayOfWeek;
+	uint16_t wDay;
+	uint16_t wHour;
+	uint16_t wMinute;
+	uint16_t wSecond;
+	uint16_t wMilliseconds;
+} SYSTEMTIME;
 
 
 typedef union _LARGE_INTEGER {
 	struct {
-		DWORD LowPart;
-		LONG  HighPart;
+		uint32_t LowPart;
+		long  HighPart;
 	};
 	struct {
-		DWORD LowPart;
-		LONG  HighPart;
+		uint32_t LowPart;
+		long  HighPart;
 	} u;
-	LONGLONG QuadPart;
-} LARGE_INTEGER, *PLARGE_INTEGER;
+	int64_t QuadPart;
+} LARGE_INTEGER;
 
 
-int64_t Int32x32To64(int64_t a, int64_t b);
-uint64_t UInt32x32To64(int64_t a, int64_t b);
 
-uint64_t FileTime_to_POSIX(LPFILETIME pft);
-void UnixTimeToFileTime(time_t t, LPFILETIME pft);
+uint64_t FileTime_to_POSIX(System::FILETIME * pft);
+void UnixTimeToFileTime(time_t t, System::FILETIME * pft);
 
-bool SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime, LPFILETIME lpFileTime);
-bool LocalFileTimeToFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileTime);
-bool FileTimeToLocalFileTime(const FILETIME *lpLocalFileTime, LPFILETIME lpFileTime);
+bool SystemTimeToFileTime(const System::SYSTEMTIME *lpSystemTime, System::FILETIME * lpFileTime);
+bool LocalFileTimeToFileTime(const System::FILETIME *lpLocalFileTime, System::FILETIME * lpFileTime);
+bool FileTimeToLocalFileTime(const System::FILETIME *lpLocalFileTime, System::FILETIME * lpFileTime);
 
-void GetSystemTime(LPSYSTEMTIME lpSystemTime);
+void GetSystemTime(System::SYSTEMTIME *lpSystemTime);
 
 enum TReplaceFlags {
 	rfReplaceAll = 1,

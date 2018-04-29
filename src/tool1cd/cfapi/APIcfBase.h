@@ -38,7 +38,8 @@ const char BACKSLASH_STR[] = "\\";
 // шаблон заголовка блока
 const char _EMPTY_CATALOG_TEMPLATE[16] = {'\xff','\xff','\xff','\x7f',0,2,0,0,0,0,0,0,0,0,0,0};
 
-const int32_t LAST_BLOCK = std::numeric_limits<int>::max();
+#define FUCK_MSVC
+const int32_t LAST_BLOCK = std::numeric_limits<int>::max FUCK_MSVC ();
 
 //---------------------------------------------------------------------------
 struct v8header_struct
