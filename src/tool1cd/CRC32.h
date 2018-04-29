@@ -21,7 +21,8 @@
 #ifndef CRC32H
 #define CRC32H
 
-#include <System.Classes.hpp>
+#include "SystemClasses/TStream.hpp"
+#include <cstdint>
 
 //---------------------------------------------------------------------------
 uint32_t _crc32(TStream* str);

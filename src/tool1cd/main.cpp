@@ -20,7 +20,7 @@
 */
 
 #include "MessageRegistration.h"
-#include "System.SysUtils.hpp"
+#include "SystemClasses/System.SysUtils.hpp"
 
 Registrator msreg_g;
 TMultiReadExclusiveWriteSynchronizer* tr_syn = new TMultiReadExclusiveWriteSynchronizer();
