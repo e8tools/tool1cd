@@ -22,7 +22,7 @@
 #ifndef MessageRegistrationH
 #define MessageRegistrationH
 
-#include <System.Classes.hpp>
+#include "SystemClasses/System.Classes.hpp"
 
 //---------------------------------------------------------------------------
 enum class MessageState

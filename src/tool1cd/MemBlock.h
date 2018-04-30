@@ -25,6 +25,7 @@
 
 #include <vector>
 #include "Common.h"
+#include "SystemClasses/TFileStream.hpp"
 
 class MemBlock
 {

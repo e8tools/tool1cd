@@ -18,54 +18,32 @@
     You should have received a copy of the GNU Lesser General Public License
     along with Tool1CD Library.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef V8TIME_H
-#define V8TIME_H
+#ifndef SYSTEM_TSTREAMWRITER_HPP
+#define SYSTEM_TSTREAMWRITER_HPP
 
-#include "../SystemClasses/System.Classes.hpp"
+#include "TStream.hpp"
+#include "System.SysUtils.hpp"
+#include "String.hpp"
 
-#ifdef _MSC_VER
+namespace System {
 
-	#include <sys/utime.h>
+namespace Classes {
 
-#else
-
-	#include <sys/types.h>
-	#include <utime.h>
-
-#endif // _MSC_VER
-
-class V8Time
+class TStreamWriter
 {
 public:
 
-	static const int64_t EPOCH_START_WIN;
-	static V8Time current_time();
+	TStreamWriter(const std::string &Filename, TEncoding *Encoding, int BufferSize);
+	TStreamWriter(      TStream *stream,   TEncoding* Encoding, int BufferSize);
 
-	explicit V8Time();
-	explicit V8Time(const int64_t value);
-	explicit V8Time(const System::FILETIME &value);
-
-	 ~V8Time() = default;
-
-	System::FILETIME to_file_time() const;
-	void from_file_time(const System::FILETIME &value);
-	size_t write_to_stream(TMemoryStream *out_stream) const;
-
-#ifdef _MSC_VER
-
-	static _utimbuf to_file_times(const V8Time &create, const V8Time &modify);
-
-#else
-
-	static utimbuf to_file_times(const V8Time &create, const V8Time &modify);
-
-#endif // _MSC_VER
+	void Write(const std::string &s);
 
 private:
-	int64_t _data {0};
-
-	int64_t inner_from_file_time(const System::FILETIME &value);
+	TStream *stream;
 };
 
+} // Classes
 
-#endif // V8TIME_H
+} // System
+
+#endif

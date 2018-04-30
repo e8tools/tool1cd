@@ -22,7 +22,7 @@
 #ifndef SRC_CTOOL1CD_PACKDATA_H_
 #define SRC_CTOOL1CD_PACKDATA_H_
 
-#include <System.Classes.hpp>
+#include "SystemClasses/TStream.hpp"
 #include <boost/filesystem.hpp>
 #include <array>
 #include <memory>

@@ -23,7 +23,7 @@
 #define TOOL1CD_PROJECT_DETAILEDEXCEPTION_H
 
 #include <exception>
-#include <System.Classes.hpp>
+#include "SystemClasses/String.hpp"
 
 class DetailedException : public std::exception {
 public:

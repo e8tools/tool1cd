@@ -20,30 +20,29 @@
 cmake_minimum_required (VERSION 2.8)
 project (tool1cd)
 
-include_directories(../SystemClasses)
-set (SYSTEMCLASSES_SOURCES ../SystemClasses/String.cpp
-		../SystemClasses/System.Classes.cpp
-		../SystemClasses/System.cpp
-		../SystemClasses/System.IOUtils.cpp
-		../SystemClasses/TFileStream.cpp
-		../SystemClasses/TMemoryStream.cpp
-		../SystemClasses/TStream.cpp
-		../SystemClasses/TStreamReader.cpp
-		../SystemClasses/TStreamWriter.cpp
-		../SystemClasses/System.SysUtils.cpp
-		../SystemClasses/GetTickCount.cpp)
-set (SYSTEMCLASSES_HEADERS ../SystemClasses/String.hpp
-		../SystemClasses/System.Classes.hpp
-		../SystemClasses/System.hpp
-		../SystemClasses/System.IOUtils.hpp
-		../SystemClasses/TFileStream.hpp
-		../SystemClasses/TMemoryStream.hpp
-		../SystemClasses/TStream.hpp
-		../SystemClasses/TStreamReader.hpp
-		../SystemClasses/TStreamWriter.hpp
-		../SystemClasses/System.SysUtils.hpp
-		../SystemClasses/GetTickCount.hpp
-		../SystemClasses/Exception.hpp)
+set (SYSTEMCLASSES_SOURCES SystemClasses/String.cpp
+		SystemClasses/System.Classes.cpp
+		SystemClasses/System.cpp
+		SystemClasses/System.IOUtils.cpp
+		SystemClasses/TFileStream.cpp
+		SystemClasses/TMemoryStream.cpp
+		SystemClasses/TStream.cpp
+		SystemClasses/TStreamReader.cpp
+		SystemClasses/TStreamWriter.cpp
+		SystemClasses/System.SysUtils.cpp
+		SystemClasses/GetTickCount.cpp)
+set (SYSTEMCLASSES_HEADERS SystemClasses/String.hpp
+		SystemClasses/System.Classes.hpp
+		SystemClasses/System.hpp
+		SystemClasses/System.IOUtils.hpp
+		SystemClasses/TFileStream.hpp
+		SystemClasses/TMemoryStream.hpp
+		SystemClasses/TStream.hpp
+		SystemClasses/TStreamReader.hpp
+		SystemClasses/TStreamWriter.hpp
+		SystemClasses/System.SysUtils.hpp
+		SystemClasses/GetTickCount.hpp
+		SystemClasses/Exception.hpp)
 
 
 set (TOOL1CD_SOURCES MessageRegistration.cpp Class_1CD.cpp

@@ -24,6 +24,9 @@
 #include <TempStream.h>
 #include <UZLib.h>
 #include <QDebug>
+#include "SystemClasses/String.hpp"
+
+using namespace System;
 
 TableDataModel::TableDataModel(Table *table, Index *index)
     : table(table), _index(index) {}

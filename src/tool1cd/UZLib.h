@@ -23,7 +23,7 @@
 #define UZLibH
 
 
-#include <System.Classes.hpp>
+#include "SystemClasses/TStream.hpp"
 #include <string>
 
 #include "DetailedException.h"
@@ -151,8 +151,5 @@ void ZInflateStream(TStream* src, TStream* dst);
 bool ZDeflateStream(TStream* src, TStream* dst);
 
 void ZInflateOrCopy(TStream *src, TStream *dst);
-
-int inf(FILE *source, FILE *dest);
-int def(FILE *source, FILE *dest, int level);
 
 #endif

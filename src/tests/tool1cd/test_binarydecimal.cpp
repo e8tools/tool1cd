@@ -20,7 +20,6 @@
 */
 #include "../catch.hpp"
 #include "BinaryDecimalNumber.h"
-#include <System.Classes.hpp>
 
 TEST_CASE( "Проверка обработки Двоично-Десятичных чисел", "[tool1cd][lib][BinaryDecimal]" ) {
 

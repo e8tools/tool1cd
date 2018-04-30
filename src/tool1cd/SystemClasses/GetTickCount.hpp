@@ -18,28 +18,18 @@
     You should have received a copy of the GNU Lesser General Public License
     along with Tool1CD Library.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef TV8FILESTREAMH
-#define TV8FILESTREAMH
+#ifndef GETTICKCOUNT_HPP_INCLUDED
+#define GETTICKCOUNT_HPP_INCLUDED
 
-#include "../SystemClasses/TStream.hpp"
-#include "V8File.h"
+namespace System {
 
-class V8File;
+namespace Classes {
 
-class TV8FileStream : public TStream {
-public:
-	TV8FileStream(V8File* f, bool ownfile = false);
-	virtual ~TV8FileStream();
-	virtual int64_t Read(void *Buffer, int64_t Count) override;
-	virtual int Read(std::vector<uint8_t> Buffer, int Offset, int Count);
-	virtual int64_t Write(const void *Buffer, int64_t Count) override;
-	virtual int Write(const std::vector<uint8_t> Buffer, int Offset, int Count);
-	virtual int64_t Seek(const int64_t Offset, const TSeekOrigin Origin) override;
-	virtual int64_t GetSize() const override;
-protected:
-	V8File* file;
-	bool own;
-	int64_t pos;
-};
+unsigned long GetTickCount();
 
-#endif
+}
+
+}
+
+
+#endif // GETTICKCOUNT_HPP_INCLUDED

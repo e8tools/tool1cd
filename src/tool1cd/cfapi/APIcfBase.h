@@ -22,11 +22,8 @@
 #ifndef APIcfBaseH
 #define APIcfBaseH
 
-#include <System.Classes.hpp>
 #include <limits>
 #include <string>
-
-using namespace System;
 
 const char CFU_STR[] = ".cfu";
 const char CFE_STR[] = ".cfe";

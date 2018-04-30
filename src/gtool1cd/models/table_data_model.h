@@ -24,7 +24,7 @@
 #include <QAbstractItemModel>
 #include <Table.h>
 #include <TableIterator.h>
-#include <TStream.hpp>
+#include <SystemClasses/TStream.hpp>
 
 class TableDataModel : public QAbstractItemModel
 {

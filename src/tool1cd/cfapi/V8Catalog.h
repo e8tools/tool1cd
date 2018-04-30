@@ -26,6 +26,8 @@
 
 #include "V8File.h"
 #include "APIcfBase.h"
+#include "../SystemClasses/TStream.hpp"
+#include "../SystemClasses/System.Classes.hpp"
 
 class V8File;
 
@@ -85,7 +87,7 @@ public:
 	bool is_destructed() const;
 
 private:
-	TCriticalSection *Lock;
+	System::Classes::TCriticalSection *Lock;
 	V8File* file;  // файл, которым является каталог. Для корневого каталога NULL
 	TStream* data; // поток каталога. Если file не NULL (каталог не корневой), совпадает с file->data
 	TStream* cfu;  // поток файла cfu. Существует только при is_cfu == true

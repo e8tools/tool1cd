@@ -22,7 +22,9 @@
 #ifndef CommonH
 #define CommonH
 
-#include <System.Classes.hpp>
+#include "SystemClasses/TStream.hpp"
+#include "SystemClasses/System.hpp"
+#include <boost/filesystem.hpp>
 #include <sstream>
 #include <iomanip>
 

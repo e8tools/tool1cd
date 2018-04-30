@@ -23,7 +23,7 @@
 #define TOOL1CD_PROJECT_TABLERECORD_H
 
 #include <vector>
-#include <System.Classes.hpp>
+#include "SystemClasses/TStream.hpp"
 #include "DetailedException.h"
 #include "BinaryGuid.h"
 

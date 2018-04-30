@@ -20,7 +20,7 @@
 */
 #include "../catch.hpp"
 #include "cfapi/APIcfBase.h"
-#include <System.Classes.hpp>
+#include <SystemClasses/String.hpp>
 
 TEST_CASE( "Проверка BlockHeader", "[tool1cd][lib][stBlockHeader]" ) {
 
@@ -30,7 +30,7 @@ TEST_CASE( "Проверка BlockHeader", "[tool1cd][lib][stBlockHeader]" ) {
 			std::string bytes = data.toString();
 			THEN("Имеем массив '\r\n00000000 00000000 00000000 \r\n'") {
 
-				REQUIRE( Equal(bytes, "\r\n00000000 00000000 00000000 \r\n") );
+				REQUIRE( System::Equal(bytes, "\r\n00000000 00000000 00000000 \r\n") );
 			}
 		}
 	}

@@ -21,6 +21,8 @@
 #include "../catch.hpp"
 #include <Parse_tree.h>
 #include <string>
+#include <SystemClasses/TMemoryStream.hpp>
+#include <SystemClasses/System.SysUtils.hpp>
 
 TEST_CASE( "Проверка Parse_tree", "[tool1cd][common][Parse_tree]" ) {
 

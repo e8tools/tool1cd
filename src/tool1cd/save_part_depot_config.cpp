@@ -19,7 +19,7 @@
     along with Tool1CD Library.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <vector>
-#include <System.IOUtils.hpp>
+#include "SystemClasses/System.IOUtils.hpp"
 #include <boost/filesystem.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -35,8 +35,10 @@
 #include "Constants.h"
 #include "CRC32.h"
 #include "PackDirectory.h"
+#include "SystemClasses/String.hpp"
 
 using namespace std;
+using namespace System;
 
 //---------------------------------------------------------------------------
 // Сохранение файлов конфигурации в каталог из хранилища конфигураций

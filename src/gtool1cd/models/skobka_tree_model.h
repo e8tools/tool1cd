@@ -23,11 +23,12 @@
 
 #include <Parse_tree.h>
 #include <QAbstractItemModel>
+#include <memory>
 
 class SkobkaTreeModel : public QAbstractItemModel
 {
 public:
-	explicit SkobkaTreeModel(unique_ptr<Tree> data_tree);
+	explicit SkobkaTreeModel(std::unique_ptr<Tree> data_tree);
 
 
 	virtual int rowCount(const QModelIndex &parent) const override;
@@ -43,7 +44,7 @@ public:
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
 private:
-	unique_ptr<Tree> data_tree;
+	std::unique_ptr<Tree> data_tree;
 };
 
 #endif // SKOBKA_TREE_MODEL_H

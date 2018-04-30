@@ -19,8 +19,8 @@
     along with test_project.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "../catch.hpp"
-#include <String.hpp>
-#include <System.SysUtils.hpp>
+#include <SystemClasses/String.hpp>
+#include <SystemClasses/System.SysUtils.hpp>
 
 using namespace System;
 using namespace std;

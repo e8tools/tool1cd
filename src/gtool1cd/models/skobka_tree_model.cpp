@@ -21,11 +21,12 @@
 #include "skobka_tree_model.h"
 #include <QBuffer>
 #include "stream_device.h"
+#include <SystemClasses/TMemoryStream.hpp>
 
 const int PATH_COLUMN = 0;
 const int DATA_COLUMN = 1;
 
-SkobkaTreeModel::SkobkaTreeModel(unique_ptr<Tree> data_tree)
+SkobkaTreeModel::SkobkaTreeModel(std::unique_ptr<Tree> data_tree)
 	: data_tree(std::move(data_tree))
 {
 
