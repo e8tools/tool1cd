@@ -35,6 +35,57 @@ bool FieldType::showGUIDasMS = false;
 bool FieldType::showGUID = false;
 
 
+namespace Convert {
+
+string from_binary(const uint8_t *fr, int32_t length)
+{
+	string result;
+	result.resize((length + 1) * 2);
+
+	for(int32_t i = 0; i < length; i++) {
+		char sym = '0' + (fr[i] >> 4);
+		if(sym > '9') {
+			sym += ('a' - '9' - 1);
+		}
+		result[i << 1] = sym;
+		sym = '0' + (fr[i] & 0xf);
+		if(sym > '9') {
+			sym += ('a' - '9' - 1);
+		}
+		result[(i << 1) + 1] = sym;
+	}
+
+	result[length << 1] = 0;
+
+	return result;
+}
+
+string from_varbinary(const uint8_t *fr, int32_t length)
+{
+	string result;
+	result.resize((length + 1) * 2);
+
+	int32_t m = *(int16_t*)fr; // длина + смещение
+	for(int32_t i = 0; i < m; i++) {
+		char sym = '0' + (fr[i + 2] >> 4);
+		if(sym > '9') {
+			sym += ('a' - '9' - 1);
+		}
+		result[i << 1] = sym;
+		sym = '0' + (fr[i + 2] & 0xf);
+		if(sym > '9') {
+			sym += ('a' - '9' - 1);
+		}
+		result[(i << 1) + 1] = sym;
+	}
+
+	result[m << 1] = 0;
+
+	return result;
+}
+
+}
+
 class CommonFieldType : public FieldType
 {
 public:
@@ -264,12 +315,12 @@ bool BinaryFieldType::get_binary_value(char *binary_value, const string &value) 
 				break;
 			}
 			int32_t j = 1;
-			if(length == 16 && showGUID) // TODO Надо доделать для showGUIDasMS
+			if(length == GUID_BINARY_SIZE && showGUID) // TODO Надо доделать для showGUIDasMS
 			{
 				if(value.size() < GUID_LEN) {
 					break;
 				}
-				for(int32_t ind = 12; ind < 16; ind++) {
+				for(int32_t ind = 12; ind < GUID_BINARY_SIZE; ind++) {
 					fr[ind] = (from_hex_digit(value[j++]) << 4) + from_hex_digit(value[j++]);
 				}
 				j++;
@@ -310,47 +361,28 @@ bool BinaryFieldType::get_binary_value(char *binary_value, const string &value) 
 string BinaryFieldType::get_presentation(const char *rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID,
 										 bool detailed) const
 {
-	char sym;
-	int32_t i, m;
+	auto fr = reinterpret_cast<const uint8_t *>(rec);
 
-	unsigned char* fr = (unsigned char*)rec;
-
-	char *buf = new char[(length + 1) * 2]; // TODO: адовый костыль с утечкой памяти
 	switch(type)
 	{
-		case type_fields::tf_binary:
-			if(length == 16 && (showGUID || ignore_showGUID))
-			{
-				if(showGUIDasMS) return GUIDasMS(fr);
-				else return GUIDas1C(fr);
+	case type_fields::tf_binary:
+		if(length == GUID_BINARY_SIZE && (showGUID || ignore_showGUID)) {
+			if(showGUIDasMS) {
+				return GUIDasMS(fr);
 			}
-			else
-			{
-				for(i = 0; i < length; i++)
-				{
-					sym = '0' + (fr[i] >> 4);
-					if(sym > '9') sym += ('a' - '9' - 1);
-					buf[i << 1] = sym;
-					sym = '0' + (fr[i] & 0xf);
-					if(sym > '9') sym += ('a' - '9' - 1);
-					buf[(i << 1) + 1] = sym;
-				}
-				buf[length << 1] = 0;
+			else {
+				return GUIDas1C(fr);
 			}
-			return buf;
-		case type_fields::tf_varbinary:
-			m = *(int16_t*)fr; // длина + смещение
-			for(i = 0; i < m; i++)
-			{
-				sym = '0' + (fr[i + 2] >> 4);
-				if(sym > '9') sym += ('a' - '9' - 1);
-				buf[i << 1] = sym;
-				sym = '0' + (fr[i + 2] & 0xf);
-				if(sym > '9') sym += ('a' - '9' - 1);
-				buf[(i << 1) + 1] = sym;
-			}
-			buf[m << 1] = 0;
-			return buf;
+		}
+		else {
+			return Convert::from_binary(fr, length);
+		}
+
+		break;
+	case type_fields::tf_varbinary:
+		return Convert::from_varbinary(fr, length);
+
+		break;
 	}
 
 	return "{?}";
@@ -358,49 +390,26 @@ string BinaryFieldType::get_presentation(const char *rec, bool EmptyNull, wchar_
 
 string BinaryFieldType::get_XML_presentation(const char *rec, const Table *parent, bool ignore_showGUID) const
 {
-	char sym;
-	int32_t i, m;
+	auto fr = reinterpret_cast<const uint8_t *>(rec);
 
-	unsigned char* fr = (unsigned char*)rec;
-
-	char *buf = new char[(length + 1)*2]; // TODO: адовый костыль с утечкой памяти
 	switch(type)
 	{
-		case type_fields::tf_binary:
-			if(length == 16 && (showGUID || ignore_showGUID))
-			{
-				if(showGUIDasMS)
-					return GUIDasMS(fr);
-				else
-					return GUIDas1C(fr);
+	case type_fields::tf_binary:
+		if(length == GUID_BINARY_SIZE && (showGUID || ignore_showGUID)) {
+			if(showGUIDasMS) {
+				return GUIDasMS(fr);
 			}
-			else
-			{
-				for(i = 0; i < length; i++)
-				{
-					sym = '0' + (fr[i] >> 4);
-					if(sym > '9') sym += ('a' - '9' - 1);
-					buf[i << 1] = sym;
-					sym = '0' + (fr[i] & 0xf);
-					if(sym > '9') sym += ('a' - '9' - 1);
-					buf[(i << 1) + 1] = sym;
-				}
-				buf[length << 1] = 0;
+			else {
+				return GUIDas1C(fr);
 			}
-			return buf;
-		case type_fields::tf_varbinary:
-			m = *(int16_t*)fr; // длина + смещение
-			for(i = 0; i < m; i++)
-			{
-				sym = '0' + (fr[i + 2] >> 4);
-				if(sym > '9') sym += ('a' - '9' - 1);
-				buf[i << 1] = sym;
-				sym = '0' + (fr[i + 2] & 0xf);
-				if(sym > '9') sym += ('a' - '9' - 1);
-				buf[(i << 1) + 1] = sym;
-			}
-			buf[m << 1] = 0;
-			return buf;
+		}
+		else {
+			return Convert::from_binary(fr, length);
+		}
+
+		break;
+	case type_fields::tf_varbinary:
+		return Convert::from_varbinary(fr, length);
 	}
 
 	return "{?}";
@@ -584,7 +593,7 @@ uint32_t DatetimeFieldType::get_sort_key(const char* rec, unsigned char* SortKey
 
 	uint32_t addlen = 0;
 
-	unsigned char* fr = (unsigned char *)rec;
+	auto fr = reinterpret_cast<const uint8_t *>(rec);
 
 	if (!maxlen) {
 		throw SerializationException("Ошибка получения ключа сортировки поля. Нулевая длина буфера.")
@@ -662,12 +671,8 @@ bool CommonFieldType::get_binary_value(char *binary_value, const string &value) 
 string CommonFieldType::get_presentation(const char *rec, bool EmptyNull, wchar_t Delimiter, bool ignore_showGUID,
 										 bool detailed) const
 {
-	char sym;
-	int32_t i, m;
-
 	auto fr = reinterpret_cast<const uint8_t *>(rec);
 
-	char *buf = new char[(length + 1) * 2]; // TODO: адовый костыль с утечкой памяти
 	switch(type)
 	{
 		case type_fields::tf_bool:
@@ -706,18 +711,7 @@ string CommonFieldType::get_presentation(const char *rec, bool EmptyNull, wchar_
 			return detailed ? string("{IMAGE} [") + to_hex_string(*(int32_t*)fr)
 							  + string("][") + to_hex_string(*(int32_t*)(fr + 4)) + "]" : string("{IMAGE}");
 		case type_fields::tf_varbinary:
-			m = *(int16_t*)fr; // длина + смещение
-			for(i = 0; i < m; i++)
-			{
-				sym = '0' + (fr[i + 2] >> 4);
-				if(sym > '9') sym += ('a' - '9' - 1);
-				buf[i << 1] = sym;
-				sym = '0' + (fr[i + 2] & 0xf);
-				if(sym > '9') sym += ('a' - '9' - 1);
-				buf[(i << 1) + 1] = sym;
-			}
-			buf[m << 1] = 0;
-			return buf;
+			return Convert::from_varbinary(fr, length);
 	}
 
 	return "{?}";
@@ -730,7 +724,7 @@ string CommonFieldType::get_XML_presentation(const char *rec, const Table *paren
 	TMemoryStream* in;
 	TMemoryStream* out;
 
-	unsigned char* fr = (unsigned char*)rec;
+	auto fr = reinterpret_cast<const uint8_t *>(rec);
 
 	switch(type)
 	{
@@ -781,7 +775,7 @@ uint32_t CommonFieldType::get_sort_key(const char* rec, unsigned char* SortKey, 
 {
 	uint32_t addlen = 0;
 
-	unsigned char* fr = (unsigned char *)rec;
+	auto fr = reinterpret_cast<const uint8_t *>(rec);
 
 	if (!maxlen) {
 		throw SerializationException("Ошибка получения ключа сортировки поля. Нулевая длина буфера.")
