@@ -75,6 +75,7 @@ public:
 	// TODO: убрать это куда-нибудь
 	static bool showGUIDasMS; // Признак, что GUID надо преобразовывать по стилю MS (иначе по стилю 1С)
 	static bool showGUID;
+
 };
 
 
