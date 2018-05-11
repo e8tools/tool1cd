@@ -83,6 +83,12 @@ public:
 	}
 };
 
+int get_subbyte(const std::string &presentation, int start)
+{
+	return from_hex_digit(presentation[start]) << 4
+		| from_hex_digit(presentation[start + 1]);
+}
+
 BinaryGuid::BinaryGuid(const std::string &presentation)
 {
 	if (presentation.size() != GUID_LEN) {
@@ -90,23 +96,28 @@ BinaryGuid::BinaryGuid(const std::string &presentation)
 	}
 	int j = 0;
 	for (int ind = 12; ind < 16; ind++) {
-		data[ind] = (from_hex_digit(presentation[j++]) << 4) + from_hex_digit(presentation[j++]);
+		data[ind] = get_subbyte(presentation, j);
+		j += 2;
 	}
 	j++;
 	for (int ind = 10; ind < 12; ind++) {
-		data[ind] = (from_hex_digit(presentation[j++]) << 4) + from_hex_digit(presentation[j++]);
+		data[ind] = get_subbyte(presentation, j);
+		j += 2;
 	}
 	j++;
 	for (int ind = 8; ind < 10; ind++) {
-		data[ind] = (from_hex_digit(presentation[j++]) << 4) + from_hex_digit(presentation[j++]);
+		data[ind] = get_subbyte(presentation, j);
+		j += 2;
 	}
 	j++;
 	for (int ind = 0; ind < 2; ind++) {
-		data[ind] = (from_hex_digit(presentation[j++]) << 4) + from_hex_digit(presentation[j++]);
+		data[ind] = get_subbyte(presentation, j);
+		j += 2;
 	}
 	j++;
 	for (int ind = 2; ind < 8; ind++) {
-		data[ind] = (from_hex_digit(presentation[j++]) << 4) + from_hex_digit(presentation[j++]);
+		data[ind] = get_subbyte(presentation, j);
+		j += 2;
 	}
 }
 
