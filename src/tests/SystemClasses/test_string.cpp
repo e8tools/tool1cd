@@ -81,3 +81,20 @@ TEST_CASE("Конвертация строк", "[SystemClasses][String][Encoding
 		}
 	}
 }
+
+TEST_CASE("Конвертация строк UTF-16", "[SystemClasses][String][Encoding]")
+{
+	GIVEN( "Строка u'dc0a6b43-5503-11e8-9479-cdce35f4f3fd'" ) {
+		const char16_t *str = u"dc0a6b43-5503-11e8-9479-cdce35f4f3fd";
+		const int LEN = 36 * sizeof(char16_t);
+		WHEN ("Вызываем Unicode->toUtf8()" ) {
+			vector<uint8_t> data;
+			const uint8_t *casted = reinterpret_cast<const uint8_t *> (str);
+			data.assign(casted, casted + LEN);
+			string result = System::Sysutils::TEncoding::Unicode->toUtf8(data);
+			THEN ( "Получаем строку 'dc0a6b43-5503-11e8-9479-cdce35f4f3fd'" ) {
+				REQUIRE (result == "dc0a6b43-5503-11e8-9479-cdce35f4f3fd");
+			}
+		}
+	}
+}
