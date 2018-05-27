@@ -781,10 +781,10 @@ TStream* Table::readBlob(TStream* _str, uint32_t _startblock, uint32_t _length, 
 
 		if(_str->GetSize() - startlen != _length)
 		{
-			throw DetailedException("Несовпадение длины Blob-поля, указанного в записи, с длиной практически прочитанных данных")
-				.add_detail("Таблица", name)
-				.add_detail("Длина поля", _length)
-				.add_detail("Прочитано", _str->GetSize() - startlen);
+			msreg_g.AddDebugMessage("Несовпадение длины Blob-поля, указанного в записи, с длиной практически прочитанных данных", MessageState::Warning)
+				.with("Таблица", name)
+				.with("Длина поля", _length)
+				.with("Прочитано", _str->GetSize() - startlen);
 		}
 	}
 	else
@@ -856,10 +856,10 @@ uint32_t Table::readBlob(void* buf, uint32_t _startblock, uint32_t _length) cons
 
 		if(readed != _length)
 		{
-			throw DetailedException("Несовпадение длины Blob-поля, указанного в записи, с длиной практически прочитанных данных")
-				.add_detail("Таблица", name)
-				.add_detail("Длина поля", _length)
-				.add_detail("Прочитано", readed);
+			msreg_g.AddDebugMessage("Несовпадение длины Blob-поля, указанного в записи, с длиной практически прочитанных данных", MessageState::Warning)
+				.with("Таблица", name)
+				.with("Длина поля", _length)
+				.with("Прочитано", readed);
 		}
 	}
 	else
@@ -1098,12 +1098,9 @@ changed_rec_type Table::get_rec_type(uint32_t phys_numrecord, int32_t numfield)
 }
 
 //---------------------------------------------------------------------------
-void Table::export_table(const std::string &path) const
+void Table::export_table(const boost::filesystem::path &path) const
 {
-
-	boost::filesystem::path dir(path);
-
-	dir /= name;
+	boost::filesystem::path dir = path / name;
 	if(!directory_exists(dir, true)) {
 		return;
 	}
@@ -1163,10 +1160,9 @@ void Table::export_table(const std::string &path) const
 }
 
 //---------------------------------------------------------------------------
-void Table::import_table(const std::string &path)
+void Table::import_table(const boost::filesystem::path &path)
 {
-	boost::filesystem::path dir(path);
-	dir /= name;
+	boost::filesystem::path dir = path / name;
 
 	if(!directory_exists(dir)) {
 		return;

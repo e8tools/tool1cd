@@ -566,10 +566,10 @@ uint64_t V8Object::get_len() const
 }
 
 //---------------------------------------------------------------------------
-void V8Object::savetofile(const std::string &_filename)
+void V8Object::savetofile(const boost::filesystem::path &path)
 {
 	uint64_t pagesize = base->get_pagesize();
-	TFileStream fs(_filename, fmCreate);
+	TFileStream fs(path, fmCreate);
 	char *buf = new char[pagesize];
 	uint64_t total_size = get_len();
 	uint64_t remain_size = total_size;
