@@ -30,7 +30,6 @@
 #include "models/skobka_tree_model.h"
 #include <QFileDialog>
 #include "models/v8catalog_tree_model.h"
-#include "QHexEdit/qhexedit.h"
 
 QString index_presentation(Index *index)
 {

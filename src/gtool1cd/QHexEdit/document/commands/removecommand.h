@@ -6,9 +6,9 @@
 class RemoveCommand: public HexCommand
 {
     public:
-        RemoveCommand(GapBuffer* gapbuffer, integer_t offset, integer_t length, QUndoCommand* parent = 0);
-        virtual void undo();
-        virtual void redo();
+        RemoveCommand(QHexBuffer* buffer, qint64 offset, int length, QUndoCommand* parent = nullptr);
+        void undo() override;
+        void redo() override;
 };
 
 #endif // REMOVECOMMAND_H

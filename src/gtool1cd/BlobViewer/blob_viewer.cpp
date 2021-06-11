@@ -23,12 +23,13 @@
 #include <Parse_tree.h>
 #include "../models/skobka_tree_model.h"
 #include "../models/v8catalog_tree_model.h"
-#include "../QHexEdit/qhexedit.h"
+#include "../QHexEdit/qhexview.h"
 #include "../models/stream_device.h"
 #include <Table.h>
 #include <QDebug>
 #include <QShortcut>
 #include <QtGlobal>
+#include <QHexEdit/document/buffer/qmemorybuffer.h>
 
 BlobViewer::BlobViewer(QWidget *parent) :
     QWidget(parent),
@@ -137,7 +138,7 @@ void BlobViewer::setStream(TStream *stream, const QString &rootName)
 
 	device->close();
 
-	auto doc = QHexDocument::fromDevice(device);
+	auto doc = QHexDocument::fromDevice<QMemoryBuffer>(device);
 	ui->frame->setDocument(doc);
 
 	ui->tabWidget->addTab(ui->blobDataTab, tr("BLOB"));

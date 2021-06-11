@@ -6,9 +6,9 @@
 class InsertCommand: public HexCommand
 {
     public:
-        InsertCommand(GapBuffer* gapbuffer, integer_t offset, const QByteArray& data, QUndoCommand* parent = 0);
-        virtual void undo();
-        virtual void redo();
+        InsertCommand(QHexBuffer* buffer, qint64 offset, const QByteArray& data, QUndoCommand* parent = nullptr);
+        void undo() override;
+        void redo() override;
 };
 
 #endif // INSERTCOMMAND_H

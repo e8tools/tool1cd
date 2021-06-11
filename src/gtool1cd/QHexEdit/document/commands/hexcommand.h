@@ -2,17 +2,18 @@
 #define HEXCOMMAND_H
 
 #include <QUndoCommand>
-#include "../gapbuffer.h"
+#include "../buffer/qhexbuffer.h"
 
 class HexCommand: public QUndoCommand
 {
     public:
-        HexCommand(GapBuffer* gapbuffer, QUndoCommand* parent = 0);
+        HexCommand(QHexBuffer* buffer, QUndoCommand* parent = nullptr);
 
     protected:
-        GapBuffer* _gapbuffer;
-        integer_t _offset, _length;
-        QByteArray _data;
+        QHexBuffer* m_buffer;
+        qint64 m_offset;
+        int m_length;
+        QByteArray m_data;
 };
 
 #endif // HEXCOMMAND_H
