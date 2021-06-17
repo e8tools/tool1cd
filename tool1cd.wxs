@@ -1,17 +1,17 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
-	<Product Name='Tool 1CD 1.0.0'
+	<Product Name='Tool 1CD 1.0.1'
 		Id='0cd4c107-3b0f-4607-9ece-de5b77947844' UpgradeCode='7fb3fd3b-5766-4961-8054-5aa0e8669129'
 		Manufacturer='dmpas.ru'
-		Language='1049' Codepage='1251' Version='1.0.0' >
-		<Package Id='*' Keywords='Installer' Description='Tool 1CD 1.0.0'
+		Language='1049' Codepage='1251' Version='1.0.1' >
+		<Package Id='*' Keywords='Installer' Description='Tool 1CD 1.0.1'
 			InstallerVersion='100' Languages='1049' Compressed='yes' SummaryCodepage='1251' />
 		<Media Id="1" Cabinet="data1.cab" EmbedCab="yes" />
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="ProgramFilesFolder">
 				<Directory Id="APPLICATIONFOLDER" Name="Tool1CD">
 					<Component Id="Console_Component" Guid='b2e0080f-1832-4e9e-832f-0388e41cb9cb'>
-						<File Id='ctool1cd.exe' DiskId='1' Source='tool1cd\bin\ctool1cd.exe' />
+						<File Id='ctool1cd.exe' DiskId='1' Source='tool1cd\bin\Release\ctool1cd.exe' />
 					</Component>
 					<Component Id="SetPathVariable" Guid='c32bd33e-ceb8-48d3-94b9-d0f69225de81' KeyPath='yes'>
 						<Environment Action='set' Id='SetPathToInstallFolderToSystemPath'

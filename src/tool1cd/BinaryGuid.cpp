@@ -91,6 +91,13 @@ int get_subbyte(const std::string &presentation, int start)
 
 BinaryGuid::BinaryGuid(const std::string &presentation)
 {
+	if (presentation.size() == GUID_LEN_FLAT) {
+		for (int i = 0; i < GUID_BINARY_SIZE; i++) {
+			data[i] = get_subbyte(presentation, i * 2);
+		}
+		return;
+	}
+
 	if (presentation.size() != GUID_LEN) {
 		throw WrongGuidPresentation(presentation);
 	}

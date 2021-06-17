@@ -132,7 +132,7 @@ QVariant TableDataModel::data(const QModelIndex &index, int role) const
 	if (role == Qt::TextAlignmentRole) {
 		Field *f = table->get_field(index.column());
 		if (f->get_type() == type_fields::tf_numeric) {
-			return Qt::AlignRight + Qt::AlignVCenter;
+			return QVariant(Qt::AlignRight | Qt::AlignVCenter);
 		}
 	}
 

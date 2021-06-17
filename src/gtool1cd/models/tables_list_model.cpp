@@ -104,7 +104,7 @@ QVariant TablesListModel::data(const QModelIndex &index, int role) const
 		case 4:
 		case 5:
 		case 6:
-			return Qt::AlignRight + Qt::AlignVCenter;
+			return QVariant(Qt::AlignRight | Qt::AlignVCenter);
 		}
 	}
 

@@ -84,7 +84,7 @@
        </property>
        <item>
         <widget class="QPlainTextEdit" name="plainTextEdit">
-         <property name="tabStopWidth">
+         <property name="tabStopDistance">
           <number>40</number>
          </property>
         </widget>

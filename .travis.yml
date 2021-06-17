@@ -1,18 +1,47 @@
-dist: trusty
-sudo: required
 language: cpp
-os:
-    - linux
-    - osx
-compiler:
-    - gcc
-    - clang
+git:
+  depth: 1
+matrix:
+    include:
+    - os: linux
+      dist: xenial
+      addons:
+          apt:
+              sources:
+                  - sourceline: deb https://packages.lunarg.com/vulkan/1.2.141 xenial main
+                    key_url: https://packages.lunarg.com/lunarg-signing-key-pub.asc
+                  - sourceline: 'ppa:ubuntu-toolchain-r/test'
+              packages:
+                  - vulkan-sdk
+                  - g++-9
+      env:
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
+        - VULKAN_SDK_VERSION=1.2.176.1
+        - VULKAN_DOWNLOAD=https://sdk.lunarg.com/sdk/download/1.2.176.1/linux/vulkansdk-linux-x86_64-1.2.176.1.tar.gz
+    - os: osx
+      osx_image: xcode12.4
+      addons:
+        homebrew:
+          update: true
+          taps: apenngrace/vulkan
+          casks: vulkan-sdk
+      env:
+        - VULKAN_SDK_VERSION=1.2.176.1
+        - VULKAN_DOWNLOAD=https://sdk.lunarg.com/sdk/download/1.2.176.1/linux/vulkansdk-linux-x86_64-1.2.176.1.tar.gz
 before_install:
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update ; fi
-install:
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y cmake zlib1g-dev libboost-filesystem-dev libboost-system-dev libboost-regex-dev qtbase5-dev ; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt5 ; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export Qt5Widgets_DIR=/usr/local/opt/qt/lib/cmake/Qt5Widgets ; fi
+  - eval "${MATRIX_EVAL}"
+  - wget ${VULKAN_DOWNLOAD}
+    && tar xf vulkansdk-*.tar.gz
+    && source ${VULKAN_SDK_VERSION}/setup-env.sh
+  - git clone https://github.com/microsoft/vcpkg
+  - ./vcpkg/bootstrap-vcpkg.sh
+  - cd vcpkg
+  - ./vcpkg install boost-filesystem
+    boost-system boost-regex boost-random
+    boost-uuid boost-crc zlib
+    vulkan
+  - cd ..
 script:
-    - cmake . && cmake --build .
+    - cmake -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake -DNOGUI=YES .
+      && cmake --build .
     - bin/testproject

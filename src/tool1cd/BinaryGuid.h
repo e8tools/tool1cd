@@ -27,6 +27,7 @@
 
 const int GUID_BINARY_SIZE = 16;
 const size_t GUID_LEN = 36;
+const size_t GUID_LEN_FLAT = 32;
 
 // Обёртка над двоичным представлением GUID-записи в таблице
 class BinaryGuid {

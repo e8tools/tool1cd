@@ -40,7 +40,7 @@ BlobViewer::BlobViewer(QWidget *parent) :
 	font.setStyleHint(QFont::TypeWriter);
 	font.setFamily("Monospace");
 	ui->plainTextEdit->setFont(font);
-	ui->plainTextEdit->setTabStopWidth( ui->plainTextEdit->fontMetrics().width("    ") );
+	ui->plainTextEdit->setTabStopDistance( ui->plainTextEdit->fontMetrics().boundingRect("    ").width() );
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
 	ui->tabWidget->setTabBarAutoHide(true);
@@ -88,7 +88,7 @@ QString extract_text_data(QIODevice *device)
 {
 	auto buf = device->read(3);
 	if (buf.size() != 3) {
-		return QString::null;
+		return {};
 	}
 	if (buf[0] == '\xEF'
 	    && buf[1] == '\xBB'
@@ -101,7 +101,7 @@ QString extract_text_data(QIODevice *device)
 	        && buf[2] == 'X') {
 		buf = device->read(3);
 		if (buf.size() != 3) {
-			return QString::null;
+			return {};
 		}
 		if (buf[0] == 'C'
 		        && buf[1] == 'E'
@@ -111,7 +111,7 @@ QString extract_text_data(QIODevice *device)
 			return QString(device->readAll());
 		}
 	}
-	return QString::null;
+	return {};
 }
 
 void BlobViewer::setStream(TStream *stream, const QString &rootName)

@@ -8,6 +8,7 @@
 #include <QPainter>
 #include <QToolTip>
 #include <cmath>
+#include <climits>
 
 #define CURSOR_BLINK_INTERVAL 500 // ms
 #define DOCUMENT_WHEEL_LINES  3

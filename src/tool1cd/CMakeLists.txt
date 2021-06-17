@@ -17,7 +17,7 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with Tool1CD Library.  If not, see <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.10)
 project (tool1cd)
 
 set (SYSTEMCLASSES_SOURCES SystemClasses/String.cpp
@@ -87,6 +87,7 @@ endif()
 
 set_target_properties(tool1cd PROPERTIES LINKER_LANGUAGE CXX)
 
+add_definitions(-DBOOST_UUID_FORCE_AUTO_LINK)
 find_package (Boost 1.53 REQUIRED COMPONENTS filesystem regex system)
 include_directories (${Boost_INCLUDE_DIRS})
 target_link_libraries (tool1cd ${Boost_LIBRARIES})
