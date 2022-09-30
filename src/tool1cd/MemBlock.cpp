@@ -144,7 +144,9 @@ uint64_t MemBlockManager::get_numblocks() const
 void MemBlockManager::flush()
 {
 	for (auto &block : memblocks) {
-		block->write(fs);
+		if (block != nullptr) {
+			block->write(fs);
+		}
 	}
 }
 

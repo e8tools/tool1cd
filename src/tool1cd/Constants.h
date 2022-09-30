@@ -184,7 +184,7 @@ const unsigned int DATAHASH_FIELD_LENGTH = 20;
 
 
 const std::string EMPTY_GUID = "00000000-0000-0000-0000-000000000000";
-const BinaryGuid SNAPSHOT_VER1(std::string("3721ca9e-a272-496b-a093-206ea7629574"));
-const BinaryGuid SNAPSHOT_VER2(std::string("6fdfdf78-062a-46bb-8402-62145ae55764"));
+const BinaryGuid SNAPSHOT_VER1(std::string("9eca213772a26b49a093206ea7629574")); // MS style 3721ca9e-a272-496b-a093-206ea7629574
+const BinaryGuid SNAPSHOT_VER2(std::string("78dfdf6f2a06bb46840262145ae55764")); // MS style 6fdfdf78-062a-46bb-8402-62145ae55764
 
 #endif

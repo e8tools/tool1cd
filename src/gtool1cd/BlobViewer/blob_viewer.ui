@@ -84,7 +84,7 @@
        </property>
        <item>
         <widget class="QPlainTextEdit" name="plainTextEdit">
-         <property name="tabStopWidth">
+         <property name="tabStopDistance">
           <number>40</number>
          </property>
         </widget>
@@ -97,7 +97,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QHexEdit" name="frame">
+        <widget class="QHexView" name="frame">
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
@@ -116,7 +116,7 @@
   <customwidget>
    <class>QHexEdit</class>
    <extends>QFrame</extends>
-   <header>QHexEdit/qhexedit.h</header>
+   <header>QHexEdit/qhexview.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

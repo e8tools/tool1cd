@@ -52,6 +52,60 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->setupUi(this);
 	ui->logList->setModel(new QStringListModel(logData));
 	ui->logList->setVisible(false);
+	
+	ui->tableListView->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui->tableListView, SIGNAL(customContextMenuRequested(QPoint)),
+			this, SLOT(show_table_context_menu(QPoint)));
+}
+
+void MainWindow::show_table_context_menu(const QPoint &pos) 
+{
+	QMenu contextMenu(tr("Context menu"), this);
+	
+	QAction action_export_blob(tr("Экспорт BLOB"), this);
+	connect(&action_export_blob, SIGNAL(triggered()), this, SLOT(export_blob_file()));
+	contextMenu.addAction(&action_export_blob);
+	
+	QAction action_import_blob(tr("Импорт BLOB"), this);
+	connect(&action_import_blob, SIGNAL(triggered()), this, SLOT(import_blob_file()));
+	contextMenu.addAction(&action_import_blob);
+	
+	contextMenu.exec(mapToGlobal(pos));
+}
+
+void MainWindow::export_blob_file()
+{
+	auto indexes = ui->tableListView->selectionModel()->selectedIndexes();
+	if (indexes.empty()) {
+		return;
+	}
+	QString dir = QFileDialog::getExistingDirectory(this);
+	if (dir.isNull()) {
+		return;
+	}
+	
+	for (auto &index : indexes) {
+		Table *t = db->get_table(index.row());
+		t->export_table(boost::filesystem::path(dir.toStdWString()));
+	}
+}
+
+void MainWindow::import_blob_file()
+{
+	auto indexes = ui->tableListView->selectionModel()->selectedIndexes();
+	if (indexes.empty()) {
+		return;
+	}
+	QString dir = QFileDialog::getExistingDirectory(this);
+	if (dir.isNull()) {
+		return;
+	}
+	
+	boost::filesystem::path rootpath(dir.toStdWString());
+	for (auto &index : indexes) {
+		Table *t = db->get_table(index.row());
+		t->import_table(rootpath);
+	}
 }
 
 MainWindow::~MainWindow()

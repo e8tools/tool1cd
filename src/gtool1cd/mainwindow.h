@@ -63,6 +63,12 @@ private slots:
 	void on_tableListView_activated(const QModelIndex &index);
 
 	void on_aboutAction_triggered();
+	
+	void show_table_context_menu(const QPoint &);
+	
+	void export_blob_file();
+	
+	void import_blob_file();
 
 private:
 	Ui::MainWindow *ui;

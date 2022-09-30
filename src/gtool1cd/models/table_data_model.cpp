@@ -90,13 +90,17 @@ QVariant TableDataModel::data(const QModelIndex &index, int role) const
 		if (is_blob) {
 			TStream *data_stream;
 
-			if (!record->try_store_blob_data(f, data_stream, true)) {
-				return QString(tr("{Error getting BLOB}"));
+			try {
+				if (!record->try_store_blob_data(f, data_stream, true)) {
+					return QString(tr("{Error getting BLOB}"));
+				}
+			} catch (DetailedException &exc) {
+				return QString(tr("{Error getting BLOB}: ")) + QString(exc.what());
 			}
 
 			V8Catalog cat(data_stream, true, false);
 			if (cat.isOpen() && cat.is_catalog()) {
-				QString result("{catalog}");
+				return QString ("{catalog}");
 			}
 			TMemoryStream *mem = new TMemoryStream;
 			mem->CopyFrom(data_stream, 0);
@@ -128,7 +132,7 @@ QVariant TableDataModel::data(const QModelIndex &index, int role) const
 	if (role == Qt::TextAlignmentRole) {
 		Field *f = table->get_field(index.column());
 		if (f->get_type() == type_fields::tf_numeric) {
-			return Qt::AlignRight + Qt::AlignVCenter;
+			return QVariant(Qt::AlignRight | Qt::AlignVCenter);
 		}
 	}
 
@@ -230,7 +234,12 @@ TStream *TableDataModel::getBlobStream(const QModelIndex &index) const
 	        : table->get_record(_index->get_numrec(index.row()));
 
 	TStream *out;
-	if (!record->try_store_blob_data(f, out, false)) {
+	try {
+		if (!record->try_store_blob_data(f, out, false)) {
+			return nullptr;
+		}
+	} catch (DetailedException &exc) {
+		qDebug() << QString(exc.what());
 		return nullptr;
 	}
 

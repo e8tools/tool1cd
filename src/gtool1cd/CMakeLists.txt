@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)
 project(gtool1cd)
 
 set(CMAKE_AUTOMOC ON)
@@ -6,40 +6,38 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(Qt5Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Widgets REQUIRED Core5Compat REQUIRED)
 
 set (QHEXEDIT_HEADERS
-	QHexEdit/document/commands/hexcommand.h
-	QHexEdit/document/commands/insertcommand.h
-	QHexEdit/document/commands/removecommand.h
-	QHexEdit/document/commands/replacecommand.h
-	QHexEdit/document/gapbuffer.h
-	QHexEdit/document/qhexcursor.h
-	QHexEdit/document/qhexdocument.h
-	QHexEdit/document/qhextheme.h
-	QHexEdit/paint/qhexmetrics.h
-	QHexEdit/paint/qhexpainter.h
-	QHexEdit/qhexedit.h
-	QHexEdit/qhexeditprivate.h
-	QHexEdit/document/metadata/qhexmetadataitem.h
-	QHexEdit/document/metadata/qhexmetadata.h
+		QHexEdit/document/buffer/qfilebuffer.h
+		QHexEdit/document/buffer/qhexbuffer.h
+		QHexEdit/document/buffer/qmemorybuffer.h
+		QHexEdit/document/buffer/qmemoryrefbuffer.h
+		QHexEdit/document/commands/hexcommand.h
+		QHexEdit/document/commands/insertcommand.h
+		QHexEdit/document/commands/removecommand.h
+		QHexEdit/document/commands/replacecommand.h
+		QHexEdit/document/qhexcursor.h
+		QHexEdit/document/qhexdocument.h
+		QHexEdit/document/qhexmetadata.h
+		QHexEdit/document/qhexrenderer.h
+		QHexEdit/qhexview.h
 )
 
 set (QHEXEDIT_SOURCES
-	QHexEdit/document/commands/hexcommand.cpp
-	QHexEdit/document/commands/insertcommand.cpp
-	QHexEdit/document/commands/removecommand.cpp
-	QHexEdit/document/commands/replacecommand.cpp
-	QHexEdit/document/gapbuffer.cpp
-	QHexEdit/document/qhexcursor.cpp
-	QHexEdit/document/qhexdocument.cpp
-	QHexEdit/document/qhextheme.cpp
-	QHexEdit/paint/qhexmetrics.cpp
-	QHexEdit/paint/qhexpainter.cpp
-	QHexEdit/qhexedit.cpp
-	QHexEdit/qhexeditprivate.cpp
-	QHexEdit/document/metadata/qhexmetadataitem.cpp
-	QHexEdit/document/metadata/qhexmetadata.cpp
+		QHexEdit/document/buffer/qfilebuffer.cpp
+		QHexEdit/document/buffer/qhexbuffer.cpp
+		QHexEdit/document/buffer/qmemorybuffer.cpp
+		QHexEdit/document/buffer/qmemoryrefbuffer.cpp
+		QHexEdit/document/commands/hexcommand.cpp
+		QHexEdit/document/commands/insertcommand.cpp
+		QHexEdit/document/commands/removecommand.cpp
+		QHexEdit/document/commands/replacecommand.cpp
+		QHexEdit/document/qhexcursor.cpp
+		QHexEdit/document/qhexdocument.cpp
+		QHexEdit/document/qhexmetadata.cpp
+		QHexEdit/document/qhexrenderer.cpp
+		QHexEdit/qhexview.cpp
 )
 
 
@@ -69,17 +67,15 @@ endif()
 add_executable(gtool1cd WIN32 ${SOURCE_FILES} ${HEADER_FILES} ${UI_FILES} ${RESOURCES})
 
 include_directories (${SOURCE_DIR}/tool1cd)
-target_link_libraries (gtool1cd tool1cd)
+target_link_libraries (gtool1cd PRIVATE tool1cd)
 
 
 find_package (Boost 1.53 REQUIRED COMPONENTS filesystem regex system)
 include_directories (${Boost_INCLUDE_DIRS})
-target_link_libraries (gtool1cd ${Boost_LIBRARIES})
+target_link_libraries (gtool1cd PRIVATE ${Boost_LIBRARIES})
 
 find_package (ZLIB REQUIRED)
 include_directories (${ZLIB_INCLUDE_DIRS})
-target_link_libraries (gtool1cd ${ZLIB_LIBRARIES})
+target_link_libraries (gtool1cd PRIVATE ${ZLIB_LIBRARIES} Qt6::Widgets Qt6::Core5Compat)
 
 install (TARGETS gtool1cd DESTINATION bin)
-
-qt5_use_modules(gtool1cd Widgets)

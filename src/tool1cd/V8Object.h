@@ -27,6 +27,7 @@
 #include "MemBlock.h"
 #include "Class_1CD.h"
 #include "db_ver.h"
+#include <boost/filesystem.hpp>
 
 #pragma pack(push)
 #pragma pack(1)
@@ -110,7 +111,7 @@ public:
 	bool set_data(TStream* stream); // записывает поток целиком в объект, поддерживает кеширование блоков.
 	bool set_data(TStream* stream, uint64_t _start, uint64_t _length); // запись части потока в объект, поддерживает кеширование блоков.
 
-	void savetofile(const std::string &filename);
+	void savetofile(const boost::filesystem::path &path);
 	void set_lockinmemory(bool _lock);
 	uint64_t get_fileoffset(uint64_t offset); // получить физическое смещение в файле по смещению в объекте
 
