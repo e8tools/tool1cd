@@ -22,9 +22,9 @@ for:
     VCPKG_DIR: C:\Tools\vcpkg
     VULKAN_SDK: C:\VulkanSDK\1.2.176.1
     VULKAN_DOWNLOAD_URL: https://vulkan.lunarg.com/sdk/download/1.2.176.1/windows/VulkanSDK-1.2.176.1-Installer.exe?Human=true
-    MY_Qt6Widgets_DIR: C:\Qt\6.0.1\msvc2019_64\lib\cmake\Qt6Widgets
-    QT_PATH: C:\Qt\6.0.1\msvc2019_64
-    Qt6_DIR: C:\Qt\6.0.1\msvc2019_64
+    MY_Qt6Widgets_DIR: C:\Qt\6.2\msvc2019_64\lib\cmake\Qt6Widgets
+    QT_PATH: C:\Qt\6.2\msvc2019_64
+    Qt6_DIR: C:\Qt\6.2\msvc2019_64
   init:
     - ps: Set-WinSystemLocale ru-RU
     - ps: Start-Sleep -s 5
@@ -47,9 +47,9 @@ for:
       - image: Ubuntu2004
   init:
     - export CXX=g++-9 CC=gcc-9
-    - export QT_PATH="$HOME/Qt/6.0.1/gcc_64"
-    - export Qt6_DIR="$HOME/Qt/6.0.1/gcc_64"
-    - export MY_Qt6Widgets_DIR="$HOME/Qt/6.0.1/gcc_64/lib/cmake/Qt6Widgets"
+    - export QT_PATH="$HOME/Qt/6.2/gcc_64"
+    - export Qt6_DIR="$HOME/Qt/6.2/gcc_64"
+    - export MY_Qt6Widgets_DIR="$HOME/Qt/6.2/gcc_64/lib/cmake/Qt6Widgets"
     - if [ ! -d ../vcpkg ]; then git clone https://github.com/microsoft/vcpkg.git ../vcpkg ; fi
     - "(cd ../vcpkg && git pull && ./bootstrap-vcpkg.sh)"
     - export VCPKG_DIR=`dirname $(pwd)/../vcpkg/vcpkg`
@@ -77,9 +77,9 @@ for:
     - if [ ! -d ../vcpkg ]; then git clone https://github.com/microsoft/vcpkg.git ../vcpkg ; fi
     - "(cd ../vcpkg && git pull && ./bootstrap-vcpkg.sh)"
     - export VCPKG_DIR=`dirname $(pwd)/../vcpkg/vcpkg`
-    - export QT_PATH="$HOME/Qt/6.0.0/clang_64"
-    - export Qt6_DIR="$HOME/Qt/6.0.0/clang_64"
-    - export MY_Qt6Widgets_DIR="$HOME/Qt/6.0.0/clang_64/lib/cmake/Qt6Widgets"
+    - export QT_PATH="$HOME/Qt/6.2/macos"
+    - export Qt6_DIR="$HOME/Qt/6.2/macos"
+    - export MY_Qt6Widgets_DIR="$HOME/Qt/6.2/macos/lib/cmake/Qt6Widgets"
   install:
     - if [ ! -f VulkanSDK.dmg ]; then
       curl -L --silent --show-error --output VulkanSDK.dmg
