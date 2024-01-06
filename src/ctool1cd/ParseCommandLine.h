@@ -46,6 +46,7 @@ enum class Command
 	export_to_binary,           // выгрузить таблицы в двоичные файлы по заданному фильтру
 	import_from_binary,         // загрузить таблицы из двоичных файлов, выгруженных экспортом
 	find_and_save_lost_objects, // найти и сохранить потерянные объекты
+	save_tables_size,			// сохранить в файл размеры таблиц
 };
 
 struct CommandDefinition
