@@ -46,6 +46,14 @@ const string DATABASE_CONFIG_DEFAULT_NAME() {
 	return string("dbcf") + CF_STR;
 }
 
+static int object_size(/*const */V8Object *file)
+{
+	if (file == nullptr) {
+		return 0;
+	}
+	return file->get_len();
+}
+
 App::App(char **szArglist, int nArgs, Messenger &mess)
 		: comm(szArglist, nArgs), mess(mess)
 {}
@@ -504,6 +512,29 @@ void App::find_and_save_lost_objects(const ParsedCommand &pc)
 	base1CD->find_and_save_lost_objects(lost_objects);
 }
 
+// save_tables_sizes
+void App::save_tables_sizes(const ParsedCommand &pc)
+{
+	Table *tbl = nullptr;
+	boost::filesystem::path statistic_path(pc.param1);
+	TFileStream file_to_save(boost::filesystem::path(statistic_path), fmCreate);
+
+
+	char UnicodeHeader[3] = {'\xef', '\xbb', '\xbf'}; // BOM UTF-8
+	file_to_save.Write(UnicodeHeader, 3);
+	file_to_save.WriteString("table_name|records_count|data_size|blob_size|index_size\r\n");
+
+	for (int j = 0; j < base1CD->get_numtables(); j++) {
+		tbl = base1CD->get_table(j);
+
+		file_to_save.WriteString(tbl->get_name()+"|");
+		file_to_save.WriteString(to_string(tbl->get_phys_numrecords())+"|");
+		file_to_save.WriteString(to_string(object_size(tbl->get_file_data()))+"|");
+		file_to_save.WriteString(to_string(object_size(tbl->get_file_blob()))+"|");
+		file_to_save.WriteString(to_string(object_size(tbl->get_file_index()))+"\r\n");
+	}
+}
+
 void out_gpl_header()
 {
 	cout << "cTool_1CD  Copyright 2009-2017 awa, Copyright 2017-2018 E8 Tools Contributors"
@@ -623,6 +654,10 @@ int App::Run()
 				}
 				case Command::find_and_save_lost_objects: {
 					find_and_save_lost_objects(pc);
+					break;
+				}
+				case Command::save_tables_size: {
+					save_tables_sizes(pc);
 					break;
 				}
 			}

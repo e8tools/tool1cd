@@ -72,6 +72,8 @@ CommandDefinition CommandParse::definitions[] =
 	{"importfrombinary",   Command::import_from_binary,         2, ""}, // 35
 	{"slo",                Command::find_and_save_lost_objects, 1, ""}, // 36
 	{"savelostobjects",    Command::find_and_save_lost_objects, 1, ""}, // 37
+	{"sts",                Command::save_tables_size,           1, ""}, // 38
+	{"savetablessize",     Command::save_tables_size,           1, ""}, // 39
 };
 
 
@@ -146,6 +148,8 @@ ctool1cd.exe [<ключи>] <1CD файл> [<ключи>]\r\n\
 \r\n\
  -slo, -SaveLostObjects <путь>\r\n\
    Найти потерянные объекты и сохранить\r\n.\
+ -sts, -SaveTablesSize <путь>\r\n\
+   Сохранить в файл размеры таблиц и вспомогательных данных. Сохраняются с простой текстовый файл с разделителем колонок |\r\n\
 Если в пути содержатся пробелы, его необходимо заключать в кавычки. Пути следует указывать без завершающего бэкслеша \"\\\".\r\n\
 Для команд -dc, -ddc, -drc вместо пути можно указывать имя файла конфигурации (имя файла должно заканчиваться на \".cf\").\r\n\
 ";

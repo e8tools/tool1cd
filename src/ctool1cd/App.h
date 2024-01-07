@@ -71,6 +71,8 @@ private:
 
 	void find_and_save_lost_objects(const ParsedCommand& pc);
 
+	void save_tables_sizes(const ParsedCommand& pc);
+
 	inline bool is_infobase() const;
 
 };
