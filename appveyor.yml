@@ -46,6 +46,7 @@ for:
   matrix:
     only:
       - image: Ubuntu2004
+      - image: Ubuntu2204
   init:
     - export CXX=g++-9 CC=gcc-9
     - export QT_PATH="$HOME/Qt/6.2/gcc_64"
