@@ -9,7 +9,7 @@ pull_requests:
 clone_depth: 1
 environment:
   APPVEYOR_SAVE_CACHE_ON_ERROR: true
-  VULKAN_VERSION: 1.2.176.1
+  VULKAN_VERSION: 1.4.309.0
   VCPKG_LIBS: boost-filesystem
     boost-system boost-regex boost-random
     boost-uuid boost-crc zlib
@@ -21,8 +21,8 @@ for:
       - image: Visual Studio 2019
   environment:
     VCPKG_DIR: C:\Tools\vcpkg
-    VULKAN_SDK: C:\VulkanSDK\1.2.176.1
-    VULKAN_DOWNLOAD_URL: https://vulkan.lunarg.com/sdk/download/1.2.176.1/windows/VulkanSDK-1.2.176.1-Installer.exe?Human=true
+    VULKAN_SDK: C:\VulkanSDK\1.4.309.0
+    VULKAN_DOWNLOAD_URL: https://vulkan.lunarg.com/sdk/download/1.4.309.0/windows/VulkanSDK-1.4.309.0-Installer.exe?Human=true
     MY_Qt6Widgets_DIR: C:\Qt\6.2\msvc2019_64\lib\cmake\Qt6Widgets
     QT_PATH: C:\Qt\6.2\msvc2019_64
     Qt6_DIR: C:\Qt\6.2\msvc2019_64
@@ -46,7 +46,6 @@ for:
   matrix:
     only:
       - image: Ubuntu2004
-      - image: Ubuntu2204
   init:
     - export CXX=g++-9 CC=gcc-9
     - export QT_PATH="$HOME/Qt/6.2/gcc_64"
@@ -62,15 +61,43 @@ for:
       libmirclient-dev libwayland-dev libxrandr-dev libxcb-randr0-dev libxcb-ewmh-dev
       python3 bison libx11-xcb-dev liblz4-dev libzstd-dev
       libgl1-mesa-dev
-    - if [ ! -f VulkanSDK.tar.gz ]; then
-      curl -L --silent --show-error --output VulkanSDK.tar.gz
-      "https://sdk.lunarg.com/sdk/download/1.2.176.1/linux/vulkansdk-linux-x86_64-1.2.176.1.tar.gz" ;
+    - if [ ! -f VulkanSDK.tar.xz ]; then
+      curl -L --silent --show-error --output VulkanSDK.tar.xz
+      "https://sdk.lunarg.com/sdk/download/1.4.309.0/linux/vulkansdk-linux-x86_64-1.4.309.0.tar.xz" ;
       fi
-    - tar -xf VulkanSDK.tar.gz && source ${VULKAN_VERSION}/setup-env.sh
+    - tar -xf VulkanSDK.tar.xz && source ${VULKAN_VERSION}/setup-env.sh
     - ../vcpkg/vcpkg install ${VCPKG_LIBS}
   cache:
     - ../vcpkg/installed
-    - VulkanSDK.tar.gz
+    - VulkanSDK.tar.xz
+-
+  matrix:
+    only:
+      - image: Ubuntu2204
+  init:
+    - export CXX=g++-9 CC=gcc-9
+    - export QT_PATH="$HOME/Qt/6.2/gcc_64"
+    - export Qt6_DIR="$HOME/Qt/6.2/gcc_64"
+    - export MY_Qt6Widgets_DIR="$HOME/Qt/6.2/gcc_64/lib/cmake/Qt6Widgets"
+    - if [ ! -d ../vcpkg ]; then git clone https://github.com/microsoft/vcpkg.git ../vcpkg ; fi
+    - "(cd ../vcpkg && git pull && ./bootstrap-vcpkg.sh)"
+    - export VCPKG_DIR=`dirname $(pwd)/../vcpkg/vcpkg`
+  install:
+    - sudo apt update -q -y
+    - sudo apt install -q -y libglm-dev libxcb-dri3-0 libxcb-present0 libpciaccess0
+      libpng-dev libxcb-keysyms1-dev libxcb-dri3-dev libx11-dev
+      libwayland-dev libxrandr-dev libxcb-randr0-dev libxcb-ewmh-dev
+      python3 bison libx11-xcb-dev liblz4-dev libzstd-dev
+      libgl1-mesa-dev
+    - if [ ! -f VulkanSDK.tar.xz ]; then
+      curl -L --silent --show-error --output VulkanSDK.tar.xz
+      "https://sdk.lunarg.com/sdk/download/1.4.309.0/linux/vulkansdk-linux-x86_64-1.4.309.0.tar.xz" ;
+      fi
+    - tar -xf VulkanSDK.tar.xz && source ${VULKAN_VERSION}/setup-env.sh
+    - ../vcpkg/vcpkg install ${VCPKG_LIBS}
+  cache:
+    - ../vcpkg/installed
+    - VulkanSDK.tar.xz
 -
   matrix:
     only:
@@ -85,7 +112,7 @@ for:
   install:
     - if [ ! -f VulkanSDK.dmg ]; then
       curl -L --silent --show-error --output VulkanSDK.dmg
-      "https://sdk.lunarg.com/sdk/download/1.2.176.1/mac/vulkansdk-macos-1.2.176.1.dmg" ;
+      "https://sdk.lunarg.com/sdk/download/1.4.309.0/mac/vulkansdk-macos-1.4.309.0.dmg" ;
       fi
     - hdiutil attach VulkanSDK.dmg
     - sudo /Volumes/vulkansdk-macos-${VULKAN_VERSION}/InstallVulkan.app/Contents/MacOS/InstallVulkan
