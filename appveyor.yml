@@ -115,6 +115,7 @@ for:
       "https://sdk.lunarg.com/sdk/download/1.4.309.0/mac/vulkansdk-macos-1.4.309.0.zip" ;
       fi
     - unzip VulkanSDK.zip
+    - chmod +x ./vulkansdk-macos-${VULKAN_VERSION}/InstallVulkan-${VULKAN_VERSION}.app/Contents/MacOS/InstallVulkan-${VULKAN_VERSION}
     - sudo ./vulkansdk-macos-${VULKAN_VERSION}/InstallVulkan-${VULKAN_VERSION}.app/Contents/MacOS/InstallVulkan-${VULKAN_VERSION}
       --root ~/VulkanSDK --accept-licenses --default-answer --confirm-command
       install
