@@ -110,16 +110,19 @@ for:
     - export Qt6_DIR="$HOME/Qt/6.2/macos"
     - export MY_Qt6Widgets_DIR="$HOME/Qt/6.2/macos/lib/cmake/Qt6Widgets"
   install:
-    - if [ ! -f VulkanSDK.dmg ]; then
-      curl -L --silent --show-error --output VulkanSDK.dmg
-      "https://sdk.lunarg.com/sdk/download/1.4.309.0/mac/vulkansdk-macos-1.4.309.0.dmg" ;
+    - if [ ! -f VulkanSDK.zip ]; then
+      curl -L --silent --show-error --output VulkanSDK.zip
+      "https://sdk.lunarg.com/sdk/download/1.4.309.0/mac/vulkansdk-macos-1.4.309.0.zip" ;
       fi
-    - hdiutil attach VulkanSDK.dmg
-    - sudo /Volumes/vulkansdk-macos-${VULKAN_VERSION}/InstallVulkan.app/Contents/MacOS/InstallVulkan
+    - unzip VulkanSDK.zip
+    - sudo ./vulkansdk-macos-${VULKAN_VERSION}/InstallVulkan-${VULKAN_VERSION}.app/Contents/MacOS/InstallVulkan-${VULKAN_VERSION}
       --root ~/VulkanSDK --accept-licenses --default-answer --confirm-command
       install
     - source ~/VulkanSDK/setup-env.sh
     - ../vcpkg/vcpkg install ${VCPKG_LIBS}
+  cache:
+     - ../vcpkg/installed
+     - VulkanSDK.zip
 build_script:
 - ps: >-
     mkdir tool1cd
