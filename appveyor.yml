@@ -120,9 +120,6 @@ for:
       install
     - source ~/VulkanSDK/setup-env.sh
     - ../vcpkg/vcpkg install ${VCPKG_LIBS}
-  cache:
-    - ../vcpkg/installed
-    - VulkanSDK.dmg
 build_script:
 - ps: >-
     mkdir tool1cd
