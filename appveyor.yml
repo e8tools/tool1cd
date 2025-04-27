@@ -20,6 +20,7 @@ for:
     only:
       - image: Visual Studio 2019
   environment:
+    DEPLOY_PLATFORM_ID: win
     VCPKG_DIR: C:\Tools\vcpkg
     VULKAN_SDK: C:\VulkanSDK\1.4.309.0
     VULKAN_DOWNLOAD_URL: https://vulkan.lunarg.com/sdk/download/1.4.309.0/windows/VulkanSDK-1.4.309.0-Installer.exe?Human=true
@@ -46,6 +47,8 @@ for:
   matrix:
     only:
       - image: Ubuntu2004
+  environment:
+    DEPLOY_PLATFORM_ID: ubuntu20
   init:
     - export CXX=g++-9 CC=gcc-9
     - export QT_PATH="$HOME/Qt/6.2/gcc_64"
@@ -74,6 +77,8 @@ for:
   matrix:
     only:
       - image: Ubuntu2204
+  environment:
+    DEPLOY_PLATFORM_ID: ubuntu22
   init:
     - export CXX=g++-9 CC=gcc-9
     - export QT_PATH="$HOME/Qt/6.2/gcc_64"
@@ -102,6 +107,8 @@ for:
   matrix:
     only:
       - image: macOS
+  environment:
+    DEPLOY_PLATFORM_ID: osx
   init:
     - if [ ! -d ../vcpkg ]; then git clone https://github.com/microsoft/vcpkg.git ../vcpkg ; fi
     - "(cd ../vcpkg && git pull && ./bootstrap-vcpkg.sh)"
@@ -177,4 +184,6 @@ deploy:
   provider: Webhook
   url:
     secure: OMGP9R1895abhSAril6yAqZ6JBQDXJQ5k0Gz7MBBHuC0ry1wLuPyIbbvwSIng8123oqL87jOvs+X1FaaYab7Lg==
-  request_timeout: 5
+  authorization:
+    secure: mOYmIK7sZDIWSIRnN3gTg4CeGQer1BT9ZWWf3pJJPN7nJPqAlJXVyvmvAOV9vg0m0VAbUfbaSGbC2ierOkVvzQ==
+request_timeout: 5
