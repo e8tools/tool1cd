@@ -186,4 +186,4 @@ deploy:
     secure: OMGP9R1895abhSAril6yAqZ6JBQDXJQ5k0Gz7MBBHuC0ry1wLuPyIbbvwSIng8123oqL87jOvs+X1FaaYab7Lg==
   authorization:
     secure: mOYmIK7sZDIWSIRnN3gTg4CeGQer1BT9ZWWf3pJJPN7nJPqAlJXVyvmvAOV9vg0m0VAbUfbaSGbC2ierOkVvzQ==
-request_timeout: 5
+  request_timeout: 5
