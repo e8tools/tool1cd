@@ -12,8 +12,8 @@
 
 Последние тестовые сборки можно получать через публичные CI-сервера:
 
- * [Win-x64 консольное](https://storage.yandexcloud.net/appveyor/tool1cd/feature/cloud-deploy/win/ctool1cd.exe)
- * [Win-x64 GUI](https://storage.yandexcloud.net/appveyor/tool1cd/feature/cloud-deploy/win/tool1cd.zip)
+ * [Win-x64 консольное](https://storage.yandexcloud.net/appveyor/tool1cd/develop/win/ctool1cd.exe)
+ * [Win-x64 GUI](https://storage.yandexcloud.net/appveyor/tool1cd/develop/win/tool1cd.zip)
  * [Ubuntu](https://launchpad.net/~dmpas/+archive/ubuntu/e8):
 ```sh
 sudo add-apt-repository ppa:dmpas/e8
