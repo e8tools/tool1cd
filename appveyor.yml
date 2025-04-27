@@ -173,4 +173,8 @@ artifacts:
   name: ctool1cd.exe
 - path: tool1cd-*.zip
   name: tool1cd.zip
-deploy: false
+deploy:
+  provider: Webhook
+  url:
+    secure: OMGP9R1895abhSAril6yAqZ6JBQDXJQ5k0Gz7MBBHuC0ry1wLuPyIbbvwSIng8123oqL87jOvs+X1FaaYab7Lg==
+  request_timeout: 5
