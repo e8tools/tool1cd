@@ -97,6 +97,27 @@ QVariant TablesListModel::data(const QModelIndex &index, int role) const
 			                  + object_size(t->get_file_blob())
 			                  + object_size(t->get_file_index()));
 		} // switch
+	} else if (role == Qt::UserRole) {
+		Table *t = db->get_table(index.row());
+		switch (index.column()) {
+		case 0:
+			return QVariant::fromValue(QString::fromStdString(t->get_name()));
+		case 1:
+			return QVariant::fromValue(t->get_recordlen());
+		case 2:
+			return QVariant::fromValue(t->get_recordlock() ? 1 : 0);
+		case 3:
+			return QVariant::fromValue(static_cast<qulonglong>(object_size(t->get_file_data())));
+		case 4:
+			return QVariant::fromValue(static_cast<qulonglong>(object_size(t->get_file_blob())));
+		case 5:
+			return QVariant::fromValue(static_cast<qulonglong>(object_size(t->get_file_index())));
+		case 6:
+			return QVariant::fromValue(static_cast<qulonglong>(
+			    object_size(t->get_file_data())
+			    + object_size(t->get_file_blob())
+			    + object_size(t->get_file_index())));
+		}
 	} else if (role == Qt::TextAlignmentRole) {
 		switch (index.column()) {
 		case 1:
