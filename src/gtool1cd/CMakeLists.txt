@@ -7,7 +7,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 if(POLICY CMP0072)
-  cmake_policy(SET CMP0072 LEGACY)
+  cmake_policy(SET CMP0072 GLVND)
 endif()
 
 find_package(Qt6 COMPONENTS Widgets REQUIRED Core5Compat REQUIRED)
