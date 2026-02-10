@@ -24,6 +24,7 @@
 
 #include <array>
 #include <string>
+#include <cstdint>
 
 const int GUID_BINARY_SIZE = 16;
 const size_t GUID_LEN = 36;

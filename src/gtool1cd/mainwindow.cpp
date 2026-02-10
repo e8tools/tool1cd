@@ -30,6 +30,7 @@
 #include "models/tables_list_model.h"
 #include "configurations_window.h"
 #include "about_dialog.h"
+#include <QSortFilterProxyModel>
 
 void MainWindow::AddDetailedMessage(
         const std::string &description,
@@ -116,7 +117,13 @@ MainWindow::~MainWindow()
 void MainWindow::open(T_1CD *database)
 {
 	db = database;
-	ui->tableListView->setModel(new TablesListModel(db));
+	auto *model = new TablesListModel(db);
+	auto *proxy = new QSortFilterProxyModel(this);
+	proxy->setSourceModel(model);
+	proxy->setSortRole(Qt::UserRole);
+	proxy->setDynamicSortFilter(true);
+	ui->tableListView->setModel(proxy);
+	ui->tableListView->setSortingEnabled(true);
 	setWindowTitle(QString::fromStdWString(db->get_filepath().wstring()));
 	// refresh data
 }
