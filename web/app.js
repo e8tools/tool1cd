@@ -3,8 +3,11 @@ const errorEl = document.getElementById("error");
 const fileInput = document.getElementById("fileInput");
 const openBtn = document.getElementById("openBtn");
 const tablesEl = document.getElementById("tables");
+const sortFieldEl = document.getElementById("sortField");
+const sortDirEl = document.getElementById("sortDir");
 
 let api = null;
+let currentTables = [];
 
 function setStatus(message) {
   statusEl.textContent = message;
@@ -24,20 +27,193 @@ function clearTables() {
   tablesEl.replaceChildren();
 }
 
-function renderTables(tableNames) {
+function formatSize(bytes) {
+  if (!Number.isFinite(bytes) || bytes < 0) return "0 B";
+
+  const units = ["B", "KiB", "MiB", "GiB", "TiB"];
+  let value = bytes;
+  let unitIndex = 0;
+
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+  }
+
+  return `${value.toFixed(unitIndex === 0 ? 0 : 2)} ${units[unitIndex]}`;
+}
+
+function extractName(value, depth = 0) {
+  if (depth > 10 || value == null) return "";
+  if (typeof value === "string") return value;
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const candidate = extractName(item, depth + 1);
+      if (candidate) return candidate;
+    }
+    return "";
+  }
+
+  if (typeof value === "object") {
+    const preferredKeys = [
+      "name",
+      "Name",
+      "tableName",
+      "table_name",
+      "table",
+      "title",
+      "value",
+    ];
+    for (const key of preferredKeys) {
+      if (key in value) {
+        const candidate = extractName(value[key], depth + 1);
+        if (candidate) return candidate;
+      }
+    }
+
+    for (const nestedValue of Object.values(value)) {
+      const candidate = extractName(nestedValue, depth + 1);
+      if (candidate) return candidate;
+    }
+  }
+
+  return "";
+}
+
+function extractSize(value, depth = 0) {
+  if (depth > 3 || value == null) return 0;
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const candidate = extractSize(item, depth + 1);
+      if (candidate > 0) return candidate;
+    }
+    return 0;
+  }
+
+  if (typeof value === "object") {
+    const preferredKeys = ["size", "totalSize", "bytes", "value"];
+    for (const key of preferredKeys) {
+      if (key in value) {
+        const candidate = extractSize(value[key], depth + 1);
+        if (candidate > 0) return candidate;
+      }
+    }
+  }
+
+  return 0;
+}
+
+function normalizeTables(parsed) {
+  if (!Array.isArray(parsed)) {
+    if (parsed && Array.isArray(parsed.tables)) {
+      return normalizeTables(parsed.tables);
+    }
+    throw new Error("Table JSON format is unsupported. Expected array or {tables:[...]}");
+  }
+
+  return parsed.map((item) => {
+    if (typeof item === "string") {
+      return { name: item, size: 0, raw: item };
+    }
+
+    const rawName = item?.name ?? item;
+    const rawSize = item?.size ?? item;
+    const normalizedName = extractName(rawName) || extractName(item) || "(unknown)";
+    return {
+      name: normalizedName === "[object Object]" ? "(unknown)" : normalizedName,
+      size: extractSize(rawSize),
+      raw: item,
+    };
+  });
+}
+
+function sortedTables() {
+  const sortField = sortFieldEl.value;
+  const isAsc = sortDirEl.value === "asc";
+  const sign = isAsc ? 1 : -1;
+  const rows = [...currentTables];
+
+  rows.sort((a, b) => {
+    if (sortField === "size") {
+      if (a.size !== b.size) {
+        return (a.size - b.size) * sign;
+      }
+      return a.name.localeCompare(b.name) * sign;
+    }
+
+    const nameCmp = a.name.localeCompare(b.name);
+    if (nameCmp !== 0) {
+      return nameCmp * sign;
+    }
+    return (a.size - b.size) * sign;
+  });
+
+  return rows;
+}
+
+function renderTables() {
   clearTables();
-  for (const name of tableNames) {
-    const li = document.createElement("li");
-    li.textContent = String(name);
-    tablesEl.appendChild(li);
+
+  for (const table of sortedTables()) {
+    const tr = document.createElement("tr");
+
+    const nameTd = document.createElement("td");
+    const fallbackName =
+      extractName(table.raw) ||
+      (table.raw && typeof table.raw === "object" ? JSON.stringify(table.raw) : "");
+    const displayName =
+      typeof table.name === "string" && table.name !== "[object Object]"
+        ? table.name
+        : (fallbackName || "(unknown)");
+    nameTd.textContent = displayName;
+
+    const sizeTd = document.createElement("td");
+    sizeTd.textContent = formatSize(table.size);
+    sizeTd.className = "size";
+
+    tr.appendChild(nameTd);
+    tr.appendChild(sizeTd);
+    tablesEl.appendChild(tr);
   }
 }
 
 function bindApi(Module) {
+  const hasCwrap = typeof Module.cwrap === "function";
+  const wrap = (name, returnType, argTypes) => {
+    if (hasCwrap) {
+      const fn = Module.cwrap(name, returnType, argTypes);
+      if (typeof fn === "function") return fn;
+    }
+    const direct = Module[`_${name}`];
+    return typeof direct === "function" ? direct : null;
+  };
+
+  const open = wrap("onecd_open", "number", ["string"]);
+  const listTablesJsonPtr = wrap("onecd_list_tables_json", "number", []);
+  const freeString = wrap("onecd_free_string", null, ["number"])
+    || (typeof Module._free === "function" ? Module._free : null);
+
+  const missing = [];
+  if (!open) missing.push("onecd_open");
+  if (!listTablesJsonPtr) missing.push("onecd_list_tables_json");
+  if (!freeString) missing.push("onecd_free_string");
+  if (missing.length) {
+    throw new Error(
+      `Missing WASM exports: ${missing.join(", ")}. ` +
+      "Rebuild and refresh parser.js/parser.wasm."
+    );
+  }
+
   return {
-    open: Module.cwrap("onecd_open", "number", ["string"]),
-    listTablesJsonPtr: Module.cwrap("onecd_list_tables_json", "number", []),
-    freeString: Module.cwrap("onecd_free_string", null, ["number"]),
+    open,
+    listTablesJsonPtr,
+    freeString,
     utf8ToString: Module.UTF8ToString.bind(Module),
     FS: Module.FS,
   };
@@ -109,14 +285,9 @@ async function onOpenClick() {
 
     setStatus("Loading table list...");
     const parsed = readTablesJson();
-    const tableNames = Array.isArray(parsed) ? parsed : parsed.tables;
-
-    if (!Array.isArray(tableNames)) {
-      throw new Error("Table JSON format is unsupported. Expected array or {tables:[...]}");
-    }
-
-    renderTables(tableNames);
-    setStatus(`Loaded ${tableNames.length} tables from ${file.name}`);
+    currentTables = normalizeTables(parsed);
+    renderTables();
+    setStatus(`Loaded ${currentTables.length} tables from ${file.name}`);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     showError(message);
@@ -152,6 +323,14 @@ fileInput.addEventListener("change", () => {
 
 openBtn.addEventListener("click", () => {
   void onOpenClick();
+});
+
+sortFieldEl.addEventListener("change", () => {
+  renderTables();
+});
+
+sortDirEl.addEventListener("change", () => {
+  renderTables();
 });
 
 void main();

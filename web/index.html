@@ -49,6 +49,27 @@
       margin-bottom: 1rem;
     }
 
+    .sort-controls {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .sort-controls label {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .sort-controls select {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.45rem 0.55rem;
+    }
+
     button {
       border: 1px solid var(--accent);
       background: var(--accent);
@@ -82,16 +103,39 @@
       white-space: pre-wrap;
     }
 
-    #tables {
-      margin: 0;
-      padding-left: 1.25rem;
+    .tables-list {
+      width: 100%;
+      border-collapse: collapse;
       max-height: 60vh;
       overflow: auto;
+      display: block;
     }
 
-    #tables li {
+    .tables-list thead,
+    .tables-list tbody {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    .tables-list thead th {
+      text-align: left;
+      font-size: 0.9rem;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+      padding: 0.45rem 0.25rem;
+    }
+
+    .tables-list td {
       margin: 0.25rem 0;
       font-family: Consolas, Monaco, monospace;
+      border-bottom: 1px solid #eef2f7;
+      padding: 0.5rem 0.25rem;
+    }
+
+    .tables-list td.size,
+    .tables-list th.size {
+      text-align: right;
     }
 
     .hint {
@@ -115,7 +159,29 @@
       <div id="error" role="alert"></div>
 
       <h2>Tables</h2>
-      <ol id="tables"></ol>
+      <div class="sort-controls">
+        <label for="sortField">Sort by</label>
+        <select id="sortField">
+          <option value="name">Name</option>
+          <option value="size">Size</option>
+        </select>
+
+        <label for="sortDir">Order</label>
+        <select id="sortDir">
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
+      </div>
+
+      <table class="tables-list" aria-label="Tables list">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th class="size">Size</th>
+          </tr>
+        </thead>
+        <tbody id="tables"></tbody>
+      </table>
       <p class="hint">Expected WASM exports: <code>onecd_open</code>, <code>onecd_list_tables_json</code>, <code>onecd_free_string</code></p>
     </div>
   </main>

@@ -60,6 +60,20 @@ void set_error(const std::string& message) {
     g_last_error = message;
 }
 
+uint64_t object_size(const V8Object* file) {
+    return file ? file->get_len() : 0;
+}
+
+uint64_t table_total_size(const Table* table) {
+    if (!table) {
+        return 0;
+    }
+
+    return object_size(table->get_file_data())
+         + object_size(table->get_file_blob())
+         + object_size(table->get_file_index());
+}
+
 } // namespace
 
 extern "C" {
@@ -98,7 +112,7 @@ EMSCRIPTEN_KEEPALIVE const char* onecd_list_tables_json() {
     try {
         const int table_count = g_db->get_numtables();
         std::string json;
-        json.reserve(static_cast<size_t>(table_count) * 24 + 2);
+        json.reserve(static_cast<size_t>(table_count) * 64 + 2);
         json.push_back('[');
 
         for (int i = 0; i < table_count; ++i) {
@@ -107,9 +121,14 @@ EMSCRIPTEN_KEEPALIVE const char* onecd_list_tables_json() {
             }
 
             Table* table = g_db->get_table(i);
-            json.push_back('"');
-            json += json_escape(table ? table->get_name() : std::string());
-            json.push_back('"');
+            const std::string table_name = table ? table->get_name() : std::string();
+            const uint64_t table_size = table_total_size(table);
+
+            json += "{\"name\":\"";
+            json += json_escape(table_name);
+            json += "\",\"size\":";
+            json += std::to_string(table_size);
+            json.push_back('}');
         }
 
         json.push_back(']');
