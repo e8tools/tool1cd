@@ -1,3 +1,24 @@
+/*
+Tool1CD library provides access to 1CD database files.
+    Copyright © 2009-2017 awa
+    Copyright © 2017-2018 E8 Tools contributors
+
+    This file is part of Tool1CD Library.
+
+    Tool1CD Library is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Tool1CD Library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with Tool1CD Library.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "Class_1CD.h"
 #include "Field.h"
 #include "Table.h"
@@ -7,6 +28,7 @@
 #include <exception>
 #include <string>
 #include <vector>
+#include <memory>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
@@ -16,13 +38,16 @@
 
 namespace {
 
-T_1CD* g_db = nullptr;
+std::unique_ptr<T_1CD> g_db;
 std::string g_last_error;
 
-char* dup_cstr(const std::string& s) {
-    char* out = static_cast<char*>(std::malloc(s.size() + 1));
+char *dup_cstr(const std::string &s) {
+    char *out = static_cast<char *>(std::malloc(s.size() + 1));
     if (!out) {
-        return nullptr;
+        out = static_cast<char *>(std::malloc(1));
+        if (!out) return nullptr; // is it possible?
+        out[0] = '\0';
+        return out;
     }
 
     std::memcpy(out, s.c_str(), s.size() + 1);
@@ -95,28 +120,23 @@ Table* find_table_by_name(const std::string& table_name) {
 } // namespace
 
 extern "C" {
-
-EMSCRIPTEN_KEEPALIVE int onecd_open(const char* path) {
+EMSCRIPTEN_KEEPALIVE int onecd_open(const char *path) {
     if (!path || !*path) {
         set_error("onecd_open: empty path");
         return -1;
     }
 
     try {
-        delete g_db;
-        g_db = new T_1CD();
-        g_db->open(path, false);
+        std::unique_ptr<T_1CD> db(new T_1CD());
+        db->open(path, false);
+        g_db = std::move(db);
         g_last_error.clear();
         return 0;
-    } catch (const std::exception& ex) {
+    } catch (const std::exception &ex) {
         set_error(ex.what());
-        delete g_db;
-        g_db = nullptr;
         return -2;
     } catch (...) {
         set_error("onecd_open: unknown error");
-        delete g_db;
-        g_db = nullptr;
         return -3;
     }
 }
@@ -274,8 +294,7 @@ EMSCRIPTEN_KEEPALIVE const char* onecd_last_error() {
 }
 
 EMSCRIPTEN_KEEPALIVE void onecd_close() {
-    delete g_db;
-    g_db = nullptr;
+    g_db.reset();
     g_last_error.clear();
 }
 

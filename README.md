@@ -103,13 +103,6 @@ sudo apt-get install ctool1cd
 
 ## WebAssembly (браузерный просмотр таблиц)
 
-В репозитории добавлен минимальный web-пример:
-
-- `web/index.html` - страница с загрузкой `.1CD` файла
-- `web/app.js` - вызовы WASM API и вывод списка таблиц
-- `src/tool1cd/wasm_api.cpp` - C API-обертка над `T_1CD`
-- `web/build-wasm.sh` - сборка `parser.js`/`parser.wasm`
-
 ### Что нужно для сборки
 
 1. Активированный Emscripten (`em++` в `PATH`)
@@ -120,15 +113,12 @@ sudo apt-get install ctool1cd
 ```sh
 BOOST_WASM_ROOT=/path/to/boost-wasm ./web/build-wasm.sh
 ```
-
 После успешной сборки появятся:
 
 - `web/parser.js`
 - `web/parser.wasm`
 
 ### Локальный запуск
-
-Нужно запускать через HTTP-сервер (не через `file://`):
 
 ```sh
 cd web
@@ -138,16 +128,3 @@ python3 -m http.server 8080
 Открыть в браузере:
 
 `http://localhost:8080`
-
-### Экспортируемые функции WASM
-
-`web/app.js` ожидает наличие функций:
-
-- `onecd_open`
-- `onecd_list_tables_json`
-- `onecd_free_string`
-
-Дополнительно в `wasm_api.cpp` есть:
-
-- `onecd_last_error`
-- `onecd_close`

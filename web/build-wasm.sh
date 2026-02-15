@@ -38,13 +38,13 @@ TOOL1CD_SOURCES=(
   SystemClasses/System.IOUtils.cpp SystemClasses/TFileStream.cpp SystemClasses/TMemoryStream.cpp
   SystemClasses/TStream.cpp SystemClasses/TStreamReader.cpp SystemClasses/TStreamWriter.cpp
   SystemClasses/System.SysUtils.cpp SystemClasses/GetTickCount.cpp
-  wasm_api.cpp
 )
 
 ABS_SOURCES=()
 for src in "${TOOL1CD_SOURCES[@]}"; do
   ABS_SOURCES+=("$SRC_DIR/$src")
 done
+ABS_SOURCES+=("$OUT_DIR/wasm_api.cpp")
 
 mkdir -p "$OUT_DIR"
 
