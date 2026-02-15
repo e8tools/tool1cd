@@ -62,7 +62,7 @@ em++ \
   -sMODULARIZE=0 \
   -sEXPORT_ES6=0 \
   -sNO_EXIT_RUNTIME=1 \
-  -sEXPORTED_FUNCTIONS="['_malloc','_free','_onecd_open','_onecd_list_tables_json','_onecd_last_error','_onecd_close','_onecd_free_string']" \
+  -sEXPORTED_FUNCTIONS="['_malloc','_free','_onecd_open','_onecd_list_tables_json','_onecd_get_table_rows_json','_onecd_last_error','_onecd_close','_onecd_free_string']" \
   -sEXPORTED_RUNTIME_METHODS="['FS','cwrap','UTF8ToString']" \
   -o "$OUT_DIR/parser.js"
 

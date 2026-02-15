@@ -5,9 +5,15 @@ const openBtn = document.getElementById("openBtn");
 const tablesEl = document.getElementById("tables");
 const sortFieldEl = document.getElementById("sortField");
 const sortDirEl = document.getElementById("sortDir");
+const tableMetaEl = document.getElementById("tableMeta");
+const tableContentHeadEl = document.getElementById("tableContentHead");
+const tableContentBodyEl = document.getElementById("tableContentBody");
 
 let api = null;
 let currentTables = [];
+let selectedTableName = "";
+let currentWasmPath = "";
+const TABLE_PREVIEW_LIMIT = 100;
 
 function setStatus(message) {
   statusEl.textContent = message;
@@ -25,6 +31,12 @@ function clearError() {
 
 function clearTables() {
   tablesEl.replaceChildren();
+}
+
+function clearTableContent() {
+  tableContentHeadEl.replaceChildren();
+  tableContentBodyEl.replaceChildren();
+  tableMetaEl.textContent = "Select a table to preview first 100 rows.";
 }
 
 function formatSize(bytes) {
@@ -162,6 +174,7 @@ function renderTables() {
 
   for (const table of sortedTables()) {
     const tr = document.createElement("tr");
+    tr.classList.toggle("active", table.name === selectedTableName);
 
     const nameTd = document.createElement("td");
     const fallbackName =
@@ -179,8 +192,59 @@ function renderTables() {
 
     tr.appendChild(nameTd);
     tr.appendChild(sizeTd);
+    tr.addEventListener("click", () => {
+      void loadTableContent(table.name);
+    });
     tablesEl.appendChild(tr);
   }
+}
+
+function renderTableContent(payload) {
+  tableContentHeadEl.replaceChildren();
+  tableContentBodyEl.replaceChildren();
+
+  const fields = Array.isArray(payload?.fields) ? payload.fields : [];
+  const rows = Array.isArray(payload?.rows) ? payload.rows : [];
+
+  const headerRow = document.createElement("tr");
+  const rowNumTh = document.createElement("th");
+  rowNumTh.className = "rownum";
+  rowNumTh.textContent = "#";
+  headerRow.appendChild(rowNumTh);
+
+  for (const field of fields) {
+    const th = document.createElement("th");
+    th.textContent = String(field?.name ?? "");
+    headerRow.appendChild(th);
+  }
+  tableContentHeadEl.appendChild(headerRow);
+
+  for (const row of rows) {
+    const tr = document.createElement("tr");
+    if (row?.deleted) {
+      tr.classList.add("deleted");
+    }
+
+    const rowNumTd = document.createElement("td");
+    rowNumTd.className = "rownum";
+    rowNumTd.textContent = String(row?.row ?? "");
+    tr.appendChild(rowNumTd);
+
+    const values = Array.isArray(row?.values) ? row.values : [];
+    for (const value of values) {
+      const td = document.createElement("td");
+      td.textContent = String(value ?? "");
+      tr.appendChild(td);
+    }
+
+    tableContentBodyEl.appendChild(tr);
+  }
+
+  const offset = Number(payload?.offset) || 0;
+  const totalRows = Number(payload?.totalRows) || 0;
+  const shownTo = Math.min(offset + rows.length, totalRows);
+  tableMetaEl.textContent =
+    `${payload?.table ?? ""}: showing ${offset}-${shownTo} of ${totalRows} rows`;
 }
 
 function bindApi(Module) {
@@ -196,13 +260,17 @@ function bindApi(Module) {
 
   const open = wrap("onecd_open", "number", ["string"]);
   const listTablesJsonPtr = wrap("onecd_list_tables_json", "number", []);
+  const getTableRowsJsonPtr = wrap("onecd_get_table_rows_json", "number", ["string", "number", "number"]);
+  const close = wrap("onecd_close", null, []);
   const freeString = wrap("onecd_free_string", null, ["number"])
     || (typeof Module._free === "function" ? Module._free : null);
 
   const missing = [];
   if (!open) missing.push("onecd_open");
   if (!listTablesJsonPtr) missing.push("onecd_list_tables_json");
+  if (!getTableRowsJsonPtr) missing.push("onecd_get_table_rows_json");
   if (!freeString) missing.push("onecd_free_string");
+  if (!close) missing.push("onecd_close");
   if (missing.length) {
     throw new Error(
       `Missing WASM exports: ${missing.join(", ")}. ` +
@@ -213,6 +281,8 @@ function bindApi(Module) {
   return {
     open,
     listTablesJsonPtr,
+    getTableRowsJsonPtr,
+    close,
     freeString,
     utf8ToString: Module.UTF8ToString.bind(Module),
     FS: Module.FS,
@@ -258,9 +328,44 @@ function readTablesJson() {
   }
 }
 
+function readTableRowsJson(tableName, offset = 0, limit = TABLE_PREVIEW_LIMIT) {
+  const ptr = api.getTableRowsJsonPtr(tableName, offset, limit);
+  if (!ptr) {
+    throw new Error("onecd_get_table_rows_json returned null pointer");
+  }
+
+  try {
+    const jsonText = api.utf8ToString(ptr);
+    const parsed = JSON.parse(jsonText);
+    if (parsed && typeof parsed === "object" && parsed.error) {
+      throw new Error(String(parsed.error));
+    }
+    return parsed;
+  } finally {
+    api.freeString(ptr);
+  }
+}
+
+async function loadTableContent(tableName) {
+  clearError();
+  setStatus(`Loading rows from ${tableName}...`);
+  try {
+    const payload = readTableRowsJson(tableName, 0, TABLE_PREVIEW_LIMIT);
+    selectedTableName = tableName;
+    renderTables();
+    renderTableContent(payload);
+    setStatus(`Loaded ${tableName} preview`);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    showError(message);
+    setStatus("Failed to load table content.");
+  }
+}
+
 async function onOpenClick() {
   clearError();
   clearTables();
+  clearTableContent();
 
   const file = fileInput.files?.[0];
   if (!file) {
@@ -271,6 +376,20 @@ async function onOpenClick() {
   const wasmPath = `/tmp/${file.name}`;
 
   try {
+    if (currentWasmPath) {
+      try {
+        api.close();
+      } catch (_) {
+        // Ignore close errors.
+      }
+      try {
+        api.FS.unlink(currentWasmPath);
+      } catch (_) {
+        // Ignore cleanup errors.
+      }
+      currentWasmPath = "";
+    }
+
     setStatus("Reading selected file...");
     const bytes = await fileToUint8Array(file);
 
@@ -286,13 +405,15 @@ async function onOpenClick() {
     setStatus("Loading table list...");
     const parsed = readTablesJson();
     currentTables = normalizeTables(parsed);
+    selectedTableName = "";
     renderTables();
+    clearTableContent();
+    currentWasmPath = wasmPath;
     setStatus(`Loaded ${currentTables.length} tables from ${file.name}`);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     showError(message);
     setStatus("Failed to open file.");
-  } finally {
     try {
       api.FS.unlink(wasmPath);
     } catch (_) {
@@ -304,6 +425,7 @@ async function onOpenClick() {
 async function main() {
   clearError();
   clearTables();
+  clearTableContent();
   openBtn.disabled = true;
 
   try {

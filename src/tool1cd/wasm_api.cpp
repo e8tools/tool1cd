@@ -1,10 +1,12 @@
 #include "Class_1CD.h"
+#include "Field.h"
 #include "Table.h"
 
 #include <cstdlib>
 #include <cstring>
 #include <exception>
 #include <string>
+#include <vector>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
@@ -74,6 +76,22 @@ uint64_t table_total_size(const Table* table) {
          + object_size(table->get_file_index());
 }
 
+Table* find_table_by_name(const std::string& table_name) {
+    if (!g_db || !g_db->is_open()) {
+        return nullptr;
+    }
+
+    const int table_count = g_db->get_numtables();
+    for (int i = 0; i < table_count; ++i) {
+        Table* table = g_db->get_table(i);
+        if (table && table->get_name() == table_name) {
+            return table;
+        }
+    }
+
+    return nullptr;
+}
+
 } // namespace
 
 extern "C" {
@@ -140,6 +158,114 @@ EMSCRIPTEN_KEEPALIVE const char* onecd_list_tables_json() {
     } catch (...) {
         set_error("onecd_list_tables_json: unknown error");
         return dup_cstr("[]");
+    }
+}
+
+EMSCRIPTEN_KEEPALIVE const char* onecd_get_table_rows_json(const char* table_name, int offset, int limit) {
+    if (!g_db || !g_db->is_open()) {
+        set_error("Database is not open");
+        return dup_cstr("{\"error\":\"Database is not open\"}");
+    }
+
+    if (!table_name || !*table_name) {
+        set_error("onecd_get_table_rows_json: empty table name");
+        return dup_cstr("{\"error\":\"empty table name\"}");
+    }
+
+    if (offset < 0) {
+        offset = 0;
+    }
+    if (limit <= 0) {
+        limit = 100;
+    }
+    if (limit > 200) {
+        limit = 200;
+    }
+
+    try {
+        Table* table = find_table_by_name(table_name);
+        if (!table) {
+            set_error(std::string("Table not found: ") + table_name);
+            return dup_cstr("{\"error\":\"table not found\"}");
+        }
+
+        const uint32_t total_rows = table->get_phys_numrecords();
+        const int field_count = table->get_num_fields();
+        const int start = offset > static_cast<int>(total_rows) ? static_cast<int>(total_rows) : offset;
+        const int end = (start + limit) > static_cast<int>(total_rows)
+                      ? static_cast<int>(total_rows)
+                      : (start + limit);
+
+        std::string json;
+        json.reserve(static_cast<size_t>(field_count) * 64 + static_cast<size_t>(end - start) * 256 + 256);
+        json += "{\"table\":\"";
+        json += json_escape(table->get_name());
+        json += "\",\"offset\":";
+        json += std::to_string(start);
+        json += ",\"limit\":";
+        json += std::to_string(limit);
+        json += ",\"totalRows\":";
+        json += std::to_string(total_rows);
+        json += ",\"fields\":[";
+
+        for (int i = 0; i < field_count; ++i) {
+            if (i > 0) {
+                json.push_back(',');
+            }
+            Field* field = table->get_field(i);
+            json += "{\"name\":\"";
+            json += json_escape(field ? field->get_name() : std::string());
+            json += "\"}";
+        }
+
+        json += "],\"rows\":[";
+        std::vector<char> record_buf(static_cast<size_t>(table->get_recordlen()));
+
+        for (int row = start; row < end; ++row) {
+            if (row > start) {
+                json.push_back(',');
+            }
+
+            table->get_record(static_cast<uint32_t>(row), record_buf.data());
+
+            json += "{\"row\":";
+            json += std::to_string(row);
+            json += ",\"deleted\":";
+            json += (record_buf[0] != '\0') ? "true" : "false";
+            json += ",\"values\":[";
+
+            for (int col = 0; col < field_count; ++col) {
+                if (col > 0) {
+                    json.push_back(',');
+                }
+
+                Field* field = table->get_field(col);
+                std::string value;
+                try {
+                    value = field ? field->get_presentation(record_buf.data()) : std::string();
+                } catch (const std::exception& ex) {
+                    value = std::string("{ERROR: ") + ex.what() + "}";
+                } catch (...) {
+                    value = "{ERROR}";
+                }
+
+                json.push_back('"');
+                json += json_escape(value);
+                json.push_back('"');
+            }
+
+            json += "]}";
+        }
+
+        json += "]}";
+        g_last_error.clear();
+        return dup_cstr(json);
+    } catch (const std::exception& ex) {
+        set_error(ex.what());
+        return dup_cstr("{\"error\":\"internal error\"}");
+    } catch (...) {
+        set_error("onecd_get_table_rows_json: unknown error");
+        return dup_cstr("{\"error\":\"unknown error\"}");
     }
 }
 

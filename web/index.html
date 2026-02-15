@@ -133,9 +133,70 @@
       padding: 0.5rem 0.25rem;
     }
 
+    .tables-list tbody tr {
+      cursor: pointer;
+    }
+
+    .tables-list tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .tables-list tbody tr.active {
+      background: #ecfeff;
+    }
+
     .tables-list td.size,
     .tables-list th.size {
       text-align: right;
+    }
+
+    #tableMeta {
+      margin: 0.5rem 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .table-content-wrap {
+      overflow: auto;
+      max-height: 50vh;
+      border: 1px solid #eef2f7;
+      border-radius: 8px;
+    }
+
+    .table-content {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table-content th,
+    .table-content td {
+      border-bottom: 1px solid #eef2f7;
+      padding: 0.4rem 0.5rem;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      vertical-align: top;
+    }
+
+    .table-content th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #f9fafb;
+      color: var(--muted);
+      text-align: left;
+    }
+
+    .table-content .rownum {
+      color: var(--muted);
+      text-align: right;
+      min-width: 4rem;
+    }
+
+    .table-content tr.deleted td {
+      color: #9ca3af;
+      font-style: italic;
     }
 
     .hint {
@@ -182,7 +243,17 @@
         </thead>
         <tbody id="tables"></tbody>
       </table>
-      <p class="hint">Expected WASM exports: <code>onecd_open</code>, <code>onecd_list_tables_json</code>, <code>onecd_free_string</code></p>
+      <p class="hint">Click a table name to view rows.</p>
+
+      <h2>Table Content</h2>
+      <p id="tableMeta">Select a table to preview first 100 rows.</p>
+      <div class="table-content-wrap">
+        <table class="table-content" aria-label="Selected table content">
+          <thead id="tableContentHead"></thead>
+          <tbody id="tableContentBody"></tbody>
+        </table>
+      </div>
+      <p class="hint">Expected WASM exports: <code>onecd_open</code>, <code>onecd_list_tables_json</code>, <code>onecd_get_table_rows_json</code>, <code>onecd_free_string</code></p>
     </div>
   </main>
 
