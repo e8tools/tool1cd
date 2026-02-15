@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>1CD Tables Viewer</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --accent: #0f766e;
+      --accent-hover: #0b5f58;
+      --error-bg: #fee2e2;
+      --error-text: #991b1b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: white;
+      border-radius: 8px;
+      padding: 0.55rem 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover { background: var(--accent-hover); }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin: 0 0 1rem;
+      color: var(--muted);
+      min-height: 1.2rem;
+    }
+
+    #error {
+      display: none;
+      margin: 0 0 1rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      background: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid #fca5a5;
+      white-space: pre-wrap;
+    }
+
+    #tables {
+      margin: 0;
+      padding-left: 1.25rem;
+      max-height: 60vh;
+      overflow: auto;
+    }
+
+    #tables li {
+      margin: 0.25rem 0;
+      font-family: Consolas, Monaco, monospace;
+    }
+
+    .hint {
+      color: var(--muted);
+      margin-top: 0.75rem;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="card">
+      <h1>1CD Tables Viewer</h1>
+
+      <div class="controls">
+        <input id="fileInput" type="file" accept=".1cd,.1CD" />
+        <button id="openBtn" type="button" disabled>Open and Show Tables</button>
+      </div>
+
+      <p id="status">Loading WASM runtime...</p>
+      <div id="error" role="alert"></div>
+
+      <h2>Tables</h2>
+      <ol id="tables"></ol>
+      <p class="hint">Expected WASM exports: <code>onecd_open</code>, <code>onecd_list_tables_json</code>, <code>onecd_free_string</code></p>
+    </div>
+  </main>
+
+  <!-- Replace parser.js with your generated Emscripten JS loader file -->
+  <script src="./parser.js"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
