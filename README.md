@@ -100,31 +100,3 @@ sudo apt-get install ctool1cd
 
 Если в пути содержатся пробелы, его необходимо заключать в кавычки. Пути следует указывать без завершающего слеша `/` и бэкслеша `\`
 Для команд `-dc`, `-ddc`, `-drc` вместо пути можно указывать имя файла конфигурации (имя файла должно заканчиваться на `.cf`).
-
-## WebAssembly (браузерный просмотр таблиц)
-
-### Что нужно для сборки
-
-1. Активированный Emscripten (`em++` в `PATH`)
-2. Boost, собранный под target Emscripten (нужны `filesystem`, `system`, `regex`)
-
-### Сборка WASM
-
-```sh
-BOOST_WASM_ROOT=/path/to/boost-wasm ./web/build-wasm.sh
-```
-После успешной сборки появятся:
-
-- `web/parser.js`
-- `web/parser.wasm`
-
-### Локальный запуск
-
-```sh
-cd web
-python3 -m http.server 8080
-```
-
-Открыть в браузере:
-
-`http://localhost:8080`
