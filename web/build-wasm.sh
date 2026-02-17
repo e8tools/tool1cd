@@ -56,9 +56,10 @@ em++ \
   -L"$BOOST_WASM_ROOT/lib" \
   -lboost_filesystem -lboost_system -lboost_regex \
   -sUSE_ZLIB=1 \
+  -lworkerfs.js \
   -sFORCE_FILESYSTEM=1 \
   -sALLOW_MEMORY_GROWTH=1 \
-  -sENVIRONMENT=web \
+  -sENVIRONMENT=web,worker \
   -sMODULARIZE=0 \
   -sEXPORT_ES6=0 \
   -sNO_EXIT_RUNTIME=1 \

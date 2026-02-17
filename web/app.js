@@ -9,10 +9,11 @@ const tableMetaEl = document.getElementById("tableMeta");
 const tableContentHeadEl = document.getElementById("tableContentHead");
 const tableContentBodyEl = document.getElementById("tableContentBody");
 
-let api = null;
+let worker = null;
+let requestSeq = 1;
+const pendingRequests = new Map();
 let currentTables = [];
 let selectedTableName = "";
-let currentWasmPath = "";
 const TABLE_PREVIEW_LIMIT = 100;
 
 function setStatus(message) {
@@ -247,110 +248,53 @@ function renderTableContent(payload) {
     `${payload?.table ?? ""}: showing ${offset}-${shownTo} of ${totalRows} rows`;
 }
 
-function bindApi(Module) {
-  const hasCwrap = typeof Module.cwrap === "function";
-  const wrap = (name, returnType, argTypes) => {
-    if (hasCwrap) {
-      const fn = Module.cwrap(name, returnType, argTypes);
-      if (typeof fn === "function") return fn;
+function initWorker() {
+  worker = new Worker("./wasm_worker.js");
+
+  worker.addEventListener("message", (event) => {
+    const message = event.data || {};
+    const request = pendingRequests.get(message.id);
+    if (!request) {
+      return;
     }
-    const direct = Module[`_${name}`];
-    return typeof direct === "function" ? direct : null;
-  };
-
-  const open = wrap("onecd_open", "number", ["string"]);
-  const listTablesJsonPtr = wrap("onecd_list_tables_json", "number", []);
-  const getTableRowsJsonPtr = wrap("onecd_get_table_rows_json", "number", ["string", "number", "number"]);
-  const close = wrap("onecd_close", null, []);
-  const freeString = wrap("onecd_free_string", null, ["number"])
-    || (typeof Module._free === "function" ? Module._free : null);
-
-  const missing = [];
-  if (!open) missing.push("onecd_open");
-  if (!listTablesJsonPtr) missing.push("onecd_list_tables_json");
-  if (!getTableRowsJsonPtr) missing.push("onecd_get_table_rows_json");
-  if (!freeString) missing.push("onecd_free_string");
-  if (!close) missing.push("onecd_close");
-  if (missing.length) {
-    throw new Error(
-      `Missing WASM exports: ${missing.join(", ")}. ` +
-      "Rebuild and refresh parser.js/parser.wasm."
-    );
-  }
-
-  return {
-    open,
-    listTablesJsonPtr,
-    getTableRowsJsonPtr,
-    close,
-    freeString,
-    utf8ToString: Module.UTF8ToString.bind(Module),
-    FS: Module.FS,
-  };
-}
-
-async function initModule() {
-  if (typeof Module === "undefined") {
-    throw new Error("parser.js did not define global Module");
-  }
-
-  const runtimeReady =
-    typeof Module.ready === "object" && typeof Module.ready.then === "function"
-      ? Module.ready
-      : new Promise((resolve) => {
-          const previous = Module.onRuntimeInitialized;
-          Module.onRuntimeInitialized = () => {
-            if (typeof previous === "function") previous();
-            resolve();
-          };
-        });
-
-  await runtimeReady;
-  api = bindApi(Module);
-}
-
-async function fileToUint8Array(file) {
-  const buf = await file.arrayBuffer();
-  return new Uint8Array(buf);
-}
-
-function readTablesJson() {
-  const ptr = api.listTablesJsonPtr();
-  if (!ptr) {
-    throw new Error("onecd_list_tables_json returned null pointer");
-  }
-
-  try {
-    const jsonText = api.utf8ToString(ptr);
-    return JSON.parse(jsonText);
-  } finally {
-    api.freeString(ptr);
-  }
-}
-
-function readTableRowsJson(tableName, offset = 0, limit = TABLE_PREVIEW_LIMIT) {
-  const ptr = api.getTableRowsJsonPtr(tableName, offset, limit);
-  if (!ptr) {
-    throw new Error("onecd_get_table_rows_json returned null pointer");
-  }
-
-  try {
-    const jsonText = api.utf8ToString(ptr);
-    const parsed = JSON.parse(jsonText);
-    if (parsed && typeof parsed === "object" && parsed.error) {
-      throw new Error(String(parsed.error));
+    pendingRequests.delete(message.id);
+    if (message.ok) {
+      request.resolve(message.result);
+    } else {
+      request.reject(new Error(String(message.error || "Unknown worker error")));
     }
-    return parsed;
-  } finally {
-    api.freeString(ptr);
+  });
+
+  worker.addEventListener("error", (event) => {
+    const message = event.message || "WASM worker crashed";
+    for (const request of pendingRequests.values()) {
+      request.reject(new Error(message));
+    }
+    pendingRequests.clear();
+  });
+}
+
+function workerCall(method, params = {}) {
+  if (!worker) {
+    return Promise.reject(new Error("WASM worker is not initialized"));
   }
+
+  return new Promise((resolve, reject) => {
+    const id = requestSeq++;
+    pendingRequests.set(id, { resolve, reject });
+    worker.postMessage({ id, method, params });
+  });
 }
 
 async function loadTableContent(tableName) {
   clearError();
   setStatus(`Loading rows from ${tableName}...`);
   try {
-    const payload = readTableRowsJson(tableName, 0, TABLE_PREVIEW_LIMIT);
+    const payload = await workerCall("getTableRows", {
+      tableName,
+      offset: 0,
+      limit: TABLE_PREVIEW_LIMIT,
+    });
     selectedTableName = tableName;
     renderTables();
     renderTableContent(payload);
@@ -373,52 +317,24 @@ async function onOpenClick() {
     return;
   }
 
-  const wasmPath = `/tmp/${file.name}`;
-
+  openBtn.disabled = true;
   try {
-    if (currentWasmPath) {
-      try {
-        api.close();
-      } catch (_) {
-        // Ignore close errors.
-      }
-      try {
-        api.FS.unlink(currentWasmPath);
-      } catch (_) {
-        // Ignore cleanup errors.
-      }
-      currentWasmPath = "";
-    }
-
-    setStatus("Reading selected file...");
-    const bytes = await fileToUint8Array(file);
-
-    setStatus("Writing file to WASM FS...");
-    api.FS.writeFile(wasmPath, bytes);
-
-    setStatus("Opening 1CD file...");
-    const openResult = api.open(wasmPath);
-    if (openResult !== 0) {
-      throw new Error(`onecd_open failed with code ${openResult}`);
-    }
+    setStatus("Mounting selected file in WORKERFS...");
+    await workerCall("openFile", { file });
 
     setStatus("Loading table list...");
-    const parsed = readTablesJson();
+    const parsed = await workerCall("listTables");
     currentTables = normalizeTables(parsed);
     selectedTableName = "";
     renderTables();
     clearTableContent();
-    currentWasmPath = wasmPath;
     setStatus(`Loaded ${currentTables.length} tables from ${file.name}`);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     showError(message);
     setStatus("Failed to open file.");
-    try {
-      api.FS.unlink(wasmPath);
-    } catch (_) {
-      // Ignore cleanup errors.
-    }
+  } finally {
+    openBtn.disabled = false;
   }
 }
 
@@ -429,8 +345,9 @@ async function main() {
   openBtn.disabled = true;
 
   try {
-    await initModule();
-    setStatus("WASM runtime is ready.");
+    initWorker();
+    await workerCall("init");
+    setStatus("WASM worker runtime is ready.");
     openBtn.disabled = false;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -453,6 +370,12 @@ sortFieldEl.addEventListener("change", () => {
 
 sortDirEl.addEventListener("change", () => {
   renderTables();
+});
+
+window.addEventListener("beforeunload", () => {
+  if (worker) {
+    worker.terminate();
+  }
 });
 
 void main();
