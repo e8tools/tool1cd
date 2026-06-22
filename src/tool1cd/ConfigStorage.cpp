@@ -19,6 +19,7 @@
     along with Tool1CD Library.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <memory>
+#include <cstdlib>
 
 #include "ConfigStorage.h"
 #include "Common.h"
@@ -593,6 +594,8 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 
 	present = tabf->get_table()->get_base()->get_filename() + "\\config";
 
+	bool nodynup = getenv("TOOL1CD_NODYNUP") != nullptr;
+
 	tab = tabf->get_table();
 	_DynamicallyUpdated = tabf->get_file("DynamicallyUpdated");
 
@@ -661,6 +664,8 @@ ConfigStorageTableConfig::ConfigStorageTableConfig(TableFiles* tabf, T_1CD* _bas
 			name += spoint;
 			name += ext;
 		}
+
+		if(nodynup && dynno != -1) continue;
 
 		auto pfiles = files.find(LowerCase(name));
 		if (pfiles == files.end())
@@ -742,6 +747,8 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 	tab = tabc->get_table();
 	_DynamicallyUpdated = tabc->get_file("DynamicallyUpdated");
 
+	bool nodynup = getenv("TOOL1CD_NODYNUP") != nullptr;
+
 	std::vector<BinaryGuid> dynup;
 	if(_DynamicallyUpdated)
 	{
@@ -822,6 +829,8 @@ ConfigStorageTableConfigSave::ConfigStorageTableConfigSave(TableFiles* tabc, Tab
 		if (!ext.empty()) {
 			name.append(spoint).append(ext);
 		}
+
+		if(nodynup && dynno != -1) continue;
 
 		auto pfiles = files.find(LowerCase(name));
 		if(pfiles == files.end())
