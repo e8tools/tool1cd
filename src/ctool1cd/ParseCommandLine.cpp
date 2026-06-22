@@ -74,6 +74,10 @@ CommandDefinition CommandParse::definitions[] =
 	{"savelostobjects",    Command::find_and_save_lost_objects, 1, ""}, // 37
 	{"sts",                Command::save_tables_size,           1, ""}, // 38
 	{"savetablessize",     Command::save_tables_size,           1, ""}, // 39
+	{"ct",                 Command::clear_table,                1, ""}, // 40
+	{"cleartable",         Command::clear_table,                1, ""}, // 41
+	{"dr",                 Command::delete_one_record,          2, ""}, // 42
+	{"deleterecord",       Command::delete_one_record,          2, ""}, // 43
 };
 
 

@@ -30,6 +30,8 @@
 #include "ParseCommandLine.h"
 #include "ErrorCode.h"
 #include "Messenger.h"
+#include "Table.h"
+#include "TableRecord.h"
 
 extern Registrator msreg_g;
 
@@ -287,6 +289,56 @@ void App::import_from_binary(const ParsedCommand &pc)
 	}
 
 } // import_from_binary
+
+void App::clear_table(const ParsedCommand &pc)
+{
+	const string tname = LowerCase(pc.param1);
+	for (int j = 0; j < base1CD->get_numtables(); j++) {
+		Table *tbl = base1CD->get_table(j);
+		if (LowerCase(tbl->get_name()) != tname) {
+			continue;
+		}
+		tbl->begin_edit();
+		uint32_t total = tbl->get_phys_numrecords();
+		uint32_t deleted = 0;
+		for (uint32_t i = 1; i < total; i++) {
+			TableRecord *rec = tbl->get_record(i);
+			bool removed = rec->is_removed();
+			delete rec;
+			if (!removed) {
+				tbl->mark_record_removed(i);
+				deleted++;
+			}
+		}
+		base1CD->flush();
+		msreg_g.AddMessage("Очистка таблицы выполнена.", MessageState::Succesfull)
+				.with("Таблица", tbl->get_name())
+				.with("Удалено записей", (int)deleted)
+				.with("Физических записей всего", (int)total);
+		return;
+	}
+	msreg_g.AddError("Таблица для очистки не найдена.").with("Таблица", pc.param1);
+}
+
+void App::delete_one_record(const ParsedCommand &pc)
+{
+	const string tname = LowerCase(pc.param1);
+	uint32_t idx = (uint32_t)strtoul(pc.param2.c_str(), nullptr, 10);
+	for (int j = 0; j < base1CD->get_numtables(); j++) {
+		Table *tbl = base1CD->get_table(j);
+		if (LowerCase(tbl->get_name()) != tname) {
+			continue;
+		}
+		tbl->begin_edit();
+		tbl->mark_record_removed(idx);
+		base1CD->flush();
+		msreg_g.AddMessage("Запись помечена удалённой.", MessageState::Succesfull)
+				.with("Таблица", tbl->get_name())
+				.with("Физический номер записи", (int)idx);
+		return;
+	}
+	msreg_g.AddError("Таблица не найдена.").with("Таблица", pc.param1);
+}
 
 void App::save_config(const boost::filesystem::path& param_path)
 {
@@ -658,6 +710,14 @@ int App::Run()
 				}
 				case Command::save_tables_size: {
 					save_tables_sizes(pc);
+					break;
+				}
+				case Command::clear_table: {
+					clear_table(pc);
+					break;
+				}
+				case Command::delete_one_record: {
+					delete_one_record(pc);
 					break;
 				}
 			}

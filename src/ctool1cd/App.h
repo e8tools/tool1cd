@@ -73,6 +73,10 @@ private:
 
 	void save_tables_sizes(const ParsedCommand& pc);
 
+	void clear_table(const ParsedCommand& pc);
+
+	void delete_one_record(const ParsedCommand& pc);
+
 	inline bool is_infobase() const;
 
 };
