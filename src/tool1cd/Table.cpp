@@ -442,7 +442,7 @@ void Table::init(int32_t block_descr)
 
 	if(file_data)
 	{
-		if(phys_numrecords * recordlen != file_data->get_len())
+		if((uint64_t)phys_numrecords * (uint64_t)recordlen != file_data->get_len())
 		{
 			throw DetailedException("Длина таблицы не кратна длине записи.")
 				.add_detail("Блок", to_hex_string(block_descr))
@@ -1208,9 +1208,7 @@ void Table::import_table(const boost::filesystem::path &path)
 				descr_changed = true;
 			}
 			file_data->set_data(f);
-			ob = (v8ob*)base->get_block_for_write(file_data->get_block_number(), true);
-			ob->version.version_1 = root.data_version_1;
-			ob->version.version_2 = root.data_version_2;
+			file_data->set_version(root.data_version_1, root.data_version_2);
 			delete f;
 		}
 	}
@@ -1235,9 +1233,7 @@ void Table::import_table(const boost::filesystem::path &path)
 				descr_changed = true;
 			}
 			file_blob->set_data(f);
-			ob = (v8ob*)base->get_block_for_write(file_blob->get_block_number(), true);
-			ob->version.version_1 = root.blob_version_1;
-			ob->version.version_2 = root.blob_version_2;
+			file_blob->set_version(root.blob_version_1, root.blob_version_2);
 			delete f;
 		}
 	}
@@ -1262,9 +1258,7 @@ void Table::import_table(const boost::filesystem::path &path)
 				descr_changed = true;
 			}
 			file_index->set_data(f);
-			ob = (v8ob*)base->get_block_for_write(file_index->get_block_number(), true);
-			ob->version.version_1 = root.index_version_1;
-			ob->version.version_2 = root.index_version_2;
+			file_index->set_version(root.index_version_1, root.index_version_2);
 			delete f;
 		}
 	}
@@ -1286,9 +1280,7 @@ void Table::import_table(const boost::filesystem::path &path)
 		if(fopen)
 		{
 			if(!descr_table) descr_table = new V8Object(base); // вообще, если descr_table == nullptr, то это огромная ошибка!
-			ob = (v8ob*)base->get_block_for_write(descr_table->get_block_number(), true);
-			ob->version.version_1 = root.descr_version_1;
-			ob->version.version_2 = root.descr_version_2;
+			descr_table->set_version(root.descr_version_1, root.descr_version_2);
 
 			auto buf_size = f->GetSize();
 			char *buf = new char[buf_size];
@@ -2009,6 +2001,25 @@ void Table::delete_record(uint32_t phys_numrecord)
 	delete_data_record(phys_numrecord);
 
 	delete rec;
+}
+
+//---------------------------------------------------------------------------
+// Помечает запись удалённой на уровне данных (первый байт записи != 0), не трогая
+// индексы и не разбирая поля. Применяется там, где штатное delete_record невозможно
+// из-за неподдерживаемого ключа сортировки строковых полей (например, V8USERS).
+// Индексные ссылки остаются, но указывают на удалённые записи и платформой пропускаются;
+// при необходимости индексы перестраиваются "Тестированием и исправлением".
+void Table::mark_record_removed(uint32_t phys_numrecord)
+{
+	if(!edit)
+	{
+		throw DetailedException("Попытка пометки записи удалённой не в режиме редактирования.")
+			.add_detail("Таблица", name);
+	}
+	if(!file_data) return;
+	if(phys_numrecord == 0 || phys_numrecord >= phys_numrecords) return;
+	unsigned char removed_flag = 1;
+	file_data->set_data(&removed_flag, (uint64_t)phys_numrecord * recordlen, 1);
 }
 
 //---------------------------------------------------------------------------

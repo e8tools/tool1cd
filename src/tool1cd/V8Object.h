@@ -121,6 +121,7 @@ public:
 	void get_version_rec_and_increase(_version* ver); // получает версию очередной записи и увеличивает сохраненную версию объекта
 	void get_version(_version* ver); // получает сохраненную версию объекта
 	void write_new_version(); // записывает новую версию объекта
+	void set_version(uint32_t v1, uint32_t v2); // устанавливает конкретную версию объекта по верному для формата смещению
 	_version get_current_version() const;
 
 	V8Object* get_next();

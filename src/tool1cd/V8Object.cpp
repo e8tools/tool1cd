@@ -922,6 +922,11 @@ bool V8Object::set_data(TStream* stream)
 					if(curoffobjblock >= offsperpage)
 					{
 						curoffobjblock = 0;
+						if (curobjblock >= blocks.size()) {
+							throw DetailedException("Выход за пределы таблицы размещения при записи объекта")
+								.add_detail("curobjblock", (int)curobjblock)
+								.add_detail("blocks_size", (int)blocks.size());
+						}
 						bb = (objtab838*) base->get_block(blocks[curobjblock++]);
 					}
 				}
@@ -1136,7 +1141,7 @@ void V8Object::set_len(uint64_t _len)
 		len = _len;
 		if(numblocks > 0) {
 			std::copy(std::begin(b->blocks),
-					  std::begin(b->blocks) + (numblocks * 4),
+					  std::begin(b->blocks) + numblocks,
 					  blocks.begin());
 		}
 
@@ -1181,13 +1186,17 @@ void V8Object::set_len(uint64_t _len)
 			// Увеличение длины объекта
 			if(fatlevel == 0 && newfatlevel)
 			{
-				bl = base->get_free_block();
-				bb = (objtab838*)base->get_block_for_write(bl, false);
-				memcpy(bb->blocks, bd->blocks, numblocks * 4);
 				fatlevel = newfatlevel;
 				bd->fatlevel = newfatlevel;
-				bd->blocks[0] = bl;
-				numblocks = 1;
+				if(numblocks > 0)
+				{
+					bl = base->get_free_block();
+					bb = (objtab838*)base->get_block_for_write(bl, false);
+					memcpy(bb->blocks, bd->blocks, numblocks * 4);
+					bd->blocks[0] = bl;
+					numblocks = 1;
+				}
+				else numblocks = 0; // пустой объект: первую страницу размещения выделит цикл ниже
 			}
 			else bb = (objtab838*)base->get_block_for_write(bd->blocks[numblocks - 1], true);
 
@@ -1222,9 +1231,10 @@ void V8Object::set_len(uint64_t _len)
 			// Уменьшение длины объекта
 			if(fatlevel)
 			{
-				bb = (objtab838*)base->get_block_for_write(b->blocks[numblocks - 1], true);
-				for(cur_data_blocks--; cur_data_blocks >= num_data_blocks; cur_data_blocks--)
+				bb = (objtab838*)base->get_block_for_write(bd->blocks[numblocks - 1], true);
+				while(cur_data_blocks > num_data_blocks)
 				{
+					cur_data_blocks--;
 					i = cur_data_blocks % offsperpage;
 					base->set_block_as_free(bb->blocks[i]);
 					bb->blocks[i] = 0;
@@ -1232,14 +1242,15 @@ void V8Object::set_len(uint64_t _len)
 					{
 						base->set_block_as_free(bd->blocks[--numblocks]);
 						bd->blocks[numblocks] = 0;
-						if(numblocks) bb = (objtab838*)base->get_block_for_write(b->blocks[numblocks - 1], true);
+						if(numblocks) bb = (objtab838*)base->get_block_for_write(bd->blocks[numblocks - 1], true);
 					}
 				}
 			}
 			else
 			{
-				for(cur_data_blocks--; cur_data_blocks >= num_data_blocks; cur_data_blocks--)
+				while(cur_data_blocks > num_data_blocks)
 				{
+					cur_data_blocks--;
 					base->set_block_as_free(bd->blocks[cur_data_blocks]);
 					bd->blocks[cur_data_blocks] = 0;
 				}
@@ -1261,9 +1272,10 @@ void V8Object::set_len(uint64_t _len)
 		}
 
 		len = _len;
+		numblocks = num_blocks;
 		if(numblocks > 0) {
 			std::copy(std::begin(bd->blocks),
-					  std::begin(bd->blocks) + (numblocks * 4),
+					  std::begin(bd->blocks) + numblocks,
 					  blocks.begin());
 		}
 
@@ -1279,6 +1291,15 @@ void V8Object::set_block_as_free(uint32_t block_number)
 		// Таблица свободных блоков
 		throw DetailedException("Попытка установки свободного блока в объекте, не являющимся таблицей свободных блоков")
 			.add_detail("Блок объекта", block);
+	}
+
+	if(type == v8objtype::free838)
+	{
+		// Структура списка свободных блоков формата 8.3.8 не реализована для записи.
+		// Освобождаемые блоки оставляем "осиротевшими": объект свободных блоков (блок 1) не меняем,
+		// поэтому он остаётся валидным. Неиспользуемые блоки можно вернуть штатным
+		// "Тестированием и исправлением" платформы. Это безопаснее, чем писать в непонятую структуру.
+		return;
 	}
 
 	uint32_t j = len >> 10; // length / 1024
@@ -1301,7 +1322,7 @@ void V8Object::set_block_as_free(uint32_t block_number)
 		real_numblocks++;
 		blocks.resize(real_numblocks);
 		std::copy(std::begin(ob->blocks),
-				  std::begin(ob->blocks) + (real_numblocks * 4),
+				  std::begin(ob->blocks) + real_numblocks,
 				  blocks.begin());
 	}
 
@@ -1379,6 +1400,19 @@ void V8Object::write_new_version()
 	new_ver.version_1 = version.version_1 + 1;
 	new_ver.version_2 = version.version_2;
 	memcpy(base->get_block_for_write(block, true) + veroffset, &new_ver, 8);
+	new_version_recorded = true;
+}
+
+//---------------------------------------------------------------------------
+void V8Object::set_version(uint32_t v1, uint32_t v2)
+{
+	version.version_1 = v1;
+	version.version_2 = v2;
+	int32_t veroffset = type == v8objtype::data80 || type == v8objtype::free80 ? 12 : 4;
+	_version nv;
+	nv.version_1 = v1;
+	nv.version_2 = v2;
+	memcpy(base->get_block_for_write(block, true) + veroffset, &nv, 8);
 	new_version_recorded = true;
 }
 

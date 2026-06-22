@@ -91,6 +91,10 @@ char*  T_1CD::get_block_for_write(uint32_t block_number, bool read)
 
 
 	if(!fs) return nullptr;
+	if(block_number == 0 && !read)
+	{
+		throw DetailedException("Попытка записи данных в блок 0 (заголовок базы)");
+	}
 	if(block_number > length)
 	{
 		throw DetailedException("Попытка получения блока за пределами файла базы.")
