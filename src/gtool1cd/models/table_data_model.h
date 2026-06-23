@@ -53,6 +53,12 @@ public:
 
 	const TableRecord *getRecord(const QModelIndex &index) const;
 
+	// Физический номер записи в таблице для строки модели
+	uint32_t physicalRecordNo(const QModelIndex &index) const;
+
+	// Сообщить представлению, что строка изменилась (например, помечена удалённой)
+	void notifyRowChanged(int row);
+
 	TStream *getBlobStream(const QModelIndex &index) const;
 
 private:

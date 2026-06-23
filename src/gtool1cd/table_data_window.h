@@ -40,7 +40,13 @@ public:
 	explicit TableDataWindow(QWidget *parent, Table *table);
 	~TableDataWindow();
 
+	void reload(); // перечитать данные таблицы в текущем представлении
+
 private slots:
+
+	void show_data_context_menu(const QPoint &pos);
+
+	void delete_record_action();
 
 	void on_descriptionButton_clicked();
 
