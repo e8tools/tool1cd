@@ -31,6 +31,8 @@
 #include "configurations_window.h"
 #include "about_dialog.h"
 #include <QSortFilterProxyModel>
+#include <QMenu>
+#include <QMessageBox>
 
 void MainWindow::AddDetailedMessage(
         const std::string &description,
@@ -70,7 +72,13 @@ void MainWindow::show_table_context_menu(const QPoint &pos)
 	QAction action_import_blob(tr("Импорт BLOB"), this);
 	connect(&action_import_blob, SIGNAL(triggered()), this, SLOT(import_blob_file()));
 	contextMenu.addAction(&action_import_blob);
-	
+
+	contextMenu.addSeparator();
+
+	QAction action_clear_table(tr("Очистить таблицу"), this);
+	connect(&action_clear_table, SIGNAL(triggered()), this, SLOT(clear_table_action()));
+	contextMenu.addAction(&action_clear_table);
+
 	contextMenu.exec(mapToGlobal(pos));
 }
 
@@ -107,6 +115,58 @@ void MainWindow::import_blob_file()
 		Table *t = db->get_table(index.row());
 		t->import_table(rootpath);
 	}
+}
+
+void MainWindow::clear_table_action()
+{
+	auto indexes = ui->tableListView->selectionModel()->selectedIndexes();
+	if (indexes.empty()) {
+		return;
+	}
+
+	auto *proxy = qobject_cast<QSortFilterProxyModel*>(ui->tableListView->model());
+	QModelIndex src = proxy ? proxy->mapToSource(indexes.first()) : indexes.first();
+	Table *t = db->get_table(src.row());
+
+	if (db->get_readonly()) {
+		QMessageBox::warning(this, tr("Очистка таблицы"),
+		        tr("База открыта только для чтения — очистка невозможна."));
+		return;
+	}
+
+	if (QMessageBox::warning(this, tr("Очистка таблицы"),
+	        tr("Пометить удалёнными ВСЕ записи таблицы «%1»?\nДействие изменяет базу и необратимо.")
+	            .arg(QString::fromStdString(t->get_name())),
+	        QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes) {
+		return;
+	}
+
+	uint32_t deleted = 0;
+	try {
+		t->begin_edit();
+		uint32_t total = t->get_phys_numrecords();
+		for (uint32_t i = 1; i < total; i++) {
+			auto *rec = t->get_record(i);
+			bool removed = rec->is_removed();
+			delete rec;
+			if (!removed) {
+				t->mark_record_removed(i);
+				deleted++;
+			}
+		}
+		db->flush();
+	} catch (DetailedException &ex) {
+		QMessageBox::critical(this, tr("Очистка таблицы"), QString(ex.what()));
+		return;
+	}
+
+	auto it = table_windows.find(t);
+	if (it != table_windows.end()) {
+		static_cast<TableDataWindow*>(it.value())->reload();
+	}
+
+	QMessageBox::information(this, tr("Очистка таблицы"),
+	        tr("Готово. Помечено удалёнными записей: %1.").arg(deleted));
 }
 
 MainWindow::~MainWindow()

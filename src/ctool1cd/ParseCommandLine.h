@@ -47,6 +47,8 @@ enum class Command
 	import_from_binary,         // загрузить таблицы из двоичных файлов, выгруженных экспортом
 	find_and_save_lost_objects, // найти и сохранить потерянные объекты
 	save_tables_size,           // сохранить в файл размеры таблиц
+	clear_table,                // удалить все записи указанной таблицы
+	delete_one_record,          // пометить удалённой одну запись таблицы по физическому индексу
 };
 
 struct CommandDefinition
