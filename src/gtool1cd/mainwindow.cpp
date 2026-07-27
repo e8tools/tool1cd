@@ -210,7 +210,9 @@ void MainWindow::on_openDatabaseFileAction_triggered()
 
 void MainWindow::on_tableListView_doubleClicked(const QModelIndex &index)
 {
-	Table *t = db->get_table(index.row());
+	auto *proxy = qobject_cast<QSortFilterProxyModel*>(ui->tableListView->model());
+	QModelIndex src = proxy ? proxy->mapToSource(index) : index;
+	Table *t = db->get_table(src.row());
 	if (table_windows.find(t) == table_windows.end()) {
 		table_windows[t] = new TableDataWindow(this, t);
 	}
