@@ -22,6 +22,7 @@
 #ifndef APIcfBaseH
 #define APIcfBaseH
 
+#include <cstdint>
 #include <limits>
 #include <string>
 
