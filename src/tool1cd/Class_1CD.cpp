@@ -2334,6 +2334,11 @@ depot_ver T_1CD::get_depot_version(const TableRecord &record)
 	if (EqualIC(Ver, "0700000000000000")) {
 		return depot_ver::Ver7;
 	}
+	if (EqualIC(Ver, "6400000000000000")) {
+		// configuration extension depot reports version 100 (0x64);
+		// downstream consumers treat it as the Ver7 depot layout
+		return depot_ver::Ver7;
+	}
 
 	DetailedException error("Неизвестная версия хранилища!");
 	error.add_detail("Версия хранилища", Ver);
