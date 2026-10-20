@@ -55,7 +55,7 @@ string from_binary(const uint8_t *fr, int32_t length)
 		result[(i << 1) + 1] = sym;
 	}
 
-	result[length << 1] = 0;
+	result.resize(length << 1);
 
 	return result;
 }
@@ -79,7 +79,7 @@ string from_varbinary(const uint8_t *fr, int32_t length)
 		result[(i << 1) + 1] = sym;
 	}
 
-	result[m << 1] = 0;
+	result.resize(m << 1);
 
 	return result;
 }
