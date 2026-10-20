@@ -75,7 +75,13 @@ void TFileStream::Reopen()
 			return;
 		}
 	}
-	_stream = std::make_shared<boost::filesystem::fstream>(boost::filesystem::path(filename), openmode);
+	// Повторное открытие никогда не усекает файл: TTempStream (fmCreate)
+	// закрывается после заполнения и переоткрывается на чтение (Packdata::
+	// get_data); с trunc из сохранённого режима содержимое терялось —
+	// выгрузка -drc писала объекты правильного размера из нулей, платформа
+	// отвечала «Stream format error».
+	std::ios_base::openmode mode = openmode & ~std::ios::trunc;
+	_stream = std::make_shared<boost::filesystem::fstream>(boost::filesystem::path(filename), mode);
 	reopen(_stream);
 }
 
