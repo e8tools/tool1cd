@@ -57,7 +57,11 @@ public:
 
 protected:
 	std::string filename;
+	std::ios_base::openmode openmode;
 	std::shared_ptr<std::fstream> _stream;
+
+private:
+	static std::ios_base::openmode stream_openmode(uint16_t fileMode);
 };
 
 } // Classes
