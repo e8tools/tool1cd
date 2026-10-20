@@ -26,26 +26,33 @@ namespace System {
 
 namespace Classes {
 
-TFileStream::TFileStream(const std::string &FileName, const uint16_t fileMode)
-	: TWrapperStream(), filename(FileName)
+// Запись в потоке запрашивается только там, где она нужна (fmOpenReadWrite,
+// fmCreate): файлы, доступные только на чтение, прежде молча не открывались,
+// а чтение из неоткрывшегося потока возвращало неинициализированный буфер.
+std::ios_base::openmode TFileStream::stream_openmode(uint16_t fileMode)
 {
-	std::ios_base::openmode mode = std::ios::binary | std::ios::in | std::ios::out;
+	std::ios_base::openmode mode = std::ios::binary | std::ios::in;
 	if (fileMode == fmCreate) {
-		mode |= std::ios::trunc;
+		mode |= std::ios::trunc | std::ios::out;
 	}
-	_stream = std::make_shared<boost::filesystem::fstream>(boost::filesystem::path(filename), mode);
+	else if (fileMode & fmOpenReadWrite) {
+		mode |= std::ios::out;
+	}
+	return mode;
+}
+
+TFileStream::TFileStream(const std::string &FileName, const uint16_t fileMode)
+	: TWrapperStream(), filename(FileName), openmode(stream_openmode(fileMode))
+{
+	_stream = std::make_shared<boost::filesystem::fstream>(boost::filesystem::path(filename), openmode);
 	reopen(_stream);
 	m_position = 0;
 }
 
 TFileStream::TFileStream(const boost::filesystem::path &path, const uint16_t fileMode)
-	: TWrapperStream(), filename(path.string())
+	: TWrapperStream(), filename(path.string()), openmode(stream_openmode(fileMode))
 {
-	std::ios_base::openmode mode = std::ios::binary | std::ios::in | std::ios::out;
-	if (fileMode == fmCreate) {
-		mode |= std::ios::trunc;
-	}
-	_stream = std::make_shared<boost::filesystem::fstream>(path, mode);
+	_stream = std::make_shared<boost::filesystem::fstream>(path, openmode);
 	reopen(_stream);
 	m_position = 0;
 }
@@ -68,8 +75,7 @@ void TFileStream::Reopen()
 			return;
 		}
 	}
-	std::ios_base::openmode mode = std::ios::binary | std::ios::in | std::ios::out;
-	_stream = std::make_shared<boost::filesystem::fstream>(boost::filesystem::path(filename), mode);
+	_stream = std::make_shared<boost::filesystem::fstream>(boost::filesystem::path(filename), openmode);
 	reopen(_stream);
 }
 
