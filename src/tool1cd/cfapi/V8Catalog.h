@@ -78,8 +78,8 @@ public:
 
 	void free_block(int start);
 
-	int write_block(TStream* block, int start, bool use_page_size, int len = -1);       // возвращает адрес начала блока
-	int write_datablock(TStream* block, int start, bool _zipped = false, int len = -1); // возвращает адрес начала блока
+	int write_block(TStream* block, int start, bool use_page_size, int64_t len = -1);       // возвращает адрес начала блока
+	int write_datablock(TStream* block, int start, bool _zipped = false, int64_t len = -1); // возвращает адрес начала блока
 
 	TStream* read_datablock(int start);
 	int64_t get_nextblock(int64_t start);

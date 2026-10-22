@@ -68,6 +68,7 @@ private:
 
 	void save_depot_config(const ParsedCommand& pc);
 	void save_depot_config_part(const ParsedCommand& pc);
+	void cf_format(const ParsedCommand& pc);
 
 	void find_and_save_lost_objects(const ParsedCommand& pc);
 

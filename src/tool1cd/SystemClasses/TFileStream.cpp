@@ -19,12 +19,25 @@
     along with Tool1CD Library.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TFileStream.hpp"
+#include "Exception.hpp"
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
 namespace System {
 
 namespace Classes {
+
+// Неудачное открытие — исключение, а не молчаливый поток нулевой длины:
+// при пустом чтении выгрузка -drc собирала объекты «правильного» размера
+// из нулей, а позиционирование давало ложное «Wrong offset».
+template<typename T>
+static void assert_open(const std::shared_ptr<T> &stream,
+                        const std::string &filename)
+{
+	if (!stream || !stream->is_open()) {
+		throw Exception("Не удалось открыть файл '" + filename + "'");
+	}
+}
 
 // Запись в потоке запрашивается только там, где она нужна (fmOpenReadWrite,
 // fmCreate): файлы, доступные только на чтение, прежде молча не открывались,
@@ -45,6 +58,7 @@ TFileStream::TFileStream(const std::string &FileName, const uint16_t fileMode)
 	: TWrapperStream(), filename(FileName), openmode(stream_openmode(fileMode))
 {
 	_stream = std::make_shared<boost::filesystem::fstream>(boost::filesystem::path(filename), openmode);
+	assert_open(_stream, filename);
 	reopen(_stream);
 	m_position = 0;
 }
@@ -53,6 +67,7 @@ TFileStream::TFileStream(const boost::filesystem::path &path, const uint16_t fil
 	: TWrapperStream(), filename(path.string()), openmode(stream_openmode(fileMode))
 {
 	_stream = std::make_shared<boost::filesystem::fstream>(path, openmode);
+	assert_open(_stream, filename);
 	reopen(_stream);
 	m_position = 0;
 }
@@ -82,6 +97,7 @@ void TFileStream::Reopen()
 	// отвечала «Stream format error».
 	std::ios_base::openmode mode = openmode & ~std::ios::trunc;
 	_stream = std::make_shared<boost::filesystem::fstream>(boost::filesystem::path(filename), mode);
+	assert_open(_stream, filename);
 	reopen(_stream);
 }
 
