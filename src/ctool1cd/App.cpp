@@ -661,6 +661,11 @@ int App::Run()
 		return CTOOL_1CD_FILE_NOT_OPEN;
 	}
 
+	// Отказ команды — ненулевой код возврата: прежде исключение команды
+	// глушилось (лог есть, код 0), и вызывающая сторона не могла отличить
+	// отказ от успеха — частичный файл результата выглядел готовым.
+	int result = 0;
+	bool failed = false;
 	for (const auto &pc : commands) {
 		try {
 			switch (pc.command) {
@@ -724,19 +729,24 @@ int App::Run()
 		}
 		catch (string &s) {
 			msreg_g.AddError(s);
+			failed = true;
 		}
 		catch (DetailedException &ex) {
 			ex.show();
+			failed = true;
 		}
 		catch (Exception &ex) {
 			msreg_g.AddError(ex.Message());
+			failed = true;
 		}
 		catch (...) {
 			msreg_g.AddError("Неизвестная ошибка.");
+			failed = true;
 		}
 	}
 
-	return 0;
+	result = failed ? CTOOL_1CD_ERROR : 0;
+	return result;
 }
 
 inline bool App::is_infobase() const {
