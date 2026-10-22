@@ -552,6 +552,21 @@ void App::save_depot_config_part(const ParsedCommand &pc)
 	}
 } // save_depot_config_part
 
+// cf_format
+void App::cf_format(const ParsedCommand &pc)
+{
+	if (boost::iequals(pc.param1, "format16")) {
+		base1CD->set_cf_format16(true);
+		return;
+	}
+	if (boost::iequals(pc.param1, "classic")) {
+		base1CD->set_cf_format16(false);
+		return;
+	}
+	msreg_g.AddError("Неизвестное значение ключа -cf-format (ожидается classic или format16).")
+			.with("Значение", pc.param1);
+} // cf_format
+
 // find_and_save_lost_objects
 void App::find_and_save_lost_objects(const ParsedCommand &pc)
 {
@@ -699,6 +714,10 @@ int App::Run()
 				}
 				case Command::save_depot_config_part: {
 					save_depot_config_part(pc);
+					break;
+				}
+				case Command::cf_format: {
+					cf_format(pc);
 					break;
 				}
 				case Command::export_to_binary: {
