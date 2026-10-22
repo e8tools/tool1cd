@@ -22,6 +22,7 @@
 #include <algorithm>
 
 #include "V8Catalog.h"
+#include "../SystemClasses/Exception.hpp"
 #include "../UZLib.h"
 #include "../Common.h"
 #include "../SystemClasses/String.hpp"
@@ -511,7 +512,7 @@ void V8Catalog::free_block(int start){
 
 //---------------------------------------------------------------------------
 // запись блока данных
-int V8Catalog::write_datablock(TStream* block, int start, bool _zipped, int len)
+int V8Catalog::write_datablock(TStream* block, int start, bool _zipped, int64_t len)
 {
 	TMemoryStream* stream2;
 	TMemoryStream* stream;
@@ -574,7 +575,7 @@ int64_t V8Catalog::get_nextblock(int64_t start)
 
 //---------------------------------------------------------------------------
 // записать блок
-int V8Catalog::write_block(TStream* block, int start, bool use_page_size, int len)
+int V8Catalog::write_block(TStream* block, int start, bool use_page_size, int64_t len)
 {
 	stBlockHeader block_header;
 	char* _t;
@@ -594,7 +595,24 @@ int V8Catalog::write_block(TStream* block, int start, bool use_page_size, int le
 		len = block->GetSize();
 		block->Seek(0, soFromBeginning);
 	}
-	start = get_nextblock(start);
+	// Формат cf адресуется int32 (LAST_BLOCK); запись, не влезающая в
+	// текущий файл вместе с заголовками, — отказ, а не переполнение
+	// адресов: прежде арифметика в int уходила в цикл на границе 2 ГиБ.
+	if(len < 0
+			|| static_cast<int64_t>(data->GetSize()) + len
+				> static_cast<int64_t>(LAST_BLOCK) - stBlockHeader::size())
+	{
+		Lock->Release();
+		throw Exception("Размер данных не представим в cf: превышено адресное пространство 2 ГиБ (файл "
+			+ to_string(data->GetSize()) + " байт, запись " + to_string(len) + " байт)");
+	}
+	int64_t next_block = get_nextblock(start);
+	if(next_block < 0 || next_block > static_cast<int64_t>(LAST_BLOCK))
+	{
+		Lock->Release();
+		throw Exception("Адрес блока cf не представим (2 ГиБ)");
+	}
+	start = static_cast<int>(next_block);
 
 	do
 	{
@@ -612,7 +630,9 @@ int V8Catalog::write_block(TStream* block, int start, bool use_page_size, int le
 		else if(start == data->GetSize())
 		{// пишем в новый блок
 			block_header = stBlockHeader::create(0, 0, 0);
-			blocklen = use_page_size ? len > file_header.page_size ? len : file_header.page_size : len;
+			blocklen = static_cast<int>(use_page_size
+				? (len > file_header.page_size ? len : static_cast<int64_t>(file_header.page_size))
+				: len);
 			block_header.set_page_size(blocklen);
 
 			nextstart = 0;
@@ -626,16 +646,29 @@ int V8Catalog::write_block(TStream* block, int start, bool use_page_size, int le
 			blocklen = block_header.get_page_size();
 			nextstart = block_header.get_next_page_addr();
 		}
+		// Отрицательный размер страницы (битый заголовок) прежде уводил
+		// len в рост и цикл не завершался.
+		if(blocklen <= 0)
+		{
+			Lock->Release();
+			throw Exception("Битый размер страницы блока cf");
+		}
 
-		block_header.set_data_size(isfirstblock ? len : 0);
+		block_header.set_data_size(isfirstblock ? static_cast<int32_t>(len) : 0);
 
-		curlen = std::min(blocklen, len);
+		curlen = static_cast<int>(std::min<int64_t>(blocklen, len));
 
 		if(!nextstart) {
-			nextstart = data->GetSize() + 31 + blocklen; // TODO: 31 в константу
+			int64_t tail = static_cast<int64_t>(data->GetSize()) + 31 + blocklen; // TODO: 31 в константу
+			if(tail > static_cast<int64_t>(LAST_BLOCK))
+			{
+				Lock->Release();
+				throw Exception("Файл cf превышает адресное пространство 2 ГиБ");
+			}
+			nextstart = static_cast<int>(tail);
 		}
 		else {
-			nextstart = get_nextblock(nextstart);
+			nextstart = static_cast<int>(get_nextblock(nextstart));
 		}
 
 		block_header.set_next_page_addr(len <= blocklen ? LAST_BLOCK : nextstart);
