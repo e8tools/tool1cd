@@ -94,7 +94,16 @@ int64_t TStream::Read(std::vector<uint8_t> &Buffer, int64_t Count)
 	if (Buffer.size() < CountToRead) {
 		Buffer.resize(CountToRead);
 	}
-	return Read(Buffer.data(), CountToRead);
+	auto data_read = Read(Buffer.data(), CountToRead);
+	// Короткое чтение — отказ, а не «данные из нулей»: при пустом чтении
+	// Write(vector, 0) прежде писал весь обнулённый resize-ом буфер
+	// запрошенного размера (нулевые объекты в выгрузке -drc).
+	if (data_read < CountToRead) {
+		throw Exception("Короткое чтение потока: запрошено "
+			+ std::to_string(CountToRead) + ", прочитано "
+			+ std::to_string(data_read));
+	}
+	return data_read;
 }
 
 int64_t TStream::CopyFrom(TStream *Source, const int64_t Count)
