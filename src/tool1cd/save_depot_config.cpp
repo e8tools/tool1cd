@@ -483,6 +483,14 @@ bool T_1CD::try_save_snapshot(const TableRecord &version_record,
 							  const boost::filesystem::path &root_path,
 							  const boost::filesystem::path &target_file_path) const
 {
+	// Снапшот депо — не cf-контейнер: Ver2 копировался как есть (магия
+	// 44 33 22 11), Ver1 — распакованный снапшот; платформа отвечала
+	// «File operation error». Конфигурация всегда собирается из объектов
+	// HISTORY/EXTERNALS — проверенный путь.
+	(void) version_record; (void) ver; (void) rootobj;
+	(void) root_path; (void) target_file_path;
+	return false;
+#if 0
 	if (version_record.get<BinaryGuid>("SNAPSHOTMAKER").is_empty()) {
 		return false;
 	}
@@ -570,6 +578,7 @@ bool T_1CD::try_save_snapshot(const TableRecord &version_record,
 						.with("Должен быть CRC32", to_hex_string(snapshot_crc))
 						.with("Получился CRC32", to_hex_string(calc_crc));
 	return false;
+#endif
 }
 
 bool try_store_blob_data(const TableRecord &record,
