@@ -64,6 +64,7 @@ CommandDefinition CommandParse::definitions[] =
 	{"dumpdepotconfig",    Command::save_depot_config,          2, ""}, // 27
 	{"dpc",                Command::save_depot_config_part,     2, ""}, // 28
 	{"dumppartdepotconfig",Command::save_depot_config_part,     2, ""}, // 29
+	{"cf-format",          Command::cf_format,                  1, ""}, // 44
 	{"l",                  Command::logfile,                    1, ""}, // 30
 	{"logfile",            Command::logfile,                    1, ""}, // 31
 	{"eb",                 Command::export_to_binary,           2, ""}, // 32
@@ -138,6 +139,10 @@ ctool1cd.exe [<ключи>] <1CD файл> [<ключи>]\r\n\
  -dpc, -DumpPartDepotConfig <номер версии>[:<номер версии>] <путь>\r\n\
    Выгрузить частично файлы конфигурации хранилища заданной версии (или заданного диапазона версий) по указанному пути.\r\n\
    Номер версии - это целое число. 1, 2, 3 и т.д. - выгрузить файлы указанной версии, 0 - выгрузить файлы последней версии, -1 - предпоследней и т.д.\r\n\
+\r\n\
+ -cf-format <classic|format16>\r\n\
+   Формат файла выгрузки конфигурации хранилища (ключ -drc): format16 - контейнер конфигуратора 8.3.16 с 64-битной адресацией (по умолчанию),\r\n\
+   classic - классический контейнер с ограничением 2 ГиБ.\r\n\
 \r\n\
  -eb, -ExportToBinary <путь> <список>\r\n\
    Экспортировать по указанному пути указанные таблицы.\r\n\
