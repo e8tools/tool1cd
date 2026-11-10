@@ -20,6 +20,12 @@ if(POLICY CMP0167)
   cmake_policy(SET CMP0167 NEW)
 endif()
 
+if(POLICY CMP0072)
+  # То же для FindOpenGL внутри Qt: cmake_policy(VERSION) старее 3.11
+  # снова делает CMP0072 unset, и CMake пишет dev-warning про GLVND.
+  set(CMAKE_POLICY_DEFAULT_CMP0072 NEW)
+endif()
+
 # Переделываем shared-runtime на static-runtime
 # Это нужно, чтобы под Windows Tool1CD не требовал vcredist
 if (NOGUI)
