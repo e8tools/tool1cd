@@ -30,6 +30,8 @@
 #include "ParseCommandLine.h"
 #include "ErrorCode.h"
 #include "Messenger.h"
+#include "Table.h"
+#include "TableRecord.h"
 
 extern Registrator msreg_g;
 
@@ -288,6 +290,56 @@ void App::import_from_binary(const ParsedCommand &pc)
 
 } // import_from_binary
 
+void App::clear_table(const ParsedCommand &pc)
+{
+	const string tname = LowerCase(pc.param1);
+	for (int j = 0; j < base1CD->get_numtables(); j++) {
+		Table *tbl = base1CD->get_table(j);
+		if (LowerCase(tbl->get_name()) != tname) {
+			continue;
+		}
+		tbl->begin_edit();
+		uint32_t total = tbl->get_phys_numrecords();
+		uint32_t deleted = 0;
+		for (uint32_t i = 1; i < total; i++) {
+			TableRecord *rec = tbl->get_record(i);
+			bool removed = rec->is_removed();
+			delete rec;
+			if (!removed) {
+				tbl->mark_record_removed(i);
+				deleted++;
+			}
+		}
+		base1CD->flush();
+		msreg_g.AddMessage("Очистка таблицы выполнена.", MessageState::Succesfull)
+				.with("Таблица", tbl->get_name())
+				.with("Удалено записей", (int)deleted)
+				.with("Физических записей всего", (int)total);
+		return;
+	}
+	msreg_g.AddError("Таблица для очистки не найдена.").with("Таблица", pc.param1);
+}
+
+void App::delete_one_record(const ParsedCommand &pc)
+{
+	const string tname = LowerCase(pc.param1);
+	uint32_t idx = (uint32_t)strtoul(pc.param2.c_str(), nullptr, 10);
+	for (int j = 0; j < base1CD->get_numtables(); j++) {
+		Table *tbl = base1CD->get_table(j);
+		if (LowerCase(tbl->get_name()) != tname) {
+			continue;
+		}
+		tbl->begin_edit();
+		tbl->mark_record_removed(idx);
+		base1CD->flush();
+		msreg_g.AddMessage("Запись помечена удалённой.", MessageState::Succesfull)
+				.with("Таблица", tbl->get_name())
+				.with("Физический номер записи", (int)idx);
+		return;
+	}
+	msreg_g.AddError("Таблица не найдена.").with("Таблица", pc.param1);
+}
+
 void App::save_config(const boost::filesystem::path& param_path)
 {
 	if(!is_infobase()) {
@@ -500,6 +552,21 @@ void App::save_depot_config_part(const ParsedCommand &pc)
 	}
 } // save_depot_config_part
 
+// cf_format
+void App::cf_format(const ParsedCommand &pc)
+{
+	if (boost::iequals(pc.param1, "format16")) {
+		base1CD->set_cf_format16(true);
+		return;
+	}
+	if (boost::iequals(pc.param1, "classic")) {
+		base1CD->set_cf_format16(false);
+		return;
+	}
+	msreg_g.AddError("Неизвестное значение ключа -cf-format (ожидается classic или format16).")
+			.with("Значение", pc.param1);
+} // cf_format
+
 // find_and_save_lost_objects
 void App::find_and_save_lost_objects(const ParsedCommand &pc)
 {
@@ -609,6 +676,11 @@ int App::Run()
 		return CTOOL_1CD_FILE_NOT_OPEN;
 	}
 
+	// Отказ команды — ненулевой код возврата: прежде исключение команды
+	// глушилось (лог есть, код 0), и вызывающая сторона не могла отличить
+	// отказ от успеха — частичный файл результата выглядел готовым.
+	int result = 0;
+	bool failed = false;
 	for (const auto &pc : commands) {
 		try {
 			switch (pc.command) {
@@ -644,6 +716,10 @@ int App::Run()
 					save_depot_config_part(pc);
 					break;
 				}
+				case Command::cf_format: {
+					cf_format(pc);
+					break;
+				}
 				case Command::export_to_binary: {
 					export_to_binary(pc);
 					break;
@@ -660,23 +736,36 @@ int App::Run()
 					save_tables_sizes(pc);
 					break;
 				}
+				case Command::clear_table: {
+					clear_table(pc);
+					break;
+				}
+				case Command::delete_one_record: {
+					delete_one_record(pc);
+					break;
+				}
 			}
 		}
 		catch (string &s) {
 			msreg_g.AddError(s);
+			failed = true;
 		}
 		catch (DetailedException &ex) {
 			ex.show();
+			failed = true;
 		}
 		catch (Exception &ex) {
 			msreg_g.AddError(ex.Message());
+			failed = true;
 		}
 		catch (...) {
 			msreg_g.AddError("Неизвестная ошибка.");
+			failed = true;
 		}
 	}
 
-	return 0;
+	result = failed ? CTOOL_1CD_ERROR : 0;
+	return result;
 }
 
 inline bool App::is_infobase() const {

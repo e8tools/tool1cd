@@ -67,8 +67,10 @@ private slots:
 	void show_table_context_menu(const QPoint &);
 	
 	void export_blob_file();
-	
+
 	void import_blob_file();
+
+	void clear_table_action();
 
 private:
 	Ui::MainWindow *ui;

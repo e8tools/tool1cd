@@ -91,6 +91,10 @@ char*  T_1CD::get_block_for_write(uint32_t block_number, bool read)
 
 
 	if(!fs) return nullptr;
+	if(block_number == 0 && !read)
+	{
+		throw DetailedException("Попытка записи данных в блок 0 (заголовок базы)");
+	}
 	if(block_number > length)
 	{
 		throw DetailedException("Попытка получения блока за пределами файла базы.")
@@ -2328,6 +2332,11 @@ depot_ver T_1CD::get_depot_version(const TableRecord &record)
 		return depot_ver::Ver6;
 	}
 	if (EqualIC(Ver, "0700000000000000")) {
+		return depot_ver::Ver7;
+	}
+	if (EqualIC(Ver, "6400000000000000")) {
+		// configuration extension depot reports version 100 (0x64);
+		// downstream consumers treat it as the Ver7 depot layout
 		return depot_ver::Ver7;
 	}
 

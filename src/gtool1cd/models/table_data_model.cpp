@@ -226,6 +226,19 @@ const TableRecord *TableDataModel::getRecord(const QModelIndex &index) const
 
 }
 
+uint32_t TableDataModel::physicalRecordNo(const QModelIndex &index) const
+{
+	return _index == nullptr
+	        ? index.row()
+	        : _index->get_numrec(index.row());
+}
+
+void TableDataModel::notifyRowChanged(int row)
+{
+	emit dataChanged(index(row, 0, QModelIndex()),
+	                 index(row, columnCount(QModelIndex()) - 1, QModelIndex()));
+}
+
 TStream *TableDataModel::getBlobStream(const QModelIndex &index) const
 {
 	Field *f = table->get_field(index.column());

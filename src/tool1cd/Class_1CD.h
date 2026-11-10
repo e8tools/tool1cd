@@ -220,6 +220,13 @@ public:
 	bool save_config(const boost::filesystem::path &file_name);
 	bool save_configsave(const boost::filesystem::path &file_name);
 	bool save_depot_config(const std::string &_filename, int32_t ver = 0);
+
+	// Формат выгрузки конфигурации хранилища (-drc): true — контейнер
+	// конфигуратора 8.3.16 (64-битная адресация, заглушка 0x1359),
+	// false — классический int32. Устанавливается ключом -cf-format,
+	// умолчание — true.
+	void set_cf_format16(bool format16) { cf_format16 = format16; }
+	bool cf_format16 { true };
 	bool save_part_depot_config(const std::string &_filename, int32_t ver_begin, int32_t ver_end);
 	int32_t get_ver_depot_config(int32_t ver); // Получение номера версии конфигурации (0 - последняя, -1 - предпоследняя и т.д.)
 	bool save_config_ext(const boost::filesystem::path &file_name, const BinaryGuid &uid, const std::string &hashname);

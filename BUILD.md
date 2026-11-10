@@ -278,3 +278,59 @@ Visual Studio 2017 поддерживает работу с cmake без пре�
         }
       ]
 ```
+
+## WebAssembly (браузерный просмотр таблиц)
+
+### Что нужно для сборки
+
+1. Активированный Emscripten (`em++` в `PATH`)
+2. Boost, собранный под target Emscripten (нужны `filesystem`, `system`, `regex`)
+
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+./emsdk install latest
+./emsdk activate latest
+source ./emsdk_env.sh
+
+curl -L -o  boost1.88.tar.gz
+tar xf boost1.88.tar.gz
+cd boost1.88
+
+./bootstrap.sh
+cat > user-config.jam <<'EOF'
+using clang : emscripten : em++ ;
+EOF
+
+export BOOST_WASM_ROOT="$HOME/opt/boost-wasm"
+mkdir -p "$BOOST_WASM_ROOT"
+
+./b2 -j"$(nproc)" \
+  toolset=clang-emscripten \
+  target-os=emscripten \
+  variant=release \
+  link=static runtime-link=static \
+  threading=single \
+  --with-system --with-filesystem --with-regex \
+  cxxflags="-O3" \
+  install --prefix="$BOOST_WASM_ROOT"
+  
+### Сборка WASM
+
+```sh
+BOOST_WASM_ROOT=/path/to/boost-wasm ./web/build-wasm.sh
+```
+После успешной сборки появятся:
+
+- `web/parser.js`
+- `web/parser.wasm`
+
+### Локальный запуск
+
+```sh
+cd web
+python3 -m http.server 8080
+```
+
+Открыть в браузере:
+
+`http://localhost:8080`

@@ -19,6 +19,7 @@
     along with Tool1CD Library.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TFileStream.hpp"
+#include "Exception.hpp"
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
@@ -26,26 +27,47 @@ namespace System {
 
 namespace Classes {
 
-TFileStream::TFileStream(const std::string &FileName, const uint16_t fileMode)
-	: TWrapperStream(), filename(FileName)
+// Неудачное открытие — исключение, а не молчаливый поток нулевой длины:
+// при пустом чтении выгрузка -drc собирала объекты «правильного» размера
+// из нулей, а позиционирование давало ложное «Wrong offset».
+template<typename T>
+static void assert_open(const std::shared_ptr<T> &stream,
+                        const std::string &filename)
 {
-	std::ios_base::openmode mode = std::ios::binary | std::ios::in | std::ios::out;
-	if (fileMode == fmCreate) {
-		mode |= std::ios::trunc;
+	if (!stream || !stream->is_open()) {
+		throw Exception("Не удалось открыть файл '" + filename + "'");
 	}
-	_stream = std::make_shared<boost::filesystem::fstream>(boost::filesystem::path(filename), mode);
+}
+
+// Запись в потоке запрашивается только там, где она нужна (fmOpenReadWrite,
+// fmCreate): файлы, доступные только на чтение, прежде молча не открывались,
+// а чтение из неоткрывшегося потока возвращало неинициализированный буфер.
+std::ios_base::openmode TFileStream::stream_openmode(uint16_t fileMode)
+{
+	std::ios_base::openmode mode = std::ios::binary | std::ios::in;
+	if (fileMode == fmCreate) {
+		mode |= std::ios::trunc | std::ios::out;
+	}
+	else if (fileMode & fmOpenReadWrite) {
+		mode |= std::ios::out;
+	}
+	return mode;
+}
+
+TFileStream::TFileStream(const std::string &FileName, const uint16_t fileMode)
+	: TWrapperStream(), filename(FileName), openmode(stream_openmode(fileMode))
+{
+	_stream = std::make_shared<boost::filesystem::fstream>(boost::filesystem::path(filename), openmode);
+	assert_open(_stream, filename);
 	reopen(_stream);
 	m_position = 0;
 }
 
 TFileStream::TFileStream(const boost::filesystem::path &path, const uint16_t fileMode)
-	: TWrapperStream(), filename(path.string())
+	: TWrapperStream(), filename(path.string()), openmode(stream_openmode(fileMode))
 {
-	std::ios_base::openmode mode = std::ios::binary | std::ios::in | std::ios::out;
-	if (fileMode == fmCreate) {
-		mode |= std::ios::trunc;
-	}
-	_stream = std::make_shared<boost::filesystem::fstream>(path, mode);
+	_stream = std::make_shared<boost::filesystem::fstream>(path, openmode);
+	assert_open(_stream, filename);
 	reopen(_stream);
 	m_position = 0;
 }
@@ -68,8 +90,14 @@ void TFileStream::Reopen()
 			return;
 		}
 	}
-	std::ios_base::openmode mode = std::ios::binary | std::ios::in | std::ios::out;
+	// Повторное открытие никогда не усекает файл: TTempStream (fmCreate)
+	// закрывается после заполнения и переоткрывается на чтение (Packdata::
+	// get_data); с trunc из сохранённого режима содержимое терялось —
+	// выгрузка -drc писала объекты правильного размера из нулей, платформа
+	// отвечала «Stream format error».
+	std::ios_base::openmode mode = openmode & ~std::ios::trunc;
 	_stream = std::make_shared<boost::filesystem::fstream>(boost::filesystem::path(filename), mode);
+	assert_open(_stream, filename);
 	reopen(_stream);
 }
 

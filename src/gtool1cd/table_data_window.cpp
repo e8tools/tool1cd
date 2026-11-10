@@ -29,6 +29,8 @@
 #include <QItemSelection>
 #include "models/skobka_tree_model.h"
 #include <QFileDialog>
+#include <QMenu>
+#include <QMessageBox>
 #include "models/v8catalog_tree_model.h"
 
 QString index_presentation(Index *index)
@@ -80,6 +82,10 @@ TableDataWindow::TableDataWindow(QWidget *parent, Table *table)
 		ui->indexChooseBox->setCurrentIndex(1);
 		emit ui->indexChooseBox->activated(1);
 	}
+
+	ui->dataView->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui->dataView, SIGNAL(customContextMenuRequested(QPoint)),
+	        this, SLOT(show_data_context_menu(QPoint)));
 
 	ui->dataView->setFocus();
 }
@@ -198,4 +204,55 @@ void TableDataWindow::on_saveBlobButton_clicked()
 	}
 	auto model = static_cast<TableDataModel*>(ui->dataView->model());
 	model->dumpBlob(index, filename);
+}
+
+void TableDataWindow::reload()
+{
+	on_indexChooseBox_activated(ui->indexChooseBox->currentIndex());
+}
+
+void TableDataWindow::show_data_context_menu(const QPoint &pos)
+{
+	if (!ui->dataView->currentIndex().isValid()) {
+		return;
+	}
+	QMenu menu(this);
+	QAction action_delete(tr("Удалить запись"), this);
+	connect(&action_delete, SIGNAL(triggered()), this, SLOT(delete_record_action()));
+	menu.addAction(&action_delete);
+	menu.exec(ui->dataView->mapToGlobal(pos));
+}
+
+void TableDataWindow::delete_record_action()
+{
+	auto index = ui->dataView->currentIndex();
+	if (!index.isValid()) {
+		return;
+	}
+	auto *model = static_cast<TableDataModel*>(ui->dataView->model());
+	uint32_t phys_numrecord = model->physicalRecordNo(index);
+
+	if (table->get_base()->get_readonly()) {
+		QMessageBox::warning(this, tr("Удаление записи"),
+		        tr("База открыта только для чтения — удаление невозможно."));
+		return;
+	}
+
+	if (QMessageBox::warning(this, tr("Удаление записи"),
+	        tr("Пометить запись №%1 таблицы «%2» удалённой?\nДействие изменяет базу.")
+	            .arg(phys_numrecord).arg(QString::fromStdString(table->get_name())),
+	        QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes) {
+		return;
+	}
+
+	try {
+		table->begin_edit();
+		table->mark_record_removed(phys_numrecord);
+		table->get_base()->flush();
+	} catch (DetailedException &ex) {
+		QMessageBox::critical(this, tr("Удаление записи"), QString(ex.what()));
+		return;
+	}
+
+	model->notifyRowChanged(index.row());
 }

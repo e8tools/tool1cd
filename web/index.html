@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>1CD Tables Viewer</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --accent: #0f766e;
+      --accent-hover: #0b5f58;
+      --error-bg: #fee2e2;
+      --error-text: #991b1b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .sort-controls {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .sort-controls label {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .sort-controls select {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.45rem 0.55rem;
+    }
+
+    button {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: white;
+      border-radius: 8px;
+      padding: 0.55rem 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover { background: var(--accent-hover); }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin: 0 0 1rem;
+      color: var(--muted);
+      min-height: 1.2rem;
+    }
+
+    #error {
+      display: none;
+      margin: 0 0 1rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      background: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid #fca5a5;
+      white-space: pre-wrap;
+    }
+
+    .tables-list {
+      width: 100%;
+      border-collapse: collapse;
+      max-height: 60vh;
+      overflow: auto;
+      display: block;
+    }
+
+    .tables-list thead,
+    .tables-list tbody {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    .tables-list thead th {
+      text-align: left;
+      font-size: 0.9rem;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+      padding: 0.45rem 0.25rem;
+    }
+
+    .tables-list td {
+      margin: 0.25rem 0;
+      font-family: Consolas, Monaco, monospace;
+      border-bottom: 1px solid #eef2f7;
+      padding: 0.5rem 0.25rem;
+    }
+
+    .tables-list tbody tr {
+      cursor: pointer;
+    }
+
+    .tables-list tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .tables-list tbody tr.active {
+      background: #ecfeff;
+    }
+
+    .tables-list td.size,
+    .tables-list th.size {
+      text-align: right;
+    }
+
+    #tableMeta {
+      margin: 0.5rem 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .table-content-wrap {
+      overflow: auto;
+      max-height: 50vh;
+      border: 1px solid #eef2f7;
+      border-radius: 8px;
+    }
+
+    .table-content {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table-content th,
+    .table-content td {
+      border-bottom: 1px solid #eef2f7;
+      padding: 0.4rem 0.5rem;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      vertical-align: top;
+    }
+
+    .table-content th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #f9fafb;
+      color: var(--muted);
+      text-align: left;
+    }
+
+    .table-content .rownum {
+      color: var(--muted);
+      text-align: right;
+      min-width: 4rem;
+    }
+
+    .table-content tr.deleted td {
+      color: #9ca3af;
+      font-style: italic;
+    }
+
+    .hint {
+      color: var(--muted);
+      margin-top: 0.75rem;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="card">
+      <h1>1CD Tables Viewer</h1>
+
+      <div class="controls">
+        <input id="fileInput" type="file" accept=".1cd,.1CD" />
+        <button id="openBtn" type="button" disabled>Open and Show Tables</button>
+      </div>
+
+      <p id="status">Loading WASM runtime...</p>
+      <div id="error" role="alert"></div>
+
+      <h2>Tables</h2>
+      <div class="sort-controls">
+        <label for="sortField">Sort by</label>
+        <select id="sortField">
+          <option value="name">Name</option>
+          <option value="size">Size</option>
+        </select>
+
+        <label for="sortDir">Order</label>
+        <select id="sortDir">
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
+      </div>
+
+      <table class="tables-list" aria-label="Tables list">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th class="size">Size</th>
+          </tr>
+        </thead>
+        <tbody id="tables"></tbody>
+      </table>
+      <p class="hint">Click a table name to view rows.</p>
+
+      <h2>Table Content</h2>
+      <p id="tableMeta">Select a table to preview first 100 rows.</p>
+      <div class="table-content-wrap">
+        <table class="table-content" aria-label="Selected table content">
+          <thead id="tableContentHead"></thead>
+          <tbody id="tableContentBody"></tbody>
+        </table>
+      </div>
+      <p class="hint">Expected WASM exports: <code>onecd_open</code>, <code>onecd_list_tables_json</code>, <code>onecd_get_table_rows_json</code>, <code>onecd_free_string</code></p>
+    </div>
+  </main>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

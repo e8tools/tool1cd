@@ -344,6 +344,10 @@ Tree* parse_flow(flow_type source, const std::string &path)
 					case '\r':
 					case '\n':
 						break;
+					case (char)0xEF: // UTF-8 BOM (EF BB BF) — пропускаем, как пробел
+					case (char)0xBB:
+					case (char)0xBF:
+						break;
 					case '"':
 						cur_value.clear();
 						state = state_type::s_string;

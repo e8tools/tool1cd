@@ -176,6 +176,7 @@ public:
 	void import_table(const boost::filesystem::path &path);
 
 	void delete_record(uint32_t phys_numrecord); // удаление записи
+	void mark_record_removed(uint32_t phys_numrecord); // пометить запись удалённой (первый байт != 0) без обновления индексов
 	void insert_record(const TableRecord *rec); // добавление записи
 	void update_record(uint32_t phys_numrecord, char* rec, char* changed_fields); // изменение записи
 	char* get_record_template_test();
