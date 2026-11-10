@@ -1,9 +1,9 @@
 version: 1.0.2.{build}
 image:
-  - macOS
   - Ubuntu2004
-  - Ubuntu2404
   - Visual Studio 2019
+  - Ubuntu2404
+  - macOS
 pull_requests:
   do_not_increment_build_number: true
 clone_depth: 1
@@ -71,8 +71,8 @@ for:
     - tar -xf VulkanSDK.tar.xz && source ${VULKAN_VERSION}/setup-env.sh
     # uic/moc собраны с ICU 73. В Ubuntu 20.04 системная ICU другая,
     # а RPATH у libexec/uic до lib/ Qt не доходит.
-    - icu_lib=$(find "$HOME/Qt" -name 'libicui18n.so.73' -printf '%h\n' -quit 2>/dev/null || true)
-    - if [ -n "$icu_lib" ]; then export LD_LIBRARY_PATH="$icu_lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"; echo "ICU 73: $icu_lib"; else echo "libicui18n.so.73 not found under $HOME/Qt"; find "$HOME/Qt" -name 'libicu*.so*' -print; fi
+    - "export icu_lib=`find \"$HOME/Qt\" -name libicui18n.so.73 -printf '%h\\n' -quit 2>/dev/null || true`"
+    - "if [ -n \"$icu_lib\" ]; then export LD_LIBRARY_PATH=\"$icu_lib:$LD_LIBRARY_PATH\"; echo \"ICU 73 at $icu_lib\"; else echo \"libicui18n.so.73 not found under \\$HOME/Qt\"; find \"$HOME/Qt\" -name 'libicu*.so*' -print; fi"
     - ../vcpkg/vcpkg install ${VCPKG_LIBS}
   cache:
     - ../vcpkg/installed
@@ -105,8 +105,8 @@ for:
     - tar -xf VulkanSDK.tar.xz && source ${VULKAN_VERSION}/setup-env.sh
     # uic/moc собраны с ICU 73. В Ubuntu 24.04 системная ICU другая,
     # а RPATH у libexec/uic до lib/ Qt не доходит.
-    - icu_lib=$(find "$HOME/Qt" -name 'libicui18n.so.73' -printf '%h\n' -quit 2>/dev/null || true)
-    - if [ -n "$icu_lib" ]; then export LD_LIBRARY_PATH="$icu_lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"; echo "ICU 73: $icu_lib"; else echo "libicui18n.so.73 not found under $HOME/Qt"; find "$HOME/Qt" -name 'libicu*.so*' -print; fi
+    - "export icu_lib=`find \"$HOME/Qt\" -name libicui18n.so.73 -printf '%h\\n' -quit 2>/dev/null || true`"
+    - "if [ -n \"$icu_lib\" ]; then export LD_LIBRARY_PATH=\"$icu_lib:$LD_LIBRARY_PATH\"; echo \"ICU 73 at $icu_lib\"; else echo \"libicui18n.so.73 not found under \\$HOME/Qt\"; find \"$HOME/Qt\" -name 'libicu*.so*' -print; fi"
     - ../vcpkg/vcpkg install ${VCPKG_LIBS}
   cache:
     - ../vcpkg/installed
