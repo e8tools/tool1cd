@@ -1,7 +1,7 @@
 version: 1.0.2.{build}
 image:
+  - Visual Studio 2022
   - Ubuntu2004
-  - Visual Studio 2019
   - Ubuntu2404
   - macOS
 pull_requests:
@@ -18,15 +18,15 @@ for:
 -
   matrix:
     only:
-      - image: Visual Studio 2019
+      - image: Visual Studio 2022
   environment:
     DEPLOY_PLATFORM_ID: win
     VCPKG_DIR: C:\Tools\vcpkg
     VULKAN_SDK: C:\VulkanSDK\1.4.309.0
     VULKAN_DOWNLOAD_URL: https://vulkan.lunarg.com/sdk/download/1.4.309.0/windows/VulkanSDK-1.4.309.0-Installer.exe?Human=true
-    MY_Qt6Widgets_DIR: C:\Qt\6.8\msvc2019_64\lib\cmake\Qt6Widgets
-    QT_PATH: C:\Qt\6.8\msvc2019_64
-    Qt6_DIR: C:\Qt\6.8\msvc2019_64
+    MY_Qt6Widgets_DIR: C:\Qt\6.8\msvc2022_64\lib\cmake\Qt6Widgets
+    QT_PATH: C:\Qt\6.8\msvc2022_64
+    Qt6_DIR: C:\Qt\6.8\msvc2022_64\lib\cmake\Qt6
   init:
     - ps: Set-WinSystemLocale ru-RU
     - ps: Start-Sleep -s 5
@@ -34,7 +34,7 @@ for:
   install:
     - cmd: if not exist VulkanSDK.exe curl -L --silent --show-error --output VulkanSDK.exe %VULKAN_DOWNLOAD_URL%
     - cmd: VulkanSDK.exe /S
-    - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+    - cmd: call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
     - cmd: cd %VCPKG_DIR%
     - cmd: git pull
     - cmd: call .\bootstrap-vcpkg.bat
@@ -150,6 +150,8 @@ build_script:
     -DCMAKE_PREFIX_PATH="$env:QT_PATH"
     -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_DIR/scripts/buildsystems/vcpkg.cmake"
     -DQt6Widgets_DIR="$env:MY_Qt6Widgets_DIR"
+    -DQt6_DIR="$env:Qt6_DIR"
+    -DCMAKE_POLICY_DEFAULT_CMP0167=NEW
     ..
 
     cmake --build . --target ctool1cd --config Release

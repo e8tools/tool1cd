@@ -1,6 +1,10 @@
 cmake_minimum_required (VERSION 3.10)
 project (ctool1cd)
 
+if(POLICY CMP0167)
+  cmake_policy(SET CMP0167 NEW)
+endif()
+
 set (tool_VERSION_MAJOR 1)
 set (tool_VERSION_MINOR 0)
 

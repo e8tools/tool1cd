@@ -9,6 +9,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 if(POLICY CMP0072)
   cmake_policy(SET CMP0072 NEW)
 endif()
+if(POLICY CMP0167)
+  cmake_policy(SET CMP0167 NEW)
+endif()
 # FindOpenGL внутри Qt6Gui не видит политику каталога и без этой переменной
 # выбирает legacy libGL, печатая dev-warning.
 set(OpenGL_GL_PREFERENCE GLVND)
