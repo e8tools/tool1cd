@@ -13,6 +13,10 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BINARY_DIR}/lib")
 add_definitions (-DBOOST_ALL_NO_LIB)
 
 if(POLICY CMP0167)
+  # cmake_minimum_required(3.10) в подкаталогах сбрасывает политики новее 3.10.
+  # DEFAULT заново выставляет CMP0167 при этом сбросе, иначе CMake >= 3.30
+  # пишет dev-warning в stderr, и шаг ps: на AppVeyor считает сборку упавшей.
+  set(CMAKE_POLICY_DEFAULT_CMP0167 NEW)
   cmake_policy(SET CMP0167 NEW)
 endif()
 
