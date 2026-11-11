@@ -29,8 +29,7 @@ for:
     Qt6_DIR: C:\Qt\6.8\msvc2022_64\lib\cmake\Qt6
   init:
     - ps: Set-WinSystemLocale ru-RU
-    - ps: Start-Sleep -s 5
-    - ps: Restart-Computer
+    - cmd: chcp 65001
   install:
     - cmd: if not exist VulkanSDK.exe curl -L --silent --show-error --output VulkanSDK.exe %VULKAN_DOWNLOAD_URL%
     - cmd: VulkanSDK.exe /S
