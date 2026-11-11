@@ -58,14 +58,12 @@ bool ZDeflateStream(TStream* src, TStream* dst)
 		return false;
 	}
 
-	// compress until end of file
+	// compress until end of file.
+	// Важно: длина ровно N*CHUNKSIZE — после последнего полного блока Read
+	// даёт 0. Раньше это было `return false` без Z_FINISH → обрезанный
+	// raw-deflate в cf (ошибка формата потока на versions TOC ~8 МБ).
 	do {
 		strm.avail_in = static_cast<unsigned int>(src->Read(in, CHUNKSIZE));
-		if (strm.avail_in == 0) {
-			return false;
-		}
-		/* TODO: ZDeflateStream проверка ошибок */
-
 		flush = (strm.avail_in < CHUNKSIZE) ? Z_FINISH : Z_NO_FLUSH;
 		strm.next_in = in;
 
