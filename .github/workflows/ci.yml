@@ -71,7 +71,7 @@ jobs:
     env:
       VULKAN_VERSION: 1.4.309.0
       VCPKG_REF: 2026.10.16
-      VCPKG_PACKAGES: boost-filesystem boost-system boost-regex boost-random boost-uuid boost-crc zlib vulkan
+      VCPKG_PACKAGES: boost-filesystem boost-system boost-regex boost-random boost-uuid boost-crc boost-algorithm zlib vulkan
       VCPKG_TRIPLET: ${{ matrix.triplet }}
       VCPKG_DISABLE_METRICS: 1
 
@@ -263,14 +263,15 @@ jobs:
             vcpkg/downloads
             vcpkg/installed
             vcpkg/packages
-          key: vcpkg-${{ env.VCPKG_REF }}-${{ matrix.triplet }}-boost-zlib-vulkan
+          key: vcpkg-${{ env.VCPKG_REF }}-${{ matrix.triplet }}-boost-algorithm-zlib-vulkan
 
       - name: Install vcpkg packages
         run: |
           set -euo pipefail
           export VCPKG_DEFAULT_TRIPLET="$VCPKG_TRIPLET"
           if [ "$RUNNER_OS" = "Windows" ]; then
-            cmd.exe /c "vcpkg\\bootstrap-vcpkg.bat -disableMetrics"
+            # Git Bash превращает /c в путь, и bootstrap-vcpkg.bat не запускается.
+            cmd.exe //c "vcpkg\\bootstrap-vcpkg.bat -disableMetrics"
             ./vcpkg/vcpkg.exe --triplet "$VCPKG_TRIPLET" install $VCPKG_PACKAGES
           else
             ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
@@ -286,7 +287,7 @@ jobs:
             vcpkg/downloads
             vcpkg/installed
             vcpkg/packages
-          key: vcpkg-${{ env.VCPKG_REF }}-${{ matrix.triplet }}-boost-zlib-vulkan
+          key: vcpkg-${{ env.VCPKG_REF }}-${{ matrix.triplet }}-boost-algorithm-zlib-vulkan
 
       - name: Configure and build
         id: build
