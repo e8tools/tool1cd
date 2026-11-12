@@ -1,0 +1,391 @@
+# Сборка и тесты по той же схеме, что appveyor.yml:
+# Windows + VS 2022, Linux, macOS; vcpkg, Qt 6.8, Vulkan SDK;
+# цели ctool1cd, testproject, gtool1cd; отчёт Catch2 в JUnit.
+#
+# Отличия от AppVeyor, без которых раннеры GitHub Actions не собрать:
+# - ubuntu-20.04 снят, вместо него ubuntu-22.04 с gcc-9;
+# - в Ubuntu 24.04 нет g++-9, job использует системный g++;
+# - macOS-раннер Apple Silicon (arm64), Qt 6.8, как на Windows и Linux;
+# - webhook-деплой AppVeyor не переносится, артефакты остаются в запуске Actions.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 180
+    permissions:
+      contents: read
+      actions: read
+      checks: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows VS 2022
+            os: windows-2022
+            triplet: x64-windows
+            arch: x64
+            deploy: win
+            vulkan-cache: 'C:\VulkanSDK'
+
+          # AppVeyor: Ubuntu 20.04 и gcc-9.
+          - name: Ubuntu 22.04 gcc-9
+            os: ubuntu-22.04
+            triplet: x64-linux
+            arch: x64
+            deploy: ubuntu22
+            cc: gcc-9
+            cxx: g++-9
+            extra-apt: gcc-9 g++-9
+            vulkan-cache: vulkan-sdk
+
+          # AppVeyor выставляет g++-9 и здесь, пакета в архиве Ubuntu 24.04 нет.
+          - name: Ubuntu 24.04
+            os: ubuntu-24.04
+            triplet: x64-linux
+            arch: x64
+            deploy: ubuntu24
+            vulkan-cache: vulkan-sdk
+
+          - name: macOS
+            os: macos-15
+            triplet: arm64-osx
+            arch: arm64
+            deploy: osx
+            vulkan-cache: /Users/runner/VulkanSDK
+
+    env:
+      VULKAN_VERSION: 1.4.309.0
+      VCPKG_REF: 2026.10.16
+      VCPKG_PACKAGES: boost-filesystem boost-system boost-regex boost-random boost-uuid boost-crc boost-algorithm zlib vulkan
+      VCPKG_TRIPLET: ${{ matrix.triplet }}
+      VCPKG_DISABLE_METRICS: 1
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+
+      - name: Install Linux packages
+        if: runner.os == 'Linux'
+        env:
+          EXTRA_APT: ${{ matrix.extra-apt }}
+        run: |
+          set -euo pipefail
+          packages=(
+            pkg-config
+            xz-utils
+            python3
+            bison
+            libglm-dev
+            libxcb-dri3-0
+            libxcb-present0
+            libpciaccess0
+            libpng-dev
+            libxcb-keysyms1-dev
+            libxcb-dri3-dev
+            libx11-dev
+            libwayland-dev
+            libxrandr-dev
+            libxcb-randr0-dev
+            libxcb-ewmh-dev
+            libx11-xcb-dev
+            liblz4-dev
+            libzstd-dev
+            libgl1-mesa-dev
+          )
+          if [ -n "${EXTRA_APT:-}" ]; then
+            # shellcheck disable=SC2206
+            extra=($EXTRA_APT)
+            packages+=("${extra[@]}")
+          fi
+          sudo apt-get update -q
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -q -y "${packages[@]}"
+
+      - name: Install Qt
+        id: qt
+        uses: jurplel/install-qt-action@v4.5.0
+        with:
+          version: "6.8.3"
+          modules: qt5compat
+          cache: true
+          install-deps: true
+
+      - name: Restore Vulkan SDK
+        id: cache-vulkan
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ matrix.vulkan-cache }}
+          key: vulkan-${{ runner.os }}-${{ env.VULKAN_VERSION }}
+
+      - name: Install Vulkan SDK
+        run: |
+          set -euo pipefail
+          saved_ld="${LD_LIBRARY_PATH:-}"
+          saved_dyld="${DYLD_LIBRARY_PATH:-}"
+          case "$RUNNER_OS" in
+            Linux)
+              marker=$(find vulkan-sdk -name setup-env.sh -print -quit 2>/dev/null || true)
+              if [ -z "$marker" ]; then
+                rm -rf vulkan-sdk
+                mkdir -p vulkan-sdk
+                curl -L --retry 3 --retry-delay 5 --silent --show-error \
+                  --output vulkan-sdk/VulkanSDK.tar.xz \
+                  "https://sdk.lunarg.com/sdk/download/${VULKAN_VERSION}/linux/vulkansdk-linux-x86_64-${VULKAN_VERSION}.tar.xz"
+                tar -xf vulkan-sdk/VulkanSDK.tar.xz -C vulkan-sdk
+                rm -f vulkan-sdk/VulkanSDK.tar.xz
+                marker=$(find vulkan-sdk -name setup-env.sh -print -quit 2>/dev/null || true)
+              fi
+              if [ -z "$marker" ] || [ ! -f "$marker" ]; then
+                echo "setup-env.sh не найден в распакованном Vulkan SDK" >&2
+                find vulkan-sdk -maxdepth 3 -type d -print >&2 || true
+                exit 1
+              fi
+              set +u
+              # shellcheck disable=SC1090
+              source "$marker"
+              set -u
+              ;;
+            macOS)
+              if [ ! -f "$HOME/VulkanSDK/setup-env.sh" ]; then
+                rm -rf "$HOME/VulkanSDK"
+                curl -L --retry 3 --retry-delay 5 --silent --show-error \
+                  --output VulkanSDK.zip \
+                  "https://sdk.lunarg.com/sdk/download/${VULKAN_VERSION}/mac/vulkansdk-macos-${VULKAN_VERSION}.zip"
+                rm -rf "InstallVulkan-${VULKAN_VERSION}.app"
+                unzip -q VulkanSDK.zip
+                installer="./InstallVulkan-${VULKAN_VERSION}.app/Contents/MacOS/InstallVulkan-${VULKAN_VERSION}"
+                chmod +x "$installer"
+                sudo "$installer" \
+                  --root "$HOME/VulkanSDK" \
+                  --accept-licenses --default-answer --confirm-command \
+                  install
+                sudo chown -R "$(id -un)":"$(id -gn)" "$HOME/VulkanSDK"
+                rm -rf VulkanSDK.zip "InstallVulkan-${VULKAN_VERSION}.app"
+              fi
+              set +u
+              # shellcheck disable=SC1091
+              source "$HOME/VulkanSDK/setup-env.sh"
+              set -u
+              ;;
+            Windows)
+              sdk="C:/VulkanSDK/${VULKAN_VERSION}"
+              if [ ! -d "$sdk" ]; then
+                curl -L --retry 3 --retry-delay 5 --silent --show-error \
+                  --output VulkanSDK.exe \
+                  "https://vulkan.lunarg.com/sdk/download/${VULKAN_VERSION}/windows/VulkanSDK-${VULKAN_VERSION}-Installer.exe?Human=true"
+                ./VulkanSDK.exe --accept-licenses --default-answer --confirm-command install
+                rm -f VulkanSDK.exe
+              fi
+              if [ ! -d "$sdk" ]; then
+                echo "Vulkan SDK не найден в $sdk" >&2
+                exit 1
+              fi
+              echo "VULKAN_SDK=$sdk" >> "$GITHUB_ENV"
+              if [ -d "$sdk/Bin" ]; then
+                echo "$sdk/Bin" >> "$GITHUB_PATH"
+              elif [ -d "$sdk/bin" ]; then
+                echo "$sdk/bin" >> "$GITHUB_PATH"
+              fi
+              ;;
+          esac
+
+          if [ "$RUNNER_OS" != "Windows" ]; then
+            if [ -z "${VULKAN_SDK:-}" ]; then
+              echo "setup-env.sh не задал VULKAN_SDK" >&2
+              exit 1
+            fi
+            # setup-env.sh может перезаписать путь, который install-qt-action
+            # прописал для ICU. uic/moc без этих библиотек не запускаются.
+            if [ -n "$saved_ld" ]; then
+              LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}$saved_ld"
+            fi
+            if [ -n "$saved_dyld" ]; then
+              DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH:+$DYLD_LIBRARY_PATH:}$saved_dyld"
+            fi
+            echo "VULKAN_SDK=$VULKAN_SDK" >> "$GITHUB_ENV"
+            echo "$VULKAN_SDK/bin" >> "$GITHUB_PATH"
+            if [ -n "${LD_LIBRARY_PATH:-}" ]; then
+              echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
+            fi
+            if [ -n "${DYLD_LIBRARY_PATH:-}" ]; then
+              echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH" >> "$GITHUB_ENV"
+            fi
+            if [ -n "${VK_LAYER_PATH:-}" ]; then
+              echo "VK_LAYER_PATH=$VK_LAYER_PATH" >> "$GITHUB_ENV"
+            fi
+            if [ -n "${VK_ADD_LAYER_PATH:-}" ]; then
+              echo "VK_ADD_LAYER_PATH=$VK_ADD_LAYER_PATH" >> "$GITHUB_ENV"
+            fi
+          fi
+
+      - name: Save Vulkan SDK
+        if: steps.cache-vulkan.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ matrix.vulkan-cache }}
+          key: vulkan-${{ runner.os }}-${{ env.VULKAN_VERSION }}
+
+      - name: Checkout vcpkg
+        uses: actions/checkout@v7
+        with:
+          repository: microsoft/vcpkg
+          ref: ${{ env.VCPKG_REF }}
+          path: vcpkg
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Restore vcpkg
+        id: cache-vcpkg
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            vcpkg/downloads
+            vcpkg/installed
+            vcpkg/packages
+          key: vcpkg-${{ env.VCPKG_REF }}-${{ matrix.triplet }}-boost-algorithm-zlib-vulkan
+
+      - name: Install vcpkg packages
+        run: |
+          set -euo pipefail
+          export VCPKG_DEFAULT_TRIPLET="$VCPKG_TRIPLET"
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            # Git Bash превращает /c в путь, и bootstrap-vcpkg.bat не запускается.
+            cmd.exe //c "vcpkg\\bootstrap-vcpkg.bat -disableMetrics"
+            ./vcpkg/vcpkg.exe --triplet "$VCPKG_TRIPLET" install $VCPKG_PACKAGES
+          else
+            ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
+            ./vcpkg/vcpkg --triplet "$VCPKG_TRIPLET" install $VCPKG_PACKAGES
+          fi
+
+      - name: Save vcpkg
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            vcpkg/downloads
+            vcpkg/installed
+            vcpkg/packages
+          key: vcpkg-${{ env.VCPKG_REF }}-${{ matrix.triplet }}-boost-algorithm-zlib-vulkan
+
+      - name: Configure and build
+        id: build
+        env:
+          QT_ROOT_DIR: ${{ steps.qt.outputs.qt-root-dir }}
+        run: |
+          set -euo pipefail
+          if [ -n "${{ matrix.cc }}" ]; then
+            export CC="${{ matrix.cc }}"
+            export CXX="${{ matrix.cxx }}"
+          fi
+          echo "Qt: $QT_ROOT_DIR"
+          test -d "$QT_ROOT_DIR/lib/cmake/Qt6"
+          cmake --version
+          if [ "$RUNNER_OS" != "Windows" ]; then
+            "${CXX:-c++}" --version
+          fi
+
+          mkdir build
+          cd build
+          cmake_args=(
+            -DCMAKE_BUILD_TYPE=Release
+            -DVCPKG_TARGET_ARCHITECTURE="${{ matrix.arch }}"
+            -DVCPKG_TARGET_TRIPLET="$VCPKG_TRIPLET"
+            -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
+            -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/vcpkg/scripts/buildsystems/vcpkg.cmake"
+            -DQt6Widgets_DIR="$QT_ROOT_DIR/lib/cmake/Qt6Widgets"
+            -DQt6_DIR="$QT_ROOT_DIR/lib/cmake/Qt6"
+            -DCMAKE_POLICY_DEFAULT_CMP0167=NEW
+          )
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            cmake_args+=(-G "Visual Studio 17 2022" -A x64)
+          fi
+          cmake "${cmake_args[@]}" ..
+          cmake --build . --config Release --parallel \
+            --target ctool1cd --target testproject --target gtool1cd
+
+      - name: Test
+        id: test
+        run: |
+          set -euo pipefail
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            chcp.com 65001
+            export PATH="$GITHUB_WORKSPACE/vcpkg/installed/${VCPKG_TRIPLET}/bin:$GITHUB_WORKSPACE/build/bin/Release:$PATH"
+            ./build/bin/Release/testproject.exe --reporter junit --out junit.xml
+          else
+            vcpkg_lib="$GITHUB_WORKSPACE/vcpkg/installed/${VCPKG_TRIPLET}/lib"
+            if [ "$RUNNER_OS" = "macOS" ]; then
+              export DYLD_LIBRARY_PATH="$GITHUB_WORKSPACE/build/lib:${vcpkg_lib}${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
+            else
+              export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/build/lib:${vcpkg_lib}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+            fi
+            ./build/bin/testproject --reporter junit --out junit.xml
+          fi
+
+      - name: Package Windows
+        if: runner.os == 'Windows' && steps.build.outcome == 'success'
+        run: |
+          set -euo pipefail
+          windeployqt --release --no-compiler-runtime --no-translations \
+            --no-system-d3d-compiler --no-opengl-sw --no-patchqt \
+            build/bin/Release/gtool1cd.exe
+          cp COPYING build/bin/Release/
+          7z a -r tool1cd.zip build/bin/Release
+
+      - name: Upload Windows artifacts
+        if: runner.os == 'Windows' && steps.build.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tool1cd-win
+          path: |
+            build/bin/Release/ctool1cd.exe
+            tool1cd.zip
+          if-no-files-found: ignore
+
+      - name: Upload binaries
+        if: runner.os != 'Windows' && steps.build.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tool1cd-${{ matrix.deploy }}
+          path: |
+            build/bin/ctool1cd
+            build/lib/libtool1cd.*
+          if-no-files-found: ignore
+
+      - name: Upload test report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-${{ matrix.deploy }}
+          path: junit.xml
+          if-no-files-found: ignore
+
+      - name: Publish test results
+        if: ${{ !cancelled() && hashFiles('junit.xml') != '' }}
+        uses: dorny/test-reporter@v1
+        continue-on-error: true
+        with:
+          name: Tests (${{ matrix.name }})
+          path: junit.xml
+          reporter: java-junit

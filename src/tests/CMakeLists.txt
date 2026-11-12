@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.10)
 
 project(testproject)
 
+if(POLICY CMP0167)
+  cmake_policy(SET CMP0167 NEW)
+endif()
+
 file(GLOB TEST_SYSTEM_SOURCES "SystemClasses/test_*.cpp")
 file(GLOB TEST_TOOL1CD_SOURCES "tool1cd/test_*.cpp")
 

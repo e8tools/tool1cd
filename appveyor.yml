@@ -1,9 +1,9 @@
 version: 1.0.2.{build}
 image:
-  - macOS
+  - Visual Studio 2022
   - Ubuntu2004
-  - Ubuntu2204
-  - Visual Studio 2019
+  - Ubuntu2404
+  - macOS
 pull_requests:
   do_not_increment_build_number: true
 clone_depth: 1
@@ -18,23 +18,22 @@ for:
 -
   matrix:
     only:
-      - image: Visual Studio 2019
+      - image: Visual Studio 2022
   environment:
     DEPLOY_PLATFORM_ID: win
     VCPKG_DIR: C:\Tools\vcpkg
     VULKAN_SDK: C:\VulkanSDK\1.4.309.0
     VULKAN_DOWNLOAD_URL: https://vulkan.lunarg.com/sdk/download/1.4.309.0/windows/VulkanSDK-1.4.309.0-Installer.exe?Human=true
-    MY_Qt6Widgets_DIR: C:\Qt\6.2\msvc2019_64\lib\cmake\Qt6Widgets
-    QT_PATH: C:\Qt\6.2\msvc2019_64
-    Qt6_DIR: C:\Qt\6.2\msvc2019_64
+    MY_Qt6Widgets_DIR: C:\Qt\6.8\msvc2022_64\lib\cmake\Qt6Widgets
+    QT_PATH: C:\Qt\6.8\msvc2022_64
+    Qt6_DIR: C:\Qt\6.8\msvc2022_64\lib\cmake\Qt6
   init:
     - ps: Set-WinSystemLocale ru-RU
-    - ps: Start-Sleep -s 5
-    - ps: Restart-Computer
+    - cmd: chcp 65001
   install:
     - cmd: if not exist VulkanSDK.exe curl -L --silent --show-error --output VulkanSDK.exe %VULKAN_DOWNLOAD_URL%
     - cmd: VulkanSDK.exe /S
-    - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+    - cmd: call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
     - cmd: cd %VCPKG_DIR%
     - cmd: git pull
     - cmd: call .\bootstrap-vcpkg.bat
@@ -51,9 +50,9 @@ for:
     DEPLOY_PLATFORM_ID: ubuntu20
   init:
     - export CXX=g++-9 CC=gcc-9
-    - export QT_PATH="$HOME/Qt/6.2/gcc_64"
-    - export Qt6_DIR="$HOME/Qt/6.2/gcc_64"
-    - export MY_Qt6Widgets_DIR="$HOME/Qt/6.2/gcc_64/lib/cmake/Qt6Widgets"
+    - export QT_PATH="$HOME/Qt/6.8"
+    - export Qt6_DIR="$HOME/Qt/6.8/lib/cmake/Qt6"
+    - export MY_Qt6Widgets_DIR="$HOME/Qt/6.8/lib/cmake/Qt6Widgets"
     - if [ ! -d ../vcpkg ]; then git clone https://github.com/microsoft/vcpkg.git ../vcpkg ; fi
     - "(cd ../vcpkg && git pull && ./bootstrap-vcpkg.sh)"
     - export VCPKG_DIR=`dirname $(pwd)/../vcpkg/vcpkg`
@@ -69,6 +68,10 @@ for:
       "https://sdk.lunarg.com/sdk/download/1.4.309.0/linux/vulkansdk-linux-x86_64-1.4.309.0.tar.xz" ;
       fi
     - tar -xf VulkanSDK.tar.xz && source ${VULKAN_VERSION}/setup-env.sh
+    # uic/moc собраны с ICU 73. В Ubuntu 20.04 системная ICU другая,
+    # а RPATH у libexec/uic до lib/ Qt не доходит.
+    - "export icu_lib=`find \"$HOME/Qt\" -name libicui18n.so.73 -printf '%h\\n' -quit 2>/dev/null || true`"
+    - "if [ -n \"$icu_lib\" ]; then export LD_LIBRARY_PATH=\"$icu_lib:$LD_LIBRARY_PATH\"; echo \"ICU 73 at $icu_lib\"; else echo \"libicui18n.so.73 not found under \\$HOME/Qt\"; find \"$HOME/Qt\" -name 'libicu*.so*' -print; fi"
     - ../vcpkg/vcpkg install ${VCPKG_LIBS}
   cache:
     - ../vcpkg/installed
@@ -76,14 +79,14 @@ for:
 -
   matrix:
     only:
-      - image: Ubuntu2204
+      - image: Ubuntu2404
   environment:
-    DEPLOY_PLATFORM_ID: ubuntu22
+    DEPLOY_PLATFORM_ID: ubuntu24
   init:
     - export CXX=g++-9 CC=gcc-9
-    - export QT_PATH="$HOME/Qt/6.2/gcc_64"
-    - export Qt6_DIR="$HOME/Qt/6.2/gcc_64"
-    - export MY_Qt6Widgets_DIR="$HOME/Qt/6.2/gcc_64/lib/cmake/Qt6Widgets"
+    - export QT_PATH="$HOME/Qt/6.8"
+    - export Qt6_DIR="$HOME/Qt/6.8/lib/cmake/Qt6"
+    - export MY_Qt6Widgets_DIR="$HOME/Qt/6.8/lib/cmake/Qt6Widgets"
     - if [ ! -d ../vcpkg ]; then git clone https://github.com/microsoft/vcpkg.git ../vcpkg ; fi
     - "(cd ../vcpkg && git pull && ./bootstrap-vcpkg.sh)"
     - export VCPKG_DIR=`dirname $(pwd)/../vcpkg/vcpkg`
@@ -99,6 +102,10 @@ for:
       "https://sdk.lunarg.com/sdk/download/1.4.309.0/linux/vulkansdk-linux-x86_64-1.4.309.0.tar.xz" ;
       fi
     - tar -xf VulkanSDK.tar.xz && source ${VULKAN_VERSION}/setup-env.sh
+    # uic/moc собраны с ICU 73. В Ubuntu 24.04 системная ICU другая,
+    # а RPATH у libexec/uic до lib/ Qt не доходит.
+    - "export icu_lib=`find \"$HOME/Qt\" -name libicui18n.so.73 -printf '%h\\n' -quit 2>/dev/null || true`"
+    - "if [ -n \"$icu_lib\" ]; then export LD_LIBRARY_PATH=\"$icu_lib:$LD_LIBRARY_PATH\"; echo \"ICU 73 at $icu_lib\"; else echo \"libicui18n.so.73 not found under \\$HOME/Qt\"; find \"$HOME/Qt\" -name 'libicu*.so*' -print; fi"
     - ../vcpkg/vcpkg install ${VCPKG_LIBS}
   cache:
     - ../vcpkg/installed
@@ -142,6 +149,8 @@ build_script:
     -DCMAKE_PREFIX_PATH="$env:QT_PATH"
     -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_DIR/scripts/buildsystems/vcpkg.cmake"
     -DQt6Widgets_DIR="$env:MY_Qt6Widgets_DIR"
+    -DQt6_DIR="$env:Qt6_DIR"
+    -DCMAKE_POLICY_DEFAULT_CMP0167=NEW
     ..
 
     cmake --build . --target ctool1cd --config Release
