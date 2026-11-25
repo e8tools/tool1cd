@@ -74,6 +74,31 @@ TEST_CASE( "Проверка разбора полей", "[tool1cd][Fields]" ) {
 			}
 		}
 	}
+
+	GIVEN ("Описание поля datetime как DT (классика)") {
+		string dt = "{\"_PERIOD\",\"DT\",0,0,0,\"CS\"}";
+		WHEN ("Парсим описание поля") {
+			Field *fld = load_field(dt);
+			THEN("Имеем datetime") {
+				REQUIRE(fld->get_name() == "_PERIOD");
+				REQUIRE(fld->get_type() == type_fields::tf_datetime);
+				REQUIRE(fld->get_size() == 7);
+			}
+		}
+	}
+
+	GIVEN ("Описание поля datetime как D (1С:Элемент)") {
+		string d = "{\"_PERIOD\",\"D\",0,0,0,\"CS\"}";
+		WHEN ("Парсим описание поля") {
+			Field *fld = load_field(d);
+			THEN("Имеем datetime, как у DT") {
+				REQUIRE(fld->get_name() == "_PERIOD");
+				REQUIRE(fld->get_type() == type_fields::tf_datetime);
+				REQUIRE(fld->get_size() == 7);
+				REQUIRE(fld->get_null_exists() == false);
+			}
+		}
+	}
 }
 
 TEST_CASE( "Проверка преобразований полей", "[tool1cd][Fields][Types]")

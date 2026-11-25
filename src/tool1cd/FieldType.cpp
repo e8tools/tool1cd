@@ -838,6 +838,8 @@ field_type_declaration field_type_declaration::parse_tree(Tree *field_tree)
 	else if(sFieldType == "T")   type_declaration.type = type_fields::tf_text;
 	else if(sFieldType == "I")   type_declaration.type = type_fields::tf_image;
 	else if(sFieldType == "DT")  type_declaration.type = type_fields::tf_datetime;
+	// 1С:Элемент (и часть серверных схем) пишут дату/время кодом "D", а не "DT"
+	else if(sFieldType == "D")   type_declaration.type = type_fields::tf_datetime;
 	else if(sFieldType == "VB")  type_declaration.type = type_fields::tf_varbinary;
 	else {
 		throw FieldStreamParseException("Неизвестный тип поля таблицы.")

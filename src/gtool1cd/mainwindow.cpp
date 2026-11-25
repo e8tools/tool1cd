@@ -185,7 +185,28 @@ void MainWindow::open(T_1CD *database)
 	ui->tableListView->setModel(proxy);
 	ui->tableListView->setSortingEnabled(true);
 	setWindowTitle(QString::fromStdWString(db->get_filepath().wstring()));
-	// refresh data
+
+	// Конфигурации/выгрузка CF имеют смысл только для ИБ Предприятия 8.
+	// Файловая СУБД 1С:Элемент — обычный 1CD без CONFIG/PARAMS.
+	const bool has_ib_config = db->is_infobase();
+	ui->configurationsButton->setEnabled(has_ib_config);
+	ui->saveDatabaseConfigAction->setEnabled(has_ib_config);
+	ui->saveMainConfigAction->setEnabled(has_ib_config);
+
+	QString kind;
+	if (db->is_infobase()) {
+		kind = tr("информационная база 1С");
+	} else if (db->is_depot) {
+		kind = tr("хранилище конфигурации");
+	} else {
+		kind = tr("файловая СУБД (в т.ч. 1С:Элемент)");
+	}
+	statusBar()->showMessage(
+		tr("%1 · версия %2 · таблиц: %3 · страница %4 байт")
+			.arg(kind)
+			.arg(QString::fromStdString(db->ver))
+			.arg(db->get_numtables())
+			.arg(db->get_pagesize()));
 }
 
 void MainWindow::addLogMessage(const QString &message)
@@ -222,6 +243,16 @@ void MainWindow::on_tableListView_doubleClicked(const QModelIndex &index)
 
 void MainWindow::on_configurationsButton_clicked()
 {
+	if (!db->is_infobase()) {
+		QMessageBox::information(
+			this,
+			tr("Конфигурации"),
+			tr("В этой базе нет таблиц CONFIG/CONFIGSAVE "
+			   "(не информационная база 1С:Предприятия 8).\n"
+			   "Просмотр и выгрузка конфигураций недоступны.\n"
+			   "Таблицы данных можно открыть двойным щелчком."));
+		return;
+	}
 	if (configurationsWindow == nullptr) {
 		configurationsWindow = new ConfigurationsWindow(db, this);
 	}
