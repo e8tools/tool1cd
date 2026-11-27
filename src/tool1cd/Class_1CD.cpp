@@ -380,15 +380,25 @@ void T_1CD::open(const boost::filesystem::path &_filename, bool _monopoly)
 	tables = new Table*[num_tables];
 	for(i = 0, j = 0; i < num_tables; i++)
 	{
-		if(version < db_ver::ver8_3_8_0)
+		try
 		{
-			tables[j] = new Table(this, table_blocks[i]);
+			if(version < db_ver::ver8_3_8_0)
+			{
+				tables[j] = new Table(this, table_blocks[i]);
+			}
+			else
+			{
+				root_object->readBlob(tstr, table_blocks[i]);
+				string table_descr = TEncoding::UTF8->toUtf8(tstr->GetBytes());
+				tables[j] = new Table(this, table_descr, table_blocks[i]);
+			}
 		}
-		else
+		catch(DetailedException &ex)
 		{
-			root_object->readBlob(tstr, table_blocks[i]);
-			string table_descr = TEncoding::UTF8->toUtf8(tstr->GetBytes());
-			tables[j] = new Table(this, table_descr, table_blocks[i]);
+			// Одна «чужая» таблица (например, неизвестный тип поля до патча)
+			// не должна валить открытие всей базы — актуально для 1С:Элемент.
+			ex.add_detail("Индекс таблицы", i + 1).show();
+			continue;
 		}
 		if(tables[j]->is_bad())
 		{
@@ -441,7 +451,12 @@ void T_1CD::open(const boost::filesystem::path &_filename, bool _monopoly)
 	{
 		if(!table_depot && !table_users && !table_objects && !table_versions && !table_labels && !table_history && !table_lastestversions && !table_externals && !table_selfrefs && !table_outrefs)
 		{
-			msreg_m.AddMessage("База не является информационной базой 1С", MessageState::Info);
+			// Файловая СУБД 1С:Элемент — тот же контейнер 1CD 8.3.8, но без
+			// служебных таблиц CONFIG/PARAMS/... Предприятия 8.
+			msreg_m.AddMessage(
+				"База не является информационной базой 1С:Предприятия 8 "
+				"(возможно, файловая СУБД 1С:Элемент). Таблицы доступны для просмотра.",
+				MessageState::Info);
 		}
 		else
 		{
@@ -526,15 +541,25 @@ void T_1CD::find_supplier_configs()
 	// Состоит из 36(GUID) + 1(.) + 36(GUID)
 	constexpr int32_t SUPPLIER_CONFIG_NAME_LEN = 73;
 
-	for(auto& config_save: get_files_configsave()->files()) {
-		if(config_save.first.size() == SUPPLIER_CONFIG_NAME_LEN) {
-			 add_supplier_config(config_save.second);
+	// У файловой СУБД Элемента / произвольного 1CD без ИБ таблиц CONFIG нет.
+	if(!table_config && !table_configsave) {
+		supplier_configs_defined = true;
+		return;
+	}
+
+	if(table_configsave) {
+		for(auto& config_save: get_files_configsave()->files()) {
+			if(config_save.first.size() == SUPPLIER_CONFIG_NAME_LEN) {
+				 add_supplier_config(config_save.second);
+			}
 		}
 	}
 
-	for(auto& config : get_files_config()->files()) {
-		if(config.first.size() == SUPPLIER_CONFIG_NAME_LEN) {
-			add_supplier_config(config.second);
+	if(table_config) {
+		for(auto& config : get_files_config()->files()) {
+			if(config.first.size() == SUPPLIER_CONFIG_NAME_LEN) {
+				add_supplier_config(config.second);
+			}
 		}
 	}
 
