@@ -152,11 +152,11 @@ string hexstring(TStream *str)
 std::string toXML(const std::string &in)
 {
 	string result(in);
-	result = StringReplace(result, "&", "&amp;");
-	result = StringReplace(result, "<", "&lt;");
-	result = StringReplace(result, ">", "&gt;");
-	result = StringReplace(result, "'", "&apos;");
-	result = StringReplace(result, "\"", "&quot;");
+	result = StringReplace(result, "&", "&amp;", rfReplaceAll);
+	result = StringReplace(result, "<", "&lt;", rfReplaceAll);
+	result = StringReplace(result, ">", "&gt;", rfReplaceAll);
+	result = StringReplace(result, "'", "&apos;", rfReplaceAll);
+	result = StringReplace(result, "\"", "&quot;", rfReplaceAll);
 	return result;
 }
 
